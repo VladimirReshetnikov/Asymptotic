@@ -90,10 +90,10 @@ Let $P\in\R[L]$ and $a\in\R$. For $|t|<1$,
  Q_0=P,\qquad Q_{k+1}=\frac{(a-k)Q_k+Q_k'}{k+1},
  \label{eq:composition}
 \end{equation}
-with $Q_k\in\R[L]$, $\deg Q_k\le\deg P$, and $Q_k=0$ for $k>a+\deg P$ when $a\in\N$. Consequently, for a jet $U$ of positive valuation, $(1+U)^aP(L+\log(1+U))=\sum_kQ_k(L)U^k$ in $\PL_{<H}$.
+with $Q_k\in\R[L]$, $\deg Q_k\le\deg P$, and, when $a\in\N$ and $P$ is constant, $Q_k=0$ for $k>a$. Consequently, for a jet $U$ of positive valuation, $(1+U)^aP(L+\log(1+U))=\sum_kQ_k(L)U^k$ in $\PL_{<H}$.
 \end{lemma}
 \begin{proof}
-Put $F(t)=(1+t)^aP(L+\log(1+t))$; it is analytic in $|t|<1$ with values in $\R[L]$, so $F=\sum Q_kt^k$ with $Q_k\in\R[L]$ and $Q_0=P$. Differentiating, $(1+t)\partial_tF=aF+\partial_LF$, because $\partial_t$ acting on the two factors gives $a(1+t)^{a-1}P+(1+t)^{a-1}P'$. Comparing coefficients of $t^k$ in $(1+t)\sum(k+1)Q_{k+1}t^k=\sum(aQ_k+Q_k')t^k$ gives $(k+1)Q_{k+1}+kQ_k=aQ_k+Q_k'$. The degree does not increase, and for $a\in\N$ the factor $(a-k)$ together with the derivative eventually annihilates. The jet statement follows because substitution of $U$ for $t$ is a ring homomorphism on finite sums.
+Put $F(t)=(1+t)^aP(L+\log(1+t))$; it is analytic in $|t|<1$ with values in $\R[L]$, so $F=\sum Q_kt^k$ with $Q_k\in\R[L]$ and $Q_0=P$. Differentiating, $(1+t)\partial_tF=aF+\partial_LF$, because $\partial_t$ acting on the two factors gives $a(1+t)^{a-1}P+(1+t)^{a-1}P'$. Comparing coefficients of $t^k$ in $(1+t)\sum(k+1)Q_{k+1}t^k=\sum(aQ_k+Q_k')t^k$ gives $(k+1)Q_{k+1}+kQ_k=aQ_k+Q_k'$. The degree does not increase, and for $a\in\N$ and constant $P$ the factor $(a-k)$ annihilates $Q_{a+1}$ and hence all later $Q_k$ (for nonconstant $P$ the derivative keeps the sequence alive: $\log(1+t)$ is not a polynomial). The jet statement follows because substitution of $U$ for $t$ is a ring homomorphism on finite sums.
 \end{proof}
 
 \begin{remark}

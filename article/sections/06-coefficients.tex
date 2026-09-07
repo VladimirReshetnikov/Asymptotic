@@ -83,7 +83,7 @@ the signed Catalan numbers. The next coefficient is also explicit: selecting the
  [L^{n-1}]P_n=(-1)^n\Cat_n\,n\,\bigl(1+H_{2n}-H_{n+1}\bigr),\qquad H_k=\textstyle\sum_{j\le k}1/j,
  \label{eq:harmonic}
 \end{equation}
-because $\prod_{j=n+2}^{2n}(\D+j)(1+L)^n$ has $L^{n-1}$-coefficient $\bigl(\prod j\bigr)\bigl(n+\sum_{j=n+2}^{2n}n/j\bigr)$ (the term $n$ from expanding $(1+L)^n$ and the terms $n/j$ from applying $\D$ in the factor $j$). Every $P_n$ is divisible by $1+L$: indeed $P_n=-[\eta^{n-1}]$ of $(1+U)^2(1+L+\log(1+U))$ in the triangular recursion of Section~\ref{sec:formal}, and each factor $(\D+j)$ applied to a multiple of $(1+L)$ gives a multiple of $(1+L)$ plus $n$-fold derivatives which again carry the factor after regrouping; the package confirms the factorisation through $n=8$. Thus
+because $\prod_{j=n+2}^{2n}(\D+j)(1+L)^n$ has $L^{n-1}$-coefficient $\bigl(\prod j\bigr)\bigl(n+\sum_{j=n+2}^{2n}n/j\bigr)$ (the term $n$ from expanding $(1+L)^n$ and the terms $n/j$ from applying $\D$ in the factor $j$). Every $P_n$ is divisible by $1+L$: in the variable $t=1+L$ the operator product $\prod_{j=n+2}^{2n}(\D+j)$ consists of $n-1$ factors, each of which either differentiates (lowering the power of $t$ by one) or multiplies by a constant, so every monomial of $\prod(\D+j)\,t^n$ has degree at least $n-(n-1)=1$ in $t$; the package confirms the factorisation through $n=8$. Thus
 \begin{gather*}
  P_1=-(1+L),\qquad P_2=(1+L)(2L+3),\qquad P_3=-\tfrac12(1+L)(10L^2+31L+23),\\
  P_4=\tfrac16(1+L)(84L^3+398L^2+607L+299),
