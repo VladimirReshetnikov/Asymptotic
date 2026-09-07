@@ -91,8 +91,8 @@ Windows).  Kept as a checklist for future work on exact algebraic-number code.
 - In `wolfram.exe -script file.wl`, standard output is block-buffered when
   redirected: nothing appears until the kernel exits.  Long runs should log
   to a file with `WriteString["log", ...]` (which flushes).
-- `wolfram.exe` seats are limited; kill stale kernels with
-  `taskkill /F /IM wolfram.exe` before a long batch.
+- `wolfram.exe` seats are limited and shared with other sessions on the
+  machine; track the PIDs of the kernels you start and kill only those.
 - `TestReport["file.wlt"]` needs absolute paths or `SetDirectory` first.
 
 ## Miscellaneous
@@ -104,6 +104,34 @@ Windows).  Kept as a checklist for future work on exact algebraic-number code.
 - `LinearSolve[B, v]` on a rank-deficient `B` returns one particular
   solution; `NullSpace` returns rows.  `RowReduce` gives a canonical basis of
   a row space, convenient for de-duplicating embedded subspaces.
+
+## Findings added during the implementation of the input-field engine
+
+- `Factor[P, Extension -> Root[P, k]]` returns the factors with coefficients
+  written as polynomial expressions in the `Root` object itself (for example
+  `-1 + 2 x^2 + 2 x Root[...] + 3 Root[...]^2 + ...`), so their coordinates
+  in the power basis are obtained by substituting a symbol for the `Root`
+  object and reading off `CoefficientList`; no `ToNumberField` call is
+  needed.  The factorisation of the degree-9 minimal polynomial over its own
+  field takes 0.3 s.
+- `PolynomialRemainder[expr, P, z]` with `P` written in a *different*
+  variable treats `P` as a constant and returns 0 silently.  Keep one
+  variable per polynomial ring and convert explicitly (`P /. x -> z`).
+- A function with the pattern `f[cache_Symbol]` does not match a call
+  `f[cache]` when `cache` holds an `Association`: the argument is evaluated
+  first, the pattern fails, and the call is returned *unevaluated*.  A
+  downstream test `res =!= $Failed` then treats the unevaluated expression
+  as a success.  Use a package-level symbol for mutable caches, or `HoldAll`.
+- `Module[{E = ...}]` with the system symbol `E` is legal but easy to
+  misread; the package uses `EE`, `FF`.
+- `LatticeReduce` accepts integer matrices only; clear denominators of a
+  rational null-space basis first.  Reduced null vectors give factors of
+  much smaller height than the raw `NullSpace` output.
+- `RootReduce[q * Root[...]]` is necessary before displaying a rescaled root:
+  `Root[8+4#+#^3&,1]/2` stays as written otherwise.
+- Kernel seats are shared with other sessions on the machine; never run
+  `taskkill /F /IM wolfram.exe` blindly.  Track the PIDs of kernels started
+  by the session and kill only those.
 
 ## Findings from the asymptotic-inverse work (Wolfram 15.0.1, September 2026)
 
@@ -173,3 +201,36 @@ Windows).  Kept as a checklist for future work on exact algebraic-number code.
   `ProductLog[-1, -y]` at `y -> 0` produces an unusable expression full of
   `Floor[Arg[y]/(2 Pi)]`; the lower Lambert branch needs the explicit
   `-Log[y] - Log[-Log[y]] + ...` expansion instead.
+
+### Throw, Catch and scripts
+
+- An **uncaught `Throw`** in `wolfram.exe -script` terminates the whole
+  script silently: no `Throw::nocatch` message is printed and the exit code
+  is 0.  Every subsequent statement is skipped.  Symptom: a log file that is
+  opened at the top of the script stays empty.
+- A wrapper `catch[body_] := Catch[body, tag]` **without a Hold attribute**
+  evaluates `body` before `Catch` is entered, so a `Throw` inside `body`
+  is uncaught (and kills a script, see above).  Give the wrapper `HoldAll`
+  (`SetAttributes[catch, HoldAll]`).  The same applies to any helper that is
+  meant to wrap `Catch`, `TimeConstrained`, `Quiet` or `Block` around an
+  argument.
+- A hung kernel keeps its licence seat; a new `wolfram.exe -script` that
+  cannot obtain a seat exits **immediately with status 0 and no output**.
+  Find the culprit with
+  `Get-CimInstance Win32_Process -Filter "name='wolfram.exe'"` (PowerShell),
+  which shows the command line of each kernel, and stop only your own with
+  `Stop-Process -Id <pid> -Force` (`taskkill /F /PID` from Git Bash did not
+  terminate it).
+- `jetPowerSeries`-style loops that stop when a truncated product becomes
+  empty never terminate when the truncation cutoff is `Infinity`; guard every
+  series loop against an infinite working order.
+- `FindRoot[f == c, {x, x0}]` inside a `Module[{..., x, ...}]` whose local
+  `x` merely *holds* the global symbol does not work: `FindRoot` has
+  `HoldAll`, receives the local `x$nnn`, and fails ("not a valid variable" /
+  no convergence).  Inject the actual symbol with `With[{xv = x}, FindRoot[...
+  {xv, x0} ...]]`.
+- `FindRoot` with `WorkingPrecision -> 60` and a starting value of precision
+  50 emits `FindRoot::precw` and, under `Check`, looks like a failure; raise
+  the precision of the starting value (`N[expr, 60]`) first.
+- `Check[expr, $Failed]` around `Quiet[...]` is the wrong order: use
+  `Quiet[Check[expr, $Failed]]` so that the messages still trigger `Check`.
