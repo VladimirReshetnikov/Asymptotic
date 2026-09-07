@@ -1,0 +1,291 @@
+{
+  "status": "all independent checks passed",
+  "python": "3.13.5",
+  "sympy": "1.14.0",
+  "mpmath": "1.3.0",
+  "wolfram_kernel_execution": "NOT RUN: connected Wolfram MCP endpoint returned HTTP 404; no local kernel was available.",
+  "precision_decimal_digits": 150,
+  "checks": [
+    {
+      "name": "logarithmic example: exact residual through y^7",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "logarithmic example: differential Lagrange cross-check, six corrections",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "six highest-log coefficients equal signed Catalan numbers",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "irrational example: exact residual and all four coefficient products",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "irrational example: coefficient printed in the question",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "resonance: independent sparse composition",
+      "status": "passed",
+      "detail": "12 multi-indices; 5 surviving blocks"
+    },
+    {
+      "name": "resonance combines and cancels equal exponents",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "nonunit leading power: independent sparse composition",
+      "status": "passed",
+      "detail": "4 multi-indices; 4 surviving blocks"
+    },
+    {
+      "name": "fractional leading power: independent sparse composition",
+      "status": "passed",
+      "detail": "4 multi-indices; 4 surviving blocks"
+    },
+    {
+      "name": "mixed irrational gaps: independent sparse composition",
+      "status": "passed",
+      "detail": "11 multi-indices; 11 surviving blocks"
+    },
+    {
+      "name": "two logarithmic blocks: independent sparse composition",
+      "status": "passed",
+      "detail": "6 multi-indices; 4 surviving blocks"
+    },
+    {
+      "name": "ordinary analytic inverse agrees with square-root Taylor expansion",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "pure monomial is inverted exactly",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "logarithmic big-O correction checked by first omitted residual",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "general leading-power first displacement",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Wolfram sources: lexical delimiter check (not execution)",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "24 high-precision positive-branch numerical comparisons",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "12 numerical checks of the proved global residual error bound",
+      "status": "passed",
+      "detail": ""
+    }
+  ],
+  "logarithmic_coefficients": {
+    "1": "1",
+    "2": "-L - 1",
+    "3": "2*L**2 + 5*L + 3",
+    "4": "-5*L**3 - 41*L**2/2 - 27*L - 23/2",
+    "5": "14*L**4 + 241*L**3/3 + 335*L**2/2 + 151*L + 299/6",
+    "6": "-42*L**5 - 3727*L**4/12 - 5365*L**3/6 - 1256*L**2 - 5177*L/6 - 2789/12",
+    "7": "132*L**6 + 5981*L**5/5 + 52937*L**4/12 + 16979*L**3/2 + 9007*L**2 + 30019*L/6 + 22769/20"
+  },
+  "numerical_results": [
+    {
+      "model": "logarithmic",
+      "y": "1e-2",
+      "highest_power": 2,
+      "absolute_error": "2.4202068358021e-5",
+      "error_over_remainder_scale": "0.770326567995",
+      "residual": "2.2661400197232e-5"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-2",
+      "highest_power": 3,
+      "absolute_error": "1.8127344041346e-6",
+      "error_over_remainder_scale": "1.02936113639",
+      "residual": "1.6972544496921e-6"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-2",
+      "highest_power": 5,
+      "absolute_error": "1.2899143211966e-8",
+      "error_over_remainder_scale": "2.3314002994",
+      "residual": "1.2077357363475e-8"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-2",
+      "highest_power": 7,
+      "absolute_error": "1.0791469046189e-10",
+      "error_over_remainder_scale": "6.20810346211",
+      "residual": "1.0103959799877e-10"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-4",
+      "highest_power": 2,
+      "absolute_error": "1.2685002126813e-10",
+      "error_over_remainder_scale": "1.2167745135",
+      "residual": "1.2665427002672e-10"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-4",
+      "highest_power": 3,
+      "absolute_error": "2.4098359269733e-13",
+      "error_over_remainder_scale": "2.26394991525",
+      "residual": "2.4061171366315e-13"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-4",
+      "highest_power": 5,
+      "absolute_error": "1.1512308703228e-18",
+      "error_over_remainder_scale": "10.3743602989",
+      "residual": "1.149454323547e-18"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-4",
+      "highest_power": 7,
+      "absolute_error": "6.6354406189763e-24",
+      "error_over_remainder_scale": "57.3572376292",
+      "residual": "6.6252009955075e-24"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-8",
+      "highest_power": 2,
+      "absolute_error": "5.895398022459e-22",
+      "error_over_remainder_scale": "1.56309089563",
+      "residual": "5.8953960273757e-22"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-8",
+      "highest_power": 3,
+      "absolute_error": "2.4782442876027e-28",
+      "error_over_remainder_scale": "3.38337991558",
+      "residual": "2.478243448931e-28"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-8",
+      "highest_power": 5,
+      "absolute_error": "5.8497726641399e-41",
+      "error_over_remainder_scale": "21.1746745438",
+      "residual": "5.8497706844969e-41"
+    },
+    {
+      "model": "logarithmic",
+      "y": "1e-8",
+      "highest_power": 7,
+      "absolute_error": "1.6739274353825e-53",
+      "error_over_remainder_scale": "160.651758874",
+      "residual": "1.6739268689026e-53"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-2",
+      "corrections": 1,
+      "absolute_error": "0.00025197473623784",
+      "error_over_remainder_scale": "1.14343438688"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-2",
+      "corrections": 2,
+      "absolute_error": "5.9670683430987e-5",
+      "error_over_remainder_scale": "1.82407371949"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-2",
+      "corrections": 3,
+      "absolute_error": "1.5336430557478e-5",
+      "error_over_remainder_scale": "3.15815027632"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-2",
+      "corrections": 4,
+      "absolute_error": "4.1555309526382e-6",
+      "error_over_remainder_scale": "5.76450665958"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-4",
+      "corrections": 1,
+      "absolute_error": "6.6313512732216e-8",
+      "error_over_remainder_scale": "1.36555920085"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-4",
+      "corrections": 2,
+      "absolute_error": "2.362725556422e-9",
+      "error_over_remainder_scale": "2.20788285655"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-4",
+      "corrections": 3,
+      "absolute_error": "9.0972288168467e-11",
+      "error_over_remainder_scale": "3.85767926177"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-4",
+      "corrections": 4,
+      "absolute_error": "3.6834716826453e-12",
+      "error_over_remainder_scale": "7.08807954878"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-8",
+      "corrections": 1,
+      "absolute_error": "3.3323930495165e-15",
+      "error_over_remainder_scale": "1.41310104626"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-8",
+      "corrections": 2,
+      "absolute_error": "2.6235497893688e-18",
+      "error_over_remainder_scale": "2.2909457627"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-8",
+      "corrections": 3,
+      "absolute_error": "2.2301916385443e-21",
+      "error_over_remainder_scale": "4.01029369219"
+    },
+    {
+      "model": "irrational",
+      "y": "1e-8",
+      "corrections": 4,
+      "absolute_error": "1.9926561223031e-24",
+      "error_over_remainder_scale": "7.37861504071"
+    }
+  ]
+}

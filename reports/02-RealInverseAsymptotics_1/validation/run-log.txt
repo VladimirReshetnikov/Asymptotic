@@ -1,0 +1,103 @@
+{
+  "validation_kind": "Independent Python reference; Wolfram package NOT executed",
+  "sympy_version": "1.14.0",
+  "mpmath_version": "1.3.0",
+  "exact_checks_passed": 104,
+  "numeric_checks": [
+    {
+      "case": "log",
+      "y": "1e-2",
+      "absolute_error": "1.486662830058e-7",
+      "relative_error": "1.4315869477156e-5",
+      "error_over_frontier": "1.095009316919792",
+      "forward_residual": "1.3919500981755e-7"
+    },
+    {
+      "case": "log",
+      "y": "1e-4",
+      "absolute_error": "5.0964199634048e-16",
+      "relative_error": "5.0922326076105e-12",
+      "error_over_frontier": "1.002264015294867",
+      "forward_residual": "5.0885553128924e-16"
+    },
+    {
+      "case": "log",
+      "y": "1e-8",
+      "absolute_error": "1.1639260477634e-34",
+      "relative_error": "1.1639258449996e-26",
+      "error_over_frontier": "1.000000502589973",
+      "forward_residual": "1.163925653875e-34"
+    },
+    {
+      "case": "log",
+      "y": "1e-12",
+      "absolute_error": "6.5895649852719e-54",
+      "relative_error": "6.5895649850964e-42",
+      "error_over_frontier": "1.000000000077902",
+      "forward_residual": "6.5895649849275e-54"
+    },
+    {
+      "case": "irrational",
+      "y": "1e-2",
+      "absolute_error": "4.1555309526382e-6",
+      "relative_error": "0.00047396989528574",
+      "error_over_frontier": "0.780522722467873",
+      "forward_residual": "4.9817503494507e-6"
+    },
+    {
+      "case": "irrational",
+      "y": "1e-4",
+      "absolute_error": "3.6834716826453e-12",
+      "relative_error": "3.763919914635e-8",
+      "error_over_frontier": "0.9597364480945642",
+      "forward_residual": "3.797242664281e-12"
+    },
+    {
+      "case": "irrational",
+      "y": "1e-8",
+      "absolute_error": "1.9926561223031e-24",
+      "relative_error": "1.9936235901493e-16",
+      "error_over_frontier": "0.9990753831541585",
+      "forward_residual": "1.9940243284524e-24"
+    },
+    {
+      "case": "irrational",
+      "y": "1e-12",
+      "absolute_error": "1.0364634576878e-36",
+      "relative_error": "1.0364745491633e-24",
+      "error_over_frontier": "0.9999796056028302",
+      "forward_residual": "1.0364791434028e-36"
+    },
+    {
+      "case": "nonlinear",
+      "y": "1e-12",
+      "absolute_error": "9.4969881803953e-9",
+      "relative_error": "0.00011654464003233",
+      "error_over_frontier": "1.088758378385716",
+      "forward_residual": "3.4594239924251e-16"
+    },
+    {
+      "case": "nonlinear",
+      "y": "1e-24",
+      "absolute_error": "8.4730042942395e-18",
+      "relative_error": "1.0669716260317e-9",
+      "error_over_frontier": "1.001762857646137",
+      "forward_residual": "3.2001696339243e-33"
+    },
+    {
+      "case": "nonlinear",
+      "y": "1e-48",
+      "absolute_error": "7.4135228350608e-37",
+      "relative_error": "9.340452473193e-21",
+      "error_over_frontier": "1.00000036555302",
+      "forward_residual": "2.8021356001928e-68"
+    }
+  ],
+  "pure_power_radius": {
+    "alpha": "1.4142135623730950488016887242096980785696718753769480731766797379907324784621070388503875343276415727350138462309122970249248360558507372126441214970999358314132226659275055927558",
+    "radius_in_y_to_delta": "0.425195606651840813802502599818",
+    "radius_in_y": "0.126862705123309681397912151714",
+    "decimal_precision": 180
+  },
+  "elapsed_seconds": 2.836
+}

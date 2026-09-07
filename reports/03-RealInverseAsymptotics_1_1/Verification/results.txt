@@ -1,0 +1,91 @@
+66/66 independent mathematical/static checks passed.
+Python 3.13.5; SymPy 1.14.0; mpmath 1.3.0; 180 decimal digits.
+Wolfram Language test suite: supplied, NOT EXECUTED.
+Not executed: the available Wolfram service returned HTTP 404; no local Wolfram kernel was installed.
+
+PASS log coefficient 1: independent implicit recursion
+PASS log coefficient 1: direct derivatives
+PASS log coefficient 1: Catalan leading term
+PASS log coefficient 2: independent implicit recursion
+PASS log coefficient 2: direct derivatives
+PASS log coefficient 2: Catalan leading term
+PASS log coefficient 3: independent implicit recursion
+PASS log coefficient 3: direct derivatives
+PASS log coefficient 3: Catalan leading term
+PASS log coefficient 4: independent implicit recursion
+PASS log coefficient 4: direct derivatives
+PASS log coefficient 4: Catalan leading term
+PASS log coefficient 5: independent implicit recursion
+PASS log coefficient 5: direct derivatives
+PASS log coefficient 5: Catalan leading term
+PASS log coefficient 6: independent implicit recursion
+PASS log coefficient 6: direct derivatives
+PASS log coefficient 6: Catalan leading term
+PASS log coefficient 7: independent implicit recursion
+PASS log coefficient 7: direct derivatives
+PASS log coefficient 7: Catalan leading term
+PASS log coefficient 8: independent implicit recursion
+PASS log coefficient 8: direct derivatives
+PASS log coefficient 8: Catalan leading term
+PASS irrational coefficient 1: independent recursion
+PASS irrational coefficient 2: independent recursion
+PASS irrational coefficient 3: independent recursion
+PASS irrational coefficient 4: independent recursion
+PASS irrational coefficient 5: independent recursion
+PASS irrational coefficient 6: independent recursion
+PASS irrational coefficient 7: independent recursion
+PASS irrational coefficient 8: independent recursion
+PASS logarithmic: independent composition residual
+PASS irrational: independent composition residual
+PASS mixed: independent composition residual
+PASS resonant: independent composition residual
+PASS power core: independent composition residual
+PASS scaled logarithmic: independent composition residual
+PASS pure leading power: independent composition residual
+PASS log squared: independent composition residual
+PASS logarithmic remainder preserves log degree
+PASS irrational cutoff excludes boundary
+PASS resonant y^2 coefficients aggregate
+PASS residual detects deliberately corrupted coefficient
+PASS static delimiters: RealInverseAsymptotics.wl
+PASS static delimiters: init.m
+PASS static delimiters: RealInverseAsymptotics.wlt
+PASS static delimiters: run.wls
+PASS numerical logarithmic, y=1e-2, N=2
+PASS numerical logarithmic, y=1e-2, N=4
+PASS numerical logarithmic, y=1e-2, N=6
+PASS numerical logarithmic, y=1e-4, N=2
+PASS numerical logarithmic, y=1e-4, N=4
+PASS numerical logarithmic, y=1e-4, N=6
+PASS numerical logarithmic, y=1e-8, N=2
+PASS numerical logarithmic, y=1e-8, N=4
+PASS numerical logarithmic, y=1e-8, N=6
+PASS numerical irrational, y=1e-2, N=2
+PASS numerical irrational, y=1e-2, N=4
+PASS numerical irrational, y=1e-2, N=6
+PASS numerical irrational, y=1e-4, N=2
+PASS numerical irrational, y=1e-4, N=4
+PASS numerical irrational, y=1e-4, N=6
+PASS numerical irrational, y=1e-8, N=2
+PASS numerical irrational, y=1e-8, N=4
+PASS numerical irrational, y=1e-8, N=6
+
+Numerical relative errors (N counts corrections, not leading term):
+logarithmic  y=1e-2  N=2 relative error=0.000174557866126
+logarithmic  y=1e-2  N=4 relative error=1.24212731264e-6
+logarithmic  y=1e-2  N=6 relative error=1.03916812345e-8
+logarithmic  y=1e-4  N=2 relative error=2.40785594092e-9
+logarithmic  y=1e-4  N=4 relative error=1.15028498806e-14
+logarithmic  y=1e-4  N=6 relative error=6.62998876239e-20
+logarithmic  y=1e-8  N=2 relative error=2.47824385588e-20
+logarithmic  y=1e-8  N=4 relative error=5.84977164507e-33
+logarithmic  y=1e-8  N=6 relative error=1.67392714377e-45
+irrational   y=1e-2  N=2 relative error=0.00680589505884
+irrational   y=1e-2  N=4 relative error=0.000473969895286
+irrational   y=1e-2  N=6 relative error=3.85221991715e-5
+irrational   y=1e-4  N=2 relative error=2.414328259e-5
+irrational   y=1e-4  N=4 relative error=3.76391991464e-8
+irrational   y=1e-4  N=6 relative error=6.80214967733e-11
+irrational   y=1e-8  N=2 relative error=2.62482356663e-10
+irrational   y=1e-8  N=4 relative error=1.99362359015e-16
+irrational   y=1e-8  N=6 relative error=1.75291581821e-22

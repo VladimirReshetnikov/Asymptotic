@@ -1,0 +1,452 @@
+{
+  "scope": "Independent Python/SymPy/mpmath validation; not Wolfram-kernel execution.",
+  "python": "3.13.5",
+  "sympy": "1.14.0",
+  "mpmath": "1.3.0",
+  "passed": 46,
+  "total": 46,
+  "checks": [
+    {
+      "name": "log example coefficient u^1",
+      "passed": true
+    },
+    {
+      "name": "log example coefficient u^2",
+      "passed": true
+    },
+    {
+      "name": "log example coefficient u^3",
+      "passed": true
+    },
+    {
+      "name": "log example coefficient u^4",
+      "passed": true
+    },
+    {
+      "name": "log example residual to relative power 7",
+      "passed": true
+    },
+    {
+      "name": "first omitted log block equals negative residual",
+      "passed": true
+    },
+    {
+      "name": "log example direct ordinary-series substitution",
+      "passed": true
+    },
+    {
+      "name": "irrational example closed coefficient n=1",
+      "passed": true
+    },
+    {
+      "name": "irrational example closed coefficient n=2",
+      "passed": true
+    },
+    {
+      "name": "irrational example closed coefficient n=3",
+      "passed": true
+    },
+    {
+      "name": "irrational example closed coefficient n=4",
+      "passed": true
+    },
+    {
+      "name": "irrational example closed coefficient n=5",
+      "passed": true
+    },
+    {
+      "name": "irrational example closed coefficient n=6",
+      "passed": true
+    },
+    {
+      "name": "irrational example closed coefficient n=7",
+      "passed": true
+    },
+    {
+      "name": "irrational example closed coefficient n=8",
+      "passed": true
+    },
+    {
+      "name": "irrational example residual",
+      "passed": true
+    },
+    {
+      "name": "strict irrational boundary omitted",
+      "passed": true
+    },
+    {
+      "name": "Catalan polynomial residual",
+      "passed": true
+    },
+    {
+      "name": "colliding exponents residual",
+      "passed": true
+    },
+    {
+      "name": "duplicate generator split residual",
+      "passed": true
+    },
+    {
+      "name": "mixed irrational logarithmic residual",
+      "passed": true
+    },
+    {
+      "name": "square-root leading inverse residual",
+      "passed": true
+    },
+    {
+      "name": "nonintegral leading exponent residual",
+      "passed": true
+    },
+    {
+      "name": "sign-changing correction residual",
+      "passed": true
+    },
+    {
+      "name": "vanishing correction residual",
+      "passed": true
+    },
+    {
+      "name": "Catalan coefficient 0",
+      "passed": true
+    },
+    {
+      "name": "Catalan coefficient 1",
+      "passed": true
+    },
+    {
+      "name": "Catalan coefficient 2",
+      "passed": true
+    },
+    {
+      "name": "Catalan coefficient 3",
+      "passed": true
+    },
+    {
+      "name": "Catalan coefficient 4",
+      "passed": true
+    },
+    {
+      "name": "Catalan coefficient 5",
+      "passed": true
+    },
+    {
+      "name": "collision cancels u^4",
+      "passed": true
+    },
+    {
+      "name": "collision u^5 coefficient",
+      "passed": true
+    },
+    {
+      "name": "split same exponent agrees",
+      "passed": true
+    },
+    {
+      "name": "corruption detected",
+      "passed": true
+    },
+    {
+      "name": "monomial inverse",
+      "passed": true
+    },
+    {
+      "name": "log successive truncations improve y=1e-4",
+      "passed": true
+    },
+    {
+      "name": "log successive truncations improve y=1e-8",
+      "passed": true
+    },
+    {
+      "name": "log successive truncations improve y=1e-16",
+      "passed": true
+    },
+    {
+      "name": "irrational successive truncations improve y=1e-4",
+      "passed": true
+    },
+    {
+      "name": "irrational successive truncations improve y=1e-8",
+      "passed": true
+    },
+    {
+      "name": "irrational successive truncations improve y=1e-16",
+      "passed": true
+    },
+    {
+      "name": "mixed-p2 successive truncations improve y=1e-4",
+      "passed": true
+    },
+    {
+      "name": "mixed-p2 successive truncations improve y=1e-8",
+      "passed": true
+    },
+    {
+      "name": "mixed-p2 successive truncations improve y=1e-16",
+      "passed": true
+    },
+    {
+      "name": "log remainder leading constant tends to 2",
+      "passed": true
+    }
+  ],
+  "numeric": [
+    {
+      "case": "log",
+      "y": "0.0001",
+      "cutoff": "3",
+      "absolute_error": "1.26850021268e-10",
+      "relative_error": "1.26745797877e-6",
+      "normalized_residual": "1.26654270027e-6"
+    },
+    {
+      "case": "log",
+      "y": "0.0001",
+      "cutoff": "5",
+      "absolute_error": "5.0964199634e-16",
+      "relative_error": "5.09223260761e-12",
+      "normalized_residual": "5.08855531289e-12"
+    },
+    {
+      "case": "log",
+      "y": "0.0001",
+      "cutoff": "7",
+      "absolute_error": "2.71946430022e-21",
+      "relative_error": "2.71722991517e-17",
+      "normalized_residual": "2.71526770016e-17"
+    },
+    {
+      "case": "log",
+      "y": "1.0e-8",
+      "cutoff": "3",
+      "absolute_error": "5.89539802246e-22",
+      "relative_error": "5.89539699544e-14",
+      "normalized_residual": "5.89539602738e-14"
+    },
+    {
+      "case": "log",
+      "y": "1.0e-8",
+      "cutoff": "5",
+      "absolute_error": "1.16392604776e-34",
+      "relative_error": "1.163925845e-26",
+      "normalized_residual": "1.16392565387e-26"
+    },
+    {
+      "case": "log",
+      "y": "1.0e-8",
+      "cutoff": "7",
+      "absolute_error": "3.07788990118e-47",
+      "relative_error": "3.07788936499e-39",
+      "normalized_residual": "3.07788885958e-39"
+    },
+    {
+      "case": "log",
+      "y": "1.0e-16",
+      "cutoff": "3",
+      "absolute_error": "2.53336502513e-45",
+      "relative_error": "2.53336502513e-29",
+      "normalized_residual": "2.53336502513e-29"
+    },
+    {
+      "case": "log",
+      "y": "1.0e-16",
+      "cutoff": "5",
+      "absolute_error": "2.19959740245e-73",
+      "relative_error": "2.19959740245e-57",
+      "normalized_residual": "2.19959740245e-57"
+    },
+    {
+      "case": "log",
+      "y": "1.0e-16",
+      "cutoff": "7",
+      "absolute_error": "2.56584412863e-101",
+      "relative_error": "2.56584412863e-85",
+      "normalized_residual": "2.56584412863e-85"
+    },
+    {
+      "case": "irrational",
+      "y": "0.0001",
+      "cutoff": "-1 + 2*sqrt(2)",
+      "absolute_error": "6.63135127322e-8",
+      "relative_error": "0.000677618216418",
+      "normalized_residual": "0.000683614433511"
+    },
+    {
+      "case": "irrational",
+      "y": "0.0001",
+      "cutoff": "-3 + 4*sqrt(2)",
+      "absolute_error": "9.09722881685e-11",
+      "relative_error": "9.29591528368e-7",
+      "normalized_residual": "9.37821385881e-7"
+    },
+    {
+      "case": "irrational",
+      "y": "0.0001",
+      "cutoff": "-5 + 6*sqrt(2)",
+      "absolute_error": "1.54531646246e-13",
+      "relative_error": "1.57906668181e-9",
+      "normalized_residual": "1.59304648039e-9"
+    },
+    {
+      "case": "irrational",
+      "y": "1.0e-8",
+      "cutoff": "-1 + 2*sqrt(2)",
+      "absolute_error": "3.33239304952e-15",
+      "relative_error": "3.33401098203e-7",
+      "normalized_residual": "3.33468115146e-7"
+    },
+    {
+      "case": "irrational",
+      "y": "1.0e-8",
+      "cutoff": "-3 + 4*sqrt(2)",
+      "absolute_error": "2.23019163854e-21",
+      "relative_error": "2.23127443385e-13",
+      "normalized_residual": "2.23172294236e-13"
+    },
+    {
+      "case": "irrational",
+      "y": "1.0e-8",
+      "cutoff": "-5 + 6*sqrt(2)",
+      "absolute_error": "1.84414854947e-27",
+      "relative_error": "1.8450439144e-19",
+      "normalized_residual": "1.8454147867e-19"
+    },
+    {
+      "case": "irrational",
+      "y": "1.0e-16",
+      "cutoff": "-1 + 2*sqrt(2)",
+      "absolute_error": "7.86467600159e-30",
+      "relative_error": "7.86467785624e-14",
+      "normalized_residual": "7.86467862447e-14"
+    },
+    {
+      "case": "irrational",
+      "y": "1.0e-16",
+      "cutoff": "-3 + 4*sqrt(2)",
+      "absolute_error": "1.24135461682e-42",
+      "relative_error": "1.24135490955e-26",
+      "normalized_residual": "1.24135503081e-26"
+    },
+    {
+      "case": "irrational",
+      "y": "1.0e-16",
+      "cutoff": "-5 + 6*sqrt(2)",
+      "absolute_error": "2.42079001934e-55",
+      "relative_error": "2.42079059021e-39",
+      "normalized_residual": "2.42079082668e-39"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "0.0001",
+      "cutoff": "3",
+      "absolute_error": "1.81267607344e-6",
+      "relative_error": "0.000357963012393",
+      "normalized_residual": "0.00070871776878"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "0.0001",
+      "cutoff": "4",
+      "absolute_error": "6.40850751384e-8",
+      "relative_error": "1.26553700808e-5",
+      "normalized_residual": "2.50601111918e-5"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "0.0001",
+      "cutoff": "5",
+      "absolute_error": "2.49183932873e-9",
+      "relative_error": "4.92082576463e-7",
+      "normalized_residual": "9.74425638031e-7"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "1.0e-8",
+      "cutoff": "3",
+      "absolute_error": "7.2770393817e-12",
+      "relative_error": "1.45504921768e-7",
+      "normalized_residual": "2.90945512065e-7"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "1.0e-8",
+      "cutoff": "4",
+      "absolute_error": "5.45036391957e-15",
+      "relative_error": "1.08980415541e-10",
+      "normalized_residual": "2.17912663867e-10"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "1.0e-8",
+      "cutoff": "5",
+      "absolute_error": "4.58632303001e-18",
+      "relative_error": "9.17038562911e-14",
+      "normalized_residual": "1.83367181279e-13"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "1.0e-16",
+      "cutoff": "3",
+      "absolute_error": "2.79412596815e-23",
+      "relative_error": "5.58825166928e-15",
+      "normalized_residual": "1.11765028325e-14"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "1.0e-16",
+      "cutoff": "4",
+      "absolute_error": "4.16526643596e-30",
+      "relative_error": "8.33053247388e-22",
+      "normalized_residual": "1.66610641933e-21"
+    },
+    {
+      "case": "mixed-p2",
+      "y": "1.0e-16",
+      "cutoff": "5",
+      "absolute_error": "6.99179237208e-37",
+      "relative_error": "1.3983584076e-28",
+      "normalized_residual": "2.79671668856e-28"
+    }
+  ],
+  "log_remainder_ratios": [
+    {
+      "y": "1e-20",
+      "ratio": "1.89284096725177415"
+    },
+    {
+      "y": "1e-50",
+      "ratio": "1.95679688584608875"
+    },
+    {
+      "y": "1e-100",
+      "ratio": "1.97834185941394089"
+    }
+  ],
+  "irrational_radius_t": "0.425195606651840813802502599818",
+  "irrational_radius_y": "0.126862705123309681397912151714",
+  "log_coefficients": {
+    "1": "1",
+    "2": "-L - 1",
+    "3": "2*L**2 + 5*L + 3",
+    "4": "-5*L**3 - 41*L**2/2 - 27*L - 23/2",
+    "5": "14*L**4 + 241*L**3/3 + 335*L**2/2 + 151*L + 299/6",
+    "6": "-42*L**5 - 3727*L**4/12 - 5365*L**3/6 - 1256*L**2 - 5177*L/6 - 2789/12",
+    "7": "132*L**6 + 5981*L**5/5 + 52937*L**4/12 + 16979*L**3/2 + 9007*L**2 + 30019*L/6 + 22769/20"
+  },
+  "mixed_coefficients": {
+    "1": "1",
+    "sqrt(2)": "-1",
+    "-1 + 2*sqrt(2)": "sqrt(2)",
+    "2": "-L - 1",
+    "-2 + 3*sqrt(2)": "-3 + sqrt(2)/2",
+    "1 + sqrt(2)": "sqrt(2)*L + 2*L + sqrt(2) + 3",
+    "-3 + 4*sqrt(2)": "-4 + 17*sqrt(2)/3",
+    "2*sqrt(2)": "-5*L - 3*sqrt(2)*L - 5*sqrt(2) - 13/2",
+    "3": "2*L**2 + 5*L + 3",
+    "-4 + 5*sqrt(2)": "-305/12 + 51*sqrt(2)/4",
+    "-1 + 3*sqrt(2)": "9*L + 10*sqrt(2)*L + 55/3 + 13*sqrt(2)",
+    "sqrt(2) + 2": "-7*L**2 - 7*sqrt(2)*L**2/2 - 21*L - 9*sqrt(2)*L - 15 - 11*sqrt(2)/2",
+    "-5 + 6*sqrt(2)": "-77 + 322*sqrt(2)/5"
+  }
+}

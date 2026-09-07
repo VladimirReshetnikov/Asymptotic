@@ -1,0 +1,1635 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=27mm,headheight=15pt]{geometry}
+\usepackage{amsmath,amsthm,mathtools}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{booktabs,array,longtable,tabularx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{bookmark}
+\definecolor{ink}{HTML}{354139}
+\definecolor{quiet}{HTML}{626B5C}
+\definecolor{paperbox}{HTML}{F4F5EF}
+\hypersetup{colorlinks=true,linkcolor=ink,citecolor=ink,urlcolor=ink,
+ pdftitle={Real-Branch Asymptotic Reversion with Logarithms and Irrational Powers},
+ pdfauthor={Prepared for Vladimir Reshetnikov},pdfsubject={Theory and Wolfram Language implementation}}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\scshape Real-branch asymptotic reversion}
+\fancyhead[R]{\small PowerLogInverse 1.0}
+\fancyfoot[C]{\thepage}
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{1.1em}
+\setcounter{tocdepth}{2}
+\numberwithin{equation}{section}
+\allowdisplaybreaks[2]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\N}{\mathbb N}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\dd}{\mathrm d}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\val}{\operatorname{val}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\coeff}[2]{\left[#1\right]#2}
+\newcommand{\pl}{\texttt{PowerLogInverse}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newtcolorbox{resultbox}[1][]{enhanced,breakable,colback=paperbox,colframe=quiet,
+ boxrule=0.45pt,arc=0pt,left=8pt,right=8pt,top=6pt,bottom=6pt,#1}
+\lstdefinelanguage{WL}{morekeywords={Module,Table,Total,Do,If,Return,FullSimplify,
+ D,Log,Exp,ProductLog,PowerLogInverse,PowerLogInverseData,PowerLogReversion,
+ PowerLogResidual,PowerLogOrder,LogPowerBaseInverse,InversePerturbationJet,Get,
+ TestReport,FileNameJoin,DirectoryName},sensitive=true,
+ morecomment=[s]{(*}{*)},morestring=[b]"}
+\lstset{language=WL,basicstyle=\ttfamily\small,keywordstyle=\color{ink}\bfseries,
+ commentstyle=\color{quiet},stringstyle=\color{quiet},backgroundcolor=\color{paperbox},
+ frame=single,rulecolor=\color{quiet!40},framerule=0.3pt,breaklines=true,
+ columns=fullflexible,keepspaces=true,showstringspaces=false,tabsize=2,
+ aboveskip=0.7em,belowskip=0.7em}
+\begin{document}
+\begin{titlepage}
+\vspace*{14mm}
+{\color{quiet}\large MATHEMATICAL THEORY AND IMPLEMENTATION\par}
+\vspace{8mm}
+{\Huge\bfseries Real-Branch Asymptotic Reversion\par}
+\vspace{4mm}
+{\LARGE with Logarithms and Irrational Powers\par}
+\vspace{9mm}
+{\large A constructive coefficient calculus, rigorous remainder bounds,\par
+ and the Wolfram Language package \texttt{PowerLogInverse}\par}
+\vspace{12mm}
+{\large Prepared for Vladimir Reshetnikov\par}
+{\large 7 September 2026\par}
+\vspace{13mm}
+\begin{resultbox}
+For
+\[
+ f(x)=a x^p\left(1+\sum_{i=1}^{s}x^{\delta_i}P_i(\log x)\right),
+ \qquad a,p,\delta_i>0,
+\]
+put $u=(y/a)^{1/p}$ and $L=\log u$. The positive inverse tending to zero is
+\[
+ f^{-1}(y)=u\left(1+\sum_{\boldsymbol m\ne0}
+ u^{\boldsymbol m\cdot\boldsymbol\delta}Q_{\boldsymbol m}(L)\right),
+\]
+where, with $n=|\boldsymbol m|$ and $\Delta=\boldsymbol m\cdot\boldsymbol\delta$,
+\[
+ Q_{\boldsymbol m}(L)=
+ \frac{(-1)^n}{p^n\prod_i m_i!}
+ \prod_{j=1}^{n-1}\left(\frac{\dd}{\dd L}+1+\Delta+pj\right)
+ \prod_i P_i(L)^{m_i}.
+\]
+Every finite power cutoff is effectively computable. The logarithmic
+factors in its remainder are tracked rather than hidden in an ordinary
+power-series order symbol.
+\end{resultbox}
+\vfill
+{\small Package version 1.0.0. The archive includes exact coefficient code,
+ an independent sparse residual checker, examples, native Wolfram test
+ definitions, and executed Python validation. Native Wolfram-kernel execution
+ was not available in the build environment.\par}
+\end{titlepage}
+
+\begin{abstract}
+The inverse of $x+x^2(1+\log x)$ on the positive real axis has logarithmic
+coefficient polynomials, whereas the inverse of $x+x^{\sqrt2}$ has an
+irrational exponent progression. Neither example should be treated as an
+unspecified analytic inverse at an arbitrary zero of a complexified
+function. We explain the complex Taylor germ recorded in the motivating
+Mathematica question, then construct the desired real germs directly.
+A specialization of the classical Lagrange--B\"urmann formula gives explicit
+multi-index differential polynomials for finite sums of power--logarithmic
+corrections to $a x^p$. A finitely generated positive exponent semigroup
+makes strict cutoff computation finite even when the corresponding
+additive group is dense. An analytic implicit-function argument proves
+actual convergence for exact finite input of this class, and also gives a
+computable asymptotic remainder bound for every cutoff. Residuals transfer
+to inverse errors through an explicit derivative estimate. The two original
+examples are developed to arbitrary order; the irrational-power example
+also has a closed coefficient formula and an exact convergence radius.
+Extensions include observable inversion, leading logarithmic pivots with
+real Lambert-$W$ branches, uncertain input jets, and flat perturbations.
+The accompanying package implements the finite power--logarithmic core,
+exact algebraic support ordering, branch-aware normalization, and an
+independent truncated residual calculation. Mathematical validation and
+native-kernel verification are reported separately.
+\end{abstract}
+{\setlength{\parskip}{0pt}\small\tableofcontents}
+\newpage
+
+\section{The question is about a germ, not merely an inverse symbol}
+\label{sec:question}
+
+The archived question~\cite{question} asks for the inverse near $y=0^+$ of
+\begin{equation}\label{eq:motivating}
+ f_1(x)=x+x^2(1+\log x),\qquad x>0,
+\end{equation}
+and, in its update, for the corresponding inverse of
+\begin{equation}\label{eq:irrinput}
+ f_2(x)=x+x^{\sqrt2},\qquad x>0.
+\end{equation}
+We use $x$ for the source variable and $y$ for the argument of the inverse.
+This avoids confusing a series for $f$ with a series for $f^{-1}$.
+All logarithms of positive quantities below are real logarithms.
+
+The request has three logically distinct components: identify the intended
+inverse branch, identify a scale closed under the necessary operations,
+and compute coefficients with a meaningful remainder. Merely attaching
+$y>0$ to an unspecified inverse expression addresses none of these
+components completely. An inverse at a complex zero can be evaluated for
+small positive $y$ and still remain complex.
+
+\subsection{The real branches exist globally in both examples}
+
+For the first function,
+\[
+ f_1'(x)=1+x(3+2\log x).
+\]
+The minimum of $x(3+2\log x)$ occurs at $x=e^{-5/2}$ and equals
+$-2e^{-5/2}$. Consequently,
+\begin{equation}\label{eq:global-slope}
+ f_1'(x)\ge 1-2e^{-5/2}>0\qquad(x>0).
+\end{equation}
+Together with $f_1(x)\to0$ as $x\to0^+$ and $f_1(x)\to\infty$ as
+$x\to\infty$, this proves that $f_1$ is a bijection of $(0,\infty)$ onto
+itself. For $f_2$, the same conclusion follows from
+$f_2'(x)=1+\sqrt2\,x^{\sqrt2-1}>0$ and the endpoint limits.
+Thus the real inverse is unambiguous in these examples. The problem is
+not a lack of a real branch; it is how to represent and select it.
+
+\subsection{Why the archived output is a correct complex Taylor series}
+
+The archived computation returned a constant involving
+\[
+ w=W_{-1}(-e),\qquad z_0=e^{w-1}.
+\]
+Since $-e<-1/e$, this value of $W_{-1}$ is not real. On the compatible local
+logarithm branch, $\log z_0=w-1$. Also $we^w=-e$ gives $z_0w=-1$, hence
+\[
+ f_1(z_0)=z_0\bigl(1+z_0(1+\log z_0)\bigr)=0.
+\]
+The derivative identities simplify to
+\[
+ f_1'(z_0)=z_0-1,\qquad f_1''(z_0)=3+2w.
+\]
+The ordinary analytic inverse at this nonzero complex zero therefore has
+\begin{equation}\label{eq:complex-germ}
+ G(y)=z_0+\frac{y}{z_0-1}
+ -\frac{3+2w}{2(z_0-1)^3}y^2+\OO(y^3),
+\end{equation}
+exactly explaining the structure of the recorded output. This is a valid
+local inverse calculation at the wrong germ for the requested application.
+Other Lambert-$W$ indices require attention to the logarithm sheet; one
+must not indiscriminately treat every such index as a zero for a fixed
+principal logarithm.
+
+Our construction selects a different germ from the outset:
+\begin{equation}\label{eq:branch-address}
+ g(y)>0,\qquad g(y)\longrightarrow0,\qquad \frac{g(y)}{y}\longrightarrow1.
+\end{equation}
+For the general leading term $a x^p$, the last condition becomes
+$g(y)/(y/a)^{1/p}\to1$. This asymptotic address is part of the mathematical
+problem, not a formatting assumption appended to an already chosen branch.
+
+The archive is evidence about a particular recorded computation, not a
+benchmark of every current Wolfram Language version. The package avoids
+reliance on the branch-selection behavior of \code{InverseFunction}.
+The official documentation describes that symbol and its treatment of
+inverse branches~\cite{wlinverse}; no new claim about a current built-in
+failure is needed here.
+
+\subsection{The answers in their natural scales}
+
+Writing $L=\log y$, the first inverse begins
+\begin{align}\label{eq:loganswer}
+ g_1(y)={}&y-(L+1)y^2+(2L^2+5L+3)y^3\notag\\
+ &-\left(5L^3+\frac{41}{2}L^2+27L+\frac{23}{2}\right)y^4
+ +\OO\!\left(y^5(1+|L|)^4\right).
+\end{align}
+In particular, the tempting two-term notation
+$y-(1+\log y)y^2+\OO(y^3)$ is \emph{not} a valid remainder for this real
+inverse. The correct two-term estimate is
+\begin{equation}\label{eq:twotermerror}
+ g_1(y)=y-(1+\log y)y^2+\OO(y^3\log^2 y).
+\end{equation}
+This observation concerns the inverse remainder; an order symbol used to
+truncate the \emph{input} function is a separate matter.
+
+For $r=\sqrt2$, the second inverse begins
+\begin{align}\label{eq:irranswer}
+ g_2(y)={}&y-y^r+r y^{2r-1}
+ -\frac{r(3r-1)}2y^{3r-2}
+ +\OO(y^{4r-3})\notag\\
+ ={}&y-y^{\sqrt2}+\sqrt2\,y^{2\sqrt2-1}
+ -\frac{6-\sqrt2}{2}y^{3\sqrt2-2}
+ +\OO(y^{4\sqrt2-3}),
+\end{align}
+which is the four-block expansion requested in the update.
+
+The first inverse has a $C^1$ extension to zero but not a $C^2$ one:
+$g_1''(y)\sim-2\log y\to+\infty$. For the second,
+$g_2''(y)\sim-r(r-1)y^{r-2}\to-\infty$. Ordinary Taylor expansions at zero
+cannot encode these behaviors. Ordinary Puiseux series on a fixed rational
+power grid do not encode the irrational progression either.
+
+\section{Power--log blocks and cutoff-finite support}
+\label{sec:support}
+
+\subsection{The representation}
+
+A power--log block is an expression
+\[
+ u^\gamma Q(L),\qquad L=\log u,\quad Q\in\R[L].
+\]
+We keep a whole logarithmic polynomial at a given power together. For
+fixed $k,\ell$ and $\gamma<\eta$,
+\[
+ u^\eta(\log u)^\ell=o\bigl(u^\gamma(\log u)^k\bigr)
+ \qquad(u\to0^+),
+\]
+provided the denominator monomial is nonzero. Thus the exponent is the
+primary order coordinate; within a block the largest nonzero logarithmic
+degree determines its leading magnitude. Odd logarithmic powers can be
+negative, so magnitude estimates use $|\log u|$.
+
+Let $\delta_1,\ldots,\delta_s$ be fixed positive real numbers and define
+\begin{equation}\label{eq:semigroup}
+ \Gamma=\left\{\sum_{i=1}^s m_i\delta_i:m_i\in\N\right\}.
+\end{equation}
+The formal relative corrections live in locally finite sums
+$\sum_{\gamma\in\Gamma}u^\gamma Q_\gamma(L)$.
+For the inverse itself the support lies in $1+\Gamma$.
+
+\begin{lemma}[Local finiteness]\label{lem:finite}
+For every finite $B$, only finitely many multi-indices satisfy
+$\boldsymbol m\cdot\boldsymbol\delta<B$. In particular, $\Gamma\cap[0,B)$
+is finite.
+\end{lemma}
+\begin{proof}
+Every such index satisfies $0\le m_i<B/\delta_i$. It is therefore contained
+in a finite integer box. Different indices may have the same weight,
+which only reduces the number of distinct support points.
+\end{proof}
+
+This distinction is important. The additive \emph{group} generated by two
+incommensurable real numbers can be dense, but our \emph{positive semigroup}
+is locally finite. Irrationality does not create infinitely many terms
+below a fixed cutoff. It can create successively smaller gaps far out in
+the support; no global lower bound on those gaps is assumed.
+
+\subsection{Formal arithmetic and composition}
+
+For a nonzero formal sum, define its power valuation to be its least
+exponent. Multiplication adds valuations. A logarithmic polynomial is a
+coefficient and has power valuation zero. Differentiation obeys
+\begin{equation}\label{eq:Euler}
+ \frac{\dd}{\dd u}\bigl(u^\gamma Q(\log u)\bigr)
+ =u^{\gamma-1}(\gamma+D_L)Q(L),\qquad D_L=\frac{\dd}{\dd L}.
+\end{equation}
+One may enlarge the ambient exponent group when differentiating, but
+inside every algorithm below only a controlled translate of $\Gamma$
+is used.
+
+If $V$ has positive valuation, the formal expansions
+\begin{align}\label{eq:unit-calculus}
+ (1+V)^q&=\sum_{k\ge0}\binom qk V^k,\notag\\
+ \log(1+V)&=\sum_{k\ge1}\frac{(-1)^{k+1}}k V^k
+\end{align}
+are cutoff-finite: only finitely many powers $V^k$ can affect a prescribed
+cutoff. The substitution $x=u(1+V)$ is consequently well defined by
+\[
+ x^\delta=u^\delta(1+V)^\delta,\qquad
+ \log x=L+\log(1+V).
+\]
+These are identities on the positive real branch when the formal sums
+are realized by sufficiently small actual corrections.
+
+\subsection{Why not manufacture a \texttt{SeriesData} object?}
+
+The documented \code{SeriesData} representation indexes powers by
+$n/\mathrm{den}$~\cite{wlseries}. A custom sparse list of exact exponents
+and logarithmic coefficient polynomials makes the intended support and
+cutoff explicit without relying on that representation to perform
+nonstandard reversion. The package therefore returns ordinary finite
+expressions together with structured metadata. Its remainder object is
+an inert descriptor, not a counterfeit \code{SeriesData} object.
+
+This finite-support viewpoint is compatible with broader transseries
+frameworks~\cite{vdh}. The supplied ProveIt draft corpus~\cite{proveit}
+also emphasizes support-aware operations, real-germ selection, and the
+separation between formal calculation and analytic error transfer. Those
+principles are useful here without importing an entire general transseries
+field into the implementation.
+
+\section{Prepared finite germs and the selected real inverse}
+\label{sec:prepared}
+
+\begin{definition}[Prepared finite power--log germ]\label{def:class}
+A prepared finite germ is
+\begin{equation}\label{eq:class}
+ f(x)=a x^p(1+H(x)),\qquad
+ H(x)=\sum_{i=1}^s x^{\delta_i}P_i(\log x),
+\end{equation}
+where $a,p>0$, every $\delta_i>0$, and every $P_i$ is a real polynomial.
+Equal exponents may be combined and zero polynomials removed. The case
+$s=0$ is allowed and is an exact monomial.
+\end{definition}
+
+The theory permits arbitrary positive real exponents. The executable
+package restricts support exponents to exact real algebraic numbers so
+that order and equality decisions are exact and operationally meaningful.
+
+Since a positive power beats every fixed logarithmic power,
+\[
+ H(x)\to0,\qquad xH'(x)\to0.
+\]
+Consequently,
+\begin{equation}\label{eq:derivativeasym}
+ f'(x)=a x^{p-1}\bigl(p(1+H(x))+xH'(x)\bigr)
+ \sim apx^{p-1}.
+\end{equation}
+
+\begin{proposition}[Existence and branch address]\label{prop:branch}
+Every prepared finite germ has a unique positive real inverse on some
+interval $(0,y_0)$ with $g(y)\to0$. With
+\begin{equation}\label{eq:uniformizer}
+ u=\left(\frac ya\right)^{1/p}>0,\qquad
+ L=\log u=\frac1p\log\frac ya,
+\end{equation}
+one has $g(y)/u\to1$.
+\end{proposition}
+\begin{proof}
+Equation~\eqref{eq:derivativeasym} makes $f$ strictly increasing and positive
+on a sufficiently short interval $(0,x_0)$. Its limit at zero is zero,
+so it maps this interval bijectively onto $(0,f(x_0))$. If $x=g(y)$, then
+$u=x(1+H(x))^{1/p}$, whence $x/u\to1$.
+\end{proof}
+
+This is an eventual local assertion. Unlike the two motivating examples,
+a general prepared finite germ need not be globally monotone or injective.
+For example, a large negative correction can create turning points away
+from zero. The package returns the addressed small positive branch and
+does not claim to classify remote branches.
+
+\begin{remark}[Cutoff convention]
+A package cutoff $C>1$ means: retain inverse blocks whose \emph{power of
+$u$} is strictly less than $C$. In the original target variable this is a
+strict $y$-power cutoff $C/p$. Thus for $p\ne1$ a cutoff number must not be
+read as an exponent of $y$. The normalization rules are included in the
+returned data specifically to expose this distinction.
+\end{remark}
+
+\section{An explicit multi-index reversion formula}
+\label{sec:formula}
+
+For $\boldsymbol m=(m_1,\ldots,m_s)\in\N^s$, put
+\[
+ n=|\boldsymbol m|=\sum_i m_i,\qquad
+ \Delta=\sum_i m_i\delta_i,\qquad
+ \boldsymbol m!=\prod_i m_i!,\qquad
+ P^{\boldsymbol m}(L)=\prod_i P_i(L)^{m_i}.
+\]
+An empty product of differential operators is the identity.
+
+\begin{theorem}[Power--logarithmic inverse coefficients]\label{thm:main}
+The addressed inverse of~\eqref{eq:class} has the expansion
+\begin{equation}\label{eq:mainseries}
+ g(y)=u\left(1+\sum_{\boldsymbol m\in\N^s\setminus\{0\}}
+ u^\Delta Q_{\boldsymbol m}(L)\right),
+\end{equation}
+where
+\begin{equation}\label{eq:Qformula}
+ \boxed{\displaystyle
+ Q_{\boldsymbol m}(L)=
+ \frac{(-1)^n}{p^n\boldsymbol m!}
+ \left[\prod_{j=1}^{n-1}(D_L+1+\Delta+pj)\right]
+ P^{\boldsymbol m}(L).}
+\end{equation}
+For exact finite input this series converges absolutely for all sufficiently
+small positive $u$. As a formal series it is the unique inverse with
+leading term $u$. Terms from different multi-indices with the same $\Delta$
+must be added before an actual nonzero support is reported.
+\end{theorem}
+
+The coefficient identity is a specialization of classical
+Lagrange--B\"urmann inversion, not a claim of a new general inversion
+theorem. Its useful features here are the explicit logarithmic differential
+operators, the real normalization, and a cutoff mechanism adapted to
+irrational support.
+
+\subsection{Homotopy form of Lagrange--B\"urmann}
+
+Let $Z+\tau A(Z)=Y$, and let $\Phi$ be analytic near a nonzero base value
+$Y$. The inverse germ satisfying $Z=Y$ at $\tau=0$ obeys
+\begin{equation}\label{eq:LB}
+ \Phi(Z)=\Phi(Y)+\sum_{n\ge1}\frac{(-\tau)^n}{n!}
+ \frac{\dd^{n-1}}{\dd Y^{n-1}}
+ \bigl(\Phi'(Y)A(Y)^n\bigr).
+\end{equation}
+This is the usual observable form of the Lagrange inversion theorem;
+standard formulations and residue versions are given in
+DLMF~\S1.10(vii)~\cite{dlmfinverse}. Importantly, the expansion variable
+in~\eqref{eq:LB} is initially the homotopy parameter $\tau$, not $Y$ at a
+singular origin. For fixed positive $Y$, real powers and logarithms are
+analytic on a small complex neighborhood with the chosen branches.
+The uniform justification for setting $\tau=1$ as $Y\to0^+$ will be proved
+in Section~\ref{sec:convergence}.
+
+\subsection{Reduction to a near-identity map}
+
+Set
+\[
+ Z=x^p,\qquad Y=y/a=u^p,\qquad \Phi(Z)=Z^{1/p}.
+\]
+Then $y=f(x)$ is equivalent to
+\[
+ Y=Z+A(Z),\qquad
+ A(Z)=Z\sum_i Z^{\delta_i/p}
+ P_i\!\left(\frac{\log Z}{p}\right).
+\]
+Expanding $A^n$ by the multinomial theorem gives, for an index of total
+size $n$,
+\[
+ \Phi'(Y)\,\frac{n!}{\boldsymbol m!}
+ Y^{n+\Delta/p}P^{\boldsymbol m}(L)
+ =\frac{n!}{p\boldsymbol m!}
+ Y^{n-1+(1+\Delta)/p}P^{\boldsymbol m}(L).
+\]
+The elementary derivative identity
+\begin{equation}\label{eq:derivY}
+ \frac{\dd^k}{\dd Y^k}\left(Y^b Q\!\left(\frac{\log Y}{p}\right)\right)
+ =Y^{b-k}\prod_{h=0}^{k-1}\left(b-h+\frac1pD_L\right)Q(L)
+\end{equation}
+follows by induction. Apply it with
+$k=n-1$ and $b=n-1+(1+\Delta)/p$. Reversing the order of the commuting
+factors and using $Y^{(1+\Delta)/p}=u^{1+\Delta}$ yields exactly
+\eqref{eq:Qformula}.
+
+The operators commute because they are all $D_L$ plus scalar constants.
+They preserve polynomiality and do not increase logarithmic degree. Thus
+\begin{equation}\label{eq:degreebound}
+ \deg Q_{\boldsymbol m}\le\sum_i m_i\deg P_i.
+\end{equation}
+Cancellation can lower the degree or annihilate a block completely.
+
+\subsection{The first two correction levels}
+
+For $\boldsymbol m=\boldsymbol e_i$,
+\[
+ Q_{\boldsymbol e_i}=-\frac{P_i}{p}.
+\]
+For a repeated correction,
+\[
+ Q_{2\boldsymbol e_i}
+ =\frac{(D_L+1+2\delta_i+p)P_i^2}{2p^2}.
+\]
+For $i\ne j$,
+\[
+ Q_{\boldsymbol e_i+\boldsymbol e_j}
+ =\frac{(D_L+1+\delta_i+\delta_j+p)(P_iP_j)}{p^2}.
+\]
+The factor $1/2$ appears only in the repeated case. It comes from
+$\boldsymbol m!$, not from a blanket $n!$ after multinomial expansion.
+This is an easy place for an implementation to introduce a mixed-term bug.
+
+\subsection{Formal uniqueness and a triangular alternative}
+
+Write $g=u(1+V)$ and substitute into $f(g)=a u^p$. The relative equation is
+\begin{equation}\label{eq:Veq}
+ \mathcal F(V)=
+ (1+V)^p\left[1+\sum_i u^{\delta_i}(1+V)^{\delta_i}
+ P_i\bigl(L+\log(1+V)\bigr)\right]-1=0.
+\end{equation}
+Its linear term at power valuation zero is $pV$. All additional terms
+involving $V$ either contain a positive support weight or are at least
+quadratic in $V$. If two solutions first differ at weight $\gamma$, the
+coefficient of their difference in~\eqref{eq:Veq} is $p$ times that first
+block. Since $p\ne0$, the block must vanish, a contradiction.
+
+This also gives a recursive algorithm: visit support weights in increasing
+order; at weight $\gamma$, evaluate the already determined residual and
+set the new coefficient equal to minus that residual coefficient divided
+by $p$. The closed formula and this triangular procedure solve the same
+formal problem by different computational routes.
+
+\section{Convergence and explicit asymptotic remainders}
+\label{sec:convergence}
+
+A formal identity does not by itself supply a real asymptotic theorem.
+Here the finite nature of the input makes an analytic proof particularly
+clean.
+
+\subsection{Desingularizing the logarithmic coefficients}
+
+Write $P_i(L)=\sum_{j=0}^{d_i}c_{ij}L^j$. Introduce independent small
+parameters
+\[
+ \zeta_{ik}=u^{\delta_i}L^k,\qquad 0\le k\le d_i.
+\]
+In the normalized equation for $v=g/u$, replace the actual combinations
+$u^{\delta_i}L^k$ by these independent parameters. Expanding
+$P_i(L+\log v)$ gives the analytic equation
+\begin{equation}\label{eq:implicitfinite}
+ v^p\left[
+ 1+\sum_i\sum_{j=0}^{d_i}\sum_{k=0}^{j}
+ c_{ij}\binom jk\zeta_{ik}v^{\delta_i}(\log v)^{j-k}
+ \right]=1.
+\end{equation}
+Near $v=1$, fix the analytic logarithm with $\log1=0$; all real powers of
+$v$ are then analytic. At $\boldsymbol\zeta=0$, the solution is $v=1$
+and the derivative with respect to $v$ is $p\ne0$.
+
+The analytic implicit-function theorem therefore gives a convergent
+multivariate Taylor expansion $v=V(\boldsymbol\zeta)$ in a fixed
+polydisc around the origin. Every actual parameter $u^{\delta_i}L^k$
+tends to zero as $u\to0^+$, so the real curve of parameters eventually
+lies in that polydisc. The resulting solution is the addressed inverse
+from Proposition~\ref{prop:branch}.
+
+Grouping the absolutely convergent multivariate Taylor series by the
+number of factors originating from each correction index $i$ gives
+\eqref{eq:mainseries}. For each fixed multi-index, only finitely many
+logarithmic choices occur. The coefficient computation in
+Section~\ref{sec:formula} identifies the resulting polynomial with
+\eqref{eq:Qformula}. This proves the convergence assertion in
+Theorem~\ref{thm:main}, not merely formal consistency.
+
+\subsection{A computable remainder for every strict cutoff}
+
+For $C>1$, put $B=C-1$ and define the finite approximant
+\begin{equation}\label{eq:AC}
+ A_C(y)=u\left(1+\sum_{0<\Delta<B}
+ u^\Delta Q_{\boldsymbol m}(L)\right),
+\end{equation}
+where the summation is over multi-indices and equal powers are collected.
+Let
+\begin{equation}\label{eq:Nandd}
+ \delta_* =\min_i\delta_i,\qquad
+ d=\max_i\deg P_i,\qquad N=\left\lceil\frac{B}{\delta_*}\right\rceil.
+\end{equation}
+
+\begin{theorem}[Uniformizer-power cutoff bound]\label{thm:remainder}
+For nonempty exact finite input,
+\begin{equation}\label{eq:remainder}
+ g(y)-A_C(y)=\OO\!\left(u^C(1+|\log u|)^{Nd}\right)
+ \qquad(y\to0^+).
+\end{equation}
+For an exact monomial, the inverse is exactly $u$ and the remainder is zero.
+\end{theorem}
+\begin{proof}
+Truncate the analytic multivariate Taylor series
+$V(\boldsymbol\zeta)$ at total degree $N-1$. Its remaining tail is
+$\OO(\|\boldsymbol\zeta\|^N)$ in a smaller fixed polydisc. Along the
+actual curve,
+\[
+ \|\boldsymbol\zeta\|
+ =\OO\!\left(u^{\delta_*}(1+|L|)^d\right),
+\]
+so this tail is
+$\OO(u^{N\delta_*}(1+|L|)^{Nd})$. Since $N\delta_*\ge B$, it is
+$\OO(u^B(1+|L|)^{Nd})$.
+
+Among the finitely many terms of total degree below $N$, those omitted
+from~\eqref{eq:AC} have weight $\Delta\ge B$ and logarithmic degree at
+most $(N-1)d$. Their sum obeys the same bound. No term of total degree
+$N$ or larger can have weight below $B$, because
+$\Delta\ge N\delta_*\ge B$. Multiplying the relative estimate by $u$
+proves~\eqref{eq:remainder}.
+\end{proof}
+
+The bound is intentionally conservative for mixed generators. It requires
+no search for the first nonzero omitted shell and survives arbitrary
+coefficient cancellations. The package returns precisely this bound.
+In the one-generator logarithmic example with integer cutoff $C$, it has
+the sharp logarithmic degree $C-1$ for the first omitted block.
+
+\begin{corollary}[Pure-power weakening]
+For every fixed $\varepsilon>0$,
+\[
+ g(y)-A_C(y)=\OO(u^{C-\varepsilon}).
+\]
+One cannot generally replace this by $\OO(u^C)$ when logarithmic
+coefficients occur at the boundary.
+\end{corollary}
+
+\subsection{Sharper next-shell estimates}
+
+Suppose $\lambda\ge B$ is the least omitted weight with a nonzero
+\emph{collected} polynomial $Q_\lambda$. Local finiteness provides a gap
+to the next possible weight. Applying Theorem~\ref{thm:remainder} at a
+cutoff inside that gap gives
+\[
+ g(y)-A_C(y)
+ =u^{1+\lambda}Q_\lambda(L)
+ +o\!\left(u^{1+\lambda}(1+|L|)^{\deg Q_\lambda}\right).
+\]
+If the inverse is already a finite expression and no omitted nonzero
+block exists, the remainder is instead exactly zero. A program must not
+claim a nonzero next term merely because the support semigroup allows one.
+
+\section{The logarithmic example to arbitrary order}
+\label{sec:logexample}
+
+Here $a=p=1$, $\delta_1=1$, and $P_1(L)=L+1$. Thus
+\begin{equation}\label{eq:logcoeff}
+ g_1(y)=y+\sum_{n\ge1}y^{n+1}q_n(\log y),\qquad
+ q_n(L)=\frac{(-1)^n}{n!}
+ \prod_{j=1}^{n-1}(D_L+n+1+j)(L+1)^n.
+\end{equation}
+Each $q_n$ has degree $n$. The first five are
+\begin{align}
+ q_1={}&-L-1,\notag\\
+ q_2={}&2L^2+5L+3,\notag\\
+ q_3={}&-5L^3-\frac{41}{2}L^2-27L-\frac{23}{2},\notag\\
+ q_4={}&14L^4+\frac{241}{3}L^3+\frac{335}{2}L^2+151L+\frac{299}{6},
+ \label{eq:logcoefftable}\\
+ q_5={}&-42L^5-\frac{3727}{12}L^4-\frac{5365}{6}L^3
+ -1256L^2-\frac{5177}{6}L-\frac{2789}{12}.\notag
+\end{align}
+Further exact coefficients are included in the machine-readable validation
+results and can be generated at any chosen cutoff subject to resource
+limits.
+
+\subsection{Catalan numbers in the leading logarithms}
+
+The derivative part of $D_L+c$ lowers logarithmic degree, so the leading
+coefficient of $q_n$ comes from multiplying only the scalar parts:
+\[
+ [L^n]q_n(L)
+ =\frac{(-1)^n}{n!}\prod_{j=1}^{n-1}(n+1+j)
+ =(-1)^n\frac1{n+1}\binom{2n}{n}.
+\]
+The leading logarithms are signed Catalan numbers. Lower logarithmic
+powers are not optional decorations: their derivatives contribute to
+higher inverse coefficients. Replacing $\log g$ by $\log y$ too early
+recovers some leading terms but misses those subleading contributions.
+
+\subsection{A compact direct Wolfram construction}
+
+The observable homotopy formula immediately gives a minimal coefficient
+constructor for the identity-leading case:
+\begin{lstlisting}
+(* h is the correction to the identity, as an expression in z. *)
+identityInverseJet[h_, {z_, y_, n_Integer}] :=
+ y + Total[Table[
+   (-1)^k/k! D[h^k, {z, k - 1}] /. z -> y,
+   {k, 1, n}
+ ]];
+
+identityInverseJet[z^2 (1 + Log[z]), {z, y, 4}]
+\end{lstlisting}
+This finite derivative formula explains why the problem is computationally
+tractable. It does not by itself implement mixed-weight sorting, input
+normalization, branch metadata, or a rigorous remainder. The full package
+adds those layers.
+
+\subsection{The remainder can be seen numerically and symbolically}
+
+For the two-block approximation $A_3=y-y^2(1+\log y)$,
+\[
+ \frac{g_1(y)-A_3(y)}{y^3\log^2 y}\longrightarrow2.
+\]
+The independently computed ratios at $y=10^{-20},10^{-50},10^{-100}$ are
+approximately $1.892841$, $1.956797$, and $1.978342$, respectively. The slow
+approach reflects the next coefficient $5/\log y$, not a failure of the
+expansion. The quotient by $y^3$ itself diverges like $2\log^2y$, directly
+showing why a bare $\OO(y^3)$ would be incorrect.
+
+\section{The irrational-power example and its convergence radius}
+\label{sec:irrexpansion}
+
+Consider the entire family
+\[
+ f_r(x)=x+x^r,\qquad r>1,\qquad \delta=r-1.
+\]
+Here the logarithmic polynomial is $1$, so the differential operators in
+\eqref{eq:Qformula} act by their constant parts. For $n\ge1$,
+\begin{align}\label{eq:fuss}
+ c_n
+ &=\frac{(-1)^n}{n!}\prod_{j=1}^{n-1}(1+n\delta+j)\notag\\
+ &=\frac{(-1)^n}{n}\binom{nr}{n-1}
+ =\frac{(-1)^n}{1+n(r-1)}\binom{nr}{n}.
+\end{align}
+With $c_0=1$, the inverse is
+\begin{equation}\label{eq:irrall}
+ g_r(y)=\sum_{n=0}^{\infty}c_n y^{1+n(r-1)}.
+\end{equation}
+There is no rationality requirement on $r$ in this identity.
+
+The first coefficients are
+\[
+ 1,\quad -1,\quad r,\quad-\frac{r(3r-1)}2,
+ \quad\frac{r(4r-1)(4r-2)}6,\quad\ldots.
+\]
+For $r=2$ these reduce to the signed Catalan coefficients of the inverse
+of $x+x^2$. For $r=\sqrt2$, equation~\eqref{eq:irranswer} follows at once.
+
+\subsection{A genuine convergent ordinary series in a new parameter}
+
+Put $t=y^{r-1}$ and $v=g_r(y)/y$. The equation becomes
+\begin{equation}\label{eq:vpower}
+ v+t v^r=1,
+\end{equation}
+with $v(0)=1$. Thus $v$ is an ordinary analytic function of $t$ near zero,
+even though its expression as a function of $y$ uses irrational powers.
+The critical point of~\eqref{eq:vpower} satisfies
+\[
+ v+t v^r=1,\qquad 1+r t v^{r-1}=0.
+\]
+It occurs at
+\[
+ v_* =\frac r{r-1},\qquad
+ t_*=-\frac{(r-1)^{r-1}}{r^r}.
+\]
+
+To establish the radius without assuming that this critical point is the
+only relevant complex obstruction, use the exact coefficients. Stirling's
+formula gives
+\begin{equation}\label{eq:cnstirling}
+ |c_n|\sim
+ \frac{\sqrt r}{\sqrt{2\pi}(r-1)^{3/2}}\,
+ n^{-3/2}\left(\frac{r^r}{(r-1)^{r-1}}\right)^n.
+\end{equation}
+The root test therefore proves the exact radius
+\begin{equation}\label{eq:radius}
+ R_t=\frac{(r-1)^{r-1}}{r^r}.
+\end{equation}
+The corresponding positive-$y$ threshold for this series representation is
+$R_y=R_t^{1/(r-1)}$. At $r=\sqrt2$,
+\[
+ R_t\approx0.4251956066518408,\qquad
+ R_y\approx0.1268627051233097.
+\]
+The real inverse exists for every $y>0$, but this particular Taylor series
+in $t$ does not converge for every such $y$. Beyond its convergence disk,
+one may continue the analytic solution or solve the monotone real equation
+numerically. Global invertibility and the radius of a local representation
+are different questions.
+
+\subsection{A non-asymptotic tail majorant inside the disk}
+
+For fixed $r>1$ and any $0<T<R_t$, convergence gives a finite constant
+$M_T=\sum_{n\ge0}|c_n|T^n$. If $0\le t<T$, then
+\[
+ \left|v(t)-\sum_{n=0}^{N-1}c_nt^n\right|
+ \le M_T\left(\frac tT\right)^N.
+\]
+This bound is not optimized, but it separates a uniform convergence
+statement from a purely asymptotic order symbol. Sharper alternating-tail
+bounds require checking the term-magnitude monotonicity at the particular
+$t$; the package does not assume it without a check.
+
+\section{Mixed supports and nonunit leading powers}
+\label{sec:mixed}
+
+\subsection{Irrational powers mixed with logarithms}
+
+For
+\[
+ f(x)=x+x^{\sqrt2}+x^2(1+\log x),
+\]
+write $r=\sqrt2$ and $L=\log y$. The relative support is generated by
+$r-1$ and $1$. The inverse blocks with absolute exponent less than $3$
+are shown in Table~\ref{tab:mixed}. They are already sorted by their exact
+real exponents.
+
+\begin{table}[htbp]
+\centering
+\caption{The inverse of $x+x^{\sqrt2}+x^2(1+\log x)$ below power $3$.}
+\label{tab:mixed}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Power of $y$ & Coefficient polynomial in $L=\log y$\\
+\midrule
+$1$ & $1$\\
+$r$ & $-1$\\
+$2r-1$ & $r$\\
+$2$ & $-L-1$\\
+$3r-2$ & $-3+r/2$\\
+$1+r$ & $(r+2)L+r+3$\\
+$4r-3$ & $-4+17r/3$\\
+$2r$ & $-(5+3r)L-13/2-5r$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The first omitted block is $y^3(2L^2+5L+3)$; a sharpened remainder is
+therefore $\OO(y^3L^2)$. The universal bound of
+Theorem~\ref{thm:remainder} is more conservative:
+$\OO(y^3(1+|L|)^5)$. Both are valid, but they encode different amounts of
+support information.
+
+A perturbation-degree cutoff would interleave these terms incorrectly.
+For example, repeated use of the $x^{r-1}$ correction can produce several
+terms before a single use of a higher-weight correction. The package
+therefore enumerates by the inequality
+$m_1(r-1)+m_2<B$, not by a single common bound on $m_1+m_2$.
+
+\subsection{Collisions and exact zero blocks}
+
+For $f(x)=x+x^2+x^3$, relative weights $1$ and $2$ are dependent.
+The weight-$2$ coefficient receives both a repeated weight-$1$
+contribution and a direct weight-$2$ contribution. One obtains
+\[
+ f^{-1}(y)=y-y^2+y^3+0\,y^4-4y^5+14y^6+\cdots.
+\]
+The vanishing $y^4$ block is a useful regression test. Keeping one
+representative multi-index for each exponent would be wrong: the
+contributions must be summed, not deduplicated before coefficient
+calculation.
+
+\subsection{A nonunit scale changes both the power and the logarithm}
+
+Consider
+\begin{equation}\label{eq:p2example}
+ f(x)=4x^2\left(1+x\log x+3x^{\sqrt2}\right).
+\end{equation}
+Put $u=\sqrt{y/4}$ and $L=\log u=\tfrac12\log(y/4)$. Up to absolute
+$u$-power $4$, the inverse is
+\begin{align}\label{eq:p2answer}
+ g(y)={}&u-\frac12L u^2-\frac32u^{1+\sqrt2}
+ +\left(\frac58L^2+\frac14L\right)u^3\notag\\
+ &+\frac34\bigl((4+\sqrt2)L+1\bigr)u^{2+\sqrt2}
+ +\frac98(3+2\sqrt2)u^{1+2\sqrt2}
+ +\OO\!\left(u^4(1+|L|)^3\right).
+\end{align}
+Replacing $L$ by $\log y$ would change coefficients and make this
+expansion false. The leading coefficient $4$ contributes a logarithmic
+shift as well as a multiplicative scale. This is why the package carries
+$u$ and $L$ as independent internal symbols until final specialization.
+
+\section{Residual checking and the passage to actual inverse errors}
+\label{sec:residual}
+
+\subsection{The exact residual identity}
+
+Let $A(y)>0$ be any finite approximation with $A/u\to1$. Define
+\[
+ R(y)=f(A(y))-y,\qquad
+ \rho(u)=\frac{f(A(y))}{a u^p}-1.
+\]
+These are related by $R=a u^p\rho$. The mean-value theorem gives, for a
+point $\xi$ between $A$ and $g$,
+\begin{equation}\label{eq:residualtransfer}
+ g(y)-A(y)=-\frac{R(y)}{f'(\xi)}.
+\end{equation}
+Since $A/u\to1$, $g/u\to1$, and $f'(x)\sim apx^{p-1}$,
+\begin{equation}\label{eq:relative-transfer}
+ g(y)-A(y)=-\frac up\,\rho(u)\,(1+o(1))
+\end{equation}
+where the ratio is interpreted along nonzero residual values. In
+particular, if
+\[
+ \rho(u)=u^\lambda S(L)+o\bigl(u^\lambda(1+|L|)^{\deg S}\bigr),
+ \qquad S\ne0,
+\]
+then the first inverse correction is $-u^{1+\lambda}S(L)/p$.
+The divisor is $p$, not $1$, unless the leading exponent is one.
+
+This proves that a power--log residual calculation can certify the
+asymptotic correctness of an approximation when combined with the stated
+real-branch and derivative hypotheses. A list of formal zero coefficients
+alone is not a finite-precision interval certificate.
+
+\begin{corollary}[Global error bounds for the original examples]
+For every $y>0$ and every positive approximation $A$, one has
+\begin{align*}
+ |g_1(y)-A|&\le
+ \frac{|A+A^2(1+\log A)-y|}{1-2e^{-5/2}},\\
+ |g_2(y)-A|&\le |A+A^{\sqrt2}-y|.
+\end{align*}
+\end{corollary}
+\begin{proof}
+Apply the mean-value theorem and the global bounds
+$f_1'\ge1-2e^{-5/2}$ and $f_2'\ge1$ proved in
+Section~\ref{sec:question}. No small-argument restriction or root bracket
+is needed for these two inequalities, beyond $A,y>0$.
+\end{proof}
+
+\subsection{The independent sparse-ring checker}
+
+The package stores $A/u=1+V$ as a sparse set of positive-weight blocks.
+It independently constructs
+\begin{equation}\label{eq:checker}
+ \rho=(1+V)^p\left[1+\sum_i u^{\delta_i}(1+V)^{\delta_i}
+ P_i\bigl(L+\log(1+V)\bigr)\right]-1.
+\end{equation}
+Binomial and logarithmic series are evaluated in a clipped sparse ring,
+using~\eqref{eq:unit-calculus}. Polynomial substitution uses Horner's rule.
+Each multiplication discards exponents at or beyond the requested relative
+cutoff. No coefficient formula from~\eqref{eq:Qformula} is reused in this
+checker.
+
+For an inverse generated with absolute cutoff $C$, the expected residual
+vanishes below relative power $C-1$. The checker reports a Boolean
+certificate only after the requested residual range covers that whole
+interval. A shorter range returns an explicit
+\code{Missing["InsufficientCutoff"]} rather than an unjustified success.
+Increasing the residual cutoff can expose the first omitted inverse block
+via~\eqref{eq:relative-transfer}.
+
+\subsection{An explicit finite-point slope bound}
+
+There is also a concrete route from a residual to a numerical error bound.
+For $0<u<1/2$, consider $I_u=[u/2,2u]$ and put
+$M=|\log u|+\log2$. Define coefficient majorants
+\[
+ \widehat P_i(M)=\sum_k |[L^k]P_i|M^k,
+\]
+and, with $T_i=(p+\delta_i)P_i+P_i'$, define $\widehat T_i$ similarly.
+Set
+\begin{align*}
+ E_0(u)&=\sum_i(2u)^{\delta_i}\widehat P_i(M),\\
+ E_1(u)&=\sum_i(2u)^{\delta_i}\widehat T_i(M).
+\end{align*}
+If
+\[
+ E_0(u)<1-2^{-p},\qquad E_1(u)\le p/2,
+\]
+then $f(u/2)<a u^p<f(2u)$ and
+\begin{equation}\label{eq:explicit-slope}
+ f'(x)\ge m_u:=\frac{ap}{2}\,u^{p-1}2^{-|p-1|}
+ \quad\text{for }x\in I_u.
+\end{equation}
+Indeed, the first inequality bounds $1+H(x)$ on the bracket; the second
+bounds the correction to $p$ in~\eqref{eq:derivativeasym}. The minimum of
+$x^{p-1}$ on this bracket is $u^{p-1}2^{-|p-1|}$.
+
+Once $A\in I_u$, equation~\eqref{eq:residualtransfer} gives
+\begin{equation}\label{eq:finitebound}
+ |g(y)-A(y)|\le\frac{|f(A(y))-y|}{m_u}.
+\end{equation}
+To turn this into a machine-certified numerical bound, all inequalities
+and function evaluations must themselves use verified enclosures. The
+package's algebraic residual checker does not silently claim that an
+ordinary floating-point comparison supplies such an enclosure.
+
+\subsection{Newton refinement as a scalable alternative}
+
+In the normalized ring, $\partial\mathcal F/\partial V$ has constant term
+$p$ and is a unit. A Newton step
+\[
+ V_{\mathrm{new}}=V-
+ \frac{\mathcal F(V)}{\partial\mathcal F(V)/\partial V}
+\]
+therefore makes sense with clipped series arithmetic. If the error has
+positive valuation $\lambda$, the next error has valuation at least
+$2\lambda$, because the normalized equation is analytic in $V$ and its
+linearization is invertible. This gives a Newton--Hensel strategy with
+increasing cutoffs.
+
+The shipped generator uses the explicit multi-index formula; its
+independent checker already supplies most of the sparse operations needed
+for a future Newton backend. Newton generation is described here as an
+alternative algorithm, not claimed as an additional implemented public API.
+
+\section{Input jets, observables, and information below all powers}
+\label{sec:extensions}
+
+\subsection{When the finite input is an approximation}
+
+Suppose $F$ is a prepared finite germ and an actual function satisfies
+\begin{equation}\label{eq:inputjet}
+ f(x)-F(x)=\OO\!\left(x^{p+\beta}(1+|\log x|)^k\right),
+ \qquad \beta>0,
+\end{equation}
+with both functions having the addressed inverse branches and
+$f'(x)\sim apx^{p-1}$. Evaluating $f$ at $F^{-1}(y)$ and using the residual
+transfer theorem yields
+\begin{equation}\label{eq:inputjetout}
+ f^{-1}(y)-F^{-1}(y)
+ =\OO\!\left(u^{1+\beta}(1+|\log u|)^k\right).
+\end{equation}
+Thus inverse terms above that uncertainty scale are not determined by the
+supplied input jet alone. The package interprets its finite expression as
+exact; a user applying it to a truncated jet must combine its output
+remainder with~\eqref{eq:inputjetout}.
+
+A value asymptotic does not automatically imply a derivative asymptotic.
+For example,
+\[
+ f(x)=x+x^4\sin(x^{-4})=x+\OO(x^4)
+\]
+has
+\[
+ f'(x)=1+4x^3\sin(x^{-4})-4x^{-1}\cos(x^{-4}),
+\]
+which is not eventually positive. One cannot infer an inverse branch
+merely by differentiating the written order symbol. Exact finite prepared
+input avoids this problem because its derivatives are explicit.
+
+\subsection{Powers and logarithms of the inverse}
+
+Replace the observable $\Phi(Z)=Z^{1/p}$ in~\eqref{eq:LB} by $Z^{q/p}$.
+For fixed real $q$, the same calculation gives
+\begin{equation}\label{eq:observable}
+ g(y)^q=u^q\left(1+\sum_{\boldsymbol m\ne0}u^\Delta
+ \frac{q(-1)^n}{p^n\boldsymbol m!}
+ \prod_{j=1}^{n-1}(D_L+q+\Delta+pj)P^{\boldsymbol m}(L)\right).
+\end{equation}
+For $q=0$ the correction vanishes and the identity is $1=1$.
+Differentiating this identity with respect to $q$ at zero gives
+\begin{equation}\label{eq:loginverse}
+ \log g(y)=L+\sum_{\boldsymbol m\ne0}u^\Delta
+ \frac{(-1)^n}{p^n\boldsymbol m!}
+ \prod_{j=1}^{n-1}(D_L+\Delta+pj)P^{\boldsymbol m}(L).
+\end{equation}
+These are useful when the quantity of interest is an observable of the
+inverse rather than the inverse itself. They also provide independent
+symbolic consistency tests.
+
+For a stored inverse block $u^eQ(L)$,
+\[
+ \frac{\dd}{\dd y}\bigl(u^eQ(L)\bigr)
+ =\frac1{ap}u^{e-p}(e+D_L)Q(L).
+\]
+Termwise differentiation is justified within the analytic finite-input
+construction on an appropriate local sector; it is not licensed merely by
+a bare real-axis big-$\OO$ remainder for an arbitrary function.
+
+\subsection{Flat perturbations have separate inverse effects}
+
+Let $\widetilde f=f+\varepsilon$ where $\varepsilon$ is smaller than every
+power of $x$, and suppose the perturbed function retains the addressed
+branch and the required derivative control. Then
+\[
+ \widetilde g(y)-g(y)
+ =-\frac{\varepsilon(g(y))}{f'(g(y))}(1+o(1))
+\]
+under the corresponding stability hypotheses, for example when the
+perturbation and its derivative are uniformly negligible on the small
+comparison interval. Such an effect is invisible to every finite
+power--log cutoff. This is not a failure of reversion; it is information
+not present in the chosen formal scale.
+
+For instance, $x$ and $x+e^{-1/x}$ have the same pure-power asymptotic
+expansion at zero, but their inverses differ by
+$-e^{-1/y}(1+o(1))$. The perturbation is monotone and its derivative is flat,
+so the real-germ comparison is well behaved. An exponential sector would
+be needed to record this difference explicitly.
+
+\section{Leading logarithmic pivots and other endpoints}
+\label{sec:leadinglog}
+
+\subsection{The exact inverse of a leading log-power monomial}
+
+The core class excludes a nonconstant logarithmic \emph{leading} block.
+That case should be normalized differently, not forced into a correction
+of positive power valuation. Consider
+\begin{equation}\label{eq:leadinglog}
+ f_0(x)=a x^p(-\log x)^q,\qquad 0<x<1,\quad a,p>0.
+\end{equation}
+With $t=-\log x$ and $Y=y/a$, the equation is
+\[
+ Y=t^q e^{-pt}.
+\]
+For $q\ne0$, this gives
+\begin{equation}\label{eq:Wbase}
+ b(y)=\exp\left[\frac qp
+ W_k\left(-\frac pq\left(\frac ya\right)^{1/q}\right)\right].
+\end{equation}
+The branch is forced by $t\to+\infty$:
+\[
+ k=-1\quad(q>0),\qquad k=0\quad(q<0).
+\]
+For $q=0$, use $b(y)=(y/a)^{1/p}$. The real branches of Lambert $W$ and
+their domains are described in DLMF~\S4.13~\cite{dlmfw}.
+
+For $q>0$, the small-$x$ branch has
+$0<Y<(q/(pe))^q$. The principal branch $W_0$ would instead give $t\to0$
+and $x\to1$, another genuine real inverse germ of the same leading model.
+For $q<0$, the argument of $W_0$ is positive and tends to infinity, yielding
+the desired $t\to\infty$ branch. This branch distinction is precisely why
+\code{LogPowerBaseInverse} is a separate helper.
+
+\subsection{The logarithm-of-logarithm scale}
+
+Put $H=\log(a/y)$. The equation $pt=H+q\log t$ gives, by successive
+substitution,
+\begin{equation}\label{eq:tlogexp}
+ t=\frac1p\left[
+ H+q\log\frac Hp+
+ \frac{q^2}{H}\log\frac Hp+
+ \OO\!\left(\frac{(\log H)^2}{H^2}\right)\right].
+\end{equation}
+Consequently,
+\begin{equation}\label{eq:xlogexp}
+ b(y)=\left(\frac ya\right)^{1/p}
+ \left(\frac Hp\right)^{-q/p}
+ \left[1-\frac{q^2}{pH}\log\frac Hp+
+ \OO\!\left(\frac{(\log H)^2}{H^2}\right)\right].
+\end{equation}
+The relative small quantities are now inverse logarithms with
+logarithm-of-logarithm coefficients. These are not positive powers of the
+uniformizer in Definition~\ref{def:class}. The formula identifies the
+necessary extension of scale instead of pretending that the existing
+finite polynomial-log representation already covers it.
+
+\subsection{Perturbing an exactly invertible pivot}
+
+Suppose $f=f_0+h$ and the addressed inverse $b=f_0^{-1}$ is known. In the
+coordinate $s=f_0(x)$ the equation becomes
+\[
+ y=s+\eta(s),\qquad \eta(s)=h(b(s)),\qquad x=b(s).
+\]
+The observable formula gives the homotopy jet
+\begin{equation}\label{eq:pivotjet}
+ x=b(y)+\sum_{n=1}^{N}\frac{(-1)^n}{n!}
+ \frac{\dd^{n-1}}{\dd y^{n-1}}\left(b'(y)\eta(y)^n\right).
+\end{equation}
+This is implemented by \code{InversePerturbationJet}. The argument supplied
+as the perturbation is $\eta$ in the \emph{pivot coordinate}, not the
+original $h(x)$. Establishing the asymptotic ordering, convergence, or
+remainder of such a jet requires the relevant prepared-scale hypotheses;
+the helper deliberately does not attach an automatic big-$\OO$ claim.
+
+\subsection{Shifts, the other real side, and infinity}
+
+For a finite endpoint $x_0$ with $f(x_0)=y_0$, first introduce
+$x=x_0+t$ and $y=y_0+s$ and address the intended side $t\to0^+$ or
+$t\to0^-$. Real noninteger powers on a negative side require an explicit
+real-valued definition; a complex principal power must not be silently
+reinterpreted as a real one.
+
+For an inverse at infinity, a useful transformation is
+\[
+ F(t)=\frac1{f(1/t)}.
+\]
+If $G=F^{-1}$ is the addressed inverse near zero, then
+\[
+ f^{-1}(y)=\frac1{G(1/y)}.
+\]
+The transformed function may have an infinite or rational power--log
+expansion rather than exact finite input. In that case one must prepare a
+finite jet and propagate its uncertainty as in
+Section~\ref{sec:extensions}. These endpoint transformations are
+mathematical recipes, not automatic preprocessing implemented by the core
+parser.
+
+\section{Wolfram Language package: interface and implementation}
+\label{sec:package}
+
+\subsection{Loading and solving the original examples}
+
+After extracting the archive, load the package from its actual path:
+\begin{lstlisting}
+Get["/path/to/PowerLogInverse/Kernel/PowerLogInverse.wl"];
+
+PowerLogInverse[
+ x + x^2 (1 + Log[x]), {x, y, 5}
+]
+
+PowerLogInverse[
+ x + x^Sqrt[2], {x, y, 4 Sqrt[2] - 3}
+]
+\end{lstlisting}
+These requests mean strict absolute uniformizer-power cutoffs. Since
+$a=p=1$ in both examples, the uniformizer is just $y$. The second call
+retains exactly the four blocks in~\eqref{eq:irranswer}.
+
+\noindent\begin{minipage}{\linewidth}
+For the coefficients and error metadata together:
+\begin{lstlisting}
+d = PowerLogInverseData[
+ x + x^2 (1 + Log[x]), {x, y, 5}
+];
+d["Expression"]
+d["Remainder"]
+(* PowerLogOrder[y, 5, 4] *)
+
+PowerLogResidual[d]["Certificate"]
+(* Expected in a native kernel: True *)
+
+PowerLogResidual[d, 5]["Expression"]
+(* First nonzero relative residual blocks, below u-power 5. *)
+\end{lstlisting}
+\end{minipage}
+
+The finite expression is the approximation only. It is not an expression
+with an order object added to it. The descriptor
+\code{PowerLogOrder[u,C,K]} means
+$\OO(u^C(1+|\log u|)^K)$ as $u\to0^+$. No algebraic rules for adding,
+multiplying, or composing such descriptors are installed.
+
+\subsection{Public functions}
+
+\begin{longtable}{@{}p{0.36\textwidth}p{0.60\textwidth}@{}}
+\toprule
+Function & Contract\\
+\midrule
+\endhead
+\code{PowerLogInverse} & Parse and normalize a finite input expression;
+return its finite positive-real inverse approximation.\\[4pt]
+\code{PowerLogInverseData} & Return the same approximation with exact
+support blocks, normalization rules, remainder, input conditions, and
+resource metadata.\\[4pt]
+\code{PowerLogReversion} & Low-level prepared-input interface
+$[a,p,\{\{\delta_i,P_i(L)\}\},\{u,L\},C]$; returns structured data.\\[4pt]
+\code{PowerLogResidual} & Independently expand the normalized residual of
+the stored finite approximant through a relative cutoff.\\[4pt]
+\code{PowerLogOrder} & Inert meaning-bearing remainder descriptor, not a
+series arithmetic head.\\[4pt]
+\code{LogPowerBaseInverse} & Return the exact leading-log pivot inverse
+with the selected real \code{ProductLog} branch.\\[4pt]
+\code{InversePerturbationJet} & Return a finite observable Lagrange homotopy
+jet for a supplied pivot coordinate; no automatic remainder.\\
+\bottomrule
+\end{longtable}
+
+The low-level interface is useful when normalization is already known:
+\begin{lstlisting}
+d = PowerLogReversion[
+ 4, 2, {{1, L}, {Sqrt[2], 3}}, {u, L}, 4
+];
+d["Terms"]
+PowerLogResidual[d]["Certificate"]
+\end{lstlisting}
+Here \code{d["Expression"]} still contains the independent symbols $u,L$.
+Specialize them to $u=\sqrt{y/4}$ and $L=\tfrac12\log(y/4)$ only when an
+expression in $y$ is desired. The high-level interface performs that
+specialization and retains \code{UniformizerRule} and \code{LogRule}.
+
+\subsection{The parser's deliberate domain}
+
+The input must expand into a finite sum of $x^r$ times polynomials in
+\code{Log[x]}. Exponents, including the leading $p$ and the cutoff, must
+be exact real algebraic numbers. Coefficients must be exact and provably
+real constants. The smallest power must have a constant positive
+coefficient, and its exponent must be positive.
+
+The parser rejects a nonconstant leading logarithmic block, inverse
+logarithmic powers, unprepared functions such as $\sin x$, unresolved
+symbolic exponents, and machine-precision exponents. These restrictions
+are explicit interface boundaries, not claims that the corresponding
+mathematical problems lack asymptotic expansions. A symbolic parameter can
+be specialized before calling the package, or one can use the general
+homotopy helper when its hypotheses have been established separately.
+
+A \code{ConditionalExpression} is accepted only when its condition is
+provably implied by $x>0$. An unresolved condition is returned as a
+\code{Failure}; it is not discarded. Eventual conditions such as $x<1$
+that are not globally implied by $x>0$ require explicit germ preparation.
+Use distinct source and target symbols, with the target absent from the
+input expression.
+
+No use is made of \code{PowerExpand}. Identities involving logarithms and
+powers are derived from positivity and the stated normalization, not from
+unconditional manipulation of principal complex branches. Likewise, no
+irrational exponent is replaced by a rational approximation. If
+$r$ is changed to $r+\epsilon$, the ratio $x^{r+\epsilon}/x^r=
+\exp(\epsilon\log x)$ need not remain close to $1$ in the asymptotic limit,
+no matter how small a fixed nonzero $\epsilon$ is.
+
+\subsection{Exact exponent keys and collisions}
+
+Exponent arithmetic is reduced with \code{RootReduce}. Rows are sorted by
+exact inequalities and adjacent equal exponents are combined using exact
+equality tests. This makes collision handling independent of accidental
+syntactic differences between equivalent algebraic numbers. An undecided
+order is a failure, not an invitation to guess from decimal approximations.
+Logarithmic polynomial coefficients are expanded and simplified before
+zero blocks are removed.
+
+Internally, a row is \code{\{exponent, polynomial\}}. Lists rather than
+symbolically keyed associations are used for the sparse arithmetic.
+Associations provide the outer API metadata. The residual checker uses
+the stored \code{Terms} and prepared corrections; it does not infer new
+coefficients from the already computed inverse formula.
+
+\subsection{Enumeration and resource controls}
+
+For the requested relative cutoff $B$, the generator enumerates only the
+integer simplex $\boldsymbol m\cdot\boldsymbol\delta<B$. Generators whose
+weight is already at least $B$ can be omitted from coefficient enumeration,
+though they remain part of the input model and its remainder analysis.
+The implementation uses an iterative depth-first traversal, avoiding a
+dependence on the Wolfram kernel's recursion-depth setting.
+
+The public option names are strings. Their defaults are
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Option & Default\\
+\midrule
+\code{"MaxMultiIndices"} & $100000$\\
+\code{"MaxTerms"} & $50000$\\
+\code{"MaxTotalDegree"} & $256$\\
+\code{"MaxProducts"} & $2000000$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The product limit also bounds a growing enumeration frontier. Exceeding a
+budget returns a named \code{Failure}, not a partially computed expression
+masquerading as a complete truncation. These limits do not constitute
+wall-clock guarantees: exact algebraic simplification and coefficient
+expression growth can still dominate a calculation.
+
+For fixed $s$ and positive generators, the number of visited terminal
+indices is bounded by a finite box and grows like the volume of a simplex,
+$B^s/(s!\prod_i\delta_i)$, at large cutoffs. When generators are dependent,
+the number of distinct output exponents can be much smaller than the
+number of contributing multi-indices. Direct coefficient enumeration is
+transparent and useful at moderate cutoffs; a sparse Newton backend is
+an appropriate optimization for large, highly colliding problems.
+
+\subsection{Implementation map}
+
+The core file separates the mathematical and operational layers:
+\begin{enumerate}[leftmargin=1.8em,itemsep=0.2em]
+\item Exact-domain validation, polynomial parsing, positive leading-term
+selection, and condition checking.
+\item Cutoff-finite multi-index enumeration and the differential-polynomial
+coefficient formula.
+\item Exact exponent collection, finite-expression construction, and the
+analytic remainder metadata from Theorem~\ref{thm:remainder}.
+\item Independent clipped sparse addition, multiplication, binomial powers,
+logarithms, polynomial substitution, and residual checking.
+\end{enumerate}
+The last two public helpers are intentionally outside the finite core:
+they expose leading-log pivots and observable homotopy derivatives without
+pretending that their general remainder problem has already been solved
+by the core parser.
+
+\section{Verification evidence and reproducibility}
+\label{sec:validation}
+
+\subsection{What was executed}
+
+The archive contains an independent Python implementation using exact
+SymPy algebra and high-precision mpmath arithmetic. It passed
+\textbf{46 of 46 checks}. The checks cover the explicit logarithmic
+coefficients, generalized Fuss--Catalan coefficients, ordinary Catalan
+reversion, strict irrational cutoff boundaries, mixed supports, dependent
+and duplicate generators, nonunit and fractional leading exponents,
+exact residual cancellation, deliberate coefficient corruption, and
+numerical improvement under successive truncation.
+
+The Python coefficient generator uses a bounded Cartesian enumeration,
+whereas the Wolfram implementation uses a simplex depth-first traversal.
+The Python residual checker uses clipped binomial and logarithmic
+composition rather than the coefficient formula. An additional ordinary
+integer-power substitution checks the logarithmic example independently
+of that sparse residual code. These checks test the mathematics by several
+routes; they do not amount to execution of the Wolfram source.
+
+The archive also contains \textbf{40 native Wolfram Language regression
+test definitions}. Native Wolfram-kernel execution was not available in
+the build environment. The Wolfram files passed a lexical audit for
+balanced delimiters, strings, and nested comments, but that audit is not a
+Wolfram parser or evaluator. Accordingly, native execution is recorded as
+\emph{unverified}, not as a successful test run.
+
+\subsection{Numerical results}
+
+Table~\ref{tab:numerical} reports absolute inverse errors at $y=10^{-8}$.
+Roots were obtained independently by high-precision bisection in a real
+bracket. These are numerical diagnostics, not interval-certified error
+bounds. The exact coefficients were converted to the requested precision
+only at evaluation time.
+
+\begin{table}[htbp]
+\centering
+\caption{Independently measured errors at $y=10^{-8}$. Cutoffs refer to $u$.}
+\label{tab:numerical}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Input function & Strict cutoff $C$ & Absolute inverse error\\
+\midrule
+$x+x^2(1+\log x)$ & $3$ & $5.8953980\times10^{-22}$\\
+ & $5$ & $1.1639260\times10^{-34}$\\
+ & $7$ & $3.0778899\times10^{-47}$\\[2pt]
+$x+x^{\sqrt2}$ & $1+2(\sqrt2-1)$ & $3.3323930\times10^{-15}$\\
+ & $1+4(\sqrt2-1)$ & $2.2301916\times10^{-21}$\\
+ & $1+6(\sqrt2-1)$ & $1.8441485\times10^{-27}$\\[2pt]
+Equation~\eqref{eq:p2example} & $3$ & $7.2770394\times10^{-12}$\\
+ & $4$ & $5.4503639\times10^{-15}$\\
+ & $5$ & $4.5863230\times10^{-18}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The first two-block irrational approximation is relatively less accurate
+than the two-block logarithmic approximation at the same $y$. This is
+expected: its first relative small scale is $y^{\sqrt2-1}$, which decreases
+much more slowly than $y|\log y|$. Counting blocks alone is not a fair
+measure of asymptotic accuracy across different supports.
+
+\subsection{Reproducing the computations}
+
+From the archive root, the independent validation commands are
+\begin{lstlisting}[language={}]
+python Validation/validate.py
+python Validation/static_check.py
+\end{lstlisting}
+The former regenerates \code{validation-results.json}, including numerical
+errors and coefficients; the latter regenerates
+\code{static-results.json}. The Python requirements are SymPy and mpmath.
+Versions used in the executed run are recorded in the JSON file.
+
+For a native Wolfram installation:
+\begin{lstlisting}[language={}]
+wolframscript -file Tests/run-tests.wls
+wolframscript -file Examples/examples.wls
+\end{lstlisting}
+Alternatively, evaluate \code{TestReport} on the supplied \code{.wlt}
+file in a notebook. The test suite includes failure-path tests in addition
+to coefficient comparisons. In particular, a corrupted inverse block must
+make the independent residual certificate false, and an insufficient
+residual range must not return true.
+
+Compile this self-contained article source with
+\begin{lstlisting}[language={}]
+latexmk -pdf -interaction=nonstopmode -halt-on-error \
+  real_branch_reversion.tex
+\end{lstlisting}
+The archive includes the compiled PDF, so no TeX installation is needed
+to read the article.
+
+\section{Scope and conclusions}
+\label{sec:conclusion}
+
+The two motivating inverses are covered to arbitrary finite order by the
+same coefficient calculus. Their apparent incompatibility with ordinary
+series reversion comes from representation and branch selection, not
+from a lack of constructive formulas. The first needs logarithmic
+polynomials at integer powers; the second needs irrational powers; their
+mixtures need a finitely generated positive support semigroup.
+
+The finite-input result is stronger than a formal expansion: sufficiently
+near the selected positive endpoint, the constructed power--log series
+actually converges. Its strict cutoff has a proved, computable logarithmic
+remainder envelope. An independently computed normalized residual
+provides another route to asymptotic verification and, with a verified
+slope bound, to finite-point error control.
+
+The current executable core is deliberately exact and finite. It does not
+automatically discover arbitrary transseries scales, decide symbolic
+parameter orderings, invert every leading logarithmic polynomial, classify
+all global branches, or certify floating-point intervals. The article
+identifies concrete extensions rather than hiding those tasks inside an
+unqualified universal inverse command. Leading logarithmic monomials have
+an implemented real-$W$ pivot helper; general pivot perturbations have an
+implemented homotopy-jet helper; the broader scale and residual hypotheses
+remain explicit.
+
+The essential computational contract is simple: specify the real germ,
+prepare the leading term, enumerate the actual ordered support, collect
+all equal-weight contributions, and attach only a remainder justified by
+that preparation. This is sufficient to resolve both original examples
+and a substantial mixed power--logarithmic class without invoking an
+unspecified inverse branch.
+
+\appendix
+\section{A coefficient-level pseudocode specification}
+
+The following pseudocode describes the generator independently of Wolfram
+Language evaluation details. It is also a compact reference for a port to
+another exact symbolic system.
+\begin{lstlisting}[language={}]
+Input: a > 0, p > 0, corrections (delta_i, P_i), cutoff C > 1
+Normalize duplicate deltas; remove zero P_i
+u := positive (y/a)^(1/p); L := Log(y/a)/p
+B := C - 1
+rows := [(1, 1)]
+
+for each nonzero multi-index m with dot(m, delta) < B:
+    n := sum(m)
+    Delta := dot(m, delta)
+    Q := product(P_i(L)^m_i)
+    for j := 1 to n-1:
+        Q := derivative(Q, L) + (1 + Delta + p*j)*Q
+    Q := (-1)^n * Q / (p^n * product(factorial(m_i)))
+    append (1 + Delta, Q) to rows
+
+Sort rows by exact real exponent
+Add every polynomial sharing the same exponent
+Remove exact zero blocks
+Return sum(u^e * Q(L) for (e,Q) in rows)
+
+If corrections are nonempty:
+    N := ceiling(B / min(delta_i))
+    K := N * max(degree(P_i))
+    remainder := O(u^C * (1 + abs(Log(u)))^K)
+Else:
+    remainder := 0
+\end{lstlisting}
+
+An implementation must test both domain predicates and cutoff comparisons
+before relying on this specification. Algebraic real exponents supply an
+exact decision domain. Numerical approximations of these comparisons
+change the specification and are not used by the shipped package.
+
+\section{The first logarithmic coefficient recurrences as a check}
+
+For the identity-leading logarithmic example, write
+$g=y+\sum_{n\ge1}q_n(L)y^{n+1}$. Let $V=g/y-1$. Then
+\[
+ 0=V+y(1+V)^2\bigl(1+L+\log(1+V)\bigr).
+\]
+The coefficient of $y$ gives $q_1=-(1+L)$. At the next relative power,
+\[
+ q_2+(2L+3)q_1=0,
+\]
+so $q_2=(2L+3)(L+1)=2L^2+5L+3$. One order further,
+\[
+ q_3+(2L+3)q_2+\left(L+\frac52\right)q_1^2=0,
+\]
+which gives the $q_3$ displayed in~\eqref{eq:logcoefftable}. These equations
+come directly from substitution and provide a transparent low-order
+check on the differentiated Lagrange formula.
+
+\section{Archive contents and provenance}
+
+\begin{longtable}{@{}p{0.49\textwidth}p{0.47\textwidth}@{}}
+\toprule
+Path & Purpose\\
+\midrule
+\endhead
+\path{article/real_branch_reversion.tex} & Self-contained article source.\\
+\path{article/real_branch_reversion.pdf} & Compiled article.\\
+\path{Kernel/PowerLogInverse.wl} & Main Wolfram Language implementation.\\
+\path{Kernel/init.m} & Standard package loader.\\
+\path{Tests/PowerLogInverse.wlt} & Native Wolfram regression definitions.\\
+\path{Tests/run-tests.wls} & Native test runner with an exit status.\\
+\path{Examples/examples.wls} & Worked package calls and a numerical diagnostic.\\
+\path{Validation/validate.py} & Executed independent exact/numerical checks.\\
+\path{Validation/validation-results.json} & Reproducible results, coefficients, and versions.\\
+\path{Validation/static_check.py} & Lexical delimiter audit, not a native parser.\\
+\path{Validation/static-results.json} & Audit results.\\
+\path{Sources/question.md} & Text of the user-supplied archived question.\\
+\path{README.md}, \path{VALIDATION.md} & Usage and verification-status notes.\\
+\path{LICENSE} & MIT No Attribution license for the newly prepared material.\\
+\bottomrule
+\end{longtable}
+
+The mathematical source of the problem is the user-supplied archive of
+Mathematica Stack Exchange question 236367. The ProveIt corpus was consulted
+for its formal/analytic architecture, particularly the inversion volume's
+attention to support, branches, and residual estimates. Its main source
+file was identified by Git blob
+\texttt{aec3c70d4793e286b462e7d8894dede7c754995e} during this work. No claim
+is made that the entire evolving corpus was audited or that the package
+is a formal proof-assistant implementation of it.
+
+\clearpage
+\begin{thebibliography}{9}
+
+\bibitem{question}
+Vladimir Reshetnikov,
+\emph{How to get an asymptotic of the real-valued branch of the inverse function?}
+Mathematica Stack Exchange, question 236367.
+User-supplied archive consulted on 7 September 2026.
+\url{https://mathematica.stackexchange.com/q/236367}.
+
+\bibitem{proveit}
+Vladimir Reshetnikov and contributors,
+\emph{ProveIt: series-and-transseries draft corpus}, particularly
+\path{Transseries_And_Inversion/transseries_and_inversion.tex}.
+Working repository, consulted 7 September 2026.
+\url{https://github.com/VladimirReshetnikov/ProveIt/tree/main/Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/series-and-transseries}.
+
+\bibitem{dlmfinverse}
+NIST Digital Library of Mathematical Functions,
+\S1.10(vii), \emph{Inverse Functions}, including the Lagrange inversion
+and extended inversion theorems.
+\url{https://dlmf.nist.gov/1.10#vii}.
+
+\bibitem{dlmfw}
+NIST Digital Library of Mathematical Functions,
+\S4.13, \emph{Lambert $W$-Function}.
+\url{https://dlmf.nist.gov/4.13}.
+
+\bibitem{vdh}
+Joris van der Hoeven,
+\emph{Transseries and Real Differential Algebra},
+Lecture Notes in Mathematics 1888, Springer, 2006.
+\url{https://doi.org/10.1007/3-540-35590-1}.
+
+\bibitem{wlseries}
+Wolfram Research,
+\emph{SeriesData} and \emph{InverseSeries}, Wolfram Language documentation,
+consulted 7 September 2026.
+\url{https://reference.wolfram.com/language/ref/SeriesData.html};
+\url{https://reference.wolfram.com/language/ref/InverseSeries.html}.
+
+\bibitem{wlinverse}
+Wolfram Research,
+\emph{InverseFunction}, Wolfram Language documentation,
+consulted 7 September 2026.
+\url{https://reference.wolfram.com/language/ref/InverseFunction.html}.
+
+\end{thebibliography}
+\end{document}

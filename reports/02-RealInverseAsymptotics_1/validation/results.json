@@ -1,0 +1,663 @@
+{
+  "validation_kind": "Independent Python reference; Wolfram package NOT executed",
+  "sympy_version": "1.14.0",
+  "mpmath_version": "1.3.0",
+  "exact_checks_passed": 104,
+  "exact_checks": [
+    {
+      "name": "log coefficient 0",
+      "passed": true
+    },
+    {
+      "name": "log coefficient 1",
+      "passed": true
+    },
+    {
+      "name": "log coefficient 2",
+      "passed": true
+    },
+    {
+      "name": "log coefficient 3",
+      "passed": true
+    },
+    {
+      "name": "log coefficient 4",
+      "passed": true
+    },
+    {
+      "name": "irrational coefficient 0",
+      "passed": true
+    },
+    {
+      "name": "irrational coefficient 1",
+      "passed": true
+    },
+    {
+      "name": "irrational coefficient 2",
+      "passed": true
+    },
+    {
+      "name": "irrational coefficient 3",
+      "passed": true
+    },
+    {
+      "name": "irrational coefficient 4",
+      "passed": true
+    },
+    {
+      "name": "irrational coefficient 5",
+      "passed": true
+    },
+    {
+      "name": "pure-power product identity n=1",
+      "passed": true
+    },
+    {
+      "name": "pure-power product identity n=2",
+      "passed": true
+    },
+    {
+      "name": "pure-power product identity n=3",
+      "passed": true
+    },
+    {
+      "name": "pure-power product identity n=4",
+      "passed": true
+    },
+    {
+      "name": "pure-power product identity n=5",
+      "passed": true
+    },
+    {
+      "name": "pure-power product identity n=6",
+      "passed": true
+    },
+    {
+      "name": "pure-power product identity n=7",
+      "passed": true
+    },
+    {
+      "name": "pure-power product identity n=8",
+      "passed": true
+    },
+    {
+      "name": "resonance weight 1",
+      "passed": true
+    },
+    {
+      "name": "resonance weight 3/2",
+      "passed": true
+    },
+    {
+      "name": "nonlinear leading first correction",
+      "passed": true
+    },
+    {
+      "name": "nonlinear leading second correction",
+      "passed": true
+    },
+    {
+      "name": "log: Lagrange versus fixed point",
+      "passed": true
+    },
+    {
+      "name": "log: composition residual",
+      "passed": true
+    },
+    {
+      "name": "log: observable square",
+      "passed": true
+    },
+    {
+      "name": "irrational: Lagrange versus fixed point",
+      "passed": true
+    },
+    {
+      "name": "irrational: composition residual",
+      "passed": true
+    },
+    {
+      "name": "resonant: Lagrange versus fixed point",
+      "passed": true
+    },
+    {
+      "name": "resonant: composition residual",
+      "passed": true
+    },
+    {
+      "name": "resonant: observable square",
+      "passed": true
+    },
+    {
+      "name": "nonlinear-leading: Lagrange versus fixed point",
+      "passed": true
+    },
+    {
+      "name": "nonlinear-leading: composition residual",
+      "passed": true
+    },
+    {
+      "name": "nonlinear-leading: observable square",
+      "passed": true
+    },
+    {
+      "name": "two-irrational: Lagrange versus fixed point",
+      "passed": true
+    },
+    {
+      "name": "two-irrational: composition residual",
+      "passed": true
+    },
+    {
+      "name": "half-leading: Lagrange versus fixed point",
+      "passed": true
+    },
+    {
+      "name": "half-leading: composition residual",
+      "passed": true
+    },
+    {
+      "name": "vanishing-frontier: Lagrange versus fixed point",
+      "passed": true
+    },
+    {
+      "name": "vanishing-frontier: composition residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 00: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 00: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 00: observable q=2",
+      "passed": true
+    },
+    {
+      "name": "fixture 01: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 01: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 01: observable q=1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 02: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 02: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 02: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 03: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 03: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 03: observable q=1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 04: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 04: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 04: observable q=2",
+      "passed": true
+    },
+    {
+      "name": "fixture 05: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 05: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 05: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 06: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 06: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 06: observable q=2",
+      "passed": true
+    },
+    {
+      "name": "fixture 07: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 07: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 07: observable q=1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 08: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 08: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 08: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 09: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 09: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 09: observable q=2",
+      "passed": true
+    },
+    {
+      "name": "fixture 10: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 10: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 10: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 11: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 11: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 11: observable q=1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 12: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 12: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 12: observable q=2",
+      "passed": true
+    },
+    {
+      "name": "fixture 13: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 13: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 13: observable q=2",
+      "passed": true
+    },
+    {
+      "name": "fixture 14: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 14: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 14: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 15: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 15: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 15: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 16: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 16: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 16: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 17: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 17: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 17: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 18: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 18: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 18: observable q=1/2",
+      "passed": true
+    },
+    {
+      "name": "fixture 19: algorithm agreement",
+      "passed": true
+    },
+    {
+      "name": "fixture 19: residual",
+      "passed": true
+    },
+    {
+      "name": "fixture 19: observable q=-1/2",
+      "passed": true
+    },
+    {
+      "name": "log: frontier residual sign and slope",
+      "passed": true
+    },
+    {
+      "name": "irrational: frontier residual sign and slope",
+      "passed": true
+    },
+    {
+      "name": "resonant: frontier residual sign and slope",
+      "passed": true
+    },
+    {
+      "name": "nonlinear-leading: frontier residual sign and slope",
+      "passed": true
+    }
+  ],
+  "fixtures": [
+    {
+      "p": "sqrt(2)",
+      "delta": "1/2",
+      "P": "2 - L",
+      "Q": "2",
+      "q": "2"
+    },
+    {
+      "p": "2",
+      "delta": "1/2",
+      "P": "1 - L",
+      "Q": "1",
+      "q": "1/2"
+    },
+    {
+      "p": "1",
+      "delta": "2/3",
+      "P": "L + 2",
+      "Q": "-L - 2",
+      "q": "-1/2"
+    },
+    {
+      "p": "1/2",
+      "delta": "1",
+      "P": "-L - 2",
+      "Q": "-L - 1",
+      "q": "1/2"
+    },
+    {
+      "p": "3/2",
+      "delta": "1/2",
+      "P": "1",
+      "Q": "L - 1",
+      "q": "2"
+    },
+    {
+      "p": "2",
+      "delta": "1/2",
+      "P": "-2",
+      "Q": "L - 1",
+      "q": "-1/2"
+    },
+    {
+      "p": "1/2",
+      "delta": "1",
+      "P": "1",
+      "Q": "L - 1",
+      "q": "2"
+    },
+    {
+      "p": "3/2",
+      "delta": "1/2",
+      "P": "1 - L",
+      "Q": "L - 2",
+      "q": "1/2"
+    },
+    {
+      "p": "1/2",
+      "delta": "1",
+      "P": "1 - L",
+      "Q": "2 - L",
+      "q": "-1/2"
+    },
+    {
+      "p": "3",
+      "delta": "2/3",
+      "P": "-1",
+      "Q": "2 - L",
+      "q": "2"
+    },
+    {
+      "p": "3",
+      "delta": "1",
+      "P": "-1",
+      "Q": "L + 1",
+      "q": "-1/2"
+    },
+    {
+      "p": "1",
+      "delta": "1/2",
+      "P": "1 - L",
+      "Q": "1 - L",
+      "q": "1/2"
+    },
+    {
+      "p": "3/2",
+      "delta": "2/3",
+      "P": "2 - L",
+      "Q": "-2",
+      "q": "2"
+    },
+    {
+      "p": "2",
+      "delta": "1/2",
+      "P": "-2",
+      "Q": "1 - L",
+      "q": "2"
+    },
+    {
+      "p": "1",
+      "delta": "1/2",
+      "P": "2 - L",
+      "Q": "-1",
+      "q": "-1/2"
+    },
+    {
+      "p": "3",
+      "delta": "1",
+      "P": "2",
+      "Q": "1 - L",
+      "q": "-1/2"
+    },
+    {
+      "p": "1",
+      "delta": "2/3",
+      "P": "2",
+      "Q": "1",
+      "q": "-1/2"
+    },
+    {
+      "p": "1/2",
+      "delta": "2/3",
+      "P": "1 - L",
+      "Q": "L - 1",
+      "q": "-1/2"
+    },
+    {
+      "p": "2",
+      "delta": "1",
+      "P": "L - 1",
+      "Q": "1",
+      "q": "1/2"
+    },
+    {
+      "p": "3",
+      "delta": "2/3",
+      "P": "L + 1",
+      "Q": "L - 2",
+      "q": "-1/2"
+    }
+  ],
+  "numeric_checks": [
+    {
+      "case": "log",
+      "y": "1e-2",
+      "absolute_error": "1.486662830058e-7",
+      "relative_error": "1.4315869477156e-5",
+      "error_over_frontier": "1.095009316919792",
+      "forward_residual": "1.3919500981755e-7"
+    },
+    {
+      "case": "log",
+      "y": "1e-4",
+      "absolute_error": "5.0964199634048e-16",
+      "relative_error": "5.0922326076105e-12",
+      "error_over_frontier": "1.002264015294867",
+      "forward_residual": "5.0885553128924e-16"
+    },
+    {
+      "case": "log",
+      "y": "1e-8",
+      "absolute_error": "1.1639260477634e-34",
+      "relative_error": "1.1639258449996e-26",
+      "error_over_frontier": "1.000000502589973",
+      "forward_residual": "1.163925653875e-34"
+    },
+    {
+      "case": "log",
+      "y": "1e-12",
+      "absolute_error": "6.5895649852719e-54",
+      "relative_error": "6.5895649850964e-42",
+      "error_over_frontier": "1.000000000077902",
+      "forward_residual": "6.5895649849275e-54"
+    },
+    {
+      "case": "irrational",
+      "y": "1e-2",
+      "absolute_error": "4.1555309526382e-6",
+      "relative_error": "0.00047396989528574",
+      "error_over_frontier": "0.780522722467873",
+      "forward_residual": "4.9817503494507e-6"
+    },
+    {
+      "case": "irrational",
+      "y": "1e-4",
+      "absolute_error": "3.6834716826453e-12",
+      "relative_error": "3.763919914635e-8",
+      "error_over_frontier": "0.9597364480945642",
+      "forward_residual": "3.797242664281e-12"
+    },
+    {
+      "case": "irrational",
+      "y": "1e-8",
+      "absolute_error": "1.9926561223031e-24",
+      "relative_error": "1.9936235901493e-16",
+      "error_over_frontier": "0.9990753831541585",
+      "forward_residual": "1.9940243284524e-24"
+    },
+    {
+      "case": "irrational",
+      "y": "1e-12",
+      "absolute_error": "1.0364634576878e-36",
+      "relative_error": "1.0364745491633e-24",
+      "error_over_frontier": "0.9999796056028302",
+      "forward_residual": "1.0364791434028e-36"
+    },
+    {
+      "case": "nonlinear",
+      "y": "1e-12",
+      "absolute_error": "9.4969881803953e-9",
+      "relative_error": "0.00011654464003233",
+      "error_over_frontier": "1.088758378385716",
+      "forward_residual": "3.4594239924251e-16"
+    },
+    {
+      "case": "nonlinear",
+      "y": "1e-24",
+      "absolute_error": "8.4730042942395e-18",
+      "relative_error": "1.0669716260317e-9",
+      "error_over_frontier": "1.001762857646137",
+      "forward_residual": "3.2001696339243e-33"
+    },
+    {
+      "case": "nonlinear",
+      "y": "1e-48",
+      "absolute_error": "7.4135228350608e-37",
+      "relative_error": "9.340452473193e-21",
+      "error_over_frontier": "1.00000036555302",
+      "forward_residual": "2.8021356001928e-68"
+    }
+  ],
+  "pure_power_radius": {
+    "alpha": "1.4142135623730950488016887242096980785696718753769480731766797379907324784621070388503875343276415727350138462309122970249248360558507372126441214970999358314132226659275055927558",
+    "radius_in_y_to_delta": "0.425195606651840813802502599818",
+    "radius_in_y": "0.126862705123309681397912151714",
+    "decimal_precision": 180
+  },
+  "elapsed_seconds": 2.836
+}

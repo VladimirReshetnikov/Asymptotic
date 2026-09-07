@@ -1,0 +1,75 @@
+PASS: rational leading power
+PASS: nonunit scale
+PASS: collision
+PASS: mixed logarithms
+PASS: negative perturbation
+PASS: noninteger leading exponent
+PASS: two irrational generators
+PASS: irrational and logarithmic
+PASS: negative log coefficient
+{
+  "passed": 58,
+  "failed": 0,
+  "additional_cases": [
+    {
+      "name": "rational leading power",
+      "terms": 5,
+      "remainder_power": "7/3",
+      "boundary_polynomial": "-63232*L**5/177147 - 27824*L**4/6561 - 382400*L**3/19683 - 282584*L**2/6561 - 33808*L/729 - 14191/729"
+    },
+    {
+      "name": "nonunit scale",
+      "terms": 4,
+      "remainder_power": "5/2",
+      "boundary_polynomial": "231*L**4/65536 - 231*L**3*log(2)/8192 + 233*L**3/6144 - 233*L**2*log(2)/1024 + 693*L**2*log(2)**2/8192 + 1225*L**2/8192 - 1225*L*log(2)/2048 - 231*L*log(2)**3/2048 + 233*L*log(2)**2/512 + 263*L/1024 - 263*log(2)/512 - 233*log(2)**3/768 + 231*log(2)**4/4096 + 1997/12288 + 1225*log(2)**2/2048"
+    },
+    {
+      "name": "collision",
+      "terms": 3,
+      "remainder_power": "5",
+      "boundary_polynomial": "-16"
+    },
+    {
+      "name": "mixed logarithms",
+      "terms": 4,
+      "remainder_power": "5",
+      "boundary_polynomial": "-4*L**4 + L**3/3 - 21*L**2/2 - 10*L + 2"
+    },
+    {
+      "name": "negative perturbation",
+      "terms": 4,
+      "remainder_power": "5",
+      "boundary_polynomial": "14*L**4 + 241*L**3/3 + 335*L**2/2 + 151*L + 299/6"
+    },
+    {
+      "name": "noninteger leading exponent",
+      "terms": 3,
+      "remainder_power": "2*sqrt(2)",
+      "boundary_polynomial": "-5*L**3/12 - sqrt(2)*L**3/4 - 7*sqrt(2)*L**2/4 - 15*L**2/8 - 19*L/4 - 9*sqrt(2)*L/4 - 25*sqrt(2)/12 - 7/4"
+    },
+    {
+      "name": "two irrational generators",
+      "terms": 7,
+      "remainder_power": "-2 + sqrt(3) + 2*sqrt(2)",
+      "boundary_polynomial": "-11/2 - 2*sqrt(6) + sqrt(3)/2 + sqrt(2)"
+    },
+    {
+      "name": "irrational and logarithmic",
+      "terms": 6,
+      "remainder_power": "-3 + 4*sqrt(2)",
+      "boundary_polynomial": "-4 + 17*sqrt(2)/3"
+    },
+    {
+      "name": "negative log coefficient",
+      "terms": 4,
+      "remainder_power": "6",
+      "boundary_polynomial": "10752*L**8 - 31232*L**7/3 + 34048*L**6/3 + 1408*L**5 - 2176*L**4/3 + 9248*L**3/3 + 784*L**2 + 8*L + 462"
+    }
+  ]
+}
+FIRST LOG COEFFICIENTS:
+1 -L - 1
+2 (L + 1)*(2*L + 3)
+3 -(L + 1)*(10*L**2 + 31*L + 23)/2
+4 (L + 1)*(84*L**3 + 398*L**2 + 607*L + 299)/6
+5 -(L + 1)*(504*L**4 + 3223*L**3 + 7507*L**2 + 7565*L + 2789)/12
