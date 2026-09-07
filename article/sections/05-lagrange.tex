@@ -1,0 +1,68 @@
+\section{Lagrange--B\"urmann inversion with a marker}
+\label{sec:lagrange}
+
+The classical Lagrange inversion theorem expands the inverse of an analytic map at a point where its derivative does not vanish. Our maps are not analytic at $0$, and the inverse has no Taylor series there; but at every \emph{positive} point the map is analytic, and the trick is to invert a perturbation $u+\eta h(u)=q$ around the positive point $q$ in the perturbation parameter $\eta$. The logarithms and irrational powers in $h$ are then analytic functions of $u$ near $q>0$, and the derivatives that appear are computed by the Euler identity without ever evaluating anything at $0$.
+
+\subsection{The marker theorem}
+
+\begin{theorem}[Lagrange--B\"urmann with a marker]
+\label{thm:marker}
+Let $q>0$ and let $h$ and $\Phi$ be analytic in a complex neighbourhood of $q$. For $|\eta|$ sufficiently small the equation
+\begin{equation}
+ u+\eta\,h(u)=q
+ \label{eq:marker-equation}
+\end{equation}
+has a unique solution $u(\eta)$ near $q$ with $u(0)=q$, it is analytic in $\eta$, and
+\begin{equation}
+ \Phi\bigl(u(\eta)\bigr)=\Phi(q)+\sum_{N\ge1}\frac{(-\eta)^N}{N!}\,\frac{\dd^{N-1}}{\dd q^{N-1}}\Bigl[\Phi'(q)\,h(q)^N\Bigr].
+ \label{eq:marker-formula}
+\end{equation}
+The same identity holds coefficientwise in $\eta$ for arbitrary formal power series $h,\Phi$ with coefficients in any commutative $\Q$-algebra, i.e.\ as an identity of formal power series in $\eta$ whose coefficients are polynomials in finitely many derivatives of $h$ and $\Phi$ at $q$.
+\end{theorem}
+\begin{proof}
+Choose $\rho>0$ so small that $h$ and $\Phi$ are analytic on the closed disc $|s-q|\le\rho$, and let $M=\max_{|s-q|=\rho}|h(s)|$. For $|\eta|<\rho/M$ we have $|\eta h(s)|<|s-q|$ on the circle $C=\{|s-q|=\rho\}$, so by Rouch\'e's theorem $F_\eta(s)=s-q+\eta h(s)$ has exactly one zero $u(\eta)$ in the disc, and by the argument principle
+\[
+ \Phi(u(\eta))=\frac1{2\pi i}\oint_C\Phi(s)\,\frac{F_\eta'(s)}{F_\eta(s)}\,\dd s
+ =\frac1{2\pi i}\oint_C\Phi(s)\,\frac{1+\eta h'(s)}{s-q+\eta h(s)}\,\dd s .
+\]
+On $C$ the geometric series $\frac1{s-q+\eta h(s)}=\sum_{N\ge0}\frac{(-\eta)^Nh(s)^N}{(s-q)^{N+1}}$ converges uniformly, so
+\[
+ \Phi(u(\eta))=\sum_{N\ge0}(-\eta)^N\Bigl[\frac1{2\pi i}\oint_C\frac{\Phi(s)h(s)^N}{(s-q)^{N+1}}\,\dd s
+ -\frac1{2\pi i}\oint_C\frac{\Phi(s)h'(s)h(s)^N\,(-\eta)}{(s-q)^{N+1}}\,\dd s\Bigr].
+\]
+By Cauchy's formula the first integral is $\frac1{N!}\frac{\dd^N}{\dd q^N}[\Phi h^N](q)$ and the second, after shifting the index $N\to N-1$, contributes $-\frac1{(N-1)!}\frac{\dd^{N-1}}{\dd q^{N-1}}[\Phi h'h^{N-1}](q)$ to the coefficient of $(-\eta)^N$ for $N\ge1$. Since $\frac{\dd}{\dd q}[\Phi h^N]=\Phi'h^N+N\Phi h'h^{N-1}$, the coefficient of $(-\eta)^N$ is
+\[
+ \frac1{N!}\frac{\dd^{N-1}}{\dd q^{N-1}}\bigl[\Phi'h^N+N\Phi h'h^{N-1}\bigr]-\frac1{(N-1)!}\frac{\dd^{N-1}}{\dd q^{N-1}}\bigl[\Phi h'h^{N-1}\bigr]
+ =\frac1{N!}\frac{\dd^{N-1}}{\dd q^{N-1}}\bigl[\Phi'h^N\bigr],
+\]
+which is \eqref{eq:marker-formula}; the constant term is $\Phi(q)$. Analyticity of $u(\eta)$ follows from the implicit function theorem at $(q,0)$, where $\partial_uF_0=1$. For the formal statement, both sides of \eqref{eq:marker-formula} have coefficients that are universal polynomials in the Taylor coefficients of $h$ and $\Phi$ at $q$; two polynomials that agree for all analytic data agree identically (they agree on a Zariski-dense set), so the identity holds for arbitrary formal coefficients.
+\end{proof}
+
+\begin{remark}
+Other proofs exist \cite{gessel,surya,dlmf}; the one above is chosen because it exhibits the analytic content: the solution is the unique root in a disc around $q$, a fact reused in Section~\ref{sec:convergence} to obtain explicit constants. The formal statement is what makes the coefficient formula of Section~\ref{sec:coefficients} an identity, independent of any convergence question.
+\end{remark}
+
+\subsection{Consequences}
+
+\paragraph{Near-identity form.} With $\Phi(q)=q$ and $\eta=1$,
+\begin{equation}
+ f(u)=u+h(u)\quad\Longrightarrow\quad g(y)=y+\sum_{N\ge1}\frac{(-1)^N}{N!}\frac{\dd^{N-1}}{\dd y^{N-1}}\bigl[h(y)^N\bigr],
+ \label{eq:near-identity}
+\end{equation}
+formally; Sections~\ref{sec:convergence} and~\ref{sec:transport} say when setting $\eta=1$ is legitimate as an asymptotic statement. The formula \eqref{eq:near-identity} is a complete answer for the log example: with $h(y)=y^2(1+\log y)$, the $N$-th term is $\frac{(-1)^N}{N!}\partial_y^{N-1}[y^{2N}(1+\log y)^N]$, computed by Lemma~\ref{lem:euler}; for $N=2$, $\frac12\partial_y[y^4(1+L)^2]=y^3\bigl(2(1+L)^2+(1+L)\bigr)=y^3(2L^2+5L+3)$.
+
+\paragraph{Several markers.} If $h=\sum_i\eta_ih_i$ with independent markers, expanding $h^N$ multinomially in \eqref{eq:marker-formula} gives the coefficient of $\prod\eta_i^{k_i}$, $|\bk|=N$, as
+\begin{equation}
+ \frac{(-1)^N}{\bk!}\,\frac{\dd^{N-1}}{\dd q^{N-1}}\Bigl[\Phi'(q)\prod_ih_i(q)^{k_i}\Bigr],
+ \label{eq:multi-marker}
+\end{equation}
+because the multinomial coefficient $N!/\bk!$ cancels the $1/N!$.
+
+\paragraph{Transport of observables.} Formula \eqref{eq:marker-formula} gives at once the expansion of any analytic function of the inverse. With $\Phi(u)=u^r$ one obtains powers of the inverse; with $\Phi=\log$ its logarithm; differentiating the identity for $u^r$ with respect to $r$ at $r=0$ gives the logarithm again. These are used in Section~\ref{sec:coefficients}.
+
+\paragraph{General core.} Suppose $F=F_0+R$ where $F_0$ has a known inverse $\phi$ on the branch of interest and $R$ is a perturbation. Put $t=F_0(x)$, so that $F(x)=y$ becomes $t+\eta\,R(\phi(t))=y$ with $\eta=1$; Theorem~\ref{thm:marker} with $\Phi=\phi$ yields
+\begin{equation}
+ x=\phi(y)+\sum_{N\ge1}\frac{(-1)^N}{N!}\frac{\dd^{N-1}}{\dd y^{N-1}}\Bigl[\phi'(y)\,R\bigl(\phi(y)\bigr)^N\Bigr].
+ \label{eq:general-core}
+\end{equation}
+This is the ``phase-coordinate'' inversion of \cite{proveit}; it is implemented as \wl{PerturbativeInverse[$\phi$, R, \{x, y\}, n]} and is the natural tool when the dominant part of $F$ is not a monomial (Section~\ref{sec:boundaries}). For the monomial core $F_0(x)=ax^p$, $\phi(y)=(y/a)^{1/p}$, it is equivalent to the substitution $t=x^p$ used in the next section.

@@ -1,0 +1,141 @@
+\section{The coefficient theorem}
+\label{sec:coefficients}
+
+\subsection{Statement}
+
+Let $f$ be the germ \eqref{eq:model}, $z$ the uniformizer \eqref{eq:uniformizer}, $L=\log z$, $\D=\dd/\dd L$. For a multi-index $\bk\in\N^m$ write $n=|\bk|$, $\sigma=\bk\cdot\bdelta$ and $B^{\bk}=\prod_iB_i^{k_i}$.
+
+\begin{theorem}[Euler-operator coefficient formula]
+\label{thm:coefficients}
+For every real $r$, the branch $g$ of Theorem~\ref{thm:branch} satisfies, formally and (Theorem~\ref{thm:convergence}) as a convergent expansion for small $z$,
+\begin{equation}
+ \boxed{\;g(y)^r=z^r+\sum_{\bk\ne0}z^{r+\bk\cdot\bdelta}\,C^{(r)}_{\bk}(L),\qquad
+ C^{(r)}_{\bk}(L)=\frac{(-1)^{n}\,r}{p^{n}\,\bk!}\,\prod_{j=1}^{n-1}\bigl(\D+r+\sigma+pj\bigr)\,B^{\bk}(L).\;}
+ \label{eq:master}
+\end{equation}
+The empty product ($n=1$) is the identity. Multi-indices of equal weight are summed: the block of $g^r$ at $z^{r+\sigma}$ is $C^{(r)}_\sigma=\sum_{\bk\cdot\bdelta=\sigma}C^{(r)}_{\bk}$. In particular
+\begin{equation}
+\begin{aligned}
+ g(y)&=z\Bigl(1+\sum_{\bk\ne0}z^{\bk\cdot\bdelta}C_{\bk}(L)\Bigr),\qquad C_{\bk}=C^{(1)}_{\bk},\\
+ \log g(y)&=L+\sum_{\bk\ne0}z^{\bk\cdot\bdelta}\frac{(-1)^n}{p^n\bk!}\prod_{j=1}^{n-1}(\D+\sigma+pj)B^{\bk}(L).
+\end{aligned}
+ \label{eq:master-1-log}
+\end{equation}
+\end{theorem}
+\begin{proof}
+Put $t=u^p$ and $q=v/a$ (so $q=z^p$). The equation $f(u)=y$ becomes
+\[
+ q=t+\sum_it^{1+\delta_i/p}B_i\Bigl(\frac{\log t}{p}\Bigr),
+\]
+which is \eqref{eq:marker-equation} with markers: $t+\sum_i\eta_ih_i(t)=q$, $h_i(t)=t^{1+\delta_i/p}B_i(\log t/p)$, at $\eta_i=1$. The observable is $\Phi(t)=t^{r/p}=u^r$. All $h_i$ and $\Phi$ are analytic near any $q>0$. By \eqref{eq:multi-marker} the coefficient of $\prod\eta_i^{k_i}$ is
+\[
+ \frac{(-1)^n}{\bk!}\frac{\dd^{n-1}}{\dd q^{n-1}}\Bigl[\frac rp\,q^{r/p-1}\prod_i\bigl(q^{1+\delta_i/p}B_i(\tfrac{\log q}p)\bigr)^{k_i}\Bigr]
+ =\frac{(-1)^n r}{p\,\bk!}\frac{\dd^{n-1}}{\dd q^{n-1}}\Bigl[q^{\,n-1+(r+\sigma)/p}\,B^{\bk}\bigl(\tfrac{\log q}p\bigr)\Bigr].
+\]
+Apply the repeated Euler identity \eqref{eq:euler} in the variable $q$, with $\Lambda=\log q$ and the polynomial $\tilde P(\Lambda)=B^{\bk}(\Lambda/p)$: the derivative of order $n-1$ of $q^b\tilde P(\Lambda)$, $b=n-1+(r+\sigma)/p$, is $q^{b-n+1}\prod_{j=0}^{n-2}(b-j+\dd/\dd\Lambda)\tilde P$. Since $L=\Lambda/p$, $\dd/\dd\Lambda=\D/p$, and $b-j=\bigl(r+\sigma+p(n-1-j)\bigr)/p$; hence each factor is $\frac1p\bigl(\D+r+\sigma+p(n-1-j)\bigr)$, and with $j'=n-1-j$ running from $1$ to $n-1$ the product is $p^{-(n-1)}\prod_{j'=1}^{n-1}(\D+r+\sigma+pj')B^{\bk}(L)$. Finally $q^{b-n+1}=q^{(r+\sigma)/p}=z^{r+\sigma}$, and the prefactor $r/p$ combines with $p^{-(n-1)}$ into $r/p^n$. The formal validity is Theorem~\ref{thm:marker}'s formal clause, applied to the finitely many markers; setting all $\eta_i=1$ is legitimate coefficientwise because by Lemma~\ref{lem:finite} only finitely many multi-indices contribute to any exponent. The formula for $\log g$ is the derivative of \eqref{eq:master} with respect to $r$ at $r=0$, where the factor $r$ vanishes and only the term with the factor differentiated survives; equivalently it is Theorem~\ref{thm:marker} with $\Phi=\log$.
+\end{proof}
+
+\begin{remark}
+The formula \eqref{eq:master} is the one on which all nine reports of Section~\ref{sec:reports} agree, with the same normalization: sign $(-1)^n$, the multi-index factorial $\bk!$ (not $n!$: the multinomial coefficient from expanding $h^n$ has been absorbed), the factor $p^{-n}$ (one $1/p$ from $\Phi'$ and one from each of the $n-1$ derivatives, through $\dd/\dd\Lambda=\D/p$), and the operator constants $r+\sigma+pj$. Forgetting the substitution $L=\log(v/a)/p$ in the coefficients, or the factor $p^{-n}$, are the two classical mistakes for nonunit $p$.
+\end{remark}
+
+\subsection{First orders and cross terms}
+
+For a single block ($m=1$, gap $\delta$, polynomial $B$):
+\begin{equation}
+ g=z-\frac{z^{1+\delta}}{p}B+\frac{z^{1+2\delta}}{2p^2}\bigl((1+2\delta+p)B^2+2BB'\bigr)
+ -\frac{z^{1+3\delta}}{6p^3}(\D+1+3\delta+p)(\D+1+3\delta+2p)B^3+\cdots .
+ \label{eq:single-block}
+\end{equation}
+For two blocks the mixed multi-index $e_i+e_j$ contributes
+\begin{equation}
+ \frac{z^{1+\delta_i+\delta_j}}{p^2}\bigl(\D+1+\delta_i+\delta_j+p\bigr)(B_iB_j)
+ =\frac{z^{1+\delta_i+\delta_j}}{p^2}\bigl((1+\delta_i+\delta_j+p)B_iB_j+B_i'B_j+B_iB_j'\bigr),
+ \label{eq:cross}
+\end{equation}
+which shows why the inverse of a sum of perturbations is not the sum of the separately computed inverse corrections.
+
+\subsection{Degrees and leading logarithms}
+
+\begin{proposition}[Degrees]
+\label{prop:degrees}
+Let $d_i=\deg B_i$ and $D(\bk)=\sum_ik_id_i$. Then $\deg C^{(r)}_{\bk}=D(\bk)$ exactly, with leading coefficient
+\begin{equation}
+ [L^{D(\bk)}]\,C^{(r)}_{\bk}=\frac{(-1)^nr}{p^n\bk!}\prod_{j=1}^{n-1}(r+\sigma+pj)\prod_i\bigl([L^{d_i}]B_i\bigr)^{k_i},
+ \label{eq:leading-coefficient}
+\end{equation}
+which is nonzero whenever $r+\sigma+pj\ne0$ for $1\le j\le n-1$ (always true for $r>0$, $p>0$). A block $C^{(r)}_\sigma$ of the aggregated expansion has degree at most $\max\{D(\bk):\bk\cdot\bdelta=\sigma\}$, with equality unless the leading coefficients of the contributing multi-indices cancel.
+\end{proposition}
+\begin{proof}
+Each factor $\D+c$ with $c\ne0$ preserves the degree and multiplies the top coefficient by $c$; the product $B^{\bk}$ has degree $D(\bk)$.
+\end{proof}
+
+For the log example ($a=p=\delta=1$, $B=1+L$, single index $n$) the formula reads
+\begin{equation}
+\begin{aligned}
+ P_n(L)&=\frac{(-1)^n}{n!}\prod_{j=n+2}^{2n}(\D+j)\,(1+L)^n,\\
+ [L^n]P_n&=\frac{(-1)^n}{n!}\prod_{j=n+2}^{2n}j=(-1)^n\frac{(2n)!}{n!\,(n+1)!}=(-1)^n\Cat_n,
+\end{aligned}
+ \label{eq:log-example}
+\end{equation}
+the signed Catalan numbers. The next coefficient is also explicit: selecting the derivative in exactly one factor of the product gives
+\begin{equation}
+ [L^{n-1}]P_n=(-1)^n\Cat_n\,n\,\bigl(1+H_{2n}-H_{n+1}\bigr),\qquad H_k=\textstyle\sum_{j\le k}1/j,
+ \label{eq:harmonic}
+\end{equation}
+because $\prod_{j=n+2}^{2n}(\D+j)(1+L)^n$ has $L^{n-1}$-coefficient $\bigl(\prod j\bigr)\bigl(n+\sum_{j=n+2}^{2n}n/j\bigr)$ (the term $n$ from expanding $(1+L)^n$ and the terms $n/j$ from applying $\D$ in the factor $j$). Every $P_n$ is divisible by $1+L$: indeed $P_n=-[\eta^{n-1}]$ of $(1+U)^2(1+L+\log(1+U))$ in the triangular recursion of Section~\ref{sec:formal}, and each factor $(\D+j)$ applied to a multiple of $(1+L)$ gives a multiple of $(1+L)$ plus $n$-fold derivatives which again carry the factor after regrouping; the package confirms the factorisation through $n=8$. Thus
+\begin{gather*}
+ P_1=-(1+L),\qquad P_2=(1+L)(2L+3),\qquad P_3=-\tfrac12(1+L)(10L^2+31L+23),\\
+ P_4=\tfrac16(1+L)(84L^3+398L^2+607L+299),
+\end{gather*}
+which are the blocks of \eqref{eq:answer1}.
+
+\subsection{Constant coefficients: Fuss--Catalan numbers}
+
+When every $B_i$ is a constant $b_i$, the operators act as scalars and
+\begin{equation}
+ C^{(r)}_{\bk}=\frac{(-1)^nr}{p^n\bk!}\prod_{j=1}^{n-1}(r+\sigma+pj)\prod_ib_i^{k_i}
+ =\frac{r}{r+\sigma}\binom{-(r+\sigma)/p}{n}\frac{n!}{\bk!}\prod_ib_i^{k_i}.
+ \label{eq:constant-coefficients}
+\end{equation}
+For $f(x)=x+bx^\alpha$ ($p=1$, $\delta=\alpha-1$, $r=1$) this is the generalised Fuss--Catalan law
+\begin{equation}
+\begin{aligned}
+ g(y)&=\sum_{n\ge0}c_n\,b^n\,y^{1+n(\alpha-1)},\\
+ c_n&=\frac{(-1)^n}{n!}\prod_{j=0}^{n-2}(n\alpha-j)=\frac{(-1)^n}{1+n(\alpha-1)}\binom{n\alpha}{n}=(-1)^n\frac{\Gamma(n\alpha+1)}{\Gamma(n+1)\Gamma(n(\alpha-1)+2)},
+\end{aligned}
+ \label{eq:fuss-catalan}
+\end{equation}
+valid for every real $\alpha>1$ (no rationality is used). For $\alpha=2$ the $c_n$ are the signed Catalan numbers and $g=(\sqrt{1+4y}-1)/2$; for $\alpha=\sqrt2$,
+\begin{gather*}
+ c_1=-1,\qquad c_2=\sqrt2,\qquad c_3=-\frac{6-\sqrt2}{2},\\
+ c_4=\frac{17\sqrt2}{3}-4,\qquad c_5=\frac{51\sqrt2}{4}-\frac{305}{12},\qquad c_6=\frac{322\sqrt2}{5}-77,
+\end{gather*}
+which gives \eqref{eq:answer2}. In this one-gap case $g(y)=yV(y^{\alpha-1})$ with $V$ the solution of $V+tV^\alpha=1$, $V(0)=1$, analytic at $t=0$ with radius of convergence
+\begin{equation}
+ R_\alpha=\frac{(\alpha-1)^{\alpha-1}}{\alpha^\alpha},\qquad |c_n|\sim\frac{\sqrt\alpha}{\sqrt{2\pi}\,(\alpha-1)^{3/2}}\,n^{-3/2}R_\alpha^{-n},
+ \label{eq:radius}
+\end{equation}
+by Stirling's formula, so the expansion \eqref{eq:answer2} converges (and equals the positive inverse, by analytic continuation of the implicit equation) for $0<y<R_{\sqrt2}^{1/(\sqrt2-1)}\approx0.12686$. The singularity at $t=-R_\alpha$ is the fold $V=\alpha/(\alpha-1)$ of the implicit equation on the negative axis.
+
+\subsection{Formal existence, uniqueness, and the two iterative engines}
+\label{sec:formal}
+
+Theorem~\ref{thm:coefficients} produces the coefficients; the following independent argument shows that they are the only possible ones and provides two alternative algorithms. Write $g=z(1+U)$ with $U$ an unknown jet of positive valuation. Then $f(g)=y$ is equivalent to
+\begin{equation}
+ E(U):=(1+U)^p\Bigl(1+\sum_iz^{\delta_i}(1+U)^{\delta_i}B_i\bigl(L+\log(1+U)\bigr)\Bigr)-1=0,
+ \label{eq:normalized}
+\end{equation}
+an equation in the jet algebra (Lemma~\ref{lem:composition} evaluates every term).
+
+\begin{proposition}[Triangular structure]
+\label{prop:triangular}
+Equation \eqref{eq:normalized} has exactly one formal solution $U$ of positive valuation with support in the semigroup $S$ generated by the gaps. Its coefficient at $z^\sigma$ is determined by the coefficients at smaller weights through one division by $p$.
+\end{proposition}
+\begin{proof}
+$E(U)=pU+\sum_iz^{\delta_i}B_i(L)+(\text{terms of weight}\ge\min(2\val U,\val U+\delta_*))$, because $(1+U)^p=1+pU+\OO(U^2)$ and every correction carries a factor $z^{\delta_i}$. Order the elements of $S$ increasingly (Lemma~\ref{lem:finite}); at a new weight $\sigma$ the coefficient of $z^\sigma$ in $E(U)$ is $pU_\sigma$ plus an expression in the $U_{\sigma'}$ with $\sigma'<\sigma$, which fixes $U_\sigma$. If $U,V$ are two solutions with $U-V$ of least weight $\sigma$, then $E(U)-E(V)=(U-V)(p+\text{positive weight})$ has a nonzero block at $z^\sigma$, a contradiction.
+\end{proof}
+
+\paragraph{Picard iteration.} Rewriting \eqref{eq:normalized} as $U=\Psi(U):=\bigl(1+\sum_iz^{\delta_i}(1+U)^{\delta_i}B_i(L+\log(1+U))\bigr)^{-1/p}-1$, the map $\Psi$ gains one gap per step: $\val(\Psi(U)-\Psi(V))\ge\val(U-V)+\delta_*$. Hence $U_{k+1}=\Psi(U_k)$, $U_0=0$, agrees with the solution below weight $(k+1)\delta_*$, and $\lceil H/\delta_*\rceil$ iterations give all blocks below $H$.
+
+\paragraph{Newton iteration.} With $E'(U)=p(1+U)^{p-1}+\sum_iz^{\delta_i}(1+U)^{p+\delta_i-1}\bigl((p+\delta_i)B_i+B_i'\bigr)(L+\log(1+U))$, a unit of the jet algebra with constant leading coefficient $p$, the iteration $U_{k+1}=U_k-E(U_k)/E'(U_k)$ doubles the valuation of the error: if $\val(U_k-U)\ge s$ then $\val(U_{k+1}-U)\ge2s$, because $E(U_k)=E'(U)(U_k-U)+\OO((U_k-U)^2)$ and $E'(U_k)^{-1}=E'(U)^{-1}(1+\OO(U_k-U))$. Starting from $U_0=0$ with $s=\delta_*$, about $\log_2(H/\delta_*)$ iterations suffice. The package offers this engine as \wl{Method -> "Newton"}; it and the multi-index formula must agree, which is a strong internal check.

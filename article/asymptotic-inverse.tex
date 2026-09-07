@@ -1,0 +1,105 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=26mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,array,longtable}
+\usepackage{enumitem}
+\usepackage{xcolor,listings,xurl}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=green!35!black,urlcolor=blue!50!black]{hyperref}
+\hypersetup{pdftitle={Asymptotic expansions of inverse functions on a real branch},
+  pdfauthor={Vladimir Reshetnikov, with Claude},
+  pdfsubject={Power-logarithmic reversion with real exponents}}
+\setlength{\parskip}{0.3em}
+\setlength{\emergencystretch}{2.5em}
+\allowdisplaybreaks
+\numberwithin{equation}{section}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\oo}{o}
+\newcommand{\dd}{\mathrm d}
+\newcommand{\D}{\mathcal D}
+\newcommand{\val}{\operatorname{val}}
+\newcommand{\Res}{\operatorname{Res}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\M}{\mathrm M}
+\newcommand{\bk}{\boldsymbol k}
+\newcommand{\bnu}{\boldsymbol\nu}
+\newcommand{\bdelta}{\boldsymbol\delta}
+\newcommand{\PL}{\mathcal P}
+\newcommand{\W}{\mathrm W}
+\newcommand{\wl}[1]{\texttt{#1}}
+\DeclareMathOperator{\Cat}{Cat}
+
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,
+ breaklines=true,showstringspaces=false,frame=single,
+ rulecolor=\color{black!25},backgroundcolor=\color{black!3},
+ aboveskip=0.7em,belowskip=0.7em,language=Mathematica}
+
+\title{Asymptotic expansions of inverse functions on a real branch\\[0.4em]
+\large Power--logarithmic reversion with real exponents, from two Mathematica Stack Exchange questions to a unified theory and a Wolfram Language package}
+\author{Vladimir Reshetnikov\thanks{Written with Claude (Anthropic). The theory synthesises nine independently written reports, listed in Section~\ref{sec:reports}, and adds the extensions needed for the unified package.}}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The inverse of $f(x)=x+x^2(1+\log x)$ on the positive real axis has no Taylor expansion at $0$: its expansion is $y-y^2(1+\log y)+y^3(2\log^2y+5\log y+3)-\cdots$, with a polynomial in $\log y$ at every power. The inverse of $x+x^{\sqrt2}$ has irrational exponents, $y-y^{\sqrt2}+\sqrt2\,y^{2\sqrt2-1}-\cdots$. The built-in functions \wl{InverseSeries}, \wl{Series}, \wl{Asymptotic} and \wl{InverseFunction} of the Wolfram Language either fail on such inputs or return the germ at a complex root. The same algebra of finite \emph{power--log expansions} also governs forward asymptotics with irrational exponents, such as $(1+x+x^{\sqrt2})^{\sqrt2}$ at infinity, where \wl{Asymptotic} returns its input unchanged.
+
+We develop the theory completely: the ordered algebra of power--log blocks and its exact truncated arithmetic; a marker form of Lagrange--B\"urmann inversion at a positive point with an Euler-operator coefficient formula for every block of $g(y)^r$; selection of the real branch; convergence of the expansion by an implicit-function argument in finitely many small parameters, and an explicit conditional tail majorant by Rouch\'e's theorem; the remainder after any exponent cutoff as an asymptotic equality with the first omitted block; transport of forward remainders and residuals to the inverse; a theorem showing that finite smoothness of the perturbation suffices; expansions at finite points from either side and at infinity through signed leading powers; powers and logarithms of the inverse; a precision-tracking forward expansion engine; and the boundaries of the theory (leading logarithms and Lambert $W$, zero gaps, flat terms, oscillations). The Wolfram Language package \wl{AsymptoticInverse} implements all of it with exact real exponents and inert remainder descriptors, and the nine reports that preceded this work are compared, including the first native runs of their test suites.
+\end{abstract}
+
+\tableofcontents
+
+\input{sections/01-introduction}
+\input{sections/02-scale}
+\input{sections/03-forward}
+\input{sections/04-branch}
+\input{sections/05-lagrange}
+\input{sections/06-coefficients}
+\input{sections/07-convergence}
+\input{sections/08-remainders}
+\input{sections/09-transport}
+\input{sections/10-endpoints}
+\input{sections/11-examples}
+\input{sections/12-boundaries}
+\input{sections/13-package}
+\input{sections/14-reports}
+
+\begin{thebibliography}{30}
+\bibitem{q1} V.~Reshetnikov, \emph{How to get an asymptotic of the real-valued branch of the inverse function?}, Mathematica Stack Exchange, question 236367, December 2020. \url{https://mathematica.stackexchange.com/questions/236367/}
+\bibitem{q2} V.~Reshetnikov, \emph{Asymptotic expansion for a function containing irrational exponents}, Mathematica Stack Exchange. (Local copy in \texttt{docs/}.)
+\bibitem{dlmf} NIST Digital Library of Mathematical Functions, \S1.10(vii) Lagrange inversion, \S4.13 Lambert $W$-function. \url{https://dlmf.nist.gov/}
+\bibitem{gessel} I.~M.~Gessel, \emph{Lagrange inversion}, J.\ Combin.\ Theory Ser.\ A \textbf{144} (2016), 212--249. arXiv:1609.05988.
+\bibitem{surya} E.~Surya, L.~Warnke, \emph{Lagrange inversion formula by induction}, arXiv:2305.17576.
+\bibitem{edgar1} G.~A.~Edgar, \emph{Transseries for beginners}, Real Anal.\ Exchange \textbf{35} (2009/10), 253--309. arXiv:0801.4877.
+\bibitem{edgar2} G.~A.~Edgar, \emph{Transseries: composition, recursion, and convergence}, arXiv:0909.1259.
+\bibitem{vdh} J.~van der Hoeven, \emph{Transseries and Real Differential Algebra}, Lecture Notes in Mathematics 1888, Springer, 2006.
+\bibitem{salvy} B.~Salvy, J.~Shackell, \emph{Symbolic asymptotics: multiseries of inverse functions}, J.\ Symbolic Comput.\ \textbf{27} (1999), 543--563.
+\bibitem{cghjk} R.~M.~Corless, G.~H.~Gonnet, D.~E.~G.~Hare, D.~J.~Jeffrey, D.~E.~Knuth, \emph{On the Lambert $W$ function}, Adv.\ Comput.\ Math.\ \textbf{5} (1996), 329--359.
+\bibitem{proveit} V.~Reshetnikov, \emph{Transseries: the polynomial--logarithmic calculus, series reversal at infinity, and the inversion of rapidly growing functions} and \emph{Combinatorial transseries and their inverses}, ProveIt repository, directory \path{Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/series-and-transseries}, September 2026. \url{https://github.com/VladimirReshetnikov/ProveIt}
+\bibitem{reports} The nine reports in the directory \texttt{reports/} of this repository (\texttt{reports/COMPARISON.md}), 7 September 2026.
+\bibitem{wl} Wolfram Research, Wolfram Language documentation: \wl{Series}, \wl{SeriesData}, \wl{InverseSeries}, \wl{InverseFunction}, \wl{Asymptotic}, \wl{AsymptoticSolve}, \wl{RootReduce}, \wl{ProductLog}. \url{https://reference.wolfram.com/language/}
+\end{thebibliography}
+
+\end{document}

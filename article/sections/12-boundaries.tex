@@ -1,0 +1,38 @@
+\section{Boundaries of the theory}
+\label{sec:boundaries}
+
+The finite power--log class is closed under the operations of Theorem~\ref{thm:closure} and under inversion of germs with a monomial leading block. Each of the following situations leaves it, and each requires a specific extension, described here to the extent needed to recognise it and to say what the extension must provide.
+
+\subsection{A leading logarithm: Lambert $W$ and the $\log\log$ scale}
+
+If the leading block is $ax^p(-\log x)^b$ with $b\ne0$, the equation $ax^p(-\log x)^b=y$ is solved exactly by a Lambert $W$ function. With $t=-\log x\to+\infty$ and $Y=y/a$ it reads $t^be^{-pt}=Y$, i.e.\ $(-\tfrac pb)\,t\,e^{-pt/b}=-\tfrac pbY^{1/b}$, so
+\begin{equation}
+ x=\exp\Bigl[\frac bp\,\W_k\Bigl(-\frac pb\,Y^{1/b}\Bigr)\Bigr],\qquad k=-1\ (b>0),\quad k=0\ (b<0),
+ \label{eq:lambert-core}
+\end{equation}
+the branch being forced by $t\to+\infty$: for $b>0$ the argument is small and negative and only $\W_{-1}\to-\infty$ gives $t\to+\infty$ (the branch $\W_0$ describes the other real preimage, near $x=e^{-b/p}$, where $ax^p(-\log x)^b$ has its maximum); for $b<0$ the argument is large and positive and $\W_0\to+\infty$. For instance the inverse of $x\log(1/x)$ is $x=-y/\W_{-1}(-y)$. Expanding $\W_{-1}$ for small argument \cite{cghjk} gives, with $\Lambda=\log(a/y)\to\infty$ and $\Lambda_2=\log\Lambda$,
+\begin{equation}
+ x=\Bigl(\frac ya\Bigr)^{1/p}\Bigl(\frac\Lambda p\Bigr)^{-b/p}\Bigl[1-\frac{b^2}{p\,\Lambda}\log\frac\Lambda p+\OO\Bigl(\frac{\Lambda_2^2}{\Lambda^2}\Bigr)\Bigr],
+ \label{eq:loglog}
+\end{equation}
+a series in the two generators $1/\Lambda$ and $\Lambda_2$ multiplying the leading monomial. Perturbations $x^{\delta}B(\log x)$ of such a core can be handled by the general-core formula \eqref{eq:general-core} with $\phi$ the function \eqref{eq:lambert-core}, and the result is a convergent expansion in powers of $\phi(y)$ with coefficients that are rational functions of $t=-\log\phi(y)$, because $\phi'(y)=\bigl[apx^{p-1}t^{b-1}(pt-b)\bigr]^{-1}$ at $x=\phi(y)$ introduces the denominator $pt-b$. Re-expanding those coefficients in $1/\Lambda$ and $\Lambda_2$ produces the ``nested logarithm'' transseries of \cite{proveit,vdh}. An implementation needs a coefficient algebra of rational functions of $t$ (or of polynomials in $\Lambda_2$ and $1/\Lambda$), a second truncation policy for the logarithmic depth, and the corresponding closure and remainder theorems; the package reports such inputs as \wl{Failure["LogarithmicLeadingTerm"]} rather than pretending to be a transseries engine.
+
+\subsection{Zero gaps: corrections of relative size $1/\log$}
+
+For $f(x)=x+x/\log x$ the correction has power gap $0$ and relative size $1/\log x$. All corrections of the inverse then sit at the same power $y$ with increasing negative powers of $\log y$, the index set $I_H$ is infinite, and the exponent cutoff has no meaning. The right coordinate is $\tau=1/\log y$: with $g=yW$ the equation becomes $W\bigl(1+\tau/(1+\tau\log W)\bigr)=1$, analytic near $(W,\tau)=(1,0)$, so $W$ is an ordinary convergent power series in $\tau$, $W=1-\tau+\tau^2-\tau^3+\cdots$ (the first terms), i.e.\ $g(y)=y\bigl(1-1/\log y+1/\log^2y-\cdots\bigr)$. The general-core formula produces these terms, but the scale is the reciprocal-logarithm scale, not the power--log scale, and a package extension needs $\tau$ as a second generator with its own valuation.
+
+\subsection{Flat terms}
+
+$e^{-1/x}$ is smaller than every power of $x$; a germ $x+e^{-1/x}$ has the same power--log expansion as $x$, and its inverse differs from $y$ by $-e^{-1/y}(1+\oo(1))$ (by Theorem~\ref{thm:transport} the difference is $\OO(e^{-1/y})$, and the marker formula gives $y-e^{-1/y}+y^{-2}e^{-2/y}+(y^{-3}-\tfrac32y^{-4})e^{-3/y}+\cdots$). Such terms live in exponential sectors of a transseries; the power--log expansion is blind to them, and the package rejects exponentials of unbounded arguments instead of dropping them.
+
+\subsection{Oscillatory coefficients}
+
+$x^2\sin(\log x)$ is $\OO(x^2)$ with all derivatives of the right size, so Theorem~\ref{thm:tame} applies and the marker formula gives a valid expansion $y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4)$ whose ``coefficients'' are bounded oscillating functions of $L=\log y$. They are not polynomials in $L$, the coefficient algebra is different, and the sharp remainder theory of Section~\ref{sec:remainders} (which uses degrees) does not apply; only the tame theorem does. The package's \wl{PerturbativeInverse} generates the terms and leaves the remainder to the user.
+
+\subsection{Symbolic exponents and nonuniformity}
+
+When a gap $\delta$ is a symbol, the order of the weights $k\cdot\bdelta$ is a question about the parameter: for two gaps $\delta_1,\delta_2$ the relative order of $2\delta_1$ and $\delta_2$ depends on whether $\delta_2<2\delta_1$. Exponent truncation therefore requires a proof of every comparison from the assumptions, which the package attempts (\wl{FullSimplify} under \wl{Assumptions}) and refuses when it fails; depth truncation (Theorem~\ref{thm:depth}) needs only the positivity of the gaps. Nothing is uniform in a gap tending to $0$: the convergence radius \eqref{eq:radius} of the $x+x^\alpha$ inverse tends to $0$ as $\alpha\downarrow1$, and at $\alpha=1$ the inverse is $y/2$, not $y+\oo(y)$.
+
+\subsection{Nested powers of the logarithm}
+
+Non-integer powers $(\log x)^{s}$ or $\log\log x$ in a correction, and negative powers of $\log x$ in a coefficient, all leave the polynomial coefficient algebra; a correction $x^\delta(\log x)^{1/2}$ is admissible in the sense of Theorem~\ref{thm:tame} (with $M=1$) but its inverse expansion has coefficients in $\R[L^{1/2}]$. Each such extension is a change of the coefficient ring with the same exponent bookkeeping; the Euler identity and the composition recurrence survive (they only use $\partial_L$), and what has to be added is the closure of the new coefficient ring under the operations and the corresponding remainder classes.

@@ -1,0 +1,59 @@
+\section{Worked examples}
+\label{sec:examples}
+
+All expansions in this section were produced by the package and checked by the residual composition of Section~\ref{sec:transport} and numerically; the displayed logarithms are $\log$ of the indicated argument.
+
+\subsection{The two examples of the first question, once more}
+
+For $f_1=x+x^2(1+\log x)$ the package call \wl{AsymptoticInverse[x + x\^{}2 (1 + Log[x]), \{x, 0\}, \{y, 6\}]} returns \eqref{eq:answer1} with the remainder \wl{PowerLogRemainder[y, 6, 5]}; the sixth block is
+\begin{align*}
+ P_5(L)&=-42L^5-\tfrac{3727}{12}L^4-\tfrac{5365}{6}L^3-1256L^2-\tfrac{5177}{6}L-\tfrac{2789}{12}\\
+ &=-\tfrac1{12}(1+L)\bigl(504L^4+3223L^3+7507L^2+7565L+2789\bigr),
+\end{align*}
+and the seventh $P_6=\tfrac1{60}(1+L)(7920L^5+63852L^4+200833L^3+308537L^2+231883L+68307)$. With rational exponents the same object is available as \wl{SeriesData[y, 0, \{1, -1 - Log[y], 3 + 5 Log[y] + 2 Log[y]\^{}2, ...\}, 1, 6, 1]}, on which the built-in series arithmetic works (with the caveat that its \wl{O[y]\^{}6} hides the factor $\M(y)^5$).
+
+For $f_2=x+x^{\sqrt2}$, \wl{SeriesTermGoal -> 4} returns exactly the four terms requested in the question with remainder \wl{PowerLogRemainder[y, 4 Sqrt[2] - 3, 0]}; the exponent cutoff that produces the same result is $4\sqrt2-3$.
+
+\subsection{Nonunit leading power}
+
+$f(x)=3x^2\bigl(1+x(1+\log x)\bigr)$: $a=3$, $p=2$, $\delta=1$, $B=1+L$. With $z=\sqrt{y/3}$ and $L=\log z=\tfrac12\log(y/3)$, \eqref{eq:single-block} gives
+\begin{equation}
+ g(y)=z-\frac{z^2}{2}(1+L)+\frac{z^3}{8}\bigl(5L^2+12L+7\bigr)-\frac{z^4}{48}(\D+6)(\D+8)(1+L)^3+\OO\bigl(z^5\M^4\bigr),
+ \label{eq:nonunit}
+\end{equation}
+where $\tfrac1{48}(\D+6)(\D+8)(1+L)^3=(1+L)^3+\tfrac78(1+L)^2+\tfrac18(1+L)$. Two ingredients are easy to forget: the factor $p^{-n}=2^{-n}$ and the logarithm $L=\tfrac12\log(y/3)$, not $\log y$. In the variable $y$ the expansion reads
+\begin{align*}
+ g(y)={}&\frac{\sqrt y}{\sqrt3}-\frac y3\Bigl(\frac12+\frac{\log(y/3)}{4}\Bigr)+\frac{y^{3/2}}{3\sqrt3}\Bigl(\frac78+\frac34\log\frac y3+\frac5{32}\log^2\frac y3\Bigr)\\
+ &-\frac{y^2}{9}\Bigl(2+\frac{39}{16}\log\frac y3+\frac{31}{32}\log^2\frac y3+\frac18\log^3\frac y3\Bigr)+\OO\bigl(y^{5/2}\M^4\bigr).
+\end{align*}
+
+\subsection{Several gaps}
+
+\paragraph{Irrational and logarithmic gaps together.} $f(x)=x+x^{\sqrt2}+x^2(1+\log x)$ has gaps $\delta_1=\sqrt2-1$ and $\delta_2=1$. Below the exponent $3$ the support is $\{1,\sqrt2,2\sqrt2-1,2,3\sqrt2-2,1+\sqrt2,4\sqrt2-3,2\sqrt2\}$ and
+\begin{align*}
+ g(y)={}&y-y^{\sqrt2}+\sqrt2\,y^{2\sqrt2-1}-y^2(1+L)-\frac{6-\sqrt2}{2}\,y^{3\sqrt2-2}+y^{1+\sqrt2}\bigl((\sqrt2+2)L+\sqrt2+3\bigr)\\
+ &+\Bigl(\frac{17\sqrt2}{3}-4\Bigr)y^{4\sqrt2-3}-y^{2\sqrt2}\Bigl((3\sqrt2+5)L+5\sqrt2+\frac{13}{2}\Bigr)+\OO\bigl(y^3\M^2\bigr),\qquad L=\log y ,
+\end{align*}
+the mixed blocks coming from \eqref{eq:cross}: the index $(1,1)$ gives $(\D+2+\sqrt2)(1+L)=(\sqrt2+2)(1+L)+1$. The remainder is the block $y^3(2L^2+5L+3)$ of the index $(0,2)$, of degree $2$.
+
+\paragraph{Two irrational gaps.} $f(x)=x+x^{\sqrt2}(1+\log x)+2x^{\sqrt3}$ has gaps $\sqrt2-1$ and $\sqrt3-1$, whose sums are the numbers $k_1(\sqrt2-1)+k_2(\sqrt3-1)$; the package represents them by \wl{RootReduce} (for instance $\sqrt2+\sqrt3=\wl{Root[1 - 10 \#\^{}2 + \#\^{}4 \&, 4]}$) and displays them with \wl{ToRadicals}. Below the exponent $3$ there are eleven blocks; the residual check passes only when the coefficients, which involve $\sqrt{5+2\sqrt6}=\sqrt2+\sqrt3$, are canonicalised with \wl{RootReduce}: this is precisely the zero-recognition defect that made one test of report~01 fail (Section~\ref{sec:reports}).
+
+\subsection{Automatically expanded forward functions}
+
+$\sin x+x^2\log x$ is not a finite power--log sum. The evaluator of Section~\ref{sec:evaluator} expands it to $x+x^2\log x-\tfrac16x^3+\tfrac1{120}x^5+\OO(x^7)$, records $(\rho,k)=(7,0)$, and the inverse below the exponent $4$ is
+\[
+ g(y)=y-y^2\log y+y^3\Bigl(\frac16+\log y+2\log^2y\Bigr)+\OO\bigl(y^4\M^3\bigr);
+\]
+here the $y^3$ block combines $(\D+4)L^2/2=2L^2+L$ from the index $(2,0)$ (gap $1$, $B_1=L$) with $+\tfrac16$ from the index $(0,1)$ (gap $2$, $B_2=-\tfrac16$). Similarly $\tan x$ gives $\arctan$: \wl{SeriesTermGoal -> 4} yields $y-\tfrac13y^3+\tfrac15y^5-\tfrac17y^7$, the forward order being raised automatically until the transported remainder allows the fourth term.
+
+\subsection{Symbolic data}
+
+With symbolic coefficients the exponents remain numeric and everything goes through under assumptions that make the leading coefficient's sign and the reality of the coefficients provable: $f=ax+bx^2$ with $a>0$, $b\in\R$ gives $g=y/a-by^2/a^3+2b^2y^3/a^5+\OO(y^4)$. With a symbolic exponent the ordering of the support is undecidable in general and depth truncation (Theorem~\ref{thm:depth}) is used: $f=x+x^\alpha$ with $\alpha>1$ gives, at depth $3$,
+\[
+ g=y-y^\alpha+\alpha y^{2\alpha-1}-\frac{\alpha(3\alpha-1)}{2}y^{3\alpha-2}+\OO\bigl(y^{4\alpha-3}\bigr),
+\]
+which is \eqref{eq:fuss-catalan} with a symbolic $\alpha$.
+
+\subsection{Powers and logarithms of the inverse}
+
+For $f=x+x^2$, \eqref{eq:master} with $r=2$ gives $g^2=y^2-2y^3+5y^4-14y^5+\cdots$ (Catalan numbers again), with $r=-1$ it gives $1/g=y^{-1}+1-y+2y^2-5y^3+\cdots$, and \eqref{eq:master-1-log} gives $\log g=\log y-y+\tfrac32y^2-\tfrac{10}3y^3+\cdots$. These expansions are exact consequences of the same coefficient formula and cost nothing extra; expanding \wl{Normal[g]\^{}2} instead would silently lose the remainder information.

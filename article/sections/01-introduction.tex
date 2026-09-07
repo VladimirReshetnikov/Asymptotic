@@ -1,0 +1,71 @@
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Two questions}
+
+The first question \cite{q1} asks for an asymptotic expansion, as $y\to0^+$, of the inverse of
+\begin{equation}
+ f_1(x)=x+x^2(1+\log x),\qquad x>0,
+ \label{eq:f1}
+\end{equation}
+on the branch that maps $(0,\infty)$ to itself. The natural attempts fail in instructive ways.
+\wl{AsymptoticSolve[x + x\^{}2 (1 + Log[x]) == y, \{x\}, y -> 0]} returns unevaluated; \wl{InverseSeries} returns unevaluated because the forward series has a coefficient containing $\log x$; and
+\begin{lstlisting}
+Series[InverseFunction[Function[x, x + x^2 (1 + Log[x])]][y], {y, 0, 2}]
+\end{lstlisting}
+returns the perfectly correct Taylor germ
+\begin{equation}
+ c+\frac{y}{c-1}-\frac{3+2\W_{-1}(-e)}{2(c-1)^3}\,y^2+\OO(y^3),\qquad c=e^{\W_{-1}(-e)-1}\approx-0.1178-0.5332\,i,
+ \label{eq:complex-germ}
+\end{equation}
+of the inverse at a \emph{different} preimage of $0$: the nonzero complex root $c$ of $1+x(1+\log x)=0$, where $f_1$ is analytic and $f_1'(c)=c-1\ne0$ (Section~\ref{sec:branch}). The real branch has no Taylor expansion at all. Its expansion is
+\begin{equation}
+\begin{aligned}
+ g_1(y)={}&y-y^2(1+L)+y^3\bigl(2L^2+5L+3\bigr)-y^4\Bigl(5L^3+\tfrac{41}{2}L^2+27L+\tfrac{23}{2}\Bigr)\\
+ &+y^5\Bigl(14L^4+\tfrac{241}{3}L^3+\tfrac{335}{2}L^2+151L+\tfrac{299}{6}\Bigr)+\OO\bigl(y^6(1+|L|)^5\bigr),
+\end{aligned}
+ \label{eq:answer1}
+\end{equation}
+with $L=\log y$: every power of $y$ carries a polynomial in $\log y$, of degree growing with the power, so the scale of the expansion is neither a Taylor nor a Puiseux scale. The question also asks, as a second example, for
+\begin{equation}
+ g_2(y)=y-y^{\sqrt2}+\sqrt2\,y^{2\sqrt2-1}-\frac{6-\sqrt2}{2}\,y^{3\sqrt2-2}+\Bigl(\frac{17\sqrt2}{3}-4\Bigr)y^{4\sqrt2-3}+\OO\bigl(y^{5\sqrt2-4}\bigr),
+ \label{eq:answer2}
+\end{equation}
+the inverse of $f_2(x)=x+x^{\sqrt2}$: no logarithms this time, but exponents in the semigroup $1+(\sqrt2-1)\N$, which no rational grid contains.
+
+The second question \cite{q2} is about forward asymptotics. \wl{Asymptotic[(1 + x + x\^{}Sqrt[2])\^{}Sqrt[2], x -> Infinity]} correctly returns $x^2$, but with \wl{SeriesTermGoal -> 7} it returns the input unchanged. The expansion is
+\begin{equation}
+\begin{aligned}
+ (1+x+x^{\sqrt2})^{\sqrt2}={}&x^2+\sqrt2\,x^{3-\sqrt2}+\sqrt2\,x^{2-\sqrt2}+\Bigl(1-\tfrac1{\sqrt2}\Bigr)x^{4-2\sqrt2}+(2-\sqrt2)\,x^{3-2\sqrt2}\\
+ &+\Bigl(\tfrac{2\sqrt2}{3}-1\Bigr)x^{5-3\sqrt2}+\tfrac{13-9\sqrt2}{12}\,x^{6-4\sqrt2}+\OO\bigl(x^{7-5\sqrt2}\bigr),
+\end{aligned}
+ \label{eq:answer3}
+\end{equation}
+and the inverse of this function, as $y\to\infty$, begins $\sqrt y-\tfrac1{\sqrt2}\,y^{(2-\sqrt2)/2}-\tfrac1{\sqrt2}\,y^{(1-\sqrt2)/2}+\cdots$.
+
+\subsection{What is common to all of this}
+
+All these expansions are finite or infinite sums of \emph{power--log blocks} $w^\beta P(\log w)$, where $w\to0^+$ is a local variable ($w=y$, $w=1/x$, \dots), $\beta$ is a real exponent, and $P$ is a polynomial. The exponents lie in a finitely generated additive semigroup, which is locally finite even when it is dense in $\R$, so every truncation is a finite computation; the logarithmic polynomials are handled by the Euler identity $\frac{\dd}{\dd w}\bigl[w^\beta P(\log w)\bigr]=w^{\beta-1}(\beta+\tfrac{\dd}{\dd L})P(L)$; and remainders must keep their logarithmic factor, because $y^3(2\log^2y+5\log y+3)$ is not $\OO(y^3)$.
+
+This article gives the complete theory of this algebra as far as it is needed to compute and to justify such expansions, forward and inverse, with proofs, and describes the package \wl{AsymptoticInverse} that implements it. It grew out of nine independently written reports on the first question (Section~\ref{sec:reports} and \cite{reports}), which agree on the core of the theory and each contribute something the others lack; here their contents are unified, the proofs are completed, and the theory is extended to finite endpoints from either side, to infinity, to powers and logarithms of the inverse, and to the forward expansion problem of the second question.
+
+\subsection{Summary of results}
+
+\begin{itemize}[leftmargin=1.6em]
+\item \textbf{Scale} (Section~\ref{sec:scale}). Power--log blocks are totally ordered by size, the finitely generated exponent semigroups are locally finite, and the truncated arithmetic (products, real powers, logarithms, exponentials, composition with polynomials in the logarithm) is exact and terminates. The single primitive is the composition recurrence $Q_{k+1}=\bigl((a-k)Q_k+Q_k'\bigr)/(k+1)$ for $(1+t)^aP(L+\log(1+t))$.
+\item \textbf{Forward expansions} (Section~\ref{sec:forward}). Expressions built from constants, the variable, arithmetic, real powers, logarithms, bounded exponentials and analytic functions of expressions with a limit have convergent power--log expansions; a precision-tracking evaluator produces them with a rigorous remainder class, which answers the second question.
+\item \textbf{Branch} (Section~\ref{sec:branch}). For $f(x)=ax^p(1+\sum_ix^{\delta_i}B_i(\log x))$ with $a,p\ne0$, $\delta_i>0$, the real branch is the one with $x>0$ and $x/(y/a)^{1/p}\to1$; it is unique, and the complex germ \eqref{eq:complex-germ} is explained.
+\item \textbf{Lagrange--B\"urmann with a marker} (Section~\ref{sec:lagrange}). A residue proof of $\Phi(u)=\Phi(q)+\sum_N\frac{(-\eta)^N}{N!}\partial_q^{N-1}[\Phi'(q)h(q)^N]$ at a positive point, valid analytically and formally, with the transport of observables and the general-core form.
+\item \textbf{Coefficients} (Section~\ref{sec:coefficients}). For every multi-index $\bk$ of weight $\sigma$, the block of $g(y)^r$ at $z^{r+\sigma}$, $z=(y/a)^{1/p}$, is
+ $\frac{(-1)^{|\bk|}r}{p^{|\bk|}\bk!}\prod_{j=1}^{|\bk|-1}(\D+r+\sigma+pj)\prod_iB_i(L)^{k_i}$, $\D=\dd/\dd L$; equal weights are added. Degrees, leading logarithms (Catalan numbers), closed forms for constant coefficients (Fuss--Catalan), $\log g$, and the formal uniqueness through the triangular equation, Picard iteration and Newton iteration.
+\item \textbf{Convergence} (Section~\ref{sec:convergence}). The expansion converges absolutely for small positive $y$ after substituting finitely many small parameters $z^{\delta_i}(\log z)^j$, with coefficient bounds $|C_{\bk}(L)|\le MK^{|\bk|}(1+|L|)^{D(\bk)}$; an explicit conditional tail majorant follows from Rouch\'e's theorem.
+\item \textbf{Remainders} (Section~\ref{sec:remainders}). Truncation below any exponent cutoff leaves $z^{1+\sigma_*}C_{\sigma_*}(L)+\oo(z^{1+\sigma_*})$ where $\sigma_*$ is the first omitted weight and $C_{\sigma_*}$ the complete coefficient there, computed from the one-step boundary of the retained multi-index set; depth truncation has its own bound.
+\item \textbf{Transport} (Section~\ref{sec:transport}). Forward remainders and residuals are transported to the inverse with the correct scaling $z^{1-p}$; a residual bracket gives existence and a two-sided error bound; and a theorem with a complete proof shows that finite smoothness of the perturbation, with derivative bounds in the power--log scale, suffices for the marker formula with an explicit remainder, which covers perturbations such as $x^2\sin(\log x)$.
+\item \textbf{Endpoints} (Section~\ref{sec:endpoints}). Finite points from either side and $\pm\infty$ reduce to the same engine through a local variable and a signed leading power $p\ne0$; the limit $y_0$ may be finite or infinite; powers $(x-x_0)^r$ and $x^r$ of the inverse are obtained directly. Worked examples include the Wright omega function and the inverse of \eqref{eq:answer3}.
+\item \textbf{Boundaries} (Section~\ref{sec:boundaries}). Leading logarithms force a Lambert-$W$ coordinate and a $\log\log$ scale; zero gaps force $1/\log y$; flat and oscillatory terms; symbolic exponents and depth truncation; what an extension needs.
+\item \textbf{Package and reports} (Sections~\ref{sec:package}, \ref{sec:reports}). Data structures, exact comparison of algebraic exponents, the two engines, precision rules, checks; and the comparison of the nine reports, whose Wolfram packages were run natively for the first time.
+\end{itemize}
+
+\subsection{Conventions}
+
+$\N=\{0,1,2,\dots\}$. For a local variable $w\to0^+$ we write $L=\log w$ and $\M(w)=1+|\log w|$. $\OO$ and $\oo$ refer to $w\to0^+$ with all other data fixed; no uniformity in parameters is asserted unless stated. $\D=\dd/\dd L$ acts on polynomials in $L$. For a multi-index $\bk=(k_1,\dots,k_m)\in\N^m$ we write $|\bk|=\sum k_i$, $\bk!=\prod k_i!$, and $\bk\cdot\bdelta=\sum k_i\delta_i$. Real powers of positive quantities are $w^\beta=e^{\beta\log w}$; complex powers are never used on the real branch. Cutoffs are \emph{exclusive}: a cutoff $q$ retains the blocks of exponent $<q$. Wolfram Language names are set in typewriter font.

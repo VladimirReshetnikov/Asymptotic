@@ -1,0 +1,75 @@
+\section{Convergence}
+\label{sec:convergence}
+
+A formal identity such as \eqref{eq:master} says nothing, by itself, about the function $g$: the series might diverge, or converge to something else. This section proves that the expansion converges absolutely for small $z$ and equals the branch of Theorem~\ref{thm:branch}, first by an implicit-function argument that also yields the coefficient bounds needed for the remainder theory, then by a Rouch\'e argument that yields explicit constants.
+
+\subsection{Convergence in finitely many small parameters}
+
+\begin{theorem}[Convergence]
+\label{thm:convergence}
+Let $f$ be the germ \eqref{eq:model} and $g$ its branch. For every real $r$ the series \eqref{eq:master} converges absolutely for all sufficiently small $z>0$, its sum is $g(y)^r$, and there are constants $M,K$ such that
+\begin{equation}
+ \bigl|C^{(r)}_{\bk}(L)\bigr|\le M\,K^{|\bk|}\,\M(z)^{D(\bk)}\qquad(L\le\log z_1),\quad D(\bk)=\textstyle\sum_ik_i\deg B_i .
+ \label{eq:coefficient-bound}
+\end{equation}
+In particular $g^r\in\mathcal E$ (Definition~\ref{def:pl-expansion}) with support $r+S$.
+\end{theorem}
+\begin{proof}
+Write $g=z\,w$ with $w\to1$; by \eqref{eq:normalized} the unknown $w$ solves
+\[
+ w^p\Bigl(1+\sum_iz^{\delta_i}w^{\delta_i}B_i(L+\log w)\Bigr)=1 .
+\]
+Expand each $B_i(L+\log w)=\sum_{j=0}^{d_i}L^jA_{ij}(\log w)$ with $A_{ij}(v)=\sum_{s\ge j}b_{is}\binom sjv^{s-j}$, where $B_i=\sum_sb_{is}L^s$. Introduce independent complex parameters $T_{ij}$ in place of $z^{\delta_i}L^j$ and consider
+\begin{equation}
+ \mathcal E(w,T)=w^p\Bigl(1+\sum_{i,j}T_{ij}\,w^{\delta_i}A_{ij}(\log w)\Bigr)-1 .
+ \label{eq:parametric}
+\end{equation}
+On the disc $|w-1|<1$ with the principal logarithm, $\mathcal E$ is analytic in $(w,T)$; $\mathcal E(1,0)=0$ and $\partial_w\mathcal E(1,0)=p\ne0$. The analytic implicit function theorem gives an analytic $W(T)$ on a polydisc $|T_{ij}|<\rho$ with $W(0)=1$ and $\mathcal E(W(T),T)=0$, and $W^r$ is analytic there too. Its Taylor series $W(T)^r=\sum_{\bnu}c_{\bnu}T^{\bnu}$ converges absolutely on the smaller polydisc $|T_{ij}|\le\rho/2$, with the Cauchy estimates $|c_{\bnu}|\le M(2/\rho)^{|\bnu|}$.
+
+Now specialise $T_{ij}=z^{\delta_i}L^j$. Since $z^{\delta_i}\M(z)^{d_i}\to0$, the point lies in the polydisc for small $z$, and $W(T(z))$ is real (all data are real and the solution is unique) and close to $1$, so $zW(T(z))$ is a solution of $f(u)=y$ with $u\sim z$; by Theorem~\ref{thm:branch} it is $g(y)$. Group the absolutely convergent series $\sum c_{\bnu}\prod_{ij}(z^{\delta_i}L^j)^{\nu_{ij}}$ by the multi-index $k_i=\sum_j\nu_{ij}$: the terms with a given $\bk$ are finitely many (at most $\prod_i(d_i+1)^{k_i}$), and their sum is $z^{\bk\cdot\bdelta}$ times a polynomial in $L$ of degree at most $\sum_j j\nu_{ij}\le D(\bk)$. Absolute convergence permits this regrouping, so $g^r=z^r\sum_{\bk}z^{\bk\cdot\bdelta}\tilde C_{\bk}(L)$ with the bound \eqref{eq:coefficient-bound} for $K=(2/\rho)\max_i(d_i+1)$. Finally the $\tilde C_{\bk}$ are the coefficients $C^{(r)}_{\bk}$ of \eqref{eq:master}: both are formal solutions of the same triangular problem (Proposition~\ref{prop:triangular} for $r=1$; for general $r$ apply the observable $w\mapsto w^r$), which has a unique solution.
+\end{proof}
+
+\begin{remark}
+The theorem does not give a radius of convergence in $y$: logarithms are present, and the expansion is not a power series in any single variable (except in the one-gap constant-coefficient case, \eqref{eq:radius}). It gives convergence of a multivariate power series after the substitution $T_{ij}=z^{\delta_i}(\log z)^j$, uniformly on $0<z<z_1$. Nor is anything uniform in the parameters $a,p,\delta_i,B_i$: as a gap $\delta\to0$ the hierarchy collapses, and the expansion of $x+x^\alpha$ at $\alpha\downarrow1$ has radius \eqref{eq:radius} tending to $0$.
+\end{remark}
+
+\subsection{An explicit conditional majorant}
+
+The implicit-function argument has no explicit constants. Rouch\'e's theorem in the marker equation gives them, at the price of a hypothesis that must be checked at each $y$.
+
+\begin{theorem}[Explicit tail bound]
+\label{thm:majorant}
+Consider the near-identity germ $f(t)=t+h(t)$, $h(t)=\sum_it^{1+\alpha_i}P_i(\log t)$ with $\alpha_i>0$ and $P_i(L)=\sum_sp_{is}L^s$ (the general germ reduces to this form by $t=u^p$, $q=v/a$). Fix $0<r<1$, put $c_r=-\log(1-r)$ and
+\begin{equation}
+ \mathcal Q_r(t)=\frac1r\sum_it^{\alpha_i}(1+r)^{1+\alpha_i}\sum_s|p_{is}|\bigl(|\log t|+c_r\bigr)^s .
+ \label{eq:Qr}
+\end{equation}
+Let $t>0$ satisfy $\mathcal Q_r(t)<1$. Then:
+\begin{enumerate}[leftmargin=1.8em]
+\item for every complex $\lambda$ with $|\lambda|<1/\mathcal Q_r(t)$ the equation $u+\lambda h(u)=t$ has exactly one solution $u(\lambda)$ in the disc $|u-t|<rt$; it is analytic in $\lambda$, $u(0)=t$, and $u(\lambda)$ is real for real $\lambda$;
+\item the Lagrange terms $u_N=\frac{(-1)^N}{N!}\frac{\dd^{N-1}}{\dd t^{N-1}}[h(t)^N]$ satisfy $|u_N|\le\frac{rt}{N}\mathcal Q_r(t)^N$, and $u(\lambda)=t+\sum_{N\ge1}u_N\lambda^N$ converges absolutely for $|\lambda|<1/\mathcal Q_r(t)$, in particular at $\lambda=1$;
+\item $u(1)$ is the positive solution of $f(u)=t$ in $(t(1-r),t(1+r))$, it coincides with the branch $g(t)$ for all sufficiently small $t$, and
+\begin{equation}
+ \Bigl|u(1)-t-\sum_{N=1}^{N_0}u_N\Bigr|\le\frac{r\,t}{N_0+1}\,\frac{\mathcal Q_r(t)^{N_0+1}}{1-\mathcal Q_r(t)} .
+ \label{eq:tail-bound}
+\end{equation}
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+On the circle $|s-t|=rt$ write $s=t(1+\zeta)$ with $|\zeta|=r<1$. Then $|s|\le(1+r)t$ and, for the principal logarithm, $|\log s|\le|\log t|+|\log(1+\zeta)|\le|\log t|+\sum_{k\ge1}r^k/k=|\log t|+c_r$. Hence $|h(s)|\le\sum_i((1+r)t)^{1+\alpha_i}\sum_s|p_{is}|(|\log t|+c_r)^s=rt\,\mathcal Q_r(t)$. For $|\lambda|\mathcal Q_r(t)<1$ this gives $|\lambda h(s)|<rt=|s-t|$ on the circle, and Rouch\'e's theorem applied to $s-t+\lambda h(s)$ and $s-t$ shows that the former has exactly one zero in the disc, which is (1); analyticity in $\lambda$ follows from the argument-principle integral as in Theorem~\ref{thm:marker}, and reality from uniqueness together with the invariance of the equation under conjugation. The coefficients $u_N$ of the analytic function $\lambda\mapsto u(\lambda)-t$ are given by Theorem~\ref{thm:marker}; Cauchy's estimate for the $(N-1)$-st derivative of $h^N$ on the circle of radius $rt$ gives $|u_N|\le\frac1{N!}\,\frac{(N-1)!\,(rt\mathcal Q_r)^N}{(rt)^{N-1}}=\frac{rt}{N}\mathcal Q_r^N$, which is (2). For (3), $u(1)$ is real and in the disc, hence in $(t(1-r),t(1+r))$; $g(t)\sim t$ lies in that interval for small $t$ and is also a root, so uniqueness gives $u(1)=g(t)$; and the tail bound is $\sum_{N>N_0}\frac{rt}{N}\mathcal Q_r^N\le\frac{rt}{N_0+1}\sum_{N>N_0}\mathcal Q_r^N$.
+\end{proof}
+
+\begin{corollary}[Exponent cutoff]
+\label{cor:cutoff-bound}
+Let $G_B$ retain all multi-indices of weight $\bk\cdot\boldsymbol\alpha\le B$. Every multi-index with $|\bk|\le N_0:=\lfloor B/\alpha_{\max}\rfloor$ is retained, so under $\mathcal Q_r(t)<1$
+\[
+ |g(t)-G_B(t)|\le\frac{rt}{N_0+1}\,\frac{\mathcal Q_r(t)^{N_0+1}}{1-\mathcal Q_r(t)} .
+\]
+\end{corollary}
+\begin{proof}
+The omitted part of the multi-marker expansion is a subseries of $\sum_{N>N_0}u_N$ (the expansion of $u_N$ into multi-indices is absolutely convergent by the same Cauchy estimates, since $\sum_{|\bk|=N}\frac{\prod M_i^{k_i}}{\bk!}=\frac{(\sum M_i)^N}{N!}$).
+\end{proof}
+
+\begin{example}
+For $f_1(x)=x+x^2(1+\log x)$ and $r=\frac12$: $\mathcal Q_{1/2}(y)=\frac92\,y\,(1+|\log y|+\log2)$, so for $y\le\frac1{100}$ (where $\mathcal Q_{1/2}\le0.284$) the expansion converges and the error after $N_0$ blocks is at most $\frac{y}{2(N_0+1)}\mathcal Q_{1/2}(y)^{N_0+1}/(1-\mathcal Q_{1/2}(y))$; at $y=10^{-2}$ and $N_0=3$ this is $1.1\cdot10^{-5}$ while the actual error is $1.5\cdot10^{-7}$. The bound is conditional (it says nothing when $\mathcal Q_r\ge1$) and not tight, but it is rigorous, cheap, and turns the asymptotic statements into inequalities at specific points.
+\end{example}

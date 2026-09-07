@@ -1,0 +1,81 @@
+\section{Finite endpoints, infinity, and powers of the inverse}
+\label{sec:endpoints}
+
+Nothing in Sections~\ref{sec:branch}--\ref{sec:remainders} used the sign of $p$ or the position of the endpoint: the substitution $t=u^p$, the marker theorem at a positive point, the Euler identity and the parametric implicit-function argument only need $p\ne0$ and $u\to0^+$. This section makes the bookkeeping explicit.
+
+\subsection{Local variables}
+
+Let $f$ be given near $x_0$, and let $u\to0^+$ be the local variable of $x$:
+\begin{equation}
+ u=\begin{cases}x-x_0 & x\to x_0^+\ (\text{\wl{Direction -> "FromAbove"}}),\\ x_0-x & x\to x_0^-,\\ 1/x & x\to+\infty,\\ -1/x & x\to-\infty .\end{cases}
+ \label{eq:local-u}
+\end{equation}
+Substituting into $f$ and expanding (Section~\ref{sec:forward}) gives a germ $y_0+au^p(1+\sum u^{\delta_i}B_i(\log u))$ in the sense of \eqref{eq:model}, where $y_0=\lim f$ is finite when $p>0$; when the expansion has negative powers the limit is $y_0=\pm\infty$ (sign of $a$), $p<0$, and any constant term is a correction with gap $-p$. The local variable of $y$ is $w=|v|$, $v=y-y_0$ or $v=y$:
+\begin{equation}
+ w=\begin{cases}\ \ \,y-y_0 & a>0,\ p>0,\\ -(y-y_0) & a<0,\ p>0,\\ \ \ \,1/|y| & p<0 .\end{cases}
+ \label{eq:local-w}
+\end{equation}
+The uniformizer $z=(v/a)^{1/p}$ tends to $0^+$ in all cases, and $w=|a|z^{|p|}$.
+
+\subsection{The theorem at an arbitrary endpoint}
+
+\begin{theorem}[Signed leading power]
+\label{thm:endpoints}
+Theorems~\ref{thm:branch}, \ref{thm:coefficients}, \ref{thm:convergence} and \ref{thm:remainder} hold verbatim for the germ \eqref{eq:model} with $p<0$: the unique branch with $u\to0^+$ is $u=g(y)$ with $g\sim z$, $g^r$ has the expansion \eqref{eq:master} convergent for small $z$ (i.e.\ for $|y|$ large), and the remainder after the exponent cutoff $q$ in $w=1/|y|$ is $\OO(w^{(r+\sigma_*)/|p|}\M(w)^{k_*})$.
+\end{theorem}
+\begin{proof}
+The derivative $f'(u)=apu^{p-1}(1+\oo(1))$ has a constant sign, so $f$ is monotone on $(0,\varepsilon)$ with $f\to\pm\infty$; the inverse exists on a neighbourhood of $\pm\infty$ and $u\sim z$. The proof of Theorem~\ref{thm:coefficients} is a computation at a fixed positive $q=v/a$ and never uses the sign of $p$. The parametric equation \eqref{eq:parametric} has $\partial_w\mathcal E(1,0)=p\ne0$ regardless of sign, and the specialisation $T_{ij}=z^{\delta_i}L^j\to0$ as $z\to0^+$ is the same. The remainder theorem is Lemma~\ref{lem:tail}.
+\end{proof}
+
+In the variable $y$ the blocks of $g^r$ read $(v/a)^{(r+\sigma)/p}C^{(r)}_\sigma\bigl(\tfrac1p\log(v/a)\bigr)$, with negative exponents of $y$ when $p<0$; the exponent of $w$ is $(r+\sigma)/|p|$, which is the quantity the cutoff refers to.
+
+\subsection{Powers of the inverse and the original variable}
+
+The observable power $r$ in \eqref{eq:master} gives directly the expansion of $u^r$. In terms of $x$:
+\begin{equation}
+\begin{aligned}
+ (x-x_0)^r&=g(y)^r\ (x\to x_0^+),& (x_0-x)^r&=g(y)^r\ (x\to x_0^-),\\
+ x^r&=g(y)^{-r}\ (x\to+\infty),& x^r&=(-1)^rg(y)^{-r}\ (x\to-\infty),
+\end{aligned}
+ \label{eq:power-back}
+\end{equation}
+so the expansion of $x^r$ at infinity is \eqref{eq:master} with $r$ replaced by $-r$ (\wl{"Power" -> r} in the package). For $r=1$ and a finite endpoint, $x=x_0\pm g(y)$. Non-integer $r$ is allowed only when the quantity being raised is positive, i.e.\ for $x\to x_0^+$ and $x\to+\infty$.
+
+\subsection{Examples}
+
+\begin{example}[The Wright omega function]
+$f(x)=x+\log x$ as $x\to+\infty$: $u=1/x$, $f=u^{-1}-\log u=u^{-1}(1-u\log u)$, so $a=1$, $p=-1$, one gap $\delta=1$ with $B=-L$, and $y_0=+\infty$. The uniformizer is $z=1/y$, $L=-\log y$, and \eqref{eq:master} with $r=-1$ gives $x=g^{-1}$:
+\begin{equation}
+ x=y-\log y+\frac{\log y}{y}+\frac{\tfrac12\log^2y-\log y}{y^2}+\frac{\tfrac13\log^3y-\tfrac32\log^2y+\log y}{y^3}+\OO\Bigl(\frac{\log^4y}{y^4}\Bigr),
+ \label{eq:omega}
+\end{equation}
+the classical expansion of the Wright omega function $\omega(y)=\W(e^y)$ \cite{cghjk,proveit}; the blocks are the Lambert polynomials $P_n(\log y)$ of \cite{proveit}. At $y=10^6$ the four displayed terms differ from \wl{ProductLog[Exp[10\^{}6]]} by $4.8\cdot10^{-21}$.
+\end{example}
+
+\begin{example}[Reciprocal corrections]
+$f(x)=x+1/x$ at $+\infty$: $u=1/x$, $f=u^{-1}(1+u^2)$, $p=-1$, gap $2$, constant coefficient. The inverse is the larger root of $x^2-yx+1=0$, $x=\bigl(y+\sqrt{y^2-4}\bigr)/2=y-y^{-1}-y^{-3}-2y^{-5}-\cdots$ (the coefficients are Catalan numbers), which \eqref{eq:constant-coefficients} reproduces.
+\end{example}
+
+\begin{example}[Half-integer gaps]
+$f(x)=x+\sqrt x$ at $+\infty$: $f=u^{-1}(1+u^{1/2})$, gap $\frac12$. The inverse is $x=\bigl(\sqrt{4y+1}-1\bigr)^2/4=y-\sqrt y+\frac12-\frac1{8\sqrt y}+\frac1{128y^{3/2}}+\OO(y^{-2})$; the constant term $\frac12$ is the block of weight $2\cdot\frac12$, i.e.\ exponent $0$ in $w=1/y$, and $y_0=+\infty$ does not prevent it.
+\end{example}
+
+\begin{example}[A finite endpoint from below]
+$f(x)=x-x^2$ near $x_0=0$ with $x\to0^-$: $u=-x$, $f=-u-u^2$, $a=-1$, $p=1$, $y_0=0$, and $w=-y$ (the image is $y<0$). The inverse is $u=-y-y^2-2y^3-\cdots$, i.e.\ $x=y+y^2+2y^3+\OO(y^4)$, the branch of $x=(1-\sqrt{1-4y})/2$ continued to negative $y$.
+\end{example}
+
+\begin{example}[A pole]
+$f(x)=1+1/x$ near $x_0=0^+$: $f=u^{-1}(1+u)$, $p=-1$, $y_0=+\infty$, and $x=1/(y-1)=y^{-1}+y^{-2}+\cdots$ with remainder $\OO(y^{-3})$ after two terms.
+\end{example}
+
+\begin{example}[The second question, inverted]
+For $F(x)=(1+x+x^{\sqrt2})^{\sqrt2}$ at $+\infty$ the forward germ is $u^{-2}(1+\sqrt2u^{\sqrt2-1}+\sqrt2u^{\sqrt2}+\cdots)$ from \eqref{eq:answer3}, with gaps in the semigroup generated by $\sqrt2-1$ and $\sqrt2$, $p=-2$, $y_0=+\infty$, $z=y^{-1/2}$. The inverse is
+\begin{equation}
+\begin{aligned}
+ x={}&\sqrt y-\frac{1}{\sqrt2}\,y^{(2-\sqrt2)/2}-\frac{1}{\sqrt2}\,y^{(1-\sqrt2)/2}\\
+ &+\Bigl(\frac34-\frac1{2\sqrt2}\Bigr)y^{(3-2\sqrt2)/2}+\Bigl(1-\frac{5}{3\sqrt2}\Bigr)y^{(4-3\sqrt2)/2}+\OO\bigl(y^{(5-4\sqrt2)/2}\bigr),
+\end{aligned}
+ \label{eq:second-inverse}
+\end{equation}
+the terms being ordered by decreasing exponent $(r+\sigma)/2$ with $r=-1$. Because the forward germ is itself an infinite expansion, the forward remainder is transported by Theorem~\ref{thm:transport} and caps the attainable cutoff; the package raises the forward order automatically until the cap exceeds the request. Numerically, with seven blocks at $y=10^{16}$ the error is $4\cdot10^{-11}$ against a leading term $10^8$ (Table~\ref{tab:numbers}).
+\end{example}

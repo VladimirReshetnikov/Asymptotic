@@ -1,0 +1,30 @@
+\section{The nine reports}
+\label{sec:reports}
+
+Nine independently written reports on the first question \cite{reports} preceded this article; each contains an article of 22--30 pages, a Wolfram Language package, native tests, and a Python verification record, and none of them had been run in a Wolfram kernel by its authors. Their detailed comparison is in \texttt{reports/COMPARISON.md}; this section summarises what they agree on, what each adds, and what was wrong.
+
+\subsection{Agreement}
+
+All nine treat the finite germ \eqref{eq:model} (report~07 with $p=1$ only), select the real branch by $x/(y/a)^{1/p}\to1$, prove the coefficient formula \eqref{eq:master} with exactly the same normalization through the marker form of Lagrange--B\"urmann inversion, prove convergence (four by the parametric implicit function theorem, five by Rouch\'e's theorem with Cauchy estimates), prove a remainder theorem with the logarithmic factor, derive the transport of forward remainders, and compute the same expansions \eqref{eq:answer1}--\eqref{eq:answer2} with the Catalan and Fuss--Catalan laws. All represent expansions as sparse exact jets, reject floating-point input, and provide a residual check.
+
+\subsection{Individual contributions absorbed here}
+
+\begin{itemize}[leftmargin=1.6em]
+\item Report~01: the residue proof of the marker theorem and its formal clause; the $g^r$ and $\log g$ formulas; the \wl{InputRemainder} interface with cutoff cap; the $x+x/\log x$ analysis.
+\item Report~02: the observable power $r$ built into the main formula and implemented; the Picard fixed-point engine; the explicit marker-disc convergence criterion; the partial resummation in $y\log y$.
+\item Report~03: the exact degree and leading-coefficient formula; the contraction proof of convergence; the search bound $\lceil B/\delta_*\rceil\delta_*$ for the frontier.
+\item Report~04: the first omitted block as an asymptotic equality with its complete polynomial; the successive-power engine; the condition number.
+\item Report~05: the tame near-identity theorem (here Theorem~\ref{thm:tame}, with a complete proof); Picard iteration; global bounds for both examples.
+\item Report~06: the composition recurrence (Lemma~\ref{lem:composition}); the Newton engine in the jet algebra; the rising-factorial closed form \eqref{eq:constant-coefficients}.
+\item Report~07: the explicit conditional majorant $\mathcal Q_r$ (Theorem~\ref{thm:majorant}) and its cutoff form; the negative-side germ by reflection.
+\item Report~08: the explanation of the complex germ \eqref{eq:complex-germ}; the Lambert-$W$ core \eqref{eq:lambert-core} and the $\log\log$ scale; the finite-point slope bound; flat perturbations.
+\item Report~09: depth truncation with symbolic exponents; the harmonic-number formula \eqref{eq:harmonic}; the explicit tail majorant for the log example.
+\end{itemize}
+
+\subsection{Errors found}
+
+Report~07 asserts that a nonunit leading power forces an infinite binomial expansion; the substitution $t=x^p$ in Theorem~\ref{thm:coefficients} shows that the coefficient formula stays finite and exact. Reports~07 and~08 state remainder degrees ($d\lfloor\sigma_*/\delta\rfloor$, $Nd$) that are valid but can be far from the exact degree of the frontier block. Report~05's proof of the tame theorem omits the inductive estimates of Step~4 of Theorem~\ref{thm:tame}. Two residual checkers (reports~01 and~04) rely on \wl{Simplify} to recognise zero and fail on denested radicals and on logarithms of composite integers.
+
+\subsection{Native execution}
+
+Running the nine test suites on Wolfram 15.0.1 gave: 01: 35/36; 02: 95/95; 03: 34/34; 04: 34/35; 05: 38/38; 06: 33/33; 07: 34/34; 08: 40/40; 09: 35/35. The two failures are the zero-recognition defects just mentioned, in residual checkers, not wrong expansions. Every package therefore computes what its article claims, which is a strong independent confirmation of the formula \eqref{eq:master} and of the two answers. What none of them does, and what motivated the present package, is to treat finite endpoints from both sides and infinity through signed leading powers, to expand arbitrary forward functions with a rigorous remainder (which is the second question), to track precision and logarithmic degree through compositions, and to return \wl{SeriesData} when the exponents allow it.

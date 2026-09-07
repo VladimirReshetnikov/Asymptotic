@@ -1,0 +1,39 @@
+\section{The package}
+\label{sec:package}
+
+The package \wl{AsymptoticInverse} (directory \texttt{AsymptoticInverse/} of the repository; usage in its \texttt{README.md}) implements Sections~\ref{sec:scale}--\ref{sec:endpoints}. Its interface is
+\begin{lstlisting}
+AsymptoticInverse[f, {x, x0}, {y, cutoff}]         (* or ..., y, SeriesTermGoal -> n *)
+AsymptoticExpansion[f, {x, x0, cutoff}]            (* or {x, x0}, SeriesTermGoal -> n *)
+\end{lstlisting}
+with $x_0$ a real number, \wl{Infinity} or \wl{-Infinity}, options \wl{Assumptions}, \wl{Direction}, \wl{Method} (\wl{"Lagrange"} or \wl{"Newton"}), \wl{"Power"} ($r$), \wl{"Truncation"} (\wl{"Exponent"} or \wl{"Depth"}), \wl{"InputRemainder"} and \wl{"MaxTerms"}. Both return a \wl{PowerLogSeries} object: \wl{Normal} gives the finite expression, \wl{s["Remainder"]} the descriptor \wl{PowerLogRemainder[w, $\beta$, k]}, \wl{s["FrontierTerm"]} the first omitted block, \wl{s["Terms"]} the pairs (exponent, coefficient), \wl{s["SeriesData"]} a \wl{SeriesData} object when the exponents are rational, and \wl{s["Properties"]} the full list. \wl{InverseResidual}, \wl{InverseNumericalCheck}, \wl{PerturbativeInverse}, \wl{InverseExpansionCoefficient} and \wl{PowerLogModel} are the auxiliary functions.
+
+\subsection{Data structures and exact comparisons}
+
+A jet is a sorted list of pairs $\{\sigma,C_\sigma\}$, the exponent $\sigma$ an exact real number and $C_\sigma$ a polynomial in a private symbol $\ell$ standing for $L$. Exponents are canonicalised with \wl{RootReduce} when they are algebraic (so that $\sqrt2+\sqrt3$ and $\sqrt{5+2\sqrt6}$ become the same \wl{Root} object) and with \wl{FullSimplify} otherwise (exact transcendental exponents such as $\pi$ are admitted when every comparison they enter can be decided). Two exponents are equal if and only if their canonical forms are identical; their order is decided by \wl{Less} on exact numbers (which is exact for distinct algebraic numbers) with \wl{FullSimplify} of the difference as a fallback, and an undecidable comparison is a \wl{Failure}, never a numerical guess. Inexact (\wl{Real}) input is rejected: a floating-point $1.41421$ is a rational number, and inverting $x+x^{1.41421}$ is a different problem (Section~\ref{sec:boundaries}).
+
+Coefficients are canonicalised too: algebraic numbers with \wl{RootReduce}, logarithms of positive rationals into sums of logarithms of primes, symbolic parameters with \wl{Simplify} under the assumptions. Without this, exactly vanishing residual coefficients such as $-2\sqrt2-2\sqrt3+2\sqrt{5+2\sqrt6}$ or $-\tfrac1{16}\log^24-\tfrac1{64}\log2\log32+\tfrac1{64}\log8\log128$ are not recognised as zero by \wl{Simplify}, which is what caused the two test failures among the nine reports (Section~\ref{sec:reports}).
+
+\subsection{The engines}
+
+\paragraph{Forward.} The evaluator of Section~\ref{sec:evaluator} is a structural recursion returning triples $(T,P,D)$. Finite power--log sums are recognised as exact ($P=\infty$) without any series; otherwise the working order is raised until the requested precision is reached, and the first omitted block is computed when it lies within reach.
+
+\paragraph{Inverse, Lagrange.} The forward germ is normalised (Section~\ref{sec:branch}); the multi-indices of weight $<H$ are enumerated by a depth-first search with exact comparisons (\eqref{eq:IH}; the one-step boundary is formed at the same time); for each index the polynomial loop
+\begin{lstlisting}
+q = Expand[Times @@ MapThread[Power, {polys, k}]];
+Do[q = Expand[D[q, ell] + (r + w + p j) q], {j, 1, n - 1}];
+q = (-1)^n r q/(p^n Times @@ (Factorial /@ k))
+\end{lstlisting}
+evaluates \eqref{eq:master}; equal weights are merged and the blocks of weight $\sigma_*$ on the boundary are summed into the frontier term. For \wl{SeriesTermGoal -> n} the inclusive weight bound is raised through successive boundary weights until $n$ nonzero blocks exist.
+
+\paragraph{Inverse, Newton.} The normalised equation \eqref{eq:normalized} and its derivative are evaluated with the composition recurrence (Lemma~\ref{lem:composition}), the derivative's reciprocal by the geometric series of a unit with constant leading term, and the Newton step is repeated until the residual vanishes below $H$; the number of iterations is logarithmic in $H/\delta_*$. The two engines are compared in the test suite.
+
+\paragraph{Assembly.} Blocks $z^{r+\sigma}C(L)$ are converted to $(v/a)^{(r+\sigma)/p}C\bigl(\log(v/a)/p\bigr)$, the sign and shift of \eqref{eq:power-back} are applied, and the remainder class is the coarser of the truncation remainder and the transported forward remainder.
+
+\subsection{Checks}
+
+\wl{InverseResidual} composes the stored forward model with the stored blocks in the jet algebra and reports whether the normalised residual $f(G)/(az^p)-1$ vanishes below the residual cutoff; with a larger cutoff it exhibits the first omitted block with the factor $-p$ of \eqref{eq:residual-identity}. This check is independent of the coefficient formula (it uses only the composition recurrence). \wl{InverseNumericalCheck} solves $f(x)=y_1$ with \wl{FindRoot} at high precision from the expansion value and reports the error, the remainder scale and their ratio (Table~\ref{tab:numbers}); it is evidence, not a certificate. The 49 tests in \texttt{Tests/AsymptoticInverse.wlt} cover the examples of this article, resonances, several gaps, symbolic data, the two methods, all endpoint types, automatically expanded inputs, the checks, and the rejected inputs; all pass on Wolfram 15.0.1.
+
+\subsection{Cost}
+
+The number of retained multi-indices is at most $\prod_i(1+\lfloor H/\delta_i\rfloor)$, and each coefficient costs $|\bk|-1$ applications of a bidiagonal operator to a polynomial of degree $D(\bk)$. The dominant cost in practice is the canonicalisation of algebraic numbers: expansions with two incommensurable gaps below the exponent $3$ take a few seconds, whereas rational exponents take milliseconds. The Newton engine performs $\OO(\log(H/\delta_*))$ compositions whose cost is governed by the sparse products; it is competitive for a single gap and slower for many gaps.

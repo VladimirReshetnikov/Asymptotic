@@ -1,0 +1,129 @@
+\section{Remainders after a cutoff}
+\label{sec:remainders}
+
+\subsection{Exponent cutoff: the first omitted block}
+
+Let the target cutoff be an exponent $q$ of the local variable of the result, exclusive. In terms of weights, with $r$ the observable power, a block $z^{r+\sigma}C(L)$ has exponent $(r+\sigma)/|p|$ in the local variable of $y$ (Section~\ref{sec:endpoints}), so the retained set is
+\begin{equation}
+ I_H=\{\bk\in\N^m:\bk\cdot\bdelta<H\},\qquad H=|p|\,q-r ,
+ \label{eq:IH}
+\end{equation}
+a finite downward-closed set (Lemma~\ref{lem:finite}). Its \emph{one-step boundary} is
+\begin{equation}
+ \partial I_H=\{\bk+e_i:\bk\in I_H,\ 1\le i\le m\}\setminus I_H ,
+ \label{eq:boundary}
+\end{equation}
+also finite. Put
+\begin{equation}
+ \sigma_*=\min\{\bnu\cdot\bdelta:\bnu\in\partial I_H\},\qquad
+ C^{(r)}_{\sigma_*}=\sum_{\bk\cdot\bdelta=\sigma_*}C^{(r)}_{\bk},\qquad k_*=\deg C^{(r)}_{\sigma_*}\ (k_*=0\text{ if }C^{(r)}_{\sigma_*}=0).
+ \label{eq:frontier-data}
+\end{equation}
+
+\begin{lemma}
+\label{lem:frontier}
+$\sigma_*=\min(S\setminus[0,H))$, and every multi-index of weight $\sigma_*$ lies in $\partial I_H$. Thus the complete coefficient at the first omitted weight is obtained from the boundary alone.
+\end{lemma}
+\begin{proof}
+Let $\bnu\notin I_H$ have weight $\sigma$. Along a path from $0$ to $\bnu$ that increases one coordinate at a time, the weights increase strictly, and the first point outside $I_H$ is a boundary point of weight $\le\sigma$; hence $\sigma_*\le\sigma$, so $\sigma_*$ is the least weight outside $[0,H)$. If $\sigma=\sigma_*$ the first point outside $I_H$ has weight exactly $\sigma_*$ by minimality, and no later point on the path can have the same weight, so $\bnu$ is that boundary point.
+\end{proof}
+
+\begin{theorem}[Remainder after an exponent cutoff]
+\label{thm:remainder}
+Let $G^{(r)}_H=z^r\sum_{\bk\in I_H}z^{\bk\cdot\bdelta}C^{(r)}_{\bk}(L)$. Then, as $z\to0^+$,
+\begin{equation}
+ g(y)^r-G^{(r)}_H(y)=z^{r+\sigma_*}C^{(r)}_{\sigma_*}(L)+\oo\bigl(z^{r+\sigma_*}\bigr)
+ =\OO\bigl(z^{r+\sigma_*}\M(z)^{k_*}\bigr).
+ \label{eq:remainder}
+\end{equation}
+If $C^{(r)}_{\sigma_*}\ne0$ the bound is attained by its top logarithm; if $C^{(r)}_{\sigma_*}=0$ (a resonant cancellation) the remainder is $\oo(z^{r+\sigma_*})$, and the true order is that of the next nonzero block, which the theorem does not identify.
+\end{theorem}
+\begin{proof}
+By Theorem~\ref{thm:convergence}, $g^r\in\mathcal E$ with the bound \eqref{eq:coefficient-bound}, and the omitted multi-indices are those of weight $\ge\sigma_*$ by Lemma~\ref{lem:frontier}; Lemma~\ref{lem:tail} (refined form) gives the claim.
+\end{proof}
+
+\begin{corollary}[In the variable of the result]
+\label{cor:remainder-y}
+With $w$ the local variable of $y$ ($w=|y-y_0|$ for finite $y_0$, $w=1/|y|$ for infinite $y_0$),
+\[
+ g(y)^r-G^{(r)}_H(y)=\OO\bigl(w^{(r+\sigma_*)/|p|}\,\M(w)^{k_*}\bigr),\qquad\frac{r+\sigma_*}{|p|}\ge q ,
+\]
+since $z=(w/|a|)^{1/|p|}$ and $\M(z)\asymp\M(w)$.
+\end{corollary}
+
+The package reports the pair $\bigl((r+\sigma_*)/|p|,k_*\bigr)$ as \wl{PowerLogRemainder[w, $\beta$, k]} and the block $z^{r+\sigma_*}C^{(r)}_{\sigma_*}$ as \wl{"FrontierTerm"}. When the frontier coefficient cancels, the reported class is still valid, but a request for the next terms is the only way to learn the true order.
+
+\begin{example}[Resonances]
+For $f=x+x^2+x^3$ the gaps are $1$ and $2$; at weight $2$ the indices $(2,0)$ and $(0,1)$ contribute $2$ and $-1$, at weight $3$ the indices $(3,0)$ and $(1,1)$ contribute $-5$ and $+5$, so
+\[
+ g(y)=y-y^2+y^3+0\cdot y^4-4y^5+14y^6-30y^7+33y^8+\cdots ,
+\]
+and after the cutoff $4$ the reported remainder is $\OO(y^4)$ while the truth is $\OO(y^5)$. For $f=x+x^2+2x^3$ the block at $y^3$ cancels instead. Exact arithmetic on the exponents is what makes such cancellations detectable at all: with floating-point exponents, $(2,0)$ and $(0,1)$ might not be recognised as the same weight.
+\end{example}
+
+\begin{example}[The log example]
+Here $m=1$, $\delta=1$, $B=1+L$, so $I_H=\{0,\dots,N\}$ for $H=N+1$, the boundary is $\{N+1\}$, and by \eqref{eq:log-example} the frontier block $y^{N+2}P_{N+1}(\log y)$ has degree exactly $N+1$ with top coefficient $(-1)^{N+1}\Cat_{N+1}$. Hence
+\begin{equation}
+\begin{aligned}
+ g_1(y)&=y+\sum_{n=1}^Ny^{n+1}P_n(\log y)+\OO\bigl(y^{N+2}\M(y)^{N+1}\bigr),\\
+ \frac{g_1(y)-y-\sum_{n\le N}y^{n+1}P_n(\log y)}{y^{N+2}(\log y)^{N+1}}&\to(-1)^{N+1}\Cat_{N+1},
+\end{aligned}
+ \label{eq:log-remainder}
+\end{equation}
+and in particular after $y-y^2(1+\log y)$ the error is $y^3(2\log^2y+5\log y+3)+\cdots$, not $\OO(y^3)$. The ratio in \eqref{eq:log-remainder} converges slowly (like $1+c/\log y$): for $N=1$ it is $1.89$ at $y=10^{-20}$ and $1.98$ at $y=10^{-100}$.
+\end{example}
+
+\subsection{Depth truncation}
+
+When the exponents are symbolic (Section~\ref{sec:boundaries}) their order may be undecidable, but the total degree $|\bk|$ of a multi-index is always known.
+
+\begin{theorem}[Remainder after a depth cutoff]
+\label{thm:depth}
+Let $G^{(r)}_{\le N}=z^r\sum_{|\bk|\le N}z^{\bk\cdot\bdelta}C^{(r)}_{\bk}(L)$, $\delta_*=\min_i\delta_i$ and $d_*=\max_i\deg B_i$. Then
+\begin{equation}
+ g(y)^r-G^{(r)}_{\le N}(y)=\OO\bigl(z^{r+(N+1)\delta_*}\M(z)^{(N+1)d_*}\bigr).
+ \label{eq:depth-remainder}
+\end{equation}
+\end{theorem}
+\begin{proof}
+The omitted terms have $|\bk|\ge N+1$; use \eqref{eq:coefficient-bound} and the count $m^n$ of multi-indices of degree $n$ exactly as in the proof of Lemma~\ref{lem:tail}.
+\end{proof}
+
+Depth truncation retains every block of exponent below $r+(N+1)\delta_*$, but it may also retain blocks above that bound while omitting smaller ones when several gaps are present: for $f=x+x^2+x^4$ depth $1$ gives $y-y^2-y^4$ although the omitted depth-two term $2y^3$ dominates $y^4$. The remainder \eqref{eq:depth-remainder} is nevertheless correct as stated.
+
+\subsection{Numerical illustration}
+
+Table~\ref{tab:numbers} shows, for the two examples of \cite{q1} and for the inverse of \eqref{eq:answer3} at infinity, the actual error $|g(y)-G(y)|$ of the truncated expansion (the exact inverse computed by \wl{FindRoot} at 80 digits) and its ratio to the reported remainder scale $w^{\beta_*}\M(w)^{k_*}$. The ratios stay bounded, and in the log example they grow slowly with $N$ because the leading coefficient of the frontier block, $\Cat_{N+1}$, does.
+
+\begin{table}[ht]
+\centering\scriptsize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+& \multicolumn{2}{c}{$y=10^{-2}$} & \multicolumn{2}{c}{$y=10^{-4}$} & \multicolumn{2}{c}{$y=10^{-8}$}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+$f_1=x+x^2(1+\log x)$, $N$ corrections & error & ratio & error & ratio & error & ratio\\
+\midrule
+$N=1$ & $2.4\cdot10^{-5}$ & 0.77 & $1.3\cdot10^{-10}$ & 1.22 & $5.9\cdot10^{-22}$ & 1.56\\
+$N=2$ & $1.8\cdot10^{-6}$ & 1.03 & $2.4\cdot10^{-13}$ & 2.26 & $2.5\cdot10^{-28}$ & 3.38\\
+$N=3$ & $1.5\cdot10^{-7}$ & 1.51 & $5.1\cdot10^{-16}$ & 4.69 & $1.2\cdot10^{-34}$ & 8.18\\
+$N=5$ & $1.2\cdot10^{-9}$ & 3.75 & $2.7\cdot10^{-21}$ & 24.0 & $3.1\cdot10^{-47}$ & 57.4\\
+\midrule
+$f_2=x+x^{\sqrt2}$, $N$ corrections &&&&&&\\
+\midrule
+$N=1$ & $2.5\cdot10^{-4}$ & 1.14 & $6.6\cdot10^{-8}$ & 1.37 & $3.3\cdot10^{-15}$ & 1.41\\
+$N=2$ & $6.0\cdot10^{-5}$ & 1.82 & $2.4\cdot10^{-9}$ & 2.21 & $2.6\cdot10^{-18}$ & 2.29\\
+$N=3$ & $1.5\cdot10^{-5}$ & 3.16 & $9.1\cdot10^{-11}$ & 3.86 & $2.2\cdot10^{-21}$ & 4.01\\
+$N=5$ & $1.2\cdot10^{-6}$ & 10.9 & $1.5\cdot10^{-13}$ & 13.5 & $1.8\cdot10^{-27}$ & 14.1\\
+\midrule
+& \multicolumn{2}{c}{$y=10^{4}$} & \multicolumn{2}{c}{$y=10^{8}$} & \multicolumn{2}{c}{$y=10^{16}$}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+inverse of $(1+x+x^{\sqrt2})^{\sqrt2}$, $n$ blocks &&&&&&\\
+\midrule
+$n=2$ & $0.72$ & 0.33 & $1.9$ & 0.39 & $9.3$ & 0.40\\
+$n=4$ & $9.6\cdot10^{-2}$ & 0.65 & $1.5\cdot10^{-2}$ & 0.69 & $3.4\cdot10^{-4}$ & 0.71\\
+$n=7$ & $2.8\cdot10^{-4}$ & 0.039 & $1.2\cdot10^{-6}$ & 0.023 & $4.0\cdot10^{-11}$ & 0.015\\
+\bottomrule
+\end{tabular}
+\caption{Errors of truncated expansions and their ratio to the remainder scale reported by the package. In the third group the local variable is $1/y$ and the leading term of the inverse is $\sqrt y$, so the absolute errors grow while the relative errors decrease.}
+\label{tab:numbers}
+\end{table}

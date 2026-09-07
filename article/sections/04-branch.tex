@@ -1,0 +1,72 @@
+\section{The model and the real branch}
+\label{sec:branch}
+
+\subsection{The normal form}
+
+Let $u\to0^+$ be the local variable (later $u=x-x_0$, $x_0-x$, $1/x$ or $-1/x$). The central object is a finite \emph{power--log germ}
+\begin{equation}
+ f(u)=y_0+a\,u^p\Bigl(1+\sum_{i=1}^m u^{\delta_i}B_i(\log u)\Bigr),\qquad
+ a\ne0,\ p\ne0,\ \delta_i>0,\ B_i\in\R[L]\setminus\{0\},
+ \label{eq:model}
+\end{equation}
+with $y_0\in\R$ when $p>0$ and $y_0=0$ when $p<0$ (a constant term is then a correction with gap $-p$). Equal gaps are merged. The \emph{leading block} $au^p$ has a constant coefficient; a logarithmic factor in the leading block ($u\log u$, $u(\log u)^{-1}$) changes the problem (Section~\ref{sec:boundaries}). Everything below is stated for this exact finite germ; functions that are only known through a truncated expansion are handled in Section~\ref{sec:transport}.
+
+The \emph{uniformizer} is
+\begin{equation}
+ z=\Bigl(\frac{v}{a}\Bigr)^{1/p},\qquad v=y-y_0\ (p>0),\quad v=y\ (p<0),\qquad L=\log z=\frac{\log(v/a)}{p},
+ \label{eq:uniformizer}
+\end{equation}
+so that $z\to0^+$ in every case: for $p>0$ because $v\to0$ with $v/a>0$, for $p<0$ because $v\to\pm\infty$ with the sign of $a$. The role of $z$ is that the inverse satisfies $u\sim z$.
+
+\subsection{Existence and uniqueness of the local inverse}
+
+\begin{theorem}[Positive local branch]
+\label{thm:branch}
+For the germ \eqref{eq:model} there is $\varepsilon>0$ such that $f$ is strictly monotone on $(0,\varepsilon)$, with
+\begin{equation}
+ f(u)-y_0\sim a\,u^p,\qquad f'(u)\sim a\,p\,u^{p-1}\qquad(u\to0^+).
+ \label{eq:leading}
+\end{equation}
+Its inverse $g$, defined on the image of $(0,\varepsilon)$, is the unique function with $g>0$, $g\to0$ and $f(g(y))=y$ there, and it satisfies
+\begin{equation}
+ g(y)\sim z,\qquad g'(y)\sim\frac{z}{p\,v}\qquad(z\to0^+).
+ \label{eq:inverse-leading}
+\end{equation}
+\end{theorem}
+\begin{proof}
+Write $R(u)=\sum_iu^{\delta_i}B_i(\log u)$. By Lemma~\ref{lem:dominance}, $R(u)\to0$ and, since $uR'(u)=\sum_iu^{\delta_i}(\delta_iB_i+B_i')(\log u)$ by Lemma~\ref{lem:euler}, also $uR'(u)\to0$. Hence
+\[
+ f'(u)=apu^{p-1}\Bigl(1+R(u)+\frac{uR'(u)}{p}\Bigr)=apu^{p-1}(1+\oo(1)),
+\]
+which has the sign of $ap$ on some $(0,\varepsilon)$; this gives monotonicity and \eqref{eq:leading}. The inverse exists on the image, tends to $0$ because $f$ is a homeomorphism of $(0,\varepsilon)$ onto its image, and is the only solution of $f(u)=y$ in $(0,\varepsilon)$. Substituting $u=g(y)$ into $f(u)-y_0\sim au^p$ gives $v\sim ag(y)^p$, i.e.\ $g\sim z$; and $g'=1/f'(g)\sim1/(apg^{p-1})=g/(pag^p)\sim z/(pv)$.
+\end{proof}
+
+The theorem is local. Whether the local branch extends to a global inverse is a separate question, answered for the two examples of \cite{q1} as follows.
+
+\begin{proposition}[Global invertibility of the examples]
+\label{prop:global}
+$f_1(x)=x+x^2(1+\log x)$ and $f_2(x)=x+x^{\sqrt2}$ are strictly increasing bijections of $(0,\infty)$ onto itself, with
+\begin{equation}
+ f_1'(x)=1+x(3+2\log x)\ \ge\ m_1:=1-2e^{-5/2}>0.835,\qquad f_2'(x)=1+\sqrt2\,x^{\sqrt2-1}>1.
+ \label{eq:global-slopes}
+\end{equation}
+Their inverses $g_1,g_2$ are $C^1$ up to $y=0$ with $g_i(0)=0$, $g_i'(0)=1$, but $g_1$ is not $C^2$ at $0$: $g_1''(y)=-f_1''(g_1)/f_1'(g_1)^3\sim-(5+2\log y)\to+\infty$.
+\end{proposition}
+\begin{proof}
+$x(3+2\log x)$ has derivative $5+2\log x$, minimum at $x=e^{-5/2}$ with value $-2e^{-5/2}$; the limits of $f_1$ at $0$ and $\infty$ are $0$ and $\infty$. The rest is immediate.
+\end{proof}
+
+So for both examples the branch of Theorem~\ref{thm:branch} is \emph{the} real inverse, and the expansions \eqref{eq:answer1}--\eqref{eq:answer2} describe it near $0$; the absence of a second-order Taylor expansion of $g_1$ at $0$ is exactly why $\log y$ must appear at $y^2$.
+
+\subsection{The complex germ returned by \wl{InverseFunction}}
+
+The equation $f_1(x)=0$, $x\ne0$, reads $1+x(1+\log x)=0$. With $t=1+\log x$ it becomes $te^t=-e$, so $t=\W_k(-e)$ and
+\begin{equation}
+ c_k=e^{\W_k(-e)-1}=-\frac1{\W_k(-e)},\qquad f_1'(c_k)=c_k-1,\qquad f_1''(c_k)=3+2\W_k(-e),
+ \label{eq:complex-root}
+\end{equation}
+where the derivative identities follow from $c_k\W_k(-e)=-1$. Each $c_k$ is a nonzero complex point where $f_1$ is analytic with nonzero derivative, so the analytic inverse function theorem gives an inverse analytic near $y=0$ with value $c_k$ at $0$; \wl{Series[InverseFunction[...][y], \{y, 0, 2\}]} computes exactly that germ for $k=-1$:
+\[
+ c+\frac{y}{c-1}-\frac{f_1''(c)}{2f_1'(c)^3}y^2+\cdots=c+\frac{y}{c-1}-\frac{3+2\W_{-1}(-e)}{2(c-1)^3}y^2+\OO(y^3),
+\]
+which is \eqref{eq:complex-germ}. Nothing is wrong with this answer: it is the inverse of a different branch of $f_1^{-1}$, the one through a complex root, and adding \wl{Assumptions -> y > 0} cannot repair it, because the reality of $y$ says nothing about which preimage is intended. The real branch is characterised by $g(y)\to0$, and that condition, not an assumption on $y$, is what an inversion routine must be given; the package builds the branch of Theorem~\ref{thm:branch} directly and never asks \wl{InverseFunction} to choose.
