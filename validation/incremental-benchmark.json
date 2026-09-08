@@ -1,0 +1,37 @@
+{
+	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+	"SystemID":"Windows-x86-64",
+	"AllExactlyEqual":true,
+	"Cases":[
+		{
+			"Case":"normalized-term-goal-eight-logarithmic-blocks",
+			"Reference":"Repeated complete index enumeration and coefficient evaluation",
+			"Current":"Persistent complete-weight frontier and coefficient reuse",
+			"ReferenceSeconds":0.190921,
+			"CurrentSeconds":5.69162e-2,
+			"Speedup":3.3544228181080253,
+			"ExactlyEqual":true,
+			"ReferenceCoefficientEvaluations":95,
+			"CurrentCoefficientEvaluations":31
+		},
+		{
+			"Case":"normalized-newton-twelve-weights",
+			"Reference":"Full final precision at every Newton iteration",
+			"Current":"Exact precision doubling with a checked residual",
+			"ReferenceSeconds":6.6261469,
+			"CurrentSeconds":3.3549713,
+			"Speedup":1.975023422704093,
+			"ExactlyEqual":true
+		},
+		{
+			"Case":"public-seven-power-forward-model-to-target-cutoff-twelve",
+			"Reference":"Individual Lagrange method including normalization and remainder",
+			"Current":"Grouped Lagrange method including normalization and remainder",
+			"ReferenceSeconds":0.3594715,
+			"CurrentSeconds":0.4814229,
+			"Speedup":0.7466855024968692,
+			"ExactlyEqual":true
+		}
+	],
+	"Interpretation":"One fresh-kernel sample per implementation and case; no universal speedup is asserted."
+}

@@ -2,7 +2,7 @@
 \section{The package}
 \label{sec:package}
 
-The package \wl{AsymptoticInverse} (directory \texttt{AsymptoticInverse/} of the repository; usage in its \texttt{README.md}) implements the power--log engines of Sections~\ref{sec:scale}--\ref{sec:endpoints} and the Lambert-coordinate construction of Section~\ref{sec:lambert-expansion}. Its interface is
+The package \wl{AsymptoticInverse} (directory \texttt{AsymptoticInverse/} of the repository; usage in its \texttt{README.md}) implements the power--log engines of Sections~\ref{sec:scale}--\ref{sec:endpoints}, the Lambert-coordinate construction of Section~\ref{sec:lambert-expansion}, and the logarithmic target transformation of Section~\ref{sec:coordinates}. Its interface is
 \begin{lstlisting}
 AsymptoticInverse[f, {x, x0}, {y, cutoff}]         (* or ..., y, SeriesTermGoal -> n *)
 AsymptoticExpansion[f, {x, x0, cutoff}]            (* or {x, x0}, SeriesTermGoal -> n *)
@@ -34,9 +34,9 @@ q = Expand[Times @@ MapThread[Power, {polys, k}]];
 Do[q = Expand[D[q, ell] + (r + w + p j) q], {j, 1, n - 1}];
 q = (-1)^n r q/(p^n Times @@ (Factorial /@ k))
 \end{lstlisting}
-evaluates \eqref{eq:master}; equal weights are merged and the blocks of weight $\sigma_*$ on the boundary are summed into the frontier term. For \wl{SeriesTermGoal -> n} the inclusive weight bound is raised through successive boundary weights until $n$ nonzero blocks exist.
+evaluates \eqref{eq:master}; equal weights are merged and the blocks of weight $\sigma_*$ on the boundary are summed into the frontier term. For \wl{SeriesTermGoal -> n}, a persistent frontier visits successive complete weights until $n$ nonzero blocks exist, reusing previous coefficients. The independent \wl{"GroupedLagrange"} method combines collisions before applying the Euler operators; Section~\ref{sec:incremental} derives both changes.
 
-\paragraph{Inverse, Newton.} The normalised equation \eqref{eq:normalized} and its derivative are evaluated with the composition recurrence (Lemma~\ref{lem:composition}), the derivative's reciprocal by the geometric series of a unit with constant leading term, and the Newton step is repeated until the residual vanishes below $H$; the number of iterations is logarithmic in $H/\delta_*$. The two engines are compared in the test suite.
+\paragraph{Inverse, Newton.} The normalised equation \eqref{eq:normalized} and its derivative are evaluated with the composition recurrence (Lemma~\ref{lem:composition}), and the derivative's reciprocal by the geometric series of a unit with constant leading term. The working cutoff doubles through exact weights until it reaches $H$; each recorded precision has a verified formal residual. The three ordinary engines are compared in the test suite.
 
 \paragraph{Lambert.} The separate \texttt{Kernel/LambertInverse.wl} module recognizes affine-log powers, arbitrary leading logarithmic polynomials and exponential--power cores. It solves \eqref{eq:lambert-normalized} or its polynomial correction \eqref{eq:polynomial-log-normalized} using unit-series arithmetic, then forms the observable bracket. Logarithmic cores at finite endpoints and either infinity use the same positive source coordinate. For an arbitrary leading polynomial, metadata does not claim an exact \wl{ProductLog} inverse. The original forward expression is retained for numerical checks. The restricted perturbations of Proposition~\ref{prop:lambert-flat-perturbation} carry metadata identifying the leading-core approximation.
 

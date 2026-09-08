@@ -1,0 +1,185 @@
+\section{Inversion through explicit coordinate transformations}
+\label{sec:coordinates}
+
+The leading expression in the original variable need not belong to the scale used by the inverse engine. A change of source or target coordinate can put the equation into a supported scale while preserving the requested real branch. The transformation is part of the mathematical result: it determines the expansion variable, how the cutoff is interpreted, and how an inner remainder becomes an error in the original variable.
+
+\subsection{Target transformations}
+
+\begin{theorem}[An exact change of target coordinate]
+\label{thm:target-coordinate}
+Let $F$ be continuous and strictly monotone on a source interval $I$, and let $J$ be continuous and one-to-one on $F(I)$. Put $\Phi=J\circ F$. If $h$ is the inverse of $\Phi$ on $J(F(I))$, then the inverse of $F$ on $F(I)$ is
+\[
+ g(y)=h(J(y)).
+\]
+If an observable of that inverse has an expansion $h(v)^r=A(v)+\OO(R(v))$ as $v$ approaches the transformed target endpoint, then
+\[
+ g(y)^r=A(J(y))+\OO(R(J(y)))
+\]
+on the corresponding source branch, provided the same real power is defined there.
+\end{theorem}
+\begin{proof}
+$\Phi(h(J(y)))=J(y)$ gives $J(F(h(J(y))))=J(y)$. Injectivity of $J$ gives $F(h(J(y)))=y$, and the source interval fixes the inverse branch. The remainder statement is direct substitution along the transformed endpoint; no output reconstruction is involved.
+\end{proof}
+
+The theorem distinguishes two operations that are sometimes conflated. Changing the target of the equation does not amplify the error of its inverse observable. Changing the source variable and then reconstructing it generally does, as discussed below.
+
+\subsection{Exponential phases}
+
+Suppose an expression can be written on the selected real source branch as
+\begin{equation}
+ F(x)=y_0+\varepsilon e^{\Phi(x)},\qquad \varepsilon\in\{1,-1\}.
+ \label{eq:coordinate-phase}
+\end{equation}
+An eventually signed amplitude is included in the phase: if the original expression is $y_0+A(x)e^{P(x)}$, prove the eventual sign $\varepsilon$ of $A$, then set $\Phi=P+\log(\varepsilon A)$. The inverse equation becomes
+\begin{equation}
+ \Phi(x)=v,\qquad v=\log\bigl(\varepsilon(y-y_0)\bigr),
+ \qquad \varepsilon(y-y_0)>0.
+ \label{eq:coordinate-log-target}
+\end{equation}
+The phase may contain several powers and polynomial--logarithmic terms even when the original function has exponential growth or decay. It is inverted on the same source interval. If $\Phi\to+\infty$, then $F\to\varepsilon\infty$; if $\Phi\to-\infty$, the target approaches $y_0$ from the side with sign $\varepsilon$.
+
+\begin{proposition}[The original residual and the phase residual]
+\label{prop:phase-residual}
+For a real approximation $X$ on that source interval, put $D=\Phi(X)-v$. Then
+\begin{equation}
+ \frac{F(X)-y}{y-y_0}=e^D-1.
+ \label{eq:phase-original-residual}
+\end{equation}
+In particular, if $D\to0$, the relative original residual is $D+\OO(D^2)$. If $|\Phi'|\ge\mu>0$ between $X$ and the true inverse $g(y)$, then $|X-g(y)|\le|D|/\mu$.
+\end{proposition}
+\begin{proof}
+Since $y-y_0=\varepsilon e^v$, divide $\varepsilon(e^{\Phi(X)}-e^v)$ by $\varepsilon e^v$. The remaining statements follow from the Taylor expansion of $e^D$ at $0$ and the mean value theorem for $\Phi$.
+\end{proof}
+
+Thus a phase residual can be numerically useful without forming enormous exponentials. A numerical solve in the phase remains numerical evidence unless the derivative and residual have rigorous bounds; it nevertheless refers to the original equation through the exact identity \eqref{eq:phase-original-residual}.
+
+\begin{example}[Several powers in an exponential]
+For $F(x)=e^{x^2+x}$ at $+\infty$, put $v=\log y$. The inverse is
+\[
+ x=\frac{-1+\sqrt{1+4v}}2
+ =\sqrt v-\frac12+\frac1{8\sqrt v}
+ -\frac1{128v^{3/2}}+\OO(v^{-5/2}).
+\]
+This is an ordinary inverse expansion in the phase variable $v$. Its local target variable is $1/v=1/\log y$, and its remainder is measured in that coordinate. For $e^{-x^2-x}$ at the same source endpoint, replace $v$ by $-\log y$ and take $y\to0^+$.
+\end{example}
+
+\begin{example}[A nonconstant amplitude]
+For $F(x)=xe^{x^2+x}$ at $+\infty$, the phase is $\Phi=x^2+x+\log x$. In terms of $v=\log y$, inversion begins
+\[
+ x=\sqrt v-\frac12+
+ \frac{\tfrac18-\tfrac14\log v}{\sqrt v}
+ +\OO(v^{-1}(1+|\log v|)^2).
+\]
+The logarithm of the amplitude contributes at the displayed order. Omitting it would preserve the leading term but give the wrong next coefficient. Translating $x$ to $x-c$ translates the reconstructed inverse by $c$ and leaves the phase calculation in that shifted source coordinate.
+\end{example}
+
+\begin{example}[A flat forward function with an elementary inverse]
+$F(x)=e^{-1/x}$ on $x\to0^+$ has no nonzero power--log forward expansion, but its inverse is exactly
+\[
+ x=-\frac1{\log y},\qquad 0<y<1.
+\]
+The logarithmic target transformation turns the equation into $-1/x=\log y$. This example does not require an expansion into flat perturbation sectors: the exponential is part of the exact coordinate transformation.
+\end{example}
+
+Variable powers can enter the same route when their real domain is established. For $x^x$ on $x>0$, the phase is $x\log x$, so its inverse at $+\infty$ reduces to the Lambert-coordinate inversion of that phase. The identity $A(x)^{B(x)}=\exp(B(x)\log A(x))$ is used only where $A(x)>0$.
+
+\subsection{Source reconstruction and its error}
+
+\begin{theorem}[A change of source coordinate]
+\label{thm:source-coordinate}
+Let $x=H(t)$ be a continuously differentiable one-to-one parametrization of the selected source branch, and write $K(t)=F(H(t))$. Let $h$ be its inverse and suppose
+\[
+ h(y)=A(y)+E(y),\qquad E(y)=\OO(R(y)).
+\]
+If $H$ is defined on the interval between $A$ and $A+E$, and $|H'|\le B(y)$ there, then
+\[
+ F^{-1}(y)=H(A(y))+\OO(B(y)R(y)).
+\]
+The same conclusion applies to an observable after replacing $H$ by that observable composed with $H$.
+\end{theorem}
+\begin{proof}
+The branch identity gives $F^{-1}=H\circ h$. Apply the mean value theorem between $A$ and $h=A+E$.
+\end{proof}
+
+For the coordinate transformations used here, more informative exact identities specify when a small error survives reconstruction.
+
+\begin{corollary}[Exponential reconstruction]
+\label{cor:exponential-reconstruction}
+For a positive source coordinate $u=e^{s t}$, $s\ne0$, if $h=A+E$ and $E\to0$, then
+\begin{equation}
+ u=e^{sA}\bigl(1+\OO(E)\bigr),\qquad
+ u^r=e^{rsA}\bigl(1+\OO(E)\bigr)
+ \label{eq:exponential-reconstruction}
+\end{equation}
+for every fixed real $r$. If $E$ does not tend to zero, an additive expansion for $h$ alone does not justify these relative error assertions.
+\end{corollary}
+\begin{proof}
+$u=e^{sA}e^{sE}$, and $e^{sE}=1+\OO(E)$ when $E\to0$. Replace $s$ by $rs$ for the observable.
+\end{proof}
+
+\begin{corollary}[Logarithmic reconstruction]
+\label{cor:logarithmic-reconstruction}
+For $x=-\log t/\lambda$, $\lambda\ne0$, suppose the positive inner inverse satisfies $h=A+E$ with $A>0$ and $E/A\to0$. Then
+\begin{equation}
+ x=-\frac{\log A}{\lambda}
+ -\frac1\lambda\log\left(1+\frac EA\right)
+ =-\frac{\log A}{\lambda}+\OO(E/A).
+ \label{eq:logarithmic-reconstruction}
+\end{equation}
+Thus the inner remainder must be divided by the inner leading scale before it becomes an error in $x$.
+\end{corollary}
+\begin{proof}
+Factor $h=A(1+E/A)$ and expand the logarithm of the positive unit factor. The hypothesis $E/A\to0$ also guarantees $h>0$ eventually.
+\end{proof}
+
+\subsection{Pure logarithmic functions}
+
+For $x\to+\infty$, set $t=\log x\to+\infty$. For a positive source distance $u\to0^+$, set $t=-\log u\to+\infty$, then reconstruct $u=e^{-t}$ and the original point $x=x_0\pm u$. A pure logarithmic forward expression becomes a power--log expression in $t$. Its inverse is computed there before exponential reconstruction.
+
+\begin{example}[The constant term in an exponent matters]
+For $F(x)=(\log x)^2+\log x$ at $+\infty$, the transformed equation is $t^2+t=y$. Hence
+\[
+ t=\sqrt y-\frac12+\frac1{8\sqrt y}+\OO(y^{-3/2}),
+\]
+and one valid reconstruction is
+\[
+ x=\exp\left(\sqrt y-\frac12+\frac1{8\sqrt y}\right)
+ \bigl(1+\OO(y^{-3/2})\bigr).
+\]
+In contrast, $t=\sqrt y+\OO(1)$ does not justify $x=e^{\sqrt y}(1+\oo(1))$: the omitted constant would change the leading multiplicative factor by $e^{-1/2}$. An implementation must retain enough inner terms to make its omitted additive error tend to zero, even when the initial term request would otherwise stop earlier.
+\end{example}
+
+This precision requirement belongs to reconstruction, not to the mere existence of the inner asymptotic expansion. When a user requests a particular relative order in the reconstructed expression, the implementation must translate that request into an inner additive precision and record both meanings.
+
+\subsection{Finite sums of exponentials}
+
+Let
+\[
+ F(x)=\sum_{j=1}^m a_j e^{\mu_j x},
+ \qquad a_j,\mu_j\in\R,
+\]
+with equal rates merged. At $x\to+\infty$ choose $\lambda>0$, and at $x\to-\infty$ choose $\lambda<0$, so $t=e^{-\lambda x}\to0^+$ in either case. Then
+\begin{equation}
+ F\left(-\frac{\log t}{\lambda}\right)
+ =\sum_j a_j t^{-\mu_j/\lambda}.
+ \label{eq:finite-exponential-coordinate}
+\end{equation}
+This is a finite real-power germ. Rational relations among the rates are unnecessary: local finiteness of the positive correction gaps supplies finite exponent truncations. Its leading coefficient and exponent determine the target side, while the chosen sign of $\lambda$ preserves the source endpoint. After inversion, Corollary~\ref{cor:logarithmic-reconstruction} transports the error back to $x$.
+
+\begin{example}[An exact oracle]
+For $F(x)=e^x+e^{2x}$ at $+\infty$, take $t=e^{-x}$. Then $F=t^{-1}+t^{-2}$, and an exact inverse is
+\[
+ x=\log\left(\frac{\sqrt{1+4y}-1}{2}\right)
+ =\frac12\log y-\frac1{2\sqrt y}
+ +\frac1{48y^{3/2}}+\OO(y^{-5/2}).
+\]
+The inverse of $e^x+e^{\sqrt2 x}$ uses the same coordinate with irrational exponents. Constant terms, duplicate rates and cancellations are handled before extracting the leading transformed monomial.
+\end{example}
+
+\subsection{Result contracts and verification}
+
+The transformed result retains its inner inverse, coordinate substitution, original function and selected domains. Its scale is identified as \wl{"Transformed"}. The logarithmic target route has coordinate kind \wl{"TargetLog"}; it uses \eqref{eq:coordinate-log-target}. The target expression is recorded explicitly. The stored cutoff belongs to the underlying series coordinate after substitution. An ordinary \wl{SeriesData} in the original target variable is unavailable when that representation would hide the coordinate change. The package README lists the corresponding property names.
+
+The transformed residual describes the model actually composed, and its metadata states that scope. Numerical checks solve the transformed equation at high precision and verify the original source side; they remain numerical evidence. A separate certificate can use Proposition~\ref{prop:phase-residual} with rigorous derivative and residual bounds. An additive input error for $F$ must be transported through the target map before it can be treated as an error in $\Phi$; until that contract is supplied, rejecting an unsupported declaration is mathematically necessary.
+
+These coordinate theorems justify the stated reductions independently of how many recognizers are implemented. The staged implementation plan tracks the accepted families, source reconstruction operations, tests and remaining extensions; the existence of a reduction alone does not establish that every corresponding expression has already passed the package's parser and native test suite.

@@ -30,7 +30,7 @@
 \maketitle
 
 \begin{abstract}
-This plan retains every authorized roadmap proposal and orders their implementation around shared mathematical contracts. The first stage extends the existing engines through explicit coordinate transformations. Later stages add exact-core perturbations, numerical certificates, larger logarithmic scales, composable result operations, incremental computation, finite exponential and Fourier sectors, and special-function adapters. Each stage has concrete acceptance cases and separate requirements for mathematical justification, exact symbolic checks, native tests, numerical evidence, performance measurements and rendered documentation. All stage statuses in this initial plan are \planned; a proposal is not marked complete merely because an interface or theorem statement exists.
+This plan retains every authorized roadmap proposal and orders their implementation around shared mathematical contracts. The first stage extends the existing engines through explicit coordinate transformations. Later stages add exact-core perturbations, numerical certificates, larger logarithmic scales, composable result operations, incremental computation, finite exponential and Fourier sectors, and special-function adapters. Each stage has concrete acceptance cases and separate requirements for mathematical justification, exact symbolic checks, native tests, numerical evidence, performance measurements and rendered documentation. The first delivered milestone covers logarithmic target transformations and incremental computation; the broader stages remain open until their stated acceptance requirements are met.
 \end{abstract}
 
 \tableofcontents
@@ -50,21 +50,34 @@ Stage & Deliverable & Main prerequisite & Status\\
 Stage & Deliverable & Main prerequisite & Status\\
 \midrule
 \endhead
-1 & General exponential phases, pure logarithmic cores, and finite exponential sums through explicit coordinates & Existing inverse engines & \planned\\
+1 & General exponential phases, pure logarithmic cores, and finite exponential sums through explicit coordinates & Existing inverse engines & Partial\\
 2 & Exact-core perturbations and transported input remainders & Coordinate contracts & \planned\\
 3 & Residual certificates and adaptive absolute/relative accuracy & Valid error transport & \planned\\
 4 & Reciprocal logarithms, iterated logarithms and nonpolynomial logarithmic coefficients & Scale representation & \planned\\
 5 & Composable arithmetic, inverse observables and refinement & Scale and provenance contracts & \planned\\
-6 & Incremental enumeration, Newton and grouped coefficient performance & Stable result semantics & \planned\\
+6 & Incremental enumeration, Newton and grouped coefficient performance & Stable result semantics & Partial\\
 7 & Finite flat sectors and finite Fourier coefficient algebras & Extended scales and residual checks & \planned\\
 8 & Special-function and threshold adapters & Branch-aware coordinate dispatch & \planned\\
-9 & Generated independent tests and version-range validation & Continuous from stage 1 & \planned\\
+9 & Generated independent tests and version-range validation & Continuous from stage 1 & Partial\\
 \bottomrule
 \end{longtable}
 
 A stage is complete only when its accepted input family has a stated mathematical domain, its implementation returns the documented semantics, its required native tests pass, and its source documentation is updated. Claims about a PDF require rebuilding and inspecting the PDF. Claims about publication require a verified commit and remote reference. Mathematical proof, successful symbolic simplification, numerical agreement and passing tests are distinct forms of evidence and are reported separately.
 
 Unsupported instances within a broader future family must be identified explicitly. A bounded implementation may support a mathematically defined subclass, but it must not silently relabel the whole roadmap family as completed. If a stage requires further work, its remaining cases and exact blockers stay in the plan.
+
+\paragraph{First delivered milestone.}
+Version 1.2.0 adds logarithmic target transformations, including signed
+amplitudes, target offsets, source translations, finite flat exponentials and
+both source infinities. It also adds persistent term-goal enumeration,
+exact-precision Newton states and an independent grouped Lagrange method.
+The eight delivered native suites pass 161 tests on Wolfram 15.0.1.
+Three reproducible performance comparisons have equal results; the term-goal
+and Newton fixtures improve, while the small grouped fixture is slower.
+The article supplies the coordinate and grouped-coefficient derivations.
+Pure-logarithm and finite-exponential-sum reconstruction, public arithmetic
+and refinement, wider scaling measurements, generated families and version
+coverage remain open. All other stages retain their complete scope below.
 
 \section{Shared contracts}
 
@@ -231,6 +244,6 @@ Each meaningful milestone includes a detailed commit stating the behavior change
 
 Update the article with theorems, worked examples, actual APIs and precisely described limitations. Keep this plan as a status ledger: for every stage, replace \planned only after recording the implementation paths and evidence, and retain any remaining subfamily explicitly. Source and rendered PDF are delivered together. Every changed TeX document receives three serial strict \wl{pdflatex} passes, followed by page rendering and actual layout review. An unbuilt source change must not be accompanied by a claim that the existing PDF represents it.
 
-The campaign closes when all nine stages have an explicit outcome, required acceptance cases and regression tests pass, remaining unsupported cases are documented at their true scope, the edited documents are rebuilt and inspected, and the intended milestones are committed and pushed with verified references. A stopped or partially completed stage remains open in this ledger.
+Completion requires all nine stages' acceptance evidence, passing regressions, precise remaining boundaries, inspected source/PDF pairs, and verified publication. Partially completed stages remain open.
 
 \end{document}

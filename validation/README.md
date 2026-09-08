@@ -1,7 +1,17 @@
 # Review and validation record
 
-This review started from commit `1716eb8`. The native baseline contained 49
-passing tests. The updated package is version 1.1.0.
+The original review started from commit `1716eb8`. The native baseline contained
+49 passing tests. The historical records below describe version 1.1.0.
+
+The first extension milestone, version 1.2.0, is recorded separately in
+`milestone-1-tests.json`, `incremental-benchmark.json`, and
+`milestone-1-artifacts.json`. Its eight delivered suites pass 161 tests on
+Wolfram 15.0.1, including all 130 previous regressions and 31 new coordinate
+and incremental-engine tests. `Tests/BenchmarkIncremental.wl` reproduces three
+exactly equal comparisons. Term-goal coefficient evaluations fall from 95 to
+31; the measured term-goal and Newton cases improve, while the small grouped
+public-method case is slower. Historical snapshots are retained as evidence
+of their original milestone, not as hashes of the current source tree.
 
 The review corrected observable-dependent transport of forward remainders,
 negative-target remainder coordinates, source-side frontier signs, logarithmic

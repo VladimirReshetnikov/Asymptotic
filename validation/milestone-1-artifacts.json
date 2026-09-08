@@ -1,0 +1,58 @@
+{
+  "Version": "1.2.0",
+  "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+  "Tests": {
+    "Failed": 0,
+    "Results": "milestone-1-tests.json",
+    "Succeeded": 161,
+    "Suites": 8
+  },
+  "Benchmark": {
+    "Results": "incremental-benchmark.json",
+    "ExactResultsAgree": true,
+    "TimingScope": "Single native fresh-kernel samples; no portable timing guarantee"
+  },
+  "Documents": [
+    {
+      "BuildWarnings": 0,
+      "Path": "article/asymptotic-inverse.pdf",
+      "SHA256": "0cf02baac8470a23c03ef3f6eb905ff57045bcda18374bbb3aa97b9ff5e60fea",
+      "StrictSerialPasses": 3,
+      "VisualReview": "All pages inspected on contact sheets",
+      "Pages": 46,
+      "RenderedPages": 46,
+      "TextOutsidePage": 0
+    },
+    {
+      "BuildWarnings": 0,
+      "Path": "article/implementation-plan.pdf",
+      "SHA256": "135832da7b1bf43440777f95a4ab157958a9cfde6f98403d5a8612a9a3caaea2",
+      "StrictSerialPasses": 3,
+      "VisualReview": "All pages inspected on contact sheets; orphan final line removed",
+      "Pages": 8,
+      "RenderedPages": 8,
+      "TextOutsidePage": 0
+    }
+  ],
+  "Files": {
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "8ce1e6cba3379aa3d16cef2e57295bcb7402ddd42d04c83384ff3226822400ab",
+    "AsymptoticInverse/Kernel/CoordinateInverse.wl": "b8ee4ec7dae61adbe1086c2f879ab14da11d8cef239c211a0c25508718c1fb74",
+    "AsymptoticInverse/Kernel/IncrementalInverse.wl": "0d72224c113c9d58334f3d88b7201d1b5c93e75d28185146252e83f520e50c68",
+    "AsymptoticInverse/PacletInfo.wl": "9a7592482a4985de9d9687d6cc8005331319541f57dc722d25f7cc94010ed232",
+    "AsymptoticInverse/README.md": "f28024aecd259034267d535bf07d73a958d468ae5e3705a49aad0c04d2d1f8a3",
+    "AsymptoticInverse/Tests/CoordinateRegressions.wlt": "c02c875f974c6187656797fe19c994ba4671e504356056720b34c53477e554d0",
+    "AsymptoticInverse/Tests/IncrementalRegressions.wlt": "0639ff72195495e875102b7bd417218843d383cc98763e6f143fe95f6e1397e9",
+    "AsymptoticInverse/Tests/BenchmarkIncremental.wl": "909e513b0deeb938a826095e16b6ea042e8f3946c07236e8b4bb7de0e1614121",
+    "article/asymptotic-inverse.tex": "391042a1993a98c9142f319be85d32d9108eb6454cf8636c38f756d8ff663e67",
+    "article/asymptotic-inverse.pdf": "0cf02baac8470a23c03ef3f6eb905ff57045bcda18374bbb3aa97b9ff5e60fea",
+    "article/sections/13-package.tex": "0317a85faa82990b8ddfedc88464819680931b956b6e6bbb741124dff1b77281",
+    "article/sections/15-coordinates.tex": "4af5942bbf4d9d5dfa14617a0113b0d09cc3be8f1bfdbb76cd8a69f4a77bbabf",
+    "article/sections/16-incremental.tex": "8a3914dc0fb08d19c65f108a2036868473e46e258973069153c5887a4d9e74be",
+    "article/implementation-plan.tex": "72d9d5ce79bd1a9fd8815926b27e2f9f2fc619a76fd9b329a090fbdb8defc9c2",
+    "article/implementation-plan.pdf": "135832da7b1bf43440777f95a4ab157958a9cfde6f98403d5a8612a9a3caaea2",
+    "validation/README.md": "b7ed675c86bc0c5c9e56ff5439d8ed410f7de30dbca0e56d517fff2d0967def4",
+    "validation/milestone-1-tests.json": "8c15c1a4ec083e9b41fef01cbe2ddd2d75bd613897cbb27db54890cd64c17c4d",
+    "validation/incremental-benchmark.json": "1159901da3735367d08b97c60d4f81af541f9d87dae854259e554856614c0803"
+  },
+  "Scope": "First implementation milestone: logarithmic target coordinates and incremental computation. Later campaign modules are excluded."
+}

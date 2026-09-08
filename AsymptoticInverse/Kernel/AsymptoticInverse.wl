@@ -47,7 +47,8 @@ residual cutoff; InverseResidual[s, h] uses the relative cutoff h in the uniform
 
 InverseNumericalCheck::usage =
 "InverseNumericalCheck[s, y1] solves f(x) = y1 numerically on the selected branch and \
-compares the exact inverse with the truncated expansion at y = y1.";
+compares a high-precision reference root with the truncated expansion at y = y1. \
+This comparison is numerical evidence, not an interval certificate.";
 
 PerturbativeInverse::usage =
 "PerturbativeInverse[phi, h, {x, y}, n] gives the Lagrange-Buermann expansion \
@@ -109,8 +110,8 @@ compare[a_, b_] := Module[{d, t},
   If[(Head[a] === Integer || Head[a] === Rational) && (Head[b] === Integer || Head[b] === Rational),
    Return[Sign[a - b], Module]];
   If[NumericQ[a] && NumericQ[b],
-   If[TrueQ[a < b], Return[-1, Module]];
-   If[TrueQ[a > b], Return[1, Module]]];
+   If[Quiet[TrueQ[a < b], {Less::meprec}], Return[-1, Module]];
+   If[Quiet[TrueQ[a > b], {Greater::meprec}], Return[1, Module]]];
   d = canon[a - b];
   If[d === 0, Return[0, Module]];
   If[TrueQ[d < 0], Return[-1, Module]];
@@ -677,17 +678,8 @@ modelEquationDerivative[U_List, d_List, polys_List, p_, cut_, ell_, ass_, limit_
     ans = jetAdd[ans, jetShift[part, d[[i]]], cut, ell, ass]], {i, Length[d]}];
   ans];
 
-newtonSolve[d_List, polys_List, p_, cut_, ell_, ass_, limit_] := Module[{U = {}, G, Gp, iter = 0, maxIter},
-  If[d === {}, Return[{}, Module]];
-  maxIter = Ceiling[Log[2, N[cut/First[Sort[d, leq]]]]] + 3;
-  While[True,
-   G = modelEquation[U, d, polys, p, cut, ell, ass, limit];
-   If[G === {}, Break[]];
-   iter++;
-   If[iter > maxIter, fail["NewtonFailure", "Newton iteration did not stabilize."]];
-   Gp = modelEquationDerivative[U, d, polys, p, cut, ell, ass, limit];
-   U = jetAdd[U, jetScale[jetMul[G, jetReciprocalUnit[Gp, cut, ell, ass, limit], cut, ell, ass, limit], -1, ell, ass], cut, ell, ass]];
-  U];
+newtonSolve[d_List, polys_List, p_, cut_, ell_, ass_, limit_] :=
+  newtonSolveDoubling[d, polys, p, cut, ell, ass, limit];
 
 (* ------------------------------------------------------------------ *)
 (* Inverse expansion: public                                            *)
@@ -705,9 +697,12 @@ AsymptoticInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
 
 inverseDispatch[f_, x_, x0_, y_, cutoff_, opts___] := Module[{s},
   s = lambertConstruct[f, x, x0, y, cutoff, opts];
+  If[s === $Failed, s = coordinateConstruct[f, x, x0, y, cutoff, opts]];
   If[s === $Failed, construct[f, x, x0, y, cutoff, opts], s]];
 
 inverseBlocks[d_, polys_, p_, rint_, H_, method_, ell_, ass_, limit_, region_] := Module[{U, blocks},
+  If[method === "GroupedLagrange" && H =!= Infinity,
+    Return[groupedLagrangeBlocks[d, polys, p, rint, H, ell, ass, limit], Module]];
   If[method === "Newton",
    U = newtonSolve[d, polys, p, H, ell, ass, limit];
    blocks = jetUnitPower[U, rint, H, ell, ass, limit];
@@ -758,7 +753,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
    goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],
    coord, u, ell = Unique["ell$"], fu, jet, rows, model, p, a, d, polys, y0, symbolic, H, cutoff = cutoff0,
    region, blocks, frontier, rem, inputCap, v, z, expr, terms, wexpr, rint, obj, remData, forwardRem, depth, exactModel, Kf, tries, gexpr, logw, need,
-   termination = None, terminationTried = Missing["NotTried"], terminationEligible, reliableBlocks},
+   termination = None, terminationTried = Missing["NotTried"], terminationEligible, reliableBlocks, computationState = None},
   validateInput[f, limit];
   If[x === y, fail["InvalidVariables", "Source and target variables must be distinct symbols."]];
   If[! FreeQ[f, y], fail["InvalidVariables", "The forward expression must not contain the target variable."]];
@@ -766,7 +761,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
   symbolic = (trunc === "Depth");
   If[! MemberQ[{"Exponent", "Depth"}, trunc], fail["InvalidOption", "Truncation must be \"Exponent\" or \"Depth\"."]];
-  If[! MemberQ[{"Lagrange", "Newton"}, method], fail["InvalidOption", "Method must be \"Lagrange\" or \"Newton\"."]];
+  If[! MemberQ[{"Lagrange", "Newton", "GroupedLagrange"}, method], fail["InvalidOption", "Method must be Lagrange, Newton or GroupedLagrange."]];
   If[! (NumericQ[r] && exactQ[r] && TrueQ[Simplify[Element[r, Reals]]] && r =!= 0), fail["InvalidOption", "\"Power\" must be a nonzero exact real number."]];
   If[cutoff =!= Automatic && ! symbolic && ! exactRealQ[cutoff], fail["InvalidCutoff", "The cutoff must be an exact real number."]];
   If[cutoff === Automatic && ! (IntegerQ[goal] && goal >= 1), fail["InvalidCutoff", "Give an exponent cutoff or SeriesTermGoal -> n."]];
@@ -810,10 +805,12 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     If[cutoff === Automatic,
      (* term goal: enlarge the inclusive weight bound until goal blocks are present *)
      Module[{W = 0, count = 0, tries2 = 0, sigmaStar},
+      computationState = incrementalInverseState[d, polys, p, rint, ell, ass, limit];
       While[True,
        tries2++; If[tries2 > 50 goal + 10, fail["ResourceLimit", "SeriesTermGoal iteration did not terminate."]];
-       region = indexRegion[d, W, True, limit];
-       blocks = jetMerge[lagrangeCoefficient[#, d, polys, p, rint, ell, ass, False] & /@ region["Inside"], ell, ass];
+       computationState = advanceInverseState[computationState];
+       region = incrementalInverseRegion[computationState];
+       blocks = computationState["Blocks"];
        count = Length[blocks];
        If[terminationEligible,
         reliableBlocks = If[exactModel, blocks, Select[blocks, less[#[[1]], jet[[2]] - p] &]];
@@ -853,7 +850,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
      region = indexRegion[d, H, False, limit];
      blocks = inverseBlocks[d, polys, p, rint, H, method, ell, ass, limit, region],
      fail["InsufficientInputOrder", "The request exceeds the precision transported from the forward remainder.", <|"MaximumCutoff" -> ToRadicals[inputCap]|>]]];
-   If[! AssociationQ[termination] && (cutoff0 =!= Automatic || method === "Newton"),
+   If[! AssociationQ[termination] && (cutoff0 =!= Automatic || MemberQ[{"Newton", "GroupedLagrange"}, method]),
     region = If[H === Infinity, indexRegion[d, 1 + If[d === {}, 0, Max[d]], False, limit], indexRegion[d, H, False, limit]];
     blocks = If[H === Infinity && method === "Newton", inverseBlocks[d, polys, p, rint, 1 + If[d === {}, 0, Max[d]], "Lagrange", ell, ass, limit, region],
       inverseBlocks[d, polys, p, rint, H, method, ell, ass, limit, region]]];
@@ -902,6 +899,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     "LocalVariable" -> u, "LocalSubstitution" -> (x -> coord["Substitution"]),
     "ExactModel" -> exactModel, "InputRemainder" -> forwardRem,
     "ExactTerminationCertificate" -> termination,
+    "ComputationState" -> computationState,
     "RequestedTermGoal" -> goal, "ReturnedTermCount" -> Length[blocks],
     "Function" -> f, "Assumptions" -> ass,
     "Branch" -> "the inverse tends to the expansion point with " <> ToString[coord["LocalVariable"], InputForm] <> " ~ " <> ToString[z, InputForm],
@@ -955,6 +953,7 @@ InverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use 
 
 residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["Blocks"], ell = a["LogVariable"], ass = a["Assumptions"],
    p, d, polys, r = a["Power"], cut, U, res, y, v, aa, rint},
+  If[Lookup[a, "Scale", "PowerLog"] === "Transformed", Return[coordinateResidual[a, h, limit], Module]];
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic", Return[lambertResidual[a, h, limit], Module]];
   If[a["Kind"] =!= "Inverse", fail["Unsupported", "Residuals are computed for inverse expansions only."]];
   If[a["Truncation"] === "Depth", fail["Unsupported", "Residuals are computed for exponent truncation only."]];
@@ -981,6 +980,7 @@ Options[InverseNumericalCheck] = {WorkingPrecision -> 50};
 InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
    {wp = OptionValue[WorkingPrecision], x, y = a["Variable"], f = a["Function"], approx, root, err, scale, rm = a["Remainder"], yy, xr, target, local},
    If[a["Kind"] =!= "Inverse", fail["Unsupported", "Numerical checks are for inverse expansions."]];
+   If[Lookup[a, "Scale", "PowerLog"] === "Transformed", Return[coordinateNumericalCheck[a, yv, wp], Module]];
    If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic", Return[lambertNumericalCheck[a, yv, wp], Module]];
    If[! IntegerQ[wp] || wp < 10, fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
    x = a["Variables"][[1]];
@@ -1000,7 +1000,7 @@ InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := c
    err = Abs[xr - approx];
    xr = N[xr, wp]; approx = N[approx, wp]; err = N[err, wp];
    scale = If[rm === 0, 0, N[rm[[1]]^rm[[2]] (1 + Abs[Log[rm[[1]]]])^rm[[3]] /. y -> yy, wp]];
-   <|"ExactInverse" -> xr, "Approximation" -> approx, "Error" -> err,
+   <|"ReferenceRoot" -> xr, "ExactInverse" -> xr, "Approximation" -> approx, "Error" -> err,
      "RemainderScale" -> scale, "Ratio" -> If[scale === 0, Indeterminate, err/scale],
      "ForwardResidual" -> N[(f /. x -> approx) - yy, wp]|>]];
 InverseNumericalCheck[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseNumericalCheck[expansion, yvalue]."|>];
@@ -1025,7 +1025,7 @@ lambertNumericalCheck[a_Association, yv_, wp_] := Module[
   If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The numerical root is outside the selected real branch."]];
   scale = N[a["RemainderScaleExpression"] /. y -> yy, wp];
   err = N[Abs[xr - approx], wp];
-  <|"ExactInverse" -> N[xr, wp], "Approximation" -> N[approx, wp], "Error" -> err,
+  <|"ReferenceRoot" -> N[xr, wp], "ExactInverse" -> N[xr, wp], "Approximation" -> N[approx, wp], "Error" -> err,
     "RemainderScale" -> scale, "Ratio" -> If[TrueQ[scale == 0], Indeterminate, err/scale],
     "ForwardResidual" -> N[(f /. x -> approx) - yy, wp],
     "RootResidual" -> N[(f /. x -> xr) - yy, wp]|>];
@@ -1071,6 +1071,8 @@ InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTempla
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
 Get[FileNameJoin[{$kernelDirectory, "LambertInverse.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "CoordinateInverse.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "IncrementalInverse.wl"}]];
 
 End[];
 EndPackage[];
