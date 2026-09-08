@@ -42,6 +42,17 @@ does not contain zero, there is also the lower bound
 \]
 It can prove that a requested accuracy is impossible for a fixed center.
 
+If the symmetric residual bracket does not fit inside $I$, the evaluator
+also encloses the residual at $A$ and $B$. Proved opposite signs in the
+orientation of $F'$ establish existence by continuity, and the separated
+derivative still establishes uniqueness. Once existence in $I$ is known,
+the mean-value theorem gives the same bound $|x_*-c|\le h$ and the same
+intersection enclosure, without requiring the symmetric bracket to be
+contained in $I$. The output identifies this alternative as exact endpoint
+sign evidence. This case matters for a coarse asymptotic seed close to one
+end of a valid interval: increasing arithmetic precision cannot repair
+an unsuitable symmetric-bracket geometry.
+
 The theorem asserts uniqueness on the supplied interval, which the evaluator
 also checks lies on the requested side of the source endpoint. It does not
 certify global injectivity or identify disconnected monotone intervals as the

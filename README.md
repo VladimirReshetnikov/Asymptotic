@@ -26,6 +26,15 @@ Lambert-W branch and returns a finite expansion in inverse logarithms and
 logarithms of logarithms, with a separate prefactor and remainder. See the
 package README for the logarithmic cutoff convention.
 
+The extended package also implements finite reciprocal/iterated logarithmic
+hierarchies, perturbations of exact Lambert cores, finite flat exponential
+sectors, Fourier coefficients, and special-function tail/threshold adapters.
+Explicit series operations transport remainders, refinement retains reusable
+computation state, and rational interval certificates support requested
+absolute or relative accuracy. The article states each admitted family's
+branch and error contract; these bounded algebras have distinct cutoff
+meanings and do not claim a general transseries field.
+
 ## Layout
 
 | Path | Content |

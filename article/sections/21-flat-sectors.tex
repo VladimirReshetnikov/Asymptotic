@@ -1,0 +1,141 @@
+\section{Finite commensurate flat sectors}
+\label{sec:flat-sectors}
+
+An exponential that is smaller than every power of the source coordinate
+needs its own truncation index. The operation \wl{AsymptoticFlatInverse}
+implements a finite part of this larger scale. In the positive source
+coordinate $u\to0^+$, its admitted exact forward expression is
+\begin{equation}
+ F(u)=y_0+a u^q+\sum_{j=1}^J A_j(u)e^{-k_j c/u^p},
+ \quad p,c>0,\quad q\ne0,\quad a\ne0,\quad k_j\in\N_{>0},
+ \label{eq:flat-forward}
+\end{equation}
+where each $A_j$ is a finite real power--log expression. The phase power and
+rates are fixed exact real numbers; the rates are integer multiples of the
+smallest input rate. Coefficients may contain symbolic real parameters when
+the required signs are proved. Different phase powers and incommensurate
+rates need more than one exponential coordinate and are rejected here.
+
+The zero sector must be exact. An ordinary finite asymptotic approximation
+to a nonmonomial core leaves a power-sized error, which dominates every
+sector in \eqref{eq:flat-forward}. The implementation therefore admits the
+exact shifted monomial core $y_0+a u^q$; it does not use a truncated inverse
+of a general power--log core as the zero sector. Put
+\[
+ u_0=\left(\frac{y-y_0}{a}\right)^{1/q}>0,
+ \qquad E_0=e^{-c/u_0^p}.
+\]
+At a finite source endpoint the requested observable is
+$H(u)=x_0+\sigma u$ for power one and $H(u)=\sigma^r u^r$ otherwise.
+At an infinite endpoint it is $H(u)=\sigma^r u^{-r}$.
+Negative source branches require an integer requested power.
+
+\subsection{Computing complete sectors}
+
+Introduce a formal symbol $Z$ and the polynomial
+$R(u,Z)=\sum_j A_j(u)Z^{k_j}$. Differentiation of the actual exponential
+coordinate is represented by the exact operator
+\[
+ \mathcal D=\partial_u+cp\,u^{-p-1}Z\partial_Z,
+ \qquad \frac{d}{du}e^{-c/u^p}=cp\,u^{-p-1}e^{-c/u^p}.
+\]
+The marker identity of Section~\ref{sec:core-perturbations} now gives
+\begin{equation}
+ \frac{(-1)^n}{n!}
+ \left(\frac{\mathcal D}{a q u^{q-1}}\right)^{n-1}
+ \left(\frac{H'(u)R(u,Z)^n}{a q u^{q-1}}\right).
+ \label{eq:flat-marker-coefficients}
+\end{equation}
+Sum this expression over $1\le n\le N$, group equal powers of $Z$, and
+evaluate $u=u_0$, $Z=E_0$. Since every $k_j\ge1$, no marker degree larger
+than $N$ contributes to an exponential degree at most $N$. Also
+$\mathcal D$ preserves exponential degree, so intermediate polynomial
+truncation discards no contribution to a retained sector. Each returned
+coefficient is a complete finite power--log function of $u_0$.
+
+For example,
+\begin{lstlisting}
+AsymptoticFlatInverse[x + Exp[-1/x], {x, 0}, {y, 3}]
+\end{lstlisting}
+returns
+\begin{equation}
+ y-E+y^{-2}E^2+
+ \left(y^{-3}-\frac32 y^{-4}\right)E^3,
+ \qquad E=e^{-1/y}.
+ \label{eq:flat-primary-inverse}
+\end{equation}
+For $F(x)=x+x^2e^{-1/x}$, the first two sectors are
+$y-y^2E+(y^2+2y^3)E^2$. Adding $2e^{-2/x}$ to the first example changes
+the second coefficient to $y^{-2}-2$. Thus the sector index distinguishes
+input sectors from powers of the perturbation marker.
+
+\subsection{A bound for the complete omitted tail}
+
+Write every coefficient as a finite sum $u^\alpha P(\log u)$, and choose
+\[
+\begin{aligned}
+ b=\max(0,\max_{\alpha}(q+p-\alpha)),\qquad
+ d&=\max(0,\max_P\deg P),\\
+ B(u)=u^{-b}\M(u)^d,\qquad \chi(u)=B(u)e^{-c/u^p}.
+\end{aligned}
+\]
+Let $r_*=r$ at a finite source endpoint and $r_*=-r$ at infinity.
+For fixed admitted data, there are $C,K>0$ and a source threshold such that
+the complete omitted sector tail after degree $N$ satisfies
+\begin{equation}
+ |\operatorname{Tail}_N|
+ \le C u_0^{r_*+p}
+ \frac{(K\chi(u_0))^{N+1}}{1-K\chi(u_0)}
+ \quad\hbox{when }K\chi(u_0)<1.
+ \label{eq:flat-complete-tail}
+\end{equation}
+Consequently its recorded asymptotic class is
+\[
+ \OO\!\left(E_0^{N+1}
+ u_0^{r_*+p-(N+1)b}\M(u_0)^{(N+1)d}\right).
+\]
+This bound is allowed to be conservative; it is independent of whether the
+first omitted coefficient cancels.
+
+To justify the estimate, set $u=u_0(1+u_0^p V)$ and divide the forward
+equation by $u_0^{q+p}$. The normalized monomial difference has the analytic
+extension
+\[
+ a\frac{(1+\epsilon V)^q-1}{\epsilon},
+ \qquad \epsilon=u_0^p,
+\]
+whose derivative at $V=0$, $\epsilon=0$ is $a q\ne0$. Each exponential
+factor, after extracting $E_0^{k_j}$, becomes
+\[
+ \exp\!\left(k_jc\,
+ \frac{1-(1+\epsilon V)^{-p}}{\epsilon}\right),
+\]
+which is analytic and uniformly bounded for small $\epsilon,V$. The
+power--log factors have the same local analytic property after their
+powers of $u_0$ and $\log u_0$ are extracted. Each normalized coefficient
+is bounded by a constant times $B(u_0)$. Since $B\ge1$ for small $u_0$,
+replacing $E_0$ by a complex variable $Z$ gives a uniform implicit solution
+on $|Z|<1/(K B(u_0))$. One may regard the bounded normalized coefficients
+as additional parameters in a compact polydisc; the derivative condition
+at $Z=0$ is uniform. Cauchy estimates therefore bound the coefficient of
+$Z^k$ by $C(KB)^k$. The nonconstant observable contributes the factor
+$u_0^{r_*+p}$. Summing the geometric tail proves
+\eqref{eq:flat-complete-tail}, and $\chi(u_0)\to0$ establishes applicability
+at $Z=E_0$.
+
+The constants and threshold are existence bounds, not computed numerical
+certificates. The result records this distinction in \wl{MajorantContract}.
+\wl{SectorDepth} is inclusive: it retains $k\le N$, whereas an ordinary
+power cutoff is exclusive. \wl{FirstOmittedSector} records degree $N+1$
+separately from the complete-tail remainder. The resource budget bounds
+both the requested depth and the intermediate exact expressions.
+
+Independent verification substitutes
+$g=y+\sum_{k=1}^N C_k(y)Z^k$ into
+$g+Z\exp(1/y-1/g)-y$ and uses ordinary Taylor expansion in $Z$.
+This checks \eqref{eq:flat-primary-inverse} without reusing the coefficient
+operator. A high-precision solve of the original equation resolves errors
+on the fourth exponential scale; machine arithmetic cannot supply such
+evidence. Further tests exercise polynomial factors, two commensurate
+input sectors, nonunit monomial cores, shifted branches, infinite source
+endpoints, observable powers, and the rejected scale and resource cases.

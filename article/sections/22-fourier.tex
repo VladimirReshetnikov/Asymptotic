@@ -1,0 +1,146 @@
+\section{Finite Fourier coefficients in a logarithmic variable}
+\label{sec:fourier-coefficients}
+
+The polynomial coefficient algebra extends naturally to finite sums
+\[
+ B(L)=\sum_{\omega\in\Omega}P_\omega(L)e^{i\omega L},
+ \qquad L=\log u,\qquad \Omega\subset\R\text{ finite},
+\]
+where every $P_\omega$ is a polynomial and the frequencies are exact real
+numbers. This includes $\sin(\log u)$, several incommensurable frequencies,
+and polynomial amplitudes multiplying those oscillations. The source powers
+and the Fourier frequencies have different roles: source weights determine
+asymptotic truncation, while frequencies label coefficient modes. No Fourier
+mode is discarded merely because its frequency is large.
+
+\subsection{Coefficient arithmetic and reality}
+
+Multiplication convolves frequencies, and the Euler derivative is
+\[
+ \frac{\dd}{\dd L}\bigl(P_\omega(L)e^{i\omega L}\bigr)
+ =\bigl(P_\omega'(L)+i\omega P_\omega(L)\bigr)e^{i\omega L}.
+\]
+Thus this algebra is closed under precisely the operations used by
+Theorem~\ref{thm:coefficients}. Distinct syntactic frequencies are combined
+when exact comparison proves them equal. Algebraic frequencies are reduced
+before comparison. No floating-point tolerance is used to identify modes;
+an undecidable comparison produces a failure.
+
+The real-valued condition is the conjugacy relation
+$P_{-\omega}(L)=\overline{P_\omega(L)}$ on real $L$. The parser checks it
+under the supplied parameter assumptions. Intermediate complex coefficients
+are permitted, and real trigonometric expressions are reconstructed for
+display. Affine trigonometric phases, such as $\sin(2L+1)$, contribute their
+constant phase factor to the polynomial amplitude.
+
+\subsection{Inverse coefficients and independent composition}
+
+The admitted forward family is
+\[
+ f(u)=y_0+a u^p\left(1+\sum_j u^{\delta_j}B_j(\log u)\right),
+ \qquad ap\ne0,\quad \delta_j>0,
+\]
+with finitely many real Fourier-polynomial coefficients. The leading core is
+a monomial with a proved nonzero real coefficient. An oscillatory leading
+block, even one that happens to remain positive, requires a different inverse
+normalization and is rejected explicitly by this engine.
+
+For a multi-index $\bk$ of depth $n$ and weight
+$\sigma=\bk\cdot\bdelta$, the unchanged coefficient formula is
+\[
+ C^{(r)}_{\bk}(L)=\frac{(-1)^n r}{p^n\bk!}
+ \prod_{j=1}^{n-1}(\D+r+\sigma+pj)\prod_i B_i(L)^{k_i}.
+\]
+Convolution forms the product, and the Fourier Euler operation applies each
+factor. The implementation preserves the individual coefficients as well as
+the complete sum at a source weight.
+
+Residual checking uses a separate composition recurrence. If
+$u=z(1+U)$, then
+\[
+ (1+U)^\alpha B(L+\log(1+U))=\sum_{k\ge0}Q_k(L)U^k,
+ \qquad Q_0=B,\qquad
+ Q_{k+1}=\frac{(\alpha-k)Q_k+\D Q_k}{k+1}.
+\]
+This follows by Taylor expansion in the multiplicative increment; it holds
+for each exponential-polynomial mode as well as for their sum. Its use in
+the normalized forward equation independently checks the inverse coefficients.
+For a nonunit observable power, the residual first reconstructs the source
+unit by raising the observable unit to its reciprocal power.
+
+\subsection{Envelopes, convergence, and omitted terms}
+
+For real $L$, Fourier modes have modulus one. If
+$P_\omega(L)=\sum_j c_{\omega,j}L^j$, then
+\[
+ |B(L)|\le\sum_{\omega,j}|c_{\omega,j}|(1+|L|)^j.
+\]
+This nonoscillatory envelope is stored with each retained block. Euler
+differentiation preserves the polynomial degree; frequency factors affect
+coefficient constants, rather than the power of the logarithmic envelope.
+Consequently a multi-index coefficient has polynomial degree at most
+$\sum_i k_i\deg B_i$, just as in the polynomial case.
+
+The convergence argument also extends. After replacing each finite source
+mode by an independent marker, logarithmic composition uses
+\[
+ e^{i\omega(L+\log W)}=e^{i\omega L}W^{i\omega},
+\]
+which is analytic for $W$ near $1$ with its local logarithm. The implicit
+derivative at the origin is still $p\ne0$. The finite-dimensional analytic
+implicit function theorem gives an absolutely convergent marker expansion
+for sufficiently small markers. Along the real source slice these markers
+are bounded by constants times $z^{\delta_i}(1+|\log z|)^{d_i}$ and tend to
+zero. The positive source gaps also make the forward derivative asymptotic
+to $ap u^{p-1}$, so the selected real inverse branch exists near the endpoint.
+
+The complete one-step outer boundary of the retained multi-index region
+therefore bounds the omitted tail. Its least weight supplies the remainder
+power, and the maximum summed polynomial degree over that finite boundary
+supplies a conservative logarithmic envelope. This bound need not be sharp
+after cancellation, but remains valid even at zeros of every displayed
+oscillatory coefficient. A declared forward remainder is transported with
+the same observable-dependent exponent as Theorem~\ref{thm:transport}; its
+matching derivative hypothesis remains required. Constants and source
+thresholds are not computed numerical certificates.
+
+\subsection{Interface and acceptance examples}
+
+\begin{lstlisting}
+s = AsymptoticFourierInverse[x + x^2 Sin[Log[x]],
+  {x, 0}, {y, 4}];
+FourierInverseResidual[s]
+FourierInverseCoefficient[s, {2}]
+\end{lstlisting}
+The result is
+\[
+ y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4),
+ \qquad L=\log y.
+\]
+With an additional $x^3\cos(2\log x)$, the coefficient of $y^3$ acquires
+$-\cos(2L)$, combining a directly supplied frequency with frequencies
+generated by convolution. The identity
+\[
+ \sin(\sqrt2L)\sin(\sqrt3L)
+ +\tfrac12\cos\!\bigl(\sqrt{5+2\sqrt6}\,L\bigr)
+ =\tfrac12\cos\!\bigl((\sqrt2-\sqrt3)L\bigr)
+\]
+tests exact algebraic frequency equality and cancellation.
+
+The cutoff is exclusive in the positive target power coordinate, with the
+same finite-endpoint, infinity, and observable conventions as the ordinary
+engine. This first Fourier engine requires an explicit cutoff and uses the
+individual Lagrange formula. Frequencies are exact numeric real constants;
+arbitrary symbolic frequency relations and nonlinear logarithmic phases are
+outside this interface. \wl{"MaxFrequencies"} bounds distinct modes across
+the retained jet and intermediate coefficient operations, and
+\wl{"MaxTerms"} bounds source indices and convolution work. Exhaustion
+returns an explicit failure; there is no undocumented frequency truncation.
+
+Regression cases compare the displayed formulas with direct trigonometric
+differentiation, independently compose normalized residuals, check source and
+target translations and an infinite source endpoint, and exercise observable
+powers, algebraic resonance, polynomial envelopes, remainder transport, and
+frequency budgets. The Fourier envelope test deliberately evaluates at a zero
+of the oscillatory factor, where a sign-based or oscillatory error scale would
+give a misleading result.

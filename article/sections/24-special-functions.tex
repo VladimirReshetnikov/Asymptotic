@@ -1,0 +1,295 @@
+\section{Special functions, asymptotic forward models, and real thresholds}
+\label{sec:special-function-adapters}
+
+The operation \wl{AsymptoticSpecialInverse} exposes explicit adapters for
+\wl{"Erfc"}, \wl{"LogGamma"}, \wl{"Gamma"},
+\wl{"LambertThreshold"}, and \wl{"QuadraticThreshold"}.
+These examples need two different contracts. The tail adapters invert a
+finite Poincar\'e forward model and transport its omitted error. The
+threshold adapters use exact local equations in a ramified coordinate.
+A convergent inverse expansion for a finite model does not make the
+original Poincar\'e forward series convergent.
+
+Every adapter permits a real affine change of target,
+$y=b+aF(x)$, with a provably real offset and a provably nonzero real scale.
+It stores the original function, the forward model or exact local equation,
+the transformed target, the selected real branch, and the meaning of the
+requested cutoff. The following formulas use $a=1,b=0$ unless stated
+otherwise.
+
+\subsection{The complementary-error-function tail}
+
+For $x>0$, define
+\begin{equation}
+ S(x)=\sqrt\pi\,x e^{x^2}\operatorname{erfc}x,
+ \qquad
+ S_m(x)=\sum_{k=0}^{m-1}\frac{(-1)^k(1/2)_k}{x^{2k}},
+ \qquad A_m=(1/2)_m.
+ \label{eq:erfc-normalized-tail}
+\end{equation}
+The real positive-axis expansion has a remainder bounded by its first
+neglected term; see
+\href{https://dlmf.nist.gov/7.12.i}{DLMF~\S7.12(i)}.
+For inverse-error transport we also require a derivative bound.
+
+\begin{lemma}[Value and derivative bounds for the normalized tail]
+\label{lem:erfc-normalized-bounds}
+For every integer $m\ge1$ and every $x>0$,
+\begin{equation}
+ |S(x)-S_m(x)|\le A_m x^{-2m},\qquad
+ |S'(x)-S_m'(x)|\le 2m A_m x^{-2m-1}.
+ \label{eq:erfc-normalized-bounds}
+\end{equation}
+\end{lemma}
+\begin{proof}
+Starting with the integral definition of $\operatorname{erfc}$ in
+\href{https://dlmf.nist.gov/7.2.E2}{DLMF~(7.2.2)}, substitute
+$s^2=x^2+t$ to obtain
+\begin{equation}
+ S(x)=\int_0^\infty e^{-t}(1+t/x^2)^{-1/2}\,dt.
+ \label{eq:erfc-normalized-integral}
+\end{equation}
+Put $w=x^{-2}$. The derivatives of $(1+tw)^{-1/2}$ alternate in sign, and
+their magnitudes for $w\ge0$ are at most their values at $w=0$.
+Taylor's integral remainder, followed by integration in $t$, bounds the
+remainder of the first $m$ terms by $(1/2)_m w^m$.
+Applying the same argument to the derivative with respect to $w$ bounds
+its remainder by $m(1/2)_m w^{m-1}$. For $m=1$, the latter statement is
+the direct bound on the first derivative. Finally
+$|dw/dx|=2x^{-3}$ gives the second inequality in
+\eqref{eq:erfc-normalized-bounds}. The exponential factor in the integral
+justifies these finite differentiations and integrations.
+\end{proof}
+
+Let $Q_m(w)$ be the Taylor polynomial of degree $m-1$ of
+$-\log S_m(w^{-1/2})$ at $w=0$. The adapter constructs the finite phase
+\begin{equation}
+ \Phi_m(x)=x^2+\log x+Q_m(x^{-2}),
+ \qquad v=-\log(\sqrt\pi\,y).
+ \label{eq:erfc-finite-phase}
+\end{equation}
+The exact phase is $\Phi(x)=-\log(\sqrt\pi\operatorname{erfc}x)$.
+For fixed $m$, Lemma~\ref{lem:erfc-normalized-bounds} implies
+\begin{equation}
+ \Phi(x)-\Phi_m(x)=\OO(x^{-2m}),\qquad
+ \Phi'(x)-\Phi_m'(x)=\OO(x^{-2m-1}).
+ \label{eq:erfc-phase-errors}
+\end{equation}
+These are value and derivative assertions; the second is not inferred
+merely by differentiating an unspecified big-$O$ term.
+
+The implementation records explicit conditional bounds as well. Write
+$\delta=A_mx^{-2m}$, $\delta_1=2mA_mx^{-2m-1}$, and
+$\widetilde\Phi_m=x^2+\log x-\log S_m$. Wherever $S_m>\delta$,
+\begin{align}
+ |\Phi-\Phi_m|
+ &\le\frac{\delta}{S_m-\delta}
+       +|\widetilde\Phi_m-\Phi_m|,
+       \label{eq:erfc-explicit-phase-bound}\\
+ |\Phi'-\Phi_m'|
+ &\le\frac{\delta_1}{S_m-\delta}
+ +\frac{|S_m'|\delta}{S_m(S_m-\delta)}
+ +|\widetilde\Phi_m'-\Phi_m'|.
+ \label{eq:erfc-explicit-phase-derivative-bound}
+\end{align}
+The terms involving $\widetilde\Phi_m$ are exact elementary expressions.
+The positivity condition is retained in the result; it is satisfied
+eventually because $S_m\to1$ and $\delta\to0$.
+
+Now invert $\Phi_m(x)=v$ on $x\to+\infty$. Its leading source scale is
+$x^2$, so the inverse error transported from \eqref{eq:erfc-phase-errors}
+is $\OO(x^{-2m-1})=\OO(v^{-m-1/2})$. The ordinary inverse engine receives
+the explicit local input remainder $\{2m,0\}$ in $u=1/x$. A requested
+cutoff larger than $m+1/2$ is rejected unless the forward model is refined.
+This bound is combined with the truncation error of the model inverse.
+
+For example, with $v=-\log(\sqrt\pi y)$,
+\begin{equation}
+ \operatorname{erfc}^{-1}y
+ =\sqrt v-\frac{\log v}{4\sqrt v}
+ +\frac{-\log^2v+4\log v-8}{32v^{3/2}}
+ +\OO\!\left(v^{-5/2}(1+|\log v|)^3\right).
+ \label{eq:erfc-inverse-first-terms}
+\end{equation}
+The cubic numerator follows by inserting
+$x=\sqrt v+A/\sqrt v+B/v^{3/2}$ into
+$x^2+\log x+(2x^2)^{-1}+\OO(x^{-4})=v$.
+The expansion has a power cutoff in $1/v$, although $y\to0^+$.
+
+The negative-source tail uses the exact identity
+$\operatorname{erfc}(-x)=2-\operatorname{erfc}x$ and changes the
+reconstructed source sign. For $b+a\operatorname{erfc}x$ at $-\infty$,
+the positive small tail is $2-(y-b)/a$ and the target endpoint is $b+2a$.
+These identities handle reflected, shifted and sign-scaled tails without
+changing the forward-error proof.
+
+\subsection{A Stirling model with a retained Lambert inverse}
+
+For $x>0$, let
+\begin{equation}
+ G_m(x)=x(\log x-1)-\frac12\log x+\frac12\log(2\pi)
+ +\sum_{k=1}^{m-1}\frac{B_{2k}}{2k(2k-1)x^{2k-1}}.
+ \label{eq:stirling-finite-model}
+\end{equation}
+The positive-axis Stirling and digamma error bounds in
+\href{https://dlmf.nist.gov/5.11.ii}{DLMF~\S5.11(ii)} give
+\begin{align}
+ |\log\Gamma(x)-G_m(x)|&\le A_mx^{-\rho},
+ \label{eq:stirling-value-bound}\\
+ |\psi(x)-G_m'(x)|&\le\rho A_mx^{-\rho-1},
+ \label{eq:stirling-derivative-bound}\\
+ \rho&=2m-1,\qquad
+ A_m=\frac{|B_{2m}|}{2m(2m-1)}.
+ \notag
+\end{align}
+The finite value and derivative bounds apply for all positive $x$.
+The adapter selects the increasing inverse branch $x>2$; on this interval
+$\psi(x)\ge\log x-(2x)^{-1}-(12x^2)^{-1}>0$.
+This branch choice excludes the separate behavior near the positive
+minimum of the gamma function.
+
+Use the exact core
+\begin{equation}
+ F_0(x)=x(\log x-1),\qquad
+ \phi(v)=\frac{v}{W_0(v/e)}.
+ \label{eq:stirling-exact-core}
+\end{equation}
+The difference $G_m-F_0$ is a finite higher-power perturbation in
+$u=1/x$. The operation of Section~\ref{sec:core-perturbations} therefore
+retains $\phi$ exactly and computes its complete marker corrections.
+With $u_0=1/\phi(v)$, the omitted Stirling error transports to
+\begin{equation}
+ \OO(u_0^{2m-1})
+ \label{eq:stirling-inverse-input-floor}
+\end{equation}
+in the implementation's conservative polynomial--log bound. The actual
+derivative of the core provides an additional logarithmic denominator,
+but discarding that improvement preserves a valid bound in the stated
+remainder class. The final error combines
+\eqref{eq:stirling-inverse-input-floor} with the complete marker tail.
+
+For $m=1$, the first marker correction gives
+\begin{equation}
+ (\log\Gamma)^{-1}(v)
+ =\phi(v)+\frac12-\frac{\log(2\pi)}{2\log\phi(v)}
+ +\OO(\phi(v)^{-1}).
+ \label{eq:stirling-first-corrected-inverse}
+\end{equation}
+Increasing marker depth while holding $m$ fixed cannot improve the inherited
+Stirling accuracy limit. Marker coefficients beyond that limit still
+describe the chosen finite model, with that interpretation explicit in
+the result. Neither the finite marker expansion nor its analytic
+complete-tail theorem establishes convergence of the infinite Stirling
+series.
+
+For inversion of $\Gamma(x)$, use the exact target transformation
+$v=\log y$. The implementation solves and checks the equation
+$\log\Gamma(x)=\log y$; it can therefore accept a target such as
+$e^{10000}$ without forming that enormous value in the forward residual.
+For a real affine target $b+a\Gamma(x)$, replace $y$ by $(y-b)/a>1$.
+The analogous log-gamma adapter uses $v=(y-b)/a>0$ directly.
+
+\subsection{The two real Lambert branches at their common threshold}
+
+The two real inverses of $F(x)=xe^x$ meet at $x=-1$, $y=-1/e$.
+The branch description is given in
+\href{https://dlmf.nist.gov/4.13}{DLMF~\S4.13}.
+Writing $x=-1+h$ gives the exact local equation
+\begin{equation}
+ eF(-1+h)+1
+ =\frac{h^2}{2}+\frac{h^3}{3}+\frac{h^4}{8}
+ +\frac{h^5}{30}+\cdots.
+ \label{eq:Lambert-threshold-forward}
+\end{equation}
+The leading power is two. Ordinary analytic reversion in the positive
+ramified coordinate
+\begin{equation}
+ t=\sqrt{2(1+ey)}
+ \label{eq:Lambert-threshold-uniformizer}
+\end{equation}
+therefore yields a convergent local expansion. Its first coefficients are
+\begin{equation}
+ W_\nu(y)=-1+\sigma t-\frac{t^2}{3}
+ +\sigma\frac{11t^3}{72}-\frac{43t^4}{540}+\OO(t^5),
+ \label{eq:Lambert-threshold-inverse}
+\end{equation}
+where $(\nu,\sigma)=(0,1)$ or $(-1,-1)$.
+The implementation computes these coefficients from the exact forward
+equation, not from a large-argument Lambert asymptotic formula.
+
+The option \wl{"LambertBranch"} selects $0$ or $-1$.
+Its source direction must agree: the principal branch approaches $-1$
+from above and the lower branch from below. Contradictory choices are
+rejected. The recorded real target neighborhood is $-1/e<y<0$,
+transformed by the requested affine target map. A target below the real
+threshold is rejected by the numerical checker. The cutoff is an
+exclusive power cutoff in the positive distance $y+1/e$, so a cutoff
+$5/2$ retains the terms through $t^4$.
+
+\subsection{An exact coalescing quadratic branch}
+
+For an exact quadratic model
+\begin{equation}
+ F(x)=b+a c(x-x_0)^2,\qquad ac\ne0,
+ \label{eq:quadratic-threshold-forward}
+\end{equation}
+the two branches are exactly
+\begin{equation}
+ x=x_0+\sigma\sqrt{\frac{y-b}{ac}},\qquad
+ \sigma\in\{1,-1\},\qquad\frac{y-b}{ac}>0.
+ \label{eq:quadratic-threshold-inverse}
+\end{equation}
+The source direction selects $\sigma$. The remainder is zero because this
+is an exact inverse identity. For $F(x)=x^2-\mu$, the branches at target
+$y=0$ are $\pm\sqrt\mu$ and coalesce as $\mu\to0^+$. The same coordinate
+retains the selected sign throughout this limiting comparison. It does
+not choose a different branch because the two roots become close.
+
+\subsection{API, numerical evidence, and switching policy}
+
+\begin{lstlisting}[language=Mathematica]
+AsymptoticSpecialInverse["Erfc", {x, Infinity}, {y, 3}]
+AsymptoticSpecialInverse["LogGamma", {x, Infinity}, {y, 3}]
+AsymptoticSpecialInverse["Gamma", {x, Infinity}, {y, 2}]
+AsymptoticSpecialInverse[
+  "LambertThreshold", {x, -1}, {y, 5/2},
+  "LambertBranch" -> -1]
+AsymptoticSpecialInverse[
+  "QuadraticThreshold", {x, 0}, {y, 1},
+  "TargetOffset" -> -mu, Assumptions -> mu > 0,
+  Direction -> "FromBelow"]
+\end{lstlisting}
+
+The gamma calls use an integer marker depth. The error-function call uses
+a power cutoff in its logarithmic target coordinate. The threshold calls
+use local target-power cutoffs. Each result identifies this distinction.
+\wl{"ModelTerms"} controls the number of retained forward asymptotic
+terms, with a default sufficient for the requested error-function cutoff
+or gamma marker depth. A model that cannot support an error-function
+cutoff is rejected; a deliberately coarse Stirling model retains its
+explicit accuracy floor.
+
+\wl{SpecialInverseNumericalCheck} uses the original special-function
+equation or the exact threshold inverse as its independent reference.
+Exact target substitutions precede numerical evaluation, preserving
+$\log(e^v)=v$ and avoiding unnecessary cancellation in reflected tiny
+error-function tails. If a numerical input has already lost the digits
+needed by its transformed target, the checker reports insufficient
+precision. Its output sets \wl{"Certified"} to \wl{False}: a
+high-precision solve is not an interval proof.
+
+The regression families compare successive model orders at common target
+values, test the first-neglected value and derivative bounds against the
+original special functions, compare local Lambert expansions with exact
+\wl{ProductLog} values on both real branches, and use the exact quadratic
+formula as an oracle. These are explicit overlap comparisons. They do not
+establish a universal automatic crossover threshold between a local
+expansion, a tail expansion and another numerical representation.
+
+The current adapters are selected explicitly. Their metadata states this
+switching policy. Complex branches, automatic certified crossover
+selection, the gamma minimum and its second positive inverse branch,
+arbitrary coalescing higher-order critical points, and additional special
+functions remain outside these admitted families. The four roadmap
+acceptance types are represented here with their own branch and error
+contracts; their existence does not make these remaining cases automatic.

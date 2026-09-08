@@ -74,7 +74,7 @@ SeriesExp::usage = "SeriesExp[s] exponentiates an expansion with an absolute rem
 SeriesCompose::usage = "SeriesCompose[outer,inner] composes compatible expansion objects and transports the outer and inner remainders.";
 SeriesObservable::usage = "SeriesObservable[s,expr,z] applies a supported real analytic expression expr in z to the expansion s while preserving precision.";
 SeriesTruncate::usage = "SeriesTruncate[s,h] discards complete blocks at or above the exclusive cutoff h, retaining a valid remainder.";
-SeriesRefine::usage = "SeriesRefine[s,h] recomputes a retained source or operation recipe at cutoff h. It never improves precision without source evidence.";
+SeriesRefine::usage = "SeriesRefine[s,h] extends a compatible retained inverse computation or replays its source or operation recipe at cutoff h. A request association with AdditionalBlocks asks for more complete ordinary blocks; Target with TargetError or RelativeError and Interval returns a numerical certificate. RefinementStatistics records reused and new work; precision never improves without source evidence.";
 SeriesDifferentiate::usage = "SeriesDifferentiate[s,n] differentiates n times when matching remainder derivative bounds are known. RemainderDerivativeOrder declares such bounds; a magnitude Big-O bound alone is insufficient.";
 
 Begin["`Private`"];
@@ -608,7 +608,7 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
     lead = First[rows]]];
   p = lead[[1]]; a = lead[[2]];
   If[! FreeQ[a, ell], fail["LogarithmicLeadingTerm",
-    "The leading block a u^p Log[u]^k has a logarithmic factor; such a core needs a Lambert-W coordinate and is not supported by this version."]];
+    "The ordinary power-log engine requires a constant leading coefficient. This logarithmic leading block needs an admitted Lambert or logarithmic-coordinate reduction."]];
   If[! TrueQ[Simplify[a != 0, ass]], fail["UnprovedNonzeroLeadingCoefficient", "The leading coefficient must be provably nonzero.", <|"Coefficient" -> a|>]];
   If[! TrueQ[Simplify[Element[a, Reals], ass]], fail["UnprovedRealCoefficient", "The leading coefficient must be provably real.", <|"Coefficient" -> a|>]];
   rest = Rest[rows];
@@ -712,6 +712,7 @@ inverseDispatch[f_, x_, x0_, y_, cutoff_, opts___] := Module[{s},
   s = lambertConstruct[f, x, x0, y, cutoff, opts];
   If[s === $Failed, s = coordinateConstruct[f, x, x0, y, cutoff, opts]];
   If[s === $Failed, s = sourceCoordinateConstruct[f, x, x0, y, cutoff, opts]];
+  If[s === $Failed, s = logarithmicDispatch[f, x, x0, y, cutoff, opts]];
   If[s === $Failed, construct[f, x, x0, y, cutoff, opts], s]];
 
 inverseBlocks[d_, polys_, p_, rint_, H_, method_, ell_, ass_, limit_, region_] := Module[{U, blocks},
@@ -970,6 +971,8 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
    p, d, polys, r = a["Power"], cut, U, res, y, v, aa, rint},
   If[Lookup[a, "Scale", "PowerLog"] === "Transformed", Return[coordinateResidual[a, h, limit], Module]];
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic", Return[lambertResidual[a, h, limit], Module]];
+  If[Lookup[a, "Kind", ""] === "LogarithmicInverse", Return[logarithmicResidual[a, h, limit], Module]];
+  If[Lookup[a, "Kind", ""] === "FourierInverse", Return[fourierResidual[a, h, limit], Module]];
   If[a["Kind"] =!= "Inverse", fail["Unsupported", "Residuals are computed for inverse expansions only."]];
   If[a["Truncation"] === "Depth", fail["Unsupported", "Residuals are computed for exponent truncation only."]];
   p = model["LeadingPower"]; d = model["Gaps"]; polys = model["Polynomials"]; aa = model["LeadingCoefficient"];
@@ -993,57 +996,13 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
 
 Options[InverseNumericalCheck] = {WorkingPrecision -> 50};
 InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
-   {wp = OptionValue[WorkingPrecision], x, y = a["Variable"], f = a["Function"], approx, root, err, scale, rm = a["Remainder"], yy, xr, target, local},
-   If[a["Kind"] =!= "Inverse", fail["Unsupported", "Numerical checks are for inverse expansions."]];
-   If[Lookup[a, "Scale", "PowerLog"] === "Transformed", Return[coordinateNumericalCheck[a, yv, wp], Module]];
-   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic", Return[lambertNumericalCheck[a, yv, wp], Module]];
-   If[! IntegerQ[wp] || wp < 10, fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
-   x = a["Variables"][[1]];
-   If[! (NumericQ[yv] && (exactQ[yv] || Precision[yv] >= wp)), fail["InsufficientPrecision", "Supply an exact evaluation point or one with at least WorkingPrecision digits."]];
-   If[a["Power"] =!= 1, fail["Unsupported", "Numerical checks are for the inverse itself (\"Power\" -> 1)."]];
-   target = If[MemberQ[{Infinity, -Infinity}, a["Limit"]], yv, yv - a["Limit"]]/a["LeadingCoefficient"];
-   If[! TrueQ[Im[N[target, wp]] == 0] || ! TrueQ[N[target, wp] > 0],
-    fail["OutsideBranch", "The target must be real and lie on the selected side of the limiting value."]];
-   yy = N[yv, wp + 10];
-   approx = N[a["Expression"] /. y -> yy, wp + 10];
-   xr = With[{xv = x, fv = f, yv2 = yy, start = approx, wp2 = wp + 10, pg = wp},
-     Quiet[Check[xv /. FindRoot[fv == yv2, {xv, start}, WorkingPrecision -> wp2, AccuracyGoal -> Infinity, PrecisionGoal -> pg, MaxIterations -> 500], $Failed]]];
-   If[xr === $Failed || ! NumericQ[xr], fail["RootNotFound", "FindRoot did not converge from the expansion value."]];
-   local = Which[a["ExpansionPoint"] === Infinity, 1/xr, a["ExpansionPoint"] === -Infinity, -1/xr,
-    a["Direction"] === "FromAbove", xr - a["ExpansionPoint"], True, a["ExpansionPoint"] - xr];
-   If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The numerical root is outside the selected real branch."]];
-   err = Abs[xr - approx];
-   xr = N[xr, wp]; approx = N[approx, wp]; err = N[err, wp];
-   scale = If[rm === 0, 0, N[rm[[1]]^rm[[2]] (1 + Abs[Log[rm[[1]]]])^rm[[3]] /. y -> yy, wp]];
-   <|"ReferenceRoot" -> xr, "ExactInverse" -> xr, "Approximation" -> approx, "Error" -> err,
-     "RemainderScale" -> scale, "Ratio" -> If[scale === 0, Indeterminate, err/scale],
-     "ForwardResidual" -> N[(f /. x -> approx) - yy, wp]|>]];
+  {wp = OptionValue[WorkingPrecision]},
+  If[Lookup[a, "Kind", ""] === "SpecialInverse", Return[specialNumerical[a, yv, wp], Module]];
+  If[Lookup[a, "Scale", "PowerLog"] === "Transformed", Return[coordinateNumericalCheck[a, yv, wp], Module]];
+  numericalInverseEvidence[a, yv, wp]]];
 InverseNumericalCheck[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseNumericalCheck[expansion, yvalue]."|>];
 
-lambertNumericalCheck[a_Association, yv_, wp_] := Module[
-  {x = a["Variables"][[1]], y = a["Variable"], yy, approx, xr, local, scale, err, domain, f = a["Function"]},
-  If[! IntegerQ[wp] || wp < 10, fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
-  If[! NumericQ[yv] || (! exactQ[yv] && Precision[yv] < wp),
-   fail["InsufficientPrecision", "Supply an exact evaluation point or one with at least WorkingPrecision digits."]];
-  If[a["Power"] =!= 1, fail["Unsupported", "Numerical checks are for the inverse itself (Power -> 1)."]];
-  yy = N[yv, wp + 10];
-  domain = Lookup[a, "TargetDomain", a["LogarithmicVariable"] > 0] /. y -> yy;
-  If[! TrueQ[domain], fail["OutsideBranch", "The target lies outside the real asymptotic branch domain."]];
-  approx = N[a["Expression"] /. y -> yy, wp + 10];
-  If[! NumericQ[approx] || ! TrueQ[Im[approx] == 0], fail["OutsideBranch", "The expansion is not real at this target."]];
-  xr = With[{xv = x, fv = f, yv2 = yy, start = approx, wp2 = wp + 10, pg = wp},
-    Quiet[Check[xv /. FindRoot[fv == yv2, {xv, start}, WorkingPrecision -> wp2,
-      AccuracyGoal -> Infinity, PrecisionGoal -> pg, MaxIterations -> 500], $Failed]]];
-  If[xr === $Failed || ! NumericQ[xr], fail["RootNotFound", "FindRoot did not converge from the expansion value."]];
-  local = Which[a["ExpansionPoint"] === Infinity, 1/xr, a["ExpansionPoint"] === -Infinity, -1/xr,
-    a["Direction"] === "FromAbove", xr - a["ExpansionPoint"], True, a["ExpansionPoint"] - xr];
-  If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The numerical root is outside the selected real branch."]];
-  scale = N[a["RemainderScaleExpression"] /. y -> yy, wp];
-  err = N[Abs[xr - approx], wp];
-  <|"ReferenceRoot" -> N[xr, wp], "ExactInverse" -> N[xr, wp], "Approximation" -> N[approx, wp], "Error" -> err,
-    "RemainderScale" -> scale, "Ratio" -> If[TrueQ[scale == 0], Indeterminate, err/scale],
-    "ForwardResidual" -> N[(f /. x -> approx) - yy, wp],
-    "RootResidual" -> N[(f /. x -> xr) - yy, wp]|>];
+lambertNumericalCheck[a_Association, yv_, wp_] := numericalInverseEvidence[a, yv, wp];
 
 (* ------------------------------------------------------------------ *)
 (* Perturbative (Lagrange-Buermann) formula generator                   *)
@@ -1089,9 +1048,19 @@ Get[FileNameJoin[{$kernelDirectory, "LambertInverse.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "CoordinateInverse.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "IncrementalInverse.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "SeriesOperations.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "RefinementState.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "SourceCoordinates.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "CorePerturbation.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseCertificates.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "LogarithmicScales.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "FlatSectors.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "FlatSectorOperations.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "FourierCoefficients.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "SpecialFunctionAdapters.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "ExponentialCorePerturbation.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "NumericalInverseChecks.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "RefinementRequests.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "ReciprocalLogOperations.wl"}]];
 
 End[];
 EndPackage[];

@@ -82,8 +82,8 @@ coordinateNumericalCheck[a_, yv_, wp_] := Module[
   If[! IntegerQ[wp] || wp < 10, fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
   If[! NumericQ[yv] || (! exactQ[yv] && Precision[yv] < wp),
     fail["InsufficientPrecision", "Supply an exact target or at least WorkingPrecision digits."]];
-  yy = N[yv, wp + 10];
-  If[! TrueQ[a["TargetDomain"] /. y -> yy], fail["OutsideBranch", "The target is outside the transformed real branch domain."]];
+  yy = yv;
+  If[! TrueQ[N[a["TargetDomain"] /. y -> yy, wp + 10]], fail["OutsideBranch", "The target is outside the transformed real branch domain."]];
   approx = N[a["Expression"] /. y -> yy, wp + 10];
   seed = If[r === 1, approx,
     With[{side = Which[a["ExpansionPoint"] === Infinity, 1, a["ExpansionPoint"] === -Infinity, -1,

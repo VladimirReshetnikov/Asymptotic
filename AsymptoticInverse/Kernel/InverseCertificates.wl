@@ -170,7 +170,8 @@ certRefinedSeed[a_, yv_, iteration_, wp_] := Module[{s, goal, x, y, options},
   If[MatchQ[s, _PowerLogSeries], certSeed[s[[1]], yv, wp], $Failed]];
 
 certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[
-  {forward, derivative, derivativeExpression, residual, epsilon, mu, radius, bracket, correction, sharp, domain},
+  {forward, derivative, derivativeExpression, residual, epsilon, mu, radius, bracket, correction, sharp, domain,
+   leftResidual, rightResidual, endpointBracket = False},
   If[! certSourceInterval[a, interval, x, ctx],
    certFail["OutsideBranch", "The certificate interval is not proved to lie on the selected source side.",
     <|"Interval" -> interval, "ExpansionPoint" -> a["ExpansionPoint"], "Direction" -> a["Direction"]|>]];
@@ -189,9 +190,18 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
   radius = epsilon/mu;
   bracket = {center - radius, center + radius};
   If[! knownRoot && (bracket[[1]] < interval[[1]] || bracket[[2]] > interval[[2]]),
-   certFail["ResidualBracketOutsideInterval", "The residual bound does not establish a root within the verification interval.",
-    <|"ResidualEnclosure" -> residual, "DerivativeLowerBound" -> mu,
-      "ProposedRootBracket" -> bracket, "Interval" -> interval|>]];
+   leftResidual = certEnclose[function - target, x, ConstantArray[interval[[1]], 2], ctx];
+   rightResidual = certEnclose[function - target, x, ConstantArray[interval[[2]], 2], ctx];
+   endpointBracket = If[derivative[[1]] > 0,
+     leftResidual[[2]] <= 0 && rightResidual[[1]] >= 0,
+     leftResidual[[1]] >= 0 && rightResidual[[2]] <= 0];
+   If[! endpointBracket,
+    certFail["ResidualBracketOutsideInterval", "Neither residual containment nor exact endpoint signs establish a root in the verification interval.",
+     <|"ResidualEnclosure" -> residual, "DerivativeLowerBound" -> mu,
+       "ProposedRootBracket" -> bracket, "Interval" -> interval,
+       "DefinitiveNoRoot" -> ((leftResidual[[1]] > 0 && rightResidual[[1]] > 0) ||
+         (leftResidual[[2]] < 0 && rightResidual[[2]] < 0)),
+       "EndpointResidualEnclosures" -> {leftResidual, rightResidual}|>]]];
   (* The root now exists. Apply the mean-value identity once more with the
      full signed derivative enclosure to obtain a sharper root interval. *)
   correction = certMul[residual, certReciprocal[derivative, ctx], ctx];
@@ -206,7 +216,9 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
     "DerivativeLowerBound" -> mu, "DerivativeSign" -> If[derivative[[1]] > 0, 1, -1],
     "VerificationInterval" -> interval, "CertifiedFunction" -> function,
     "CertifiedTarget" -> target, "Route" -> route,
-    "ExistenceEvidence" -> If[knownRoot, "The preceding certificate enclosed a root in this interval", "Residual bracket containment"],
+    "ExistenceEvidence" -> Which[knownRoot, "The preceding certificate enclosed a root in this interval",
+      endpointBracket, "Exact endpoint signs and continuity", True, "Residual bracket containment"],
+    "EndpointResidualEnclosures" -> If[endpointBracket, {leftResidual, rightResidual}, Missing["NotNeeded"]],
     "OriginalForwardFunction" -> a["Function"], "SeedKind" -> a["Kind"],
     "InputRemainder" -> Lookup[a, "InputRemainder", None],
     "FunctionScope" -> If[MemberQ[{None, Automatic}, Lookup[a, "InputRemainder", None]],
@@ -270,6 +282,8 @@ AsymptoticInverse`InverseCertificate[PowerLogSeries[a_Association], yv_, opts : 
    If[AssociationQ[result], result = Join[result, <|"OriginalTarget" -> yv|>]];
    AppendTo[history, <|"Iteration" -> iteration, "EnclosureOrder" -> order, "Center" -> center,
       "Outcome" -> If[AssociationQ[result], "Certified", result[[1]]]|>];
+   If[FailureQ[result] && TrueQ[Lookup[result[[2]], "DefinitiveNoRoot", False]],
+    Return[Failure[result[[1]], Join[result[[2]], <|"History" -> history|>]], Module]];
    If[AssociationQ[result],
     lowerMagnitude = If[result["RootEnclosure"][[1]] <= 0 <= result["RootEnclosure"][[2]], 0,
       Min[Abs[result["RootEnclosure"]]]];

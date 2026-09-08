@@ -8,7 +8,7 @@ Scan[(Options[#] = {"Cutoff" -> Automatic, "MaxTerms" -> 20000}) &,
    AsymptoticInverse`SeriesExp, AsymptoticInverse`SeriesCompose,
    AsymptoticInverse`SeriesObservable}];
 Options[AsymptoticInverse`SeriesTruncate] = {"MaxTerms" -> 20000};
-Options[AsymptoticInverse`SeriesRefine] = {"MaxTerms" -> 20000};
+Options[AsymptoticInverse`SeriesRefine] = {"MaxTerms" -> 20000, "MaxRefinements" -> 128};
 Options[AsymptoticInverse`SeriesDifferentiate] = {
   "Cutoff" -> Automatic, "MaxTerms" -> 20000,
   "RemainderDerivativeOrder" -> Automatic};
@@ -241,6 +241,8 @@ AsymptoticInverse`SeriesObservable[s_PowerLogSeries, e_, x_Symbol, opts : Option
 
 AsymptoticInverse`SeriesCompose[outer_PowerLogSeries, inner_PowerLogSeries, opts : OptionsPattern[]] := catch[Module[
   {a, b, input, wj, term, result, p, deg, alpha, lc, ell, ass, h, limit = OptionValue["MaxTerms"]},
+  result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], limit];
+  If[result =!= $Failed, Return[result, Module]];
   a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
   If[a === $Failed || b === $Failed, fail["UnsupportedScale", "Composition currently requires a single power-log representation of both operands."]];
   ell = b["LogVariable"]; ass = seriesAss[a] && seriesAss[b]; h = seriesWorkingCut[b, OptionValue["Cutoff"]];
@@ -267,6 +269,8 @@ AsymptoticInverse`SeriesTruncate[s_PowerLogSeries, h_, opts : OptionsPattern[]] 
 
 seriesDerivative[s_, n_, declared_, cut_, limit_] := Module[{d, contract, ell, ass, j, q, wprime, pprime, first, second, result, k},
   If[! IntegerQ[n] || n < 0, fail["InvalidDerivativeOrder", "The derivative order must be a nonnegative integer."]];
+  result = reciprocalLogDifferentiate[s, n, declared, cut, limit];
+  If[result =!= $Failed, Return[result, Module]];
   If[n === 0, Return[s, Module]];
   d = seriesData[s, limit]; contract = Lookup[d, "RemainderDerivativeOrder", 0];
   If[declared =!= Automatic,
@@ -288,9 +292,33 @@ seriesDerivative[s_, n_, declared_, cut_, limit_] := Module[{d, contract, ell, a
 AsymptoticInverse`SeriesDifferentiate[s_PowerLogSeries, n_Integer : 1, opts : OptionsPattern[]] :=
   catch[seriesDerivative[s, n, OptionValue["RemainderDerivativeOrder"], OptionValue["Cutoff"], OptionValue["MaxTerms"]]];
 
-AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : OptionsPattern[]] := catch[Module[
+seriesRefinementResult[result_, original_, cutoff_] := Module[{data, stats},
+  If[! MatchQ[result, _PowerLogSeries], Return[result, Module]];
+  data = result[[1]];
+  If[KeyExistsQ[data, "RefinementStatistics"], Return[result, Module]];
+  stats = <|"Strategy" -> If[Lookup[original[[1]], "Kind", ""] === "Derived" &&
+      KeyExistsQ[original[[1]], "SeriesRecipe"], "ReplayOperationRecipe", "ReplayOriginalSource"],
+    "SourceCutoff" -> Lookup[original[[1]], "Cutoff", Missing["NotAvailable"]], "RequestedCutoff" -> cutoff,
+    "ModelReused" -> False, "ReusedBlocks" -> 0,
+    "NewCoefficientEvaluations" -> Missing["ReplayNotInstrumented"],
+    "Evidence" -> "Recomputed from retained source or operation recipe; no coefficient reuse or work count is claimed."|>;
+  PowerLogSeries[Join[data, <|"RefinementStatistics" -> stats,
+    "RefinementHistory" -> Append[Lookup[original[[1]], "RefinementHistory", {}], stats]|>]]];
+
+AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : OptionsPattern[]] := catch[seriesRefinementResult[Module[
   {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared},
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
+  r = refineStoredInverse[s, h, limit];
+  If[r =!= $Failed, Return[r, Module]];
+  If[Lookup[a, "Kind", ""] === "SpecialInverse" && ListQ[Lookup[a, "AdapterOptions", None]],
+    {x, y} = a["Variables"];
+    Return[AsymptoticInverse`AsymptoticSpecialInverse[a["Adapter"], {x, a["ExpansionPoint"]}, {y, h},
+      Sequence @@ a["AdapterOptions"], "MaxTerms" -> limit], Module]];
+  If[Lookup[a, "Kind", ""] === "LogarithmicInverse",
+    {x, y} = a["Variables"];
+    Return[AsymptoticInverse`AsymptoticLogarithmicInverse[a["Function"], {x, a["ExpansionPoint"]}, {y, h},
+      Assumptions -> a["Assumptions"], Direction -> a["Direction"], "Power" -> a["Power"],
+      "LogarithmicLevels" -> a["LogarithmicLevels"], "MaxTerms" -> limit], Module]];
   If[Lookup[a, "Kind", ""] === "Forward", Return[AsymptoticExpansion[a["Function"], {a["Variable"], a["ExpansionPoint"], h},
     Assumptions -> a["Assumptions"], Direction -> a["Direction"], "MaxTerms" -> limit], Module]];
   If[Lookup[a, "Kind", ""] === "Inverse" && MatchQ[Lookup[a, "Variables", None], {_Symbol, _Symbol}],
@@ -328,4 +356,4 @@ AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : Opt
       Lookup[seriesData[First[args], limit], "RemainderDerivativeOrder", 0] < recipe[[3]],
         fail["UnprovedRefinedDerivative", "A derivative bound declared for the old remainder does not establish the stronger bound for the refined remainder. Refine the source first, then supply its derivative contract."]];
       seriesDerivative[First[args], recipe[[3]], Automatic, h, limit],
-    _, fail["MissingRefinementSource", "This internal derived representation has no replayable public recipe."]]]];
+    _, fail["MissingRefinementSource", "This internal derived representation has no replayable public recipe."]]], s, h]];

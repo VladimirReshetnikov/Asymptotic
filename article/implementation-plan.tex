@@ -30,7 +30,7 @@
 \maketitle
 
 \begin{abstract}
-This plan retains every authorized roadmap proposal and orders their implementation around shared mathematical contracts. The first stage extends the existing engines through explicit coordinate transformations. Later stages add exact-core perturbations, numerical certificates, larger logarithmic scales, composable result operations, incremental computation, finite exponential and Fourier sectors, and special-function adapters. Each stage has concrete acceptance cases and separate requirements for mathematical justification, exact symbolic checks, native tests, numerical evidence, performance measurements and rendered documentation. The first delivered milestone covers logarithmic target transformations and incremental computation; the broader stages remain open until their stated acceptance requirements are met.
+This plan retains every authorized roadmap proposal and orders their implementation around shared mathematical contracts. The first stage extends the existing engines through explicit coordinate transformations. Later stages add exact-core perturbations, numerical certificates, larger logarithmic scales, composable result operations, incremental computation, finite exponential and Fourier sectors, and special-function adapters. Each stage has concrete acceptance cases and separate requirements for mathematical justification, exact symbolic checks, native tests, numerical evidence, performance measurements and rendered documentation. Three delivered milestones implement the nine stages for the admitted finite families. The acceptance register records their evidence and the remaining broader mathematical boundaries.
 \end{abstract}
 
 \tableofcontents
@@ -50,15 +50,15 @@ Stage & Deliverable & Main prerequisite & Status\\
 Stage & Deliverable & Main prerequisite & Status\\
 \midrule
 \endhead
-1 & General exponential phases, pure logarithmic cores, and finite exponential sums through explicit coordinates & Existing inverse engines & Partial\\
-2 & Exact-core perturbations and transported input remainders & Coordinate contracts & Partial\\
-3 & Residual certificates and adaptive absolute/relative accuracy & Valid error transport & Partial\\
-4 & Reciprocal logarithms, iterated logarithms and nonpolynomial logarithmic coefficients & Scale representation & \planned\\
-5 & Composable arithmetic, inverse observables and refinement & Scale and provenance contracts & Partial\\
-6 & Incremental enumeration, Newton and grouped coefficient performance & Stable result semantics & Partial\\
-7 & Finite flat sectors and finite Fourier coefficient algebras & Extended scales and residual checks & \planned\\
-8 & Special-function and threshold adapters & Branch-aware coordinate dispatch & \planned\\
-9 & Generated independent tests and version-range validation & Continuous from stage 1 & Partial\\
+1 & General exponential phases, pure logarithmic cores, and finite exponential sums through explicit coordinates & Existing inverse engines & Complete\\
+2 & Exact-core perturbations and transported input remainders & Coordinate contracts & Complete\\
+3 & Residual certificates and adaptive absolute/relative accuracy & Valid error transport & Complete\\
+4 & Reciprocal logarithms, iterated logarithms and nonpolynomial logarithmic coefficients & Scale representation & Complete\\
+5 & Composable arithmetic, inverse observables and refinement & Scale and provenance contracts & Complete\\
+6 & Incremental enumeration, Newton and grouped coefficient performance & Stable result semantics & Complete\\
+7 & Finite flat sectors and finite Fourier coefficient algebras & Extended scales and residual checks & Complete\\
+8 & Special-function and threshold adapters & Branch-aware coordinate dispatch & Complete\\
+9 & Generated independent tests and version-range validation & Continuous from stage 1 & Complete\\
 \bottomrule
 \end{longtable}
 
@@ -93,8 +93,104 @@ source hashes, PDF builds and visual review.
 General exponential exact-core perturbations, transformed input-error
 contracts, automatic discovery of certificate intervals, broader composite
 observables, public incremental refinement, and additional generated
-families remain open within their respective stages. The reciprocal-log,
-flat-sector and other subsequent modules are not part of this milestone.
+families remained open at that checkpoint. The reciprocal-log, flat-sector
+and other subsequent modules were not part of the second milestone.
+Automatic interval discovery remains an optional extension: Stage 3
+requires and validates caller-supplied branch intervals.
+
+\paragraph{Third delivered milestone.}
+Version 1.4.0 implements the remaining finite logarithmic, flat-sector,
+Fourier and special-function families. Exact growing exponential cores
+retain their Lambert inverse while separate corrections resolve terms
+beyond every logarithmic order. General exact-core power observables,
+including negative powers, carry their own input-error ceilings.
+Public refinement retains coefficient states and polynomial powers,
+reports replay when a source is recomputed, and accepts additional-block
+or certified numerical-tolerance requests. Reciprocal-log calculus and
+flat-sector operations have separate proved error contracts.
+
+The acceptance audit added the previously missing coordinate and calculus
+edge cases, tolerance sweeps, precision failure/recovery and independent
+multiscale comparisons. It found and corrected a certificate retry that
+could not repair bracket geometry, a lost negative Erfc reconstruction
+sign, and an affine Lambert threshold limit inconsistency. Seeded native
+marker oracles and a standalone evidence-preserving campaign complement
+the fixed regressions. Nine refinement benchmarks report exact equality,
+reused work, time, retained sizes and evaluation memory; some small
+fixtures remain slower despite eliminating repeated coefficient work.
+
+The manifest \path{validation/milestone-3-artifacts.json} records the
+native suite, benchmark and generated-campaign evidence, source hashes,
+strict PDF builds and actual rendered-page review. Complete status in the
+register refers to the accepted families and contracts below, including
+explicit rejection boundaries; it does not claim a general transseries
+field or validation on an unlicensed or untested Wolfram version.
+
+\subsection{Acceptance register and continuing boundaries}
+
+\begin{enumerate}[leftmargin=1.8em]
+\item \textbf{Coordinates.} Target-log and source charts retain the
+original equation, side and reconstruction. Named quadratic-logarithm,
+signed, shifted, cancelled-rate and incommensurable-rate cases have
+independent formulas and numerical checks at several scales in
+\path{Tests/AcceptanceCoordinatesCalculus.wlt} and the coordinate suites.
+More general source transformations require an invertible chart and its
+own error-transport proof.
+\item \textbf{Exact cores and input errors.} Core and exponential-core
+suites cover the four named equations, signed/scaled branches, finite
+reconstruction and negative observables. A declared error includes its
+matching derivative hypothesis; it limits the returned accuracy.
+Arbitrary exact cores and unrelated exponential phases require new
+recognizers, inverse identities and tail proofs.
+\item \textbf{Certificates.} Exact rational intervals certify continuity,
+existence and a separated derivative. Three absolute and three relative
+tolerances across each of the six named families, plus threshold,
+insufficient-precision and invalid-bracket cases, are covered by
+\path{Tests/AcceptanceCertificates.wlt}. The certified equation is the
+stored explicit function, not an unspecified input-error family.
+Automatic interval discovery is additional work, not an accepted input
+precondition removed by this release.
+\item \textbf{Logarithmic scales.} Reciprocal rational units, generalized
+Laurent coefficients and leading monomials in finitely many positive
+logarithmic levels have closure and tail theorems. The logarithmic and
+reciprocal-operation suites cover the named examples, two cutoffs,
+composition and qualified derivatives. Arbitrary sums of incomparable
+leading coefficients and simultaneous independent cutoffs at every level
+remain outside these finite algebras.
+\item \textbf{Calculus and refinement.} Boundary logarithmic degrees,
+uncertain reciprocals, paired inverse observables, vanishing outer
+derivatives and translated endpoints have explicit tests. Refinement
+reports state reuse or source replay, stops at exact finite termination,
+and preserves the best expansion when a resource bound intervenes.
+Operations across incompatible coordinates return a failure until a
+proved conversion is available.
+\item \textbf{Computation.} Retained complete weight layers, Newton
+precisions and bounded polynomial-power caches preserve exact results and
+resource budgets. The nine-case benchmark includes every named parameter
+family and deep one-gap Catalan coefficients through cutoff 64. It records
+regressions as well as improvements; no portable time threshold defines
+correctness.
+\item \textbf{Flat and Fourier sectors.} Flat inverses retain an exact
+monomial zero sector, complete commensurable exponential sectors, separate
+inner cutoffs, polynomial observables, products and qualified derivatives.
+The flat/Fourier suites include independent residuals, multiscale
+numerics, resonance and budget failures. Incomparable exponential phases,
+general nonlinear sector composition and sign-changing leading Fourier
+blocks remain explicit boundaries.
+\item \textbf{Special functions.} Erfc, Gamma and LogGamma tails carry
+forward value/derivative error contracts. Lambert and quadratic threshold
+adapters retain their real ramified branch, including signed affine
+targets. Independent original-function, adjacent-model and threshold
+overlap tests validate these explicit adapters. No unproved automatic
+switching point or uniform critical-parameter theorem is asserted.
+\item \textbf{Generated validation and versions.} Independent radical
+and native marker-forward oracles cover the specified signs, gaps,
+collisions, logarithms, directions, observables, remainders and resources.
+The standalone runner saves seeds, full inputs, hashes, messages and all
+completed shrink attempts. Native compatibility is established for
+Wolfram 15.0.1 only. The installed 14.3 kernel cannot start; the minimum
+version constraint and documentation explicitly exclude a claim for it.
+\end{enumerate}
 
 \section{Shared contracts}
 

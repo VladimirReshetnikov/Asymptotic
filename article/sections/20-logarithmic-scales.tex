@@ -1,0 +1,374 @@
+\section{Finite logarithmic hierarchies and reciprocal-logarithmic order}
+\label{sec:logarithmic-scales}
+
+A power gap and a logarithmic gap describe different orders of smallness.
+For example, the correction $u/\log u$ has the same source power as $u$,
+whereas $u^2\sqrt{-\log u}$ has a positive source-power gap and a
+nonpolynomial logarithmic coefficient. The operation
+\wl{AsymptoticLogarithmicInverse} supplies separate contracts for these
+two situations and for a leading product of logarithmic factors. Exact
+source-coordinate reductions, including repeated logarithmic charts, are
+handled by the coordinate machinery of Section~\ref{sec:coordinates}.
+
+\subsection{The finite coefficient hierarchy}
+
+In the positive source coordinate $u\to0^+$, put
+\begin{equation}
+ L_1(u)=-\log u,\qquad L_{j+1}(u)=\log L_j(u),
+ \qquad 1\le j<d.
+ \label{eq:logarithmic-hierarchy}
+\end{equation}
+The depth $d$ is finite. All retained levels are positive and tend to
+infinity sufficiently near the endpoint. A generalized logarithmic
+monomial is
+\begin{equation}
+ c\prod_{j=1}^d L_j^{\alpha_j},\qquad
+ c\in\R,\quad \alpha_j\in\R.
+ \label{eq:generalized-log-monomial}
+\end{equation}
+Finite sums of these monomials form an algebra under addition and
+multiplication. Powers in \eqref{eq:generalized-log-monomial} have positive
+bases, including when an exponent is noninteger or negative. An arbitrary
+real power of a sum is not silently included in this finite algebra.
+
+\begin{proposition}[Closure under the source Euler derivative]
+\label{prop:logarithmic-euler-closure}
+For a differentiable coefficient $C(L_1,\ldots,L_d)$,
+\begin{equation}
+ u\frac{d}{du}C(L_1(u),\ldots,L_d(u))
+ =\mathcal E C,
+ \qquad
+ \mathcal E=-\sum_{j=1}^d
+ \frac{1}{L_1\cdots L_{j-1}}\frac{\partial}{\partial L_j},
+ \label{eq:hierarchy-euler-operator}
+\end{equation}
+where the empty denominator is $1$. In particular, the finite generalized
+logarithmic algebra is closed under every derivative used in the inverse
+coefficient formula.
+\end{proposition}
+\begin{proof}
+The chain rule gives $uL_1'(u)=-1$ and
+$uL_j'(u)=-(L_1\cdots L_{j-1})^{-1}$. Each summand in
+\eqref{eq:hierarchy-euler-operator} decreases finitely many monomial
+exponents and creates no new logarithmic level.
+\end{proof}
+
+This is the needed closure for coefficients such as $L_1^{1/2}$:
+its derivatives contain $L_1^{-1/2},L_1^{-3/2},\ldots$.
+Restricting the coefficient reader to positive logarithmic powers would
+lose closure even in this simplest example. An expression containing
+$\sqrt{\log u}$ instead has an eventually negative base on $u\to0^+$;
+the real hierarchy does not admit it.
+
+\subsection{Positive source-power gaps with logarithmic coefficients}
+
+Consider
+\begin{equation}
+ F(u)=y_0+a u^p\left(1+\sum_{i=1}^m
+ u^{\delta_i}C_i(L_1(u),\ldots,L_d(u))\right),
+ \qquad a\ne0,\quad p\ne0,\quad \delta_i>0,
+ \label{eq:generalized-log-forward}
+\end{equation}
+where every $C_i$ belongs to the finite algebra above. As before, all
+exponents are fixed exact real constants in the implementation, and
+assumptions establish the real coefficients and the sign of $a$.
+Set $z=((y-y_0)/a)^{1/p}>0$, so $z\to0^+$. For the observable $u^r$, the
+multi-index coefficient of weight $w=\bk\cdot\bdelta$ is
+\begin{equation}
+ \frac{(-1)^{|\bk|}r}{p^{|\bk|}\prod_i k_i!}
+ \prod_{j=1}^{|\bk|-1}(\mathcal E+r+w+pj)
+ \prod_i C_i^{k_i},
+ \label{eq:generalized-log-coefficient}
+\end{equation}
+evaluated at the logarithmic levels of $z$ and multiplied by $z^{r+w}$.
+For $\bk=0$, the coefficient is $1$. Formula
+\eqref{eq:generalized-log-coefficient} is the same Lagrange identity as
+in the polynomial case; Proposition~\ref{prop:logarithmic-euler-closure}
+supplies its enlarged coefficient algebra.
+
+\begin{theorem}[Convergence and a conservative complete-tail bound]
+\label{thm:generalized-log-convergence}
+The inverse of \eqref{eq:generalized-log-forward} on its selected eventual
+real branch has the convergent multi-index expansion
+\eqref{eq:generalized-log-coefficient}. Choose integers $D_i\ge0$ such
+that every monomial in $C_i$ satisfies
+\[
+ \prod_j L_j(u)^{\alpha_j}=\OO(\M(u)^{D_i}).
+\]
+For example, the ceiling of the largest sum of the positive monomial
+exponents is sufficient. Let $\mathcal B$ be the finite minimal excluded
+multi-index boundary of a positive source-weight cutoff, and put
+\begin{equation}
+ \beta=\min_{\bk\in\mathcal B}\bk\cdot\bdelta,
+ \qquad D=\max_{\bk\in\mathcal B}\sum_i k_iD_i.
+ \label{eq:generalized-log-boundary}
+\end{equation}
+Then the complete omitted expansion of $u^r$ is
+$\OO(z^{r+\beta}\M(z)^D)$. At a finite source endpoint the original
+inverse has $r=1$; at an infinite source endpoint it has $r=-1$,
+with the selected source sign applied separately.
+\end{theorem}
+\begin{proof}
+Write $u=zW$ near $W=1$. For each level, the quotient
+$L_j(zW)/L_j(z)$ is analytic in $W$ and the finite reciprocal logarithmic
+parameters near their limiting values. For instance, the first quotient
+is $1-\log W/L_1(z)$; subsequent quotients are obtained by taking the
+logarithm of the preceding quotient and dividing by the next level.
+Each factor raised to a fixed real power is holomorphic near $1$.
+Introduce a separate small parameter for every finite coefficient monomial
+$z^{\delta_i}\prod_jL_j(z)^{\alpha_j}$. All tend to zero. The normalized
+implicit equation has derivative $p\ne0$ in $W$ at its parameter origin,
+so the analytic implicit function theorem proves convergence in a fixed
+polydisc of these parameters.
+
+Cauchy estimates, with the finite coefficient sums grouped by $i$, give a
+geometric multi-index majorant in
+$K_i z^{\delta_i}\M(z)^{D_i}$ for suitable constants $K_i$.
+The omitted upward-closed index set is covered by the translates of its
+finite minimal boundary. Sum the majorant over each translate. Its
+denominators remain bounded for sufficiently small $z$, and the boundary
+monomial is bounded by $z^\beta\M(z)^D$ using
+\eqref{eq:generalized-log-boundary}. Multiplication by $z^r$ completes
+the estimate. The estimate does not assume that the first boundary
+coefficient is nonzero.
+\end{proof}
+
+The reported logarithmic degree can be larger than the optimal one. The
+finite boundary supplies a valid envelope for the entire omitted sum,
+while the retained coefficients remain exact generalized expressions.
+The cutoff uses the ordinary positive target coordinate: a source weight
+$w$ contributes target power $(r+w)/|p|$. This convention preserves the
+nonunit leading-power and infinite-endpoint scaling of the original engine.
+
+\begin{example}[The two nonpolynomial coefficient acceptance cases]
+For $T=-\log y$, inversion at $0^+$ gives
+\begin{align}
+ (u+u^2\sqrt{-\log u})^{-1}(y)
+ &=y-y^2\sqrt T+y^3(2T-\tfrac12)+\OO(y^4\M(y)^3),
+ \label{eq:inverse-sqrt-log-coefficient}\\
+ (u+u^2\log(-\log u))^{-1}(y)
+ &=y-y^2\log T
+ +y^3\left(2\log^2T-\frac{\log T}{T}\right)
+ +\OO(y^4\M(y)^3).
+ \label{eq:inverse-iterated-log-coefficient}
+\end{align}
+Here the superscript $-1$ denotes function inversion. The displayed
+remainders are the implementation's conservative complete-tail bounds.
+The derivative term in each cubic coefficient is essential and follows
+directly from \eqref{eq:hierarchy-euler-operator}.
+\end{example}
+
+\subsection{Reciprocal-logarithmic units}
+
+Now consider a core of the form
+\begin{equation}
+ F_0(u)=y_0+a u^p H(-1/\log u),
+ \qquad p\ne0,\quad H(0)=1,
+ \label{eq:reciprocal-log-core}
+\end{equation}
+where $H$ is a rational function analytic at $0$ with real coefficients.
+Let $z=((y-y_0)/a)^{1/p}>0$, $t=-1/\log z>0$, and write $u=zW$.
+The normalized inverse equation is exactly
+\begin{equation}
+ W^p H\left(\frac{t}{1-t\log W}\right)=1.
+ \label{eq:reciprocal-log-unit-equation}
+\end{equation}
+Its derivative in $W$ is $p$ at $(t,W)=(0,1)$, so its real solution
+$W(t)$ is analytic at $0$. Iterating
+\begin{equation}
+ W\longmapsto
+ H\left(\frac{t}{1-t\log W}\right)^{-1/p}
+ \label{eq:reciprocal-log-fixed-point}
+\end{equation}
+from $W=1$ determines successively correct Taylor coefficients: dependence
+on the previous $W$ carries a positive power of $t$. Exact finite Taylor
+arithmetic supplies the requested bracket and its first omitted orders.
+An exclusive cutoff $h$ retains exactly the integer degrees $n<h$.
+Its remainder has the form $\OO(t^\beta)$, where $\beta$ is the recorded
+first unretained degree or a conservative bound when cancellation prevents
+its identification in the bounded lookahead.
+
+For the original source inverse, the bracket is multiplied by the exact
+prefactor $\sigma z$ at a finite endpoint or $\sigma/z$ at infinity.
+An observable uses the corresponding power of $W$ and transports the
+prefactor and remainder together. This is a logarithmic cutoff inside
+that prefactor, not a cutoff in $y$ or $1/y$.
+
+\begin{example}[A zero source-power gap]
+At $u\to0^+$, the inverse of $u+u/\log u$ begins
+\begin{equation}
+ y\left(1+t+t^2+2t^3+\frac72t^4+\OO(t^5)\right),
+ \qquad t=-\frac1{\log y}.
+ \label{eq:reciprocal-log-inverse-example}
+\end{equation}
+Equivalently, its bracket is
+$1-1/\log y+1/\log^2y-2/\log^3y+7/(2\log^4y)$.
+For the same forward expression at $+\infty$, use $t=1/\log y$ and the
+bracket $1-t+t^2-2t^3+7t^4/2$.
+
+The expression $u+u/\log u-u/(1+\log u)$ has a cancelled first
+reciprocal-logarithmic correction. Its forward unit is
+$1+t^2/(1-t)$ in the source logarithmic coordinate, and its inverse bracket
+begins $1-t^2+\cdots$. Coefficients are merged before detecting the leading
+unit, so a cancelled coefficient does not create a fictitious retained term.
+\end{example}
+
+Higher source-power terms can accompany \eqref{eq:reciprocal-log-core}.
+If each has a strictly positive power gap and an admitted logarithmic
+coefficient envelope, their induced inverse correction is smaller than
+the prefactor times every fixed power of $t$. For
+$u(1+1/\log u)+u^2$, the logarithmic bracket therefore agrees with
+\eqref{eq:reciprocal-log-inverse-example} at every finite logarithmic
+order. The package separately records the omitted source-power expression
+and an asymptotic bound for that smaller sector. Its logarithmic residual
+refers to the retained leading core. Equality of the logarithmic brackets
+does not assert that the full inverses are equal.
+
+\subsection{A leading logarithmic monomial}
+
+The same normalization extends to
+\begin{equation}
+ F_0(u)=y_0+a u^p\prod_{j=1}^d L_j(u)^{q_j},
+ \qquad p\ne0,\quad q_j\in\R.
+ \label{eq:leading-hierarchy-core}
+\end{equation}
+Let $Y=(y-y_0)/a>0$ and define
+\begin{equation}
+\begin{gathered}
+ T=-\frac{\log Y}{p},\quad t=\frac1T,\quad
+ B_1=T,\quad B_{j+1}=\log B_j,\\
+ d_0=\frac1p\sum_jq_j\log B_j,
+ \quad z=Y^{1/p}\prod_jB_j^{-q_j/p}.
+\end{gathered}
+ \label{eq:leading-hierarchy-normalization}
+\end{equation}
+All $B_j$ are positive sufficiently near the selected endpoint. Put
+\begin{align}
+ R_1(W)&=1+t(d_0-\log W),\label{eq:leading-level-first-ratio}\\
+ R_{j+1}(W)&=1+B_{j+1}^{-1}\log R_j(W).
+ \label{eq:leading-level-next-ratio}
+\end{align}
+Then $L_j(zW)/B_j=R_j(W)$ exactly, and the normalized inverse equation is
+\begin{equation}
+ W^p\prod_jR_j(W)^{q_j}=1.
+ \label{eq:leading-hierarchy-unit-equation}
+\end{equation}
+
+\begin{theorem}[A convergent leading-hierarchy bracket]
+\label{thm:leading-hierarchy-bracket}
+Equation~\eqref{eq:leading-hierarchy-unit-equation} has a unique real
+solution near $W=1$ for the selected asymptotic branch. Its expansion in
+powers of $t$, retaining the lower-level coefficients exactly, converges
+sufficiently near the endpoint. A truncation beginning its omitted degrees
+at $\beta$ has bracket remainder
+\begin{equation}
+ \OO\!\left(t^\beta(1+|\log t|)^\beta\right).
+ \label{eq:leading-hierarchy-tail}
+\end{equation}
+\end{theorem}
+\begin{proof}
+Treat $t$, $td_0$, and $B_2^{-1},\ldots,B_d^{-1}$ as independent small
+parameters. The equation is analytic in these parameters and $W$ near
+their origin and $W=1$, with derivative $p\ne0$ in $W$.
+The analytic implicit function theorem gives a common polydisc and a
+convergent series there. Since $d_0=\OO(\log T)$, all the parameters
+indeed tend to zero on the actual asymptotic curve.
+
+The total degree in the first two parameters equals the formal degree in
+$t$ after substituting $td_0$. Cauchy estimates, uniform in the other
+parameters on a smaller polydisc, bound the tail of those degrees by a
+constant times $[t(1+|d_0|)]^\beta$ for sufficiently small $t$.
+This proves \eqref{eq:leading-hierarchy-tail}. The fixed-point expression
+$W=\prod_jR_j(W)^{-q_j/p}$ has positive formal valuation in its dependence
+on the previous $W$, so finite exact iteration computes the same
+coefficients. Real powers use the positive local factors near $1$.
+\end{proof}
+
+For $F(x)=x\log\log x$ at $+\infty$, let
+$T=\log y$, $B=\log T$, and $t=1/T$. The reconstructed inverse starts
+\begin{equation}
+ F^{-1}(y)=\frac{y}{B}
+ \left(1+\frac{\log B}{B}t
+ +\OO\!\left(t^2(1+|\log t|)^2\right)\right).
+ \label{eq:leading-iterated-log-example}
+\end{equation}
+Thus an iterated logarithm in the leading coefficient need not be replaced
+by a constant or rejected as a zero source-power gap. The implementation
+also admits products of levels and real powers of those levels, with
+positivity recorded explicitly. Positive source-power perturbations can
+again be retained as separately recorded smaller sectors.
+
+\subsection{Implementation contracts and checks}
+
+\begin{lstlisting}[language=Mathematica]
+AsymptoticLogarithmicInverse[
+  x + x/Log[x] + x^2, {x, 0}, {y, 5}]
+
+AsymptoticLogarithmicInverse[
+  x + x^2 Log[-Log[x]], {x, 0}, {y, 4}]
+
+AsymptoticLogarithmicInverse[
+  x Log[Log[x]], {x, Infinity}, {y, 4}]
+\end{lstlisting}
+
+The scale names identify three distinct contracts:
+\begin{itemize}[leftmargin=1.5em]
+\item \wl{"ReciprocalLogUnit"}: a relative logarithmic cutoff;
+\item \wl{"GeneralizedLogarithmicCoefficients"}: a target-power cutoff;
+\item \wl{"LeadingLogMonomial"}: a relative logarithmic cutoff.
+\end{itemize}
+All three cutoffs are exclusive. The positive uniformizer, exact prefactor, coefficient
+levels, branch conditions, and cutoff meaning are all inspectable.
+The option \wl{"LogarithmicLevels"} bounds the admitted finite hierarchy;
+unused levels are removed from the result's actual domain requirements.
+
+When \wl{SeriesTermGoal -> n} is used instead of a cutoff, the constructor
+searches for $n$ complete nonzero blocks. Cancelled logarithmic coefficients
+do not count as terms. Generalized coefficient searches advance across
+complete source-weight boundaries and, if necessary, rebuild at the next
+excluded target weight to keep exactly the requested blocks. Their
+target-power cutoff may be negative, but must exceed the leading power of
+the requested observable. A unit's reciprocal-logarithmic cutoff remains
+positive. The search has a finite construction budget and preserves its
+best expansion in a resource failure.
+
+A finite run of zero coefficients does not establish termination. A
+sufficient exactness certificate reconstructs the selected positive local
+source from the returned observable and verifies the original forward
+equation identically. The model must be exact, with no omitted source-power
+sectors. The positive branch and local uniqueness then identify this
+candidate with the inverse germ. In particular, an exact source-unit
+polynomial does not by itself certify a truncated noninteger power of that
+unit. The tests include cancellation, negative target-power cutoffs,
+refinement and bounded failures for term-goal requests.
+
+\wl{LogarithmicInverseResidual} composes the retained normalized unit with
+the exact equation \eqref{eq:reciprocal-log-unit-equation} or
+\eqref{eq:leading-hierarchy-unit-equation}. Its scope explicitly identifies
+a leading-core residual when smaller source-power sectors were omitted.
+Independent tests compare the generalized coefficients with direct
+derivatives and hand-derived inverse coefficients. Other tests substitute
+targets generated by the original forward functions and compare against
+the known source point at high precision. The regression family covers
+two logarithmic cutoffs, cancellation, irrational source gaps, both source
+orientations, finite translations, infinite endpoints and invalid real
+logarithmic domains.
+
+The reciprocal-logarithmic unit has a single ordinary Taylor bracket and
+therefore exposes a representation usable by the existing series calculus.
+The other two scales retain their enlarged coefficient algebra explicitly;
+operations requiring a polynomial--log coefficient representation must
+reject them until a compatible conversion or generalized operation is
+available. The convergence contracts are mathematical existence bounds,
+with \wl{"NumericCertificate"} set to \wl{False}. An external unknown
+input remainder is rejected here until its transport through the chosen
+logarithmic hierarchy is supplied.
+
+This finite implementation does not claim a general transseries field.
+Arbitrary real powers of coefficient sums, sums of several incomparable
+leading logarithmic monomials, unrestricted analytic composition of the
+enlarged coefficient objects, and independent simultaneous cutoffs at
+every logarithmic level remain additional contracts. The formulas above
+give a closed finite coefficient algebra for the derivatives actually
+computed, convergent inverse expansions for the admitted families, and
+explicitly different precision meanings for the supported scales.

@@ -67,7 +67,7 @@
 \begin{abstract}
 The inverse of $f(x)=x+x^2(1+\log x)$ on the positive real axis has no Taylor expansion at $0$: its expansion is $y-y^2(1+\log y)+y^3(2\log^2y+5\log y+3)-\cdots$, with a polynomial in $\log y$ at every power. The inverse of $x+x^{\sqrt2}$ has irrational exponents, $y-y^{\sqrt2}+\sqrt2\,y^{2\sqrt2-1}-\cdots$. The built-in functions \wl{InverseSeries}, \wl{Series}, \wl{Asymptotic} and \wl{InverseFunction} of the Wolfram Language either fail on such inputs or return the germ at a complex root. The same algebra of finite \emph{power--log expansions} also governs forward asymptotics with irrational exponents, such as $(1+x+x^{\sqrt2})^{\sqrt2}$ at infinity, where \wl{Asymptotic} returns its input unchanged.
 
-We develop an ordered calculus of power--log blocks with exact truncated arithmetic, marker Lagrange--B\"urmann inversion, and an Euler-operator formula for every block of $g(y)^r$. The positive real branch is selected explicitly. An implicit-function argument in finitely many small parameters proves convergence, a Rouch\'e argument supplies a conditional numerical majorant, and exponent cutoffs have remainders governed by the first omitted block. Forward errors and residuals are transported with the derivative scaling appropriate to the observable, including powers of inverses at infinity. A finite-smoothness theorem also covers perturbations outside the analytic power--log class. A logarithmic coordinate extends the method to Lambert cores, including the real inverse of $x\log x$ near $0$ and of $xe^x$ at infinity, with a convergent expansion and explicit remainder scale. The Wolfram Language package \wl{AsymptoticInverse} supplies exact-exponent forward and inverse engines and inert remainder descriptors. We distinguish implemented computations, hypotheses carried by the input data, and extensions that need larger scales, and compare the nine reports underlying the original implementation.
+We develop an ordered calculus of power--log blocks with exact truncated arithmetic, marker Lagrange--B\"urmann inversion, and an Euler-operator formula for every block of $g(y)^r$. The positive real branch is selected explicitly. An implicit-function argument in finitely many small parameters proves convergence, a Rouch\'e argument supplies a conditional numerical majorant, and exponent cutoffs have remainders governed by the first omitted block. Forward errors and residuals are transported with the derivative scaling appropriate to the observable, including powers of inverses at infinity. A finite-smoothness theorem also covers perturbations outside the analytic power--log class. A logarithmic coordinate extends the method to Lambert cores, including the real inverse of $x\log x$ near $0$ and of $xe^x$ at infinity, with a convergent expansion and explicit remainder scale. Further implemented algebras cover finite logarithmic hierarchies, exact-core perturbations, flat exponential sectors and Fourier coefficients. Special-function adapters distinguish Poincar\'e forward models from exact local threshold equations. The package provides composable results, retained-state refinement, exact rational residual certificates and independent generated validation. We distinguish implemented computations, hypotheses carried by the input data, and broader scales still outside the admitted classes, and compare the nine reports underlying the original implementation.
 \end{abstract}
 
 \tableofcontents
@@ -92,6 +92,16 @@ We develop an ordered calculus of power--log blocks with exact truncated arithme
 \input{sections/18-core-perturbations}
 \input{sections/19-certificates}
 \input{sections/23-source-coordinates}
+\input{sections/20-logarithmic-scales}
+\input{sections/21-flat-sectors}
+\input{sections/22-fourier}
+\input{sections/24-special-functions}
+\input{sections/25-refinement-state}
+\input{sections/26-generated-validation}
+\input{sections/27-exponential-core}
+\input{sections/28-flat-sector-operations}
+\input{sections/29-integration}
+\input{sections/30-reciprocal-log-operations}
 
 \begin{thebibliography}{30}
 \bibitem{q1} V.~Reshetnikov, \emph{How to get an asymptotic of the real-valued branch of the inverse function?}, Mathematica Stack Exchange, question 236367, December 2020. \url{https://mathematica.stackexchange.com/questions/236367/}

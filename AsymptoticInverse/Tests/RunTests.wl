@@ -2,7 +2,9 @@
 root = DirectoryName[DirectoryName[$InputFileName]];
 Get[FileNameJoin[{root, "Kernel", "AsymptoticInverse.wl"}]];
 testFiles = FileNames["*.wlt", FileNameJoin[{root, "Tests"}]];
-report = TestReport[testFiles];
+(* Headless progress rendering is noisy and can emit notebook-layout messages;
+   the final report and exported per-test outcomes remain authoritative. *)
+report = TestReport[testFiles, ProgressReporting -> False];
 Print["Kernel: ", $Version];
 Print["Succeeded: ", report["TestsSucceededCount"], "   Failed: ", report["TestsFailedCount"]];
 Do[If[r["Outcome"] =!= "Success",

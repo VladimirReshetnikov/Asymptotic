@@ -1,0 +1,117 @@
+\section{Independent generated validation and reproducible failures}
+\label{sec:generated-validation}
+
+The deterministic tests in \texttt{GeneratedAdvancedOracles.wlt} complement
+the radical inverse pairs in \texttt{GeneratedInverseOracles.wlt}. Their
+oracle is a separate finite symbolic substitution calculation. It does not
+call the package's coefficient formula, sparse jets, multi-index enumeration,
+Newton engine, or residual checker. Agreement between package methods remains
+useful supplementary evidence; it is not the expected-value calculation in
+these tests.
+
+Write a generated local model as
+\[
+ f(u)=a u^p\left(1+\sum_{i=1}^{m}u^{\delta_i}B_i(\log u)\right),
+ \qquad p\ne0,\quad \delta_i>0,
+\]
+and put $u=z(1+V)$. Introduce independent variables $t_i$ and a marker
+$\epsilon$. The oracle solves the finite Taylor problem
+\[
+ (1+V)^p-1+
+ \epsilon\sum_i t_i(1+V)^{p+\delta_i}
+ B_i\bigl(L+\log(1+V)\bigr)=0,
+ \qquad V=\sum_{n=1}^{N}v_n\epsilon^n.
+\]
+At marker order $n$, the new coefficient $v_n$ occurs with coefficient $p$.
+All other terms are determined by earlier coefficients. Native
+\wl{Series} and ordinary polynomial coefficient extraction therefore give
+a triangular scalar recurrence, independently of the Euler--Lagrange
+formula. The oracle checks both the coefficient of the new unknown and the
+vanishing of the substituted forward residual through order $N$.
+
+For an observable $u^r$, it then expands $(1+V)^r$. Each monomial
+$t^k$ acquires the exact weight $k\cdot\delta$ under the substitution
+$t_i=z^{\delta_i}$. To retain all weights strictly below $H$, it suffices to
+choose
+\[
+ N=\left\lceil\frac{H}{\min_i\delta_i}\right\rceil-1.
+\]
+Indeed, an omitted monomial has total marker degree at least $N+1$ and hence
+weight at least $(N+1)\min_i\delta_i\ge H$. The routine fixtures use small
+depths; the independent oracle explicitly refuses depths greater than six.
+Equal algebraic weights are combined by ordinary exact symbolic arithmetic
+when the expected finite expression is compared with \wl{Normal} of the
+public inverse object. No numerical tolerance decides equality or ordering.
+
+A fixed sixteen-family cycle ensures coverage of rational logarithmic
+polynomials, two and three irrational gaps, quadratic logarithmic
+amplitudes, exact collisions, and cancellation. For example, with
+$p=r=1$ the coefficients at the first three relative powers of
+$u(1+c u+2c^2u^2-u^3)$ include a cancelled second-order block.
+For two independent irrational gaps $\alpha,\beta$, the model
+\[
+ u\left(1+A u^\alpha+B u^\beta+
+ (2+\alpha+\beta)AB\,u^{\alpha+\beta}\right)
+\]
+has cancelling inverse contributions at weight $\alpha+\beta$ from
+different marker degrees. Both examples test complete weight blocks,
+rather than counting contributions before they are combined.
+
+Other families exercise source translation, the left branch, reciprocal
+source coordinates at both infinities, signed leading coefficients, nonunit
+leading powers, and observable powers. Declared forward remainders are
+tested at their transported precision boundary and beyond it; the latter
+must return \wl{Failure["InsufficientInputOrder",\ldots]}. An intentionally
+insufficient index budget must return \wl{Failure["ResourceLimit",\ldots]}.
+The exact coordinate identities
+\[
+\begin{aligned}
+ y=b+a\log\log x \quad\Longleftrightarrow\quad
+ &x=\exp\exp\frac{y-b}{a},\\
+ y=b+a e^{-1/x^2} \quad\Longleftrightarrow\quad
+ &x=\frac1{\sqrt{-\log((y-b)/a)}}.
+\end{aligned}
+\]
+are checked on their stated positive real branches, including a zero
+remainder. They do not depend on the recurrence oracle.
+
+The standalone script \texttt{RunGeneratedCampaign.wl} uses seed
+$236369$ and the Mersenne Twister by default. Its default twenty-four
+cases are separate from the sixteen-case routine suite. Environment
+variables with prefix \texttt{ASYMPTOTIC\_CAMPAIGN\_} select
+\texttt{SEED}, \texttt{CASES}, \texttt{CASE\_SECONDS},
+\texttt{SHRINK\_ATTEMPTS}, \texttt{SHRINK\_SECONDS}, and
+\texttt{OUTPUT}. Explicit finite bounds are enforced: at most ten thousand
+cases, six hundred seconds per case or shrink pass, and one thousand shrink
+attempts per failed case. A requested output directory must be new.
+
+Before testing, the runner writes the complete exact inputs and a manifest
+containing the seed, generator and oracle revision, actual kernel version,
+system identifier, resource limits, and SHA-256 digests of the runner and
+every kernel module. Each case writes its original input, requested operation,
+expected and observed expressions, messages, and elapsed time before
+shrinking begins. Timeouts, oracle failures, unexpected package failures,
+incorrect coefficients, and violated rejection contracts remain distinct
+outcomes. An interruption after an original case record has been written
+does not erase that record.
+
+The deterministic shrinker tries deleting perturbations, lowering logarithmic
+degree, simplifying exact coefficients and powers, decreasing the requested
+cutoff, and simplifying positive gaps. It accepts a candidate only when an
+explicit lexicographic tuple of nonnegative integer complexity measures
+decreases and the same failure class recurs. It preserves the original case,
+writes every accepted reduction separately, and stops at its time or attempt
+budget. Every completed shrink attempt also records its input and result,
+including a different failure class that cannot be accepted as a reduction.
+An evidence write failure stops the campaign explicitly. Consequently the
+result is a smaller reproducer, not a claim of
+global minimality. Exact coordinate fixtures currently have no specialized
+shrinking rules; their original evidence is still preserved.
+
+The routine suite also checks repeatability, strict shrink progress, retention
+of the original case, and rejection of reductions that change the failure
+class. These are tests of a finite implementation on the kernel version
+recorded by the native run. They are neither a proof for all expressions nor
+evidence for an untested Wolfram version. The analytic results elsewhere in
+this article and numerical or interval certificates have separate evidence
+roles.

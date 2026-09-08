@@ -1,0 +1,87 @@
+\section{Integrated refinement and numerical evidence}
+\label{sec:integrated-requests}
+
+The common constructor preserves the ordinary coefficient engine when the
+input already has polynomial logarithmic coefficients. In particular, a
+request for Newton inversion of $x+x^2\log x$ retains that method. A
+reciprocal or generalized logarithmic coefficient instead selects the
+larger algebra of Section~\ref{sec:logarithmic-scales}. Explicit sector and
+special-function constructors retain their own cutoff semantics.
+
+\subsection{Three meanings of refinement}
+
+A numeric second argument to \wl{SeriesRefine} is an exact exclusive
+cutoff for exponent-truncated objects, or an integer marker depth when
+replaying a depth-truncated source. Compatible ordinary inverse objects reuse the states described in
+Section~\ref{sec:refinement-state}; logarithmic objects replay their
+retained original function at the requested logarithmic or source-power
+cutoff. A derived result replays its operation recipe and preserves the
+precision limits of its operands.
+
+\begin{lstlisting}
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+SeriesRefine[s, 6]
+SeriesRefine[s, <|"AdditionalBlocks" -> 3|>]
+SeriesRefine[s, <|"Target" -> 1/100, "TargetError" -> 10^-30,
+  "Interval" -> {1/200, 1/50}|>]
+\end{lstlisting}
+
+The additional-block request counts complete nonzero exponent blocks of
+an ordinary inverse, including all resonant contributions at each weight.
+It advances the existing cutoff by the smallest normalized positive gap
+and delegates to the retained-state refinement. A finite exact inverse
+returns immediately when no further blocks exist, even if the numerical
+block goal is larger. The result records both \wl{"GoalReached"} and
+\wl{"ExactTermination"}; these statements are different. A declared
+input error or a resource limit can end refinement earlier, with the best
+available expansion retained in the failure data.
+
+The tolerance request returns a numerical certificate association, with
+\wl{"ResultType" -> "NumericalCertificate"}. It invokes the exact
+rational interval operation of Section~\ref{sec:executable-certificates}, retains
+the source expansion, and reports a certified rational source-root center.
+The tolerance concerns that root even if the retained symbolic object
+represents a power observable. It does
+not replace an asymptotic Big-$O$ by a numeric tolerance. Absolute and
+relative goals have the same interval and zero-root conventions as
+\wl{InverseCertificate}. An unknown request key is rejected rather than
+silently ignored.
+
+\subsection{Checking observables against the original equation}
+
+\wl{InverseNumericalCheck} accepts ordinary, logarithmic, Fourier, flat,
+exact-core and exponential-core inverses. Special-function adapters use
+their stable original-function check. The source and target chart routes
+retain their exact transformed equations. For an observable with power
+$r\ne1$, the numerical reference is
+\[
+ H_r(x_*)=\begin{cases}(x_*-x_0)^r,&x_0\text{ finite},\\
+ x_*^r,&x_0=\pm\infty.
+ \end{cases}
+\]
+For $r=1$, the displayed inverse and the numerical reference both include
+the source translation. The selected source sign recovers a root seed
+from the observable, including even powers at negative infinity. The
+computed root must lie on the selected real source side.
+
+The returned \wl{"ReferenceRoot"} and \wl{"ReferenceObservable"} have
+different meanings, and \wl{"Error"} compares the observable with its
+finite expansion. \wl{"ForwardResidual"} is evaluated at the recovered
+source seed. The old \wl{"ExactInverse"} field remains a compatibility
+alias for the numerical reference root; its name is not evidence of an
+exact or certified value. Every such comparison is explicitly numerical
+evidence. Unknown forward remainders cannot be evaluated and remain
+outside the stored equation's numerical scope.
+
+Exact target substitution precedes decimal evaluation. Thus a target
+$10^{100}+1/100$ near the limiting value $10^{100}$ is reduced to its exact
+distance before finite-precision arithmetic. Rounding the target first
+would erase that distance at ordinary working precisions and select the
+wrong branch or seed. Transformed targets follow the same rule.
+
+The integration tests compare observable powers with an independent
+quadratic radical, retain the lower Lambert branch, resolve flat-sector
+differences at high precision, check the original Fourier and special
+function equations, and exercise failed precision and branch contracts.
+These checks complement the independently generated coefficient and
+composition oracles; they do not replace the remainder theorems.

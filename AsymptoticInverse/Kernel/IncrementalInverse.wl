@@ -10,14 +10,66 @@ incrementalInverseState[d_List, polys_List, p_, r_, ell_, ass_, limit_] := Modul
     "LogVariable" -> ell, "Assumptions" -> ass, "MaxTerms" -> limit,
     "Inside" -> {}, "Boundary" -> <|incrementalIndexKey[zero] -> {0, zero}|>,
     "Blocks" -> {}, "LastWeight" -> -Infinity, "NextWeight" -> 0,
-    "CoefficientEvaluations" -> 0, "Layers" -> 0|>];
+    "CoefficientEvaluations" -> 0, "Layers" -> 0,
+    "PolynomialPowerCache" -> ({1, #} & /@ polys),
+    "PolynomialPowerCacheEntries" -> 0, "PolynomialPowerCacheCapacity" -> Max[0, limit - 1],
+    "PolynomialPowerRequests" -> 0, "PolynomialPowerCacheHits" -> 0,
+    "PolynomialPowerEvaluations" -> 0, "PolynomialPowerCacheEvictions" -> 0|>];
+
+(* Only powers >=2 of nonconstant logarithmic polynomials occupy cache slots.
+   Powers 0 and 1 merely refer to 1 and the already stored model coefficient.
+   The optional cache uses spare index-budget slots and is trimmed before a
+   larger frontier is admitted, so it cannot reduce the usable index region. *)
+incrementalResizePolynomialCache[state_Association] := Module[
+  {s = state, cache, capacity, entries, lengths, position, evictions = 0},
+  cache = Lookup[s, "PolynomialPowerCache", ({1, #} & /@ s["Polynomials"])];
+  capacity = Max[0, s["MaxTerms"] - Length[s["Inside"]] - Length[s["Boundary"]]];
+  entries = Total[Length /@ cache] - 2 Length[cache];
+  While[entries > capacity,
+    lengths = Length /@ cache; position = First[FirstPosition[lengths, Max[lengths]]];
+    cache[[position]] = Most[cache[[position]]]; entries--; evictions++];
+  Join[s, <|"PolynomialPowerCache" -> cache, "PolynomialPowerCacheEntries" -> entries,
+    "PolynomialPowerCacheCapacity" -> capacity,
+    "PolynomialPowerRequests" -> Lookup[s, "PolynomialPowerRequests", 0],
+    "PolynomialPowerCacheHits" -> Lookup[s, "PolynomialPowerCacheHits", 0],
+    "PolynomialPowerEvaluations" -> Lookup[s, "PolynomialPowerEvaluations", 0],
+    "PolynomialPowerCacheEvictions" -> Lookup[s, "PolynomialPowerCacheEvictions", 0] + evictions|>]];
+
+incrementalPolynomialProduct[state_Association, k_List] := Module[
+  {s = state, cache = state["PolynomialPowerCache"], polys = state["Polynomials"], ell = state["LogVariable"],
+   entries = state["PolynomialPowerCacheEntries"], capacity = state["PolynomialPowerCacheCapacity"],
+   requests = 0, hits = 0, evaluations = 0, factors, power, value, available, missing, j},
+  factors = Table[power = k[[j]];
+    If[power < 2 || FreeQ[polys[[j]], ell], polys[[j]]^power,
+      requests++; available = Length[cache[[j]]] - 1;
+      If[power <= available, hits++; cache[[j, power + 1]],
+        While[available < power && entries < capacity,
+          value = Expand[Last[cache[[j]]] polys[[j]]]; evaluations++;
+          cache[[j]] = Append[cache[[j]], value]; available++; entries++];
+        If[available === power, Last[cache[[j]]],
+          (* A full cache is a performance condition, never an input failure. *)
+          evaluations++; Expand[Last[cache[[j]]] polys[[j]]^(power - available)]]]],
+    {j, Length[k]}];
+  s = Join[s, <|"PolynomialPowerCache" -> cache, "PolynomialPowerCacheEntries" -> entries,
+    "PolynomialPowerRequests" -> state["PolynomialPowerRequests"] + requests,
+    "PolynomialPowerCacheHits" -> state["PolynomialPowerCacheHits"] + hits,
+    "PolynomialPowerEvaluations" -> state["PolynomialPowerEvaluations"] + evaluations|>];
+  {s, Expand[Times @@ factors]}];
+
+(* Apply the Euler coefficient formula to a product supplied by the cache.
+   lagrangeCoefficient remains the independent uncached reference route. *)
+incrementalCoefficientFromProduct[k_, d_, p_, r_, ell_, ass_, product_] := Module[{n = Total[k], weight, q = product},
+  If[n === 0, Return[{0, 1}, Module]];
+  weight = canon[k . d];
+  Do[q = Expand[D[q, ell] + (r + weight + p j) q], {j, 1, n - 1}];
+  {weight, polyCanon[Expand[(-1)^n r q/(p^n (Times @@ (Factorial /@ k)))], ell, ass]}];
 
 incrementalInverseRegion[state_Association] :=
   <|"Inside" -> state["Inside"], "Boundary" -> (Last /@ Values[state["Boundary"]])|>;
 
 advanceInverseState[state_Association] := Module[
   {s = state, boundary, weight, layer, keys, inside, additions, d, ell, ass, limit,
-   index, neighbor, key, nextWeight, coefficients},
+   index, neighbor, key, nextWeight, coefficients, product},
   boundary = state["Boundary"];
   If[Length[boundary] == 0, Return[state, Module]];
   d = state["Gaps"]; ell = state["LogVariable"]; ass = state["Assumptions"];
@@ -44,8 +96,11 @@ advanceInverseState[state_Association] := Module[
   If[Length[inside] + Length[boundary] > limit,
    fail["ResourceLimit", "Incremental multi-index enumeration exceeded MaxTerms.",
     <|"MaxTerms" -> limit|>]];
-  coefficients = lagrangeCoefficient[#, d, state["Polynomials"],
-      state["LeadingPower"], state["Power"], ell, ass, False] & /@ additions;
+  s = incrementalResizePolynomialCache[Join[s, <|"Inside" -> inside, "Boundary" -> boundary|>]];
+  coefficients = Table[
+    {s, product} = incrementalPolynomialProduct[s, index];
+    incrementalCoefficientFromProduct[index, d, state["LeadingPower"], state["Power"], ell, ass, product],
+    {index, additions}];
   nextWeight = If[Length[boundary] == 0, Infinity,
     First[Sort[First /@ Values[boundary], leq]]];
   AssociateTo[s, {"Inside" -> inside, "Boundary" -> boundary,

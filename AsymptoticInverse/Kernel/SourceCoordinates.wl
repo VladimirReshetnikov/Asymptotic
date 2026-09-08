@@ -229,8 +229,8 @@ sourceCoordinateNumericalCheck[a_, yv_, wp_] := Module[
   If[! IntegerQ[wp] || wp < 10, fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
   If[! NumericQ[yv] || (! exactQ[yv] && Precision[yv] < wp),
     fail["InsufficientPrecision", "Supply an exact target or at least WorkingPrecision digits."]];
-  yy = N[yv, wp + 10];
-  If[! TrueQ[a["TargetDomain"] /. y -> yy], fail["OutsideBranch", "The target is outside the recorded real source-chart domain."]];
+  yy = yv;
+  If[! TrueQ[N[a["TargetDomain"] /. y -> yy, wp + 10]], fail["OutsideBranch", "The target is outside the recorded real source-chart domain."]];
   seed = N[Normal[a["CoordinateSeries"]] /. y -> yy, wp + 10];
   zr = With[{zz = z, ff = phase, target = yy, start = seed, prec = wp + 10, goal = wp},
     Quiet[Check[zz /. FindRoot[ff == target, {zz, start}, WorkingPrecision -> prec,

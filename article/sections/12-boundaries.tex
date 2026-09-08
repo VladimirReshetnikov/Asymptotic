@@ -110,7 +110,7 @@ Relative perturbations $F(x)=ax^p(-\log x)^b(1+\sum_i x^{\delta_i}B_i(\log x))$ 
 \[
  \phi'(y)=\left[a x^{p-1}\tau^{b-1}(p\tau-b)\right]^{-1}_{x=\phi(y)}.
 \]
-The marker coefficients have powers of $\phi(y)$ and rational functions of $\tau$, with denominators arising from $p\tau-b$. A convergent marker expansion requires analytic control on the chosen branch, and re-expanding its coefficients introduces a second order of truncation: perturbation power and logarithmic depth. The exact-core Lambert construction proves the logarithmic expansion without asserting support for arbitrary perturbed cores.
+The marker coefficients have powers of $\phi(y)$ and rational functions of $\tau$, with denominators arising from $p\tau-b$. A convergent marker expansion requires analytic control on the chosen branch, and re-expanding its coefficients introduces a second order of truncation: perturbation power and logarithmic depth. The exact-core Lambert construction proves the logarithmic expansion. Sections~\ref{sec:core-perturbations} and~\ref{sec:exponential-core-perturbation} retain the exact core and compute separate perturbation corrections for the admitted finite families.
 
 The leading logarithmic polynomial itself can also be generalized before introducing a second perturbation scale.
 
@@ -159,15 +159,15 @@ The package marks this situation with \wl{"LeadingCoreOnly" -> True}, stores the
 
 \subsection{Zero gaps: corrections of relative size \texorpdfstring{$1/\log$}{1/log}}
 
-For $f(x)=x+x/\log x$ the correction has power gap $0$ and relative size $1/\log x$. All corrections of the inverse then sit at the same power $y$ with increasing negative powers of $\log y$, the index set $I_H$ is infinite, and the exponent cutoff has no meaning. The right coordinate is $\tau=1/\log y$: with $g=yW$ the equation becomes $W\bigl(1+\tau/(1+\tau\log W)\bigr)=1$, analytic near $(W,\tau)=(1,0)$, so $W$ is an ordinary convergent power series in $\tau$, $W=1-\tau+\tau^2-2\tau^3+\tfrac72\tau^4-\cdots$, i.e.\ $g(y)=y\bigl(1-1/\log y+1/\log^2y-2/\log^3y+\cdots\bigr)$. The general-core formula produces these terms, but the scale is the reciprocal-logarithm scale, not the power--log scale, and a package extension needs $\tau$ as a second generator with its own valuation.
+For $f(x)=x+x/\log x$ the correction has power gap $0$ and relative size $1/\log x$. All corrections of the inverse then sit at the same power $y$ with increasing negative powers of $\log y$, the index set $I_H$ is infinite, and the exponent cutoff has no meaning. The right coordinate is $\tau=1/\log y$: with $g=yW$ the equation becomes $W\bigl(1+\tau/(1+\tau\log W)\bigr)=1$, analytic near $(W,\tau)=(1,0)$, so $W$ is an ordinary convergent power series in $\tau$, $W=1-\tau+\tau^2-2\tau^3+\tfrac72\tau^4-\cdots$, i.e.\ $g(y)=y\bigl(1-1/\log y+1/\log^2y-2/\log^3y+\cdots\bigr)$. The general-core formula produces these terms, but the scale is the reciprocal-logarithm scale, not the power--log scale, and Section~\ref{sec:logarithmic-scales} implements the required reciprocal-logarithm valuation.
 
 \subsection{Flat terms}
 
-$e^{-1/x}$ is smaller than every power of $x$; a germ $x+e^{-1/x}$ has the same asymptotic power--log expansion as $x$. Its inverse obeys $g=y-e^{-1/g}$, so $y-e^{-1/y}\le g<y$ and $(y-g)/y^2\to0$. Consequently $e^{-1/g}/e^{-1/y}\to1$, proving $g-y=-e^{-1/y}(1+\oo(1))$. The marker formula begins $y-e^{-1/y}+y^{-2}e^{-2/y}+(y^{-3}-\tfrac32y^{-4})e^{-3/y}+\cdots$. These exponential sectors are invisible to a pure power--log expansion. They require a different extension from the exact exponential cores above, whose inverses reduce to Lambert coordinates.
+$e^{-1/x}$ is smaller than every power of $x$; a germ $x+e^{-1/x}$ has the same asymptotic power--log expansion as $x$. Its inverse obeys $g=y-e^{-1/g}$, so $y-e^{-1/y}\le g<y$ and $(y-g)/y^2\to0$. Consequently $e^{-1/g}/e^{-1/y}\to1$, proving $g-y=-e^{-1/y}(1+\oo(1))$. The marker formula begins $y-e^{-1/y}+y^{-2}e^{-2/y}+(y^{-3}-\tfrac32y^{-4})e^{-3/y}+\cdots$. These exponential sectors are invisible to a pure power--log expansion. Section~\ref{sec:flat-sectors} computes them with a separate sector cutoff and a complete-tail bound; this differs from the exact exponential cores above, whose inverses reduce to Lambert coordinates.
 
 \subsection{Oscillatory coefficients}
 
-$x^2\sin(\log x)$ is $\OO(x^2)$ with all derivatives of the right size, so Theorem~\ref{thm:tame} applies and the marker formula gives a valid expansion $y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4)$ whose ``coefficients'' are bounded oscillating functions of $L=\log y$. They are not polynomials in $L$, the coefficient algebra is different, and the sharp remainder theory of Section~\ref{sec:remainders} (which uses degrees) does not apply; only the tame theorem does. The package's \wl{PerturbativeInverse} generates the terms and leaves the remainder to the user.
+$x^2\sin(\log x)$ is $\OO(x^2)$ with all derivatives of the right size, so Theorem~\ref{thm:tame} applies and the marker formula gives a valid expansion $y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4)$ whose ``coefficients'' are bounded oscillating functions of $L=\log y$. They are not polynomials in $L$, the coefficient algebra is different, and the sharp remainder theory of Section~\ref{sec:remainders} (which uses degrees) does not apply; only the tame theorem does. Section~\ref{sec:fourier-coefficients} supplies a finite Fourier coefficient algebra and a nonoscillatory remainder bound. The lower-level \wl{PerturbativeInverse} remains a formula generator.
 
 \subsection{Symbolic exponents and nonuniformity}
 
@@ -176,3 +176,5 @@ When a gap $\delta$ is a symbol, the order of the weights $k\cdot\bdelta$ depend
 \subsection{Nested powers of the logarithm}
 
 Non-integer powers $(-\log x)^s$, $\log(-\log x)$, and negative powers of $\log x$ in a correction leave the polynomial coefficient algebra. For example $\varphi(x)=x^{1+\delta}(-\log x)^{1/2}$ is real for small positive $x$ and satisfies Theorem~\ref{thm:tame} with $M=1$, but repeated differentiation produces negative half-integer as well as positive half-integer powers of $-L$. A suitable coefficient algebra therefore contains $(-L)^{1/2}$ and its inverse. The Euler identity and composition recurrence still apply when the coefficient functions are differentiable or analytic as needed; closure and remainder bounds in the enlarged scale must also be established.
+
+The finite hierarchy of Section~\ref{sec:logarithmic-scales} establishes these closure and remainder contracts for generalized Laurent monomials in finitely many positive logarithmic levels. More general coefficient functions still need an independently justified algebra and ordering.

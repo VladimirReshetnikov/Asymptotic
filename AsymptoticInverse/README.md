@@ -21,7 +21,7 @@ AsymptoticExpansion[(1 + x + x^Sqrt[2])^Sqrt[2], {x, Infinity}, SeriesTermGoal -
 
 The mathematics is explained in `../article/asymptotic-inverse.tex`.
 
-Version 1.3.0 is tested on Wolfram 15.0.1 for Windows and declares a minimum
+Version 1.4.0 is tested on Wolfram 15.0.1 for Windows and declares a minimum
 kernel version of 15.0. The former untested `13.0+` claim has been removed.
 An installed 14.3 engine could not start because it lacks a valid license;
 that installation provides no compatibility evidence.
@@ -157,9 +157,10 @@ coordinates. Exponentiation requires an absolute argument remainder tending
 to zero and retains unbounded exponential prefactors exactly. Differentiating
 a magnitude Big-O bound requires a matching derivative bound; provide
 `"RemainderDerivativeOrder" -> n` only when that hypothesis is established.
-Refinement replays the retained source or operation recipe and preserves
-declared input precision ceilings. It does not yet reuse all work across
-separate public refinement calls.
+Compatible ordinary inverse refinements retain coefficient blocks, polynomial
+powers or Newton states. Other refinements replay the retained source or
+operation recipe and report that strategy explicitly. Both routes preserve
+declared input precision ceilings.
 `"DeclaredInputRemainder"` distinguishes a user-declared error from the
 automatically generated forward remainder, so analytic sources can be
 expanded further during refinement.
@@ -271,9 +272,10 @@ whose ordering needs a larger coefficient algebra is returned as an exact
 expression with the order claim marked uncomputed. Explicit declared input
 remainders require a separate source-chart transport contract.
 
-General transseries with independently truncated exponential sectors and
-reciprocal-logarithm corrections remain outside this version's shipping
-coefficient algebras.
+The extended constructors below supply bounded reciprocal-logarithmic,
+flat-sector and Fourier algebras. They keep their different cutoff meanings
+explicit; arbitrary transseries and incomparable phase families remain
+outside the admitted classes.
 The logarithmic target route accepts a single exponential product with an
 eventually signed power-log amplitude and a phase with a negative leading
 power in the positive local source coordinate. It includes phases containing
@@ -281,6 +283,153 @@ several powers and polynomial logarithms.
 Exponentially small or large terms (`Exp[-1/x]`), oscillatory coefficients
 (`Sin[Log[x]]`) and nested logarithms are rejected with a descriptive
 `Failure` by the ordinary forward engine.
+
+## Finite logarithmic hierarchies, sectors, and special functions
+
+```wolfram
+AsymptoticInverse[x + x/Log[x], {x, 0}, {y, 5}]
+AsymptoticInverse[x + x^2 Sqrt[-Log[x]], {x, 0}, {y, 4}]
+AsymptoticLogarithmicInverse[x Log[Log[x]], {x, Infinity}, {y, 4}]
+AsymptoticExponentialCoreInverse[x Exp[x], x^2, {x, Infinity}, {y, 2}]
+AsymptoticFlatInverse[x + Exp[-1/x], {x, 0}, {y, 3}]
+AsymptoticFourierInverse[x + x^2 Sin[Log[x]], {x, 0}, {y, 4}]
+AsymptoticSpecialInverse["Erfc", {x, Infinity}, {y, 2}]
+AsymptoticSpecialInverse["LogGamma", {x, Infinity}, {y, 2}]
+```
+
+Reciprocal-logarithmic units and leading iterated-log monomials use an
+exclusive cutoff in the recorded inverse logarithm. Higher source-power
+corrections with generalized logarithmic coefficients use the ordinary
+power cutoff. `"LogarithmicLevels"` bounds the finite positive hierarchy
+(default three, maximum eight). Omitted higher power sectors remain
+separate from the logarithmic tail. Ordinary polynomial-log inputs retain
+the established method dispatch.
+
+`SeriesTermGoal -> n` counts complete nonzero blocks in each of these three
+families, searching past cancellations. Generalized coefficient cutoffs may
+be negative when they still exceed the leading target power, including
+during refinement. Logarithmic unit cutoffs remain positive. A bounded
+search reports `ResourceLimit` with its best expansion if it cannot reach
+the count; a zero finite coefficient prefix is never an exactness certificate.
+
+`SeriesCompose` and `SeriesDifferentiate` also operate on exact reciprocal-log
+units with a positive monomial carrier. They rechart affine logarithmic
+scales, transport both composition errors, and retain an analytic derivative
+contract. For example, if `s` is the inverse of `x + x/Log[x]` at zero,
+`SeriesCompose[s, s]` computes its self-composition and
+`SeriesDifferentiate[s]` its derivative. The specialized operations
+`ReciprocalLogCompose` and `ReciprocalLogDifferentiate` expose the same
+bounded calculus. Translated endpoints and models with omitted higher-power
+sectors require additional contracts and are rejected by these operations.
+
+```wolfram
+a = AsymptoticLogarithmicInverse[x + x/Log[x], {x, 0}, {z, 4}];
+b = AsymptoticLogarithmicInverse[x + 2 x/Log[x], {x, 0}, {y, 4}];
+c = ReciprocalLogCompose[a, b];   (* also SeriesCompose[a, b] *)
+d = ReciprocalLogDifferentiate[c];
+SeriesRefine[d, 6]
+```
+
+`AsymptoticExponentialCoreInverse` retains an exact Lambert or elementary
+inverse of a growing exponential core and computes complete perturbation
+sectors. For `x Exp[x] + x^2`, its first correction is
+`ProductLog[y] - ProductLog[y]^3/((1 + ProductLog[y]) y)`.
+It supports affine source translations, both source infinities, finite
+reciprocal source charts, signed target scaling and offsets. A declared
+polynomial input error has a matching derivative contract and remains a
+separate first-sector accuracy ceiling.
+
+`AsymptoticFlatInverse` uses an exact shifted monomial zero sector and
+positive commensurable exponential phases with finite power-log
+amplitudes. Its integer sector depth is inclusive. For `x + Exp[-1/x]`,
+the first three sectors are `y - E + E^2/y^2 + (1/y^3 - 3/(2 y^4)) E^3`,
+where `E = Exp[-1/y]`. The full omitted sector tail has a proved asymptotic
+majorant; its constants and threshold are existential, not numerical
+certificates.
+
+`FlatSeriesTruncate`, `FlatSeriesMultiply`, `FlatSeriesObservable` and
+`FlatSeriesDifferentiate` provide arithmetic within this finite sector
+algebra. Multiplication requires the same target chart and phase;
+observables are polynomials. Truncation keeps the exact zero sector and
+separately records inner power-log errors and the omitted exponential
+sector. Differentiation uses the inverse's analytic remainder contract;
+it does not infer a derivative bound from an arbitrary value-only Big-O.
+
+```wolfram
+s = AsymptoticFlatInverse[x + x^2 Exp[-1/x], {x, 0}, {y, 2}];
+t = FlatSeriesTruncate[s, 3];
+FlatSeriesMultiply[t, 1/y]
+FlatSeriesObservable[s, 2 z^2 - 3 z + 7, z, "InnerCutoff" -> 4]
+FlatSeriesDifferentiate[t]
+```
+
+Here `2` is the inclusive exponential-sector depth, while `3` and
+`"InnerCutoff" -> 4` are exclusive powers in the positive monomial core
+coordinate. Raising a truncation cutoff cannot recover discarded coefficients.
+
+`AsymptoticFourierInverse` uses finite exact real frequencies in the
+logarithm, convolves them under multiplication, and enforces a separate
+`"MaxFrequencies"` budget. Remainders use nonoscillatory envelopes. A
+leading oscillatory coefficient without an eventual nonzero sign remains
+unsupported. `InverseResidual` handles the finite Fourier equation and
+normalized logarithmic-unit equations; generalized logarithmic coefficient
+residuals report `UnsupportedResidual` rather than an unproved order.
+
+The special-function adapters cover `"Erfc"`, `"LogGamma"`, `"Gamma"`,
+`"LambertThreshold"`, and `"QuadraticThreshold"`. The tail adapters have
+explicit Poincare forward value and derivative remainder contracts; they
+do not claim convergence of the original forward asymptotic series.
+Threshold adapters keep the requested real branch in a ramified local
+coordinate. Adapters are selected explicitly; no unproved automatic
+switching threshold is used.
+
+## Refinement requests and numerical evidence
+
+```wolfram
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+SeriesRefine[s, 6]
+SeriesRefine[s, <|"AdditionalBlocks" -> 3|>]
+SeriesRefine[s, <|"Target" -> 1/100, "TargetError" -> 10^-30,
+  "Interval" -> {1/200, 1/50}|>]
+```
+
+Compatible ordinary inverse refinements retain complete Lagrange blocks or
+continue an exact-precision Newton state. `"RefinementStatistics"` records
+reuse, new coefficient evaluations and new Newton steps. Automatic
+forward-model expansion replays the source when more input terms are
+needed; a declared input remainder remains a hard precision cap.
+Logarithmic refinements replay the original logarithmic source.
+Additional-block requests stop at a certified finite inverse and retain
+the best expansion if a resource or input-precision bound intervenes.
+
+A tolerance request returns a numerical certificate association, including
+its rational center and root enclosure. It preserves the original symbolic
+expansion and does not replace its Big-O with a numeric error. Certificates
+can establish existence by contained residual brackets or by exact
+endpoint signs and continuity, followed by signed-derivative interval
+refinement.
+
+The common `InverseNumericalCheck` supports the extended inverse kinds and
+power observables. `"ReferenceRoot"` is the numerical source root;
+`"ReferenceObservable"` is its requested power or finite source-distance
+power. `"ExactInverse"` remains a legacy alias for the numerical root.
+Errors compare the correct observable. Exact target offsets are subtracted
+before decimal evaluation, and original source/target charts are used for
+stable comparisons. This operation supplies numerical evidence, never an
+interval certificate.
+
+`Tests/BenchmarkRefinement.wl` compares fresh construction and incremental
+refinement across rational/irrational gaps, resonances, high log degrees
+and a deep one-gap Catalan oracle. It records equality, time, retained
+sizes and evaluation memory. Reuse is beneficial on several expensive
+coefficient fixtures but is slower and uses more memory on some small
+ones; no universal speed claim is made.
+
+`Tests/RunGeneratedCampaign.wl` runs a seeded independent-marker oracle
+campaign, preserving source hashes, complete inputs, actual outcomes and
+bounded counterexample shrinking. Environment variables select the seed,
+case count, time budgets and a new evidence directory. Existing campaign
+evidence is never overwritten.
 
 ## Files
 
@@ -295,6 +444,17 @@ Exponentially small or large terms (`Exp[-1/x]`), oscillatory coefficients
   `Kernel/InverseCertificates.wl`, `Kernel/SourceCoordinates.wl` — explicit
   calculus, exact-core marker expansions, exact rational root certificates,
   and source-chart reconstruction.
+- `Kernel/LogarithmicScales.wl`, `Kernel/ReciprocalLogOperations.wl`,
+  `Kernel/FlatSectors.wl`, `Kernel/FlatSectorOperations.wl`,
+  `Kernel/FourierCoefficients.wl` — finite logarithmic, flat-sector and Fourier
+  inverse families and their admitted operations.
+- `Kernel/ExponentialCorePerturbation.wl`, `Kernel/SpecialFunctionAdapters.wl`
+  — growing exact-core perturbation sectors and special-function reductions.
+- `Kernel/RefinementState.wl`, `Kernel/RefinementRequests.wl`,
+  `Kernel/NumericalInverseChecks.wl` — retained computation, structured
+  requests, and original-equation numerical evidence.
+- `Tests/BenchmarkRefinement.wl`, `Tests/RunGeneratedCampaign.wl` — refinement
+  comparisons and reproducible generated campaigns with bounded shrinking.
 - `Tests/BenchmarkPerformance.wl` — reproducible comparisons with the original
   sparse-product, integer-power, and enumeration algorithms.
 - `Examples/Examples.wl` — worked examples.

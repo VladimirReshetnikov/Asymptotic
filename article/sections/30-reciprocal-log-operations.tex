@@ -1,0 +1,214 @@
+\section{Composition and differentiation in a reciprocal logarithm}
+\label{sec:reciprocal-log-operations}
+
+The reciprocal-logarithmic unit of Section~\ref{sec:logarithmic-scales}
+has more regularity than an arbitrary function satisfying a magnitude
+Big-$O$ estimate. For an exact rational logarithmic forward unit, its
+implicit inverse is holomorphic in the small reciprocal logarithm. This
+regularity supplies public composition and differentiation rules without
+discarding the exact power carrier or asking for an unsupported derivative
+of an unknown remainder.
+
+The bounded operation implemented in
+\path{Kernel/ReciprocalLogOperations.wl} uses the common operations
+\wl{SeriesCompose}, \wl{SeriesDifferentiate}, and their refinement recipes.
+It also exposes \wl{ReciprocalLogCompose} and
+\wl{ReciprocalLogDifferentiate} as explicitly scoped entry points.
+An inverse input must have scale \wl{ReciprocalLogUnit}, a positive
+monomial prefactor, zero finite source and target offsets, and an exact
+rational logarithmic model. Known additional positive source-power terms
+are excluded from this particular analytic contract: although smaller than
+all reciprocal-logarithmic orders, they need a separate differentiable
+remainder argument. Results of the supported operations retain the same
+holomorphic coefficient-function contract.
+
+\subsection{A common positive logarithmic coordinate}
+
+Write
+\begin{equation}
+ t=\frac{\epsilon}{\log y}>0,\qquad
+ \epsilon=\begin{cases}-1,&y\to0^+,\\1,&y\to+\infty.\end{cases}
+ \qquad g(y)=C y^\alpha A(t),
+ \label{eq:reciprocal-calculus-carrier}
+\end{equation}
+Here $C>0$, $\alpha$ is a fixed exact real number, and $A$ is holomorphic
+near $t=0$. For an original inverse unit, $A(0)=1$. Differentiation can
+produce a coefficient function whose constant vanishes or has either sign;
+these outcomes remain valid carriers for further differentiation and as
+outer functions in composition.
+
+Suppose the original inverse has positive leading amplitude $a$ and
+internal leading source power $p\ne0$. Its recorded small coordinate is
+$\tau=-1/\log((y/a)^{1/p})$, and therefore
+\begin{equation}
+ \tau=\frac{|p|t}{1-\epsilon(\log a)t},\qquad
+ \epsilon=-\operatorname{sign}p.
+ \label{eq:reciprocal-calculus-rechart}
+\end{equation}
+This is an analytic change of variable at zero with positive derivative.
+It transports an analytic $\OO(\tau^\beta)$ tail to
+$\OO(t^\beta)$. For an internal observable power $r_*$, the monomial
+carrier has $\alpha=r_*/p$ and $C=\sigma^r a^{-\alpha}$.
+The branch guards require this $C$ to be positive. In addition to the
+original target domain, the canonical chart requires $y>0$ and
+$\epsilon\log y>0$. These are eventual branch conditions; they are not
+a computed radius of convergence.
+
+All stored jets have nonnegative integer powers of $t$ and constant real
+coefficients. A finite exclusive cutoff $h$ retains powers $n<h$; the
+actual error exponent is limited by the inherited Taylor remainder and
+any explicitly discarded coefficient. Coefficient cancellation can make
+the recorded error order larger than the requested display cutoff.
+
+\subsection{Composition of two monomial carriers}
+
+Let the outer function and inner function be
+\[
+ g(v)=C_o v^\alpha A\!\left(\frac{\epsilon_o}{\log v}\right),
+ \qquad h(y)=C_i y^b V(t),\qquad
+ t=\frac{\epsilon_i}{\log y},\quad V(0)=1.
+\]
+A positive nonunit constant in the inner coefficient function is first
+absorbed into $C_i$. The composition requires $b\ne0$ and
+\begin{equation}
+ \epsilon_o b\epsilon_i>0.
+ \label{eq:reciprocal-composition-endpoints}
+\end{equation}
+This condition says that the positive inner function approaches the outer
+function's selected endpoint. It permits a negative power to interchange
+zero and infinity when the two specified endpoints agree with that change.
+
+Taking the real logarithm of the inner carrier gives the exact identities
+\begin{align}
+ T(t)&=\frac{\epsilon_o t}
+ {b\epsilon_i+t(\log C_i+\log V(t))},
+ \label{eq:reciprocal-composed-coordinate}\\
+ g(h(y))&=C_o C_i^\alpha y^{\alpha b}
+       V(t)^\alpha A(T(t)).
+ \label{eq:reciprocal-composition-identity}
+\end{align}
+The denominator at zero is nonzero, $T(0)=0$, and
+$T'(0)=\epsilon_o/(b\epsilon_i)>0$. The functions $\log V$ and
+$V^\alpha$ use their analytic branches with $V(0)=1$. Consequently the
+new coefficient function is holomorphic near zero and the original
+monomial carrier remains exact.
+
+If the outer and inner Taylor remainders are
+$\OO(T^{\beta_o})$ and $\OO(t^{\beta_i})$, respectively, a conservative
+relative remainder for \eqref{eq:reciprocal-composition-identity} is
+\begin{equation}
+ \OO\!\left(t^{\min(\beta_o,\beta_i)}\right).
+ \label{eq:reciprocal-composition-error}
+\end{equation}
+To see this, an inner perturbation of size $\OO(t^{\beta_i})$ changes
+$\log V$ and $V^\alpha$ by that order, while it changes $T$ by
+$\OO(t^{\beta_i+2})$. The outer function has bounded derivatives near
+zero, and its original remainder is evaluated at a coordinate comparable
+to $t$. The precision-aware polynomial operations preserve these bounds
+and can improve them when a constant factor or derivative vanishes.
+Truncating the displayed polynomial adds its own first discarded order.
+A larger requested cutoff never removes either operand's unknown tail.
+
+For example, if both functions have the form $yW(-1/\log y)$ near zero,
+the coefficient function of their composition is
+\[
+ W(t)\,W\!\left(\frac{t}{1-t\log W(t)}\right).
+\]
+At positive infinity the denominator is instead $1+t\log W(t)$.
+These formulas provide short independent ordinary Taylor-series oracles.
+For general powers and scales, \eqref{eq:reciprocal-composed-coordinate}
+retains both the exponent factor $b$ and the additive logarithm
+$\log C_i$; dropping either gives incorrect coefficients already at low
+reciprocal-logarithmic orders.
+
+An inner coefficient function with a zero constant term is excluded from
+this composition rule. Its logarithm introduces an additional $\log t$
+scale. A negative constant also fails the positive inner branch condition.
+Those failures describe a change in the required scale or branch, rather
+than a reason to take a logarithm of an unproved positive approximation.
+
+\subsection{Differentiating the analytic remainder}
+
+The coordinate derivative is
+\[
+ \frac{dt}{dy}=-\frac{\epsilon t^2}{y}.
+\]
+Hence
+\begin{equation}
+ \frac{d}{dy}\bigl(Cy^\alpha A(t)\bigr)
+ =Cy^{\alpha-1}\left(\alpha A(t)-\epsilon t^2 A'(t)\right).
+ \label{eq:reciprocal-carrier-derivative}
+\end{equation}
+For the $n$th derivative, the coefficient function is obtained by applying
+the successive operators
+\begin{equation}
+ \prod_{k=0}^{n-1}
+ \left(\alpha-k-\epsilon t^2\frac{d}{dt}\right)
+ \quad\hbox{to }A(t),
+ \label{eq:reciprocal-carrier-higher-derivatives}
+\end{equation}
+and the carrier is $Cy^{\alpha-n}$. The factors differ only by constants
+and commute; the implementation nevertheless applies them in derivative
+order to track precision and cancellation explicitly.
+
+If a holomorphic remainder has a zero of order at least $\beta$ at zero,
+then its $j$th derivative is $\OO(t^{\beta-j})$ for every fixed $j$.
+This follows directly from its convergent Taylor series, or from Cauchy
+estimates on a smaller disk. Thus the $t^2 A'$ contribution in
+\eqref{eq:reciprocal-carrier-derivative} has remainder
+$\OO(t^{\beta+1})$, while a nonzero $\alpha A$ contribution has remainder
+$\OO(t^\beta)$. If $\alpha=0$, the latter contribution disappears and the
+relative logarithmic error improves by one power. This is a proved
+derivative contract for the exact rational-logarithmic implicit model;
+it is not a rule for differentiating an arbitrary magnitude Big-$O$.
+
+For the inverse of $x+x/\log x$ near zero, the retained coefficient
+function begins
+\[
+ A(t)=1+t+t^2+2t^3+\tfrac72t^4+\OO(t^5).
+\]
+The first derivative therefore has the expansion
+\[
+ 1+t+2t^2+4t^3+\tfrac{19}{2}t^4+\OO(t^5).
+\]
+Its carrier is constant. Differentiating once more gives a carrier $y^{-1}$
+and a relative remainder $\OO(t^6)$, provided the known terms generated
+through degree five are retained. This tests the precision improvement
+when a carrier derivative vanishes. At infinity the signs of the odd
+powers and the coordinate derivative change consistently.
+
+\subsection{Provenance, refinement, and evidence}
+
+\begin{lstlisting}
+a = AsymptoticLogarithmicInverse[
+  x + x/Log[x], {x, 0}, {z, 4}];
+b = AsymptoticLogarithmicInverse[
+  x + 2 x/Log[x], {x, 0}, {y, 4}];
+c = SeriesCompose[a, b];
+d = SeriesDifferentiate[c];
+SeriesRefine[d, 6]
+\end{lstlisting}
+
+The resulting scale is \wl{ReciprocalLogCalculus}. Its exact carrier,
+analytic coefficient jet, endpoint sign, operand domains, and operation
+recipe are retained alongside the ordinary explicit
+\wl{SeriesRepresentation}. Refinement replays the original reciprocal-log
+inverse constructors and then the stored composition or derivative recipe.
+It therefore gains new coefficient evidence before reporting a stronger
+remainder. A truncation of the existing expression alone cannot accomplish
+that refinement. Constants and convergence thresholds remain existential;
+the analytic contract sets \wl{NumericCertificate} to \wl{False}.
+
+The regressions compare composition against ordinary native Taylor
+expansion of independently written substitution formulas, including
+fractional carrier powers and amplitude shifts. Derivative tests use both
+explicit low-order coefficient formulas and direct differentiation of the
+retained expression with independently tracked order. Numerical tests
+start from a known source point $x_*$, form the exact forward composition
+$y=f_i(f_o(x_*))$, and compare both the inverse composition and its
+derivative with $x_*$ and
+$1/(f_o'(x_*)f_i'(f_o(x_*)))$. Further cases verify both operand-error caps,
+compatible and incompatible endpoint changes, signed inner values,
+excluded higher-power sectors, resource bounds, and public refinement
+recipes. These checks support the algebra and implementation; the
+holomorphic argument supplies the complete remainder theorem.

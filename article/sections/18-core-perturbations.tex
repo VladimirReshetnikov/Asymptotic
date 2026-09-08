@@ -11,7 +11,23 @@ Choose the positive source coordinate $u\to0^+$ and write the original source po
  H(u)=x_0+\sigma u\quad\hbox{or}\quad H(u)=\frac{\sigma}{u},
  \qquad \sigma\in\{1,-1\}.
 \]
-Let $F_0(u)$ be the chosen core and $R(u)$ its perturbation in that coordinate. Let $u_0(y)$ be the selected exact inverse of $F_0$, and set $\phi(y)=H(u_0(y))$. Introduce a marker $\lambda$ by
+Let $F_0(u)$ be the chosen core and $R(u)$ its perturbation in that coordinate. Let $u_0(y)$ be the selected exact inverse of $F_0$, and set $\phi(y)=H(u_0(y))$. The option \wl{"Power" -> r} uses the same observable convention as the ordinary inverse engine: $r=1$ returns the source point itself; at a finite endpoint, $r\ne1$ returns its displacement raised to $r$; at an infinite endpoint it returns its $r$th power. Thus the local observable is
+\begin{equation}
+ G_r(u)=
+ \begin{cases}
+ x_0+\sigma u,&r=1\text{ at a finite endpoint},\\
+ \sigma^r u^r,&r\ne1\text{ at a finite endpoint},\\
+ \sigma^r u^{-r},&\text{at an infinite endpoint}.
+ \end{cases}
+ \qquad
+ r_* = \begin{cases}r,&\text{finite endpoint},\\-r,&\text{infinite endpoint}.
+ \end{cases}
+ \label{eq:core-power-observable}
+\end{equation}
+The exponent $r$ is an exact nonzero real number. For $\sigma=-1$, the
+operation requires integer $r$; for $\sigma=1$, all displayed bases are
+positive on the real source branch. Put $\Phi_r(y)=G_r(u_0(y))$; in
+particular $\Phi_1=\phi$. Introduce a marker $\lambda$ by
 \begin{equation}
  F_0(u_\lambda)+\lambda R(u_\lambda)=y,
  \qquad u_{\lambda=0}=u_0(y).
@@ -19,19 +35,19 @@ Let $F_0(u)$ be the chosen core and $R(u)$ its perturbation in that coordinate. 
 \end{equation}
 At any fixed point with $F_0'(u_0)\ne0$, the inverse function theorem gives an analytic solution in $\lambda$ near zero whenever the data are analytic locally. The Lagrange--B\"urmann identity gives
 \begin{equation}
- H(u_\lambda)=\phi(y)+\sum_{n\ge1}\lambda^n C_n(u_0(y)),
+ G_r(u_\lambda)=\Phi_r(y)+\sum_{n\ge1}\lambda^n C_n(u_0(y)),
  \label{eq:core-marker-series}
 \end{equation}
 where
 \begin{equation}
  C_n(u)=\frac{(-1)^n}{n!}
  \left(\frac{1}{F_0'(u)}\frac{d}{du}\right)^{n-1}
- \left(\frac{H'(u)R(u)^n}{F_0'(u)}\right).
+ \left(\frac{G_r'(u)R(u)^n}{F_0'(u)}\right).
  \label{eq:core-marker-coefficients}
 \end{equation}
 Indeed, with $t=F_0(u)$, the equation becomes
 $t=y-\lambda R(u_0(t))$, and $d/dt=(F_0'(u))^{-1}d/du$.
-Applying the ordinary Lagrange identity to the observable $\phi(t)$ proves
+Applying the ordinary Lagrange identity to the observable $\Phi_r(t)$ proves
 \eqref{eq:core-marker-coefficients}. This form of the identity differentiates
 the explicit forward core. It avoids repeated symbolic differentiation of a
 large expression containing \wl{ProductLog}.
@@ -61,21 +77,21 @@ is selected. Put
  \chi(u)=u^\delta\M(u)^D.
  \label{eq:core-small-scale}
 \end{equation}
-For a zero perturbation the inverse remains exactly $\phi$, so these
+For a zero perturbation the observable remains exactly $\Phi_r$, so these
 parameters and the following tail estimate are unnecessary.
 
 \begin{theorem}[An exact-core expansion with a complete marker tail]
 \label{thm:core-marker-majorant}
-For fixed data satisfying \eqref{eq:core-admissible-core}--\eqref{eq:core-admissible-perturbation}, the selected real inverse exists sufficiently near the source endpoint. Define $r_*=1$ for a finite source endpoint and $r_*=-1$ for an infinite source endpoint. There are positive constants $C,K$ and a source threshold such that, for every integer $N\ge0$ and all sufficiently small $u_0>0$ with $K\chi(u_0)<1$, the marker series converges at $\lambda=1$ and
+For fixed data satisfying \eqref{eq:core-admissible-core}--\eqref{eq:core-admissible-perturbation}, the selected real inverse exists sufficiently near the source endpoint. Fix an observable satisfying \eqref{eq:core-power-observable}, and write $g_r(y)=G_r(u_1(y))$ for that observable of the inverse. There are positive constants $C,K$ and a source threshold such that, for every integer $N\ge0$ and all sufficiently small $u_0>0$ with $K\chi(u_0)<1$, the marker series converges at $\lambda=1$ and
 \begin{equation}
- \left|F^{-1}(y)-\phi(y)-\sum_{n=1}^{N}C_n(u_0(y))\right|
+ \left|g_r(y)-\Phi_r(y)-\sum_{n=1}^{N}C_n(u_0(y))\right|
  \le C u_0^{r_*}
  \frac{(K\chi(u_0))^{N+1}}{1-K\chi(u_0)}.
  \label{eq:core-geometric-tail}
 \end{equation}
 In particular, for every fixed $N$,
 \begin{equation}
- F^{-1}(y)=\phi(y)+\sum_{n=1}^{N}C_n(u_0(y))
+ g_r(y)=\Phi_r(y)+\sum_{n=1}^{N}C_n(u_0(y))
  +\OO\!\left(u_0^{r_*+(N+1)\delta}
                   \M(u_0)^{(N+1)D}\right).
  \label{eq:core-asymptotic-tail}
@@ -110,10 +126,12 @@ coefficient of marker degree $n$ by $C K^n\chi(u_0)^n$. Equivalently,
 the solution is holomorphic and uniformly bounded on a marker disc whose
 radius is a fixed positive multiple of $1/\chi(u_0)$.
 
-For a finite source endpoint, the nonconstant part of the observable is
-$\sigma u_0W$; at infinity it is $\sigma u_0^{-1}W^{-1}$.
-Both normalized observables are analytic near $W=1$, giving the additional
-factor $u_0^{r_*}$. Summing the resulting geometric coefficient bound gives
+The observable in \eqref{eq:core-power-observable}, after subtracting the
+constant $x_0$ when it occurs, is $\sigma^r u_0^{r_*}W^{r_*}$.
+The normalized factor $W^{r_*}$ is analytic near $W=1$ for every fixed
+real $r_*$, including negative and irrational values, giving the additional
+factor $u_0^{r_*}$. The branch guard ensures that this analytic continuation
+agrees with the stated real observable. Summing the coefficient bound gives
 \eqref{eq:core-geometric-tail}. The local real branch is unique, and
 $F_0'(u)\sim p u^{p-1}Q_0(\log u)$ while $R'/F_0'\to0$,
 so this analytic solution agrees with the selected real inverse near the
@@ -181,6 +199,61 @@ established above. Each displayed correction retains the exact
 $W_{-1}$ expression in $u_0$.
 \end{example}
 
+\subsection{A divergent power plus a logarithm}
+
+The exact core may itself contain smaller source powers and logarithms.
+A further automatically recognized class is
+\begin{equation}
+ F_0(u)=y_0+a u^p+b\log u,\qquad p<0,\quad ab\ne0.
+ \label{eq:core-power-plus-log}
+\end{equation}
+It belongs to \eqref{eq:core-admissible-core}: the logarithm has the
+strictly higher source exponent zero. The leading logarithmic degree is
+$q=0$. Set $X=u^p$, $d=b/p$, and $k=a/d$. The equation becomes
+$aX+d\log X=y-y_0$, whence
+\begin{equation}
+ X=\frac{W_\nu\!\left(k e^{(y-y_0)/d}\right)}{k},\qquad
+ u_0=X^{1/p},\qquad
+ \nu=\begin{cases}0,&k>0,\\-1,&k<0.\end{cases}
+ \label{eq:core-power-plus-log-inverse}
+\end{equation}
+Indeed $kX e^{kX}=k e^{(y-y_0)/d}$; conversely, taking real logarithms
+of the positive quantities in this identity recovers the core equation.
+These branches give $X\to+\infty$, hence $u_0\to0^+$. The signs of the
+coefficients, positivity of the local inverse, and the lower branch's
+real argument interval are part of the branch contract. A constant in the
+zero-power logarithmic polynomial is extracted into $y_0$ before this
+recognition, so affine target shifts are preserved.
+
+\begin{example}[An exact core for $x+\log x+1/x$]
+\label{ex:core-power-plus-log-correction}
+As $x\to+\infty$, retain the exact inverse
+$w=W_0(e^y)$ of $x+\log x$. The source coordinate is $u=1/x$;
+the core is $u^{-1}-\log u$ and the perturbation is $u$. Thus
+$p=-1$, $q=0$, $\delta=2$, $D=0$, and $u_0=1/w$.
+For the default observable $r=1$, formula~\eqref{eq:core-marker-coefficients}
+gives
+\begin{equation}
+ x=w-\frac{1}{w+1}
+       -\frac{2w+1}{2w(w+1)^3}
+       +\OO(w^{-5}).
+ \label{eq:core-power-plus-log-expansion}
+\end{equation}
+The two corrections are complete marker coefficients; the exact $W_0(e^y)$
+has not been expanded into logarithms. For the reciprocal observable,
+$r=-1$ and $r_*=1$, and the corresponding result is
+\begin{equation}
+ \frac1x=\frac1w+\frac{1}{w^2(w+1)}
+       +\frac{4w+3}{2w^3(w+1)^3}
+       +\OO(w^{-7}).
+ \label{eq:core-power-plus-log-reciprocal}
+\end{equation}
+The differing exponents $5$ and $7$ follow from the same complete-tail
+theorem with the appropriate observable derivative. A direct expansion
+of $X-w+\log(X/w)+\lambda/X$ verifies the first result through marker
+degree two independently of the coefficient generator.
+\end{example}
+
 \subsection{A declared forward remainder}
 
 Suppose the actual forward function also contains an unknown error $E(u)$,
@@ -193,8 +266,8 @@ with the declared bounds
 The derivative bound is a hypothesis of this declaration, not a consequence
 of the first bound alone. Since the retained forward derivative has scale
 $u^{p-1}\M(u)^q$, the mean value argument of
-Section~\ref{sec:transport} gives an additional error in the original
-source variable of
+Section~\ref{sec:transport} gives an additional error in the selected
+observable of
 \begin{equation}
  \OO\!\left(u_0^{r_*+\rho-p}
        \M(u_0)^{\max(0,k-q)}\right).
@@ -210,6 +283,13 @@ powers coincide. Increasing marker depth cannot improve this inherited
 accuracy ceiling. The displayed marker coefficients still describe the
 specified finite model; coefficients smaller than the unknown input error
 are not asserted to be coefficients of every admissible actual function.
+The transport formula remains valid when $r_*<0$ or when the resulting
+absolute error does not tend to zero: the forward gap $\rho>p$ still makes
+the error small relative to the observable's leading scale $u_0^{r_*}$.
+For example, at $x\to0^+$, a declared $\OO(x^3\M(x)^2)$ error in the
+model $x+x^2$ gives an $\OO(\M(u_0)^2)$ ceiling for the observable $x^{-2}$.
+At $x\to+\infty$, a declared $\OO(x^{-2}\M(1/x))$ error in the model
+$x+1/x$ gives an $\OO(u_0^4\M(u_0))$ ceiling for $x^{-1}$.
 
 \subsection{The implemented operation and its evidence boundary}
 
@@ -220,6 +300,14 @@ AsymptoticCoreInverse[
 AsymptoticCoreInverse[
   x + x^2, x^3, {x, 0}, {y, 1},
   "CoreInverse" -> (Sqrt[1 + 4 y] - 1)/2]
+
+AsymptoticCoreInverse[
+  x + Log[x], 1/x, {x, Infinity}, {y, 2},
+  "Power" -> -1]
+
+AsymptoticCoreInverse[
+  7 + 3 (x - 2) Log[5 (x - 2)], 4 (x - 2)^2,
+  {x, 2}, {y, 2}, "Power" -> -2]
 \end{lstlisting}
 
 The first call automatically selects the lower real Lambert branch. The
@@ -229,18 +317,26 @@ side. An unverified inverse is rejected. Supplied parameter assumptions
 must establish the reality of the coefficients and the eventual leading
 sign. Exponents in this operation are exact real numeric constants; they
 need not be rational.
+The third call returns the reciprocal observable in
+\eqref{eq:core-power-plus-log-reciprocal}; the fourth returns the reciprocal
+square of $x-2$ while retaining the exact inverse of the scaled Lambert
+core. It does not raise the translated source point to that power.
 
 The result identifies its scale as \wl{"ExactCorePerturbation"}.
 Its kind is \wl{"CoreInverse"}, and \wl{"MarkerTerms"} stores pairs $\{n,C_n\}$,
-with degree zero holding $\phi$. The full exact inverse of the core,
+with degree zero holding $\Phi_r$. The full exact inverse of the core,
 the local core inverse, the separately computed first omitted marker
 coefficient, the branch certificate, and the tail contract are all retained.
+The \wl{"CoreInverse"} property remains $\phi$ for every observable;
+\wl{"CoreObservableExpression"} holds $\Phi_r$ and
+\wl{"LocalObservablePower"} holds $r_*$.
 The ordinary \wl{Normal} operation returns the retained expression. The
 object does not claim an ordinary \wl{SeriesData} representation or an
 ordinary exponent cutoff. Its independent regressions compare marker
 coefficients with direct composition and exact algebraic inverses, check
-both source orientations and infinite-endpoint error scaling, and compare
-the Lambert correction with the original forward equation at high
+both source orientations, shifted endpoints, real powers, and
+observable-dependent input-error ceilings, and compare
+the Lambert corrections with the original forward equations at high
 precision. Such numerical checks supplement the theorem; they do not
 turn its unspecified constants into a numerical certificate.
 

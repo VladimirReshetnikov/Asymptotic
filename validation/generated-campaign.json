@@ -1,0 +1,542 @@
+{
+  "Manifest": {
+    "Seed": 236369,
+    "Generator": "MersenneTwister with deterministic 16-family cycle",
+    "OracleRevision": "native-marker-forward-substitution-v1",
+    "KernelVersion": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "SystemID": "Windows-x86-64",
+    "KernelVersionNumber": 15.0,
+    "CaseCount": 32,
+    "PerCaseSeconds": 30,
+    "ShrinkAttempts": 24,
+    "ShrinkSeconds": 60,
+    "PackageSHA256": "9410be3d8f4def3edfab5b236bebcafc366437a074b68f534d56084a195635fa",
+    "KernelSourceSHA256": {
+      "AsymptoticInverse.wl": "9410be3d8f4def3edfab5b236bebcafc366437a074b68f534d56084a195635fa",
+      "CoordinateInverse.wl": "f6994d5da0a5dae44332cf11e79a47dfe817491224c0bdc55bae3fb403e3cd45",
+      "CorePerturbation.wl": "a3af395e7d0a8554e2003ced31def5c902bf8df70c061e74f260bb8dcc6c09cf",
+      "ExactTermination.wl": "269151674e4af3be5012a161d39f2981094a16ddb06ef2559cda5cbf50ed2c48",
+      "ExponentialCorePerturbation.wl": "0eb5f5c72d385a4c24f1af2c30c89b2f0bec663f41106e771f4ae9718850a82d",
+      "FlatSectorOperations.wl": "dd67077de75359af4ec76bbb9d63e8dcb83aea751543a809f3f9a7773d4659e0",
+      "FlatSectors.wl": "d8caeb47a9ef4fd7649ce6f0d40a00f8f9a5f522d261926e54e4a7d1d443da96",
+      "FourierCoefficients.wl": "83075c84e2f13e259872a1175a8a729e7e68f7a959a3eb5e2201095e784092ff",
+      "IncrementalInverse.wl": "a410833cc04cfb857eeafe07072e39846e9df4bbb68089c870810b4e973c6e00",
+      "InverseCertificates.wl": "d52eace1839982be54e89aa75c90dfe1012f1c26b2dae44cb43410e7edb15986",
+      "LambertInverse.wl": "1da19f04df8efd2dc05405651026cf423bac019838e856143f8a7df90ab3a6cf",
+      "LogarithmicScales.wl": "d4258c4529b8ceae3f990a32dbda9cb701097c684089987397033ef91f837327",
+      "NumericalInverseChecks.wl": "bf1d7284e213a4e99bb4f00bd010af5749b8caf884211d9042f558d981f88094",
+      "ReciprocalLogOperations.wl": "8d5d95767ece61a370562f7b52c235d7ef778c7b1466aecf1ccdfe734b4fb843",
+      "RefinementRequests.wl": "12658bdf2b9d35b0886fb3c9301b3901402f0f8182124095d4df20220426bcaa",
+      "RefinementState.wl": "dc4f88b5b97c7c3a9aca9620d8d95bbede91d3051ad460f71828bc51bf9f09ac",
+      "SeriesOperations.wl": "08f82c9e1ef8faa2da6060f40e43ae4c928da1cdfc741dc071543d60ed3ca73d",
+      "SourceCoordinates.wl": "29520105f2ff2d266eb8194b36824bec0a891f72df25ddf0524f2bd2536be675",
+      "SpecialFunctionAdapters.wl": "deae27086814dc566514bc9757625c9ceed2faa25a102abb6dd39cb3ef14b841"
+    },
+    "RunnerSHA256": "1f50f1ee2476ca10f2d8de60996dbe8e44486fcf16f1b7444c4ba63deba38143",
+    "EvidenceBoundary": "Exact symbolic oracle comparisons and explicit rejection contracts on the recorded kernel only."
+  },
+  "Summary": {
+    "KernelVersion": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "Seed": 236369,
+    "Passed": 32,
+    "Failed": 0,
+    "Directory": "C:\\Users\\vresh\\AppData\\Local\\Temp\\asymptotic-generated-final-64e058d4-57e7-43df-b00d-b4dcb27eb45a",
+    "Cases": [
+      {
+        "Index": 1,
+        "Family": "RationalLogPolynomials",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00001.json"
+      },
+      {
+        "Index": 2,
+        "Family": "TwoIrrationalGaps",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00002.json"
+      },
+      {
+        "Index": 3,
+        "Family": "ThreeIrrationalGaps",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00003.json"
+      },
+      {
+        "Index": 4,
+        "Family": "RationalCancellation",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00004.json"
+      },
+      {
+        "Index": 5,
+        "Family": "IrrationalCollisionCancellation",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00005.json"
+      },
+      {
+        "Index": 6,
+        "Family": "LeftTranslatedLogBranch",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00006.json"
+      },
+      {
+        "Index": 7,
+        "Family": "ReciprocalSourceCoordinate",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00007.json"
+      },
+      {
+        "Index": 8,
+        "Family": "NegativeInfinityAndLeadingPower",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00008.json"
+      },
+      {
+        "Index": 9,
+        "Family": "NonunitLeadingAndObservablePowers",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00009.json"
+      },
+      {
+        "Index": 10,
+        "Family": "QuadraticLogAmplitudes",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00010.json"
+      },
+      {
+        "Index": 11,
+        "Family": "DeclaredRemainderAtBoundary",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00011.json"
+      },
+      {
+        "Index": 12,
+        "Family": "DeclaredRemainderBeyondBoundary",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00012.json"
+      },
+      {
+        "Index": 13,
+        "Family": "IndexBudgetRejection",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00013.json"
+      },
+      {
+        "Index": 14,
+        "Family": "DuplicateGapInputCancellation",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00014.json"
+      },
+      {
+        "Index": 15,
+        "Family": "ExactSourceLogCoordinate",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00015.json"
+      },
+      {
+        "Index": 16,
+        "Family": "ExactTargetLogCoordinate",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00016.json"
+      },
+      {
+        "Index": 17,
+        "Family": "RationalLogPolynomials",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00017.json"
+      },
+      {
+        "Index": 18,
+        "Family": "TwoIrrationalGaps",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00018.json"
+      },
+      {
+        "Index": 19,
+        "Family": "ThreeIrrationalGaps",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00019.json"
+      },
+      {
+        "Index": 20,
+        "Family": "RationalCancellation",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00020.json"
+      },
+      {
+        "Index": 21,
+        "Family": "IrrationalCollisionCancellation",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00021.json"
+      },
+      {
+        "Index": 22,
+        "Family": "LeftTranslatedLogBranch",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00022.json"
+      },
+      {
+        "Index": 23,
+        "Family": "ReciprocalSourceCoordinate",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00023.json"
+      },
+      {
+        "Index": 24,
+        "Family": "NegativeInfinityAndLeadingPower",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00024.json"
+      },
+      {
+        "Index": 25,
+        "Family": "NonunitLeadingAndObservablePowers",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00025.json"
+      },
+      {
+        "Index": 26,
+        "Family": "QuadraticLogAmplitudes",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00026.json"
+      },
+      {
+        "Index": 27,
+        "Family": "DeclaredRemainderAtBoundary",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00027.json"
+      },
+      {
+        "Index": 28,
+        "Family": "DeclaredRemainderBeyondBoundary",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00028.json"
+      },
+      {
+        "Index": 29,
+        "Family": "IndexBudgetRejection",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00029.json"
+      },
+      {
+        "Index": 30,
+        "Family": "DuplicateGapInputCancellation",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00030.json"
+      },
+      {
+        "Index": 31,
+        "Family": "ExactSourceLogCoordinate",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00031.json"
+      },
+      {
+        "Index": 32,
+        "Family": "ExactTargetLogCoordinate",
+        "Passed": true,
+        "FailureClass": "None",
+        "EvidenceFile": "case-00032.json"
+      }
+    ]
+  },
+  "Preservation": "ContentText preserves the complete UTF-8 text of every original campaign evidence file, including line endings and any BOM. Re-encoding each string as UTF-8 reproduces its recorded SHA256. All 32 cases passed; failure shrinking is tested separately by deterministic regression fixtures.",
+  "EvidenceFiles": {
+    "case-00001-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00001.json": {
+      "SHA256": "ee6ea89afdba77e7823caab26dd2c559b848bb7eb908243c377b4873bba7b79d",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":1,\r\n\t\"Family\":\"RationalLogPolynomials\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 1, \\\"Family\\\" -> \\\"RationalLogPolynomials\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 2, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> 2, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {-2 - logarithm, 2 + logarithm, 1 + logarithm}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -3*source^2*(1 + Sqrt[source]*(-2 - Log[source]) + source^(3\\/2)*(1 + Log[source]) + source*(2 + Log[source])), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 7\\/4, \\\"Options\\\" -> {\\\"Power\\\" -> 2, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 2, \\\"TargetSubstitution\\\" -> target -> -3*small^2|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^2 + small^3*(-2 - Log[small]) + small^(5\\/2)*(2 + Log[small]) + small^3*(6 + (11*Log[small])\\/2 + (5*Log[small]^2)\\/4)\",\r\n\t\t\"Observed\":\"small^2 + (small^2)^(5\\/4)*(2 + Log[small^2]\\/2) + (small^2)^(3\\/2)*(4 + (9*Log[small^2])\\/4 + (5*Log[small^2]^2)\\/16)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target, 7\\/4, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":1.0268539\r\n\t}\r\n}"
+    },
+    "case-00002-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00002.json": {
+      "SHA256": "e748f633ba797f3dbf9885ce4bb36f94c8ad8c3857eebc4ebee37b10bc7b743c",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":2,\r\n\t\"Family\":\"TwoIrrationalGaps\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 2, \\\"Family\\\" -> \\\"TwoIrrationalGaps\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 1, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/Sqrt[2], Sqrt[3]\\/2}, \\\"Polynomials\\\" -> {-2, -1 - logarithm}, \\\"RelativeCutoff\\\" -> 3\\/Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -3*source*(1 - 2*source^(1\\/Sqrt[2]) + source^(Sqrt[3]\\/2)*(-1 - Log[source])), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 1 + 3\\/Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> -3*small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small + 2*small^(1 + 1\\/Sqrt[2]) + (4 + 2*Sqrt[2])*small^(1 + Sqrt[2]) + small^(1 + Sqrt[3]\\/2)*(1 + Log[small]) + small^(1 + Root[1 - 40*#1^2 + 16*#1^4 & , 4, 0])*(6 + Sqrt[2] + Sqrt[3] + 4*Log[small] + Sqrt[2]*Log[small] + Sqrt[3]*Log[small]) + small^(1 + Sqrt[3])*(2 + Sqrt[3]\\/2 + 3*Log[small] + Sqrt[3]*Log[small] + Log[small]^2 + (Sqrt[3]*Log[small]^2)\\/2)\",\r\n\t\t\"Observed\":\"small + (4 + 2*Sqrt[2])*small^(1 + Sqrt[2]) + 2*3^((-2 - Sqrt[2])\\/2 + (2 + Sqrt[2])\\/2)*small^((2 + Sqrt[2])\\/2) + 3^((-2 - Sqrt[3])\\/2 + (2 + Sqrt[3])\\/2)*small^((2 + Sqrt[3])\\/2)*(1 + Log[small]) + 3^((-2 - Sqrt[5 + 2*Sqrt[6]])\\/2 + (2 + Sqrt[5 + 2*Sqrt[6]])\\/2)*small^((2 + Sqrt[5 + 2*Sqrt[6]])\\/2)*(6 + Sqrt[5 + 2*Sqrt[6]] + (4 + Sqrt[5 + 2*Sqrt[6]])*Log[small]) + small^(1 + Sqrt[3])*(2 + Sqrt[3]\\/2 + 3*Log[small] + Sqrt[3]*Log[small] + Log[small]^2 + (Sqrt[3]*Log[small]^2)\\/2)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target, (2 + 3*Sqrt[2])\\/2, 0]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":2.2020604\r\n\t}\r\n}"
+    },
+    "case-00003-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00003.json": {
+      "SHA256": "aae6b0fd9fbedb9be4bad08395e6a19a3fbb911c150722b1637724bf6279345d",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":3,\r\n\t\"Family\":\"ThreeIrrationalGaps\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 3, \\\"Family\\\" -> \\\"ThreeIrrationalGaps\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 1, \\\"LeadingCoefficient\\\" -> 2, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/Sqrt[2], Sqrt[3]\\/2, Sqrt[5]\\/2}, \\\"Polynomials\\\" -> {-2 - logarithm, -1 - logarithm, -1 - logarithm}, \\\"RelativeCutoff\\\" -> 3\\/Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 2*source*(1 + source^(1\\/Sqrt[2])*(-2 - Log[source]) + source^(Sqrt[3]\\/2)*(-1 - Log[source]) + source^(Sqrt[5]\\/2)*(-1 - Log[source])), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 1 + 3\\/Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> 2*small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small + small^(1 + Sqrt[3]\\/2)*(1 + Log[small]) + small^(1 + Sqrt[5]\\/2)*(1 + Log[small]) + small^(1 + 1\\/Sqrt[2])*(2 + Log[small]) + small^(1 + Sqrt[2])*(6 + 2*Sqrt[2] + 5*Log[small] + 2*Sqrt[2]*Log[small] + Log[small]^2 + Log[small]^2\\/Sqrt[2]) + small^(1 + Sqrt[3])*(2 + Sqrt[3]\\/2 + 3*Log[small] + Sqrt[3]*Log[small] + Log[small]^2 + (Sqrt[3]*Log[small]^2)\\/2) + small^(1 + Root[1 - 40*#1^2 + 16*#1^4 & , 4, 0])*(7 + Sqrt[2] + Sqrt[3] + 8*Log[small] + (3*Log[small])\\/Sqrt[2] + (3*Sqrt[3]*Log[small])\\/2 + 2*Log[small]^2 + Log[small]^2\\/Sqrt[2] + (Sqrt[3]*Log[small]^2)\\/2) + small^(1 + Root[9 - 56*#1^2 + 16*#1^4 & , 4, 0])*(7 + Sqrt[2] + Sqrt[5] + 8*Log[small] + (3*Log[small])\\/Sqrt[2] + (3*Sqrt[5]*Log[small])\\/2 + 2*Log[small]^2 + Log[small]^2\\/Sqrt[2] + (Sqrt[5]*Log[small]^2)\\/2) + small^(1 + Root[1 - 16*#1^2 + 4*#1^4 & , 4, 0])*(4 + Sqrt[3]\\/2 + Sqrt[5]\\/2 + 6*Log[small] + Sqrt[3]*Log[small] + Sqrt[5]*Log[small] + 2*Log[small]^2 + (Sqrt[3]*Log[small]^2)\\/2 + (Sqrt[5]*Log[small]^2)\\/2)\",\r\n\t\t\"Observed\":\"small + 2^((-2 - Sqrt[3])\\/2 + (2 + Sqrt[3])\\/2)*small^((2 + Sqrt[3])\\/2)*(1 + Log[small]) + 2^((-2 - Sqrt[5])\\/2 + (2 + Sqrt[5])\\/2)*small^((2 + Sqrt[5])\\/2)*(1 + Log[small]) + 2^((-2 - Sqrt[2])\\/2 + (2 + Sqrt[2])\\/2)*small^((2 + Sqrt[2])\\/2)*(2 + Log[small]) + small^(1 + Sqrt[2])*(6 + 2*Sqrt[2] + 5*Log[small] + 2*Sqrt[2]*Log[small] + Log[small]^2 + Log[small]^2\\/Sqrt[2]) + small^(1 + Sqrt[3])*(2 + Sqrt[3]\\/2 + 3*Log[small] + Sqrt[3]*Log[small] + Log[small]^2 + (Sqrt[3]*Log[small]^2)\\/2) + 2^((-2 - Sqrt[5 + 2*Sqrt[6]])\\/2 + (2 + Sqrt[5 + 2*Sqrt[6]])\\/2)*small^((2 + Sqrt[5 + 2*Sqrt[6]])\\/2)*(7 + Sqrt[5 + 2*Sqrt[6]] + ((16 + 3*Sqrt[5 + 2*Sqrt[6]])*Log[small])\\/2 + ((4 + Sqrt[5 + 2*Sqrt[6]])*Log[small]^2)\\/2) + 2^((-2 - Sqrt[7 + 2*Sqrt[10]])\\/2 + (2 + Sqrt[7 + 2*Sqrt[10]])\\/2)*small^((2 + Sqrt[7 + 2*Sqrt[10]])\\/2)*(7 + Sqrt[7 + 2*Sqrt[10]] + ((16 + 3*Sqrt[7 + 2*Sqrt[10]])*Log[small])\\/2 + ((4 + Sqrt[7 + 2*Sqrt[10]])*Log[small]^2)\\/2) + 2^((-2 - Sqrt[2*(4 + Sqrt[15])])\\/2 + (2 + Sqrt[2*(4 + Sqrt[15])])\\/2)*small^((2 + Sqrt[2*(4 + Sqrt[15])])\\/2)*((8 + Sqrt[2*(4 + Sqrt[15])])\\/2 + (6 + Sqrt[2*(4 + Sqrt[15])])*Log[small] + ((4 + Sqrt[2*(4 + Sqrt[15])])*Log[small]^2)\\/2)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target, (2 + 3*Sqrt[2])\\/2, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":1.21816817e1\r\n\t}\r\n}"
+    },
+    "case-00004-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00004.json": {
+      "SHA256": "87eae5ba8855d8d9802c1178d526e8248cac538e22ef0e2a1122835c91c2dbdc",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":4,\r\n\t\"Family\":\"RationalCancellation\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 4, \\\"Family\\\" -> \\\"RationalCancellation\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 1, \\\"LeadingCoefficient\\\" -> 1, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1, 2, 3}, \\\"Polynomials\\\" -> {1, 2, -1}, \\\"RelativeCutoff\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> source*(1 + source + 2*source^2 - source^3), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 4, \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small - small^2\",\r\n\t\t\"Observed\":\"small - small^2\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target, 4, 0]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":6.45567e-2\r\n\t}\r\n}"
+    },
+    "case-00005-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00005.json": {
+      "SHA256": "cca29481730237a4f3ea63d4dfcce42f28e342ced8fdf4743f5ae405c0515250",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":5,\r\n\t\"Family\":\"IrrationalCollisionCancellation\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 5, \\\"Family\\\" -> \\\"IrrationalCollisionCancellation\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 1, \\\"LeadingCoefficient\\\" -> 2, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {Sqrt[2], Sqrt[3], Sqrt[2] + Sqrt[3]}, \\\"Polynomials\\\" -> {1, -2, -2*(2 + Sqrt[2] + Sqrt[3])}, \\\"RelativeCutoff\\\" -> 3*Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 2*source*(1 + source^Sqrt[2] - 2*source^Sqrt[3] - 2*(2 + Sqrt[2] + Sqrt[3])*source^(Sqrt[2] + Sqrt[3])), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 1 + 3*Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> 2*small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small - small^(1 + Sqrt[2]) + (1 + Sqrt[2])*small^(1 + 2*Sqrt[2]) + 2*small^(1 + Sqrt[3]) + (4 + 4*Sqrt[3])*small^(1 + 2*Sqrt[3]) + (-4 - 2*Sqrt[2] - 2*Sqrt[3])*small^(1 + Root[1 - 10*#1^2 + #1^4 & , 4, 0]) + (4 + 2*Sqrt[2] + 2*Sqrt[3])*small^(1 + Root[1 - 10*#1^2 + #1^4 & , 4, 0])\",\r\n\t\t\"Observed\":\"small - small^(1 + Sqrt[2]) + (1 + Sqrt[2])*small^(1 + 2*Sqrt[2]) + 2*small^(1 + Sqrt[3]) + (4 + 4*Sqrt[3])*small^(1 + 2*Sqrt[3])\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target, 1 + 3*Sqrt[2], 0]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":1.4587261\r\n\t}\r\n}"
+    },
+    "case-00006-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00006.json": {
+      "SHA256": "1ecffa97adecaf6e859a57057cfd97c1c96e41dfcbfb1a79d4350067ffaff195",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":6,\r\n\t\"Family\":\"LeftTranslatedLogBranch\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 6, \\\"Family\\\" -> \\\"LeftTranslatedLogBranch\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 2, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 3, \\\"SourceSign\\\" -> -1, \\\"TargetOffset\\\" -> -2, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {2, -1, 1}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -2 - 3*(3 - source)^2*(-2 + 2*Sqrt[3 - source] + (3 - source)^(3\\/2) + source), \\\"SourcePoint\\\" -> 3, \\\"Cutoff\\\" -> 5\\/4, \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromBelow\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> -2 - 3*small^2|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"3 - small + small^(3\\/2) - (5*small^2)\\/2\",\r\n\t\t\"Observed\":\"3 - (5*small^2)\\/2 - Sqrt[small^2] + (small^2)^(3\\/4)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-2 - target, 5\\/4, 0]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.1420614\r\n\t}\r\n}"
+    },
+    "case-00007-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00007.json": {
+      "SHA256": "516595699f4879164efe5b3acd5a01ce2459d879524b4ad301a3d9095696cda0",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":7,\r\n\t\"Family\":\"ReciprocalSourceCoordinate\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 7, \\\"Family\\\" -> \\\"ReciprocalSourceCoordinate\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 3\\/2, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> 2, \\\"SourcePoint\\\" -> Infinity, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 2, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {-1 - logarithm, 1, -2 + logarithm}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 2 - 3*(source^(-1))^(3\\/2)*(1 + source^(-1) + Sqrt[source^(-1)]*(-1 - Log[source^(-1)]) + (source^(-1))^(3\\/2)*(-2 + Log[source^(-1)])), \\\"SourcePoint\\\" -> Infinity, \\\"Cutoff\\\" -> -1\\/3, \\\"Options\\\" -> {\\\"Power\\\" -> 2, Direction -> Automatic}, \\\"InternalPower\\\" -> -2, \\\"TargetSubstitution\\\" -> target -> 2 - 3*small^(3\\/2)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^(-2) + 4\\/(3*small) + (-4\\/3 - (4*Log[small])\\/3)\\/small^(3\\/2) + (-10\\/9 - (4*Log[small])\\/3 - (2*Log[small]^2)\\/9)\\/small\",\r\n\t\t\"Observed\":\"(small^(3\\/2))^(-4\\/3) + (-4\\/3 - (8*Log[small^(3\\/2)])\\/9)\\/small^(3\\/2) + (2\\/9 - (8*Log[small^(3\\/2)])\\/9 - (8*Log[small^(3\\/2)]^2)\\/81)\\/(small^(3\\/2))^(2\\/3)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[2 - target, -1\\/3, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.7738629\r\n\t}\r\n}"
+    },
+    "case-00008-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00008.json": {
+      "SHA256": "9caee8a2b4265eb4215b8cebfa94189a5b677dceb673690464cdba4667f767b4",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":8,\r\n\t\"Family\":\"NegativeInfinityAndLeadingPower\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 8, \\\"Family\\\" -> \\\"NegativeInfinityAndLeadingPower\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> -2, \\\"LeadingCoefficient\\\" -> 2, \\\"ObservablePower\\\" -> -1, \\\"SourcePoint\\\" -> -Infinity, \\\"SourceSign\\\" -> -1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {-1 + logarithm, 2 + logarithm, -2}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 2*source^2*(1 - 2*(-source^(-1))^(3\\/2) + Sqrt[-source^(-1)]*(-1 + Log[-source^(-1)]) - (2 + Log[-source^(-1)])\\/source), \\\"SourcePoint\\\" -> -Infinity, \\\"Cutoff\\\" -> 5\\/4, \\\"Options\\\" -> {\\\"Power\\\" -> -1, Direction -> Automatic}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> 2\\/small^2|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"-small - small^2*(-1\\/4 + Log[small]\\/4) - small^(3\\/2)*(-1\\/2 + Log[small]\\/2) - small^2*(1 + Log[small]\\/2)\",\r\n\t\t\"Observed\":\"-(1\\/Sqrt[small^(-2)]) - small^2*(3\\/4 - (3*Log[small^(-2)])\\/8) - (-1\\/2 - Log[small^(-2)]\\/4)\\/(small^(-2))^(3\\/4)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target^(-1), 5\\/4, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.522861\r\n\t}\r\n}"
+    },
+    "case-00009-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00009.json": {
+      "SHA256": "9fd821a2161049eff31bf80cdcb539150d2ae91c59c73440322b72e38dac0f2f",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":9,\r\n\t\"Family\":\"NonunitLeadingAndObservablePowers\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 9, \\\"Family\\\" -> \\\"NonunitLeadingAndObservablePowers\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 3\\/2, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> -2, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {-1, 1, -2 + logarithm}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -3*source^(3\\/2)*(1 - Sqrt[source] + source + source^(3\\/2)*(-2 + Log[source])), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> -1\\/3, \\\"Options\\\" -> {\\\"Power\\\" -> -2, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> -2, \\\"TargetSubstitution\\\" -> target -> -3*small^(3\\/2)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^(-2) - 4\\/(3*small^(3\\/2)) + 10\\/(9*small)\",\r\n\t\t\"Observed\":\"-4\\/(3*small^(3\\/2)) + (small^(3\\/2))^(-4\\/3) + 10\\/(9*(small^(3\\/2))^(2\\/3))\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target, -1\\/3, 1]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.3903985\r\n\t}\r\n}"
+    },
+    "case-00010-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00010.json": {
+      "SHA256": "9b1e1a2dd56bd201af4220655a7ff2a6a1be960def8f989d314a8738381cf75c",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":10,\r\n\t\"Family\":\"QuadraticLogAmplitudes\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 10, \\\"Family\\\" -> \\\"QuadraticLogAmplitudes\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 1, \\\"LeadingCoefficient\\\" -> 2, \\\"ObservablePower\\\" -> 2, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1, 3\\/2}, \\\"Polynomials\\\" -> {2 - logarithm, 2 - logarithm - logarithm^2}, \\\"RelativeCutoff\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 2*source*(1 + source*(2 - Log[source]) + source^(3\\/2)*(2 - Log[source] - Log[source]^2)), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 5, \\\"Options\\\" -> {\\\"Power\\\" -> 2, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 2, \\\"TargetSubstitution\\\" -> target -> 2*small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^2 + small^3*(-4 + 2*Log[small]) + small^(7\\/2)*(-4 + 2*Log[small] + 2*Log[small]^2) + small^4*(16 - 18*Log[small] + 5*Log[small]^2) + small^(9\\/2)*(36 - 48*Log[small] - 5*Log[small]^2 + 11*Log[small]^3)\",\r\n\t\t\"Observed\":\"small^2 + small^3*(-4 + 2*Log[small]) + small^(7\\/2)*(-4 + 2*Log[small] + 2*Log[small]^2) + small^4*(16 - 18*Log[small] + 5*Log[small]^2) + small^(9\\/2)*(36 - 48*Log[small] - 5*Log[small]^2 + 11*Log[small]^3)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target, 5, 4]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.3606623\r\n\t}\r\n}"
+    },
+    "case-00011-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00011.json": {
+      "SHA256": "d57cd22c64472108f787e2d2fde1a17a9ad114152f5437bbad72515e588d4476",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":11,\r\n\t\"Family\":\"DeclaredRemainderAtBoundary\",\r\n\t\"Contract\":\"DeclaredRemainder\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 11, \\\"Family\\\" -> \\\"DeclaredRemainderAtBoundary\\\", \\\"Contract\\\" -> \\\"DeclaredRemainder\\\", \\\"LeadingPower\\\" -> -1, \\\"LeadingCoefficient\\\" -> 2, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/Sqrt[2], Sqrt[3]\\/2}, \\\"Polynomials\\\" -> {2 + logarithm, 2 + logarithm}, \\\"RelativeCutoff\\\" -> Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> (2*(1 + source^(1\\/Sqrt[2])*(2 + Log[source]) + source^(Sqrt[3]\\/2)*(2 + Log[source])))\\/source, \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 1 + Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\", \\\"InputRemainder\\\" -> {-1 + Sqrt[2], 3}}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> 2\\/small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small + small^(1 + 1\\/Sqrt[2])*(2 + Log[small]) + small^(1 + Sqrt[3]\\/2)*(2 + Log[small])\",\r\n\t\t\"Observed\":\"small + 2^((-2 - Sqrt[2])\\/2 + (2 + Sqrt[2])\\/2)*(small^(-1))^((-2 - Sqrt[2])\\/2)*(2 - Log[small^(-1)]) + 2^((-2 - Sqrt[3])\\/2 + (2 + Sqrt[3])\\/2)*(small^(-1))^((-2 - Sqrt[3])\\/2)*(2 - Log[small^(-1)])\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target^(-1), 1 + Sqrt[2], 3]\",\r\n\t\t\"MarkerDepth\":1,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.5279716\r\n\t}\r\n}"
+    },
+    "case-00012-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00012.json": {
+      "SHA256": "c047302aa36ea5600c0b82336c32746a44d7b007168ec37d364f176f5fc11279",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":12,\r\n\t\"Family\":\"DeclaredRemainderBeyondBoundary\",\r\n\t\"Contract\":\"InputOrderRejection\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 12, \\\"Family\\\" -> \\\"DeclaredRemainderBeyondBoundary\\\", \\\"Contract\\\" -> \\\"InputOrderRejection\\\", \\\"LeadingPower\\\" -> 1, \\\"LeadingCoefficient\\\" -> -1, \\\"ObservablePower\\\" -> -1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/Sqrt[2], Sqrt[3]\\/2}, \\\"Polynomials\\\" -> {2 + logarithm, 1 - logarithm}, \\\"RelativeCutoff\\\" -> Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -(source*(1 + source^(Sqrt[3]\\/2)*(1 - Log[source]) + source^(1\\/Sqrt[2])*(2 + Log[source]))), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> -1 + 1\\/Sqrt[2] + Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> -1, Direction -> \\\"FromAbove\\\", \\\"InputRemainder\\\" -> {1 + Sqrt[2], 3}}, \\\"InternalPower\\\" -> -1, \\\"TargetSubstitution\\\" -> target -> -small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"Failure[InsufficientInputOrder, _Association]\",\r\n\t\t\"Observed\":\"Failure[\\\"InsufficientInputOrder\\\", <|\\\"MessageTemplate\\\" -> \\\"The request exceeds the precision transported from the forward remainder.\\\", \\\"MaximumCutoff\\\" -> -1 + Sqrt[2]|>]\",\r\n\t\t\"Operation\":\"AsymptoticInverse rejection contract\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.3503945\r\n\t}\r\n}"
+    },
+    "case-00013-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00013.json": {
+      "SHA256": "1cef5da77504cb87da8c37bd74b4517709c4931ca26dd5700ddac4af46fe9e1a",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":13,\r\n\t\"Family\":\"IndexBudgetRejection\",\r\n\t\"Contract\":\"ResourceLimit\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 13, \\\"Family\\\" -> \\\"IndexBudgetRejection\\\", \\\"Contract\\\" -> \\\"ResourceLimit\\\", \\\"LeadingPower\\\" -> -2, \\\"LeadingCoefficient\\\" -> -1, \\\"ObservablePower\\\" -> 2, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1, Sqrt[2]}, \\\"Polynomials\\\" -> {-2 - logarithm, -1}, \\\"RelativeCutoff\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -((1 - source^Sqrt[2] + source*(-2 - Log[source]))\\/source^2), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 5\\/2, \\\"Options\\\" -> {\\\"Power\\\" -> 2, Direction -> \\\"FromAbove\\\", \\\"MaxTerms\\\" -> 1}, \\\"InternalPower\\\" -> 2, \\\"TargetSubstitution\\\" -> target -> -small^(-2)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"Failure[ResourceLimit, _Association]\",\r\n\t\t\"Observed\":\"Failure[\\\"ResourceLimit\\\", <|\\\"MessageTemplate\\\" -> \\\"A truncated sparse product exceeded the MaxTerms budget.\\\", \\\"MaxTerms\\\" -> 1|>]\",\r\n\t\t\"Operation\":\"AsymptoticInverse rejection contract\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":5.05113e-2\r\n\t}\r\n}"
+    },
+    "case-00014-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00014.json": {
+      "SHA256": "f6ec148509a994a2b3d4835c3a9590846504d8fc02296d0d5cf5d9763ac9a881",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":14,\r\n\t\"Family\":\"DuplicateGapInputCancellation\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 14, \\\"Family\\\" -> \\\"DuplicateGapInputCancellation\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> -2, \\\"LeadingCoefficient\\\" -> -1, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1, 1, 2}, \\\"Polynomials\\\" -> {1 + logarithm, -1 - logarithm, 2 - logarithm}, \\\"RelativeCutoff\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -((1 + source*(-1 - Log[source]) + source^2*(2 - Log[source]) + source*(1 + Log[source]))\\/source^2), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 2, \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> -small^(-2)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small + small^2*(-1\\/2 - Log[small]\\/2) + small^3*(1 - Log[small]\\/2) + small^2*(1\\/2 + Log[small]\\/2) + small^3*(-3\\/4 - Log[small] - Log[small]^2\\/4) + 2*small^3*(3\\/8 + Log[small]\\/2 + Log[small]^2\\/8)\",\r\n\t\t\"Observed\":\"1\\/Sqrt[small^(-2)] + (1 + Log[small^(-2)]\\/4)\\/(small^(-2))^(3\\/2)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target^(-1), 5\\/2, 2]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":1.1424985\r\n\t}\r\n}"
+    },
+    "case-00015-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00015.json": {
+      "SHA256": "a2e6d35be6ee4af56c5149acadead78dfdbb8a138d7ea964df35697f502154d2",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":15,\r\n\t\"Family\":\"ExactSourceLogCoordinate\",\r\n\t\"Contract\":\"ExactCoordinate\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 15, \\\"Family\\\" -> \\\"ExactSourceLogCoordinate\\\", \\\"Contract\\\" -> \\\"ExactCoordinate\\\", \\\"Chart\\\" -> \\\"SourceLog\\\", \\\"Scale\\\" -> 2, \\\"Offset\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 3 + 2*Log[Log[source]], \\\"SourcePoint\\\" -> Infinity, \\\"Cutoff\\\" -> 3, \\\"Options\\\" -> {}, \\\"Expected\\\" -> E^E^((-3 + target)\\/2), \\\"Domain\\\" -> target > 3|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"E^E^((-3 + target)\\/2)\",\r\n\t\t\"Observed\":\"E^E^((-3 + target)\\/2)\",\r\n\t\t\"ObservedRemainder\":\"0\",\r\n\t\t\"Operation\":\"Exact inverse coordinate pair\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":4.36251e-2\r\n\t}\r\n}"
+    },
+    "case-00016-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00016.json": {
+      "SHA256": "ef63fac496008985e1ec6b522efb7f78240c5474d69da714eb0c7892e00254fb",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":16,\r\n\t\"Family\":\"ExactTargetLogCoordinate\",\r\n\t\"Contract\":\"ExactCoordinate\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 16, \\\"Family\\\" -> \\\"ExactTargetLogCoordinate\\\", \\\"Contract\\\" -> \\\"ExactCoordinate\\\", \\\"Chart\\\" -> \\\"TargetLog\\\", \\\"Scale\\\" -> 3, \\\"Offset\\\" -> -2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -2 + 3\\/E^source^(-2), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 3, \\\"Options\\\" -> {}, \\\"Expected\\\" -> 1\\/Sqrt[-Log[(2 + target)\\/3]], \\\"Domain\\\" -> -2 < target < 1|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"1\\/Sqrt[-Log[(2 + target)\\/3]]\",\r\n\t\t\"Observed\":\"1\\/Sqrt[-Log[(2 + target)\\/3]]\",\r\n\t\t\"ObservedRemainder\":\"0\",\r\n\t\t\"Operation\":\"Exact inverse coordinate pair\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":1.21054e-2\r\n\t}\r\n}"
+    },
+    "case-00017-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00017.json": {
+      "SHA256": "d1ff7119dffa481c23c72a0d02581f116816b99ecdfd63d8b8f348c5d73ffd35",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":17,\r\n\t\"Family\":\"RationalLogPolynomials\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 17, \\\"Family\\\" -> \\\"RationalLogPolynomials\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> -1, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> 2, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {2 + logarithm, -2 - logarithm, -2 - logarithm}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> (-3*(1 + source*(-2 - Log[source]) + source^(3\\/2)*(-2 - Log[source]) + Sqrt[source]*(2 + Log[source])))\\/source, \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 7\\/2, \\\"Options\\\" -> {\\\"Power\\\" -> 2, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 2, \\\"TargetSubstitution\\\" -> target -> -3\\/small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^2 + small^3*(-4 - 2*Log[small]) + small^(5\\/2)*(4 + 2*Log[small]) + small^3*(12 + 10*Log[small] + 2*Log[small]^2)\",\r\n\t\t\"Observed\":\"small^2 + (4 - 2*Log[small^(-1)])\\/(small^(-1))^(5\\/2) + small^3*(8 - 8*Log[small^(-1)] + 2*Log[small^(-1)]^2)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target^(-1), 7\\/2, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.6227793\r\n\t}\r\n}"
+    },
+    "case-00018-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00018.json": {
+      "SHA256": "507e80177dc8fbe3215e76674aa5ac9bfe2ac48ae901abe1f8077459eceb7ceb",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":18,\r\n\t\"Family\":\"TwoIrrationalGaps\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 18, \\\"Family\\\" -> \\\"TwoIrrationalGaps\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> -1, \\\"LeadingCoefficient\\\" -> 1, \\\"ObservablePower\\\" -> -1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/Sqrt[2], Sqrt[3]\\/2}, \\\"Polynomials\\\" -> {2, 2}, \\\"RelativeCutoff\\\" -> 3\\/Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> (1 + 2*source^(1\\/Sqrt[2]) + 2*source^(Sqrt[3]\\/2))\\/source, \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> -1 + 3\\/Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> -1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> -1, \\\"TargetSubstitution\\\" -> target -> small^(-1)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^(-1) - 2*small^(-1 + 1\\/Sqrt[2]) + (4 - 2*Sqrt[2])*small^(-1 + Sqrt[2]) - 2*small^(-1 + Sqrt[3]\\/2) + (4 - 2*Sqrt[3])*small^(-1 + Sqrt[3]) + (8 - 2*Sqrt[2] - 2*Sqrt[3])*small^(-1 + Root[1 - 40*#1^2 + 16*#1^4 & , 4, 0])\",\r\n\t\t\"Observed\":\"(4 - 2*Sqrt[2])*(small^(-1))^(1 - Sqrt[2]) - 2*(small^(-1))^((2 - Sqrt[2])\\/2) + (4 - 2*Sqrt[3])*(small^(-1))^(1 - Sqrt[3]) - 2*(small^(-1))^((2 - Sqrt[3])\\/2) + 2*(4 - Sqrt[5 + 2*Sqrt[6]])*(small^(-1))^((2 - Sqrt[5 + 2*Sqrt[6]])\\/2) + small^(-1)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target^(-1), (-2 + 3*Sqrt[2])\\/2, 0]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.7508544\r\n\t}\r\n}"
+    },
+    "case-00019-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00019.json": {
+      "SHA256": "985e8fb4d1e84ec3810c2655df1d936941cfa442c1e399603bf4f3f9f538037c",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":19,\r\n\t\"Family\":\"ThreeIrrationalGaps\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 19, \\\"Family\\\" -> \\\"ThreeIrrationalGaps\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 2, \\\"LeadingCoefficient\\\" -> -1, \\\"ObservablePower\\\" -> 2, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/Sqrt[2], Sqrt[3]\\/2, Sqrt[5]\\/2}, \\\"Polynomials\\\" -> {2 + logarithm, -2, -2 - logarithm}, \\\"RelativeCutoff\\\" -> 3\\/Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -(source^2*(1 - 2*source^(Sqrt[3]\\/2) + source^(Sqrt[5]\\/2)*(-2 - Log[source]) + source^(1\\/Sqrt[2])*(2 + Log[source]))), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> (2 + 3\\/Sqrt[2])\\/2, \\\"Options\\\" -> {\\\"Power\\\" -> 2, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 2, \\\"TargetSubstitution\\\" -> target -> -small^2|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^2 + 2*small^(2 + Sqrt[3]\\/2) + (4 + Sqrt[3])*small^(2 + Sqrt[3]) + small^(2 + 1\\/Sqrt[2])*(-2 - Log[small]) + small^(2 + Sqrt[5]\\/2)*(2 + Log[small]) + small^(2 + Root[1 - 40*#1^2 + 16*#1^4 & , 4, 0])*(-9 - Sqrt[2] - Sqrt[3] - 4*Log[small] - Log[small]\\/Sqrt[2] - (Sqrt[3]*Log[small])\\/2) + small^(2 + Root[1 - 16*#1^2 + 4*#1^4 & , 4, 0])*(9 + Sqrt[3] + Sqrt[5] + 4*Log[small] + (Sqrt[3]*Log[small])\\/2 + (Sqrt[5]*Log[small])\\/2) + small^(2 + Sqrt[2])*(5 + Sqrt[2] + (9*Log[small])\\/2 + Sqrt[2]*Log[small] + Log[small]^2 + Log[small]^2\\/(2*Sqrt[2])) + small^(2 + Root[9 - 56*#1^2 + 16*#1^4 & , 4, 0])*(-10 - Sqrt[2] - Sqrt[5] - 9*Log[small] - Sqrt[2]*Log[small] - Sqrt[5]*Log[small] - 2*Log[small]^2 - Log[small]^2\\/(2*Sqrt[2]) - (Sqrt[5]*Log[small]^2)\\/4)\",\r\n\t\t\"Observed\":\"small^2 + (4 + Sqrt[3])*(small^2)^((2 + Sqrt[3])\\/2) + 2*(small^2)^((4 + Sqrt[3])\\/4) + (small^2)^((4 + Sqrt[2])\\/4)*(-2 - Log[small^2]\\/2) + (small^2)^((4 + Sqrt[5])\\/4)*(2 + Log[small^2]\\/2) + (small^2)^((4 + Sqrt[5 + 2*Sqrt[6]])\\/4)*(-9 - Sqrt[5 + 2*Sqrt[6]] + ((-8 - Sqrt[5 + 2*Sqrt[6]])*Log[small^2])\\/4) + (small^2)^((2 + Sqrt[(4 + Sqrt[15])\\/2])\\/2)*(9 + Sqrt[2*(4 + Sqrt[15])] + ((8 + Sqrt[2*(4 + Sqrt[15])])*Log[small^2])\\/4) + (small^2)^((2 + Sqrt[2])\\/2)*(5 + Sqrt[2] + (9*Log[small^2])\\/4 + Log[small^2]\\/Sqrt[2] + Log[small^2]^2\\/4 + Log[small^2]^2\\/(8*Sqrt[2])) + (small^2)^((4 + Sqrt[7 + 2*Sqrt[10]])\\/4)*(-10 - Sqrt[7 + 2*Sqrt[10]] + ((-9 - Sqrt[7 + 2*Sqrt[10]])*Log[small^2])\\/2 + ((-8 - Sqrt[7 + 2*Sqrt[10]])*Log[small^2]^2)\\/16)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target, (4 + 3*Sqrt[2])\\/4, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":1.00666462e1\r\n\t}\r\n}"
+    },
+    "case-00020-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00020.json": {
+      "SHA256": "2f1c832acde80a77f5c7bb6ecd883f3696c706cba5bf386139d9a746f7176794",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":20,\r\n\t\"Family\":\"RationalCancellation\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 20, \\\"Family\\\" -> \\\"RationalCancellation\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 1, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1, 2, 3}, \\\"Polynomials\\\" -> {1, 2, -1}, \\\"RelativeCutoff\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -3*source*(1 + source + 2*source^2 - source^3), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 4, \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> -3*small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small - small^2\",\r\n\t\t\"Observed\":\"small - small^2\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target, 4, 0]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":8.4289e-2\r\n\t}\r\n}"
+    },
+    "case-00021-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00021.json": {
+      "SHA256": "0f20f3810f73e1d665017acce65bf6d23145393e91357ad1d0b275c8c83c8924",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":21,\r\n\t\"Family\":\"IrrationalCollisionCancellation\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 21, \\\"Family\\\" -> \\\"IrrationalCollisionCancellation\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 1, \\\"LeadingCoefficient\\\" -> -1, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {Sqrt[2], Sqrt[3], Sqrt[2] + Sqrt[3]}, \\\"Polynomials\\\" -> {1, -2, -2*(2 + Sqrt[2] + Sqrt[3])}, \\\"RelativeCutoff\\\" -> 3*Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -(source*(1 + source^Sqrt[2] - 2*source^Sqrt[3] - 2*(2 + Sqrt[2] + Sqrt[3])*source^(Sqrt[2] + Sqrt[3]))), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 1 + 3*Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> -small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small - small^(1 + Sqrt[2]) + (1 + Sqrt[2])*small^(1 + 2*Sqrt[2]) + 2*small^(1 + Sqrt[3]) + (4 + 4*Sqrt[3])*small^(1 + 2*Sqrt[3]) + (-4 - 2*Sqrt[2] - 2*Sqrt[3])*small^(1 + Root[1 - 10*#1^2 + #1^4 & , 4, 0]) + (4 + 2*Sqrt[2] + 2*Sqrt[3])*small^(1 + Root[1 - 10*#1^2 + #1^4 & , 4, 0])\",\r\n\t\t\"Observed\":\"small - small^(1 + Sqrt[2]) + (1 + Sqrt[2])*small^(1 + 2*Sqrt[2]) + 2*small^(1 + Sqrt[3]) + (4 + 4*Sqrt[3])*small^(1 + 2*Sqrt[3])\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target, 1 + 3*Sqrt[2], 0]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":1.6245501\r\n\t}\r\n}"
+    },
+    "case-00022-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00022.json": {
+      "SHA256": "91b037be8872d6999d285c08fac0b7f26fd63cbd8ffb6ebbdd5e7de47d85f8eb",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":22,\r\n\t\"Family\":\"LeftTranslatedLogBranch\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 22, \\\"Family\\\" -> \\\"LeftTranslatedLogBranch\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 2, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 3, \\\"SourceSign\\\" -> -1, \\\"TargetOffset\\\" -> -2, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {-2 - logarithm, 2 - logarithm, 2 - logarithm}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -2 - 3*(3 - source)^2*(1 + Sqrt[3 - source]*(-2 - Log[3 - source]) + (3 - source)*(2 - Log[3 - source]) + (3 - source)^(3\\/2)*(2 - Log[3 - source])), \\\"SourcePoint\\\" -> 3, \\\"Cutoff\\\" -> 5\\/4, \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromBelow\\\"}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> -2 - 3*small^2|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"3 - small - small^2*(-1 + Log[small]\\/2) - small^(3\\/2)*(1 + Log[small]\\/2) - small^2*(5\\/2 + (9*Log[small])\\/4 + Log[small]^2\\/2)\",\r\n\t\t\"Observed\":\"3 - Sqrt[small^2] - (small^2)^(3\\/4)*(1 + Log[small^2]\\/4) - small^2*(3\\/2 + (11*Log[small^2])\\/8 + Log[small^2]^2\\/8)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-2 - target, 5\\/4, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.7263031\r\n\t}\r\n}"
+    },
+    "case-00023-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00023.json": {
+      "SHA256": "3d136d058680fd7a2c7fb74f3f9549c4dfb0dfc506fcd153960d39ef60bd06fd",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":23,\r\n\t\"Family\":\"ReciprocalSourceCoordinate\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 23, \\\"Family\\\" -> \\\"ReciprocalSourceCoordinate\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 3\\/2, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> -1, \\\"SourcePoint\\\" -> Infinity, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 2, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {-1, 2, 1 + logarithm}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 2 - 3*(source^(-1))^(3\\/2)*(1 - Sqrt[source^(-1)] + 2\\/source + (source^(-1))^(3\\/2)*(1 + Log[source^(-1)])), \\\"SourcePoint\\\" -> Infinity, \\\"Cutoff\\\" -> 5\\/3, \\\"Options\\\" -> {\\\"Power\\\" -> -1, Direction -> Automatic}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> 2 - 3*small^(3\\/2)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small + (2*small^(3\\/2))\\/3 - (5*small^2)\\/9\",\r\n\t\t\"Observed\":\"(2*small^(3\\/2))\\/3 + (small^(3\\/2))^(2\\/3) - (5*(small^(3\\/2))^(4\\/3))\\/9\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[2 - target, 5\\/3, 1]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.3425262\r\n\t}\r\n}"
+    },
+    "case-00024-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00024.json": {
+      "SHA256": "a99ea85bb1fd9c73184d95a34f23edf3d0c0456ab532d9b1cc1ec8e074e0b853",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":24,\r\n\t\"Family\":\"NegativeInfinityAndLeadingPower\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 24, \\\"Family\\\" -> \\\"NegativeInfinityAndLeadingPower\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> -2, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> -Infinity, \\\"SourceSign\\\" -> -1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {2 - logarithm, 1 + logarithm, 1 + logarithm}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -3*source^2*(1 + Sqrt[-source^(-1)]*(2 - Log[-source^(-1)]) + (-source^(-1))^(3\\/2)*(1 + Log[-source^(-1)]) - (1 + Log[-source^(-1)])\\/source), \\\"SourcePoint\\\" -> -Infinity, \\\"Cutoff\\\" -> 1\\/4, \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> Automatic}, \\\"InternalPower\\\" -> -1, \\\"TargetSubstitution\\\" -> target -> -3\\/small^2|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"-1 - small^(-1) - (-1 + Log[small]\\/2)\\/Sqrt[small] + (7*Log[small])\\/4 - Log[small]^2\\/4\",\r\n\t\t\"Observed\":\"-1 - Sqrt[small^(-2)] - (small^(-2))^(1\\/4)*(-1 - Log[small^(-2)]\\/4) - (7*Log[small^(-2)])\\/8 - Log[small^(-2)]^2\\/16\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target^(-1), 1\\/4, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.6424403\r\n\t}\r\n}"
+    },
+    "case-00025-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00025.json": {
+      "SHA256": "e6af14fc078145ab33ae99ee9f07da7269fdc11630f8d968dd117e660a262a22",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":25,\r\n\t\"Family\":\"NonunitLeadingAndObservablePowers\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 25, \\\"Family\\\" -> \\\"NonunitLeadingAndObservablePowers\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 3\\/2, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> -2, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/2, 1, 3\\/2}, \\\"Polynomials\\\" -> {-1 - logarithm, 1 + logarithm, -2}, \\\"RelativeCutoff\\\" -> 3\\/2|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -3*source^(3\\/2)*(1 - 2*source^(3\\/2) + Sqrt[source]*(-1 - Log[source]) + source*(1 + Log[source])), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> -1\\/3, \\\"Options\\\" -> {\\\"Power\\\" -> -2, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> -2, \\\"TargetSubstitution\\\" -> target -> -3*small^(3\\/2)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^(-2) + (-4\\/3 - (4*Log[small])\\/3)\\/small^(3\\/2) + (4\\/3 + (4*Log[small])\\/3)\\/small + (-10\\/9 - (4*Log[small])\\/3 - (2*Log[small]^2)\\/9)\\/small\",\r\n\t\t\"Observed\":\"(small^(3\\/2))^(-4\\/3) + (-4\\/3 - (8*Log[small^(3\\/2)])\\/9)\\/small^(3\\/2) + (2\\/9 - (8*Log[small^(3\\/2)]^2)\\/81)\\/(small^(3\\/2))^(2\\/3)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target, -1\\/3, 3]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.7638431\r\n\t}\r\n}"
+    },
+    "case-00026-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00026.json": {
+      "SHA256": "04bbf138de59f289850bfe58892cd565c420868f4d01ea93a2a1238de5b2eb9a",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":26,\r\n\t\"Family\":\"QuadraticLogAmplitudes\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 26, \\\"Family\\\" -> \\\"QuadraticLogAmplitudes\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> 2, \\\"LeadingCoefficient\\\" -> 1, \\\"ObservablePower\\\" -> -1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1, 3\\/2}, \\\"Polynomials\\\" -> {-1 + logarithm^2, 1 - logarithm}, \\\"RelativeCutoff\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> source^2*(1 + source^(3\\/2)*(1 - Log[source]) + source*(-1 + Log[source]^2)), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 1, \\\"Options\\\" -> {\\\"Power\\\" -> -1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> -1, \\\"TargetSubstitution\\\" -> target -> small^2|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"-1\\/2 + small^(-1) + Sqrt[small]*(1\\/2 - Log[small]\\/2) + Log[small]^2\\/2 + small^(3\\/2)*(5\\/8 - (11*Log[small])\\/8 - Log[small]^2\\/8 + (7*Log[small]^3)\\/8) + small*(-3\\/8 + Log[small]\\/2 + (3*Log[small]^2)\\/4 - Log[small]^3\\/2 - (3*Log[small]^4)\\/8)\",\r\n\t\t\"Observed\":\"-1\\/2 + 1\\/Sqrt[small^2] + (small^2)^(1\\/4)*(1\\/2 - Log[small^2]\\/4) + Log[small^2]^2\\/8 + (small^2)^(3\\/4)*(5\\/8 - (11*Log[small^2])\\/16 - Log[small^2]^2\\/32 + (7*Log[small^2]^3)\\/64) + Sqrt[small^2]*(-3\\/8 + Log[small^2]\\/4 + (3*Log[small^2]^2)\\/16 - Log[small^2]^3\\/16 - (3*Log[small^2]^4)\\/128)\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target, 1, 6]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.6305326\r\n\t}\r\n}"
+    },
+    "case-00027-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00027.json": {
+      "SHA256": "2378e455f8bd84140506572400b04e72c1b95207557fec8d86e88811f6140093",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":27,\r\n\t\"Family\":\"DeclaredRemainderAtBoundary\",\r\n\t\"Contract\":\"DeclaredRemainder\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 27, \\\"Family\\\" -> \\\"DeclaredRemainderAtBoundary\\\", \\\"Contract\\\" -> \\\"DeclaredRemainder\\\", \\\"LeadingPower\\\" -> -1, \\\"LeadingCoefficient\\\" -> 1, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/Sqrt[2], Sqrt[3]\\/2}, \\\"Polynomials\\\" -> {-1, 2 + logarithm}, \\\"RelativeCutoff\\\" -> Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> (1 - source^(1\\/Sqrt[2]) + source^(Sqrt[3]\\/2)*(2 + Log[source]))\\/source, \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 1 + Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\", \\\"InputRemainder\\\" -> {-1 + Sqrt[2], 3}}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> small^(-1)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small - small^(1 + 1\\/Sqrt[2]) + small^(1 + Sqrt[3]\\/2)*(2 + Log[small])\",\r\n\t\t\"Observed\":\"-(small^(-1))^((-2 - Sqrt[2])\\/2) + small + (small^(-1))^((-2 - Sqrt[3])\\/2)*(2 - Log[small^(-1)])\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[target^(-1), 1 + Sqrt[2], 3]\",\r\n\t\t\"MarkerDepth\":1,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.3347134\r\n\t}\r\n}"
+    },
+    "case-00028-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00028.json": {
+      "SHA256": "4377929d1c1e36287d317d382a135c102e98419c09a15427ebf2f80d8d04dbc3",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":28,\r\n\t\"Family\":\"DeclaredRemainderBeyondBoundary\",\r\n\t\"Contract\":\"InputOrderRejection\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 28, \\\"Family\\\" -> \\\"DeclaredRemainderBeyondBoundary\\\", \\\"Contract\\\" -> \\\"InputOrderRejection\\\", \\\"LeadingPower\\\" -> -1, \\\"LeadingCoefficient\\\" -> 1, \\\"ObservablePower\\\" -> 2, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1\\/Sqrt[2], Sqrt[3]\\/2}, \\\"Polynomials\\\" -> {-2 - logarithm, -2}, \\\"RelativeCutoff\\\" -> Sqrt[2]|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> (1 - 2*source^(Sqrt[3]\\/2) + source^(1\\/Sqrt[2])*(-2 - Log[source]))\\/source, \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 2 + 1\\/Sqrt[2] + Sqrt[2], \\\"Options\\\" -> {\\\"Power\\\" -> 2, Direction -> \\\"FromAbove\\\", \\\"InputRemainder\\\" -> {-1 + Sqrt[2], 3}}, \\\"InternalPower\\\" -> 2, \\\"TargetSubstitution\\\" -> target -> small^(-1)|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"Failure[InsufficientInputOrder, _Association]\",\r\n\t\t\"Observed\":\"Failure[\\\"InsufficientInputOrder\\\", <|\\\"MessageTemplate\\\" -> \\\"The request exceeds the precision transported from the forward remainder.\\\", \\\"MaximumCutoff\\\" -> 2 + Sqrt[2]|>]\",\r\n\t\t\"Operation\":\"AsymptoticInverse rejection contract\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.1450664\r\n\t}\r\n}"
+    },
+    "case-00029-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00029.json": {
+      "SHA256": "7e50a7b2110b3c92cfb2b9d9ccb59f36bae79ddf68c7b1b08baf94c853d42005",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":29,\r\n\t\"Family\":\"IndexBudgetRejection\",\r\n\t\"Contract\":\"ResourceLimit\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 29, \\\"Family\\\" -> \\\"IndexBudgetRejection\\\", \\\"Contract\\\" -> \\\"ResourceLimit\\\", \\\"LeadingPower\\\" -> 2, \\\"LeadingCoefficient\\\" -> -1, \\\"ObservablePower\\\" -> 1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1, Sqrt[2]}, \\\"Polynomials\\\" -> {1 - logarithm, -2 + logarithm}, \\\"RelativeCutoff\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> -(source^2*(1 + source*(1 - Log[source]) + source^Sqrt[2]*(-2 + Log[source]))), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 2, \\\"Options\\\" -> {\\\"Power\\\" -> 1, Direction -> \\\"FromAbove\\\", \\\"MaxTerms\\\" -> 1}, \\\"InternalPower\\\" -> 1, \\\"TargetSubstitution\\\" -> target -> -small^2|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"Failure[ResourceLimit, _Association]\",\r\n\t\t\"Observed\":\"Failure[\\\"ResourceLimit\\\", <|\\\"MessageTemplate\\\" -> \\\"A truncated sparse product exceeded the MaxTerms budget.\\\", \\\"MaxTerms\\\" -> 1|>]\",\r\n\t\t\"Operation\":\"AsymptoticInverse rejection contract\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":8.69458e-2\r\n\t}\r\n}"
+    },
+    "case-00030-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00030.json": {
+      "SHA256": "ab05ce1d75c75e3a13097a5ddf4f7eda9853c7b40a44ca8b73303dabc28fd158",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":30,\r\n\t\"Family\":\"DuplicateGapInputCancellation\",\r\n\t\"Contract\":\"Equality\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 30, \\\"Family\\\" -> \\\"DuplicateGapInputCancellation\\\", \\\"Contract\\\" -> \\\"Equality\\\", \\\"LeadingPower\\\" -> -1, \\\"LeadingCoefficient\\\" -> -3, \\\"ObservablePower\\\" -> -1, \\\"SourcePoint\\\" -> 0, \\\"SourceSign\\\" -> 1, \\\"TargetOffset\\\" -> 0, \\\"Gaps\\\" -> {1, 1, 2}, \\\"Polynomials\\\" -> {1 + logarithm, -1 - logarithm, 2 - logarithm}, \\\"RelativeCutoff\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> (-3*(1 + source*(-1 - Log[source]) + source^2*(2 - Log[source]) + source*(1 + Log[source])))\\/source, \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 2, \\\"Options\\\" -> {\\\"Power\\\" -> -1, Direction -> \\\"FromAbove\\\"}, \\\"InternalPower\\\" -> -1, \\\"TargetSubstitution\\\" -> target -> -3\\/small|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"small^(-1) + 2*small*(-1 - Log[small]) + small*(-2 + Log[small]) + small*(2 + 2*Log[small])\",\r\n\t\t\"Observed\":\"small^(-1) + small*(-2 - Log[small^(-1)])\",\r\n\t\t\"ObservedRemainder\":\"PowerLogRemainder[-target^(-1), 3, 2]\",\r\n\t\t\"MarkerDepth\":2,\r\n\t\t\"OracleForwardResidual\":\"0\",\r\n\t\t\"Operation\":\"Native forward-substitution coefficient oracle\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":0.3807154\r\n\t}\r\n}"
+    },
+    "case-00031-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00031.json": {
+      "SHA256": "d58a0e37a07935fc82d8dbe1165f81a11074f0eefde14a53f186d3dae6349366",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":31,\r\n\t\"Family\":\"ExactSourceLogCoordinate\",\r\n\t\"Contract\":\"ExactCoordinate\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 31, \\\"Family\\\" -> \\\"ExactSourceLogCoordinate\\\", \\\"Contract\\\" -> \\\"ExactCoordinate\\\", \\\"Chart\\\" -> \\\"SourceLog\\\", \\\"Scale\\\" -> 3, \\\"Offset\\\" -> 0|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 3*Log[Log[source]], \\\"SourcePoint\\\" -> Infinity, \\\"Cutoff\\\" -> 3, \\\"Options\\\" -> {}, \\\"Expected\\\" -> E^E^(target\\/3), \\\"Domain\\\" -> target > 0|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"E^E^(target\\/3)\",\r\n\t\t\"Observed\":\"E^E^(target\\/3)\",\r\n\t\t\"ObservedRemainder\":\"0\",\r\n\t\t\"Operation\":\"Exact inverse coordinate pair\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":1.92327e-2\r\n\t}\r\n}"
+    },
+    "case-00032-messages.txt": {
+      "SHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ContentText": ""
+    },
+    "case-00032.json": {
+      "SHA256": "48f0a3818890a6381bb0d012735da9772a2d0c1bd19b6da7f9f162f01524057a",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Index\":32,\r\n\t\"Family\":\"ExactTargetLogCoordinate\",\r\n\t\"Contract\":\"ExactCoordinate\",\r\n\t\"CaseInputForm\":\"<|\\\"Seed\\\" -> 236369, \\\"Index\\\" -> 32, \\\"Family\\\" -> \\\"ExactTargetLogCoordinate\\\", \\\"Contract\\\" -> \\\"ExactCoordinate\\\", \\\"Chart\\\" -> \\\"TargetLog\\\", \\\"Scale\\\" -> 1, \\\"Offset\\\" -> 3|>\",\r\n\t\"OperationInputForm\":\"<|\\\"Function\\\" -> 3 + E^(-source^(-2)), \\\"SourcePoint\\\" -> 0, \\\"Cutoff\\\" -> 3, \\\"Options\\\" -> {}, \\\"Expected\\\" -> 1\\/Sqrt[-Log[-3 + target]], \\\"Domain\\\" -> 3 < target < 4|>\",\r\n\t\"Result\":{\r\n\t\t\"Passed\":true,\r\n\t\t\"FailureClass\":\"None\",\r\n\t\t\"Expected\":\"1\\/Sqrt[-Log[-3 + target]]\",\r\n\t\t\"Observed\":\"1\\/Sqrt[-Log[-3 + target]]\",\r\n\t\t\"ObservedRemainder\":\"0\",\r\n\t\t\"Operation\":\"Exact inverse coordinate pair\",\r\n\t\t\"Messages\":[],\r\n\t\t\"ElapsedSeconds\":7.2797e-3\r\n\t}\r\n}"
+    },
+    "inputs.wl": {
+      "SHA256": "01d48157bf183e719b1f23d195efb97e1d796b83964c76c49af0950aa32a2b6b",
+      "ContentText": "{<|\"Seed\" -> 236369, \"Index\" -> 1, \"Family\" -> \"RationalLogPolynomials\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 2, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> 2, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {-2 - logarithm, 2 + logarithm, 1 + logarithm}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 2, \"Family\" -> \"TwoIrrationalGaps\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 1, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/Sqrt[2], Sqrt[3]/2}, \"Polynomials\" -> {-2, -1 - logarithm}, \"RelativeCutoff\" -> 3/Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 3, \"Family\" -> \"ThreeIrrationalGaps\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 1, \"LeadingCoefficient\" -> 2, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/Sqrt[2], Sqrt[3]/2, Sqrt[5]/2}, \"Polynomials\" -> {-2 - logarithm, -1 - logarithm, -1 - logarithm}, \"RelativeCutoff\" -> 3/Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 4, \"Family\" -> \"RationalCancellation\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 1, \"LeadingCoefficient\" -> 1, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1, 2, 3}, \"Polynomials\" -> {1, 2, -1}, \"RelativeCutoff\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 5, \"Family\" -> \"IrrationalCollisionCancellation\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 1, \"LeadingCoefficient\" -> 2, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {Sqrt[2], Sqrt[3], Sqrt[2] + Sqrt[3]}, \"Polynomials\" -> {1, -2, -2*(2 + Sqrt[2] + Sqrt[3])}, \"RelativeCutoff\" -> 3*Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 6, \"Family\" -> \"LeftTranslatedLogBranch\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 2, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> 1, \"SourcePoint\" -> 3, \"SourceSign\" -> -1, \"TargetOffset\" -> -2, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {2, -1, 1}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 7, \"Family\" -> \"ReciprocalSourceCoordinate\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 3/2, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> 2, \"SourcePoint\" -> Infinity, \"SourceSign\" -> 1, \"TargetOffset\" -> 2, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {-1 - logarithm, 1, -2 + logarithm}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 8, \"Family\" -> \"NegativeInfinityAndLeadingPower\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> -2, \"LeadingCoefficient\" -> 2, \"ObservablePower\" -> -1, \"SourcePoint\" -> -Infinity, \"SourceSign\" -> -1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {-1 + logarithm, 2 + logarithm, -2}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 9, \"Family\" -> \"NonunitLeadingAndObservablePowers\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 3/2, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> -2, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {-1, 1, -2 + logarithm}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 10, \"Family\" -> \"QuadraticLogAmplitudes\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 1, \"LeadingCoefficient\" -> 2, \"ObservablePower\" -> 2, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1, 3/2}, \"Polynomials\" -> {2 - logarithm, 2 - logarithm - logarithm^2}, \"RelativeCutoff\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 11, \"Family\" -> \"DeclaredRemainderAtBoundary\", \"Contract\" -> \"DeclaredRemainder\", \"LeadingPower\" -> -1, \"LeadingCoefficient\" -> 2, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/Sqrt[2], Sqrt[3]/2}, \"Polynomials\" -> {2 + logarithm, 2 + logarithm}, \"RelativeCutoff\" -> Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 12, \"Family\" -> \"DeclaredRemainderBeyondBoundary\", \"Contract\" -> \"InputOrderRejection\", \"LeadingPower\" -> 1, \"LeadingCoefficient\" -> -1, \"ObservablePower\" -> -1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/Sqrt[2], Sqrt[3]/2}, \"Polynomials\" -> {2 + logarithm, 1 - logarithm}, \"RelativeCutoff\" -> Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 13, \"Family\" -> \"IndexBudgetRejection\", \"Contract\" -> \"ResourceLimit\", \"LeadingPower\" -> -2, \"LeadingCoefficient\" -> -1, \"ObservablePower\" -> 2, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1, Sqrt[2]}, \"Polynomials\" -> {-2 - logarithm, -1}, \"RelativeCutoff\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 14, \"Family\" -> \"DuplicateGapInputCancellation\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> -2, \"LeadingCoefficient\" -> -1, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1, 1, 2}, \"Polynomials\" -> {1 + logarithm, -1 - logarithm, 2 - logarithm}, \"RelativeCutoff\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 15, \"Family\" -> \"ExactSourceLogCoordinate\", \"Contract\" -> \"ExactCoordinate\", \"Chart\" -> \"SourceLog\", \"Scale\" -> 2, \"Offset\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 16, \"Family\" -> \"ExactTargetLogCoordinate\", \"Contract\" -> \"ExactCoordinate\", \"Chart\" -> \"TargetLog\", \"Scale\" -> 3, \"Offset\" -> -2|>, <|\"Seed\" -> 236369, \"Index\" -> 17, \"Family\" -> \"RationalLogPolynomials\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> -1, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> 2, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {2 + logarithm, -2 - logarithm, -2 - logarithm}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 18, \"Family\" -> \"TwoIrrationalGaps\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> -1, \"LeadingCoefficient\" -> 1, \"ObservablePower\" -> -1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/Sqrt[2], Sqrt[3]/2}, \"Polynomials\" -> {2, 2}, \"RelativeCutoff\" -> 3/Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 19, \"Family\" -> \"ThreeIrrationalGaps\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 2, \"LeadingCoefficient\" -> -1, \"ObservablePower\" -> 2, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/Sqrt[2], Sqrt[3]/2, Sqrt[5]/2}, \"Polynomials\" -> {2 + logarithm, -2, -2 - logarithm}, \"RelativeCutoff\" -> 3/Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 20, \"Family\" -> \"RationalCancellation\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 1, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1, 2, 3}, \"Polynomials\" -> {1, 2, -1}, \"RelativeCutoff\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 21, \"Family\" -> \"IrrationalCollisionCancellation\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 1, \"LeadingCoefficient\" -> -1, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {Sqrt[2], Sqrt[3], Sqrt[2] + Sqrt[3]}, \"Polynomials\" -> {1, -2, -2*(2 + Sqrt[2] + Sqrt[3])}, \"RelativeCutoff\" -> 3*Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 22, \"Family\" -> \"LeftTranslatedLogBranch\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 2, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> 1, \"SourcePoint\" -> 3, \"SourceSign\" -> -1, \"TargetOffset\" -> -2, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {-2 - logarithm, 2 - logarithm, 2 - logarithm}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 23, \"Family\" -> \"ReciprocalSourceCoordinate\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 3/2, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> -1, \"SourcePoint\" -> Infinity, \"SourceSign\" -> 1, \"TargetOffset\" -> 2, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {-1, 2, 1 + logarithm}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 24, \"Family\" -> \"NegativeInfinityAndLeadingPower\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> -2, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> 1, \"SourcePoint\" -> -Infinity, \"SourceSign\" -> -1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {2 - logarithm, 1 + logarithm, 1 + logarithm}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 25, \"Family\" -> \"NonunitLeadingAndObservablePowers\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 3/2, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> -2, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/2, 1, 3/2}, \"Polynomials\" -> {-1 - logarithm, 1 + logarithm, -2}, \"RelativeCutoff\" -> 3/2|>, <|\"Seed\" -> 236369, \"Index\" -> 26, \"Family\" -> \"QuadraticLogAmplitudes\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> 2, \"LeadingCoefficient\" -> 1, \"ObservablePower\" -> -1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1, 3/2}, \"Polynomials\" -> {-1 + logarithm^2, 1 - logarithm}, \"RelativeCutoff\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 27, \"Family\" -> \"DeclaredRemainderAtBoundary\", \"Contract\" -> \"DeclaredRemainder\", \"LeadingPower\" -> -1, \"LeadingCoefficient\" -> 1, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/Sqrt[2], Sqrt[3]/2}, \"Polynomials\" -> {-1, 2 + logarithm}, \"RelativeCutoff\" -> Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 28, \"Family\" -> \"DeclaredRemainderBeyondBoundary\", \"Contract\" -> \"InputOrderRejection\", \"LeadingPower\" -> -1, \"LeadingCoefficient\" -> 1, \"ObservablePower\" -> 2, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1/Sqrt[2], Sqrt[3]/2}, \"Polynomials\" -> {-2 - logarithm, -2}, \"RelativeCutoff\" -> Sqrt[2]|>, <|\"Seed\" -> 236369, \"Index\" -> 29, \"Family\" -> \"IndexBudgetRejection\", \"Contract\" -> \"ResourceLimit\", \"LeadingPower\" -> 2, \"LeadingCoefficient\" -> -1, \"ObservablePower\" -> 1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1, Sqrt[2]}, \"Polynomials\" -> {1 - logarithm, -2 + logarithm}, \"RelativeCutoff\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 30, \"Family\" -> \"DuplicateGapInputCancellation\", \"Contract\" -> \"Equality\", \"LeadingPower\" -> -1, \"LeadingCoefficient\" -> -3, \"ObservablePower\" -> -1, \"SourcePoint\" -> 0, \"SourceSign\" -> 1, \"TargetOffset\" -> 0, \"Gaps\" -> {1, 1, 2}, \"Polynomials\" -> {1 + logarithm, -1 - logarithm, 2 - logarithm}, \"RelativeCutoff\" -> 3|>, <|\"Seed\" -> 236369, \"Index\" -> 31, \"Family\" -> \"ExactSourceLogCoordinate\", \"Contract\" -> \"ExactCoordinate\", \"Chart\" -> \"SourceLog\", \"Scale\" -> 3, \"Offset\" -> 0|>, <|\"Seed\" -> 236369, \"Index\" -> 32, \"Family\" -> \"ExactTargetLogCoordinate\", \"Contract\" -> \"ExactCoordinate\", \"Chart\" -> \"TargetLog\", \"Scale\" -> 1, \"Offset\" -> 3|>}"
+    },
+    "manifest.json": {
+      "SHA256": "9891ea231dd2070a469be54d0f8833df875405e45bb348742d1ce533fc383f04",
+      "ContentText": "{\r\n\t\"Seed\":236369,\r\n\t\"Generator\":\"MersenneTwister with deterministic 16-family cycle\",\r\n\t\"OracleRevision\":\"native-marker-forward-substitution-v1\",\r\n\t\"KernelVersion\":\"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\",\r\n\t\"SystemID\":\"Windows-x86-64\",\r\n\t\"KernelVersionNumber\":1.5e1,\r\n\t\"CaseCount\":32,\r\n\t\"PerCaseSeconds\":30,\r\n\t\"ShrinkAttempts\":24,\r\n\t\"ShrinkSeconds\":60,\r\n\t\"PackageSHA256\":\"9410be3d8f4def3edfab5b236bebcafc366437a074b68f534d56084a195635fa\",\r\n\t\"KernelSourceSHA256\":{\r\n\t\t\"AsymptoticInverse.wl\":\"9410be3d8f4def3edfab5b236bebcafc366437a074b68f534d56084a195635fa\",\r\n\t\t\"CoordinateInverse.wl\":\"f6994d5da0a5dae44332cf11e79a47dfe817491224c0bdc55bae3fb403e3cd45\",\r\n\t\t\"CorePerturbation.wl\":\"a3af395e7d0a8554e2003ced31def5c902bf8df70c061e74f260bb8dcc6c09cf\",\r\n\t\t\"ExactTermination.wl\":\"269151674e4af3be5012a161d39f2981094a16ddb06ef2559cda5cbf50ed2c48\",\r\n\t\t\"ExponentialCorePerturbation.wl\":\"0eb5f5c72d385a4c24f1af2c30c89b2f0bec663f41106e771f4ae9718850a82d\",\r\n\t\t\"FlatSectorOperations.wl\":\"dd67077de75359af4ec76bbb9d63e8dcb83aea751543a809f3f9a7773d4659e0\",\r\n\t\t\"FlatSectors.wl\":\"d8caeb47a9ef4fd7649ce6f0d40a00f8f9a5f522d261926e54e4a7d1d443da96\",\r\n\t\t\"FourierCoefficients.wl\":\"83075c84e2f13e259872a1175a8a729e7e68f7a959a3eb5e2201095e784092ff\",\r\n\t\t\"IncrementalInverse.wl\":\"a410833cc04cfb857eeafe07072e39846e9df4bbb68089c870810b4e973c6e00\",\r\n\t\t\"InverseCertificates.wl\":\"d52eace1839982be54e89aa75c90dfe1012f1c26b2dae44cb43410e7edb15986\",\r\n\t\t\"LambertInverse.wl\":\"1da19f04df8efd2dc05405651026cf423bac019838e856143f8a7df90ab3a6cf\",\r\n\t\t\"LogarithmicScales.wl\":\"d4258c4529b8ceae3f990a32dbda9cb701097c684089987397033ef91f837327\",\r\n\t\t\"NumericalInverseChecks.wl\":\"bf1d7284e213a4e99bb4f00bd010af5749b8caf884211d9042f558d981f88094\",\r\n\t\t\"ReciprocalLogOperations.wl\":\"8d5d95767ece61a370562f7b52c235d7ef778c7b1466aecf1ccdfe734b4fb843\",\r\n\t\t\"RefinementRequests.wl\":\"12658bdf2b9d35b0886fb3c9301b3901402f0f8182124095d4df20220426bcaa\",\r\n\t\t\"RefinementState.wl\":\"dc4f88b5b97c7c3a9aca9620d8d95bbede91d3051ad460f71828bc51bf9f09ac\",\r\n\t\t\"SeriesOperations.wl\":\"08f82c9e1ef8faa2da6060f40e43ae4c928da1cdfc741dc071543d60ed3ca73d\",\r\n\t\t\"SourceCoordinates.wl\":\"29520105f2ff2d266eb8194b36824bec0a891f72df25ddf0524f2bd2536be675\",\r\n\t\t\"SpecialFunctionAdapters.wl\":\"deae27086814dc566514bc9757625c9ceed2faa25a102abb6dd39cb3ef14b841\"\r\n\t},\r\n\t\"RunnerSHA256\":\"1f50f1ee2476ca10f2d8de60996dbe8e44486fcf16f1b7444c4ba63deba38143\",\r\n\t\"EvidenceBoundary\":\"Exact symbolic oracle comparisons and explicit rejection contracts on the recorded kernel only.\"\r\n}"
+    },
+    "summary.json": {
+      "SHA256": "f91e1983536945526ca42bfafaff8c05abef29f1ef9af728755400520179273a",
+      "ContentText": "{\r\n\t\"KernelVersion\":\"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\",\r\n\t\"Seed\":236369,\r\n\t\"Passed\":32,\r\n\t\"Failed\":0,\r\n\t\"Directory\":\"C:\\\\Users\\\\vresh\\\\AppData\\\\Local\\\\Temp\\\\asymptotic-generated-final-64e058d4-57e7-43df-b00d-b4dcb27eb45a\",\r\n\t\"Cases\":[\r\n\t\t{\r\n\t\t\t\"Index\":1,\r\n\t\t\t\"Family\":\"RationalLogPolynomials\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00001.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":2,\r\n\t\t\t\"Family\":\"TwoIrrationalGaps\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00002.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":3,\r\n\t\t\t\"Family\":\"ThreeIrrationalGaps\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00003.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":4,\r\n\t\t\t\"Family\":\"RationalCancellation\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00004.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":5,\r\n\t\t\t\"Family\":\"IrrationalCollisionCancellation\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00005.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":6,\r\n\t\t\t\"Family\":\"LeftTranslatedLogBranch\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00006.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":7,\r\n\t\t\t\"Family\":\"ReciprocalSourceCoordinate\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00007.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":8,\r\n\t\t\t\"Family\":\"NegativeInfinityAndLeadingPower\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00008.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":9,\r\n\t\t\t\"Family\":\"NonunitLeadingAndObservablePowers\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00009.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":10,\r\n\t\t\t\"Family\":\"QuadraticLogAmplitudes\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00010.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":11,\r\n\t\t\t\"Family\":\"DeclaredRemainderAtBoundary\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00011.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":12,\r\n\t\t\t\"Family\":\"DeclaredRemainderBeyondBoundary\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00012.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":13,\r\n\t\t\t\"Family\":\"IndexBudgetRejection\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00013.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":14,\r\n\t\t\t\"Family\":\"DuplicateGapInputCancellation\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00014.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":15,\r\n\t\t\t\"Family\":\"ExactSourceLogCoordinate\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00015.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":16,\r\n\t\t\t\"Family\":\"ExactTargetLogCoordinate\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00016.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":17,\r\n\t\t\t\"Family\":\"RationalLogPolynomials\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00017.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":18,\r\n\t\t\t\"Family\":\"TwoIrrationalGaps\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00018.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":19,\r\n\t\t\t\"Family\":\"ThreeIrrationalGaps\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00019.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":20,\r\n\t\t\t\"Family\":\"RationalCancellation\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00020.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":21,\r\n\t\t\t\"Family\":\"IrrationalCollisionCancellation\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00021.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":22,\r\n\t\t\t\"Family\":\"LeftTranslatedLogBranch\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00022.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":23,\r\n\t\t\t\"Family\":\"ReciprocalSourceCoordinate\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00023.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":24,\r\n\t\t\t\"Family\":\"NegativeInfinityAndLeadingPower\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00024.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":25,\r\n\t\t\t\"Family\":\"NonunitLeadingAndObservablePowers\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00025.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":26,\r\n\t\t\t\"Family\":\"QuadraticLogAmplitudes\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00026.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":27,\r\n\t\t\t\"Family\":\"DeclaredRemainderAtBoundary\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00027.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":28,\r\n\t\t\t\"Family\":\"DeclaredRemainderBeyondBoundary\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00028.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":29,\r\n\t\t\t\"Family\":\"IndexBudgetRejection\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00029.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":30,\r\n\t\t\t\"Family\":\"DuplicateGapInputCancellation\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00030.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":31,\r\n\t\t\t\"Family\":\"ExactSourceLogCoordinate\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00031.json\"\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"Index\":32,\r\n\t\t\t\"Family\":\"ExactTargetLogCoordinate\",\r\n\t\t\t\"Passed\":true,\r\n\t\t\t\"FailureClass\":\"None\",\r\n\t\t\t\"EvidenceFile\":\"case-00032.json\"\r\n\t\t}\r\n\t]\r\n}"
+    }
+  }
+}

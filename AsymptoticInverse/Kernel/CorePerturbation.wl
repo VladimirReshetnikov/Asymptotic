@@ -2,10 +2,10 @@
    power-log cores and higher-power perturbations. Loaded in Private`. *)
 
 AsymptoticInverse`AsymptoticCoreInverse::usage =
-"AsymptoticCoreInverse[core, perturbation, {x,x0}, {y,n}, \"CoreInverse\"->phi] expands the selected real inverse of core+perturbation through marker degree n while retaining the exact core inverse phi. Supported finite power-log data have a nonzero leading source power and perturbation exponents strictly larger than that leading power. Marker terms are not an exponent-sorted power-log jet; the result records a proved asymptotic remainder and a separate first omitted marker term. CoreInverse->Automatic recognizes monomial and affine-log-power cores.";
+"AsymptoticCoreInverse[core, perturbation, {x,x0}, {y,n}, \"CoreInverse\"->phi] expands the selected real inverse of core+perturbation through marker degree n while retaining the exact core inverse phi. Supported finite power-log data have a nonzero leading source power and perturbation exponents strictly larger than that leading power. The nonzero exact real option Power returns x for r=1, (x-x0)^r at finite endpoints for r!=1, and x^r at infinity; a negative source side requires integer r. Marker terms are not an exponent-sorted power-log jet; the result records a proved asymptotic remainder and a separate first omitted marker term. CoreInverse->Automatic recognizes monomial, affine-log-power, and divergent power-plus-log cores.";
 
 Options[AsymptoticInverse`AsymptoticCoreInverse] = {
-  Assumptions -> True, Direction -> Automatic, "CoreInverse" -> Automatic,
+  Assumptions -> True, Direction -> Automatic, "Power" -> 1, "CoreInverse" -> Automatic,
   "InputRemainder" -> None, "MaxTerms" -> 20000,
   "CoreCheckTimeConstraint" -> 3, "SourceRadius" -> 1/E};
 
@@ -14,7 +14,7 @@ corePerturbationRealPolynomialQ[p_, ell_, ass_] := PolynomialQ[p, ell] &&
 
 corePerturbationModel[core_, perturbation_, x_, coord_, ell_, ass_] := Module[
   {u = coord["u"], f0, rr, rows, remainderRows, offset, nonconstant,
-   p, q, a, polynomial, gaps, d, b, simple},
+   p, q, a, polynomial, gaps, d, b, simple, powerPlusLog, logarithmicCoefficient},
   f0 = Simplify[core /. x -> coord["Substitution"], ass && u > 0];
   rr = Simplify[perturbation /. x -> coord["Substitution"], ass && u > 0];
   rows = parseFinite[f0, u, ell, ass];
@@ -24,8 +24,8 @@ corePerturbationModel[core_, perturbation_, x_, coord_, ell_, ass_] := Module[
   rows = jetMerge[rows, ell, ass]; remainderRows = jetMerge[remainderRows, ell, ass];
   If[! And @@ (exactRealQ[#[[1]]] && corePerturbationRealPolynomialQ[#[[2]], ell, ass] & /@ Join[rows, remainderRows]),
     fail["UnprovedCoreData", "Exponents must be exact real numbers and every coefficient must be provably real."]];
-  offset = Total[Cases[rows, {0, c_} /; FreeQ[c, ell] :> c]];
-  nonconstant = Select[rows, ! (#[[1]] === 0 && FreeQ[#[[2]], ell]) &];
+  offset = Total[Cases[rows, {0, c_} :> Coefficient[c, ell, 0]]];
+  nonconstant = jetMerge[({#[[1]], If[#[[1]] === 0, #[[2]] - offset, #[[2]]]} & /@ rows), ell, ass];
   If[nonconstant === {}, fail["ConstantCore", "A constant core has no local inverse."]];
   {p, polynomial} = First[nonconstant];
   If[p === 0, fail["UnsupportedCorePerturbation", "A purely logarithmic leading core needs a separate error-transport contract."]];
@@ -38,34 +38,47 @@ corePerturbationModel[core_, perturbation_, x_, coord_, ell_, ass_] := Module[
   d = If[remainderRows === {}, 0, Max[0, Max[polyDegree[#[[2]], ell] & /@ remainderRows] - q]];
   b = If[q === 0, 0, Simplify[Coefficient[polynomial, ell, q - 1]/(q a), ass]];
   simple = Length[nonconstant] === 1 && polyZeroQ[polynomial - a (ell + b)^q, ell, ass];
+  logarithmicCoefficient = Total[Cases[nonconstant, {0, c_} :> Coefficient[c, ell, 1]]];
+  powerPlusLog = less[p, 0] && q === 0 && Length[nonconstant] === 2 &&
+    Last[nonconstant][[1]] === 0 &&
+    polyZeroQ[Last[nonconstant][[2]] - logarithmicCoefficient ell, ell, ass] &&
+    (provablyPositive[a p/logarithmicCoefficient, ass] || provablyNegative[a p/logarithmicCoefficient, ass]);
   <|"CoreLocal" -> f0, "PerturbationLocal" -> rr, "CoreRows" -> rows,
     "PerturbationRows" -> remainderRows, "Offset" -> offset, "LeadingPower" -> p,
     "LeadingLogDegree" -> q, "LeadingCoefficient" -> a,
     "Amplitude" -> Simplify[a (-1)^q, ass], "AffineLogShift" -> b,
-    "AutomaticCore" -> simple, "Gaps" -> gaps,
+    "AutomaticCore" -> (simple || powerPlusLog),
+    "AutomaticCoreType" -> Which[simple, "MonomialOrAffineLogPower", powerPlusLog, "PowerPlusLog", True, Missing["UserCore"]],
+    "AdditiveLogCoefficient" -> logarithmicCoefficient, "Gaps" -> gaps,
     "MinimumGap" -> If[gaps === {}, Infinity, Min[gaps]], "RelativeLogDegree" -> d|>];
 
 corePerturbationAutomaticInverse[model_, coord_, y_, x0_, ass_] := Module[
   {p = model["LeadingPower"], q = model["LeadingLogDegree"], a = model["LeadingCoefficient"],
-   amp = model["Amplitude"], b = model["AffineLogShift"], v, u0, k, branch, argument, phi},
+   amp = model["Amplitude"], b = model["AffineLogShift"], v, u0, k, branch, argument, phi, d},
   If[! TrueQ[model["AutomaticCore"]], Return[$Failed, Module]];
   v = y - model["Offset"];
+  If[model["AutomaticCoreType"] === "PowerPlusLog",
+    d = model["AdditiveLogCoefficient"]/p; k = a/d;
+    branch = If[provablyPositive[k, ass], 0, -1];
+    argument = k Exp[v/d];
+    u0 = (ProductLog[branch, argument]/k)^(1/p),
   If[q === 0,
     u0 = (v/a)^(1/p); branch = Missing["Monomial"]; argument = Missing["Monomial"],
     k = -p/q; branch = If[less[0, k], 0, -1];
     argument = k (v/amp)^(1/q) Exp[p b/q];
-    u0 = (v/amp)^(1/p) (ProductLog[branch, argument]/k)^(-q/p)];
+    u0 = (v/amp)^(1/p) (ProductLog[branch, argument]/k)^(-q/p)]];
   phi = If[coord["Infinite"], coord["Sign"]/u0, x0 + coord["Sign"] u0];
   <|"Inverse" -> phi, "LocalInverse" -> u0, "LambertBranch" -> branch,
     "LambertArgument" -> argument,
     "Certificate" -> <|"Type" -> "RecognizedExactCore", "CoreIdentity" -> True,
-      "BranchConstruction" -> If[q === 0, "Positive monomial root", "Real Lambert branch with positive source coordinate tending to zero"]|>|>];
+      "CoreType" -> model["AutomaticCoreType"],
+      "BranchConstruction" -> If[MatchQ[branch, _Missing], "Positive monomial root", "Real Lambert branch with positive source coordinate tending to zero"]|>|>];
 
 corePerturbationChooseInverse[model_, requested_, core_, x_, x0_, y_, coord_, ass_, radius_, seconds_] := Module[
   {automatic, phi, u0, u = coord["u"], identity, comparison, certificate, conditions},
   automatic = corePerturbationAutomaticInverse[model, coord, y, x0, ass];
   If[requested === Automatic,
-    If[automatic === $Failed, fail["CoreInverseRequired", "Supply an exact CoreInverse for this core; automatic inversion currently recognizes a monomial or affine-log power."]];
+    If[automatic === $Failed, fail["CoreInverseRequired", "Supply an exact CoreInverse for this core; automatic inversion recognizes monomial, affine-log-power, and divergent power-plus-log cores."]];
     Return[automatic, Module]];
   If[! FreeQ[requested, x] || ! exactQ[requested] || ! FreeQ[requested, Indeterminate | _DirectedInfinity],
     fail["InvalidCoreInverse", "CoreInverse must be an exact finite expression in the target and parameters, independent of the source symbol."]];
@@ -101,6 +114,7 @@ corePerturbationTerm[n_, rlocal_, hprime_, fprime_, u_, limit_] := Module[{term,
 corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : OptionsPattern[AsymptoticInverse`AsymptoticCoreInverse]] := Module[
   {ass = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, Assumptions],
    dir = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, Direction],
+   r = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, "Power"],
    requested = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, "CoreInverse"],
    input = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, "InputRemainder"],
    limit = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, "MaxTerms"],
@@ -109,25 +123,30 @@ corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : Opti
    coord, u, ell = Unique["ell$"], model, inverse, phi, u0, fp, hp, localTerms, markerTerms,
    expression, firstOmitted, n, p, q, delta, degree, rint, pd, truncationPair,
    inputPair = None, rho, logdegree, domain, side, targetLimit, rem, scale,
-   exactPerturbation, majorant, sourceAssumptions},
+   exactPerturbation, majorant, sourceAssumptions, observable, coreObservable},
   validateInput[core + perturbation, limit];
   If[x === y || ! FreeQ[core + perturbation, y], fail["InvalidVariables", "Use distinct source and target symbols, with no target symbol in the forward data."]];
   If[! FreeQ[ass, x | y], fail["InvalidAssumptions", "Assumptions concern parameters; the source branch is specified by endpoint and direction."]];
   If[! IntegerQ[depth] || depth < 0, fail["InvalidDepth", "The marker depth must be a nonnegative integer."]];
+  If[! exactRealQ[r] || r === 0, fail["InvalidOption", "Power must be a nonzero exact real number."]];
   If[depth + 1 > limit, fail["ResourceLimit", "Marker depth and its first omitted coefficient exceed MaxTerms."]];
   If[! NumericQ[seconds] || ! TrueQ[seconds > 0] || ! exactRealQ[radius] || ! less[0, radius],
     fail["InvalidOption", "CoreCheckTimeConstraint and the exact real SourceRadius must be positive."]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"];
+  If[coord["Sign"] =!= 1 && ! IntegerQ[r],
+    fail["InvalidOption", "A noninteger Power requires a positive source displacement at a finite endpoint, or the positive infinite endpoint."]];
   model = corePerturbationModel[core, perturbation, x, coord, ell, ass];
   inverse = corePerturbationChooseInverse[model, requested, core, x, x0, y, coord, ass, radius, seconds];
   phi = inverse["Inverse"]; u0 = inverse["LocalInverse"];
   {p, q, delta, degree} = Lookup[model, {"LeadingPower", "LeadingLogDegree", "MinimumGap", "RelativeLogDegree"}];
-  rint = If[coord["Infinite"], -1, 1];
+  rint = If[coord["Infinite"], -r, r];
+  observable = If[r === 1, coord["Substitution"], coord["Sign"]^r u^rint];
+  coreObservable = If[r === 1, phi, coord["Sign"]^r u0^rint];
   exactPerturbation = model["PerturbationRows"] === {};
-  fp = D[model["CoreLocal"], u]; hp = D[coord["Substitution"], u];
+  fp = D[model["CoreLocal"], u]; hp = D[observable, u];
   localTerms = If[exactPerturbation, {}, Table[
     {n, corePerturbationTerm[n, model["PerturbationLocal"], hp, fp, u, limit]}, {n, 1, depth + 1}]];
-  markerTerms = Join[{{0, phi}}, ({#[[1]], #[[2]] /. u -> u0} & /@ Take[localTerms, UpTo[depth]])];
+  markerTerms = Join[{{0, coreObservable}}, ({#[[1]], #[[2]] /. u -> u0} & /@ Take[localTerms, UpTo[depth]])];
   expression = Total[markerTerms[[All, 2]]];
   firstOmitted = If[exactPerturbation, 0, localTerms[[-1, 2]] /. u -> u0];
   truncationPair = If[exactPerturbation, {Infinity, 0},
@@ -157,6 +176,10 @@ corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : Opti
     "Expression" -> expression, "Variable" -> y, "Variables" -> {x, y},
     "Function" -> core + perturbation, "Core" -> core, "Perturbation" -> perturbation,
     "CoreInverse" -> phi, "CoreLocalInverse" -> u0, "CoreCertificate" -> inverse["Certificate"],
+    "CoreObservableExpression" -> coreObservable, "LocalObservableExpression" -> observable,
+    "LocalObservablePower" -> rint,
+    "ObservableExpression" -> If[r === 1, x, If[coord["Infinite"], x^r, (x - x0)^r]],
+    "ObservableConvention" -> "Power 1 returns the source x; any other power returns (x-x0)^r at a finite endpoint and x^r at an infinite endpoint.",
     "CoreModel" -> model, "MarkerTerms" -> markerTerms, "Terms" -> markerTerms,
     "LocalMarkerTerms" -> localTerms, "FirstOmittedMarkerTerm" -> firstOmitted,
     "FirstOmittedMarkerDegree" -> depth + 1, "MarkerDepth" -> depth,
@@ -171,7 +194,7 @@ corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : Opti
     "TargetDomain" -> domain, "SourceAssumptions" -> sourceAssumptions,
     "Assumptions" -> ass, "LeadingPower" -> p, "LeadingCoefficient" -> model["Amplitude"],
     "ExactModel" -> MemberQ[{None, Automatic}, input], "ExactInverse" -> (rem === 0),
-    "Truncation" -> "Depth", "Power" -> 1, "Cutoff" -> Missing["MarkerDepth"],
+    "Truncation" -> "Depth", "Power" -> r, "Cutoff" -> Missing["MarkerDepth"],
     "SeriesData" -> Missing["ExactCoreMarkerScale"],
     "RemainderDerivativeOrder" -> 0|>]];
 
