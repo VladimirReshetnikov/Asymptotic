@@ -30,7 +30,7 @@ barnesInverseBranch[data_, target_, targetSide_, ass_, limit_, selection_] := Mo
   {body, x, condition, model, implication, sourceSign, point, coord, expected,
    side, derivativeSign, selectionDirection, radius, boundary, domain, proof},
   {body, x, condition} = Lookup[data, {"Body", "SourceVariable", "Condition"}];
-  If[FreeQ[body, _BarnesG], Return[$Failed, Module]];
+  If[FreeQ[body, _BarnesG | _LogBarnesG], Return[$Failed, Module]];
   model = gammaInverseModel[body, x, ass];
   If[model === $Failed || ! TrueQ[model["IsBarnes"]], Return[$Failed, Module]];
   implication = inverseBranchTry[FullSimplify[Implies[condition, model["Argument"] > 3],

@@ -45,7 +45,7 @@ inverseBranchContinuousQ[body_, x_] := Module[{heads},
   FreeQ[body, ArcTan[_, _]] &&
   And @@ (MemberQ[{Plus, Times, Power, Log, Exp, Abs, Sin, Cos, Tan, Cot, Sec, Csc,
     Sinh, Cosh, Tanh, Coth, Sech, Csch, ArcSin, ArcCos, ArcTan,
-    ArcSinh, ArcCosh, ArcTanh, Erf, Erfc, Gamma, LogGamma, BarnesG, ProductLog}, #] & /@ heads)];
+    ArcSinh, ArcCosh, ArcTanh, Erf, Erfc, Gamma, LogGamma, BarnesG, LogBarnesG, ProductLog}, #] & /@ heads)];
 
 inverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[
   {left = Unique["left$"], right = Unique["right$"], middle = Unique["middle$"],

@@ -79,12 +79,17 @@ gammaForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Modu
 gammaLogarithmNormalize[f_, x_, ass_, coord_, limit_] := Module[
   {walk, changed = False, analyticLogarithm = False, domains = {}, normalized, simplified, reduced},
   walk[e_] := Module[{value, source},
-    If[AtomQ[e] || FreeQ[e, _Log | _LogGamma] ||
-       FreeQ[e, _Gamma | _LogGamma | _BarnesG | _Factorial | _Binomial | _Beta | _Pochhammer] ||
+    If[AtomQ[e] || FreeQ[e, _Log | _LogGamma | _LogBarnesG] ||
+       FreeQ[e, _Gamma | _LogGamma | _BarnesG | _LogBarnesG | _Factorial | _Binomial | _Beta | _Pochhammer] ||
        ! MatchQ[Head[e], _Symbol] || MemberQ[{Piecewise, ConditionalExpression}, Head[e]] ||
        ! FreeQ[With[{head = Head[e]}, Attributes[head]], HoldAll | HoldAllComplete | HoldFirst | HoldRest],
       Return[e, Module]];
     value = Map[walk, e];
+    If[Head[value] === LogBarnesG && Length[value] === 1 && ! FreeQ[value, x] &&
+       inverseFunctionEventually[(First[value] /. x -> coord["Substitution"]) > 0, coord["u"], ass],
+      changed = True; AppendTo[domains, First[value] > 0];
+      value = barnesLogShift[First[value], x, ass, coord, limit];
+      AppendTo[domains, barnesLogDomain[value]]];
     If[Head[value] === LogGamma && Length[value] === 1 &&
        inverseFunctionEventually[(First[value] /. x -> coord["Substitution"]) > 0, coord["u"], ass],
       analyticLogarithm = True; AppendTo[domains, First[value] > 0]];
@@ -132,7 +137,7 @@ logarithmicForwardExpansion[f_, logFunction_, sign_, domain_, x_, x0_, cutoff0_,
     (* A finite exact factor can disappear into Log and acquire a spurious
        Taylor tail. Recover it from the exact logarithmic identity, never
        from cancellation in a finite asymptotic model. *)
-    If[tries === 1 && FreeQ[logFunction, _LogGamma | _Gamma | _barnesLog | _BarnesG],
+    If[tries === 1 && FreeQ[logFunction, _LogGamma | _Gamma | _barnesLog | _BarnesG | _LogBarnesG],
       normalized = TimeConstrained[FullSimplify[Exp[logFunction]/data["Prefactor"], ass && domain], 3, $Failed];
       If[normalized =!= $Failed,
         (* Simplification can reintroduce separately unbounded factors.

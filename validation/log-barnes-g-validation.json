@@ -1,0 +1,95 @@
+{
+  "Purpose": "Native LogBarnesG forward and inverse expansions on the positive real branch, with shared ordered Barnes coefficients and native logarithmic numerical equations",
+  "BaselineCommit": "7d3da2c5243d47bf0470c59ce6908bce09af5226",
+  "FullPackageSuiteRun": false,
+  "NativeRegression": {
+    "ResultFile": "validation/log-barnes-g-tests.json",
+    "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "Succeeded": 134,
+    "Failed": 0,
+    "Suites": [
+      "LogBarnesG.wlt",
+      "BarnesGInverse.wlt",
+      "GammaInverse.wlt",
+      "GammaLogarithms.wlt",
+      "InverseFunctionBranches.wlt",
+      "BarnesGForward.wlt"
+    ],
+    "TestedKernelTestAndRunnerByteHashesVerified": true
+  },
+  "ValidationScope": "17 independent native LogBarnesG tests plus 117 adjacent inverse Barnes, inverse Gamma, logarithmic Gamma, inverse-branch and Barnes forward regressions. Six explicitly selected files; no full package suite.",
+  "NumericalEvidence": {
+    "ExactTargets": [
+      "LogBarnesG[100]",
+      "LogBarnesG[1000]"
+    ],
+    "KnownSourceRoots": [
+      100,
+      1000
+    ],
+    "WorkingPrecision": 60,
+    "ReferenceRootAbsoluteErrorLessThan": "10^-45",
+    "NativePhaseResidualComparedIndependently": true,
+    "Certified": false
+  },
+  "ImplementationReview": "Independent static review checked strict outer-shape family classification, native and wrapped logarithm cancellation, exact shift recurrences, held-expression traversal, positivity-domain retention, finite Taylor fallback and native exact numerical phases. Native constants are preserved rather than lowered to a private coefficient head.",
+  "DomainContract": "A varying native LogBarnesG argument must be eventually positive. The inverse increasing branch has Barnes argument greater than three and logarithmic target greater than zero. Callable-domain exclusion is checked at a negative target rather than numerically substituting zero into the reciprocal coordinate at infinity.",
+  "StaticDocumentationChecks": {
+    "Guide": {
+      "PublicSymbols": 36,
+      "Anchors": 159,
+      "Links": 88,
+      "BrokenLocalLinks": 0,
+      "DuplicateAnchors": 0,
+      "GeneratedHTMLMatchesSources": true
+    },
+    "MathematicalChapters": 30,
+    "MathematicalLabels": 290,
+    "MathematicalReferences": 265,
+    "BibliographyEntries": 11,
+    "MissingReferences": 0,
+    "MissingCitations": 0,
+    "LandingPageLocalLinks": 48,
+    "PreservedEngineeringFiles": 6,
+    "FullPackageSuiteRun": false
+  },
+  "MathematicalArticle": {
+    "SourceChanged": false,
+    "PDFChanged": false,
+    "PDF": "article/asymptotic-inverse.pdf",
+    "PDFSHA256": "ec00351eb23fea0220ab03220854b80c9e541cda45c81586fef987c73961b69a",
+    "PageCount": 87,
+    "PriorRenderReview": "validation/barnes-g-inverse-validation.json",
+    "Scope": "The existing logarithmic Barnes inverse theorem applies without a new mathematical construction. Source and PDF are unchanged; the prior reviewed PDF hash was verified. No new LaTeX build or PDF render was needed."
+  },
+  "GuideBrowserReview": {
+    "DesktopViewport": [
+      1365,
+      1000
+    ],
+    "MobileViewport": [
+      390,
+      844
+    ],
+    "DesktopDocumentWidth": 1365,
+    "MobileDocumentWidth": 390,
+    "Anchor": "log-barnes-inverse",
+    "Scope": "Native applied inverse section screenshots visually inspected at both widths; no document overflow. Static link and API-anchor checks passed."
+  },
+  "PrimaryNativeFunctionReference": "https://reference.wolfram.com/language/ref/LogBarnesG.html",
+  "TextHashConvention": "SHA256 of UTF-8 text after universal-newline normalization",
+  "TextSHA256": {
+    "AsymptoticInverse/Documentation/UserGuide.html": "3077c6aac6429c6bcd9ff607ffc7b9e79bb74dba51ea498d9a46aa955b6c361e",
+    "AsymptoticInverse/Documentation/UserGuide.md": "082be922cc9fc925aeeef7a02750ab66ac7ac9c893cfdee96eacb20edb02896a",
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "e61eeccb5915cc40028ed5fb13c8b7e55bea73a25bfdcfd684c3ebddb00cca39",
+    "AsymptoticInverse/Kernel/BarnesForward.wl": "e29b45bdeb3e975b3a2d457bf4d71bf80cfb17bed55e3caf2ae1d2185bea6808",
+    "AsymptoticInverse/Kernel/BarnesInverse.wl": "56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
+    "AsymptoticInverse/Kernel/BarnesInverseChecks.wl": "89bdf4ac3da37afd7afe58899954a14d2e019b161ef686f94c76a39874b697eb",
+    "AsymptoticInverse/Kernel/GammaForward.wl": "14fde493ca257e03d6a09e3223be8babefd443ecbaab87414dbe2fc9c1a0322c",
+    "AsymptoticInverse/Kernel/GammaInverse.wl": "3039ec9db86fee866cf6290e6c4fc14df3aca7963d0badfbbb172e9c73ca3618",
+    "AsymptoticInverse/Kernel/InverseFunctionBranches.wl": "727c43fd3e873a3853caa82ddbbd83be18d1923353e8be62f154e904e804eafe",
+    "validation/README.md": "d80f840bd9f483b4ca02eb909de4882647af0f55f7505dbde1af1e0270fdbe43",
+    "AsymptoticInverse/Tests/LogBarnesG.wlt": "ab80e290b345522bfa88abc626f58ac6a6698af21d05de11524c81b381925716",
+    "validation/CheckLogBarnesG.wl": "2a5d8cfcd3b961190ea2b3bca39eb57366c34082ea7dfcc2c9231dfd9f110fe8"
+  }
+}

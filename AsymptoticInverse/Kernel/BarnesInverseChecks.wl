@@ -48,7 +48,7 @@ barnesInverseResidual[a_Association, h_, limit_] := Module[
     "ScaleVariable" -> 1/a["CoreInverse"], "CoefficientVariable" -> q,
     "CoefficientSubstitution" -> a["CoefficientSubstitution"],
     "ExactEquationResidualExpression" -> exactResidual,
-    "Normalization" -> "(Log[BarnesG[SourceScale source+SourceOffset]]-targetCoordinate)/(CoreInverse^2 CoreLogExpression).",
+    "Normalization" -> "(LogBarnesG[SourceScale source+SourceOffset]-targetCoordinate)/(CoreInverse^2 CoreLogExpression).",
     "ForwardModelTerms" -> modelTerms, "ModelRemainderPower" -> modelPower,
     "ModelRemainderScaleExpression" -> 1/(a["CoreInverse"]^modelPower a["CoreLogExpression"]),
     "ForwardRemainderContract" -> <|"Type" -> "BarnesPoincareAtFixedOrder",

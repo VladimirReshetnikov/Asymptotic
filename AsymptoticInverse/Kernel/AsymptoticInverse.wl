@@ -24,7 +24,7 @@ For supported Gamma/Barnes G products, ratios, real varying powers and elementar
 the cutoff and term goal apply to the power-log correction bracket.
 Increasing Gamma and LogGamma inverses, their admitted affine forms and fixed powers use Scale -> \"GammaInverse\": \
 each block is a complete polynomial in 1/Log[CoreInverse] at one power of 1/CoreInverse. \
-The increasing Barnes G inverse uses Scale -> \"BarnesGInverse\", with coefficients polynomial in 1/(Log[CoreInverse]-1). \
+Increasing BarnesG and LogBarnesG inverses use Scale -> \"BarnesGInverse\", with coefficients polynomial in 1/(Log[CoreInverse]-1). \
 Real logarithms of supported positive Gamma products are normalized to LogGamma before ordinary absolute power-log expansion. \
 See Documentation/UserGuide.md for the admitted real domains and scales.";
 
@@ -39,7 +39,7 @@ the cutoff and term count apply to the unit bracket after extracting Prefactor, 
 the positive inverse-logarithmic variable LogarithmicVariable. See Documentation/UserGuide.md \
 for this scale's branch and remainder conventions.
 Gamma and LogGamma at a source infinity with Gamma argument tending to positive infinity use Scale -> \"GammaInverse\". \
-BarnesG and Log[BarnesG] use Scale -> \"BarnesGInverse\", with an exact Lambert core for the Barnes argument minus one. \
+BarnesG, LogBarnesG and the positive-real Log[BarnesG] use Scale -> \"BarnesGInverse\", with an exact Lambert core for the Barnes argument minus one. \
 The cutoff is exclusive in 1/CoreInverse and the term goal counts complete polynomial inverse-logarithmic blocks. \
 Power specifies a fixed real source observable, with integer powers required on negative source branches.";
 
@@ -330,6 +330,10 @@ fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e]},
    inverseFunctionApplicationQ[e], inverseFunctionForwardJet[e, u, ell, ass, Kw, limit],
    FreeQ[e, u], pConst[e, ell, ass],
    e === u, pVar,
+   h === LogBarnesG,
+     If[! inverseFunctionEventually[e[[1]] > 0, u, ass],
+       fail["UnsupportedBarnesArgument", "The logarithmic Barnes expansion requires an eventually positive argument."]];
+     barnesLogJet[e[[1]], u, ell, ass, Kw, limit],
    h === barnesLog, barnesLogJet[e[[1]], u, ell, ass, Kw, limit],
    h === Plus, Fold[pAdd[#1, fwd[#2, u, ell, ass, Kw, limit], ell, ass] &, pConst[0, ell, ass], List @@ e],
    h === Times, Fold[pMul[#1, fwd[#2, u, ell, ass, Kw, limit], ell, ass, limit] &, pConst[1, ell, ass], List @@ e],
@@ -583,7 +587,7 @@ forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] :
     "TargetDomain" -> Lookup[result[[1]], "TargetDomain", True] && normalized["Domain"],
     "NormalizedExpression" -> normalized["Expression"],
     "Transformation" -> "Real logarithms of positive Gamma and Barnes G products are normalized before ordinary power-log expansion.",
-    "AsymptoticReference" -> If[FreeQ[f, _BarnesG], "https://dlmf.nist.gov/5.11.E1", "https://dlmf.nist.gov/5.17.E5"]|>]]];
+    "AsymptoticReference" -> If[FreeQ[f, _BarnesG | _LogBarnesG], "https://dlmf.nist.gov/5.11.E1", "https://dlmf.nist.gov/5.17.E5"]|>]]];
 
 makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := Module[
   {T, P, D, kept, omitted, remData, wexpr, logw, expr, terms, frontier, sd},

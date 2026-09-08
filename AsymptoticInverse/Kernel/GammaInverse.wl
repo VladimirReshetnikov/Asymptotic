@@ -5,7 +5,7 @@
 gammaInverseModel[f_, x_, ass_] := Module[
   {parts, offset, dependent, factors, constant, variable, factor, family, power = 1,
    argument, slope, shift, barnes, logarithmic},
-  If[FreeQ[f, _Gamma | _LogGamma | _BarnesG], Return[$Failed, Module]];
+  If[FreeQ[f, _Gamma | _LogGamma | _BarnesG | _LogBarnesG], Return[$Failed, Module]];
   parts = If[Head[f] === Plus, List @@ f, {f}];
   offset = Total[Select[parts, FreeQ[#, x] &]];
   dependent = Select[parts, ! FreeQ[#, x] &];
@@ -17,9 +17,9 @@ gammaInverseModel[f_, x_, ass_] := Module[
   factor = First[variable];
   If[MatchQ[factor, Power[_Gamma | _BarnesG, p_] /; FreeQ[p, x]],
     power = factor[[2]]; factor = factor[[1]]];
-  If[! MatchQ[factor, Gamma[_] | LogGamma[_] | BarnesG[_] | Log[BarnesG[_]]], Return[$Failed, Module]];
-  barnes = MatchQ[factor, BarnesG[_] | Log[BarnesG[_]]];
-  logarithmic = MemberQ[{Log, LogGamma}, Head[factor]];
+  If[! MatchQ[factor, Gamma[_] | LogGamma[_] | BarnesG[_] | LogBarnesG[_] | Log[BarnesG[_]]], Return[$Failed, Module]];
+  barnes = MatchQ[factor, BarnesG[_] | LogBarnesG[_] | Log[BarnesG[_]]];
+  logarithmic = MemberQ[{Log, LogGamma, LogBarnesG}, Head[factor]];
   family = If[barnes, If[logarithmic, "LogBarnesG", "BarnesG"],
     If[logarithmic, "LogGamma", "Gamma"]];
   argument = If[Head[factor] === Log, factor[[1, 1]], First[factor]];
@@ -91,10 +91,10 @@ gammaInverseConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[Asymptotic
   If[! exactRealQ[r] || r === 0 || (sourceSign === -1 && ! IntegerQ[r]),
     fail["InvalidPower", "The inverse observable needs a nonzero exact real power; a negative source branch requires an integer power."]];
   If[! MemberQ[{"Lagrange", "Newton", "GroupedLagrange"}, method],
-    fail["UnsupportedMethod", "The Gamma inverse uses ordered Stirling reversion; the requested method is not supported."]];
+    fail["UnsupportedMethod", "These inverse families use ordered reversion of their logarithmic asymptotic model; the requested method is not supported."]];
   If[! MemberQ[{Automatic, None}, input],
-    fail["UnsupportedInputRemainder", "A declared additive error must first be transported to the LogGamma equation."]];
-  If[truncation =!= "Exponent", fail["UnsupportedTruncation", "The automatic Gamma inverse uses an exclusive core-power cutoff. Use AsymptoticSpecialInverse for marker depth."]];
+    fail["UnsupportedInputRemainder", "A declared additive error must first be transported to the logarithmic Gamma or Barnes equation."]];
+  If[truncation =!= "Exponent", fail["UnsupportedTruncation", "These inverse families use an exclusive core-power cutoff."]];
   If[cutoff === Automatic,
     If[! IntegerQ[goal] || goal < 1, fail["InvalidCutoff", "Give a core-power cutoff or a positive integer SeriesTermGoal."]]; n = goal,
     If[! exactRealQ[cutoff] || ! less[-r, cutoff], fail["InvalidCutoff", "The core-power cutoff must exceed the leading exponent -Power."]];
@@ -143,7 +143,7 @@ gammaInverseConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[Asymptotic
         (y - model["TargetOffset"])/model["TargetScale"] > 1,
         0 < (y - model["TargetOffset"])/model["TargetScale"] < 1], target > 0],
     "TargetCoordinateExpression" -> target,
-    "ExactTransformedFunction" -> If[barnes, Log[BarnesG[model["Argument"]]], LogGamma[model["Argument"]]],
+    "ExactTransformedFunction" -> If[barnes, LogBarnesG[model["Argument"]], LogGamma[model["Argument"]]],
     "SourceScale" -> model["SourceScale"], "SourceOffset" -> model["SourceOffset"],
     "TargetScale" -> model["TargetScale"], "TargetOffset" -> model["TargetOffset"],
     "Power" -> r, "Method" -> If[barnes, "OrderedBarnesReversion", "OrderedStirlingReversion"], "RequestedMethod" -> method,

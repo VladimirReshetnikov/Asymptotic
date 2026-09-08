@@ -106,7 +106,7 @@ barnesLogJet[arg_, u_, ell_, ass_, Kw_, limit_] := Module[
   If[Kw === Infinity, fail["InfiniteSeries", "The Barnes logarithm requires a finite Poincare working order."]];
   If[! inverseFunctionEventually[z > 0, u, ass] ||
       inverseBranchTry[Limit[z, u -> 0, Direction -> "FromAbove", Assumptions -> ass]] =!= Infinity,
-    Return[fwdSeries[Log[BarnesG[arg]], u, ell, ass, Kw, limit], Module]];
+    Return[fwdSeries[LogBarnesG[arg], u, ell, ass, Kw, limit], Module]];
   leading = fwd[z, u, ell, ass, Max[1, Kw], limit][[1]];
   If[leading === {} || ! less[leading[[1, 1]], 0] || ! FreeQ[leading[[1, 2]], ell],
     fail["UnsupportedBarnesArgument", "The growing Barnes argument must have a pure-power leading block."]];

@@ -1,5 +1,39 @@
 # Review and validation record
 
+The native `LogBarnesG` update is recorded in `log-barnes-g-tests.json`
+and `log-barnes-g-validation.json`. **All 134 focused tests passed**,
+with zero failures on Wolfram 15.0.1 for Windows. The full package suite
+was skipped at the user's request. The runner selects 17 new native-log
+tests and five adjacent Barnes, Gamma, and branch regression files.
+
+The requested applied inverse now uses the existing Barnes coefficient
+calculus with the unlogged target coordinate. Tests independently check
+its three blocks and frontier, affine forms, powers, refinement, source
+and target domains, formal residuals, and 60-digit numerical references
+with known source roots 100 and 1000. The exact checking equation uses
+native `LogBarnesG` for all positive Barnes inverse forms.
+
+Forward checks cover the five-block expansion, shifted sparse corrections,
+finite positive Taylor expansion, exact native/wrapped-log cancellation,
+the Barnes recurrence, and exponentiation. Native constants remain intact
+and cannot change the inverse family when used inside Gamma arguments.
+Expansion of a varying `LogBarnesG` argument requires an eventually positive
+argument; nonpositive tails are rejected before native generic series expansion.
+
+The Wolfram-style user guide includes the literal native inverse and
+forward syntax, logarithmic target domain, and numerical examples. Its
+HTML was rebuilt, checked for local links, and visually reviewed at
+desktop and mobile widths. The mathematical article already proves this
+logarithmic inverse expansion; its source and previously reviewed PDF are
+unchanged, and the PDF hash was verified.
+
+To reproduce this focused milestone:
+
+```powershell
+wolfram.exe -script validation/CheckLogBarnesG.wl
+python validation/check_documentation.py
+```
+
 The increasing Barnes G inverse update is recorded in
 `barnes-g-inverse-tests.json` and `barnes-g-inverse-validation.json`.
 **All 142 focused tests passed**, with zero failures on Wolfram 15.0.1

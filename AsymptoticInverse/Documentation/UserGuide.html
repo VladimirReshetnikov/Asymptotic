@@ -448,8 +448,8 @@ coordinate.</td>
 <code>s[&quot;Prefactor&quot;]</code>.</td>
 </tr>
 <tr>
-<td><code>LogGamma</code> or a supported real logarithm of a Gamma or
-Barnes G product</td>
+<td><code>LogGamma</code>, <code>LogBarnesG</code>, or a supported real
+logarithm of a Gamma or Barnes G product</td>
 <td>Ordinary exclusive exponent bound in the positive local coordinate;
 complete logarithmic polynomials count as blocks.</td>
 </tr>
@@ -920,6 +920,12 @@ Normal[s]</code></pre>
 <code>-2</code>, <code>-1</code>, <code>0</code>, <code>1</code>, and
 <code>2</code> in <code>1/x</code>; the absolute remainder is
 <code>PowerLogRemainder[1/x, 3, 0]</code>.</p>
+<p>The package also accepts Wolfram Language&#39;s built-in <a href="https://reference.wolfram.com/language/ref/LogBarnesG.html">LogBarnesG</a>.
+On the admitted positive real arguments, <code>LogBarnesG[x]</code> and
+<code>Log[BarnesG[x]]</code> give the same expansion and remainder. The
+native function supports arbitrary-precision numerical evaluation:</p>
+<pre class="wolfram"><code>AsymptoticExpansion[LogBarnesG[x], x -&gt; Infinity, SeriesTermGoal -&gt; 5]
+N[LogBarnesG[1000], 60]</code></pre>
 <p>The same product interface admits fixed and varying real powers,
 positive scaled and shifted arguments, reciprocal coordinates, and mixed
 Gamma/Barnes products when their combined logarithmic expansion is
@@ -1408,19 +1414,38 @@ Barnes G:</p>
 <pre class="wolfram"><code>g = AsymptoticInverse[BarnesG[x], {x, Infinity}, z,
   SeriesTermGoal -&gt; 3];
 
-lg = AsymptoticInverse[Log[BarnesG[x]], {x, Infinity}, z,
+lg = AsymptoticInverse[LogBarnesG[x], {x, Infinity}, z,
   SeriesTermGoal -&gt; 3];</code></pre>
-<p>For the logarithmic forward function, the dominant inverse is
+<p>For the logarithmic forward function, <code>LogBarnesG[x]</code> and
+<code>Log[BarnesG[x]]</code> are admitted equivalent forms on the
+positive real branch. Their logarithmic target coordinate is
+<code>Y = z</code>, and their dominant inverse is
 <code>Sqrt[4 z/ProductLog[4 z/E^3]]</code>. The same coefficient
 polynomials apply with this core in place of <code>X</code>.</p>
+<p><a id="log-barnes-inverse"></a> Expand a directly applied inverse of
+the native logarithm:</p>
+<pre class="wolfram"><code>sl = AsymptoticExpansion[
+  InverseFunction[
+    x |-&gt; ConditionalExpression[LogBarnesG[x], x &gt; 3]][z],
+  z -&gt; Infinity, SeriesTermGoal -&gt; 3];
+Normal[sl]</code></pre>
+<p>Its three complete blocks have the form displayed above with</p>
+<pre class="wolfram"><code>X = Sqrt[4 z/ProductLog[4 z/E^3]];
+q = 1/(Log[X] - 1);</code></pre>
+<p>The result retains <code>&quot;Scale&quot; -&gt; &quot;BarnesGInverse&quot;</code> and
+the remainder <code>PowerLogRemainder[1/X, 2, 0]/(Log[X] - 1)^3</code>.
+The original native source expression and its branch are retained for
+refinement.</p>
 </section>
 <section id="details-and-options-3" class="level3">
 <h3>Details and Options</h3>
 <p>The condition <code>x &gt; 3</code> selects an interval on which
-Barnes G is strictly increasing, with target <code>z &gt; 1</code>.
-Conditions attached to a callable inverse must establish the admitted
-source branch. Additional source and target conditions are preserved
-during refinement and checked by the numerical helper.</p>
+Barnes G is strictly increasing, with target <code>z &gt; 1</code>. For
+<code>LogBarnesG</code> on the same source interval, the target is
+<code>z &gt; 0</code>. Conditions attached to a callable inverse must
+establish the admitted source branch. Additional source and target
+conditions are preserved during refinement and checked by the numerical
+helper.</p>
 <p>With a broader source condition, select the endpoint explicitly:</p>
 <pre class="wolfram"><code>inv = InverseFunction[t |-&gt; ConditionalExpression[BarnesG[t], t &gt; 0]];
 AsymptoticExpansion[inv[z], z -&gt; Infinity, SeriesTermGoal -&gt; 3,
@@ -1467,7 +1492,7 @@ coefficient variable.</td>
 </tr>
 <tr>
 <td><code>&quot;TargetCoordinateExpression&quot;</code></td>
-<td>Target of the equivalent real <code>Log[BarnesG[...]]</code>
+<td>Target of the equivalent real <code>LogBarnesG[...]</code>
 equation.</td>
 </tr>
 </tbody>
@@ -1504,8 +1529,8 @@ real values and the required nonzero signs; use <code>Assumptions</code>
 for symbolic parameters.</p>
 <p>The last example approaches target zero from below and uses
 <code>Y = -Log[-z]</code>. Affine logarithmic forward expressions
-<code>d + a Log[BarnesG[alpha x + beta]]</code> instead use
-<code>Y = (z - d)/a</code>.</p>
+<code>d + a LogBarnesG[alpha x + beta]</code>, or their admitted
+<code>Log[BarnesG[...]]</code> form, use <code>Y = (z - d)/a</code>.</p>
 </section>
 <section id="powers-refinement-and-checks" class="level3">
 <h3>Powers, Refinement, and Checks</h3>
@@ -1544,9 +1569,16 @@ normalized by <code>X^2 (Log[X] - 1)</code>. Read its
 not make the truncated model exact.</p>
 <p>The numerical check solves the original logarithmic Barnes equation
 on the retained real branch and also supports powered source
-observables. Supply an exact target or sufficient input precision and
-resolve fixed parameters numerically. Its <code>&quot;Certified&quot;</code>
-property is <code>False</code>.</p>
+observables. It evaluates the exact logarithmic phase with native
+<code>LogBarnesG</code> on the positive Barnes branch. Supply an exact
+target or sufficient input precision and resolve fixed parameters
+numerically. Its <code>&quot;Certified&quot;</code> property is
+<code>False</code>.</p>
+<p>A native logarithmic target permits a comparison with a known source
+value:</p>
+<pre class="wolfram"><code>checkLog = InverseNumericalCheck[lg, LogBarnesG[1000],
+  WorkingPrecision -&gt; 60];
+{checkLog[&quot;ReferenceRoot&quot;], checkLog[&quot;Error&quot;]}</code></pre>
 <p>Generic series addition, multiplication, logarithms, exponentials,
 composition, and differentiation do not accept this inverse coefficient
 scale. Interval certification and certificate-based tolerance refinement
@@ -2498,6 +2530,7 @@ unsupported scale, available precision, or best expansion.</p>
 <a href="https://reference.wolfram.com/language/ref/Function.html">Function</a>,
 <a href="https://reference.wolfram.com/language/ref/ConditionalExpression.html">ConditionalExpression</a>,
 <a href="https://reference.wolfram.com/language/ref/ProductLog.html">ProductLog</a>,
+<a href="https://reference.wolfram.com/language/ref/LogBarnesG.html">LogBarnesG</a>,
 <a href="https://reference.wolfram.com/language/ref/Normal.html">Normal</a>.</p>
 </section>
 <section id="related-guides" class="level2">
