@@ -275,7 +275,10 @@ divergent retain ordinary absolute power-log semantics; examples include
 `Exp[x]` at zero, `(1 + 1/x)^x` at infinity, and
 `1/(Exp[x^5] - 1)` at zero. Routing examines the individual multiplicative
 sources. Once a product enters normalization, its cutoffs remain relative
-even if cancellation leaves an algebraic prefactor.
+even if cancellation leaves an algebraic prefactor. For example,
+`x^-5 (1 + x)^(1/x^2) Exp[-1/x]` at zero has prefactor
+`Exp[-1/2] x^-5` and bracket `1 + x/3 - 7 x^2/36 + ...`; a cutoff of two
+keeps the first two bracket terms and has absolute remainder `O[x^-3]`.
 The combined logarithm must fit the existing algebra; this does not
 introduce arbitrary nested exponential scales or addition of unrelated
 exponential sectors.

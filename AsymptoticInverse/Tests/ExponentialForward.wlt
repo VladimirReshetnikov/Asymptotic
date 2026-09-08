@@ -10,6 +10,21 @@ exponentialForwardBracket[z_, n_] := Sum[z^-k/k!, {k, 0, n - 1}];
 exponentialForwardEqual[s_, expr_, ass_: True] :=
   MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
 
+VerificationTest[Module[{x, s, refined},
+  (* The combined logarithm is -5 Log[x]-1/2+x/3-x^2/4+... .
+     An optional attempt to prove the correction exact can reintroduce
+     Exp[-1/x], whose separate exact jet is unsupported. The valid
+     approximate logarithmic expansion must survive that failed probe. *)
+  s = AsymptoticExpansion[x^-5 (1 + x)^(1/x^2) Exp[-1/x], {x, 0, 2}];
+  refined = SeriesRefine[s, 3];
+  {exponentialForwardEqual[s, Exp[-1/2] x^-5 (1 + x/3), x > 0],
+    TrueQ[FullSimplify[s["RemainderScaleExpression"] == Exp[-1/2] x^-3, x > 0]],
+    s["Exact"], s["RemainderPower"],
+    exponentialForwardEqual[refined, Exp[-1/2] x^-5 (1 + x/3 - 7 x^2/36), x > 0],
+    refined["RemainderPower"], refined["Exact"]}],
+  {True, True, False, 2, True, 3, False},
+  TestID -> "exponential-forward-optional-exactness-failure-preserves-cancelled-source-expansion"]
+
 VerificationTest[Module[{x, s},
   s = AsymptoticExpansion[Exp[x + 1/x], x -> Infinity, SeriesTermGoal -> 5];
   {exponentialForwardEqual[s, Exp[x] exponentialForwardBracket[x, 5], x > 0],

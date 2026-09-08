@@ -1,5 +1,31 @@
 # Review and validation record
 
+The final exact-recovery follow-up is recorded in
+`growth-exact-recovery-tests.json`: **57 focused tests passed in four suites,
+with zero failures**, on Wolfram 15.0.1 for Windows. This record preserves
+the completed runner's aggregate suite outcomes and tested-source hashes;
+individual test outcomes were not exported by that focused runner.
+The subsequent full-suite rerun was cancelled at the user's request.
+The earlier successful 845-test full run below covers the preceding
+milestone, not this final source revision.
+
+The follow-up keeps a valid logarithmic expansion when an optional exact-jet
+probe encounters an unsupported representation. The added independent
+regression checks cancellation in `x^-5 (1+x)^(1/x^2) Exp[-1/x]` near zero,
+its relative cutoff and absolute remainder, and refinement to the next
+correction. An unsuccessful optional probe cannot establish exactness or
+discard the already computed approximation.
+
+To reproduce just these focused tests in a Wolfram kernel from the root:
+
+```wolfram
+Get["AsymptoticInverse/Kernel/AsymptoticInverse.wl"];
+TestReport[FileNames[{
+  "ExponentialForward.wlt", "GammaProducts.wlt",
+  "GammaRelatedFunctions.wlt", "GammaVaryingPowers.wlt"
+}, "AsymptoticInverse/Tests"], ProgressReporting -> False]
+```
+
 The Gamma-product and elementary-growth update is recorded in
 `gamma-products-and-growth-tests.json`. Its final native run passes
 **845 tests in 38 suites, with zero failures**, on Wolfram 15.0.1 for Windows.

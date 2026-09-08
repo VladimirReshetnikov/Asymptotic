@@ -87,8 +87,12 @@ logarithmicForwardExpansion[f_, logFunction_, sign_, domain_, x_, x0_, cutoff0_,
     If[tries === 1 && FreeQ[logFunction, _LogGamma | _Gamma],
       normalized = TimeConstrained[FullSimplify[Exp[logFunction]/data["Prefactor"], ass && domain], 3, $Failed];
       If[normalized =!= $Failed,
-        exactCorrection = exactJet[normalized /. x -> coord["Substitution"], coord["u"], data["LogVariable"], ass, limit];
-        If[exactCorrection =!= $Failed && exactCorrection[[2]] === Infinity,
+        (* Simplification can reintroduce separately unbounded factors.
+           Failure of this optional exactness probe must not discard the
+           valid logarithmic expansion already computed above. *)
+        exactCorrection = Catch[exactJet[normalized /. x -> coord["Substitution"],
+          coord["u"], data["LogVariable"], ass, limit], $tag];
+        If[MatchQ[exactCorrection, {_List, Infinity, _}],
           data = Join[data, <|"Jet" -> exactCorrection|>]]]];
     rows = data["Jet"][[1]];
     If[cutoff =!= Automatic || Length[rows] > goal || data["Jet"][[2]] === Infinity, Break[]];
