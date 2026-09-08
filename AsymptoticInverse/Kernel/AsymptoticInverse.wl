@@ -1111,6 +1111,7 @@ Get[FileNameJoin[{$kernelDirectory, "InverseFunctionBranches.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionFamilies.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionExpressions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaForward.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "ExponentialForward.wl"}]];
 
 End[];
 EndPackage[];

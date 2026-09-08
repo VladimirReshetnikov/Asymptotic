@@ -122,11 +122,10 @@ VerificationTest[Module[{x, s, varying},
 
 VerificationTest[Module[{x},
   Quiet[{
-    FailureQ[AsymptoticExpansion[Gamma[x]^x, x -> Infinity, SeriesTermGoal -> 5]],
     FailureQ[AsymptoticExpansion[Gamma[x]^I, x -> Infinity, SeriesTermGoal -> 5]],
     FailureQ[AsymptoticExpansion[Gamma[x]^2.5, x -> Infinity, SeriesTermGoal -> 5]]}]],
-  {True, True, True},
-  TestID -> "gamma-powers-rejects-varying-nonreal-and-inexact-exponents"]
+  {True, True},
+  TestID -> "gamma-powers-rejects-nonreal-and-inexact-exponents"]
 
 VerificationTest[Module[{x, s},
   s = AsymptoticExpansion[Gamma[2 x]^2, x -> Infinity, SeriesTermGoal -> 5];

@@ -69,8 +69,9 @@ VerificationTest[
   0, TestID -> "forward-log-at-infinity"]
 
 VerificationTest[
-  AsymptoticExpansion[Exp[-1/x], {x, 0, 2}],
-  _Failure, SameTest -> MatchQ, TestID -> "forward-rejects-exponential-scale"]
+  Module[{s = AsymptoticExpansion[Exp[-1/x], {x, 0, 2}]},
+    {Normal[s], s["Remainder"], s["Exact"], s["Terms"]}],
+  {Exp[-1/x], 0, True, {{0, 1}}}, TestID -> "forward-exact-decaying-exponential-prefactor"]
 
 VerificationTest[
   Normal[AsymptoticExpansion[1/(1 - x), {x, 1, 3}, Direction -> "FromBelow"]],

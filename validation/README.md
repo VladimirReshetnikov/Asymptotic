@@ -1,5 +1,46 @@
 # Review and validation record
 
+The Gamma-product and elementary-growth update is recorded in
+`gamma-products-and-growth-tests.json`. Its final native run passes
+**845 tests in 38 suites, with zero failures**, on Wolfram 15.0.1 for Windows.
+Its 56 new regressions cover the
+requested `Gamma[3 x]/Gamma[x]` ratio, products, reciprocal and varying real
+powers, factorials, binomial coefficients, complete beta functions, rising
+factorials, and elementary exponential prefactors. Exact correction tables
+come from independent Bernoulli-logarithm and exponential-convolution
+oracles. A 100-digit normalized evaluation at `x = 1000` checks the requested
+ratio against its independently derived first omitted term; it is numerical
+asymptotic evidence, not an interval certificate or pointwise error bound.
+
+The same tests check relative cutoffs and nonzero block counts, signed
+absolute remainders, source- and domain-preserving refinement, finite Gamma
+factors, and realness that holds only eventually. Exact recurrence and
+polynomial identities terminate with zero remainder by recovering an exact
+jet from the original logarithmic identity. Cancellation in a finite
+Stirling approximation does not establish exactness. Optional symbolic
+prefactor simplification is bounded and can retain an equivalent exact form.
+
+`gamma-products-and-growth-initial-tests.json` preserves the first complete
+run: 843 tests passed and two failed. The Laurent reciprocal regression
+exposed an overly broad normalization rule. The corrected rule requires
+an elementary logarithmic source to grow faster than `Log[u]`, preserving
+ordinary power-law cutoffs for `1/(Exp[x^5] - 1)` near zero. The generated
+three-irrational-gap case hit its existing 30-second per-case limit;
+all 19 generated-oracle tests passed on the targeted rerun with that limit
+unchanged. The 25 review regressions and 16 exponential tests also passed
+in that targeted run.
+
+To reproduce the full native run:
+
+```powershell
+$env:ASYMPTOTIC_VALIDATION_OUTPUT = Join-Path (Get-Location).Path 'validation\gamma-products-and-growth-tests.json'
+wolfram.exe -script AsymptoticInverse\Tests\RunTests.wl
+```
+
+The saved records include the baseline commit and SHA-256 hashes of the
+tested kernel and test sources, added after each run. Earlier milestone
+records below are preserved.
+
 The Gamma-power update is recorded in `gamma-powers-tests.json`. Its final
 native run passes **789 tests in 34 suites, with zero failures**, on Wolfram
 15.0.1 for Windows. The 12 new regressions cover the exact requested

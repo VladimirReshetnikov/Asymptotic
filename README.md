@@ -117,7 +117,7 @@ uses `LogGamma` and the existing series exponential operation, preserving
 refinement and compatible series arithmetic. See the package guide for
 the positive-argument and Poincare remainder conventions.
 
-Fixed exact real powers of Gamma are also accepted directly:
+Exact real powers of Gamma are also accepted directly:
 
 ```wolfram
 AsymptoticExpansion[Gamma[x]^2, x -> Infinity, SeriesTermGoal -> 5]
@@ -125,6 +125,31 @@ AsymptoticExpansion[Gamma[x]^2, x -> Infinity, SeriesTermGoal -> 5]
    (1 + 1/(6 x) + 1/(72 x^2) - 31/(6480 x^3)
       - 139/(155520 x^4) + O[x^-5]) *)
 ```
+
+Products and ratios combine their logarithms before truncation:
+
+```wolfram
+AsymptoticExpansion[Gamma[3 x]/Gamma[x], x -> Infinity, SeriesTermGoal -> 5]
+(* 3^(3 x - 1/2) x^(2 x) Exp[-2 x]
+   (1 - 1/(18 x) + 1/(648 x^2) + 463/(174960 x^3)
+      - 1867/(12597120 x^4) + O[x^-5]) *)
+
+AsymptoticExpansion[Binomial[2 x, x], x -> Infinity, SeriesTermGoal -> 5]
+(* 4^x/Sqrt[Pi x]
+   (1 - 1/(8 x) + 1/(128 x^2) + 5/(1024 x^3)
+      - 21/(32768 x^4) + O[x^-5]) *)
+
+AsymptoticExpansion[Exp[x + 1/x], x -> Infinity, SeriesTermGoal -> 5]
+(* Exp[x] (1 + 1/x + 1/(2 x^2) + 1/(6 x^3) + 1/(24 x^4) + O[x^-5]) *)
+```
+
+The same construction handles factorials, complete beta functions, rising
+factorials (`Pochhammer`), signed elementary factors, and provably real
+variable powers such as `Gamma[x]^x` and `x^(x + 1/x)`. Their combined
+logarithm must admit a power-log expansion with a vanishing absolute error.
+Exact identities terminate with zero remainder, including
+`Gamma[x + 1]/Gamma[x] == x` and `Beta[x, x] Binomial[2 x, x] == 2/x`.
+Original expressions and their real domains are retained through refinement.
 
 Conditions on the expansion variable must hold on its selected one-sided
 approach. Conditions inside the inverse callable restrict its source; they

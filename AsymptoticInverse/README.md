@@ -141,9 +141,10 @@ The explicit branch option is also available on `SeriesObservable`.
 
 ## Gamma growth and exact prefactors
 
-`Gamma` with a positive real argument tending to infinity, and its fixed
-exact real powers, are expanded through `LogGamma`, then exponentiated with
-an exact prefactor:
+Products of `Gamma` with positive real arguments and exact real powers
+are expanded through a combined sum of `LogGamma`, then exponentiated
+with an exact prefactor. At least one Gamma argument must tend to infinity;
+other positive arguments can have finite limits:
 
 ```wolfram
 s = AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 5];
@@ -166,8 +167,8 @@ prefactor. When computed, `"FrontierTerm"` includes the first omitted
 coefficient and the prefactor; otherwise it records `Missing["Unknown"]`.
 It is an asymptotic frontier, not a pointwise error bound.
 
-The argument's positive infinite limit must be established on the selected
-approach, and its `LogGamma` expansion must belong to the supported
+The growing argument's positive infinite limit must be established on the selected
+approach, and the combined logarithmic expansion must belong to the supported
 power-log algebra. This also admits `Gamma[2 x]` and `Gamma[x^2]` at positive
 infinity, and `Gamma[1/x]` as `x -> 0+`. Finite-argument expansions continue
 through the ordinary forward engine. Additional exponential sectors in
@@ -190,13 +191,94 @@ AsymptoticExpansion[Gamma[x]^2, x -> Infinity, SeriesTermGoal -> 5]
       - 139/(155520 x^4) + O[x^-5]) *)
 ```
 
-For `Gamma[arg]^r`, the logarithmic source is `r LogGamma[arg]`, with `r`
-a fixed exact real numeric exponent. This covers negative, rational, and
-irrational powers on the proved positive Gamma branch. The absolute
+For `Gamma[arg]^r`, the logarithmic source is `r LogGamma[arg]`. Exact
+negative, rational, irrational, symbolic, and varying real exponents are
+supported when the logarithmic expansion has a vanishing absolute remainder.
+Symbolic parameters require sufficient assumptions, such as
+`Assumptions -> Element[r, Reals]`. The absolute
 remainder includes the powered prefactor, even when it decays. Refinement
 retains the original powered expression. Term goals are applied after
 coefficient cancellation: for example, `r = 12/Sqrt[5]` cancels the
 `x^-3` correction, so five blocks occupy powers `0, 1, 2, 4, 5` of `1/x`.
+
+For a product or ratio, the logarithms are combined before computing any
+correction coefficients. This preserves cancellations between factors:
+
+```wolfram
+s = AsymptoticExpansion[Gamma[3 x]/Gamma[x], x -> Infinity, SeriesTermGoal -> 5];
+Normal[s]
+(* 3^(3 x - 1/2) x^(2 x) Exp[-2 x]
+   (1 - 1/(18 x) + 1/(648 x^2) + 463/(174960 x^3)
+      - 1867/(12597120 x^4)) *)
+s["Remainder"]  (* s["Prefactor"] PowerLogRemainder[1/x, 5, 0] *)
+s["LogarithmicFunction"]  (* LogGamma[3 x] - LogGamma[x] *)
+
+AsymptoticExpansion[Gamma[x + 1]/Gamma[x], x -> Infinity, SeriesTermGoal -> 5]
+(* Exactly x, with zero remainder and one correction block. *)
+
+AsymptoticExpansion[Gamma[x]^x, x -> Infinity, SeriesTermGoal -> 3]
+(* Exp[1/12] (Sqrt[2 Pi] x^(x - 1/2) Exp[-x])^x
+   (1 - 1/(360 x^2) + 1447/(1814400 x^4) + O[x^-6]) *)
+```
+
+The constant `1/12` in `x LogGamma[x]` belongs to the prefactor. Refinement
+replays the original varying exponent and obtains the necessary logarithmic
+precision before exponentiation. A finite cancellation of Stirling
+coefficients does not establish an exact identity; zero remainders require
+an exact logarithmic model.
+
+The following complete special functions are lowered to the same Gamma
+product construction:
+
+| Input | Gamma expression |
+| --- | --- |
+| `Factorial[z]` | `Gamma[z + 1]` |
+| `Binomial[n, k]` | `Gamma[n + 1]/(Gamma[k + 1] Gamma[n - k + 1])` |
+| `Beta[a, b]` | `Gamma[a] Gamma[b]/Gamma[a + b]` |
+| `Pochhammer[a, n]` | `Gamma[a + n]/Gamma[a]` |
+
+For example, `Binomial[2 x, x]` has prefactor `4^x/Sqrt[Pi x]`, and
+`Beta[x, x]` has prefactor `2 Sqrt[Pi] 4^-x/Sqrt[x]`. Their product is
+exactly `2/x`. Both `Pochhammer[x, 1/2]` and `Pochhammer[1/2, x]` are
+supported. The original special-function expression is retained in
+`"Function"` and replayed by `SeriesRefine`; `"GammaExpression"` records
+the lowering. The positivity and supported-logarithm requirements apply
+to the resulting factors. Incomplete Gamma/Beta and double factorials
+are outside this lowering.
+
+An ordinary multiplicative factor must have a proved eventual real nonzero
+sign. For `-2 x Gamma[3 x]/Gamma[x]`, the approximation and frontier retain
+their sign, while the absolute remainder uses `Abs[Prefactor]`. Finite
+Gamma factors can contribute Taylor corrections; for example,
+`Gamma[x]/Gamma[1 + 1/x]` incorporates Euler's constant and zeta values.
+When no Gamma argument grows, the ordinary forward path remains available.
+
+## Elementary exponential growth
+
+The same normalization accepts multiplicative exponentials and positive-base
+varying real powers when at least one logarithmic source grows faster in
+magnitude than the logarithm of the local coordinate:
+
+```wolfram
+AsymptoticExpansion[Exp[x + 1/x], x -> Infinity, SeriesTermGoal -> 5]
+(* Exp[x] (1 + 1/x + 1/(2 x^2) + 1/(6 x^3) + 1/(24 x^4) + O[x^-5]) *)
+AsymptoticExpansion[x^x, x -> Infinity, SeriesTermGoal -> 5]
+(* Exactly x^x, with zero remainder. *)
+AsymptoticExpansion[x^(x + 1/x), x -> Infinity, SeriesTermGoal -> 5]
+(* x^x (Sum[Log[x]^k/(k! x^k), {k, 0, 4}] + O[Log[x]^5/x^5]) *)
+```
+
+Decaying prefactors, signed factors, conditional domains, and reciprocal
+coordinates use the same representation and remainder rules. Inputs whose
+elementary exponent sources are all bounded or merely logarithmically
+divergent retain ordinary absolute power-log semantics; examples include
+`Exp[x]` at zero, `(1 + 1/x)^x` at infinity, and
+`1/(Exp[x^5] - 1)` at zero. Routing examines the individual multiplicative
+sources. Once a product enters normalization, its cutoffs remain relative
+even if cancellation leaves an algebraic prefactor.
+The combined logarithm must fit the existing algebra; this does not
+introduce arbitrary nested exponential scales or addition of unrelated
+exponential sectors.
 
 ## Callable and applied `InverseFunction` expressions
 
@@ -491,9 +573,13 @@ The logarithmic target route accepts a single exponential product with an
 eventually signed power-log amplitude and a phase with a negative leading
 power in the positive local source coordinate. It includes phases containing
 several powers and polynomial logarithms.
-Exponentially small or large terms (`Exp[-1/x]`), oscillatory coefficients
-(`Sin[Log[x]]`) and nested logarithms are rejected with a descriptive
-`Failure` by the ordinary forward engine.
+The ordinary forward engine rejects exponential scales, oscillatory
+coefficients (`Sin[Log[x]]`), and nested logarithms. The logarithmic
+normalization described above additionally accepts single exponential
+prefactors, including `Exp[-1/x]` exactly. General sums of unrelated
+exponential sectors and nested-logarithmic sources remain outside that
+construction; for example, the ordinary factor `Log[x]` in
+`Log[x] Exp[x]` produces the unsupported source `Log[Log[x]]`.
 
 ## Finite logarithmic hierarchies, sectors, and special functions
 
