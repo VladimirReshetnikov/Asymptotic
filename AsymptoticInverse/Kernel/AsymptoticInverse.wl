@@ -327,6 +327,7 @@ fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e]},
    inverseFunctionApplicationQ[e], inverseFunctionForwardJet[e, u, ell, ass, Kw, limit],
    FreeQ[e, u], pConst[e, ell, ass],
    e === u, pVar,
+   h === barnesLog, barnesLogJet[e[[1]], u, ell, ass, Kw, limit],
    h === Plus, Fold[pAdd[#1, fwd[#2, u, ell, ass, Kw, limit], ell, ass] &, pConst[0, ell, ass], List @@ e],
    h === Times, Fold[pMul[#1, fwd[#2, u, ell, ass, Kw, limit], ell, ass, limit] &, pConst[1, ell, ass], List @@ e],
    h === Power && e[[1]] === E, fwdExp[fwd[e[[2]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
@@ -578,8 +579,8 @@ forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] :
   PowerLogSeries[Join[result[[1]], <|
     "TargetDomain" -> Lookup[result[[1]], "TargetDomain", True] && normalized["Domain"],
     "NormalizedExpression" -> normalized["Expression"],
-    "Transformation" -> "Real logarithms of positive Gamma products are normalized to a sum of LogGamma terms before ordinary power-log expansion.",
-    "AsymptoticReference" -> "https://dlmf.nist.gov/5.11.E1"|>]]];
+    "Transformation" -> "Real logarithms of positive Gamma and Barnes G products are normalized before ordinary power-log expansion.",
+    "AsymptoticReference" -> If[FreeQ[f, _BarnesG], "https://dlmf.nist.gov/5.11.E1", "https://dlmf.nist.gov/5.17.E5"]|>]]];
 
 makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := Module[
   {T, P, D, kept, omitted, remData, wexpr, logw, expr, terms, frontier, sd},
@@ -1132,6 +1133,7 @@ Get[FileNameJoin[{$kernelDirectory, "InverseFunctionBranches.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionFamilies.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionExpressions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaForward.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "BarnesForward.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaInverse.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaInverseChecks.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaInverseOperations.wl"}]];

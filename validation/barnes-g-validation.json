@@ -1,0 +1,76 @@
+{
+  "Purpose": "Positive-real Barnes G expansions with exact logarithmic carriers, finite Bernoulli tails, and mixed Gamma recurrence normalization",
+  "BaselineCommit": "5534971a0d44f57df3b61efce75b38d579ff7532",
+  "FullPackageSuiteRun": false,
+  "NativeRegression": {
+    "ResultFile": "validation/barnes-g-tests.json",
+    "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "Succeeded": 94,
+    "Failed": 0,
+    "Suites": [
+      "BarnesGForward.wlt",
+      "GammaLogarithms.wlt",
+      "GammaProducts.wlt",
+      "GammaPowers.wlt",
+      "GammaVaryingPowers.wlt",
+      "ExponentialForward.wlt"
+    ],
+    "TestedKernelAndTestByteHashesVerified": true,
+    "RunnerPostValidationChange": "Removed one trailing blank line and normalized line endings. The native report preserves the SHA256 of the runner bytes actually executed; test logic is unchanged."
+  },
+  "ValidationScope": "22 independently derived Barnes G coefficient, frontier, recurrence, branch, power, composition and refinement tests plus 72 adjacent Gamma and exponential regressions. No full package suite.",
+  "ImplementationReview": "Independent static review verified the Bernoulli coefficient and transported tail, infinite-order rejection, exact recurrence cancellation for bounded integer differences around fractional and symbolic common offsets, and preservation of introduced positive-real domain conditions.",
+  "StaticDocumentationChecks": {
+    "Guide": {
+      "PublicSymbols": 36,
+      "Anchors": 151,
+      "Links": 83,
+      "BrokenLocalLinks": 0,
+      "DuplicateAnchors": 0,
+      "GeneratedHTMLMatchesSources": true
+    },
+    "MathematicalChapters": 29,
+    "MathematicalLabels": 276,
+    "MathematicalReferences": 255,
+    "BibliographyEntries": 11,
+    "MissingReferences": 0,
+    "MissingCitations": 0,
+    "LandingPageLocalLinks": 48,
+    "PreservedEngineeringFiles": 6,
+    "FullPackageSuiteRun": false
+  },
+  "MathematicalArticle": {
+    "PDF": "article/asymptotic-inverse.pdf",
+    "PDFSHA256": "2641042306cb5c212a9152c5a3f5363dfa5c667c7302f404b147223fdb973e49",
+    "SerialLaTeXPasses": 3,
+    "PageCount": 83,
+    "RenderedPages": 83,
+    "TextOutsidePage": 0,
+    "VisualReview": "All 14 contact sheets and full pages 78-79 inspected. Barnes formulas and neighboring text are readable and remain within page boundaries.",
+    "TeXDiagnostics": "No warnings, overfull or underfull boxes, or unresolved references in the final LaTeX log."
+  },
+  "GuideBrowserReview": {
+    "DesktopViewport": [
+      1365,
+      1000
+    ],
+    "MobileViewport": [
+      390,
+      844
+    ],
+    "Scope": "Barnes section screenshots and document overflow checks; no application interactions."
+  },
+  "TextHashConvention": "SHA256 of UTF-8 text after universal-newline normalization",
+  "TextSHA256": {
+    "AsymptoticInverse/Kernel/BarnesForward.wl": "2389f76b605a44ccd9ec9c7797686399343cd73ad25eb5266df1aac80da887cc",
+    "AsymptoticInverse/Kernel/GammaForward.wl": "bff3c38db80056fcc159f6598f1246345e142b94193b3911c3abfd2e95d27cfd",
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "895dc56f41d1db1735539e8daabafbe4c03936006fe495acbf6934187bda6f22",
+    "AsymptoticInverse/Kernel/InverseFunctionExpressions.wl": "10b421022f522f931173f025b009b1cb722934a57f3f4f906394760919f7df05",
+    "AsymptoticInverse/Tests/BarnesGForward.wlt": "324297c592b440237a5fac916b3f2537094c57243b2c6fc6c0ef9b85e321a154",
+    "AsymptoticInverse/Documentation/UserGuide.md": "994f98c90aedd2d05af5aa739e4d7613a4cd98b8b8942e199f64c7c373d9d655",
+    "AsymptoticInverse/Documentation/UserGuide.html": "01f9f9d293fb6b8380cc07e870e8febb3ce119ba045aa023c1acbae185cedd9a",
+    "article/sections/32-exponential-normalization.tex": "c3a8b1dd14a1b0f229415e903bf73d4fd162f2ce8706fb2e3a4a2c9c11b7ee83",
+    "validation/CheckBarnesG.wl": "cd08893ceea5fc90af3762a4d1bf8e117920eb5ee53f78fadcca072d91dd1360",
+    "validation/README.md": "467188ae94d24544ccb158144272974c0dc5a2f5d2dc8b55620af1328c42344a"
+  }
+}

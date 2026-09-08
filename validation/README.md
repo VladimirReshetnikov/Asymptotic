@@ -1,5 +1,38 @@
 # Review and validation record
 
+The Barnes G update is recorded in `barnes-g-tests.json` and
+`barnes-g-validation.json`. **All 94 focused tests passed**, with zero
+failures on Wolfram 15.0.1 for Windows. The full package suite was skipped
+at the user's request. The runner explicitly selects the 22-test Barnes
+file and five adjacent Gamma and exponential regression files.
+
+The Barnes tests use independent Bernoulli and exponential-recurrence
+coefficients. They check the literal five-block expansion, the sparse
+even corrections of `BarnesG[x + 1]`, logarithms, fixed and varying powers,
+mixed Gamma products, exact recurrence cancellation, fractional and
+symbolic common offsets, transported domain conditions, refinement, and
+square-root and quadratic arguments. A finite Barnes logarithmic model
+always retains its asymptotic tail; exact termination instead requires
+an identity of the original functions.
+
+The separate Wolfram-style user guide includes the requested expression
+and related examples. Its HTML was rebuilt and checked at desktop and
+mobile widths. The pure mathematical article derives the Barnes formula,
+the argument shift, and its absolute and relative remainders. The final
+83-page PDF was built with three serial LaTeX passes and every page was
+rendered. All contact sheets and the Barnes pages were visually inspected.
+
+To reproduce this focused milestone:
+
+```powershell
+wolfram.exe -script validation/CheckBarnesG.wl
+python validation/check_documentation.py
+```
+
+The runner exports per-test outcomes and hashes of the tested kernel,
+test, and runner files. Article build and render commands are in
+[article/README.md](../article/README.md).
+
 The logarithmic Gamma update is recorded in `gamma-logarithms-tests.json`
 and `gamma-logarithms-validation.json`. **All 87 focused tests passed**, with
 zero failures on Wolfram 15.0.1 for Windows. The full suite was skipped at

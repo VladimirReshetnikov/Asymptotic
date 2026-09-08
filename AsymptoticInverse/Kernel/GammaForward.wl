@@ -77,10 +77,10 @@ gammaForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Modu
    A positive Gamma value at a negative argument is deliberately left to the
    ordinary local parser: its real Log need not equal analytic LogGamma. *)
 gammaLogarithmNormalize[f_, x_, ass_, coord_, limit_] := Module[
-  {walk, changed = False, analyticLogarithm = False, domains = {}, normalized, simplified},
+  {walk, changed = False, analyticLogarithm = False, domains = {}, normalized, simplified, reduced},
   walk[e_] := Module[{value, source},
     If[AtomQ[e] || FreeQ[e, _Log | _LogGamma] ||
-       FreeQ[e, _Gamma | _LogGamma | _Factorial | _Binomial | _Beta | _Pochhammer] ||
+       FreeQ[e, _Gamma | _LogGamma | _BarnesG | _Factorial | _Binomial | _Beta | _Pochhammer] ||
        ! MatchQ[Head[e], _Symbol] || MemberQ[{Piecewise, ConditionalExpression}, Head[e]] ||
        ! FreeQ[With[{head = Head[e]}, Attributes[head]], HoldAll | HoldAllComplete | HoldFirst | HoldRest],
       Return[e, Module]];
@@ -89,20 +89,23 @@ gammaLogarithmNormalize[f_, x_, ass_, coord_, limit_] := Module[
        inverseFunctionEventually[(First[value] /. x -> coord["Substitution"]) > 0, coord["u"], ass],
       analyticLogarithm = True; AppendTo[domains, First[value] > 0]];
     If[Head[value] === Log && Length[value] === 1,
-      source = gammaProductLogSource[First[value], x, ass, coord, limit, False];
+      source = barnesProductLogSource[First[value], x, ass, coord, limit, False];
+      If[source === $Failed, source = gammaProductLogSource[First[value], x, ass, coord, limit, False]];
       If[AssociationQ[source],
         If[source["Sign"] =!= 1,
-          fail["NonpositiveGammaLogarithm", "A real logarithm requires an eventually positive Gamma product."]];
+          fail["NonpositiveGammaLogarithm", "A real logarithm requires an eventually positive Gamma or Barnes G product."]];
         changed = True; AppendTo[domains, source["Domain"]];
         value = source["Logarithm"]]];
     value];
   normalized = walk[f];
   If[changed || analyticLogarithm,
+    reduced = barnesLogReduce[normalized, x, ass, coord, limit];
+    normalized = reduced["Expression"]; AppendTo[domains, reduced["Domain"]];
     (* Exact Gamma recurrences must be simplified across separate logarithms
        before finite Stirling tails can cancel. Do not infer exactness from
        a cancelled finite asymptotic model. *)
     simplified = TimeConstrained[FullSimplify[normalized, ass && And @@ domains], 3, normalized];
-    If[FreeQ[simplified, _Gamma] && simplified =!= normalized,
+    If[FreeQ[simplified, _Gamma | _BarnesG] && simplified =!= normalized,
       normalized = simplified; changed = True];
     validateInput[normalized, limit]];
   <|"Expression" -> normalized, "Changed" -> changed, "Domain" -> And @@ domains|>];
@@ -129,7 +132,7 @@ logarithmicForwardExpansion[f_, logFunction_, sign_, domain_, x_, x0_, cutoff0_,
     (* A finite exact factor can disappear into Log and acquire a spurious
        Taylor tail. Recover it from the exact logarithmic identity, never
        from cancellation in a finite asymptotic model. *)
-    If[tries === 1 && FreeQ[logFunction, _LogGamma | _Gamma],
+    If[tries === 1 && FreeQ[logFunction, _LogGamma | _Gamma | _barnesLog | _BarnesG],
       normalized = TimeConstrained[FullSimplify[Exp[logFunction]/data["Prefactor"], ass && domain], 3, $Failed];
       If[normalized =!= $Failed,
         (* Simplification can reintroduce separately unbounded factors.

@@ -57,6 +57,9 @@ forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] 
   result = inverseFunctionDirectExpansion[body, x, x0, cutoff, parameterAss, coord,
     OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]];
   If[result === $Failed,
+    result = barnesForwardExpansion[body, x, x0, cutoff, parameterAss, coord,
+      OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]]];
+  If[result === $Failed,
     result = gammaForwardExpansion[body, x, x0, cutoff, parameterAss, coord,
       OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]]];
   If[result === $Failed,

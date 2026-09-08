@@ -1,4 +1,4 @@
-\section{Exponential normalization and Gamma products}
+\section{Exponential normalization for Gamma and Barnes functions}
 \label{sec:exponential-normalization}
 
 Power--logarithmic scales describe algebraic growth and its corrections.
@@ -150,6 +150,108 @@ the exact prefactor:
 The step from $\OO(x^{-7})$ in $\log\Gamma(x)$ to $\OO(x^{-6})$
 in $x\log\Gamma(x)$ illustrates the required increase in working order.
 \end{example}
+
+\subsection{Barnes' \texorpdfstring{$G$}{G}-function and the argument shift}
+
+Barnes' $G$-function satisfies
+\begin{equation}
+ G(z+1)=\Gamma(z)G(z),\qquad G(1)=1.
+ \label{eq:barnes-recurrence}
+\end{equation}
+It is positive on the positive real axis. Write
+$c_G=\zeta'(-1)=1/12-\log A$, where $A$ is Glaisher's constant.
+For every fixed integer $N\ge0$, its logarithmic expansion is
+\begin{equation}
+\begin{aligned}
+ \log G(z+1)
+  ={}&\left(\frac{z^2}{2}-\frac1{12}\right)\log z
+      -\frac{3z^2}{4}+\frac z2\log(2\pi)+c_G\\
+    &+\sum_{k=1}^{N}
+       \frac{B_{2k+2}}{2k(2k+2)z^{2k}}
+       +\OO(z^{-2N-2}),\qquad z\to+\infty.
+\end{aligned}
+ \label{eq:barnes-logarithm}
+\end{equation}
+This form follows by inserting Stirling's expansion for
+$\log\Gamma(z+1)$ into \cite[(5.17.5)]{dlmf}; the relation between
+$A$ and $\zeta'(-1)$ is \cite[(5.17.7)]{dlmf}. The factor $z$ multiplying
+that logarithm requires one additional order of its absolute error.
+Expanding it through the Bernoulli term with index $2N+2$ gives the
+remainder displayed in \eqref{eq:barnes-logarithm}. As with Stirling's
+formula, each fixed truncation has its stated error, without asserting
+convergence of the infinite series.
+
+The first vanishing logarithmic terms are
+\begin{equation}
+ -\frac1{240z^2}+\frac1{1008z^4}
+ -\frac1{1440z^6}+\frac1{1056z^8}+\OO(z^{-10}).
+ \label{eq:barnes-logarithmic-corrections}
+\end{equation}
+Define the positive prefactor
+\begin{equation}
+ P_G^+(z)=e^{c_G}(2\pi)^{z/2}
+          e^{-3z^2/4}z^{z^2/2-1/12}.
+ \label{eq:barnes-shifted-prefactor}
+\end{equation}
+Relative normalization and
+\eqref{eq:exponential-coefficient-recurrence} give, for example,
+\begin{equation}
+ G(z+1)=P_G^+(z)
+ \left(1-\frac1{240z^2}+\frac{269}{268800z^4}
+       +\OO(z^{-6})\right).
+ \label{eq:barnes-shifted-expansion}
+\end{equation}
+Every correction power in this coordinate is even. A logarithmic
+remainder $\OO(z^{-2N-2})$ becomes a relative remainder of that
+same order after exponentiation; the absolute remainder includes
+the positive factor $P_G^+(z)$.
+
+For $G(x)$ the argument in \eqref{eq:barnes-logarithm} is
+$z=x-1$. Retaining powers of $1/(x-1)$ gives the shifted form above.
+Expressing the result in powers of $1/x$ changes both the exact
+nonvanishing logarithmic part and the correction coefficients. The
+recurrence \eqref{eq:barnes-recurrence} provides an equivalent direct
+derivation: subtract \eqref{eq:stirling-logarithm} from the expansion
+of $\log G(x+1)$. Put
+\begin{equation}
+ P_G(x)=e^{c_G}(2\pi)^{(x-1)/2}
+        e^{-3x^2/4+x}x^{x^2/2-x+5/12}.
+ \label{eq:barnes-prefactor}
+\end{equation}
+Then
+\begin{equation}
+\begin{aligned}
+ \log G(x)={}&\log P_G(x)-\frac1{12x}-\frac1{240x^2}\\
+            &+\frac1{360x^3}+\frac1{1008x^4}+\OO(x^{-5}),
+\end{aligned}
+ \label{eq:barnes-unshifted-logarithm}
+\end{equation}
+and its first five relative blocks are
+\begin{equation}
+\begin{aligned}
+ G(x)=P_G(x)\Bigl(&1-\frac1{12x}-\frac1{1440x^2}
+              +\frac{157}{51840x^3}\\
+              &+\frac{65911}{87091200x^4}+\OO(x^{-5})\Bigr).
+\end{aligned}
+ \label{eq:barnes-five-blocks}
+\end{equation}
+The term $z=x-1$ is therefore essential when translating the
+logarithmic formula to an expansion of $G(x)$. A shift of its argument
+does not preserve the correction bracket in a fixed coordinate.
+
+Products of positive Gamma and Barnes factors use
+\eqref{eq:product-logarithms}, so their logarithmic expansions can
+be combined before choosing the prefactor. Real varying powers
+transport the logarithmic error with the precision loss described
+above. Positive finite limiting arguments instead use local analytic
+logarithms. Integer shifts can also produce exact simplifications;
+for example,
+\[
+ \frac{G(x+1)}{G(x)}=\Gamma(x),\qquad
+ \frac{G(x+1)}{\Gamma(x)G(x)}=1\qquad(x>0).
+\]
+These identities justify exact cancellation independently of a finite
+asymptotic coefficient calculation.
 
 \subsection{Exact identities and elementary growth}
 

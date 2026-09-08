@@ -78,7 +78,7 @@ An applied inverse can also occur inside a supported expression. See [Callable a
 
 `AsymptoticExpansion` accepts `Assumptions -> True`, `Direction -> Automatic`, `SeriesTermGoal -> Automatic`, `"MaxTerms" -> 20000`, and `"InverseFunctionBranches" -> Automatic`.
 
-Ordinary expansions use an absolute cutoff in the positive local coordinate. Gamma products and admitted exponential products use a cutoff inside an exact prefactor. A direct inverse-function result retains its inverse constructor's cutoff convention. See [Coordinates and Cutoffs](#coordinates-and-cutoffs).
+Ordinary expansions use an absolute cutoff in the positive local coordinate. Gamma and Barnes G products and admitted exponential products use a cutoff inside an exact prefactor. A direct inverse-function result retains its inverse constructor's cutoff convention. See [Coordinates and Cutoffs](#coordinates-and-cutoffs).
 
 The ordinary input class includes sums, products, exact real constant powers, logarithms, exponentials of bounded arguments, and supported Taylor, Laurent, or Puiseux function expansions. A branch or exponent ordering that cannot be established produces a `Failure`.
 
@@ -136,8 +136,8 @@ For an inverse, the target coordinate also includes the limiting value and selec
 | Result family | Meaning of the requested order |
 | --- | --- |
 | Ordinary power-log expansion | Exclusive exponent bound in the recorded positive local coordinate. |
-| Factored Gamma or elementary exponential expansion | Exclusive exponent bound inside the correction bracket multiplying `s["Prefactor"]`. |
-| `LogGamma` or a supported real logarithm of a Gamma product | Ordinary exclusive exponent bound in the positive local coordinate; complete logarithmic polynomials count as blocks. |
+| Factored Gamma, Barnes G, or elementary exponential expansion | Exclusive exponent bound inside the correction bracket multiplying `s["Prefactor"]`. |
+| `LogGamma` or a supported real logarithm of a Gamma or Barnes G product | Ordinary exclusive exponent bound in the positive local coordinate; complete logarithmic polynomials count as blocks. |
 | Lambert expansion | Exclusive inverse-logarithmic exponent inside its prefactor; inspect `"LogarithmicVariable"`. |
 | Increasing Gamma or LogGamma inverse | Exclusive exponent of `1/s["CoreInverse"]`; each coefficient is a complete polynomial in `1/Log[s["CoreInverse"]]`. |
 | Transformed source or target | Convention of `s["CoordinateSeries"]`, followed by its recorded substitution and reconstruction. |
@@ -459,6 +459,101 @@ SeriesRefine[s, 7]
 ```
 
 Cutoff `7` retains all complete blocks strictly below exponent `7`, including the five blocks displayed above.
+
+<a id="barnes-g-expansions"></a>
+#### Barnes G Functions
+
+Expand Barnes G at positive infinity:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[BarnesG[x], x -> Infinity, SeriesTermGoal -> 5];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+Exp[1/12] (2 Pi)^((x - 1)/2) Exp[x - 3 x^2/4]
+  x^(x^2/2 - x + 5/12)/Glaisher
+  (1 - 1/(12 x) - 1/(1440 x^2) + 157/(51840 x^3)
+     + 65911/(87091200 x^4))
+```
+
+The five blocks have correction exponents `0`, `1`, `2`, `3`, and `4` in `1/x`. The absolute remainder is the positive prefactor times `PowerLogRemainder[1/x, 5, 0]`. `Glaisher` is Glaisher's constant, with `1/12 - Log[Glaisher] == Zeta'[-1]`. The logarithmic asymptotic formula uses the shifted argument of `BarnesG[z + 1]`. [DLMF 5.17.5](https://dlmf.nist.gov/5.17.E5), [DLMF 5.17.7](https://dlmf.nist.gov/5.17.E7).
+
+Shifting the argument changes the correction blocks. For `BarnesG[x + 1]` they occur at even powers of `1/x`:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[BarnesG[x + 1], x -> Infinity,
+  SeriesTermGoal -> 3];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+Exp[1/12] (2 Pi)^(x/2) Exp[-3 x^2/4]
+  x^(x^2/2 - 1/12)/Glaisher
+  (1 - 1/(240 x^2) + 269/(268800 x^4))
+```
+
+Here the relative remainder has power `6`. A five-block goal retains exponents `0`, `2`, `4`, `6`, and `8`, with relative remainder power `10`.
+
+The real logarithm has an ordinary additive expansion:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Log[BarnesG[x]], x -> Infinity,
+  SeriesTermGoal -> 5];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+x^2 (Log[x]/2 - 3/4) + x (1 + Log[2 Pi]/2 - Log[x])
+  + 5 Log[x]/12 - Log[2 Pi]/2 + 1/12 - Log[Glaisher]
+  - 1/(12 x) - 1/(240 x^2)
+```
+
+These five complete logarithmic blocks have exponents `-2`, `-1`, `0`, `1`, and `2` in `1/x`; the absolute remainder is `PowerLogRemainder[1/x, 3, 0]`.
+
+The same product interface admits fixed and varying real powers, positive scaled and shifted arguments, reciprocal coordinates, and mixed Gamma/Barnes products when their combined logarithmic expansion is supported:
+
+```wolfram
+AsymptoticExpansion[BarnesG[x]^2, x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[BarnesG[x]^x, x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[BarnesG[2 x + 3], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[BarnesG[1 + 1/x], x -> 0, SeriesTermGoal -> 3]
+AsymptoticExpansion[BarnesG[x] Gamma[x], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[Log[BarnesG[x]/Gamma[x]], x -> Infinity,
+  SeriesTermGoal -> 5]
+```
+
+Gamma and Barnes arguments must be eventually positive. Growing Barnes arguments must have a pure-power leading term. Powers must be exact and eventually real; supply `Assumptions` for symbolic parameters. A real logarithm additionally requires its ordinary multiplicative factor to be eventually positive. For a factored product, the properties `"BarnesFactors"` and `"GammaFactors"` record the factors involved, and `"ExpansionNature" -> "Poincare"` identifies the finite asymptotic expansion.
+
+Shifted factors can simplify through the exact Barnes recurrence `BarnesG[x + 1] == Gamma[x] BarnesG[x]`. For example:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[BarnesG[x + 1]/(Gamma[x] BarnesG[x]),
+  x -> Infinity, SeriesTermGoal -> 5];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{1, 0}
+```
+
+`SeriesRefine` retains the original source expression and obtains additional correction blocks at the requested cutoff. Its cutoff is relative to the prefactor for a Barnes product and absolute in the local coordinate for its logarithm. The displayed asymptotic series does not assert convergence or provide a pointwise numerical error certificate.
 
 #### Elementary Exponential Products
 
