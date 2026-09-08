@@ -1,5 +1,36 @@
 # Review and validation record
 
+The logarithmic Gamma update is recorded in `gamma-logarithms-tests.json`
+and `gamma-logarithms-validation.json`. **All 87 focused tests passed**, with
+zero failures on Wolfram 15.0.1 for Windows. The full suite was skipped at
+the user's request.
+Its focused runner checks `GammaLogarithms.wlt` together with the existing
+Gamma product, fixed-power, varying-power, related-function, and elementary
+exponential suites. The new 18-test file uses independent Bernoulli and
+Taylor coefficients for the requested `Log[Gamma[x]]` expansion, complete
+block counts, first omitted terms, exact recurrence cancellation, finite
+and infinite endpoints, real branches, symbolic powers, and refinement.
+The full package suite is excluded from this runner.
+
+The shared logarithmic source is normalized before ordinary expansion.
+Gamma arguments and powers are checked before applying real logarithmic
+identities. The original expression and target conditions remain available
+for refinement. Ordinary forward results now also report
+`RequestedTermGoal` and `ReturnedTermCount`. The separate user guide
+includes the literal request, supported logarithmic extensions, and the
+absolute cutoff convention; its standalone HTML and links were checked.
+
+To reproduce this focused milestone:
+
+```powershell
+wolfram.exe -script validation/CheckGammaLogarithms.wl
+python validation/check_documentation.py
+```
+
+The runner exports per-test outcomes and hashes of the tested source files.
+Earlier records below retain the scope and source revision of their own
+milestones.
+
 The inverse-Gamma extension is recorded in `gamma-inverse-tests.json` and
 `gamma-inverse-validation.json`. **All 134 focused regression tests passed**
 on Wolfram 15.0.1 for Windows, in six explicitly selected files: the two

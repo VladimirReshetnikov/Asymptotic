@@ -25,7 +25,9 @@ gammaRelatedExpression[e_] := e /. {
   HoldPattern[Beta[a_, b_]] :> Gamma[a] Gamma[b]/Gamma[a + b],
   HoldPattern[Pochhammer[a_, n_]] :> Gamma[a + n]/Gamma[a]};
 
-gammaForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Module[
+(* The logarithmic identity also applies at finite positive arguments.
+   Growing arguments are required only when extracting a Gamma carrier. *)
+gammaProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
   {lowered, product, factors, coefficient, localArg, argumentLimit, growing = False,
    logFunction, simplified, domain, ordinary, powers},
   If[FreeQ[f, _Gamma | _Factorial | _Binomial | _Beta | _Pochhammer], Return[$Failed, Module]];
@@ -37,10 +39,11 @@ gammaForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Modu
   Do[
     localArg = arg /. x -> coord["Substitution"];
     If[! inverseFunctionEventually[localArg > 0, coord["u"], ass], Return[$Failed, Module]];
-    argumentLimit = inverseBranchTry[Limit[localArg, coord["u"] -> 0,
-      Direction -> "FromAbove", Assumptions -> ass]];
-    If[argumentLimit === Infinity, growing = True], {arg, DeleteDuplicates[factors[[All, 1]]]}];
-  If[! growing, Return[$Failed, Module]];
+    If[TrueQ[requireGrowth],
+      argumentLimit = inverseBranchTry[Limit[localArg, coord["u"] -> 0,
+        Direction -> "FromAbove", Assumptions -> ass]];
+      If[argumentLimit === Infinity, growing = True]], {arg, DeleteDuplicates[factors[[All, 1]]]}];
+  If[TrueQ[requireGrowth] && ! growing, Return[$Failed, Module]];
   powers = DeleteDuplicates[Join[product[[3]], factors[[All, 2]]]];
   If[! AllTrue[powers, logarithmicRealCondition[Element[# /. x -> coord["Substitution"], Reals], ass, coord] &],
     fail["UnsupportedGammaPower", "Gamma powers require exact exponents that are eventually real.", <|"Powers" -> powers|>]];
@@ -55,12 +58,54 @@ gammaForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Modu
      exact identity of the original functions. *)
   If[FreeQ[simplified, _Gamma], logFunction = simplified];
   logFunction += ordinary["Logarithm"];
-  logarithmicForwardExpansion[f, logFunction, ordinary["Sign"], domain,
+  <|"Logarithm" -> logFunction, "Sign" -> ordinary["Sign"], "Domain" -> domain,
+    "GammaFactors" -> factors, "GammaExpression" -> lowered|>];
+
+gammaForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Module[{source, factors},
+  source = gammaProductLogSource[f, x, ass, coord, limit, True];
+  If[source === $Failed, Return[$Failed, Module]];
+  factors = source["GammaFactors"];
+  logarithmicForwardExpansion[f, source["Logarithm"], source["Sign"], source["Domain"],
     x, x0, cutoff, ass, coord, goal, limit, <|
       "GammaPower" -> If[Length[factors] === 1, factors[[1, 2]], Missing["NotSingleGamma"]],
-      "GammaFactors" -> factors, "GammaExpression" -> lowered,
+      "GammaFactors" -> factors, "GammaExpression" -> source["GammaExpression"],
       "Transformation" -> "A signed product of positive Gamma factors with real powers equals Sign[coefficient] Exp[Log[Abs[coefficient]] + Sum[power LogGamma[arg]]].",
       "AsymptoticReference" -> "https://dlmf.nist.gov/5.11.E3"|>]];
+
+(* Rewrite scalar logarithms before expanding their rapidly growing arguments.
+   Bound function bodies and held expressions have different variable scopes.
+   A positive Gamma value at a negative argument is deliberately left to the
+   ordinary local parser: its real Log need not equal analytic LogGamma. *)
+gammaLogarithmNormalize[f_, x_, ass_, coord_, limit_] := Module[
+  {walk, changed = False, analyticLogarithm = False, domains = {}, normalized, simplified},
+  walk[e_] := Module[{value, source},
+    If[AtomQ[e] || FreeQ[e, _Log | _LogGamma] ||
+       FreeQ[e, _Gamma | _LogGamma | _Factorial | _Binomial | _Beta | _Pochhammer] ||
+       ! MatchQ[Head[e], _Symbol] || MemberQ[{Piecewise, ConditionalExpression}, Head[e]] ||
+       ! FreeQ[With[{head = Head[e]}, Attributes[head]], HoldAll | HoldAllComplete | HoldFirst | HoldRest],
+      Return[e, Module]];
+    value = Map[walk, e];
+    If[Head[value] === LogGamma && Length[value] === 1 &&
+       inverseFunctionEventually[(First[value] /. x -> coord["Substitution"]) > 0, coord["u"], ass],
+      analyticLogarithm = True; AppendTo[domains, First[value] > 0]];
+    If[Head[value] === Log && Length[value] === 1,
+      source = gammaProductLogSource[First[value], x, ass, coord, limit, False];
+      If[AssociationQ[source],
+        If[source["Sign"] =!= 1,
+          fail["NonpositiveGammaLogarithm", "A real logarithm requires an eventually positive Gamma product."]];
+        changed = True; AppendTo[domains, source["Domain"]];
+        value = source["Logarithm"]]];
+    value];
+  normalized = walk[f];
+  If[changed || analyticLogarithm,
+    (* Exact Gamma recurrences must be simplified across separate logarithms
+       before finite Stirling tails can cancel. Do not infer exactness from
+       a cancelled finite asymptotic model. *)
+    simplified = TimeConstrained[FullSimplify[normalized, ass && And @@ domains], 3, normalized];
+    If[FreeQ[simplified, _Gamma] && simplified =!= normalized,
+      normalized = simplified; changed = True];
+    validateInput[normalized, limit]];
+  <|"Expression" -> normalized, "Changed" -> changed, "Domain" -> And @@ domains|>];
 
 (* Absolute vanishing logarithmic errors become relative errors. Extract
    every nonvanishing logarithmic block into the exact prefactor before

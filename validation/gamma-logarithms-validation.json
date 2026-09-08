@@ -1,0 +1,52 @@
+{
+  "Purpose": "Real logarithms of Gamma products in the ordinary absolute power-log scale",
+  "BaselineCommit": "f9ab7e0bc2d2717d636a171c2043ee5a6a9f9c1d",
+  "FullPackageSuiteRun": false,
+  "NativeRegression": {
+    "ResultFile": "validation/gamma-logarithms-tests.json",
+    "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "Succeeded": 87,
+    "Failed": 0,
+    "Suites": [
+      "GammaLogarithms.wlt",
+      "GammaProducts.wlt",
+      "GammaPowers.wlt",
+      "GammaRelatedFunctions.wlt",
+      "GammaVaryingPowers.wlt",
+      "ExponentialForward.wlt"
+    ],
+    "TestedWorkingTreeByteHashesVerified": true
+  },
+  "ImplementationReview": "Shared Gamma factor/domain proof audited independently. Only eventually positive Gamma arguments are lowered to analytic LogGamma; finite negative arguments retain the generic real-logarithm path. Exact recurrence identities are simplified before finite Stirling truncation. Held expressions and conditional branches are not traversed by the optional rewrite.",
+  "ValidationScope": "18 new independently derived Bernoulli/Taylor regression tests plus 69 adjacent regressions. Exact source comparisons and branch checks; no full package test suite or new PDF build.",
+  "StaticDocumentationChecks": {
+    "Guide": {
+      "PublicSymbols": 36,
+      "Anchors": 149,
+      "Links": 81,
+      "BrokenLocalLinks": 0,
+      "DuplicateAnchors": 0,
+      "GeneratedHTMLMatchesSources": true
+    },
+    "MathematicalChapters": 29,
+    "MathematicalLabels": 268,
+    "MathematicalReferences": 249,
+    "BibliographyEntries": 11,
+    "MissingReferences": 0,
+    "MissingCitations": 0,
+    "LandingPageLocalLinks": 48,
+    "PreservedEngineeringFiles": 6,
+    "FullPackageSuiteRun": false
+  },
+  "TextHashConvention": "UTF-8 with LF; native regression report separately records exact tested working-tree byte hashes.",
+  "NormalizedTextSHA256": {
+    "AsymptoticInverse/Documentation/UserGuide.html": "3b606fe66dd3f6df30194721bf4fa584cf8428cc3d561755cb218028ebeb44e1",
+    "AsymptoticInverse/Documentation/UserGuide.md": "919c2776bc43d42c46644942389331966402c347594d31ebb6fc92a7e52542cc",
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "006fae6ef712ab2d3d7e912972d17b1e7d2bdd3dcc965e60a740d3797b8e7af4",
+    "AsymptoticInverse/Kernel/GammaForward.wl": "3008f53b834fed68db3d38b8c1845280047c620d6ebfbd61d2df1c69e5d67401",
+    "AsymptoticInverse/Tests/GammaLogarithms.wlt": "f57b492cdce2b137ad68cb1996d4ef7b2c8ef2dd53dba0cc0600a79076682166",
+    "validation/CheckGammaLogarithms.wl": "3d3d4625ef3dd71ce8c79a26eb6951a5356b64d595b137e22e3b306c4d555e37",
+    "validation/README.md": "928d3396f92559912f2c6a9f7452d0ef720c7b2430ffc87cb0784acdfc7fe1ec",
+    "validation/gamma-logarithms-tests.json": "70dab28d7b88b2828f9481ce59741e347005d7fa32ab76666eae00f2c6d0d18b"
+  }
+}

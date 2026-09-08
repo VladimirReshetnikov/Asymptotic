@@ -24,6 +24,7 @@ For supported Gamma products, ratios, real varying powers and elementary exponen
 the cutoff and term goal apply to the power-log correction bracket.
 Increasing Gamma and LogGamma inverses, their admitted affine forms and fixed powers use Scale -> \"GammaInverse\": \
 each block is a complete polynomial in 1/Log[CoreInverse] at one power of 1/CoreInverse. \
+Real logarithms of supported positive Gamma products are normalized to LogGamma before ordinary absolute power-log expansion. \
 See Documentation/UserGuide.md for the admitted real domains and scales.";
 
 AsymptoticInverse::usage =
@@ -546,11 +547,12 @@ exactJet[fu_, u_, ell_, ass_, limit_] := Module[{r = Catch[fwd[fu, u, ell, ass, 
 forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] := Module[
   {ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions], dir = OptionValue[AsymptoticExpansion, {opts}, Direction],
    goal = OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"],
-   coord, u, ell = Unique["ell$"], fu, jet, cutoff = cutoff0, T, tries = 0, K, ex},
+   coord, u, ell = Unique["ell$"], fu, jet, cutoff = cutoff0, T, tries = 0, K, ex, normalized, result},
   validateInput[f, limit];
   If[! FreeQ[ass, x], fail["InvalidAssumptions", "Assumptions concern parameters only."]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"];
-  fu = f /. x -> coord["Substitution"];
+  normalized = gammaLogarithmNormalize[f, x, ass, coord, limit];
+  fu = normalized["Expression"] /. x -> coord["Substitution"];
   If[cutoff === Automatic,
    If[! IntegerQ[goal] || goal < 1, fail["InvalidCutoff", "Give an exponent cutoff or SeriesTermGoal -> n."]];
    ex = exactJet[fu, u, ell, ass, limit];
@@ -571,7 +573,13 @@ forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] :
    If[! exactRealQ[cutoff], fail["InvalidCutoff", "The cutoff must be an exact real number."]];
    ex = exactJet[fu, u, ell, ass, limit];
    jet = If[ex =!= $Failed, ex, forwardJet[fu, u, ell, ass, cutoff, limit, 1]]];
-  makeForwardObject[jet, cutoff, f, x, x0, coord, u, ell, ass, goal]];
+  result = makeForwardObject[jet, cutoff, f, x, x0, coord, u, ell, ass, goal];
+  If[! TrueQ[normalized["Changed"]], Return[result, Module]];
+  PowerLogSeries[Join[result[[1]], <|
+    "TargetDomain" -> Lookup[result[[1]], "TargetDomain", True] && normalized["Domain"],
+    "NormalizedExpression" -> normalized["Expression"],
+    "Transformation" -> "Real logarithms of positive Gamma products are normalized to a sum of LogGamma terms before ordinary power-log expansion.",
+    "AsymptoticReference" -> "https://dlmf.nist.gov/5.11.E1"|>]]];
 
 makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := Module[
   {T, P, D, kept, omitted, remData, wexpr, logw, expr, terms, frontier, sd},
@@ -598,6 +606,7 @@ makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := 
     "RemainderVariable" -> wexpr,
     "FrontierTerm" -> If[frontier === None, If[P === Infinity, 0, Missing["Unknown"]], wexpr^ToRadicals[frontier[[1]]] (ToRadicals[frontier[[2]]] /. ell -> logw)],
     "Terms" -> terms,
+    "RequestedTermGoal" -> goal, "ReturnedTermCount" -> Length[kept],
     "TermConvention" -> "Each {beta, C} means w^beta C with w the local variable (x - x0, x0 - x, 1/x or -1/x); logarithms have been substituted.",
     "Blocks" -> kept, "LogVariable" -> ell, "LocalVariable" -> u,
     "Variable" -> x, "ExpansionPoint" -> x0, "Direction" -> coord["Direction"],

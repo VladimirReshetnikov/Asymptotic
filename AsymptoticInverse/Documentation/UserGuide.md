@@ -137,6 +137,7 @@ For an inverse, the target coordinate also includes the limiting value and selec
 | --- | --- |
 | Ordinary power-log expansion | Exclusive exponent bound in the recorded positive local coordinate. |
 | Factored Gamma or elementary exponential expansion | Exclusive exponent bound inside the correction bracket multiplying `s["Prefactor"]`. |
+| `LogGamma` or a supported real logarithm of a Gamma product | Ordinary exclusive exponent bound in the positive local coordinate; complete logarithmic polynomials count as blocks. |
 | Lambert expansion | Exclusive inverse-logarithmic exponent inside its prefactor; inspect `"LogarithmicVariable"`. |
 | Increasing Gamma or LogGamma inverse | Exclusive exponent of `1/s["CoreInverse"]`; each coefficient is a complete polynomial in `1/Log[s["CoreInverse"]]`. |
 | Transformed source or target | Convention of `s["CoordinateSeries"]`, followed by its recorded substitution and reconstruction. |
@@ -396,6 +397,68 @@ Normal[s]
 4^x/Sqrt[Pi x]
   (1 - 1/(8 x) + 1/(128 x^2) + 5/(1024 x^3) - 21/(32768 x^4))
 ```
+
+<a id="gamma-logarithms"></a>
+#### Logarithms of Gamma Functions
+
+Expand the real logarithm of Gamma directly:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Log[Gamma[x]], x -> Infinity,
+  SeriesTermGoal -> 5];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+x (Log[x] - 1) + (Log[2 Pi] - Log[x])/2
+  + 1/(12 x) - 1/(360 x^3) + 1/(1260 x^5)
+```
+
+The five blocks have exponents `-1`, `0`, `1`, `3`, and `5` in the positive coordinate `1/x`. The complete polynomial in `Log[x]` at each exponent counts as one block. The remainder is `PowerLogRemainder[1/x, 7, 0]`, an absolute error of order `x^-7`.
+
+`LogGamma[x]` gives the same expansion on this real branch. Supported logarithms of Gamma products, ratios, fixed or varying real powers, and the Gamma-related functions listed above use the same interface:
+
+```wolfram
+AsymptoticExpansion[LogGamma[x], x -> Infinity, SeriesTermGoal -> 5]
+AsymptoticExpansion[Log[Gamma[x]^2], x -> Infinity, SeriesTermGoal -> 5]
+AsymptoticExpansion[Log[Gamma[3 x]/Gamma[x]], x -> Infinity,
+  SeriesTermGoal -> 5]
+AsymptoticExpansion[Log[Gamma[x]^x], x -> Infinity, SeriesTermGoal -> 5]
+AsymptoticExpansion[Log[Binomial[2 x, x]], x -> Infinity,
+  SeriesTermGoal -> 5]
+```
+
+Every variable Gamma argument must be eventually positive for this real logarithmic normalization. Gamma powers must be exact and eventually real, and any remaining ordinary multiplicative factor must be eventually positive. The resulting additive logarithmic expression must have a supported power-log expansion. Supply `Assumptions` when these properties depend on symbolic parameters. The logarithmic input does not require a Gamma factor to grow at the selected endpoint.
+
+Exact Gamma recurrences can reduce the result to fewer blocks than requested:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Log[Gamma[x + 1]/Gamma[x]], x -> Infinity,
+  SeriesTermGoal -> 5];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{Log[x], 0}
+```
+
+An explicit cutoff uses the ordinary positive coordinate. The original source expression is retained for refinement:
+
+```wolfram
+s = AsymptoticExpansion[Log[Gamma[x]], x -> Infinity,
+  SeriesTermGoal -> 3];
+SeriesRefine[s, 7]
+```
+
+Cutoff `7` retains all complete blocks strictly below exponent `7`, including the five blocks displayed above.
 
 #### Elementary Exponential Products
 
