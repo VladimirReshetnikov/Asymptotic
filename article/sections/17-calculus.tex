@@ -1,34 +1,24 @@
 \section{Calculus of expansions with transported precision}
 \label{sec:series-calculus}
 
-The operations \wl{SeriesAdd}, \wl{SeriesMultiply} and \wl{SeriesPower}
-provide arithmetic without discarding remainders. The functions
-\wl{SeriesLog} and \wl{SeriesExp} handle logarithms and exponentials;
-\wl{SeriesCompose} and \wl{SeriesObservable} handle composition and other
-observables. Truncation, refinement and justified differentiation use
-\wl{SeriesTruncate}, \wl{SeriesRefine} and \wl{SeriesDifferentiate}.
-All ten operations share a common representation
+Arithmetic, composition and differentiation must transport the uncertainty
+of an approximation together with its finite expression. A useful general
+form is
 \begin{equation}
  F(y)=b(y)+c(y)\left[J(w(y))+\OO(w(y)^P\M(w(y))^D)\right],
  \qquad w(y)\longrightarrow0^+,
  \label{eq:calculus-carrier}
 \end{equation}
 where $b,c,w$ are exact expressions and $J$ is a finite power--log jet.
-The offset $b$ and prefactor $c$ are recorded separately. Thus a cutoff in
+The offset $b$ and prefactor $c$ are treated as exact. Thus a cutoff in
 the jet describes relative precision with respect to $c$, and the absolute
-remainder contains $|c|$. Ordinary forward and inverse objects, Lambert
-objects, and explicitly recorded coordinate substitutions can be converted
-to this representation. An operation returns a derived object and its replay
-recipe; it does not retain an inverse-model label that would falsely suggest
-that the original inverse residual checker applies to an arbitrary observable.
+remainder contains $|c|$. This form includes ordinary forward and inverse expansions, Lambert expansions and exact coordinate substitutions. A transformed observable generally satisfies a different equation from the original inverse; a residual estimate must refer to the equation that the approximation actually represents.
 
 For addition and multiplication, the precision rules of
 Section~\ref{sec:scale} are used after expressing both operands in the same
 positive coordinate. An exact prefactor may be absorbed into the jet when
 it is a finite power--log expression. Distinct prefactors can be aligned
-when their ratio lies in that algebra. The package rejects incompatible
-coordinates or independently ordered exponential carriers rather than
-assigning them an unsupported single cutoff.
+when their ratio lies in that algebra. Independently ordered exponential factors or incompatible coordinates require a larger common asymptotic scale before a single cutoff can be assigned.
 
 \paragraph{Powers and logarithms.}
 For a positive monomial leading term $a w^\alpha$, write
@@ -55,9 +45,7 @@ The operation keeps $e^{H_{\le0}}$ as an exact carrier and expands only
 the vanishing part. For example $H=w^{-1}+\log w+w$ yields
 $w e^{1/w}(1+w+w^2/2+\cdots)$. This also supplies the precision rule
 needed when a source logarithm is inverted and the source variable must
-be reconstructed by exponentiation. A nonvanishing argument uncertainty
-is rejected: it cannot justify a relative error tending to zero after
-exponentiation.
+be reconstructed by exponentiation. A nonvanishing argument uncertainty cannot in general justify a relative error tending to zero after exponentiation.
 
 \paragraph{Composition and regular observables.}
 The outer local coordinate must become $a w^\alpha(1+o(1))$ with
@@ -69,44 +57,37 @@ propagated independently through every jet operation, and the worse
 precision is retained. Regular analytic observables at a finite limiting
 argument use their Taylor series and the same precision arithmetic.
 Poles, branch points and logarithmic leading coefficient functions require
-their respective scale normalizations; a general analytic-observable call
-does not silently assume them to be regular.
+their respective scale normalizations; the regular Taylor-composition rule does not apply at a singular point.
 
 \paragraph{Differentiation requires derivative information.}
 An estimate $R(w)=\OO(w^P\M(w)^D)$ alone does not imply any estimate on
 $R'$. For example $w^P\sin(e^{1/w})$ has that magnitude bound and a much
 larger derivative. Therefore a nonzero remainder can be differentiated
-$n$ times only with a recorded or explicitly supplied contract
+$n$ times only with the additional hypotheses
 \[
  R^{(j)}(w)=\OO(w^{P-j}\M(w)^D),\qquad 0\le j\le n.
 \]
-The option \wl{"RemainderDerivativeOrder" -> n} is a declaration of
-these hypotheses, not a numerical test of them. Each differentiation
-consumes one order of the contract. The jet derivative uses
+Each differentiation uses one order of these derivative bounds. The jet derivative uses
 $D_w[w^\beta Q(\log w)]=w^{\beta-1}(\beta Q+Q')$; the derivatives
 of the exact coordinate, offset and prefactor in
 \eqref{eq:calculus-carrier} are included by the chain and product rules.
 Exact finite expressions require no remainder hypothesis. A discarded tail
 of a known finite power--log expression also has derivative bounds of every
-order. In contrast, a derivative bound declared for one unknown remainder
+order. In contrast, a derivative bound established for one unknown remainder
 is not automatically promoted to a stronger exponent when the source is
 refined; that stronger bound must be established separately.
 
 \paragraph{Truncation and refinement.}
 Truncation moves the first discarded block, including its logarithmic
 degree, into the remainder. It cannot improve uncertainty inherited from
-the input. Refinement instead replays a retained forward expression,
-inverse problem, coordinate substitution or operation recipe at a higher
-working order. The replay still respects transported input precision
-ceilings. Without a retained source or recipe, the package reports that
-refinement is unavailable; changing an inert remainder exponent would not
-be a mathematical refinement.
+the input. Refinement instead determines more coefficients from the original function,
+implicit equation or composition. It remains subject to any error bound
+inherited from unspecified input data. Changing only the exponent written
+in a remainder symbol supplies no new mathematical information.
 
-An automatically computed forward remainder is distinct from a declared
-input error. The object records the latter separately as
-\wl{DeclaredInputRemainder}. When refining an analytic input such as
-$\sin x$, the original function can be expanded further; its previous
-Taylor remainder must not become a permanent declared accuracy ceiling.
-A remainder explicitly supplied for an unspecified omitted function
-remains a binding ceiling. Tests exercise both cases with independent
-inverse coefficients.
+A remainder of a known analytic function and an error in an unspecified
+function play different roles. The Taylor expansion of $\sin x$ can be
+continued to arbitrary finite order because the original function is known.
+If only a finite approximation $T$ and a bound $F-T=\OO(w^P\M^D)$ are given,
+then the unknown coefficients of $F$ at or beyond that precision are not
+determined. Higher-order operations on $T$ cannot remove this uncertainty.

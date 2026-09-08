@@ -2,33 +2,33 @@
 \label{sec:flat-sectors}
 
 An exponential that is smaller than every power of the source coordinate
-needs its own truncation index. The operation \wl{AsymptoticFlatInverse}
-implements a finite part of this larger scale. In the positive source
-coordinate $u\to0^+$, its admitted exact forward expression is
+needs its own truncation index. A finite part of this larger scale arises
+from the following exact forward expression in a positive source coordinate
+$u\to0^+$:
 \begin{equation}
  F(u)=y_0+a u^q+\sum_{j=1}^J A_j(u)e^{-k_j c/u^p},
  \quad p,c>0,\quad q\ne0,\quad a\ne0,\quad k_j\in\N_{>0},
  \label{eq:flat-forward}
 \end{equation}
 where each $A_j$ is a finite real power--log expression. The phase power and
-rates are fixed exact real numbers; the rates are integer multiples of the
-smallest input rate. Coefficients may contain symbolic real parameters when
-the required signs are proved. Different phase powers and incommensurate
-rates need more than one exponential coordinate and are rejected here.
+rates are fixed real numbers, with all rates integer multiples of a common
+positive rate. Coefficients may depend on fixed real parameters subject to
+the stated sign assumptions. Different phase powers and incommensurate
+rates require more than one exponential coordinate and fall outside this
+single-phase construction.
 
 The zero sector must be exact. An ordinary finite asymptotic approximation
 to a nonmonomial core leaves a power-sized error, which dominates every
-sector in \eqref{eq:flat-forward}. The implementation therefore admits the
-exact shifted monomial core $y_0+a u^q$; it does not use a truncated inverse
-of a general power--log core as the zero sector. Put
+sector in \eqref{eq:flat-forward}. The exact shifted monomial core
+$y_0+a u^q$ avoids this obstruction: its zero-sector inverse is exact. Put
 \[
  u_0=\left(\frac{y-y_0}{a}\right)^{1/q}>0,
  \qquad E_0=e^{-c/u_0^p}.
 \]
-At a finite source endpoint the requested observable is
+At a finite source endpoint the observable is
 $H(u)=x_0+\sigma u$ for power one and $H(u)=\sigma^r u^r$ otherwise.
 At an infinite endpoint it is $H(u)=\sigma^r u^{-r}$.
-Negative source branches require an integer requested power.
+For negative source branches, take an integer observable power.
 
 \subsection{Computing complete sectors}
 
@@ -50,14 +50,11 @@ Sum this expression over $1\le n\le N$, group equal powers of $Z$, and
 evaluate $u=u_0$, $Z=E_0$. Since every $k_j\ge1$, no marker degree larger
 than $N$ contributes to an exponential degree at most $N$. Also
 $\mathcal D$ preserves exponential degree, so intermediate polynomial
-truncation discards no contribution to a retained sector. Each returned
+truncation discards no contribution to a retained sector. Each resulting
 coefficient is a complete finite power--log function of $u_0$.
 
-For example,
-\begin{lstlisting}
-AsymptoticFlatInverse[x + Exp[-1/x], {x, 0}, {y, 3}]
-\end{lstlisting}
-returns
+For example, the inverse of $F(x)=x+e^{-1/x}$ at $0^+$ has the
+first three exponential corrections
 \begin{equation}
  y-E+y^{-2}E^2+
  \left(y^{-3}-\frac32 y^{-4}\right)E^3,
@@ -89,7 +86,7 @@ the complete omitted sector tail after degree $N$ satisfies
  \quad\hbox{when }K\chi(u_0)<1.
  \label{eq:flat-complete-tail}
 \end{equation}
-Consequently its recorded asymptotic class is
+Consequently its asymptotic class is
 \[
  \OO\!\left(E_0^{N+1}
  u_0^{r_*+p-(N+1)b}\M(u_0)^{(N+1)d}\right).
@@ -123,19 +120,19 @@ $u_0^{r_*+p}$. Summing the geometric tail proves
 \eqref{eq:flat-complete-tail}, and $\chi(u_0)\to0$ establishes applicability
 at $Z=E_0$.
 
-The constants and threshold are existence bounds, not computed numerical
-certificates. The result records this distinction in \wl{MajorantContract}.
-\wl{SectorDepth} is inclusive: it retains $k\le N$, whereas an ordinary
-power cutoff is exclusive. \wl{FirstOmittedSector} records degree $N+1$
-separately from the complete-tail remainder. The resource budget bounds
-both the requested depth and the intermediate exact expressions.
+The constants and threshold in \eqref{eq:flat-complete-tail} are
+existential. They are not explicit numerical error bounds until suitable
+values have been established. Sector depth is inclusive: a depth $N$
+retains $k\le N$, whereas an ordinary power cutoff retains powers strictly
+below its boundary. The first omitted coefficient and a bound for the
+complete omitted tail are distinct mathematical objects.
 
-Independent verification substitutes
+The primary example also admits a direct formal check. Substitute
 $g=y+\sum_{k=1}^N C_k(y)Z^k$ into
-$g+Z\exp(1/y-1/g)-y$ and uses ordinary Taylor expansion in $Z$.
-This checks \eqref{eq:flat-primary-inverse} without reusing the coefficient
-operator. A high-precision solve of the original equation resolves errors
-on the fourth exponential scale; machine arithmetic cannot supply such
-evidence. Further tests exercise polynomial factors, two commensurate
-input sectors, nonunit monomial cores, shifted branches, infinite source
-endpoints, observable powers, and the rejected scale and resource cases.
+\[
+ g+Z\exp(1/y-1/g)-y.
+\]
+Vanishing through degree $N$ in $Z$ identifies the same sector coefficients
+by the uniqueness of the formal implicit solution. This identity verifies
+the finite coefficients; the uniform analytic argument above supplies the
+bound for the complete infinite tail.

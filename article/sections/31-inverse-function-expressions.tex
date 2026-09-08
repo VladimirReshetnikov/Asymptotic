@@ -1,120 +1,65 @@
-\section{Applied inverse functions inside expressions}
+\section{Implicit inverse composition and real branch selection}
 \label{sec:inverse-function-expressions}
 
-The notation \wl{InverseFunction[F][h[x]]} poses two problems: selecting
-the intended inverse of $F$, and expanding its composition with $h$.
-The first problem must be resolved before the second can use the
-coefficient calculus. A generic Taylor expansion of the inverse operator
-at the limiting target can select a different source root, including a
-complex one, or fail because the desired inverse contains logarithms.
-The appropriate intermediate object is a real inverse germ with its
-source domain, source endpoint, approach direction, and defining equation
-retained explicitly.
+An expression $F^{-1}(h(x))$ poses two distinct mathematical problems:
+selecting the inverse branch of $F$, and expanding its composition with
+$h$. Branch selection must precede the coefficient calculation. A real
+inverse germ consists of a defining equation, a source domain, a source
+endpoint, and an approach direction. These data distinguish solutions
+which may share the same limiting target.
 
-This section states the mathematical and evaluation contracts used by
-the expression adapter. Its implementation is divided among
-\path{Kernel/InverseFunctionSyntax.wl},
-\path{Kernel/InverseFunctionBranches.wl},
-\path{Kernel/InverseFunctionFamilies.wl}, and
-\path{Kernel/InverseFunctionExpressions.wl}. The contracts below do not
-assert that every Wolfram Language callable, condition, or composition
-scale is supported. Native execution and the associated regression
-register establish which admitted cases have been validated.
+\subsection{Scalar implicit equations and parameters}
 
-\subsection{A scalar implicit equation and lexical application}
-
-For a callable $F$ with $n$ arguments, the expression
-\[
- \operatorname{InverseFunction}[F,k,n][a_1,\ldots,a_n]
-\]
-asks for a scalar $t$ satisfying
+For a function $F$ of $n$ real variables, inversion in its $k$th argument
+with the other arguments fixed means solving the scalar equation
 \begin{equation}
  F(a_1,\ldots,a_{k-1},t,a_{k+1},\ldots,a_n)=a_k.
  \label{eq:inverse-expression-selected-argument}
 \end{equation}
-The arguments outside position $k$ are parameters of this equation;
-position $k$ supplies its target. This is not the inversion of a map
-between two $n$-dimensional spaces. For example,
-\begin{lstlisting}
-InverseFunction[
-  Function[{a, t},
-    ConditionalExpression[a t + t^2, a > 0 && t >= 0]],
-  2, 2][a, y]
-\end{lstlisting}
-has the positive local solution
+This is a one-dimensional inverse problem with parameters. For example,
+$a t+t^2=y$, with fixed $a>0$ and $t\ge0$, has the positive local solution
 \[
  t=\frac{\sqrt{a^2+4y}-a}{2}
    =\frac ya-\frac{y^2}{a^3}+\frac{2y^3}{a^5}
-     +\OO(y^4),\qquad a>0,
+     +\OO(y^4),\qquad y\to0^+.
 \]
-where $a$ is fixed as $y\to0^+$. Argument positions must be preserved
-when a callable or its formal parameters are renamed. These conventions
-are those of the official reference page:
-\url{https://reference.wolfram.com/language/ref/InverseFunction.html}.
+The parameter $a$ is fixed in this statement. If it varies with $y$, the
+error bound and even the relevant leading balance can change.
 
-A pure function may use slots, one named parameter, a list of named
-parameters, or the attribute-bearing form of \wl{Function}. Recovering
-its scalar body by replacing every \wl{Slot} or every occurrence of a
-formal symbol is incorrect in the presence of nested lexical scopes.
-Instead, the syntax layer applies the callable to its actual argument
-list, with a fresh source symbol in position $k$. Ordinary function
-application performs Wolfram's lexical renaming and respects nested
-functions. A symbol with a forward definition can be applied in the
-same way. The resulting body must be scalar and have no unresolved
-formal slots. An unevaluated recursive callable, an invalid arity, or a
-remaining holding construct requires an explicit failure within the
-evaluation budget. This use of native application follows
-\url{https://reference.wolfram.com/language/ref/Function.html}.
-
-If another argument varies with the expansion variable, its variation
-must be retained. The package recognizes the exact separable family
+An important family with varying coefficients admits the exact reduction
 \[
- A(x)F(t)+B(x)=h(x),\qquad
+ A(x)F(t)+B(x)=h(x)
+ \quad\Longleftrightarrow\quad
  F(t)=\frac{h(x)-B(x)}{A(x)}.
 \]
-It verifies the first expression's decomposition symbolically and proves
-$A(x)\ne0$ on the selected deleted neighborhood before applying the second
-equation. The source condition must be independent of $x$ for this
-reduction. An amplitude such as $A(x)=x$ is permitted near $0^+$:
-nonvanishing at the endpoint itself is unnecessary. Target composition
-then transports all retained uncertainty through the quotient; no varying
-parameter is replaced by a limiting value. The more general equation
-$a(x)t+t^2=h(x)$ has varying relative source coefficients. If native
-evaluation has not already supplied an explicit inverse, a genuinely
-coupled family outside this exact reduction reports
-\wl{VaryingInverseParameters}. A general parameter-dependent implicit
-expansion requires an additional joint regularity and precision contract.
+Assume $A(x)\ne0$ on the selected deleted neighborhood and that the
+source domain for $t$ is independent of $x$. Then the variation of $A$
+and $B$ belongs entirely to the target argument. Nonvanishing at the
+endpoint itself is unnecessary: $A(x)=x$ is permitted near $0^+$.
+The quotient must nevertheless be expanded with its full uncertainty;
+replacing a varying coefficient by its limiting value is generally invalid.
 
-\subsection{Source conditions, target conditions, and real domains}
+The coupled family $a(x)t+t^2=h(x)$ cannot in general be reduced to a
+fixed forward germ by this separation. Joint implicit asymptotics would
+require hypotheses on the relative rates and on uniform regularity in the
+varying parameters. Such an additional analysis is independent of the
+fixed-parameter inversion formulas.
 
-Write the scalar forward callable, after application, as
-\[
- \operatorname{ConditionalExpression}[F(t),C(t)].
-\]
-Its real source domain is the intersection of $C(t)$ with the real domain
-of the \emph{principal forward expression} $F(t)$, under the fixed
-parameter assumptions. In particular, $\operatorname{Im}t=0$ does not
-by itself imply $t>0$, but $F(t)=t+t^2(1+\log t)$ has real logarithms only
-for $t>0$. A source condition cannot be discarded merely because the
-subsequent asymptotic calculation uses real arithmetic.
+\subsection{Source, target, and parameter domains}
 
-An outer condition, such as
-\wl{ConditionalExpression[InverseFunction[F][h[x]], x > 0]},
-instead restricts the approach of the \emph{expansion variable} $x$.
-Conditions on parameters constrain the family in which a statement is
-valid. These three roles remain distinct in the recorded provenance.
-An expansion-variable condition must hold eventually on the chosen
-approach; a parameter condition must not be converted into a statement
-about a varying source coordinate.
+Let $C(t)$ specify a source restriction. The admissible real source domain
+is its intersection with the real domain of the chosen forward expression
+$F(t)$, under the fixed parameter assumptions. Merely requiring $t$ real
+does not imply $t>0$, whereas $t+t^2(1+\log t)$, with the real logarithm,
+is defined only for $t>0$. Domain restrictions remain part of the inverse
+problem throughout the calculation.
 
-Nested conditions contributed by ordinary mathematical expressions
-combine by conjunction. A condition inside an unevaluated local binder
-or an unselected control branch cannot in general be moved outside it:
-doing so can change which arguments it restricts or make a conditional
-branch unconditional. Such extraction needs a separate semantic rule or
-must fail. The reference semantics, including propagation and the value
-\wl{Undefined} for a false condition, are described in
-\url{https://reference.wolfram.com/language/ref/ConditionalExpression.html}.
+A restriction on the expansion variable $x$ instead specifies the approach
+in $F^{-1}(h(x))$. A condition on a fixed parameter specifies the family
+for which the conclusion holds. These three kinds of conditions have
+different roles: an approach condition must hold eventually along $x$,
+a source condition must hold on the selected inverse germ, and a parameter
+condition is fixed throughout the limiting argument.
 
 \subsection{Local existence and unambiguous selection}
 
@@ -154,11 +99,11 @@ can prove its eventual sign. The leading coefficient and the parity of
 the leading logarithmic degree determine that sign because
 $\log u\to-\infty$. This is a qualitative eventual-sign proof; it does
 not compute a numerical radius on which the derivative bound holds.
-A radius used to verify the source condition is therefore not
-automatically an explicit threshold for the full inverse asymptotic.
+A neighborhood known to satisfy the source condition is therefore not
+automatically a quantitative neighborhood for the full asymptotic error bound.
 
 Proposition~\ref{prop:inverse-expression-local-branch} verifies a proposed
-branch. Automatic \emph{selection} among different source endpoints
+branch. \emph{Selection} among different source endpoints
 requires an additional argument. There are two useful sufficient routes.
 
 \begin{enumerate}[leftmargin=*]
@@ -176,18 +121,18 @@ continuous finite-valued function cannot diverge at an interior point.
 \item \textbf{Strict monotonicity on a connected real domain.}
 If $D$ is an interval and $F$ is strictly monotone throughout $D$, at
 most one real inverse can have values in $D$. A separately verified
-local candidate therefore identifies that inverse even when symbolic
-fiber enumeration is incomplete. This route requires both connectedness
+local candidate therefore identifies that inverse even without an explicit enumeration of the limiting fiber. This route requires both connectedness
 and the global monotonicity proof; local monotonicity near one candidate
 alone does not exclude another branch elsewhere.
 \end{enumerate}
 
-A finite list produced by a bounded search is not evidence that either
-route has succeeded. For example, the two source sides of $t^2$ give
+An arbitrary finite list of candidate endpoints does not establish that
+either route has succeeded. For example, the two source sides of $t^2$ give
 opposite inverses at $\eta=0^+$ when only realness is required. Restricting
 $t>0$ or $t<0$ selects one of them. An explicit source endpoint and
-direction can resolve an incomplete search, but the chosen candidate
-must still pass the domain, limit, target-side, and monotonicity checks.
+direction specifies a local problem even when the global inverse is ambiguous.
+The chosen candidate must still satisfy the domain, limit, target-side,
+and monotonicity hypotheses.
 
 \subsection{Transporting the target argument's uncertainty}
 
@@ -242,102 +187,75 @@ at equal powers the logarithmic envelopes must also be combined.
 A vanishing derivative can improve transported input precision, while
 a singular derivative can lower it. For an inverse itself, a suitable
 derivative estimate can be obtained from the original equation and
-$G'=1/(F'\circ G)$ on the selected branch. A large requested cutoff
-cannot recover coefficients hidden by the input argument's uncertainty.
+$G'=1/(F'\circ G)$ on the selected branch. A larger formal cutoff cannot recover coefficients hidden by the input
+argument's uncertainty.
 Resonant contributions at a common weight are combined before complete
 blocks are retained or discarded.
 
-\subsection{The two original expression forms}
+\subsection{Logarithmic and irrational-power examples}
 
-For the logarithmic example in the original question, consider
-\begin{lstlisting}
-AsymptoticExpansion[
-  InverseFunction[
-    Function[t,
-      ConditionalExpression[
-        t + t^2 (1 + Log[t]), Im[t] == 0]]][y],
-  {y, 0, 4}]
-\end{lstlisting}
-The real forward domain is $t>0$. Moreover,
+Consider $F(t)=t+t^2(1+\log t)$ on $t>0$. Its derivative satisfies
 \[
  F'(t)=1+t(3+2\log t)\ge1-2e^{-5/2}>0,
 \]
 because $t(3+2\log t)$ has its global minimum at $t=e^{-5/2}$.
-The strictly increasing positive real branch tends to $0$ as
-$y\to0^+$. Its first three blocks are
+The strictly increasing positive real branch tends to $0$ as $y\to0^+$.
+Its inverse begins
 \[
  G(y)=y-y^2(1+\log y)
  +y^3(2\log^2y+5\log y+3)
  +\OO(y^4\M(y)^3).
 \]
-This calculation uses reversion of the real source germ and does not
-require an ordinary Taylor series of the inverse operator at $y=0$.
+This is reversion of a real source germ, although the inverse has no
+ordinary Taylor series at $y=0$.
 
-The irrational example uses a slot function:
-\begin{lstlisting}
-AsymptoticExpansion[
-  InverseFunction[
-    ConditionalExpression[# + #^Sqrt[2], # >= 0] &][y],
-  {y, 0}, SeriesTermGoal -> 4]
-\end{lstlisting}
-On $t>0$, its derivative is
-$1+\sqrt2\,t^{\sqrt2-1}>0$. Consequently the branch at $0^+$ has
-\begin{align*}
- G(y)={}&y-y^{\sqrt2}+\sqrt2\,y^{2\sqrt2-1}
+For $F(t)=t+t^{\sqrt2}$ on $t>0$,
+$F'(t)=1+\sqrt2\,t^{\sqrt2-1}>0$. At $0^+$ its inverse has the expansion
+\[
+ G(y)=y-y^{\sqrt2}+\sqrt2\,y^{2\sqrt2-1}
  -\frac{6-\sqrt2}{2}\,y^{3\sqrt2-2}
  +\OO(y^{4\sqrt2-3}).
+\]
+At $+\infty$, a different normalization is required because $t^{\sqrt2}$
+is dominant. Put $p=\sqrt2$, $z=y^{1/p}$, and $\varepsilon=z^{1-p}$.
+Writing $G(y)=zW(\varepsilon)$ gives
+\[
+ W^p+\varepsilon W=1,\qquad W(0)=1.
+\]
+The implicit derivative in $W$ at the origin is $p\ne0$, so $W$ has a
+convergent ordinary power series near $\varepsilon=0$. Its first terms are
+\begin{align*}
+ G(y)=y^{1/p}\Bigl(&
+ 1-\frac{\varepsilon}{p}
+ +\frac{3-p}{2p^2}\varepsilon^2\\
+ &{}
+ -\frac{(p-2)(p-4)}{3p^3}\varepsilon^3
+ +\frac{(5-p)(5-2p)(5-3p)}{24p^4}\varepsilon^4
+ +\OO(\varepsilon^5)\Bigr),
 \end{align*}
-The strict cutoff remains an exponent cutoff; a term goal counts the
-complete nonzero blocks produced after composition and cancellation.
+where $\varepsilon=y^{(1-p)/p}$.
+The same globally increasing real function thus has different natural
+asymptotic coordinates at its two endpoints.
 
-The same inverse node can occur inside a sum, a product, a constant
-power, or a supported observable. In particular,
-\wl{AsymptoticExpansion[InverseFunction[F][x], \ldots]} expands $F^{-1}$,
-whereas \wl{AsymptoticInverse[InverseFunction[F][x], \ldots]} asks to
-invert the already inverted expression. On compatible local branches the
-latter recovers $F$. An arithmetic expression such as
-$1+F^{-1}(x)$ is a derived expression; it is not an inverse of $F$ and
-must not inherit that false residual-checking interpretation.
+An arithmetic expression such as $1+G(x)$ or $G(x)^r$ is an observable
+of the inverse. Its defining identity is obtained by reconstructing the
+source value $G(x)$ before substituting into $F$. It is not itself an
+inverse of $F$. On compatible branches, inversion of $G$ recovers $F$;
+composition with a general observable has no such interpretation.
 
-\subsection{Evaluation, provenance, and evidence boundaries}
+\subsection{Exact identities and the role of the selected root}
 
-The public expression boundary uses \wl{HoldAllComplete} so that
-automatic propagation of \wl{ConditionalExpression} does not rewrite
-the package's assumptions before source and target roles have been
-separated. The private entry then uses ordinary evaluation, including
-the lexical application of callables and native evaluation of inverse
-operators with known closed forms. The adapter does not redefine the
-system's \wl{InverseFunction} or use native \wl{Series} on an
-unevaluated inverse operator as its coefficient oracle.
+A closed form does not remove the need to specify its real branch.
+For example, $W_0(y)$ inverts $t e^t$ on $t\ge-1$, while $W_{-1}(y)$
+inverts it on $t\le-1$. Their common threshold and their distinct
+large-argument or near-zero behavior require the corresponding source
+endpoint data. An exact algebraic radical has the same obligation to use
+the branch matching the source domain.
 
-If ordinary evaluation has already produced \wl{ArcSin}, a radical,
-or another explicit expression, that expression retains its native branch
-semantics. A direct \wl{ProductLog[k,x]} on either real branch has its own
-exact identity adapter: it inverts $t e^t$ on $t\ge-1$ for $k=0$, and on
-$t\le-1$ for $k=-1$. This preserves the Lambert and threshold backends
-after eager native inverse evaluation. Other explicit expressions follow
-the ordinary dispatcher. The adapter cannot recover
-a discarded callable or condition from a previously evaluated result.
-For an operator that remains unevaluated, explicit branch selections
-supplement the local proof obligations; they do not authorize
-contradictory source conditions. Resource limits bound symbolic domain
-inference and callable evaluation, and an unresolved obligation remains
-an explicit failure rather than a guessed branch.
-
-Each inverse occurrence should retain its original syntax, selected
-argument position, scalar defining equation, source condition, and branch
-proof alongside the composed expansion. Refinement must preserve these
-records or replay the original expression with the same branch choices.
-An aggregate forward or derived result is distinguished from each
-underlying inverse record, so numerical and residual checks can name the
-equation they actually verify.
-
-For a numerical inverse comparison, the recovered \emph{source root}
-must satisfy the retained source condition. Testing the asymptotic seed
-or a powered observable is insufficient. An interval certificate must
-prove the source condition throughout its closed verification interval;
-an open condition excludes equality at an interval endpoint even if the
-root itself lies strictly inside. Numerical truth at a computed root is
-evidence, whereas the certificate uses the supported exact interval
-proof rules. An unknown source predicate is never discarded merely
-because its domain cannot be established by those rules.
+A residual evaluated at a reconstructed source root must verify both the
+forward equation and the source restriction. Checking a powered observable
+alone can lose the source sign. A quantitative interval argument must
+establish the defining conditions on its verification interval; an open
+source condition excludes an endpoint at equality. A numerical root
+satisfying the condition supplies evidence at that point, while a uniform
+inverse statement requires the neighborhood hypotheses proved above.

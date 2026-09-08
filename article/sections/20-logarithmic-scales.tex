@@ -4,9 +4,8 @@
 A power gap and a logarithmic gap describe different orders of smallness.
 For example, the correction $u/\log u$ has the same source power as $u$,
 whereas $u^2\sqrt{-\log u}$ has a positive source-power gap and a
-nonpolynomial logarithmic coefficient. The operation
-\wl{AsymptoticLogarithmicInverse} supplies separate contracts for these
-two situations and for a leading product of logarithmic factors. Exact
+nonpolynomial logarithmic coefficient. These two situations, and a
+leading product of logarithmic factors, require different normalizations. Exact
 source-coordinate reductions, including repeated logarithmic charts, are
 handled by the coordinate machinery of Section~\ref{sec:coordinates}.
 
@@ -55,7 +54,7 @@ exponents and creates no new logarithmic level.
 
 This is the needed closure for coefficients such as $L_1^{1/2}$:
 its derivatives contain $L_1^{-1/2},L_1^{-3/2},\ldots$.
-Restricting the coefficient reader to positive logarithmic powers would
+Restricting the coefficient algebra to positive logarithmic powers would
 lose closure even in this simplest example. An expression containing
 $\sqrt{\log u}$ instead has an eventually negative base on $u\to0^+$;
 the real hierarchy does not admit it.
@@ -69,9 +68,9 @@ Consider
  \qquad a\ne0,\quad p\ne0,\quad \delta_i>0,
  \label{eq:generalized-log-forward}
 \end{equation}
-where every $C_i$ belongs to the finite algebra above. As before, all
-exponents are fixed exact real constants in the implementation, and
-assumptions establish the real coefficients and the sign of $a$.
+where every $C_i$ belongs to the finite algebra above. All exponents are
+fixed real constants, and the coefficients and the sign of $a$ are fixed
+on the parameter domain under consideration.
 Set $z=((y-y_0)/a)^{1/p}>0$, so $z\to0^+$. For the observable $u^r$, the
 multi-index coefficient of weight $w=\bk\cdot\bdelta$ is
 \begin{equation}
@@ -133,14 +132,14 @@ the estimate. The estimate does not assume that the first boundary
 coefficient is nonzero.
 \end{proof}
 
-The reported logarithmic degree can be larger than the optimal one. The
+The resulting logarithmic degree can be larger than the optimal one. The
 finite boundary supplies a valid envelope for the entire omitted sum,
 while the retained coefficients remain exact generalized expressions.
 The cutoff uses the ordinary positive target coordinate: a source weight
 $w$ contributes target power $(r+w)/|p|$. This convention preserves the
-nonunit leading-power and infinite-endpoint scaling of the original engine.
+nonunit leading-power and infinite-endpoint scaling.
 
-\begin{example}[The two nonpolynomial coefficient acceptance cases]
+\begin{example}[Nonpolynomial logarithmic coefficients]
 For $T=-\log y$, inversion at $0^+$ gives
 \begin{align}
  (u+u^2\sqrt{-\log u})^{-1}(y)
@@ -153,7 +152,7 @@ For $T=-\log y$, inversion at $0^+$ gives
  \label{eq:inverse-iterated-log-coefficient}
 \end{align}
 Here the superscript $-1$ denotes function inversion. The displayed
-remainders are the implementation's conservative complete-tail bounds.
+remainders are conservative complete-tail bounds.
 The derivative term in each cubic coefficient is essential and follows
 directly from \eqref{eq:hierarchy-euler-operator}.
 \end{example}
@@ -182,11 +181,11 @@ $W(t)$ is analytic at $0$. Iterating
 \end{equation}
 from $W=1$ determines successively correct Taylor coefficients: dependence
 on the previous $W$ carries a positive power of $t$. Exact finite Taylor
-arithmetic supplies the requested bracket and its first omitted orders.
+arithmetic determines the finite bracket and its first omitted orders.
 An exclusive cutoff $h$ retains exactly the integer degrees $n<h$.
-Its remainder has the form $\OO(t^\beta)$, where $\beta$ is the recorded
-first unretained degree or a conservative bound when cancellation prevents
-its identification in the bounded lookahead.
+Its remainder has the form $\OO(t^\beta)$, where $\beta$ is the first
+unretained nonzero degree, or any smaller degree beyond the retained terms
+when no sharper order has been established.
 
 For the original source inverse, the bracket is multiplied by the exact
 prefactor $\sigma z$ at a finite endpoint or $\sigma/z$ at infinity.
@@ -219,9 +218,9 @@ coefficient envelope, their induced inverse correction is smaller than
 the prefactor times every fixed power of $t$. For
 $u(1+1/\log u)+u^2$, the logarithmic bracket therefore agrees with
 \eqref{eq:reciprocal-log-inverse-example} at every finite logarithmic
-order. The package separately records the omitted source-power expression
-and an asymptotic bound for that smaller sector. Its logarithmic residual
-refers to the retained leading core. Equality of the logarithmic brackets
+order. The omitted source-power expression nevertheless belongs to a
+distinct, smaller asymptotic sector. A residual computed solely from the
+logarithmic bracket refers to the leading core. Equality of those brackets
 does not assert that the full inverses are equal.
 
 \subsection{A leading logarithmic monomial}
@@ -293,82 +292,46 @@ $T=\log y$, $B=\log T$, and $t=1/T$. The reconstructed inverse starts
  \label{eq:leading-iterated-log-example}
 \end{equation}
 Thus an iterated logarithm in the leading coefficient need not be replaced
-by a constant or rejected as a zero source-power gap. The implementation
-also admits products of levels and real powers of those levels, with
-positivity recorded explicitly. Positive source-power perturbations can
-again be retained as separately recorded smaller sectors.
+by a constant. Products of levels and real powers of those levels are
+covered by the same positive local normalization. Positive source-power
+perturbations again belong to separate smaller sectors.
 
-\subsection{Implementation contracts and checks}
+\subsection{Precision, exactness, and the boundary of the hierarchy}
 
-\begin{lstlisting}[language=Mathematica]
-AsymptoticLogarithmicInverse[
-  x + x/Log[x] + x^2, {x, 0}, {y, 5}]
-
-AsymptoticLogarithmicInverse[
-  x + x^2 Log[-Log[x]], {x, 0}, {y, 4}]
-
-AsymptoticLogarithmicInverse[
-  x Log[Log[x]], {x, Infinity}, {y, 4}]
-\end{lstlisting}
-
-The scale names identify three distinct contracts:
-\begin{itemize}[leftmargin=1.5em]
-\item \wl{"ReciprocalLogUnit"}: a relative logarithmic cutoff;
-\item \wl{"GeneralizedLogarithmicCoefficients"}: a target-power cutoff;
-\item \wl{"LeadingLogMonomial"}: a relative logarithmic cutoff.
-\end{itemize}
-All three cutoffs are exclusive. The positive uniformizer, exact prefactor, coefficient
-levels, branch conditions, and cutoff meaning are all inspectable.
-The option \wl{"LogarithmicLevels"} bounds the admitted finite hierarchy;
-unused levels are removed from the result's actual domain requirements.
-
-When \wl{SeriesTermGoal -> n} is used instead of a cutoff, the constructor
-searches for $n$ complete nonzero blocks. Cancelled logarithmic coefficients
-do not count as terms. Generalized coefficient searches advance across
-complete source-weight boundaries and, if necessary, rebuild at the next
-excluded target weight to keep exactly the requested blocks. Their
-target-power cutoff may be negative, but must exceed the leading power of
-the requested observable. A unit's reciprocal-logarithmic cutoff remains
-positive. The search has a finite construction budget and preserves its
-best expansion in a resource failure.
+The three normalizations above have different precision meanings. Positive
+source-power gaps lead to a cutoff in the positive target power coordinate.
+Reciprocal-logarithmic units and leading logarithmic monomials instead use
+a cutoff in the small logarithmic coordinate inside an exact prefactor.
+All these cutoffs are exclusive. Terms at a common source weight must be
+combined before counting nonzero blocks; cancellation can remove a complete
+block without removing its contribution to the index boundary used for the
+tail estimate.
 
 A finite run of zero coefficients does not establish termination. A
-sufficient exactness certificate reconstructs the selected positive local
-source from the returned observable and verifies the original forward
-equation identically. The model must be exact, with no omitted source-power
-sectors. The positive branch and local uniqueness then identify this
-candidate with the inverse germ. In particular, an exact source-unit
-polynomial does not by itself certify a truncated noninteger power of that
-unit. The tests include cancellation, negative target-power cutoffs,
-refinement and bounded failures for term-goal requests.
+sufficient exactness argument reconstructs a positive candidate source from
+the finite observable and verifies the original forward equation identically.
+If no smaller sector has been omitted, local uniqueness then identifies
+this candidate with the inverse germ. In particular, a polynomial source
+unit does not by itself make a truncated noninteger power of that unit exact.
 
-\wl{LogarithmicInverseResidual} composes the retained normalized unit with
-the exact equation \eqref{eq:reciprocal-log-unit-equation} or
-\eqref{eq:leading-hierarchy-unit-equation}. Its scope explicitly identifies
-a leading-core residual when smaller source-power sectors were omitted.
-Independent tests compare the generalized coefficients with direct
-derivatives and hand-derived inverse coefficients. Other tests substitute
-targets generated by the original forward functions and compare against
-the known source point at high precision. The regression family covers
-two logarithmic cutoffs, cancellation, irrational source gaps, both source
-orientations, finite translations, infinite endpoints and invalid real
-logarithmic domains.
+The normalized equations also give direct residual identities. Substituting
+a finite unit into \eqref{eq:reciprocal-log-unit-equation} or
+\eqref{eq:leading-hierarchy-unit-equation} determines its defect in the
+leading-core equation. Such a defect is not a residual for a different
+forward function containing unretained source-power sectors.
 
-The reciprocal-logarithmic unit has a single ordinary Taylor bracket and
-therefore exposes a representation usable by the existing series calculus.
-The other two scales retain their enlarged coefficient algebra explicitly;
-operations requiring a polynomial--log coefficient representation must
-reject them until a compatible conversion or generalized operation is
-available. The convergence contracts are mathematical existence bounds,
-with \wl{"NumericCertificate"} set to \wl{False}. An external unknown
-input remainder is rejected here until its transport through the chosen
-logarithmic hierarchy is supplied.
+The reciprocal-logarithmic unit has a single ordinary Taylor bracket.
+The other normalizations retain an enlarged coefficient algebra, so their
+composition requires additional closure arguments. The convergence and
+tail theorems give existence of constants and neighborhoods; they do not
+supply explicit numerical values for them. An unknown forward remainder
+likewise requires a separate transport estimate through the selected
+logarithmic hierarchy.
 
-This finite implementation does not claim a general transseries field.
-Arbitrary real powers of coefficient sums, sums of several incomparable
-leading logarithmic monomials, unrestricted analytic composition of the
-enlarged coefficient objects, and independent simultaneous cutoffs at
-every logarithmic level remain additional contracts. The formulas above
-give a closed finite coefficient algebra for the derivatives actually
-computed, convergent inverse expansions for the admitted families, and
-explicitly different precision meanings for the supported scales.
+These constructions form a finite hierarchy rather than a general
+transseries field. Arbitrary real powers of coefficient sums, sums of
+incomparable leading logarithmic monomials, and independent simultaneous
+cutoffs at every logarithmic level require further hypotheses and additional
+notions of precision. The formulas above establish closure under the Euler
+derivatives used in inversion, convergence for the stated families, and
+complete-tail estimates with the distinct precision meanings made explicit.

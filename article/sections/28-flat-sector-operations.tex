@@ -1,18 +1,16 @@
 \section{Separate inner precision and calculus of flat sectors}
 \label{sec:flat-sector-operations}
 
-The operations \wl{FlatSeriesTruncate}, \wl{FlatSeriesMultiply},
-\wl{FlatSeriesObservable}, and \wl{FlatSeriesDifferentiate} provide
-a finite calculus for the scale of Section~\ref{sec:flat-sectors}.
-They require the same positive monomial target coordinate
+A finite calculus for the scale of Section~\ref{sec:flat-sectors}
+uses a common positive monomial target coordinate
 \[
  u=\left(\frac{y-y_0}{a}\right)^{1/q},\qquad
  E=e^{-c/u^p},\qquad p,c>0,
 \]
-for every operand. They do not change the exponential phase or silently
-identify different monomial charts.
+for every operand. The phase and chart are part of the scale; combining
+different phases requires an additional change-of-scale argument.
 
-Their representation distinguishes two errors:
+The asymptotic representation distinguishes two errors:
 \begin{equation}
  S(y)=C_0(u)+\sum_{k=1}^{N}E^k
  \left(T_k(u)+\OO(u^{\rho_k}\M(u)^{d_k})\right)
@@ -20,22 +18,20 @@ Their representation distinguishes two errors:
  \label{eq:flat-two-precision}
 \end{equation}
 Here $C_0$ is exact, each $T_k$ is a finite power--log expression, and
-$\rho_k=+\infty$ means that the coefficient is exact. The displayed
-\wl{Remainder} is a sum with one term for each nonzero inner error and a
-separate term for the complete omitted exponential tail.
-\wl{InnerRemainders} and \wl{SectorRemainder} expose the two parts directly.
-These are asymptotic existence bounds for fixed input data, with no computed
-numerical constant or threshold.
+$\rho_k=+\infty$ means that the coefficient is exact. The remainder
+is a sum with one term for each nonzero inner error and a separate term
+for the complete omitted exponential tail. These are asymptotic bounds for
+fixed data, whose constants and threshold are existential.
 
 \subsection{Inner truncation and multiplication}
 
-\wl{FlatSeriesTruncate[s,h]} retains powers strictly below $h$ in every
+An inner truncation at $h$ retains powers strictly below $h$ in every
 positive sector. The zero sector remains exact, including any of its powers
 at or above $h$. If a coefficient loses its first term at power $\alpha$,
-its inner error is recorded at $\alpha$ with the degree of the corresponding
+its inner error has power $\alpha$ and the degree of the corresponding
 logarithmic polynomial. An existing, less precise bound is preserved.
-Increasing the requested cutoff after truncation does not recover discarded
-coefficients.
+Increasing the formal cutoff after truncation does not recover discarded
+coefficient information.
 
 For example, truncating the inner coefficients of
 \[
@@ -65,34 +61,34 @@ power in the final sector bound; it is always a valid bound. In particular,
 unknown tails are added by bounds and never cancelled because some displayed
 coefficients cancel.
 
-\wl{FlatSeriesObservable[s,H,z]} implements polynomial composition in a
-separate formal variable $z$. The coefficients of $H$ may be exact finite
-real power--log expressions in the target chart. Horner evaluation uses the
-same addition and multiplication contracts, and computes $H(C_0)$ exactly
-as the zero sector. A constant observable has no dependence on the unknown
-input tail; the zero observable therefore has zero remainder. General
-nonpolynomial composition and changes of phase remain outside this API.
-The degree limit is explicit and defaults to $32$; intermediate sector
-products and coefficient expressions also consume the resource budget.
+Polynomial composition $H(S)$ follows from addition and multiplication.
+The coefficients of $H$ may be exact finite real power--log expressions
+in the target chart. Horner's formula computes the composition through
+successive products and gives the exact zero sector $H(C_0)$. A constant
+observable has no dependence on the unknown input tail; the zero observable
+therefore has zero remainder. General nonpolynomial composition and changes
+of phase require additional analytic and scale-compatibility arguments.
 
 \subsection{Qualified differentiation}
 
 A magnitude bound alone does not justify its differentiated bound.
-Differentiation is enabled for the exact flat inverse only with the stored
-\wl{ExactMonomialFlatIFT} provenance and its claim for all fixed derivative
-orders. The constructor's exact finite forward model is essential here.
-Addition, multiplication, polynomial observables, and inner truncation
-preserve this analytic provenance. Removing it from an object with a
-nonzero remainder causes \wl{UnprovedFlatRemainderDerivative}.
+For the exact flat inverse, the uniform holomorphic implicit-function
+construction supplies bounds for every fixed derivative order. The exact
+finite forward model is essential to this argument. Addition,
+multiplication, polynomial composition, and inner truncation preserve the
+required local holomorphic estimates. A general real-axis remainder has
+no such derivative bound without a separate regularity hypothesis.
 
 For a retained monomial the target derivative is explicit:
-\begin{align}
+\begin{equation}
+\begin{aligned}
  \frac{d}{dy}\left(E^k u^\alpha P(\log u)\right)
  =\frac{E^k}{a q}\Bigl[&u^{\alpha-q}
-       \bigl(\alpha P(\log u)+P'(\log u)\bigr)\notag\\
+       \bigl(\alpha P(\log u)+P'(\log u)\bigr)\\
        &+kcp\,u^{\alpha-p-q}P(\log u)\Bigr].
+\end{aligned}
  \label{eq:flat-target-derivative}
-\end{align}
+\end{equation}
 Thus the exponential degree stays $k$. For $k>0$, a qualified inner
 bound at $(\rho_k,d_k)$ is transported to
 $(\rho_k-p-q,d_k)$. When known differentiated terms are then discarded at
@@ -125,19 +121,18 @@ No differentiation of an arbitrary real-axis Big-O bound is used.
 
 The finitely many discarded inner terms are themselves analytic
 power--log functions, so the same bound, and the exact phase derivative,
-apply to their errors. After differentiation, the retained rows are clipped
-to the transported precision. For the previous example, the derivative
+apply to their errors. After differentiation, terms are retained only within the transported precision. For the previous example, the derivative
 of the truncated representation has the valid form
 \[
  S'=1-(1+2y)E+2E^2+E^2\OO(y)+\OO(E^3),
 \]
 where the last bound is the transported $\OO(y^2E^3)$.
 The full second-sector derivative contains further powers of $y$ that the
-truncated data do not determine; the implementation does not invent them.
+truncated data do not determine.
 
-Regression oracles include ordinary marker-polynomial substitution,
-direct differentiation of exact retained expressions, nonunit and negative
-leading powers, logarithmic envelope degrees, scalar precision transport,
-and errors retained at their original exponential degree. They also check
-rejection of incompatible charts and phases, nonpolynomial observables,
-unqualified remainder derivatives, and exhausted resource budgets.
+The two levels of precision remain distinct under all these operations.
+A power-sized uncertainty in sector $k$ cannot be replaced by a tail in
+sector $k+1$, even if many known coefficient terms cancel. The analytic
+regularity required for differentiation is likewise separate from the
+magnitude of the remainder. These distinctions prevent formal coefficient
+arithmetic from asserting precision not present in the original data.

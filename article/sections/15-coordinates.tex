@@ -1,7 +1,7 @@
 \section{Inversion through explicit coordinate transformations}
 \label{sec:coordinates}
 
-The leading expression in the original variable need not belong to the scale used by the inverse engine. A change of source or target coordinate can put the equation into a supported scale while preserving the requested real branch. The transformation is part of the mathematical result: it determines the expansion variable, how the cutoff is interpreted, and how an inner remainder becomes an error in the original variable.
+The leading expression in the original variable need not belong to the power--log scale. A change of source or target coordinate can put the equation into a suitable scale while preserving the selected real branch. The transformation is part of the mathematical result: it determines the expansion variable, how the cutoff is interpreted, and how an inner remainder becomes an error in the original variable.
 
 \subsection{Target transformations}
 
@@ -146,10 +146,10 @@ and one valid reconstruction is
  x=\exp\left(\sqrt y-\frac12+\frac1{8\sqrt y}\right)
  \bigl(1+\OO(y^{-3/2})\bigr).
 \]
-In contrast, $t=\sqrt y+\OO(1)$ does not justify $x=e^{\sqrt y}(1+\oo(1))$: the omitted constant would change the leading multiplicative factor by $e^{-1/2}$. An implementation must retain enough inner terms to make its omitted additive error tend to zero, even when the initial term request would otherwise stop earlier.
+In contrast, $t=\sqrt y+\OO(1)$ does not justify $x=e^{\sqrt y}(1+\oo(1))$: the omitted constant would change the leading multiplicative factor by $e^{-1/2}$. The inner expansion must retain enough terms to make its omitted additive error tend to zero before it yields a vanishing relative error after reconstruction.
 \end{example}
 
-This precision requirement belongs to reconstruction, not to the mere existence of the inner asymptotic expansion. When a user requests a particular relative order in the reconstructed expression, the implementation must translate that request into an inner additive precision and record both meanings.
+This precision requirement belongs to reconstruction, not to the mere existence of the inner asymptotic expansion. A specified relative order in the reconstructed expression therefore determines the required inner additive precision; these two orders refer to different representations of the same approximation.
 
 \subsection{Finite sums of exponentials}
 
@@ -166,7 +166,7 @@ with equal rates merged. At $x\to+\infty$ choose $\lambda>0$, and at $x\to-\inft
 \end{equation}
 This is a finite real-power germ. Rational relations among the rates are unnecessary: local finiteness of the positive correction gaps supplies finite exponent truncations. Its leading coefficient and exponent determine the target side, while the chosen sign of $\lambda$ preserves the source endpoint. After inversion, Corollary~\ref{cor:logarithmic-reconstruction} transports the error back to $x$.
 
-\begin{example}[An exact oracle]
+\begin{example}[An elementary exact inverse]
 For $F(x)=e^x+e^{2x}$ at $+\infty$, take $t=e^{-x}$. Then $F=t^{-1}+t^{-2}$, and an exact inverse is
 \[
  x=\log\left(\frac{\sqrt{1+4y}-1}{2}\right)
@@ -176,10 +176,18 @@ For $F(x)=e^x+e^{2x}$ at $+\infty$, take $t=e^{-x}$. Then $F=t^{-1}+t^{-2}$, and
 The inverse of $e^x+e^{\sqrt2 x}$ uses the same coordinate with irrational exponents. Constant terms, duplicate rates and cancellations are handled before extracting the leading transformed monomial.
 \end{example}
 
-\subsection{Result contracts and verification}
+\subsection{Transport of an additional forward error}
 
-The transformed result retains its inner inverse, coordinate substitution, original function and selected domains. Its scale is identified as \wl{"Transformed"}. The logarithmic target route has coordinate kind \wl{"TargetLog"}; it uses \eqref{eq:coordinate-log-target}. The target expression is recorded explicitly. The stored cutoff belongs to the underlying series coordinate after substitution. An ordinary \wl{SeriesData} in the original target variable is unavailable when that representation would hide the coordinate change. The package README lists the corresponding property names.
-
-The transformed residual describes the model actually composed, and its metadata states that scope. Numerical checks solve the transformed equation at high precision and verify the original source side; they remain numerical evidence. A separate certificate can use Proposition~\ref{prop:phase-residual} with rigorous derivative and residual bounds. An additive input error for $F$ must be transported through the target map before it can be treated as an error in $\Phi$; until that contract is supplied, rejecting an unsupported declaration is mathematically necessary.
-
-These coordinate theorems justify the stated reductions independently of how many recognizers are implemented. The staged implementation plan tracks the accepted families, source reconstruction operations, tests and remaining extensions; the existence of a reduction alone does not establish that every corresponding expression has already passed the package's parser and native test suite.
+Suppose the equation is $F(x)+R(x)=y$ and $J$ is an exact target coordinate.
+If $J$ is continuously differentiable between $F(x)$ and $F(x)+R(x)$,
+with $|J'|\le B(x)$ there, then the transformed forward error is
+\[
+ J(F(x)+R(x))-J(F(x))=\OO(B(x)|R(x)|).
+\]
+For the logarithmic coordinate on a positive target branch, a relatively
+small error $R/F\to0$ gives $\log(F+R)-\log F=\OO(R/F)$.
+Thus an additive error in the original function and an additive error in
+its phase have different scales. The derivative estimates needed for
+inverse remainder transport must be transformed as well. Exact coordinate
+identities identify the equation being inverted, while these estimates
+supply the additional analytic control for an approximate equation.

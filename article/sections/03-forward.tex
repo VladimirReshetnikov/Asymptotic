@@ -1,7 +1,7 @@
 \section{Forward expansions}
 \label{sec:forward}
 
-Before inverting anything we need the forward function in the normal form $ax^p(1+\sum_ix^{\delta_i}B_i(\log x))$, and the second question \cite{q2} is a forward problem in its own right. This section shows that a large class of expressions has convergent power--log expansions, and describes the precision-tracking evaluator that computes them with a rigorous remainder class.
+Before inverting anything we need the forward function in the normal form $ax^p(1+\sum_ix^{\delta_i}B_i(\log x))$, and the second question \cite{q2} is a forward problem in its own right. This section shows that a large class of expressions has convergent power--log expansions, and establishes rules for propagating a rigorous remainder class through arithmetic and composition.
 
 \subsection{Convergent power--log expansions}
 
@@ -64,40 +64,39 @@ The theorem supplies sufficient closure conditions, and every truncation is a ge
 If $U\in\mathcal E$ has a positive constant leading coefficient and positive valuation, and a selected real branch of $\phi(c+v)$ has a convergent Puiseux expansion $v^{n_0/d}A(v^{1/d})$ for $v\to0^+$, with $d\ge1$ an integer and $A$ analytic at $0$, then $\phi(c+U)\in\mathcal E$. The same holds from below using $\phi(c-v)$.
 \end{corollary}
 \begin{proof}
-Apply the closure theorem to $U^{1/d}$, the analytic function $A$, and $U^{n_0/d}$. Negative $n_0$ includes poles. The side of approach fixes the real branch of a ramified head.
+Apply the closure theorem to $U^{1/d}$, the analytic function $A$, and $U^{n_0/d}$. Negative $n_0$ includes poles. The side of approach fixes the real branch of a ramified function.
 \end{proof}
 
 Variable powers also reduce to the closure theorem through $F^G=\exp(G\log F)$ when $F>0$ and the resulting exponential argument satisfies its hypotheses; this includes $w^w=\exp(w\log w)$. For a nonzero leading block $w^\beta P(L)$, the eventual sign is the sign of $(-1)^{\deg P}[L^{\deg P}]P$, so absolute values reduce to multiplication by that sign whenever it is provable.
 
-\subsection{The precision-tracking evaluator}
+\subsection{Propagation of finite-order errors}
 \label{sec:evaluator}
 
-The package computes forward expansions by structural recursion over the expression tree, carrying for every subexpression a triple $(T,P,D)$: a jet $T$ and the assertion
+A finite-order expansion of a function $F$ consists of a jet $T$ and a remainder assertion
 \begin{equation}
- \text{subexpression}=T+\OO\bigl(w^P\M(w)^D\bigr),\qquad P\in\R\cup\{+\infty\},
+ F=T+\OO\bigl(w^P\M(w)^D\bigr),\qquad P\in\R\cup\{+\infty\},
  \label{eq:triple}
 \end{equation}
-where $P=+\infty$ means that $T$ is exact. A global working order $K_w$ bounds the number of terms of every unit series that is expanded. The rules, all justified by \eqref{eq:O-arithmetic} and Lemma~\ref{lem:tail}, are:
+where $P=+\infty$ denotes an exact finite expression. The following rules construct expansions of compound functions from those of their constituents.
 \begin{itemize}[leftmargin=1.6em]
-\item constants and $w$ are exact; \wl{Plus}: compute $T_1+T_2$ and truncate below $P=\min(P_1,P_2)$. Combine the input remainder degrees at $P$ with the degree of every explicit block discarded at exponent $P$;
-\item \wl{Times}: if $R_i$ denotes the input remainder, the omitted terms include $R_1T_2$, $R_2T_1$ and $R_1R_2$. Their exponent/degree pairs follow from \eqref{eq:O-arithmetic}; use the coarsest pair and truncate $T_1T_2$ below that exponent. Also include the degrees of explicit product blocks discarded exactly at this boundary. A nonempty jet has valuation strictly below its remainder exponent; an empty jet contributes its remainder's exponent and degree when estimating its size;
-\item \wl{Power} with an exact real exponent $a$: nonnegative integers by binary exponentiation with precision tracked at each product (exact for exact input). Otherwise the leading block $cw^\beta$ of $T$ must have constant $c>0$ (or $c<0$ with integer $a$); with $U=T/(cw^\beta)-1$, relative precision $P-\beta$ and relative cutoff $c_{\mathrm{rel}}=\min(P-\beta,K_w-a\beta)$, the result is $c^aw^{a\beta}\sum_k\binom akU^k$ with precision $a\beta+c_{\mathrm{rel}}$. For a nonempty $U$, its series-truncation degree is bounded by $\lceil c_{\mathrm{rel}}/\val U\rceil\deg_{\max}U$, combined with the input error degree $D$; an empty $U$ has no computed series tail;
-\item \wl{Log}: the leading block must be $cw^\beta$ with constant $c>0$; the result is $\log c+\beta L+\log(1+U)$;
-\item \wl{Exp}: $T$ must have no negative exponents and its exponent-$0$ block must be $c+kL$ with exact numeric $k$; the result is $e^cw^k\exp(U)$;
-\item an analytic head $\phi$ (\wl{Sin}, \wl{ArcTan}, \wl{BesselJ[0,\,$\cdot$]}, \dots) applied to $T=c+U$ with constant $c$: $\sum_k\phi^{(k)}(c)U^k/k!$ with the Taylor coefficients obtained from \wl{Series[$\phi$[c + t], \{t, 0, N\}]};
-\item any other subexpression is expanded by \wl{Series[expr, \{w, 0, n\}, Assumptions -> w > 0]}; the coefficients (which may contain $\log w$) and the irrational-power monomials that \wl{Series} leaves outside its \wl{SeriesData} are parsed as jets, the precision is the order of the \wl{O} term, and the logarithmic degree $D$ is read from the first omitted block obtained by expanding one order further.
+\item For a sum, add the jets and use the coarser of the two remainder classes. If a block is discarded at the boundary exponent, include its whole logarithmic degree in that remainder.
+\item For a product $(T_1+R_1)(T_2+R_2)$, the unknown part is $R_1T_2+R_2T_1+R_1R_2$. Apply \eqref{eq:O-arithmetic} to all three contributions, and to every explicit product block removed by truncation. A negative leading exponent in either factor can reduce the absolute precision.
+\item Suppose $F=cw^\beta(1+U)$ with $c>0$ and $U\to0$. An absolute error $\OO(w^P\M^D)$ in $F$ is a relative error $\OO(w^{P-\beta}\M^D)$ in $U$. For fixed real $a$, expand $(1+U)^a$ and multiply by $c^aw^{a\beta}$; the propagated input error is $\OO(w^{P+(a-1)\beta}\M^D)$. Integer powers also follow by finite multiplication, without a positivity assumption.
+\item With the same positive leading monomial, $\log F=\log c+\beta L+\log(1+U)$. The propagated error is measured at relative exponent $P-\beta$.
+\item If $F=c+kL+U$, where $k\in\R$, $U\to0$ and the input uncertainty tends to zero, then $e^F=e^cw^ke^U$. The input error is multiplied by the exact factor $e^cw^k$.
+\item For a function $\phi$ analytic at $c$ and a vanishing increment $U$, use $\phi(c+U)=\sum_{j=0}^{n}\phi^{(j)}(c)U^j/j!+\OO(U^{n+1})$. Laurent and Puiseux expansions on a fixed side reduce to powers of the signed increment and analytic composition.
 \end{itemize}
-The whole expression is re-expanded with a larger $K_w$ until the final precision reaches the requested cutoff. The result is reported as the retained blocks plus $\OO_{\sigma_*,k_*}$, where $\sigma_*$ is the exponent of the first omitted block if one lies below the final precision (its complete coefficient having been computed), and otherwise the precision pair $(P,D)$ itself.
+These analytic unit substitutions require their propagated relative uncertainties to tend to zero. All unit-series truncations are finite by positive valuation. The error from their explicit truncation is combined with the propagated uncertainty of their arguments. If cancellation conceals the leading increment needed for a pole or a ramified branch, more terms of that increment must first be determined.
 
-\begin{proposition}[Soundness]
+\begin{proposition}[Soundness of compositional error propagation]
 \label{prop:soundness}
-If every leaf and every Taylor, Laurent, Puiseux or fallback expansion supplied by \wl{Series} satisfies its asserted branch and remainder contract, then the root satisfies \eqref{eq:triple}, and the reported remainder class is valid.
+Suppose the initial expansions satisfy their stated branch and remainder hypotheses. Every finite composition of the rules above satisfies its resulting assertion \eqref{eq:triple}.
 \end{proposition}
 \begin{proof}
-Induct over the expression tree. For sums and products, use \eqref{eq:O-arithmetic} for propagated errors and add the explicit discarded blocks to the remainder; in particular, their logarithmic degrees at the precision boundary cannot be ignored. For unit series, apply Lemma~\ref{lem:tail} to the finite jet's positive generators and the mean value estimate $\Phi(1+U)-\Phi(1+U_{\mathrm{known}})=\OO(U-U_{\mathrm{known}})$ for its unknown part. Laurent and Puiseux heads are reduced to these same operations on a known signed increment. The final remainder statement follows from the refined tail bound whenever a complete first omitted block has been computed below the precision limit.
+Induct on the number of operations. For sums and products, use \eqref{eq:O-arithmetic} and include the explicit discarded blocks. For an analytic unit function $\Phi$, the derivative is bounded near the limiting unit, so the mean value estimate propagates its argument error. Lemma~\ref{lem:tail} bounds the tail of the substituted convergent series. Factoring the leading monomial gives the stated shifts for powers and logarithms; the same factorization reduces a Laurent or Puiseux composition to the preceding rules.
 \end{proof}
 
-When \wl{Series} supplies a Taylor, Laurent, Puiseux or fallback expansion, its branch and remainder assertions remain inputs to the soundness proposition. Observing the degree of one omitted block alone does not prove that an arbitrary unknown tail satisfies the resulting bound. The structural operations preserve valid assertions, but the package does not prove every analytic contract of a special function or a user-supplied remainder. If cancellation has hidden a leading increment needed by a pole or branch point, the working precision must increase before composition.
+Each initial analytic remainder estimate is a hypothesis of this proposition. Knowing the degree of one omitted coefficient does not by itself bound an arbitrary unknown tail. For a convergent expansion in the class $\mathcal E$, Lemma~\ref{lem:tail} supplies the needed complete-tail assertion. For other functions, an independent finite-order asymptotic theorem is required.
 
 \subsection{The second question}
 
@@ -105,4 +104,4 @@ For $F(x)=(1+x+x^{\sqrt2})^{\sqrt2}$ at $x\to+\infty$ the local variable is $w=1
 \[
  F=w^{-2}\bigl(1+w^{\sqrt2-1}+w^{\sqrt2}\bigr)^{\sqrt2}=w^{-2}\sum_{k\ge0}\binom{\sqrt2}{k}\bigl(w^{\sqrt2-1}+w^{\sqrt2}\bigr)^k ,
 \]
-an instance of item (1) of Theorem~\ref{thm:closure} with gaps $\sqrt2-1$ and $\sqrt2$. The exponents of $x$ are $2-(\sqrt2-1)k_1-\sqrt2k_2$; ordering the semigroup elements gives \eqref{eq:answer3}, and the first omitted exponent is $7-5\sqrt2$ (multi-index $(5,0)$). The workaround in the question, which peels off one leading term per limit computation, produces the same seven terms; the evaluator supplies them with the remainder $\OO(x^{7-5\sqrt2})$ and can continue to larger finite cutoffs within its resource budget.
+an instance of item (1) of Theorem~\ref{thm:closure} with gaps $\sqrt2-1$ and $\sqrt2$. The exponents of $x$ are $2-(\sqrt2-1)k_1-\sqrt2k_2$; ordering the semigroup elements gives \eqref{eq:answer3}, and the first omitted exponent is $7-5\sqrt2$ (multi-index $(5,0)$). The tail estimate therefore gives the remainder $\OO(x^{7-5\sqrt2})$ in \eqref{eq:answer3}. Every larger finite cutoff is treated by the same multinomial expansion and ordering of the positive-gap semigroup.

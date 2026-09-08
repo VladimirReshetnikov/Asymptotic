@@ -65,4 +65,4 @@ because the multinomial coefficient $N!/\bk!$ cancels the $1/N!$.
  x=\phi(y)+\sum_{N\ge1}\frac{(-1)^N}{N!}\frac{\dd^{N-1}}{\dd y^{N-1}}\Bigl[\phi'(y)\,R\bigl(\phi(y)\bigr)^N\Bigr].
  \label{eq:general-core}
 \end{equation}
-This is the ``phase-coordinate'' inversion of \cite{proveit}; it is implemented as \wl{PerturbativeInverse[$\phi$, R, \{x, y\}, n]} and is the natural tool when the dominant part of $F$ is not a monomial (Section~\ref{sec:boundaries}). For the monomial core $F_0(x)=ax^p$, $\phi(y)=(y/a)^{1/p}$, it is equivalent to the substitution $t=x^p$ used in the next section.
+This is the ``phase-coordinate'' inversion of \cite{proveit}; it is the natural coefficient identity when the dominant part of $F$ is not a monomial (Section~\ref{sec:boundaries}). For the monomial core $F_0(x)=ax^p$, $\phi(y)=(y/a)^{1/p}$, it is equivalent to the substitution $t=x^p$ used in the next section.

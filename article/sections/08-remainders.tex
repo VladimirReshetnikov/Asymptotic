@@ -51,14 +51,14 @@ With $w$ the local variable of $y$ ($w=|y-y_0|$ for finite $y_0$, $w=1/|y|$ for 
 since $z=(w/|a|)^{1/p}$ for $p>0$, $z=(|a|w)^{1/|p|}$ for $p<0$, and $\M(z)\asymp\M(w)$.
 \end{corollary}
 
-For a pure monomial ($m=0$), the inverse observable is exactly $z^r$: the tail is zero if this term is retained and equals $z^r$ otherwise. The package reports the pair $\bigl((r+\sigma_*)/|p|,k_*\bigr)$ as \wl{PowerLogRemainder[w, $\beta$, k]} and the block $z^{r+\sigma_*}C^{(r)}_{\sigma_*}$ as \wl{"FrontierTerm"}. If that coefficient vanishes, a sharper order requires computing further weights or proving that the remaining series terminates.
+For a pure monomial ($m=0$), the inverse observable is exactly $z^r$: the tail is zero if this term is retained and equals $z^r$ otherwise. The pair $\bigl((r+\sigma_*)/|p|,k_*\bigr)$ specifies the remainder class in the target coordinate, while $z^{r+\sigma_*}C^{(r)}_{\sigma_*}$ is its complete first omitted block. If that coefficient vanishes, a sharper order requires computing further weights or proving that the remaining series terminates.
 
 \begin{example}[Resonances]
 For $f=x+x^2+x^3$ the gaps are $1$ and $2$; at weight $2$ the indices $(2,0)$ and $(0,1)$ contribute $2$ and $-1$, at weight $3$ the indices $(3,0)$ and $(1,1)$ contribute $-5$ and $+5$, so
 \[
  g(y)=y-y^2+y^3+0\cdot y^4-4y^5+14y^6-30y^7+33y^8+\cdots ,
 \]
-and after the cutoff $4$ the reported remainder is $\OO(y^4)$ while the truth is $\OO(y^5)$. For $f=x+x^2+2x^3$ the block at $y^3$ cancels instead. Exact arithmetic on the exponents is what makes such cancellations detectable at all: with floating-point exponents, $(2,0)$ and $(0,1)$ might not be recognised as the same weight.
+The coarse boundary estimate at cutoff $4$ is $\OO(y^4)$; summing the weight-$3$ coefficients improves it to $\OO(y^5)$. For $f=x+x^2+2x^3$ the block at $y^3$ cancels instead. The cancellation concerns the sum of all contributions at an exactly equal weight, not each multi-index separately.
 \end{example}
 
 \begin{example}[The log example]
@@ -90,40 +90,3 @@ The omitted terms have $|\bk|\ge N+1$; use \eqref{eq:coefficient-bound} and the 
 \end{proof}
 
 Depth truncation retains every block of exponent below $r+(N+1)\delta_*$, but it may also retain blocks above that bound while omitting smaller ones when several gaps are present: for $f=x+x^2+x^4$ depth $1$ gives $y-y^2-y^4$ although the omitted depth-two term $2y^3$ dominates $y^4$. The remainder \eqref{eq:depth-remainder} is nevertheless correct as stated.
-
-\subsection{Numerical illustration}
-
-Table~\ref{tab:numbers} shows, for the two examples of \cite{q1} and for the inverse of \eqref{eq:answer3} at infinity, the actual error $|g(y)-G(y)|$ of the truncated expansion (the exact inverse computed by \wl{FindRoot} at 80 digits) and its ratio to the reported remainder scale $w^{\beta_*}\M(w)^{k_*}$. The ratios stay bounded, and in the log example they grow slowly with $N$ because the leading coefficient of the frontier block, $\Cat_{N+1}$, does.
-
-\begin{table}[ht]
-\centering\scriptsize\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{@{}lrrrrrr@{}}
-\toprule
-& \multicolumn{2}{c}{$y=10^{-2}$} & \multicolumn{2}{c}{$y=10^{-4}$} & \multicolumn{2}{c}{$y=10^{-8}$}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-$f_1=x+x^2(1+\log x)$, $N$ corrections & error & ratio & error & ratio & error & ratio\\
-\midrule
-$N=1$ & $2.4\cdot10^{-5}$ & 0.77 & $1.3\cdot10^{-10}$ & 1.22 & $5.9\cdot10^{-22}$ & 1.56\\
-$N=2$ & $1.8\cdot10^{-6}$ & 1.03 & $2.4\cdot10^{-13}$ & 2.26 & $2.5\cdot10^{-28}$ & 3.38\\
-$N=3$ & $1.5\cdot10^{-7}$ & 1.51 & $5.1\cdot10^{-16}$ & 4.69 & $1.2\cdot10^{-34}$ & 8.18\\
-$N=5$ & $1.2\cdot10^{-9}$ & 3.75 & $2.7\cdot10^{-21}$ & 24.0 & $3.1\cdot10^{-47}$ & 57.4\\
-\midrule
-$f_2=x+x^{\sqrt2}$, $N$ corrections &&&&&&\\
-\midrule
-$N=1$ & $2.5\cdot10^{-4}$ & 1.14 & $6.6\cdot10^{-8}$ & 1.37 & $3.3\cdot10^{-15}$ & 1.41\\
-$N=2$ & $6.0\cdot10^{-5}$ & 1.82 & $2.4\cdot10^{-9}$ & 2.21 & $2.6\cdot10^{-18}$ & 2.29\\
-$N=3$ & $1.5\cdot10^{-5}$ & 3.16 & $9.1\cdot10^{-11}$ & 3.86 & $2.2\cdot10^{-21}$ & 4.01\\
-$N=5$ & $1.2\cdot10^{-6}$ & 10.9 & $1.5\cdot10^{-13}$ & 13.5 & $1.8\cdot10^{-27}$ & 14.1\\
-\midrule
-& \multicolumn{2}{c}{$y=10^{4}$} & \multicolumn{2}{c}{$y=10^{8}$} & \multicolumn{2}{c}{$y=10^{16}$}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-inverse of $(1+x+x^{\sqrt2})^{\sqrt2}$, $n$ blocks &&&&&&\\
-\midrule
-$n=2$ & $0.72$ & 0.33 & $1.9$ & 0.39 & $9.3$ & 0.40\\
-$n=4$ & $9.6\cdot10^{-2}$ & 0.65 & $1.5\cdot10^{-2}$ & 0.69 & $3.4\cdot10^{-4}$ & 0.71\\
-$n=7$ & $2.8\cdot10^{-4}$ & 0.039 & $1.2\cdot10^{-6}$ & 0.023 & $4.0\cdot10^{-11}$ & 0.015\\
-\bottomrule
-\end{tabular}
-\caption{Recorded errors of truncated expansions and their ratio to the remainder scale. In the third group the local variable is $1/y$ and the leading inverse term is $\sqrt y$; for the two-block approximation the absolute error grows while its relative error decreases.}
-\label{tab:numbers}
-\end{table}

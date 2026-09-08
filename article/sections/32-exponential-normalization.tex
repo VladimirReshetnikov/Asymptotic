@@ -1,0 +1,182 @@
+\section{Exponential normalization and Gamma products}
+\label{sec:exponential-normalization}
+
+Power--logarithmic scales describe algebraic growth and its corrections.
+A function such as $\Gamma(x)^2$ grows faster than every power of $x$.
+Its logarithm, however, has a power--logarithmic expansion. The appropriate
+construction retains the nonvanishing part of that logarithm exactly and
+expands only the vanishing part. This yields a relative asymptotic expansion
+whose absolute error includes the extracted growth factor.
+
+\subsection{From absolute logarithmic error to relative error}
+
+Let $u\to0^+$ and write $\M(u)=1+|\log u|$. Suppose a real function has fixed
+sign $\sigma\in\{1,-1\}$ sufficiently near the endpoint and
+\begin{equation}
+ \log|f(u)|=A(u)+B(u)+R(u),\qquad
+ R(u)=\OO\bigl(u^\rho \M(u)^k\bigr),\quad \rho>0,
+ \label{eq:logarithmic-normalization}
+\end{equation}
+where $B$ is a finite sum of positive-power logarithmic blocks, so that
+$B(u)\to0$. The finite expression $A$ includes all retained nonvanishing
+blocks, including any constant. Put $C(u)=\sigma e^{A(u)}$.
+
+\begin{proposition}[Relative normalization]
+Under these hypotheses,
+\begin{equation}
+ f(u)=C(u)\left(e^{B(u)}+
+           \OO\bigl(u^\rho \M(u)^k\bigr)\right).
+ \label{eq:relative-normalization}
+\end{equation}
+If $e^B=T+\OO(u^\eta \M(u)^\ell)$, the finite expression $C T$ has
+absolute error
+\begin{equation}
+ \OO\left(|C(u)|
+    \left(u^\rho \M(u)^k+u^\eta \M(u)^\ell\right)\right).
+ \label{eq:normalized-absolute-error}
+\end{equation}
+\end{proposition}
+\begin{proof}
+The identity $f=C e^B e^R$ and the mean-value estimate
+$|e^R-1|\le |R|e^{|R|}$ apply for real $R$.
+Both $B$ and $R$ tend to zero, so $e^B$ and $e^{|R|}$ are bounded.
+The first assertion follows, and the triangle inequality gives the second.
+\end{proof}
+
+The logarithmic remainder must be known to tend to zero; the hypothesis
+$\rho>0$ ensures this. An error bound of order one in the logarithm
+does not imply a relative error tending to zero in the original function. Likewise, a relative expansion of the logarithm
+alone need not determine a relative expansion of its exponential.
+
+\subsection{Products, varying powers, and coefficient extraction}
+
+For positive real functions $f_j$ and real functions $r_j$, multiplication
+and real exponentiation become addition before any truncation:
+\begin{equation}
+ \log\left(\prod_{j=1}^m f_j(u)^{r_j(u)}\right)
+   =\sum_{j=1}^m r_j(u)\log f_j(u).
+ \label{eq:product-logarithms}
+\end{equation}
+Cancellation can remove leading growth terms. It is therefore useful to
+form the complete sum at the required precision before extracting $A$.
+If $r_j(u)=\OO(u^{-s_j}\M(u)^{d_j})$, a logarithmic remainder
+$\OO(u^h \M(u)^k)$ becomes
+$\OO(u^{h-s_j}\M(u)^{k+d_j})$. To reach a desired vanishing absolute
+error in the logarithm, the expansion of $\log f_j$ must be correspondingly
+deeper. A real varying exponent cannot in general be treated as a constant
+when propagating precision.
+
+For an ordinary correction series
+$B(t)=\sum_{n\ge1}a_n t^n$, write
+$e^{B(t)}=\sum_{n\ge0}c_n t^n$. Formal differentiation gives
+\begin{equation}
+ c_0=1,\qquad
+ c_n=\frac1n\sum_{j=1}^n j a_j c_{n-j}\quad(n\ge1).
+ \label{eq:exponential-coefficient-recurrence}
+\end{equation}
+For real positive weights, the finite convolution algebra of
+Section~\ref{sec:scale} supplies the same construction. If the smallest
+positive weight is $\delta$, powers $B^n$ with $n\delta\ge h$ cannot
+contribute below the strict weight cutoff $h$. Polynomial logarithmic
+coefficients stay attached to their complete weight blocks.
+
+\subsection{Stirling's logarithmic expansion}
+
+On the positive real axis, Stirling's expansion is
+\begin{equation}
+ \log\Gamma(x)=
+ \left(x-\tfrac12\right)\log x-x+\tfrac12\log(2\pi)
+ +\sum_{n=1}^{N}
+   \frac{B_{2n}}{2n(2n-1)x^{2n-1}}
+ +\OO(x^{-2N-1}),\qquad x\to+\infty,
+ \label{eq:stirling-logarithm}
+\end{equation}
+where $B_{2n}$ are Bernoulli numbers; see \cite[\S5.11]{dlmf}.
+This is a Poincar\'e expansion: the assertion holds for every fixed
+truncation order. It is not a convergence assertion as $N\to\infty$.
+Multiplying, adding, and substituting into finitely many such expansions
+is justified at each fixed order with the corresponding error estimates.
+
+For products $\prod_j\Gamma(a_j(x))^{r_j(x)}$, assume that every argument
+is eventually positive, tends to $+\infty$, and admits the substitutions
+and error bounds needed in \eqref{eq:stirling-logarithm}. Formula
+\eqref{eq:product-logarithms} then determines the logarithmic model.
+Factors with arguments tending to positive finite points instead use
+the local analytic expansion of $\log\Gamma$. Exponential normalization
+combines the resulting growth and correction terms in either case.
+
+\begin{example}[A square and a ratio]
+Squaring the Gamma function doubles its logarithm. Exponentiating the
+vanishing part gives
+\begin{equation}
+ \Gamma(x)^2=
+ 2\pi e^{-2x}x^{2x-1}
+ \left(1+\frac1{6x}+\frac1{72x^2}
+       -\frac{31}{6480x^3}-\frac{139}{155520x^4}
+       +\OO(x^{-5})\right).
+ \label{eq:gamma-square-expansion}
+\end{equation}
+For a ratio, subtract the logarithms first:
+\begin{equation}
+ \log\frac{\Gamma(3x)}{\Gamma(x)}
+ = (3x-\tfrac12)\log3+2x\log x-2x
+       -\frac1{18x}+\frac{13}{4860x^3}+\OO(x^{-5}).
+\end{equation}
+\begin{equation}
+\begin{aligned}
+ \frac{\Gamma(3x)}{\Gamma(x)}
+ &=3^{3x-1/2}x^{2x}e^{-2x}
+ \Bigl(1-\frac1{18x}+\frac1{648x^2}\\
+ &\hspace{7em}+\frac{463}{174960x^3}-\frac{1867}{12597120x^4}
+       +\OO(x^{-5})\Bigr).
+\end{aligned}
+ \label{eq:gamma-ratio-expansion}
+\end{equation}
+The remainder inside each parenthesis is relative to the prefactor.
+The corresponding absolute error is that prefactor times $\OO(x^{-5})$.
+\end{example}
+
+\begin{example}[A varying exponent]
+Multiplying \eqref{eq:stirling-logarithm} by $x$ turns the first
+Stirling correction into the constant $1/12$. It therefore belongs to
+the exact prefactor:
+\begin{equation}
+ \Gamma(x)^x=e^{1/12}
+ \left(\sqrt{2\pi}\,e^{-x}x^{x-1/2}\right)^x
+ \left(1-\frac1{360x^2}+\frac{1447}{1814400x^4}
+       +\OO(x^{-6})\right).
+ \label{eq:gamma-varying-power}
+\end{equation}
+The step from $\OO(x^{-7})$ in $\log\Gamma(x)$ to $\OO(x^{-6})$
+in $x\log\Gamma(x)$ illustrates the required increase in working order.
+\end{example}
+
+\subsection{Exact identities and elementary growth}
+
+The identities $\Gamma(x+1)=x\Gamma(x)$ and
+$\mathrm B(a,b)=\Gamma(a)\Gamma(b)/\Gamma(a+b)$ connect the same
+analysis to factorials, binomial coefficients, beta functions, and
+rising factorials. For example,
+\begin{equation}
+ \binom{2x}{x}=\frac{4^x}{\sqrt{\pi x}}
+ \left(1-\frac1{8x}+\frac1{128x^2}
+       +\frac5{1024x^3}+\OO(x^{-4})\right)
+ \qquad(x\to+\infty),
+\end{equation}
+where the binomial coefficient is defined by its Gamma quotient.
+The recurrence also proves $\Gamma(x+1)/\Gamma(x)=x$ exactly.
+Vanishing coefficients in a finite asymptotic computation alone would
+not prove this identity: a function may have all algebraic coefficients
+zero and still have a nonzero flat remainder.
+
+The construction applies equally to elementary growth. Two examples are
+\begin{align}
+ e^{x+1/x}
+   &=e^x\left(1+\frac1x+\frac1{2x^2}+\OO(x^{-3})\right),\\
+ x^{x+1/x}
+   &=x^x\left(1+\frac{\log x}{x}
+             +\frac{(\log x)^2}{2x^2}
+             +\OO\left(\frac{(\log x)^3}{x^3}\right)\right).
+\end{align}
+In each case it is the vanishing logarithmic correction, rather than
+the entire growing function, that is expanded in a small scale.

@@ -1,156 +1,62 @@
-\section{Refinement by retaining complete coefficient states}
+\section{Refinement by complete weight layers}
 \label{sec:refinement-state}
 
-The public operation \wl{SeriesRefine[s,h]} reuses an ordinary inverse
-when its stored forward model remains sufficient at the requested cutoff.
-The implementation in \path{Kernel/RefinementState.wl} supports the
-individual Lagrange and Newton methods. Its state is stored in the returned
-object; there is no global cache, and refinement leaves the source object
-unchanged. Coordinate wrappers, grouped coefficient generation, and inputs
-whose forward expansion needs additional terms use the existing source
-replay path.
+A finite generalized-power expansion is a projection of a locally finite
+formal series. Refinement means determining additional complete
+coefficients of the same inverse germ while respecting the precision of
+the forward data. The positive source gaps provide a natural filtration
+for this process.
 
-\paragraph{Complete Lagrange prefixes.}
+\subsection{Complete Lagrange prefixes}
+
 Write the normalized inverse observable as
 \[
  z^r\sum_{\omega<H}z^\omega Q_\omega(\log z),
  \qquad \omega=\boldsymbol{k}\cdot\boldsymbol{d},\quad
  \boldsymbol{k}\in\mathbb N^m,\quad d_j>0.
 \]
-The retained state contains a downward closed set of processed indices,
-its one-step outside boundary, and the complete coefficient polynomial at
-every processed weight. Zero polynomials are omitted from the displayed
-blocks but their indices remain processed. Advancing the state takes
-\emph{all} boundary indices of the smallest weight simultaneously. Every
-predecessor of such an index has smaller weight, because the gaps are
-positive. Consequently, no as yet undiscovered index can have the same
-weight, and resonant contributions are combined before the new block is
-used or displayed.
+The indices of weight less than $H$ form a finite downward-closed set.
+Its one-step outside boundary contains every index which can next enter
+as the cutoff increases. All boundary indices of the smallest weight must
+be added together. Every predecessor has smaller weight, so no undiscovered
+index of that same weight can lie beyond the boundary. Thus all resonant
+contributions are combined before a new coefficient block is determined.
 
-An inverse produced with a term goal may already retain this state. For
-an ordinary inverse constructed at an explicit cutoff, the complete
-stored blocks instead seed the state. Enumerating
-$\{\boldsymbol{k}:\boldsymbol{k}\cdot\boldsymbol{d}<H\}$ and its boundary
-recovers the index bookkeeping without reevaluating the previously
-computed Euler coefficients. The aggregate blocks remain authoritative;
-the seed does not attempt to split a resonant coefficient polynomial into
-its individual contributions.
+A zero coefficient does not erase its index from this argument. Several
+successive complete layers may cancel, and the first nonzero omitted block
+can therefore occur beyond the smallest possible excluded weight. A
+complete-tail envelope remains valid at that smaller weight even without
+locating the first nonzero block. Conversely, a finite sequence of cancelled
+layers does not prove exact termination of the series.
 
-The first omitted block is also evaluated by complete weight layers.
-These frontier coefficients are retained for later refinement, including
-zero layers skipped after cancellation. Caching a frontier can require
-more indices than merely evaluating that frontier for a remainder. If
-the additional state would exceed \wl{"MaxTerms"}, the implementation
-performs the ordinary independent frontier calculation without caching
-it. Thus this optimization does not reject an otherwise admissible
-requested cutoff solely because it tried to retain an extra frontier.
-As in ordinary construction, the bounded search through cancelled
-frontier layers may return a conservative remainder at the first possible
-omitted weight.
+\subsection{Recovering and extending a Newton approximation}
 
-\paragraph{A bounded cache of logarithmic polynomial powers.}
-The Lagrange state also retains powers of each nonconstant logarithmic
-coefficient polynomial. Exponents $0$ and $1$ refer to $1$ and the original
-model coefficient; larger cached powers form an initial consecutive
-segment. A new power is obtained by multiplying the last retained power
-by the original polynomial. Thus the product entering an Euler coefficient
-can reuse polynomial powers requested by earlier indices or earlier
-refinement calls. The Euler differential operators and normalization
-remain unchanged, and the ordinary uncached coefficient routine provides
-an independent exact comparison.
+Suppose a normalized observable is $(1+U)^r$ with $r\ne0$ and $U$ of
+positive valuation. In the filtered unit algebra its formal power with
+exponent $1/r$ uniquely recovers $1+U$. The constant term $1$ selects this
+formal branch, including when $r$ is negative or noninteger.
 
-Cached powers use only unused \wl{"MaxTerms"} slots after the processed
-index region and its boundary. When the region grows, the largest retained
-powers are evicted until their entry count fits the remaining capacity.
-If no slot is available, the requested coefficient product is evaluated
-directly. Eviction never discards an inverse coefficient or changes the
-remainder calculation. In particular, optional caching cannot turn an
-otherwise admissible index region into a resource failure. This budget
-counts retained algebraic objects; it is not a byte bound on a polynomial
-whose individual coefficients may themselves be large exact expressions.
+If the recovered unit solves the normalized implicit equation modulo the
+current precision, Newton correction increases the precision to at least
+twice its former value under the usual unit-derivative hypothesis. Each
+step therefore extends the same inverse germ. The residual, rather than
+the number of retained displayed terms, determines the precision available
+for the next step. A coarser projection of a more accurate approximation
+remains consistent with every finer projection of the same formal series.
 
-\paragraph{Recovering and extending a Newton state.}
-Suppose the displayed normalized observable is
-$(1+U)^r$ with $r\ne0$. Its constant coefficient is $1$, so the formal
-power with exponent $1/r$ uniquely recovers $1+U$ in the filtered unit
-algebra. This recovers an initial Newton state from an existing observable,
-including inverse powers arising from a source endpoint at infinity.
-The recovered unit is checked by substituting it into the normalized
-implicit equation: the residual must vanish exactly below the claimed
-precision. Only then is the state admitted for further Newton steps.
+\subsection{The forward-data precision ceiling}
 
-If a Newton state is already present, refinement retains its unit jet,
-precision, and recorded step cutoffs. Each new step increases the
-precision to the smaller of twice the old precision and the requested
-precision. The existing exact residual check applies at every step.
-After a coarser display is requested, a stronger retained state remains
-available to subsequent calls. The formal branch is selected by constant
-term $1$ throughout; no numerical root selection enters this recovery.
-
-\paragraph{Model identity and input precision.}
-Retained states are bound to the normalized model, observable power,
-assumptions, original function, and source endpoint and direction. A
-stored signature and direct comparisons detect incompatible states, and
-the displayed prefix must agree with the corresponding state prefix.
-This consistency check prevents accidental reuse after changing a model;
-it is not a certificate for arbitrarily edited internal associations.
-
-A declared forward error remains a hard cap on usable inverse precision.
-For a leading exponent $p$ and internal observable exponent $r$, a forward
-error $\OO(u^\rho |\log u|^k)$ permits target cutoff at most
+Let the leading source exponent be $p\ne0$ and the internal observable
+exponent be $r\ne0$. Under the value and derivative hypotheses of the inverse
+error-transport theorem, a forward error
+$\OO(u^\rho\M(u)^k)$ generally guarantees target power accuracy through
 \[
  \frac{\rho-p+r}{|p|}.
 \]
-The remainder's logarithmic degree is combined with that transported
-error at equal power. An error introduced by automatic expansion of an
-analytic source is distinguished from a declared error: if refinement
-requires more source terms, the constructor is replayed and the old
-model state is not reused. No cached inverse coefficients justify going
-beyond an explicit input-error declaration.
-
-\paragraph{What the counters establish.}
-Each refined object exposes \wl{"RefinementStatistics"} and appends it to
-\wl{"RefinementHistory"}. The Lagrange counters have distinct meanings:
-\begin{description}[style=nextline,leftmargin=0pt,labelwidth=0pt,labelsep=0pt,font=\normalfont]
-\item[\wl{"ReusedCoefficientEvaluations"}]
-Available individual index contributions. For a seed reconstructed from
-stored complete blocks this is the size of the old processed region,
-not work performed during seeding.
-\item[\wl{"NewCoefficientEvaluations"}]
-Actual new Euler coefficient evaluations, including any uncached frontier
-work. Supplying a cached polynomial product still counts as one coefficient
-evaluation.
-\item[\wl{"ReusedBlocks"}]
-Old nonzero blocks retained below the requested cutoff.
-The full old display has its own count,
-\wl{"AvailableSourceBlocks"}.
-\item[\wl{"ReusedPolynomialPowerRequests"}]
-Requests satisfied by already retained polynomial powers during this call.
-\item[\wl{"NewPolynomialPowerEvaluations"}]
-New expanded polynomial-power computations, including uncached requests
-when the optional cache is full. This count is separate from coefficient
-evaluations and excludes constant coefficients. It covers incremental
-coefficient generation; an independent uncached frontier calculation is
-counted separately at the coefficient level.
-\item[\wl{"RetainedPolynomialPowers"}]
-The number of powers of degree at least $2$ retained in the final state.
-Capacity and eviction counters record how the resource budget was applied.
-\end{description}
-Newton statistics separately report the old and new precision, the new
-step cutoffs, and Euler work used for the remainder frontier. These are
-exact bookkeeping quantities; they are not a count of all arithmetic
-operations and do not prove a runtime bound.
-
-The reproducible driver \path{Tests/BenchmarkRefinement.wl} compares a
-sequence of fresh public inverse constructions with one construction
-followed by public refinements. It covers dense rational gaps, two and
-three irrational gaps, resonant weights, and high logarithmic degrees,
-using both Lagrange and Newton examples. A deep one-gap case reaches target
-cutoff $64$ and also compares with the independent Catalan-number formula
-for the inverse of $x+x^2$. Acceptance requires equality of
-every complete block and remainder at every requested cutoff, together
-with the retained-state invariants. The driver reports elapsed times and
-state counters. It measures retained expression and state sizes with
-\wl{ByteCount} and evaluation peaks with \wl{MaxMemoryUsed[expr]}; these
-kernel measurements are not total-process memory bounds. No
-machine-dependent speed or memory threshold determines acceptance.
+At equal powers its logarithmic degree must be combined with that of the
+model-inverse truncation error. Computing more coefficients of a fixed
+finite model does not remove the uncertainty inherited from the forward
+data. A stronger inverse statement requires a more accurate forward model
+or an independent exact identity establishing cancellation of the unknown
+error. This distinction separates refinement of a finite approximation
+from refinement of the mathematical information on which it is based.

@@ -7,7 +7,7 @@ The branch theorem, coefficient formula and parametric convergence proof only ne
 
 Let $f$ be given near $x_0$, and let $u\to0^+$ be the local variable of $x$:
 \begin{equation}
- u=\begin{cases}x-x_0 & x\to x_0^+\ (\text{\wl{Direction -> "FromAbove"}}),\\ x_0-x & x\to x_0^-,\\ 1/x & x\to+\infty,\\ -1/x & x\to-\infty .\end{cases}
+ u=\begin{cases}x-x_0 & x\to x_0^+,\\ x_0-x & x\to x_0^-,\\ 1/x & x\to+\infty,\\ -1/x & x\to-\infty .\end{cases}
  \label{eq:local-u}
 \end{equation}
 Substituting into $f$ and expanding (Section~\ref{sec:forward}) gives a germ $y_0+au^p(1+\sum u^{\delta_i}B_i(\log u))$ in the sense of \eqref{eq:model}, where $y_0=\lim f$ is finite when $p>0$. For $p<0$ the target endpoint is $\pm\infty$ with the sign of $a$, while the additive offset $y_0$ in \eqref{eq:model} is set to $0$; any constant term is a correction with gap $-p$. The local variable of $y$ is
@@ -77,5 +77,5 @@ For $F(x)=(1+x+x^{\sqrt2})^{\sqrt2}$ at $+\infty$ the forward germ is $u^{-2}(1+
 \end{aligned}
  \label{eq:second-inverse}
 \end{equation}
-the terms being ordered by decreasing exponent $-(r+\sigma)/2$ of $y$, with local-coordinate power $r=-1$. The forward remainder is transported by \eqref{eq:transport-power} with that value of $r$; the package raises the forward order until the cap reaches the requested cutoff. An independent derivation removes the outer power exactly: $1+x+x^{\sqrt2}=y^{1/\sqrt2}$, then applies the finite-germ coefficient formula. Numerically, with seven blocks at $y=10^{16}$ the recorded error is $4\cdot10^{-11}$ against a leading term $10^8$ (Table~\ref{tab:numbers}).
+the terms being ordered by decreasing exponent $-(r+\sigma)/2$ of $y$, with local-coordinate power $r=-1$. The forward remainder is transported by \eqref{eq:transport-power} with that value of $r$; the available forward order must be sufficient for the desired inverse cutoff. An independent derivation removes the outer power exactly: $1+x+x^{\sqrt2}=y^{1/\sqrt2}$, then applies the finite-germ coefficient formula.
 \end{example}

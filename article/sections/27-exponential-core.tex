@@ -2,11 +2,10 @@
 \label{sec:exponential-core-perturbation}
 
 An inverse--logarithmic expansion of the Lambert function does not resolve
-the much smaller correction caused by adding $x^2$ to $xe^x$. The operation
-\wl{AsymptoticExponentialCoreInverse} retains the Lambert inverse exactly
-and expands those corrections in a separate small exponential scale.
-Its zero sector is an exact inverse, and each retained coefficient is a
-complete function of that inverse.
+the much smaller correction caused by adding $x^2$ to $xe^x$. Retaining
+the Lambert inverse exactly makes it possible to expand those corrections
+in a separate small exponential scale. The zero sector is an exact inverse,
+and each retained coefficient is a complete function of that inverse.
 
 \subsection{The admitted core and source charts}
 
@@ -23,10 +22,8 @@ Every such perturbation, including its finitely many derivatives, is
 smaller than the growing core sufficiently near the endpoint.
 
 At an infinite original source endpoint, the reconstruction is
-$x=H(v)=s+\sigma v$ with $\sigma\in\{1,-1\}$. The source translation
-$s$ can be supplied explicitly or recognized from affine factors in the
-core. At a finite endpoint, use $x=H(v)=x_0+\sigma/v$.
-Thus the same operation covers both $xe^x+x^2$ at infinity and
+$x=H(v)=s+\sigma v$ with $\sigma\in\{1,-1\}$. The source translation $s$ is fixed. At a finite endpoint, use $x=H(v)=x_0+\sigma/v$.
+Thus the same construction covers both $xe^x+x^2$ at infinity and
 $e^{1/x}+x$ at $0^+$. Define $r_*=1$ for the first reconstruction and
 $r_*=-1$ for the second.
 
@@ -45,16 +42,15 @@ Let $Y=(y-y_0)/a>0$. The selected exact core inverse is
 \end{equation}
 These are the real branches with $v_0\to+\infty$.
 For $b<0$, the argument is negative and the lower branch selects the
-increasing large-$v$ part of the core. The target domain records the real
-Lambert argument condition, positivity of the real-power base, and
+increasing large-$v$ part of the core. The real branch requires the Lambert argument condition, positivity
+of the real-power base, and
 $b+cpv_0^p>0$. In all cases the exact inverse in the original source is
 $\phi(y)=H(v_0(y))$.
 
-An optional supplied \wl{"CoreInverse"} is retained only after a bounded
-symbolic comparison establishes equality with this selected exact
-expression. Additional terms inside the stated core are rejected if they
-would make \eqref{eq:exponential-core-exact-inverse} merely an approximation.
-They can instead be placed in the separately declared finite perturbation.
+The inverse in \eqref{eq:exponential-core-exact-inverse} must remain
+exact. Additional terms in the leading expression that would invalidate
+this identity belong to the perturbation $R$, provided they satisfy its
+stated scale assumptions.
 
 \subsection{Complete coefficients without expanding the core inverse}
 
@@ -80,9 +76,9 @@ power--logarithmic and rational operations on $v$:
 \end{align}
 Indeed, differentiating $Q(v)E(v)^j$ gives
 $(Q'-jcpv^{p-1}Q)E^j$, and division by $F_0'$ adds one factor of $E$.
-The implementation therefore avoids intermediate derivatives of
-\wl{ProductLog} and avoids mixing the exact exponential factor into each
-coefficient calculation.
+Thus the recurrence differentiates rational power--logarithmic
+coefficients rather than the Lambert inverse, and keeps the exponential
+scale separate from those coefficients.
 
 The exact core identity gives a second, often more convenient expression
 for the small scale:
@@ -90,8 +86,7 @@ for the small scale:
  E_0=e^{-cv_0^p}=\frac{v_0^b}{Y}.
  \label{eq:exponential-core-target-sector}
 \end{equation}
-The result records both expressions and uses the right-hand side in the
-retained formula. It is positive on the selected branch. Through inclusive
+Both expressions are exact and positive on the selected branch. Through inclusive
 sector degree $N$, the approximation is
 \begin{equation}
  \phi(y)+\sum_{n=1}^N C_n(v_0(y))E_0(y)^n.
@@ -239,48 +234,31 @@ so the scale can be expressed in $v_0$.
 
 Equation~\eqref{eq:exponential-core-input-transport} has exponential degree
 one, even when the finite model has been expanded through a much larger
-sector depth. The implementation therefore stores it separately and adds
-it to the model-tail remainder. It does not relabel it as a higher sector
-or claim that additional exact model coefficients overcome unknown input
-data. The retained terms beyond this error still describe the explicitly
+sector depth. It must therefore be added as a separate first-sector
+error to the model-tail remainder. Additional coefficients of the exact
+model cannot improve the uncertainty inherited from the input data. The retained terms beyond this error still describe the explicitly
 specified finite model.
 
-\subsection{Implemented behavior and verification}
+\subsection{Scope of the single-phase construction}
 
-\begin{lstlisting}[language=Mathematica]
-AsymptoticExponentialCoreInverse[
-  x Exp[x], x^2, {x, Infinity}, {y, 2}]
+The complete-tail theorem provides existence of constants and a uniform
+threshold for fixed data. Explicit numerical values require a further
+quantitative analysis of the analytic neighborhoods in its proof.
 
-AsymptoticExponentialCoreInverse[
-  7 + 3 (x - 2) Exp[x - 2], 5 (x - 2)^2,
-  {x, Infinity}, {y, 1}]
+The coefficient identities can also be checked by formal substitution.
+For the primary example, insert
+$X=v+\sum_{n=1}^N C_n(v)Z^n$ into
+\[
+ X e^{X-v}-v+ZX^2=0.
+\]
+Vanishing of the coefficients through degree $N$ follows from the unique
+formal solution with constant term $v$. This verifies the finite algebraic
+coefficients independently of the complete-tail estimate.
 
-AsymptoticExponentialCoreInverse[
-  Exp[1/(2 - x)], 2 - x, {x, 2}, {y, 1},
-  Direction -> "FromBelow"]
-\end{lstlisting}
-
-The result identifies scale \wl{"ExactExponentialCoreSectors"}.
-It records the exact inverse and branch certificate, the divergent source
-coordinate and reconstruction, the complete sector coefficients, the first
-omitted coefficient, both representations of $E_0$, and the separate model
-and input-error remainders. Its \wl{"MajorantContract"} is an asymptotic
-existence theorem, with \wl{"NumericCertificate"} set to \wl{False}; the
-constants and uniform threshold are not computed numerical bounds.
-
-Independent regression checks insert
-$v+\sum_{n=1}^N C_n(v)Z^n$ into
-$X e^{X-v}-v+ZX^2=0$ for the primary example and perform ordinary Taylor
-expansion in $Z$. Further checks use original forward targets generated
-from known source points, compare successive sector depths at high
-precision, and exercise affine shifts and scales, negative source infinity,
-the lower real Lambert branch, nonunit phase powers and finite endpoint
-reconstruction. Rejection cases cover a decaying core, an additional term
-incorrectly placed in the exact core, an extra exponential rank in the
-perturbation, an unverified inverse, and unproved coefficient reality.
-
-The admitted phase is a single growing monomial $cv^p$. General phase
-polynomials would need an appropriate exact inverse supplied with its own
-branch contract, while perturbations such as $e^{v/2}$ need more than the
-single exponential sector used here. The operation does not replace those
-missing contracts with a finite inverse--logarithmic core approximation.
+The phase in this construction is a single growing monomial $cv^p$.
+A general phase polynomial needs an appropriate exact core inverse with
+its own branch analysis. A perturbation such as $e^{v/2}$ introduces a
+further exponential scale and is not a finite power--logarithmic
+perturbation. A finite inverse-logarithmic approximation to the core would
+not resolve this obstruction, since its error can dominate the very
+correction one intends to calculate.

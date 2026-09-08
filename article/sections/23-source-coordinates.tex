@@ -1,58 +1,58 @@
-\section{Implemented source charts and reconstruction checks}
+\section{Source charts and reconstruction of inverse asymptotics}
 \label{sec:source-chart-implementation}
 
-The implementation of Section~\ref{sec:coordinates} lives in
-\path{Kernel/SourceCoordinates.wl}. The two chart families
-are distinguished by the function used to reconstruct the source:
-\wl{"SourceExp"} reconstructs an exponential, while
-\wl{"SourceLog"} reconstructs a logarithm. The underlying inverse always
-has observable power $1$. Powers of the original inverse are formed only
-after that chart variable has been computed.
+An exact source chart can convert a problem outside the power--logarithmic
+scale into one covered by the preceding inversion formulas. The inverse
+must then be reconstructed through that chart, with its error transported
+through the reconstruction function. Exponential and logarithmic
+reconstructions have substantially different sensitivity to inner errors.
 
-\paragraph{Pure logarithmic source dependence.}
-First choose the positive local source coordinate $u$ from the endpoint
-and direction. Substitute $u=e^{-h}$, so $h\to+\infty$. A pure
-logarithmic expression becomes a function $\Phi(h)$ with no residual
-exponential dependence on $h$, and the existing inverse dispatcher solves
-$\Phi(h)=y$. For a finite endpoint $x_0$ and side $s\in\{-1,1\}$,
+\subsection{Pure logarithmic source dependence}
+
+Choose the positive local source coordinate $u$ associated with the endpoint
+and side. Substitute $u=e^{-h}$, so $h\to+\infty$. A purely logarithmic
+expression becomes an equation $\Phi(h)=y$ with no residual exponential
+dependence on $h$. At a finite endpoint $x_0$ and side $s\in\{-1,1\}$,
 \[
  x=x_0+s e^{-h};
 \]
-at the source infinity with sign $s$, the reconstruction is $x=s e^h$.
-Thus the noninteger real powers $(-\log u)^q$, polynomial and rational
-combinations of $\log u$, and both finite source directions can use the
-same chart whenever the transformed inverse belongs to a supported scale.
+at a source infinity of sign $s$, the reconstruction is $x=s e^h$.
+Noninteger real powers $(-\log u)^q$ and polynomial or rational combinations
+of $\log u$ can therefore use the same chart whenever the transformed
+inverse has an appropriate asymptotic expansion.
 
-For example, $F(u)=(\log u)^2+\log u$ becomes $h^2-h$, and its small
+For example, $F(u)=(\log u)^2+\log u$ becomes $h^2-h$. Its small
 positive inverse begins
 \[
  u=e^{-\sqrt y-1/2}
  \left(1-\frac1{8\sqrt y}+\OO(y^{-1})\right).
 \]
-The exponential factor multiplies the absolute remainder. A finite-order
-approximation to $h$ is usable here only when its absolute error tends to
-zero. A finite relative Lambert expansion for a growing $h$ need not have
-this property; increasing its logarithmic depth alone does not resolve
-that obstruction.
+The exponential factor multiplies the absolute remainder. Indeed, if
+$h=H+R$ with $R=o(1)$, then
+\[
+ e^{-h}=e^{-H}\bigl(1+\OO(R)\bigr).
+\]
+The hypothesis $R=o(1)$ is essential. A finite relative expansion for a
+growing $h$ need not have an absolute error tending to zero, and therefore
+need not justify this reconstruction. In particular, a fixed-depth
+inverse-logarithmic approximation to a growing Lambert function may fail
+this condition.
 
-An exact transformed inverse may instead be kept as an exact carrier.
-Repeated exact charts therefore give, for instance, the exact inverse
-$u=\exp(-e^y)$ of $\log(-\log u)$. Recursion is bounded to avoid an
-uncontrolled recognizer loop. Exactness is recorded separately: it can
-come from an exact inner series, an exact inner inverse, or a bounded
-symbolic check that a small candidate composes exactly to the target.
-The asymptotic branch of the inner inverse fixes which exact solution is
-being reconstructed.
+An exact transformed inverse has no such obstruction. Repeated exact
+charts give the exact inverse $u=\exp(-e^y)$ of $\log(-\log u)$.
+An exact candidate is identified by its defining equation and the selected
+local branch; equality to some other real or complex solution is insufficient.
 
-\paragraph{Finite exponential families.}
-At $x\to s\infty$, the implementation takes $u=e^{-s x}$, so
-$x=-s\log u$. Finite sums of real exponential rates become finite
-generalized-power germs in $u$. Equal rates and cancellations are handled
-by the ordinary canonicalization before a leading term is selected.
-Rates need not be commensurable. The recognizer requires a nonzero leading
-algebraic exponent after removing a constant target offset; additional
-logarithmic factors are permitted when the resulting finite power--log
-germ is supported by the inner engine.
+\subsection{Finite exponential families}
+
+At $x\to s\infty$, set $u=e^{-s x}$, so $x=-s\log u$. Finite sums
+of real exponentials become finite generalized-power germs in $u$. Their
+rates need not be commensurable. Equal powers and cancellations are combined
+before selecting the leading term. When the resulting expression has a
+nonzero leading power after subtraction of the target offset, its inverse
+can be constructed in the new coordinate. Logarithmic factors can be
+included whenever the transformed coefficient algebra has the required
+closure properties.
 
 For example,
 \[
@@ -62,55 +62,49 @@ For example,
  \qquad y\to0^+.
 \]
 The inverse of $e^x+e^{-x}$ at $+\infty$ begins
-$\log y-y^{-2}$; selecting the source endpoint $-\infty$ gives its
-negative. The chart preserves this distinction rather than choosing a
-numerical root without an endpoint condition.
+$\log y-y^{-2}+\OO(y^{-4})$. At $-\infty$ the selected inverse is its
+negative. The source endpoint is part of the branch specification.
 
-\paragraph{Original observables and term counts.}
-At a finite source endpoint, the power option represents
-$(x-x_0)^r$ when $r\ne1$, and the inverse itself when $r=1$.
-At infinity it represents $x^r$. A negative source side therefore requires
-integer $r$ for these real-valued observable conventions. Exponential
-reconstruction multiplies $h$ by $\pm r$ before exponentiating; a finite
-source offset is added separately when $r=1$.
+\subsection{Observables and exact carriers}
 
-For a non-polynomial power of a logarithmic reconstruction, the finite
-approximation can be retained inside a specified observable carrier.
-If $X\sim c|\log w|$ and $x-X=\OO(w^P\M^D)$ with $P>0$, the mean
-value theorem gives
+At a finite source endpoint, a natural observable is $(x-x_0)^r$;
+the inverse itself additionally includes the offset when $r=1$.
+At infinity the observable is $x^r$. On a negative source side, integer
+$r$ gives a real observable without an additional real-power convention.
+For exponential reconstruction the exponent is multiplied by the
+corresponding signed power before exponentiation.
+
+A noninteger power of a logarithmic reconstruction need not be a finite
+polynomial--logarithmic expression. It can instead be retained as an exact
+function of the finite approximation. Suppose $X>0$,
+$X\sim c|\log w|$ with $c>0$, and
+$x-X=\OO(w^P\M(w)^D)$ with $P>0$. Then $x/X\to1$, and the mean
+value theorem yields
 \[
  \frac{x^r-X^r}{X^r}
  =\OO\left(\frac{x-X}{X}\right)
- =\OO(w^P\M^D).
+ =\OO(w^P\M(w)^D).
 \]
-This deliberately conservative relative bound makes the retained carrier
-$X^r$ usable without claiming a finite polynomial--log expansion of its
-fractional power. An explicit cutoff is required for that representation;
-a unit-block term count would not count the corrections retained inside
-the carrier. In the ordinary reconstructed unit, the term-goal option
-counts the actual nonzero reconstructed blocks.
+The conservative final bound allows the carrier $X^r$ to remain intact.
+Its internal retained corrections must still be distinguished from a single
+constant coefficient multiplying that carrier. Precision is determined by
+the approximation to $X$, rather than by merely counting outer summands.
 
-\paragraph{Residuals and numerical comparisons.}
-The object records both directions of the chart and an expression that
-recovers the chart variable from the requested observable. Formal
-residual checking applies that expression to the \emph{returned finite
-observable}. It does not reuse the unmodified inner inverse blocks after
-an exponential or logarithmic reconstruction has introduced a new
-truncation. The checked residual is
+\subsection{Residuals after reconstruction}
+
+To evaluate a defining-equation residual, first recover the chart variable
+from the actual finite reconstructed observable. If that reconstructed
+variable is $\widehat h$, the normalized defect is
 \[
- \frac{\Phi(h_{\mathrm{returned}})-y}{y-y_0},
+ \frac{\Phi(\widehat h)-y}{y-y_0},
 \]
-with denominator $y$ at an infinite target. If reconstruction requires a
-coefficient algebra outside the supported jet scale, the exact residual
-expression is still returned, accompanied by an explicit indication that
-no jet-order assertion was made.
+with denominator $y$ at an infinite target. Using the unreconstructed inner
+approximation in place of $\widehat h$ would miss errors introduced by a
+subsequent truncation of the exponential or logarithm.
 
-Numerical comparison solves $\Phi(h)=y$ at high precision, reconstructs
-the source, checks its original side, and compares the requested observable
-with the returned approximation. This avoids unnecessarily evaluating a
-very large or very small original exponential during root finding. It is
-numerical evidence, not an interval certificate. Refinement replays the
-original inverse problem and reconstruction, preserving inverse provenance.
-An externally supplied forward remainder must first be transported through
-the source chart; such a declaration is rejected until that transport has
-been specified.
+The residual is an exact expression even when its asymptotic expansion
+requires a larger coefficient algebra. An order assertion additionally
+requires a justified expansion in that algebra. Similarly, an unknown
+forward error must be transported through the source chart before applying
+an inverse-error theorem. Exact coordinate identities alone do not justify
+differentiating or exponentiating an unspecified magnitude remainder.

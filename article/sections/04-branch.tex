@@ -58,15 +58,15 @@ $x(3+2\log x)$ has derivative $5+2\log x$, minimum at $x=e^{-5/2}$ with value $-
 
 So for both examples the branch of Theorem~\ref{thm:branch} is \emph{the} real inverse, and the expansions \eqref{eq:answer1}--\eqref{eq:answer2} describe it near $0$; the absence of a second-order Taylor expansion of $g_1$ at $0$ is exactly why $\log y$ must appear at $y^2$.
 
-\subsection{The complex germ returned by \wl{InverseFunction}}
+\subsection{Competing complex inverse germs}
 
 The equation $f_1(x)=0$, $x\ne0$, reads $1+x(1+\log x)=0$. With $t=1+\log x$ it becomes $te^t=-e$, so $t=\W_k(-e)$ and
 \begin{equation}
  c_k=e^{\W_k(-e)-1}=-\frac1{\W_k(-e)},\qquad f_1'(c_k)=c_k-1,\qquad f_1''(c_k)=3+2\W_k(-e),
  \label{eq:complex-root}
 \end{equation}
-where the derivative identities follow from $c_k\W_k(-e)=-1$, provided the logarithm near $c_k$ is chosen to have value $\W_k(-e)-1$ there. This branch qualification matters: with the fixed principal logarithm used by \wl{Log}, the relevant roots are the conjugate pair $k=0,-1$; other $k$ require other local logarithm branches. For each compatible choice the derivative is nonzero, and the analytic inverse function theorem gives an inverse germ through $c_k$. The reported \wl{Series[InverseFunction[...][y], \{y, 0, 2\}]} result chooses $k=-1$:
+where the derivative identities follow from $c_k\W_k(-e)=-1$, provided the logarithm near $c_k$ is chosen to have value $\W_k(-e)-1$ there. This branch qualification matters: with the fixed principal logarithm, the relevant roots are the conjugate pair $k=0,-1$; other $k$ require other local logarithm branches. For each compatible choice the derivative is nonzero, and the analytic inverse function theorem gives an inverse germ through $c_k$. For the choice $k=-1$, the Taylor expansion is
 \[
  c+\frac{y}{c-1}-\frac{f_1''(c)}{2f_1'(c)^3}y^2+\cdots=c+\frac{y}{c-1}-\frac{3+2\W_{-1}(-e)}{2(c-1)^3}y^2+\OO(y^3),
 \]
-which is \eqref{eq:complex-germ}. Nothing is wrong with this answer: it is the inverse of a different branch of $f_1^{-1}$, the one through a complex root, and adding \wl{Assumptions -> y > 0} cannot repair it, because the reality of $y$ says nothing about which preimage is intended. The real branch is characterised by $g(y)\to0$, and that condition, not an assumption on $y$, is what an inversion routine must be given; the package builds the branch of Theorem~\ref{thm:branch} directly and never asks \wl{InverseFunction} to choose.
+which is \eqref{eq:complex-germ}. This germ is the inverse through a complex root. Restricting the target to real positive $y$ does not select a real preimage. The positive real branch is instead characterized by $g(y)>0$ and $g(y)\to0$, as in Theorem~\ref{thm:branch}; this limiting condition distinguishes it from every germ through a nonzero root.

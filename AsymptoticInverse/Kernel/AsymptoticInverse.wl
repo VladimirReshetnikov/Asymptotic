@@ -20,8 +20,8 @@ as a PowerLogSeries object.
 AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero blocks.
 AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] is equivalent. A unary pure Function \
 or unapplied InverseFunction is applied to x before expansion.
-For Gamma and its fixed exact real powers on a positive argument tending to Infinity, an exact prefactor is extracted; \
-the cutoff and term goal apply to the power-log correction bracket.";
+For supported Gamma products, ratios, real varying powers and elementary exponential growth, an exact prefactor is extracted; \
+the cutoff and term goal apply to the power-log correction bracket. See Documentation/UserGuide.md for the admitted real domains and scales.";
 
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
@@ -31,7 +31,7 @@ less than cutoff in the local variable (y - y0, or 1/y when y0 is infinite) is r
 AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n] retains the first n nonzero blocks.
 Recognized leading-logarithmic and exponential cores return Scale -> \"Logarithmic\": \
 the cutoff and term count apply to the unit bracket after extracting Prefactor, in \
-the positive inverse-logarithmic variable LogarithmicVariable. See the package README \
+the positive inverse-logarithmic variable LogarithmicVariable. See Documentation/UserGuide.md \
 for this scale's branch and remainder conventions.";
 
 PowerLogSeries::usage =

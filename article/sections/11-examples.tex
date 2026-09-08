@@ -1,18 +1,18 @@
 \section{Worked examples}
 \label{sec:examples}
 
-All expansions in this section were produced by the package and checked by the residual composition of Section~\ref{sec:transport} and numerically; the displayed logarithms are $\log$ of the indicated argument.
+The following examples apply the coefficient formula and the remainder transport of Section~\ref{sec:transport}. All logarithms have the indicated positive real argument.
 
 \subsection{The two examples of the first question, once more}
 
-For $f_1=x+x^2(1+\log x)$ the package call \wl{AsymptoticInverse[x + x\^{}2 (1 + Log[x]), \{x, 0\}, \{y, 6\}]} returns \eqref{eq:answer1} with the remainder \wl{PowerLogRemainder[y, 6, 5]}; the sixth block is
+For $f_1=x+x^2(1+\log x)$, formula \eqref{eq:log-example} yields \eqref{eq:answer1} with remainder $\OO(y^6\M(y)^5)$. The coefficient of the next block $y^6P_5(L)$ is
 \begin{align*}
  P_5(L)&=-42L^5-\tfrac{3727}{12}L^4-\tfrac{5365}{6}L^3-1256L^2-\tfrac{5177}{6}L-\tfrac{2789}{12}\\
  &=-\tfrac1{12}(1+L)\bigl(504L^4+3223L^3+7507L^2+7565L+2789\bigr),
 \end{align*}
-and the seventh $P_6=\tfrac1{60}(1+L)(7920L^5+63852L^4+200833L^3+308537L^2+231883L+68307)$. With rational exponents the same object is available as \wl{SeriesData[y, 0, \{1, -1 - Log[y], 3 + 5 Log[y] + 2 Log[y]\^{}2, ...\}, 1, 6, 1]}, on which the built-in series arithmetic works (with the caveat that its \wl{O[y]\^{}6} hides the factor $\M(y)^5$).
+and the seventh $P_6=\tfrac1{60}(1+L)(7920L^5+63852L^4+200833L^3+308537L^2+231883L+68307)$. The remainder retains its logarithmic degree even though the power exponents happen to be integers.
 
-For $f_2=x+x^{\sqrt2}$, \wl{SeriesTermGoal -> 4} returns exactly the four terms requested in the question with remainder \wl{PowerLogRemainder[y, 4 Sqrt[2] - 3, 0]}; the exponent cutoff that produces the same result is $4\sqrt2-3$.
+For $f_2=x+x^{\sqrt2}$, retaining four blocks in \eqref{eq:fuss-catalan} gives remainder $\OO(y^{4\sqrt2-3})$. The corresponding exclusive exponent cutoff is $4\sqrt2-3$.
 
 \subsection{Nonunit leading power}
 
@@ -36,15 +36,23 @@ where $\tfrac1{48}(\D+6)(\D+8)(1+L)^3=(1+L)^3+\tfrac78(1+L)^2+\tfrac18(1+L)$. Tw
 \end{align*}
 the mixed blocks coming from \eqref{eq:cross}: the index $(1,1)$ gives $(\D+2+\sqrt2)(1+L)=(\sqrt2+2)(1+L)+1$. The remainder is the block $y^3(2L^2+5L+3)$ of the index $(0,2)$, of degree $2$.
 
-\paragraph{Two irrational gaps.} $f(x)=x+x^{\sqrt2}(1+\log x)+2x^{\sqrt3}$ has gaps $\sqrt2-1$ and $\sqrt3-1$, whose sums are the numbers $k_1(\sqrt2-1)+k_2(\sqrt3-1)$; the package represents them by \wl{RootReduce} (for instance $\sqrt2+\sqrt3=\wl{Root[1 - 10 \#\^{}2 + \#\^{}4 \&, 4]}$) and displays them with \wl{ToRadicals}. Below the exponent $3$ there are eleven blocks; the residual check passes only when the coefficients, which involve $\sqrt{5+2\sqrt6}=\sqrt2+\sqrt3$, are canonicalised with \wl{RootReduce}: this is precisely the zero-recognition defect that made one test of report~01 fail (Section~\ref{sec:reports}).
+\paragraph{Two irrational gaps.} For
+$f(x)=x+x^{\sqrt2}(1+\log x)+2x^{\sqrt3}$ the support weights are
+$k_1(\sqrt2-1)+k_2(\sqrt3-1)$. Local finiteness gives finitely many blocks
+below every cutoff; below exponent $3$ there are eleven possible weights.
+Algebraic identities among coefficient expressions must be respected when
+forming the complete polynomial of a block. For example,
+$\sqrt{5+2\sqrt6}=\sqrt2+\sqrt3$ because both sides are positive and their
+squares agree. Coefficient cancellation is a question about exact real
+numbers, independent of their chosen radical expressions.
 
-\subsection{Automatically expanded forward functions}
+\subsection{Forward functions given by convergent series}
 
-$\sin x+x^2\log x$ is not a finite power--log sum. The evaluator of Section~\ref{sec:evaluator} expands it to $x+x^2\log x-\tfrac16x^3+\tfrac1{120}x^5+\OO(x^7)$, records $(\rho,k)=(7,0)$, and the inverse below the exponent $4$ is
+$\sin x+x^2\log x$ is not a finite power--log sum. Its Taylor expansion gives $x+x^2\log x-\tfrac16x^3+\tfrac1{120}x^5+\OO(x^7)$, with $(\rho,k)=(7,0)$, and the inverse below the exponent $4$ is
 \[
  g(y)=y-y^2\log y+y^3\Bigl(\frac16+\log y+2\log^2y\Bigr)+\OO\bigl(y^4\M^3\bigr);
 \]
-here the $y^3$ block combines $(\D+4)L^2/2=2L^2+L$ from the index $(2,0)$ (gap $1$, $B_1=L$) with $+\tfrac16$ from the index $(0,1)$ (gap $2$, $B_2=-\tfrac16$). Similarly $\tan x$ gives $\arctan$: \wl{SeriesTermGoal -> 4} yields $y-\tfrac13y^3+\tfrac15y^5-\tfrac17y^7$, the forward order being raised automatically until the transported remainder allows the fourth term.
+here the $y^3$ block combines $(\D+4)L^2/2=2L^2+L$ from the index $(2,0)$ (gap $1$, $B_1=L$) with $+\tfrac16$ from the index $(0,1)$ (gap $2$, $B_2=-\tfrac16$). Similarly the inverse of $\tan x$ is $\arctan y=y-\tfrac13y^3+\tfrac15y^5-\tfrac17y^7+\OO(y^9)$. Determining the term of degree seven requires enough terms of the forward Taylor series to transport its remainder beyond that degree.
 
 \subsection{Symbolic data}
 
@@ -56,4 +64,4 @@ which is \eqref{eq:fuss-catalan} with a symbolic $\alpha$.
 
 \subsection{Powers and logarithms of the inverse}
 
-For $f=x+x^2$, \eqref{eq:master} with $r=2$ gives $g^2=y^2-2y^3+5y^4-14y^5+\cdots$ (Catalan numbers again), with $r=-1$ it gives $1/g=y^{-1}+1-y+2y^2-5y^3+\cdots$, and \eqref{eq:master-1-log} gives $\log g=\log y-y+\tfrac32y^2-\tfrac{10}3y^3+\cdots$. These expansions are exact consequences of the same coefficient formula and cost nothing extra; expanding \wl{Normal[g]\^{}2} instead would silently lose the remainder information.
+For $f=x+x^2$, \eqref{eq:master} with $r=2$ gives $g^2=y^2-2y^3+5y^4-14y^5+\cdots$ (Catalan numbers again), with $r=-1$ it gives $1/g=y^{-1}+1-y+2y^2-5y^3+\cdots$, and \eqref{eq:master-1-log} gives $\log g=\log y-y+\tfrac32y^2-\tfrac{10}3y^3+\cdots$. These expansions follow from the same coefficient identity. Equivalently, one can apply the arithmetic of jets while transporting the remainder, including the valuation shifts required by negative powers.

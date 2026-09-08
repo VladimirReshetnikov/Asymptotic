@@ -1,0 +1,1131 @@
+# AsymptoticInverse User Guide
+
+AsymptoticInverse computes asymptotic expansions of functions and selected real inverse functions. It supports exact real exponents, logarithmic coefficients, finite and infinite endpoints, and explicit remainder classes. Additional constructors handle logarithmic hierarchies, exponential sectors, oscillatory coefficients, and selected special functions.
+
+This guide describes the Wolfram Language interface. See the [mathematical article](../../article/asymptotic-inverse.pdf) for definitions, results, and proofs.
+
+## Getting Started
+
+The package requires Wolfram Language 15.0 or later. From the repository directory, load the kernel file:
+
+```wolfram
+Get["AsymptoticInverse/Kernel/AsymptoticInverse.wl"];
+```
+
+Alternatively, register the package directory and load its context:
+
+```wolfram
+PacletDirectoryLoad["AsymptoticInverse"];
+Needs["AsymptoticInverse`"];
+```
+
+Use exact input such as `Sqrt[2]` and `1/10`. Leave the source and target symbols unassigned.
+
+**Input**
+
+```wolfram
+Clear[x, y];
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{y - y^2 + 2 y^3 - 5 y^4, PowerLogRemainder[y, 5, 0]}
+```
+
+`Normal[s]` gives the finite approximation. Keep `s` when you need its remainder, branch information, or further series operations.
+
+Outputs below are written in algebraically equivalent factored forms where this makes the expansion easier to read.
+
+## Function Overview
+
+| Task | Functions |
+| --- | --- |
+| Expand a function | [AsymptoticExpansion](#AsymptoticExpansion) |
+| Expand a selected inverse | [AsymptoticInverse](#AsymptoticInverse) |
+| Inspect results and models | [PowerLogSeries](#PowerLogSeries), [PowerLogRemainder](#PowerLogRemainder), [PowerLogModel](#PowerLogModel), [InverseExpansionCoefficient](#InverseExpansionCoefficient) |
+| Perform series arithmetic | [SeriesAdd](#SeriesAdd), [SeriesMultiply](#SeriesMultiply), [SeriesPower](#SeriesPower), [SeriesLog](#SeriesLog), [SeriesExp](#SeriesExp) |
+| Compose or apply a function | [SeriesCompose](#SeriesCompose), [SeriesObservable](#SeriesObservable) |
+| Change the retained order | [SeriesTruncate](#SeriesTruncate), [SeriesRefine](#SeriesRefine) |
+| Differentiate an expansion | [SeriesDifferentiate](#SeriesDifferentiate) |
+| Check an inverse | [InverseResidual](#InverseResidual), [InverseNumericalCheck](#InverseNumericalCheck), [InverseCertificate](#InverseCertificate) |
+| Retain an exact inverse core | [AsymptoticCoreInverse](#AsymptoticCoreInverse), [AsymptoticExponentialCoreInverse](#AsymptoticExponentialCoreInverse) |
+| Generate perturbation formulas | [PerturbativeInverse](#PerturbativeInverse) |
+| Use logarithmic hierarchies | [AsymptoticLogarithmicInverse](#AsymptoticLogarithmicInverse), [LogarithmicInverseResidual](#LogarithmicInverseResidual), [ReciprocalLogCompose](#ReciprocalLogCompose), [ReciprocalLogDifferentiate](#ReciprocalLogDifferentiate) |
+| Use flat exponential sectors | [AsymptoticFlatInverse](#AsymptoticFlatInverse), [FlatSeriesTruncate](#FlatSeriesTruncate), [FlatSeriesMultiply](#FlatSeriesMultiply), [FlatSeriesObservable](#FlatSeriesObservable), [FlatSeriesDifferentiate](#FlatSeriesDifferentiate) |
+| Use oscillatory logarithmic coefficients | [AsymptoticFourierInverse](#AsymptoticFourierInverse), [FourierInverseResidual](#FourierInverseResidual), [FourierInverseCoefficient](#FourierInverseCoefficient) |
+| Use special-function inverse adapters | [AsymptoticSpecialInverse](#AsymptoticSpecialInverse), [SpecialInverseNumericalCheck](#SpecialInverseNumericalCheck) |
+
+<a id="AsymptoticExpansion"></a>
+## AsymptoticExpansion
+
+### Usage
+
+| Form | Result |
+| --- | --- |
+| `AsymptoticExpansion[f, {x, x0, h}]` | Expansion at `x0` with exclusive cutoff `h`. |
+| `AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]` | First `n` complete nonzero blocks. |
+| `AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n]` | Equivalent rule form. |
+
+`f` can be an expression, a unary pure function, or an unapplied unary `InverseFunction`. A callable is applied to `x`. A bare symbol is treated as an expression: use `Log[x]` or `Log[#] &` to expand the logarithm.
+
+An applied inverse can also occur inside a supported expression. See [Callable and Applied Inverse Functions](#inverse-function-expressions).
+
+### Details and Options
+
+`AsymptoticExpansion` accepts `Assumptions -> True`, `Direction -> Automatic`, `SeriesTermGoal -> Automatic`, `"MaxTerms" -> 20000`, and `"InverseFunctionBranches" -> Automatic`.
+
+Ordinary expansions use an absolute cutoff in the positive local coordinate. Gamma products and admitted exponential products use a cutoff inside an exact prefactor. A direct inverse-function result retains its inverse constructor's cutoff convention. See [Coordinates and Cutoffs](#coordinates-and-cutoffs).
+
+The ordinary input class includes sums, products, exact real constant powers, logarithms, exponentials of bounded arguments, and supported Taylor, Laurent, or Puiseux function expansions. A branch or exponent ordering that cannot be established produces a `Failure`.
+
+<a id="AsymptoticInverse"></a>
+## AsymptoticInverse
+
+### Usage
+
+| Form | Result |
+| --- | --- |
+| `AsymptoticInverse[f, {x, x0}, {y, h}]` | Inverse approaching `x0` on the selected source side, with cutoff `h`. |
+| `AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n]` | First `n` complete nonzero inverse blocks. |
+| `AsymptoticInverse[f, x, y, SeriesTermGoal -> n]` | Inverse approaching zero from above. |
+
+The source symbol `x` and target symbol `y` must be distinct. The forward expression `f` must not contain `y`.
+
+### Details and Options
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `Assumptions` | `True` | Parameter assumptions and source conditions valid eventually on the selected approach. |
+| `Direction` | `Automatic` | Source approach; see [Directions and Branches](#directions-and-branches). |
+| `Method` | `"Lagrange"` | Ordinary methods are `"Lagrange"`, `"Newton"`, and `"GroupedLagrange"`. Recognized Lambert problems also admit `"Lambert"` and are detected automatically. |
+| `"Power"` | `1` | Inverse observable. For `r != 1`, returns the expansion of `(x - x0)^r` at a finite source endpoint or `x^r` at infinity. For `r == 1`, returns the original source variable, including its translation. |
+| `"InputRemainder"` | `Automatic` | Additional unknown forward error. A pair `{rho, k}` declares both its value order and matching first-derivative order. `None` adds no declared error. Automatically generated expansion errors are still retained. |
+| `"Truncation"` | `"Exponent"` | `"Exponent"` uses an exclusive exponent cutoff. `"Depth"` uses inclusive total perturbation depth. |
+| `SeriesTermGoal` | `Automatic` | Nonzero complete-block count when no explicit cutoff is supplied. |
+| `"MaxTerms"` | `20000` | Resource budget for exact expansion operations. |
+| `"InverseFunctionBranches"` | `Automatic` | Explicit local branch selections for unevaluated inverse operators within the input. |
+
+`"Power"` must be a nonzero exact real number. A negative source side requires an integer observable power. The method applies within its supported scale; selecting an ordinary method does not turn an unsupported logarithmic or sector problem into an ordinary expansion.
+
+`"InputRemainder" -> {rho, k}` describes an omitted term in the positive source coordinate `u` with value order `u^rho (1 + Abs[Log[u]])^k` and derivative order `u^(rho - 1) (1 + Abs[Log[u]])^k`. This declaration can cap the inverse precision. It requires ordinary exponent truncation.
+
+<a id="coordinates-and-cutoffs"></a>
+## Details and Options: Coordinates and Cutoffs
+
+### Positive Local Coordinates
+
+Every ordinary expansion uses a positive coordinate tending to zero.
+
+| Approach | Positive coordinate |
+| --- | --- |
+| `x -> x0`, from above | `x - x0` |
+| `x -> x0`, from below | `x0 - x` |
+| `x -> Infinity` | `1/x` |
+| `x -> -Infinity` | `-1/x` |
+
+An ordinary block has the form `w^beta P[Log[w]]`. All terms at the same exponent belong to one block, including the complete logarithmic polynomial. Exact cancellation is performed before blocks are counted.
+
+For an inverse, the target coordinate also includes the limiting value and selected sign. Use `s["RemainderVariable"]` to obtain the coordinate actually used; do not substitute `y` for it without checking the result.
+
+### Cutoff Meanings by Scale
+
+| Result family | Meaning of the requested order |
+| --- | --- |
+| Ordinary power-log expansion | Exclusive exponent bound in the recorded positive local coordinate. |
+| Factored Gamma or elementary exponential expansion | Exclusive exponent bound inside the correction bracket multiplying `s["Prefactor"]`. |
+| Lambert expansion | Exclusive inverse-logarithmic exponent inside its prefactor; inspect `"LogarithmicVariable"`. |
+| Transformed source or target | Convention of `s["CoordinateSeries"]`, followed by its recorded substitution and reconstruction. |
+| Reciprocal-logarithmic unit or leading logarithmic monomial | Positive exclusive cutoff in the recorded inverse-logarithmic coordinate. |
+| Generalized logarithmic coefficients | Exclusive target-power cutoff above the leading observable power; this cutoff may be negative. |
+| `"Truncation" -> "Depth"` | Inclusive total perturbation depth. |
+| Exact-core perturbation | Inclusive marker degree. |
+| Flat inverse | Inclusive exponential-sector degree. Inner coefficient cutoffs are separate and exclusive. |
+| Fourier inverse | Exclusive target-power cutoff; frequencies have a separate resource budget. |
+| Special-function adapter | Adapter-specific convention; see [AsymptoticSpecialInverse](#AsymptoticSpecialInverse). |
+
+A cutoff is not a term count. For example, a sparse expansion can have its first omitted term strictly beyond the requested cutoff. `SeriesTermGoal -> n` counts complete nonzero blocks; an exact finite expansion can return fewer than `n` with zero remainder.
+
+For a normalized product, the cutoff remains relative after cancellations between factors. This includes a balanced Gamma ratio and a product whose growing and decaying factors cancel. Ordinary elementary sources that are all bounded or merely logarithmically divergent retain the ordinary absolute convention.
+
+### Directions and Branches
+
+At a finite source endpoint, `Direction -> Automatic` means `"FromAbove"`. At `Infinity` the approach is `"FromBelow"`; at `-Infinity` it is `"FromAbove"`.
+
+`AsymptoticInverse` selects the local source branch approaching the supplied endpoint from the requested side. The endpoint and side are part of the problem, even when another branch has the same limiting target value.
+
+For `AsymptoticExpansion`, `Direction` describes the approach of the expansion variable. When expanding an applied inverse, its source branch is a separate choice.
+
+Conditions need only hold on a sufficiently small deleted neighborhood or sufficiently distant tail. For example, `0 < x < 1` is compatible with `x -> 0` from above. A condition that fails eventually on the requested approach is rejected.
+
+<a id="PowerLogSeries"></a>
+## PowerLogSeries
+
+### Usage
+
+`PowerLogSeries[association]` is the result representation returned by the constructors. Use constructors and explicit series operations to create and transform it.
+
+| Form | Meaning |
+| --- | --- |
+| `Normal[s]` | Finite expression, without its remainder. |
+| `s["property"]` | A stored property. |
+| `s["Properties"]` | Available property names. |
+| `s[value]` | Evaluation of the finite expression at a numerical value. |
+
+### Common Properties
+
+| Property | Meaning |
+| --- | --- |
+| `"Expression"` | The same finite expression returned by `Normal`. |
+| `"Remainder"` | Complete remainder descriptor, including any absolute prefactor. |
+| `"RemainderVariable"` | Positive small coordinate. |
+| `"RemainderPower"`, `"RemainderLogDegree"` | Recorded order and logarithmic degree. |
+| `"RemainderScaleExpression"` | Explicit scale used for numerical comparison, when supplied by the result family. |
+| `"FrontierTerm"` | Computed first omitted term, or an indication that it is unknown. |
+| `"Terms"` | Displayed coefficient data. Read `"TermConvention"` for their interpretation. |
+| `"Scale"` | Result scale, when explicitly recorded. |
+| `"Prefactor"`, `"Offset"` | Exact factor and translation for a factored representation. |
+| `"Cutoff"` | Requested or selected truncation boundary. |
+| `"Function"`, `"Variable"`, `"ExpansionPoint"`, `"Direction"` | Retained expression and approach data, when supplied. |
+| `"Assumptions"`, `"TargetDomain"`, `"SourceDomain"` | Retained assumptions and branch conditions. Available domains depend on the result family. |
+| `"Exact"` | Exact finite expansion status, when supplied. Zero remainder is the operative exactness test. |
+| `"ExactModel"` | Exactness of a stored model; it does not by itself say that the displayed inverse terminates. |
+| `"SeriesData"` | A native `SeriesData` object when the coordinate and exponents permit it; otherwise `Missing[...]`. |
+
+Property availability varies by family. Inspect `s["Properties"]` before relying on specialized metadata. Do not edit the underlying association to change a branch or precision claim.
+
+Native `SeriesData` uses rational exponents and may hide the logarithmic degree inside its `O` term. Keep `s["Remainder"]` when the logarithmic envelope matters.
+
+<a id="PowerLogRemainder"></a>
+## PowerLogRemainder
+
+`PowerLogRemainder[w, beta, k]` denotes `O[w^beta (1 + Abs[Log[w]])^k]` as `w -> 0+`. It is an inert asymptotic descriptor.
+
+A factored result has an absolute remainder of the form
+
+```wolfram
+Abs[prefactor] PowerLogRemainder[w, beta, k]
+```
+
+The descriptor does not contain a numerical error constant or a numerical threshold. `"FrontierTerm"` and `"RemainderScaleExpression"` also do not provide pointwise error certificates. A zero remainder records an established exact finite expression within the constructor's stated model and branch.
+
+## Examples
+
+### Basic Examples
+
+<a id="example-forward-irrational"></a>
+#### Forward Expansion with an Irrational Exponent
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Cot[x^Sqrt[2]], {x, 0, 5}];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+x^-Sqrt[2] - x^Sqrt[2]/3 - x^(3 Sqrt[2])/45
+```
+
+The cutoff refers to powers of `x`, not the number of terms in the trigonometric expansion.
+
+<a id="example-logarithmic-inverse"></a>
+#### Inverse with Logarithmic Coefficients
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[x + x^2 (1 + Log[x]), {x, 0}, {y, 4}];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+y - y^2 (1 + Log[y]) + y^3 (3 + 5 Log[y] + 2 Log[y]^2)
+```
+
+<a id="example-callable-inverse"></a>
+#### Unapplied Inverse Function at Infinity
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[
+  InverseFunction[x |-> ConditionalExpression[x + x^Sqrt[2], x > 0]],
+  x -> Infinity, SeriesTermGoal -> 5];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+x^(1/Sqrt[2]) - x^(Sqrt[2] - 1)/Sqrt[2]
+  + (3 - Sqrt[2])/4 x^(3/Sqrt[2] - 2)
+  + (6 - 5 Sqrt[2])/6 x^(2 Sqrt[2] - 3)
+  + (235 - 162 Sqrt[2])/96 x^(5/Sqrt[2] - 4)
+```
+
+**Input**
+
+```wolfram
+s["Remainder"]
+```
+
+**Output**
+
+```wolfram
+PowerLogRemainder[1/x, 5 - 3 Sqrt[2], 0]
+```
+
+### Scope
+
+<a id="gamma-and-exponential-growth"></a>
+#### Gamma Products, Ratios, and Powers
+
+Gamma products are supported when all variable Gamma arguments are eventually positive, at least one tends to infinity, and their combined logarithmic expansion is supported. Other positive Gamma arguments may have finite limits.
+
+Fixed, symbolic, and varying powers must be exact and eventually real. Supply assumptions for symbolic parameters. Examples include `Gamma[x]^2`, `Gamma[x]^-2`, `Gamma[x]^Sqrt[2]`, `Gamma[x]^r` with `Assumptions -> Element[r, Reals]`, and `Gamma[x]^x`.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Gamma[x]^2, x -> Infinity, SeriesTermGoal -> 5];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+2 Pi Exp[-2 x] x^(2 x - 1)
+  (1 + 1/(6 x) + 1/(72 x^2) - 31/(6480 x^3) - 139/(155520 x^4))
+```
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Gamma[3 x]/Gamma[x], x -> Infinity,
+  SeriesTermGoal -> 5];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+3^(3 x - 1/2) x^(2 x) Exp[-2 x]
+  (1 - 1/(18 x) + 1/(648 x^2) + 463/(174960 x^3)
+     - 1867/(12597120 x^4))
+```
+
+**Input**
+
+```wolfram
+{s["RemainderPower"], s["ReturnedTermCount"], s["LogarithmicFunction"]}
+```
+
+**Output**
+
+```wolfram
+{5, 5, LogGamma[3 x] - LogGamma[x]}
+```
+
+The absolute remainder is the positive prefactor times `PowerLogRemainder[1/x, 5, 0]`. The displayed coefficients form a Poincare asymptotic expansion; convergence is not asserted.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Gamma[x]^x, x -> Infinity, SeriesTermGoal -> 3];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+Exp[1/12] (Sqrt[2 Pi] x^(x - 1/2) Exp[-x])^x
+  (1 - 1/(360 x^2) + 1447/(1814400 x^4))
+```
+
+Here the remainder power inside the prefactor is `6`; the three retained blocks have powers `0`, `2`, and `4`.
+
+Exact recurrence cancellations can terminate before the requested count:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Gamma[x + 1]/Gamma[x], x -> Infinity,
+  SeriesTermGoal -> 5];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{x, 0}
+```
+
+The following complete special functions use the same Gamma-product interface:
+
+| Input | Associated Gamma expression |
+| --- | --- |
+| `Factorial[z]` | `Gamma[z + 1]` |
+| `Binomial[n, k]` | `Gamma[n + 1]/(Gamma[k + 1] Gamma[n - k + 1])` |
+| `Beta[a, b]` | `Gamma[a] Gamma[b]/Gamma[a + b]` |
+| `Pochhammer[a, n]` | `Gamma[a + n]/Gamma[a]` |
+
+The positivity and logarithmic-source requirements apply to the resulting factors. The original function is retained for refinement. Incomplete Gamma, incomplete Beta, and double factorials are outside this conversion.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Binomial[2 x, x], x -> Infinity,
+  SeriesTermGoal -> 5];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+4^x/Sqrt[Pi x]
+  (1 - 1/(8 x) + 1/(128 x^2) + 5/(1024 x^3) - 21/(32768 x^4))
+```
+
+#### Elementary Exponential Products
+
+Multiplicative exponentials and varying powers of positive bases can retain exact growing or decaying prefactors. At least one individual logarithmic source must grow faster in magnitude than the logarithm of the local coordinate. The combined logarithmic expansion must be supported.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Exp[x + 1/x], x -> Infinity, SeriesTermGoal -> 5];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+Exp[x] (1 + 1/x + 1/(2 x^2) + 1/(6 x^3) + 1/(24 x^4))
+```
+
+`Exp[-x + 1/x]` has the same correction bracket and a decaying prefactor. An ordinary multiplicative factor must have a proved eventual nonzero real sign. The approximation retains its sign; its absolute remainder uses the magnitude of its prefactor.
+
+`x^x` is an exact one-term factored result. `x^(x + 1/x)` has correction terms `Log[x]^k/(k! x^k)`. Shifted domains such as `Exp[Sqrt[x - 1] + 1/x]` need to be real only eventually.
+
+`Exp[x]` at zero, `(1 + 1/x)^x` at infinity, and `1/(Exp[x^5] - 1)` at zero retain ordinary absolute cutoff semantics. A product admitted through individually large sources retains relative cutoffs even when those sources cancel. For example, `x^-5 (1 + x)^(1/x^2) Exp[-1/x]` at zero has prefactor `Exp[-1/2] x^-5`; cutoff two retains the bracket `1 + x/3` and has absolute remainder `O[x^-3]`.
+
+#### Lambert and Exact Coordinate Transformations
+
+Leading logarithmic and exponential inverse problems are selected automatically when supported.
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[x Exp[x], {x, Infinity}, y, SeriesTermGoal -> 3];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+Log[y] - Log[Log[y]] + Log[Log[y]]/Log[y]
+```
+
+This result uses the principal real Lambert branch. The inverse of `x Log[x]` at zero uses the lower real Lambert branch and approaches target zero from below. Inspect `"LambertBranch"`, `"LogarithmicVariable"`, `"Prefactor"`, and `"TargetDomain"` on a Lambert result.
+
+Supported logarithmic cores include `a u^p (b + c Log[u])^q` and `u^p Q[Log[u]]`, where `u` is the positive source coordinate, `p` is nonzero, and `Q` is a polynomial. Exact parameters and sufficient real-branch assumptions are required. These families admit finite endpoints and both source infinities. Growing exponential cores include `a x^b Exp[c x^p]` at positive infinity. A general logarithmic polynomial need not have a closed-form `ProductLog` inverse.
+
+```wolfram
+AsymptoticInverse[x (Log[x]^2 + Log[x] + 1), {x, 0}, y,
+  SeriesTermGoal -> 3]
+AsymptoticInverse[x Log[x] + x^2, {x, 0}, y,
+  SeriesTermGoal -> 3]
+```
+
+Higher source-power corrections to a logarithmic core, and finite power-log additions to a growing exponential core, can be smaller than every fixed logarithmic order. Such results record `"LeadingCoreOnly" -> True` and the omitted expression in `"BeyondLogarithmicOrders"`. Their logarithmic expansion does not resolve the separate exponential sectors. Numerical checks still compare with the original forward function.
+
+Exact target transformations also handle inputs such as `x Exp[x^2 + x]`. Transformed results retain `"CoordinateSeries"` and `"CoordinateSubstitution"`.
+
+Pure logarithmic source dependence uses an exact exponential source coordinate. Polynomial expressions and supported real powers of logarithms then reduce to an ordinary inverse problem. Source reconstruction by exponentiation requires an absolute argument error tending to zero. Exact repeated transformations can retain exact nested-exponential inverses, such as `Exp[-Exp[y]]`. Finite sums of exponentials at either source infinity admit exact real rates without a rational commensurability requirement.
+
+```wolfram
+AsymptoticInverse[Log[x]^2 + Log[x], {x, 0}, {y, 1}]
+AsymptoticInverse[Exp[-x] + Exp[-2 x], {x, Infinity}, {y, 4}]
+```
+
+Source-coordinate results retain `"ReconstructedSeries"`, `"SourceCoordinateExpression"`, and `"SourceTransformExpression"`. Their residual checks the displayed reconstruction, including its truncation. An exact residual expression can be returned without an order claim when its ordering requires a larger coefficient algebra. Explicit declared input remainders require a separate source-coordinate transport contract.
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[Exp[-1/x], {x, 0}, y, SeriesTermGoal -> 3];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{-1/Log[y], 0}
+```
+
+The real target branch is `0 < y < 1`.
+
+<a id="inverse-function-expressions"></a>
+#### Callable and Applied Inverse Functions
+
+Use a source condition to identify an inverse branch:
+
+```wolfram
+AsymptoticExpansion[
+  InverseFunction[Function[t,
+    ConditionalExpression[t + t^2 (1 + Log[t]), t > 0]]][y],
+  {y, 0, 4}]
+```
+
+Named parameters, named parameter lists, and slots follow ordinary `Function` scoping. A defined function symbol is accepted when its application produces a supported scalar body.
+
+An inner `ConditionalExpression` restricts the original source. An outer condition restricts the expansion variable. Parameter-only assumptions remain parameter assumptions. Native evaluation of an inverse to `ArcSin`, a radical, or another closed form retains that closed form's branch.
+
+If an unevaluated inverse operator admits more than one source branch, supply an explicit selection:
+
+```wolfram
+operator = InverseFunction[Function[t, t^2 + t^4 (1 + Log[t^2])]];
+branches = Association[
+  operator -> <|"SourcePoint" -> 0, "Direction" -> "FromAbove"|>];
+s = AsymptoticExpansion[operator[y], {y, 0, 2},
+  "InverseFunctionBranches" -> branches];
+```
+
+The key is the inverse operator without its target argument. Every selection must satisfy the retained source condition and requested limiting target. A branch option cannot change a native closed form that has already replaced the operator.
+
+`InverseFunction[F, k, n][a1, ..., an]` solves for argument `k` of the scalar function `F`, using `ak` as the target. Other arguments remain parameters. Varying parameters are supported when the body has an established decomposition `A(x) F0(t) + B(x)` with nonzero `A(x)` eventually. Their variation is retained during composition.
+
+Inverse nodes can occur in sums, products, powers, supported observables, and other inverse calls. Generic composition requires a compatible enclosing power-log coordinate. A direct node retains its inverse scale. `ProductLog[0, y]` and `ProductLog[-1, y]` have direct real-branch support when their argument is the expansion variable.
+
+### Options
+
+#### Selecting a Source Side
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[x^2, {x, 0}, {y, 2}, Direction -> "FromBelow"];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{-Sqrt[y], 0}
+```
+
+#### Declaring Parameter Assumptions
+
+```wolfram
+AsymptoticExpansion[Gamma[a x], x -> Infinity,
+  Assumptions -> a > 0, SeriesTermGoal -> 3]
+
+AsymptoticExpansion[Gamma[x]^r, x -> Infinity,
+  Assumptions -> Element[r, Reals], SeriesTermGoal -> 3]
+```
+
+Assumptions must justify the relevant signs, real branches, and exponent comparisons. Approximate data are not made exact by adding assumptions.
+
+#### Symbolic Perturbation Depth
+
+`"Truncation" -> "Depth"` retains all perturbation contributions through an inclusive integer depth and admits symbolic powers under sufficient assumptions. It uses `Method -> "Lagrange"`. It does not impose an ordering by numerical exponent.
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[x + a x^(1 + p), {x, 0}, {y, 2},
+  "Truncation" -> "Depth", Assumptions -> p > 0 && Element[a, Reals]];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+y - a y^(1 + p) + a^2 (1 + p) y^(1 + 2 p)
+```
+
+#### Declared Input Precision
+
+```wolfram
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3},
+  "InputRemainder" -> {3, 0}];
+SeriesRefine[s, 8]
+```
+
+The declaration limits the available inverse precision. Refinement beyond that limit returns `Failure["InsufficientInputOrder", ...]`. To change the mathematical input, construct a new expansion with the stronger justified input information.
+
+<a id="series-operations"></a>
+## Explicit Series Operations
+
+Use these operations to transport remainders. Ordinary arithmetic on `Normal[s]` operates only on the displayed finite expression.
+
+Most operations accept `"Cutoff" -> Automatic` and `"MaxTerms" -> 20000`. Coordinates, endpoint limits, and real branches must be compatible. Requested precision is limited by the available operand precision.
+
+<a id="SeriesAdd"></a>
+### SeriesAdd
+
+`SeriesAdd[s, t]` adds compatible expansions. A real scalar may replace either operand. Addition of unrelated exponential prefactors is not a general multi-sector operation.
+
+<a id="SeriesMultiply"></a>
+### SeriesMultiply
+
+`SeriesMultiply[s, t]` multiplies compatible expansions. A real scalar may replace either operand. The result includes uncertainty from both operands.
+
+<a id="SeriesPower"></a>
+### SeriesPower
+
+`SeriesPower[s, r]` takes a fixed exact real numeric power. `SeriesPower[s, r, h]` supplies an explicit cutoff. A noninteger real power requires a proved positive branch. Reciprocal powers can reduce absolute precision.
+
+The numeric-exponent requirement of this operation is distinct from the supported symbolic and varying powers in direct Gamma normalization.
+
+<a id="SeriesLog"></a>
+### SeriesLog
+
+`SeriesLog[s]` takes an eventually positive real logarithm. `SeriesLog[s, h]` supplies a cutoff. The logarithm of an exact prefactor is included in the result.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[x + x^2, {x, 0, 5}];
+Normal[SeriesLog[s, 4]]
+```
+
+**Output**
+
+```wolfram
+Log[x] + x - x^2/2 + x^3/3
+```
+
+<a id="SeriesExp"></a>
+### SeriesExp
+
+`SeriesExp[s]` exponentiates an expansion. `SeriesExp[s, h]` supplies a cutoff. The absolute remainder of the argument must tend to zero. Nonvanishing terms in the argument are retained in an exact prefactor.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[1/x + Log[x] + x, {x, 0, 5}];
+Normal[SeriesExp[s, 4]]
+```
+
+**Output**
+
+```wolfram
+x Exp[1/x] (1 + x + x^2/2 + x^3/6)
+```
+
+<a id="SeriesCompose"></a>
+### SeriesCompose
+
+`SeriesCompose[outer, inner]` substitutes the inner expansion into the outer expansion. It transports both remainders and checks the inner limit and source side. The variables may differ.
+
+**Input**
+
+```wolfram
+outer = AsymptoticExpansion[Sin[x], {x, 0, 5}];
+inner = AsymptoticExpansion[y^2 + y^3, {y, 0, 7}];
+Normal[SeriesCompose[outer, inner, "Cutoff" -> 8]]
+```
+
+**Output**
+
+```wolfram
+y^2 + y^3 - y^6/6 - y^7/2
+```
+
+<a id="SeriesObservable"></a>
+### SeriesObservable
+
+`SeriesObservable[s, expr, z]` substitutes the expansion into the placeholder `z` in a supported real expression. It accepts `"InverseFunctionBranches" -> Automatic` in addition to the common operation options.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[x + x^2, {x, 0, 5}];
+Normal[SeriesObservable[s, Sin[z], z, "Cutoff" -> 4]]
+```
+
+**Output**
+
+```wolfram
+x + x^2 - x^3/6
+```
+
+<a id="SeriesTruncate"></a>
+### SeriesTruncate
+
+`SeriesTruncate[s, h]` discards complete blocks at or above the exclusive cutoff `h`. Its only option is `"MaxTerms" -> 20000`. Raising a truncation cutoff cannot restore discarded coefficients.
+
+<a id="SeriesRefine"></a>
+### SeriesRefine
+
+| Form | Result |
+| --- | --- |
+| `SeriesRefine[s, h]` | New cutoff for a supported result. An ordinary inverse with `"Truncation" -> "Depth"` uses an integer perturbation depth. |
+| `SeriesRefine[s, <|"AdditionalBlocks" -> n|>]` | Additional complete nonzero blocks of an ordinary exponent-truncated inverse. |
+| `SeriesRefine[s, <|"Target" -> y1, "TargetError" -> eps, "Interval" -> {lo, hi}|>]` | Numerical root certificate association. |
+| `SeriesRefine[s, <|"Target" -> y1, "RelativeError" -> tau, "Interval" -> {lo, hi}|>]` | Numerical certificate with a relative root-accuracy request. |
+
+Options are `"MaxTerms" -> 20000` and `"MaxRefinements" -> 128`. A tolerance request also accepts the options of [InverseCertificate](#InverseCertificate) as association keys. Do not mix `"AdditionalBlocks"` with a numerical request.
+
+Refinement preserves the original function, assumptions, selected branch, and declared input precision. Exact terminating results can stop before an additional-block goal. A numerical request returns a certificate for the source root; it does not replace the symbolic remainder with a numerical tolerance.
+
+Special-function adapters replay their own order convention. For standalone exact-core, exponential-core, flat, and Fourier constructors, request additional terms by calling the corresponding constructor again; general `SeriesRefine` support is not asserted for every specialized result.
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 2}];
+Normal[SeriesRefine[s, 5]]
+```
+
+**Output**
+
+```wolfram
+y - y^2 + 2 y^3 - 5 y^4
+```
+
+A failed additional-block request can include `"BestExpansion"` in its failure data. The properties `"GoalReached"` and `"ExactTermination"` in `"RefinementRequest"` distinguish satisfying the count from reaching an exact finite result.
+
+<a id="SeriesDifferentiate"></a>
+### SeriesDifferentiate
+
+`SeriesDifferentiate[s]` differentiates once; `SeriesDifferentiate[s, n]` differentiates `n` times. Options are `"Cutoff" -> Automatic`, `"MaxTerms" -> 20000`, and `"RemainderDerivativeOrder" -> Automatic`.
+
+A value-only Big-O remainder does not establish a derivative remainder. Supply `"RemainderDerivativeOrder" -> n` only when the corresponding derivative bounds are known. Exact expressions and specialized analytic remainder contracts can supply the required information automatically.
+
+## Applications
+
+<a id="InverseResidual"></a>
+### InverseResidual
+
+`InverseResidual[s]` checks composition of the retained forward model with the finite inverse. `InverseResidual[s, h]` supplies a relative residual cutoff in the recorded uniformizing coordinate. The option is `"MaxTerms" -> 200000`.
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
+InverseResidual[s]["ZeroBelowCutoff"]
+```
+
+**Output**
+
+```wolfram
+True
+```
+
+Read the returned `"Scope"` when checking a transformed, logarithmic, Fourier, or other specialized result. A residual calculation checks the named equation and truncation. It does not evaluate unknown terms represented only by a declared input remainder.
+
+<a id="InverseNumericalCheck"></a>
+### InverseNumericalCheck
+
+`InverseNumericalCheck[s, y1]` compares the finite inverse with a numerical root of the retained original equation on its selected branch. Its option is `WorkingPrecision -> 50`.
+
+```wolfram
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
+check = InverseNumericalCheck[s, 1/100, WorkingPrecision -> 60];
+check["ReferenceRoot"]
+check["ReferenceObservable"]
+check["Error"]
+```
+
+`"ReferenceRoot"` is the numerical source root. `"ReferenceObservable"` is the source observable requested by `"Power"`. `"Error"` compares that observable with the finite approximation. `"ExactInverse"` is a compatibility alias for the numerical reference root.
+
+Use exact targets or targets with sufficient input precision. Exact target offsets are subtracted before numerical evaluation. The operation also supports the admitted transformed, logarithmic, Fourier, flat, core, and special inverse families. Its output is numerical evidence, not an interval certificate.
+
+<a id="InverseCertificate"></a>
+### InverseCertificate
+
+`InverseCertificate[s, y1, "Interval" -> {lo, hi}]` attempts to certify a unique real source root in a verification interval. Successful output is an association with a rational center, rational root enclosure, and certified error bounds.
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `"Interval"` | `Automatic` | Verification interval. Supply exact rational endpoints for an explicit request. |
+| `"Center"` | `Automatic` | Initial or fixed rational approximation. An explicitly supplied center remains fixed. |
+| `"TargetError"` | `Automatic` | Absolute error goal for the returned center. |
+| `"RelativeError"` | `Automatic` | Relative error goal using a proved root-magnitude bound. |
+| `WorkingPrecision` | `50` | Precision used in choosing numerical seeds. |
+| `"EnclosureOrder"` | `Automatic` | Order used for elementary-function enclosures. |
+| `"MaxRefinements"` | `6` | Maximum certificate refinement steps. |
+| `"RefineExpansion"` | `True` | Allow expansion refinement when selecting a center. |
+| `"ExponentMagnitudeLimit"` | `10000` | Bound on exponential arguments handled by the enclosure arithmetic. |
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+c = InverseCertificate[s, 1/10, "Interval" -> {1/20, 1/5},
+  "TargetError" -> 10^-12];
+{c["Certified"], c["CertifiedErrorBound"] <= 10^-12}
+```
+
+**Output**
+
+```wolfram
+{True, True}
+```
+
+`c["Center"]` and `c["RootEnclosure"]` give the actual rational approximation and enclosure. When both tolerances are given, the accuracy request is `Abs[center - root] <= Max[eps, tau Abs[root]]`. A zero root needs an absolute fallback. A fixed center that cannot meet the requested accuracy can return `Failure["AccuracyFloor", ...]`.
+
+The certificate concerns the stored explicit equation within the supplied interval. It does not establish a global inverse branch or enclose unspecified terms represented only by an input remainder. All retained source conditions must hold throughout the closed verification interval. A strict source condition therefore also constrains its endpoints.
+
+<a id="PowerLogModel"></a>
+### PowerLogModel
+
+`PowerLogModel[f, {x, x0}]` returns an association describing a finite normalized forward model. `PowerLogModel[f, x]` uses `x0 = 0`. Options are `Assumptions -> True`, `Direction -> Automatic`, and `"MaxTerms" -> 20000`. An input requiring an infinite forward expansion is outside this model constructor's scope.
+
+Inspect `"LeadingPower"`, `"LeadingCoefficient"`, `"Gaps"`, `"Polynomials"`, and `"LogVariable"` to identify the correction variables used by a coefficient request.
+
+<a id="InverseExpansionCoefficient"></a>
+### InverseExpansionCoefficient
+
+`InverseExpansionCoefficient[s, {k1, k2, ...}]` returns the exact block associated with an ordinary inverse multi-index. A `PowerLogModel` association may replace `s`; for that form, `"Power" -> 1` selects the observable.
+
+Give one nonnegative integer per model gap. Returned fields include `"Weight"`, `"Exponent"`, `"Coefficient"`, and `"UniformizerExponent"`. A multi-index contribution is not necessarily a complete displayed block: several contributions can have the same weight. Lambert expansions expose their coefficients through `"Terms"` instead.
+
+<a id="PerturbativeInverse"></a>
+### PerturbativeInverse
+
+`PerturbativeInverse[phi, h, {x, y}, n]` generates perturbation formulas using an exact inverse core `phi`. `PerturbativeInverse[h, {x, y}, n]` uses the identity core. It has no options.
+
+This function returns a formula. It does not attach asymptotic ordering or a remainder contract. Use an exact-core constructor when the supported problem requires those properties.
+
+<a id="AsymptoticCoreInverse"></a>
+## AsymptoticCoreInverse
+
+`AsymptoticCoreInverse[core, perturbation, {x, x0}, {y, n}]` retains an exact inverse of `core` and computes corrections through inclusive marker degree `n`.
+
+The core and perturbation must be supported finite power-log expressions. The core must have nonzero leading source power, and every perturbation power must be strictly higher. Automatic cores include monomials, affine logarithmic powers, and supported divergent power-plus-log expressions.
+
+| Option | Default |
+| --- | --- |
+| `Assumptions` | `True` |
+| `Direction` | `Automatic` |
+| `"Power"` | `1` |
+| `"CoreInverse"` | `Automatic` |
+| `"InputRemainder"` | `None` |
+| `"MaxTerms"` | `20000` |
+| `"CoreCheckTimeConstraint"` | `3` |
+| `"SourceRadius"` | `1/E` |
+
+`"CoreInverse" -> phi` supplies another exact core inverse whose branch identity must be established. `"CoreCheckTimeConstraint"` bounds this check. `"SourceRadius"` restricts the source neighborhood used for the core contract. `"Power"` follows the ordinary inverse observable convention. A declared input remainder needs matching derivative control.
+
+**Input**
+
+```wolfram
+s = AsymptoticCoreInverse[x, x^2, {x, 0}, {y, 2}];
+{Normal[s], s["FirstOmittedMarkerTerm"]}
+```
+
+**Output**
+
+```wolfram
+{y - y^2 + 2 y^3, -5 y^4}
+```
+
+For a logarithmic core, inspect `"CoreInverse"`, `"MarkerTerms"`, and `"Remainder"`:
+
+```wolfram
+s = AsymptoticCoreInverse[x Log[x], x^2, {x, 0}, {y, 2}];
+s["CoreInverse"]
+s["MarkerTerms"]
+```
+
+Marker terms are complete perturbation corrections rather than exponent-sorted power-log blocks. The full tail contract and the first omitted marker term are separate properties. Their asymptotic constants are not numerical error certificates.
+
+<a id="AsymptoticExponentialCoreInverse"></a>
+## AsymptoticExponentialCoreInverse
+
+`AsymptoticExponentialCoreInverse[core, perturbation, {x, x0}, {y, n}]` retains an exact inverse of a growing exponential core and computes complete corrections through inclusive exponential degree `n`.
+
+The supported core has the form `a v^b Exp[c v^p] + offset`, with positive `c`, `p`, and `v -> Infinity`. The perturbation is a finite power-log expression. Source infinity, translations, and finite reciprocal source coordinates are admitted.
+
+Options are `Assumptions -> True`, `Direction -> Automatic`, `"SourceShift" -> Automatic`, `"CoreInverse" -> Automatic`, `"CoreCheckTimeConstraint" -> 3`, `"InputRemainder" -> None`, and `"MaxTerms" -> 20000`.
+
+`"SourceShift"` selects the source translation. A declared pair `{rho, k}` here means `O[v^-rho (1 + Log[v])^k]` with corresponding derivative control. Its transported error remains a separate first-sector precision limit.
+
+**Input**
+
+```wolfram
+s = AsymptoticExponentialCoreInverse[x Exp[x], x^2,
+  {x, Infinity}, {y, 1}];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+ProductLog[y] - ProductLog[y]^3/((1 + ProductLog[y]) y)
+```
+
+<a id="AsymptoticLogarithmicInverse"></a>
+## AsymptoticLogarithmicInverse
+
+`AsymptoticLogarithmicInverse[f, {x, x0}, {y, h}]` expands a supported finite logarithmic hierarchy. The form with target `y` and `SeriesTermGoal -> n` requests complete nonzero blocks.
+
+Reciprocal-logarithmic units and leading logarithmic monomials use a positive exclusive cutoff in their inverse-logarithmic coordinate. Higher source-power corrections with generalized logarithmic coefficients use the ordinary target-power cutoff. Inspect `"Scale"`, `"Cutoff"`, and the recorded logarithmic coordinates.
+
+The options are `Assumptions`, `Direction`, `Method`, `"Power"`, `"InputRemainder"`, `"Truncation"`, `SeriesTermGoal`, and `"MaxTerms"`, with the ordinary inverse defaults, plus `"LogarithmicLevels" -> 3`. The maximum supported hierarchy depth is eight. The chosen family still determines which options and cutoffs are applicable.
+
+```wolfram
+a = AsymptoticLogarithmicInverse[x + x/Log[x], {x, 0}, {y, 4}];
+b = AsymptoticLogarithmicInverse[x Log[Log[x]], {x, Infinity}, {y, 4}];
+c = AsymptoticInverse[x + x^2 Sqrt[-Log[x]], {x, 0}, {y, 4}];
+```
+
+The common inverse constructor selects admitted reciprocal and generalized logarithmic families automatically. Ordinary polynomial-logarithmic inputs retain their ordinary method. Omitted higher source-power sectors remain separate from the logarithmic tail.
+
+<a id="LogarithmicInverseResidual"></a>
+### LogarithmicInverseResidual
+
+`LogarithmicInverseResidual[s]` checks the normalized equation of a supported logarithmic-unit inverse. It has no options. The association contains `"ZeroBelowCutoff"` and identifies its `"Scope"`.
+
+Generalized logarithmic coefficient results return `Failure["UnsupportedResidual", ...]` for this operation. Their displayed coefficients and retained original equation remain available for independent calculation.
+
+<a id="ReciprocalLogCompose"></a>
+### ReciprocalLogCompose
+
+`ReciprocalLogCompose[outer, inner]` composes supported reciprocal-logarithmic inverse expansions with positive monomial prefactors. The inner result must approach the outer target endpoint with a positive constant unit. Options are `"Cutoff" -> Automatic` and `"MaxTerms" -> 20000`.
+
+<a id="ReciprocalLogDifferentiate"></a>
+### ReciprocalLogDifferentiate
+
+`ReciprocalLogDifferentiate[s]` differentiates once; `ReciprocalLogDifferentiate[s, n]` differentiates `n` times. Options are `"Cutoff" -> Automatic` and `"MaxTerms" -> 20000`.
+
+These operations require the supported exact reciprocal-logarithmic model. Translated endpoints, omitted higher-power sectors, and declared unknown errors require additional contracts and are rejected. `SeriesCompose` and `SeriesDifferentiate` also select this specialized calculus when applicable.
+
+```wolfram
+outer = AsymptoticLogarithmicInverse[x + x/Log[x], {x, 0}, {z, 4}];
+inner = AsymptoticLogarithmicInverse[x + 2 x/Log[x], {x, 0}, {y, 4}];
+s = ReciprocalLogCompose[outer, inner];
+d = ReciprocalLogDifferentiate[s];
+SeriesRefine[d, 6]
+```
+
+<a id="AsymptoticFlatInverse"></a>
+## AsymptoticFlatInverse
+
+`AsymptoticFlatInverse[f, {x, x0}, {y, n}]` inverts an exact shifted monomial core with finite flat exponential corrections. It retains complete exponential sectors through inclusive integer degree `n`.
+
+The exponential phases must be positive and commensurable within the supported phase family. Their amplitudes are finite power-log expressions. The zero sector remains exact.
+
+Options are `Assumptions -> True`, `Direction -> Automatic`, `"Power" -> 1`, and `"MaxTerms" -> 20000`.
+
+**Input**
+
+```wolfram
+s = AsymptoticFlatInverse[x + Exp[-1/x], {x, 0}, {y, 3}];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+y - Exp[-1/y] + Exp[-2/y]/y^2
+  + (1/y^3 - 3/(2 y^4)) Exp[-3/y]
+```
+
+Inspect `"SectorDepth"`, `"Sectors"`, `"FirstOmittedSector"`, and `"Remainder"`. The omitted complete sector tail has an asymptotic bound. Its constants and threshold are existential, not supplied numerical certificates.
+
+<a id="FlatSeriesTruncate"></a>
+### FlatSeriesTruncate
+
+`FlatSeriesTruncate[s, h]` truncates every positive sector at exclusive inner power `h`. It preserves the exact zero sector. Its option is `"MaxTerms" -> 20000`.
+
+<a id="FlatSeriesMultiply"></a>
+### FlatSeriesMultiply
+
+`FlatSeriesMultiply[s, t]` multiplies expansions in the same monomial target coordinate and phase. An exact finite power-log scalar may replace either operand. Options are `"InnerCutoff" -> Automatic` and `"MaxTerms" -> 20000`.
+
+<a id="FlatSeriesObservable"></a>
+### FlatSeriesObservable
+
+`FlatSeriesObservable[s, polynomial, z]` substitutes `s` into the polynomial's placeholder `z`. Polynomial coefficients may be finite real power-log expressions in the common coordinate. Options are `"InnerCutoff" -> Automatic`, `"MaxTerms" -> 20000`, and `"MaxPolynomialDegree" -> 32`.
+
+<a id="FlatSeriesDifferentiate"></a>
+### FlatSeriesDifferentiate
+
+`FlatSeriesDifferentiate[s]` differentiates once; `FlatSeriesDifferentiate[s, n]` differentiates `n` times with respect to the target, including the exponential factors. Options are `"InnerCutoff" -> Automatic` and `"MaxTerms" -> 20000`.
+
+Nonzero remainders require the retained analytic flat-inverse derivative contract. Inner coefficient errors and the omitted exponential tail remain separate.
+
+```wolfram
+s = AsymptoticFlatInverse[x + x^2 Exp[-1/x], {x, 0}, {y, 2}];
+t = FlatSeriesTruncate[s, 3];
+FlatSeriesMultiply[t, 1/y]
+FlatSeriesObservable[s, 2 z^2 - 3 z + 7, z, "InnerCutoff" -> 4]
+FlatSeriesDifferentiate[t]
+```
+
+In this example, `2` is a sector degree, while `3` and `4` are inner power cutoffs. Increasing an inner truncation cutoff cannot restore previously discarded coefficients.
+
+<a id="AsymptoticFourierInverse"></a>
+## AsymptoticFourierInverse
+
+`AsymptoticFourierInverse[f, {x, x0}, {y, h}]` inverts a monomial leading core whose higher-power corrections have finite Fourier-polynomial coefficients in the logarithm.
+
+Frequencies must be exact real numbers. Frequency sums generated during multiplication are retained and merged. The target-power cutoff is exclusive, and the remainder uses a nonoscillatory envelope.
+
+Options are the ordinary inverse options `Assumptions`, `Direction`, `Method`, `"Power"`, `"InputRemainder"`, `"Truncation"`, `SeriesTermGoal`, and `"MaxTerms"`, with the same defaults, plus `"MaxFrequencies" -> 256`. The public constructor requires the explicit `{y, h}` form, `Method -> "Lagrange"`, and `"Truncation" -> "Exponent"`. `Assumptions` must concern parameters only. `"MaxFrequencies"` is a hard resource budget, not a frequency truncation.
+
+**Input**
+
+```wolfram
+s = AsymptoticFourierInverse[x + x^2 Sin[Log[x]], {x, 0}, {y, 4}];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+y - y^2 Sin[Log[y]]
+  + y^3 Sin[Log[y]] (2 Sin[Log[y]] + Cos[Log[y]])
+```
+
+A leading oscillatory coefficient without an eventual nonzero sign is outside this constructor's scope.
+
+<a id="FourierInverseResidual"></a>
+### FourierInverseResidual
+
+`FourierInverseResidual[s]` checks the finite Fourier equation at its stored relative source-weight cutoff. `FourierInverseResidual[s, h]` supplies another relative cutoff. Its option is `"MaxTerms" -> 20000`.
+
+<a id="FourierInverseCoefficient"></a>
+### FourierInverseCoefficient
+
+`FourierInverseCoefficient[s, {k1, k2, ...}]` gives an exact multi-index contribution as Fourier modes and as a real trigonometric expression. It has no options. The returned association includes `"Weight"`, `"Modes"`, `"Expression"`, and `"LogVariable"`.
+
+<a id="AsymptoticSpecialInverse"></a>
+## AsymptoticSpecialInverse
+
+`AsymptoticSpecialInverse[family, {x, x0}, {y, h}]` uses an explicitly selected special-function inverse adapter.
+
+| Family | Source endpoint | Order convention |
+| --- | --- | --- |
+| `"Erfc"` | `Infinity` | Power cutoff in the logarithmic target coordinate. |
+| `"LogGamma"` | `Infinity` | Inclusive integer marker depth around a retained exact core. |
+| `"Gamma"` | `Infinity` | Inclusive integer marker depth after logarithmic target normalization. |
+| `"LambertThreshold"` | `-1` | Exclusive local target-power cutoff greater than `1/2`. |
+| `"QuadraticThreshold"` | Exact finite vertex | Exclusive local target-power cutoff greater than `1/2`. |
+
+The Gamma tail adapters use the increasing real source branch above two. They do not automatically switch to a near-minimum representation. Tail adapters retain finite Poincare forward models with separate value and derivative remainder contracts.
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `Assumptions` | `True` | Parameter assumptions. |
+| `Direction` | `Automatic` | Selected source side. |
+| `"ModelTerms"` | `Automatic` | Number of terms in the finite asymptotic forward model. |
+| `"TargetOffset"` | `0` | Exact affine target offset. |
+| `"TargetScale"` | `1` | Exact nonzero real affine target scale. |
+| `"QuadraticCoefficient"` | `1` | Coefficient of the quadratic threshold model. |
+| `"LambertBranch"` | `Automatic` | Real Lambert threshold branch, `0` or `-1`. |
+| `"MaxTerms"` | `20000` | Resource budget. |
+
+```wolfram
+AsymptoticSpecialInverse["Erfc", {x, Infinity}, {y, 2}]
+AsymptoticSpecialInverse["LogGamma", {x, Infinity}, {y, 2}]
+AsymptoticSpecialInverse["Gamma", {x, Infinity}, {y, 2}]
+AsymptoticSpecialInverse["LambertThreshold", {x, -1}, {y, 5/2},
+  "LambertBranch" -> -1]
+```
+
+The last example selects the source side below `-1`. A conflicting explicit `Direction` is rejected.
+
+**Input**
+
+```wolfram
+s = AsymptoticSpecialInverse["QuadraticThreshold", {x, 3}, {y, 2},
+  "TargetOffset" -> 7, "TargetScale" -> -2, "QuadraticCoefficient" -> 3];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{3 + Sqrt[(7 - y)/6], 0}
+```
+
+The selected target domain is `y < 7`. Inspect `"AdapterCutoffMeaning"` when supplied, `"ForwardRemainderContract"`, and the retained coordinate properties for the adapter's precision scope.
+
+<a id="SpecialInverseNumericalCheck"></a>
+### SpecialInverseNumericalCheck
+
+`SpecialInverseNumericalCheck[s, y1]` compares an adapter result with its original special-function equation. Its option is `WorkingPrecision -> 60`. Gamma and complementary-error-function tails use logarithmic equations for stable comparison.
+
+```wolfram
+s = AsymptoticSpecialInverse["Gamma", {x, Infinity}, {y, 2}];
+check = SpecialInverseNumericalCheck[s, Exp[10000], WorkingPrecision -> 60];
+check["ReferenceRoot"]
+check["Error"]
+```
+
+This is a numerical comparison, not an interval certificate. Supply an exact target or sufficient input precision and remain within the retained target domain.
+
+## Properties & Relations
+
+### Expression, Expansion, and Model
+
+| Item | What it establishes |
+| --- | --- |
+| `Normal[s]` | The finite expression being used as the approximation. |
+| `s["Remainder"]` | An asymptotic remainder class, with its recorded coordinate and prefactor. |
+| `s["Remainder"] === 0` | An established exact finite result for the admitted equation and branch. |
+| `s["ExactModel"]` | Exactness of the retained forward model; the displayed inverse can still have a nonzero tail. |
+| `InverseResidual[s]` | Composition at a stated order for the equation named by its scope. |
+| `InverseNumericalCheck[s, y1]` | Agreement with a numerical solution at one target. |
+| `InverseCertificate[s, y1, ...]` | A proved local root enclosure when `"Certified" -> True` is returned. |
+
+`SeriesTruncate` changes the displayed cutoff using existing information. `SeriesRefine` obtains more justified information from the retained source or operation. A higher cutoff alone does not improve an unknown input remainder.
+
+### Inverse Expressions and Inverting an Inverse
+
+`AsymptoticExpansion[InverseFunction[F][y], ...]` expands the selected inverse of `F`. `AsymptoticInverse[InverseFunction[F][x], ...]` inverts that already inverted expression and can recover `F` on compatible branches.
+
+A composite such as `1 + InverseFunction[F][y]` is an expression containing an inverse. Its numerical or residual interpretation must not be confused with the defining equation for `F` itself. Direct inverse results retain their source branch; composite results retain inverse-occurrence information separately.
+
+### Remainder-Aware Operations
+
+`SeriesCompose` and `SeriesObservable` include uncertainty from their inputs. A singular derivative can reduce available absolute precision. `SeriesExp` needs a vanishing absolute argument error even when its output grows rapidly. `SeriesDifferentiate` needs derivative information in addition to a value bound.
+
+For positive Gamma prefactors, `SeriesLog` returns the additive logarithmic expansion, while direct Gamma normalization returns a multiplicative correction bracket. Their cutoff conventions should be read in the coordinate of the returned operation.
+
+## Possible Issues
+
+| Issue | Action |
+| --- | --- |
+| Approximate exponent or coefficient | Replace decimals by the intended exact value, such as `Sqrt[2]` or `5/2`. |
+| Unproved parameter sign or realness | Supply sufficient `Assumptions`; do not assume that a parameter is implicitly real. |
+| Ambiguous inverse branch | Restrict the source domain or supply `"InverseFunctionBranches"` for an unevaluated inverse operator. |
+| Incompatible source or target condition | Select an approach on which the condition holds eventually. |
+| Unexpected number of terms | Check whether the request is a cutoff, block goal, or marker/sector depth. Exact cancellations can remove blocks. |
+| Unexpected power of the remainder | Inspect `"RemainderVariable"`, `"Prefactor"`, and `"TermConvention"`. Sparse support or transported input errors can change the first omitted power. |
+| Refinement stops at an input error | Supply stronger justified input information in a new construction. |
+| Derivative operation fails | Establish the necessary derivative remainder contract; a value Big-O is insufficient. |
+| Certificate fails near an interval boundary | Check poles, endpoint signs, strict source conditions, and the interval's containment in the selected branch. |
+| `"SeriesData"` is missing | Use the explicit series operations and recorded remainder; the result may have irrational exponents or another scale. |
+| Resource limit | Reduce the order or expression complexity, or raise the relevant budget. A partial result does not establish omitted coefficients. |
+
+Ordinary power-log coefficients are polynomials in a single logarithm. Arbitrary nested logarithms, unrelated exponential-sector sums, and arbitrary oscillatory coefficients require a compatible specialized family or are rejected.
+
+The ordinary factor `Log[x]` in `Log[x] Exp[x]` or `Log[x] Gamma[x]` produces the unsupported combined logarithmic source `Log[Log[x]]` in direct normalization. The existence of a formal factored expression alone does not guarantee that the direct constructor can expand it.
+
+Finite Poincare expansions do not assert convergence. Numerical agreement at a large argument does not turn an asymptotic frontier into a pointwise bound. Unknown source predicates and unsupported certificate operations are not silently discarded.
+
+Use `FailureQ[result]` to check a result before querying its properties. Failure data can include the unproved condition, unsupported scale, available precision, or best expansion.
+
+## See Also
+
+Wolfram Language: [Series](https://reference.wolfram.com/language/ref/Series.html), [Asymptotic](https://reference.wolfram.com/language/ref/Asymptotic.html), [InverseFunction](https://reference.wolfram.com/language/ref/InverseFunction.html), [Function](https://reference.wolfram.com/language/ref/Function.html), [ConditionalExpression](https://reference.wolfram.com/language/ref/ConditionalExpression.html), [ProductLog](https://reference.wolfram.com/language/ref/ProductLog.html), [Normal](https://reference.wolfram.com/language/ref/Normal.html).
+
+## Related Guides
+
+- [Mathematical article](../../article/asymptotic-inverse.pdf): mathematical definitions, results, and proofs.
+- [Executable examples](../Examples/Examples.wl): additional package expressions.
+- [Package entry point](../README.md): loading and documentation links.
+- [Wolfram Language asymptotic computations](https://reference.wolfram.com/language/guide/Asymptotics.html): related built-in functionality.

@@ -1,5 +1,38 @@
 # Review and validation record
 
+The documentation split is recorded in `documentation-split.json` and
+`documentation-tests.json`. The mathematical article was rebuilt with three
+serial LaTeX passes and reviewed as rendered pages. The separate user guide
+has a reproducible standalone HTML build, public API anchors, and checked
+local links. The record includes the final source and artifact hashes and
+the precise visual review scope.
+
+**All 26 focused documentation checks passed**, with zero failures on
+Wolfram 15.0.1 for Windows. They check the displayed expressions and relevant
+remainders or properties for ordinary and irrational inverses, Gamma products
+and varying powers, elementary growth, series operations, precision limits,
+certification, and the specialized inverse families. The runner checks the
+guide against all 36 native public symbols. It runs only its explicitly
+listed examples and does not discover package regression files.
+
+The full package suite was **not run**, as requested. The documentation
+change only updates usage strings in executable package sources; the
+algorithms are unchanged. Historical test records below retain their original
+revision and scope.
+
+To reproduce documentation checks from the repository root:
+
+```powershell
+python validation/build_user_guide.py --check
+python validation/check_documentation.py
+wolfram.exe -script validation/CheckDocumentation.wl
+```
+
+The native runner exports `validation/documentation-tests.json` by default;
+set `ASYMPTOTIC_VALIDATION_OUTPUT` to use another destination. Each example
+has a 60-second limit. PDF build and render commands are documented in
+[article/README.md](../article/README.md).
+
 The final exact-recovery follow-up is recorded in
 `growth-exact-recovery-tests.json`: **57 focused tests passed in four suites,
 with zero failures**, on Wolfram 15.0.1 for Windows. This record preserves

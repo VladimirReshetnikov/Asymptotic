@@ -36,7 +36,7 @@ Apply the repeated Euler identity \eqref{eq:euler} in the variable $q$, with $\L
 \end{proof}
 
 \begin{remark}
-The formula \eqref{eq:master} is the one on which all nine reports of Section~\ref{sec:reports} agree, with the same normalization: sign $(-1)^n$, the multi-index factorial $\bk!$ (not $n!$: the multinomial coefficient from expanding $h^n$ has been absorbed), the factor $p^{-n}$ (one $1/p$ from $\Phi'$ and one from each of the $n-1$ derivatives, through $\dd/\dd\Lambda=\D/p$), and the operator constants $r+\sigma+pj$. Forgetting the substitution $L=\log(v/a)/p$ in the coefficients, or the factor $p^{-n}$, are the two classical mistakes for nonunit $p$.
+The normalization in \eqref{eq:master} contains four essential features: sign $(-1)^n$, the multi-index factorial $\bk!$ (not $n!$: the multinomial coefficient from expanding $h^n$ has been absorbed), the factor $p^{-n}$ (one $1/p$ from $\Phi'$ and one from each of the $n-1$ derivatives, through $\dd/\dd\Lambda=\D/p$), and the operator constants $r+\sigma+pj$. Forgetting the substitution $L=\log(v/a)/p$ in the coefficients, or the factor $p^{-n}$, are the two classical mistakes for nonunit $p$.
 \end{remark}
 
 \subsection{First orders and cross terms}
@@ -83,7 +83,7 @@ the signed Catalan numbers. The next coefficient is also explicit: selecting the
  [L^{n-1}]P_n=(-1)^n\Cat_n\,n\,\bigl(1+H_{2n}-H_{n+1}\bigr),\qquad H_k=\textstyle\sum_{j\le k}1/j,
  \label{eq:harmonic}
 \end{equation}
-because $\prod_{j=n+2}^{2n}(\D+j)(1+L)^n$ has $L^{n-1}$-coefficient $\bigl(\prod j\bigr)\bigl(n+\sum_{j=n+2}^{2n}n/j\bigr)$ (the term $n$ from expanding $(1+L)^n$ and the terms $n/j$ from applying $\D$ in the factor $j$). Every $P_n$ is divisible by $1+L$: in the variable $t=1+L$ the operator product $\prod_{j=n+2}^{2n}(\D+j)$ consists of $n-1$ factors, each of which either differentiates (lowering the power of $t$ by one) or multiplies by a constant, so every monomial of $\prod(\D+j)\,t^n$ has degree at least $n-(n-1)=1$ in $t$; the package confirms the factorisation through $n=8$. Thus
+because $\prod_{j=n+2}^{2n}(\D+j)(1+L)^n$ has $L^{n-1}$-coefficient $\bigl(\prod j\bigr)\bigl(n+\sum_{j=n+2}^{2n}n/j\bigr)$ (the term $n$ from expanding $(1+L)^n$ and the terms $n/j$ from applying $\D$ in the factor $j$). Every $P_n$ is divisible by $1+L$: in the variable $t=1+L$ the operator product $\prod_{j=n+2}^{2n}(\D+j)$ consists of $n-1$ factors, each of which either differentiates (lowering the power of $t$ by one) or multiplies by a constant, so every monomial of $\prod(\D+j)\,t^n$ has degree at least $n-(n-1)=1$ in $t$. Thus
 \begin{gather*}
  P_1=-(1+L),\qquad P_2=(1+L)(2L+3),\qquad P_3=-\tfrac12(1+L)(10L^2+31L+23),\\
  P_4=\tfrac16(1+L)(84L^3+398L^2+607L+299),
@@ -118,7 +118,7 @@ which gives \eqref{eq:answer2}. In this one-gap case $g(y)=yV(by^{\alpha-1})$ wi
 \end{equation}
 by Stirling's formula, so the expansion \eqref{eq:answer2} converges (and equals the positive inverse, by analytic continuation of the implicit equation) for $0<y<R_{\sqrt2}^{1/(\sqrt2-1)}\approx0.12686$. The singularity at $t=-R_\alpha$ is the fold $V=\alpha/(\alpha-1)$ of the implicit equation on the negative axis.
 
-\subsection{Formal existence, uniqueness, and the two iterative engines}
+\subsection{Formal existence, uniqueness, and iterative construction}
 \label{sec:formal}
 
 Theorem~\ref{thm:coefficients} produces the coefficients; the following independent argument shows that they are the only possible ones and provides two alternative algorithms. Write $g=z(1+U)$ with $U$ an unknown jet of positive valuation. Then $f(g)=y$ is equivalent to
@@ -138,4 +138,4 @@ $E(U)=pU+\sum_iz^{\delta_i}B_i(L)+(\text{terms of weight}\ge\min(2\val U,\val U+
 
 \paragraph{Picard iteration.} Rewriting \eqref{eq:normalized} as $U=\Psi(U):=\bigl(1+\sum_iz^{\delta_i}(1+U)^{\delta_i}B_i(L+\log(1+U))\bigr)^{-1/p}-1$, the map $\Psi$ gains one gap per step: $\val(\Psi(U)-\Psi(V))\ge\val(U-V)+\delta_*$. Hence $U_{k+1}=\Psi(U_k)$, $U_0=0$, agrees with the solution below weight $(k+1)\delta_*$, and $\lceil H/\delta_*\rceil$ iterations give all blocks below $H$.
 
-\paragraph{Newton iteration.} With $E'(U)=p(1+U)^{p-1}+\sum_iz^{\delta_i}(1+U)^{p+\delta_i-1}\bigl((p+\delta_i)B_i+B_i'\bigr)(L+\log(1+U))$, a unit of the jet algebra with constant leading coefficient $p$, the iteration $U_{k+1}=U_k-E(U_k)/E'(U_k)$ doubles the valuation of the error: if $\val(U_k-U)\ge s$ then $\val(U_{k+1}-U)\ge2s$, because $E(U_k)=E'(U)(U_k-U)+\OO((U_k-U)^2)$ and $E'(U_k)^{-1}=E'(U)^{-1}(1+\OO(U_k-U))$. Starting from $U_0=0$ with $s=\delta_*$, about $\log_2(H/\delta_*)$ iterations suffice. The package offers this engine as \wl{Method -> "Newton"}; it and the multi-index formula must agree, which is a strong internal check.
+\paragraph{Newton iteration.} With $E'(U)=p(1+U)^{p-1}+\sum_iz^{\delta_i}(1+U)^{p+\delta_i-1}\bigl((p+\delta_i)B_i+B_i'\bigr)(L+\log(1+U))$, a unit of the jet algebra with constant leading coefficient $p$, the iteration $U_{k+1}=U_k-E(U_k)/E'(U_k)$ doubles the valuation of the error: if $\val(U_k-U)\ge s$ then $\val(U_{k+1}-U)\ge2s$, because $E(U_k)=E'(U)(U_k-U)+\OO((U_k-U)^2)$ and $E'(U_k)^{-1}=E'(U)^{-1}(1+\OO(U_k-U))$. Starting from $U_0=0$ with $s=\delta_*$, about $\log_2(H/\delta_*)$ iterations suffice. Formal uniqueness implies that Newton iteration and the multi-index formula give the same coefficients at every weight.

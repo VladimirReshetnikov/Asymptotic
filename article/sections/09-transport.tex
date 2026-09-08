@@ -30,14 +30,14 @@ From \eqref{eq:R-hypothesis} and Lemma~\ref{lem:dominance}, $F(u)-y_0\sim au^p$ 
 \end{proof}
 
 \begin{remark}
-The derivative hypothesis is not a consequence of the value bound: $R(u)=u^2\sin(u^{-2})$ is $\OO(u^2)$, but $R'(u)=2u\sin(u^{-2})-2u^{-1}\cos(u^{-2})$ destroys the monotonicity of $u+R(u)$. Nor does non-strict monotonicity alone ensure an inverse, since it permits plateaus. Expansions obtained by the convergent structural operations above admit corresponding derivative estimates, but a formal \wl{Series} result is not itself a proof of them. A declared \wl{"InputRemainder" -> \{$\rho$, k\}} carries the derivative or continuous strict monotonicity hypothesis of this theorem.
+The derivative hypothesis is not a consequence of the value bound: $R(u)=u^2\sin(u^{-2})$ is $\OO(u^2)$, but $R'(u)=2u\sin(u^{-2})-2u^{-1}\cos(u^{-2})$ destroys the monotonicity of $u+R(u)$. Nor does non-strict monotonicity alone ensure an inverse, since it permits plateaus. Expansions obtained by the convergent structural operations above admit corresponding derivative estimates. For a general remainder, either the derivative estimate or continuous strict monotonicity must be established independently.
 \end{remark}
 
 \begin{corollary}[Cutoff cap]
-The data justify every block of $G^r$ strictly below the exponent $(\rho-p+r)/|p|$ in $w$. Thus a requested cutoff $q$ is certified from those data when $q\le(\rho-p+r)/|p|$; the reported remainder is the coarser of the truncation remainder and \eqref{eq:transport-power}, compared by exponent first and by logarithmic degree at equal exponents. A larger requested cutoff requires a sharper forward remainder or additional information. For powers of the original variable at an infinite source endpoint, replace $r$ here by the local-coordinate power $-r$.
+The data justify every block of $G^r$ strictly below the exponent $(\rho-p+r)/|p|$ in $w$. Thus a requested cutoff $q$ is certified from those data when $q\le(\rho-p+r)/|p|$; the resulting remainder is the coarser of the truncation remainder and \eqref{eq:transport-power}, compared by exponent first and by logarithmic degree at equal exponents. A larger requested cutoff requires a sharper forward remainder or additional information. For powers of the original variable at an infinite source endpoint, replace $r$ here by the local-coordinate power $-r$.
 \end{corollary}
 
-For example $\sin x+x^2\log x=x+x^2\log x-x^3/6+\OO(x^5)$ is a germ with $p=1$, gaps $1,2$ and $\rho=5$, $k=0$; the inverse can be requested up to the cutoff $q=5$ and is $y-y^2\log y+y^3(\tfrac16+\log y+2\log^2y)+\OO(y^4\M^3)$ for $q=4$.
+For example $\sin x+x^2\log x=x+x^2\log x-x^3/6+\OO(x^5)$ is a germ with $p=1$, gaps $1,2$ and $\rho=5$, $k=0$; the inverse is determined below cutoff $q=5$ and has the expansion $y-y^2\log y+y^3(\tfrac16+\log y+2\log^2y)+\OO(y^4\M^3)$ for $q=4$.
 
 \subsection{From a residual to the error of the inverse}
 
@@ -66,11 +66,11 @@ For a general germ, $|f'|\asymp z^{p-1}$. For an approximation $G\sim z$, apply 
  \frac{f(G_H(y))-y_0}{a\,z^p}-1=-p\,z^{\sigma_*}C_{\sigma_*}(L)+\oo(z^{\sigma_*}),
  \label{eq:residual-identity}
 \end{equation}
-Here $y_0=0$ for $p<0$, and the truncation retains the leading term so $G_H\sim z$. Indeed $f'(s)=apz^{p-1}(1+\OO(z^{\delta_*}\M^D))$ between $g$ and $G_H$, with a positive power margin that absorbs the logarithms in the error. Multiplying by $G_H-g$ proves the stated little-$o$ term. The normalized residual has the first error block multiplied by $-p$; \wl{InverseResidual} computes it in the jet algebra. If the inverse is retained to cutoff $q$ in $w$, its unnormalized forward residual cutoff is $q+(p-1)/|p|$; the normalized cutoff subtracts $p/|p|$ from that value.
+Here $y_0=0$ for $p<0$, and the truncation retains the leading term so $G_H\sim z$. Indeed $f'(s)=apz^{p-1}(1+\OO(z^{\delta_*}\M^D))$ between $g$ and $G_H$, with a positive power margin that absorbs the logarithms in the error. Multiplying by $G_H-g$ proves the stated little-$o$ term. The normalized residual has the first error block multiplied by $-p$, an identity in the jet algebra. If the inverse is retained to cutoff $q$ in $w$, its unnormalized forward residual cutoff is $q+(p-1)/|p|$; the normalized cutoff subtracts $p/|p|$ from that value.
 
 \subsection{Finite smoothness suffices}
 
-The finite germ is analytic away from $0$, and the convergence proof used that. For perturbations outside the finite power--log class (a coefficient $\sin(\log x)$, a term $e^{-1/x}$, a function known only through derivative bounds) the marker formula \eqref{eq:near-identity} can still be applied, and the following theorem, which appears in report~05 with a sketched proof, shows that it is a genuine asymptotic expansion whenever the perturbation and finitely many of its derivatives are small in the power--log scale. We give the complete proof.
+The finite germ is analytic away from $0$, and the convergence proof used that. For perturbations outside the finite power--log class (a coefficient $\sin(\log x)$, a term $e^{-1/x}$, a function known only through derivative bounds) the marker formula \eqref{eq:near-identity} can still be applied, and the following finite-smoothness result justifies the resulting expansion whenever the perturbation and finitely many of its derivatives are small in the power--log scale.
 
 \begin{theorem}[Tame near-identity inversion]
 \label{thm:tame}
@@ -104,9 +104,9 @@ Since $|\varphi(x)|\le x/2$ for $x<x_1$ (after shrinking $x_1$), $F_\lambda(y/2)
 \end{equation}
 For $n=1$: $\partial_\lambda\Psi(G)=\Psi'(G)\partial_\lambda G=\Psi'(G)\psi(G)\partial_yG=\psi(G)\partial_y[\Psi(G)]$. Assume \eqref{eq:transport-identity} for $n$ and all $\Psi$. Then, using it once more for the functions $\psi^n$ and $\Psi$ in the second step,
 \begin{align*}
- \partial_\lambda^{n+1}[\Psi(G)]&=\partial_y^{n-1}\,\partial_\lambda\bigl[\psi(G)^n\partial_y\Psi(G)\bigr]\\
- &=\partial_y^{n-1}\bigl[\psi(G)\,\partial_y(\psi(G)^n)\,\partial_y\Psi(G)\\
- &\hspace{5em}+\psi(G)^n\,\partial_y\bigl(\psi(G)\partial_y\Psi(G)\bigr)\bigr]\\
+ \partial_\lambda^{n+1}[\Psi(G)]&=\partial_y^{n-1}\,\partial_\lambda\bigl[\psi(G)^n\partial_y\Psi(G)\bigr]\\*
+ &=\partial_y^{n-1}\bigl[\psi(G)\,\partial_y(\psi(G)^n)\,\partial_y\Psi(G)\\*
+ &\hspace{5em}+\psi(G)^n\,\partial_y\bigl(\psi(G)\partial_y\Psi(G)\bigr)\bigr]\\*
  &=\partial_y^{n-1}\,\partial_y\bigl[\psi(G)^{n+1}\partial_y\Psi(G)\bigr],
 \end{align*}
 where the last equality is the product rule read backwards: $\partial_y[\psi^{n+1}\Psi_y]=(n+1)\psi^n\psi_y\Psi_y+\psi^{n+1}\Psi_{yy}$ and the bracket equals $n\psi^n\psi_y\Psi_y+\psi^n(\psi_y\Psi_y+\psi\Psi_{yy})$, the same thing. (Here $\psi_y$ stands for $\partial_y[\psi(G)]$.)
@@ -129,5 +129,5 @@ uniformly in $\lambda$, and the integral remainder is $\OO(y\kappa(y)^{N+1})=\OO
 \end{proof}
 
 \begin{remark}
-Applied to $\varphi(x)=x^2(1+\log x)$ ($\delta=1$, $M=1$) the theorem re-proves the remainder $\OO(y^{N+2}\M^{N+1})$ of \eqref{eq:log-remainder} with a proof that uses no analyticity at all; applied to $\varphi(x)=x^2\sin(\log x)$ ($\delta=1$, $M=0$) it justifies $g(y)=y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4)$, $L=\log y$, a perturbation whose coefficients oscillate and which no power--log expansion describes. The package's \wl{PerturbativeInverse} produces the terms; the theorem is the user's tool for asserting the remainder.
+Applied to $\varphi(x)=x^2(1+\log x)$ ($\delta=1$, $M=1$) the theorem re-proves the remainder $\OO(y^{N+2}\M^{N+1})$ of \eqref{eq:log-remainder} with a proof that uses no analyticity at all; applied to $\varphi(x)=x^2\sin(\log x)$ ($\delta=1$, $M=0$) it justifies $g(y)=y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4)$, $L=\log y$, a perturbation whose coefficients oscillate and which no power--log expansion describes. The marker identity determines the coefficients and the derivative hypotheses justify their complete remainder.
 \end{remark}

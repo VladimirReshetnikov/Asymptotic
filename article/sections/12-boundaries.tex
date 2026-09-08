@@ -59,7 +59,7 @@ Indeed, for complex $|t|,|T|\le1/4$, the map $V\mapsto sT-s t\log(1+V)$ sends $|
  \le\frac{2q_L^N}{1-q_L}.
  \label{eq:lambert-explicit-tail}
 \end{equation}
-The construction follows the two-small-parameter method in the supplied transseries notes \cite{proveit}; it establishes a sufficient domain and does not claim convergence from a fixed-logarithm implicit-function argument alone.
+The construction follows the two-small-parameter method in the transseries notes \cite{proveit}; it establishes a sufficient domain and does not claim convergence from a fixed-logarithm implicit-function argument alone.
 
 For the leading-log core, put $Z=-(p/b)Y^{1/b}$ and choose $s$ from its branch. Since $-bs/p>0$, an arbitrary real observable power is best assembled as
 \begin{equation}
@@ -101,7 +101,7 @@ Here $x=\W_0(y)$. With $A=\log y$ and $B=\log A$,
  +\frac{B(2B^2-9B+6)}{6A^3}
  +\OO\left(\frac{(1+B)^4}{A^4}\right).
 \]
-Both this expansion and the $x\log x$ expansion use $t=1/A$ as the local variable. An exponent cutoff in $t$ specifies logarithmic accuracy; it is not a cutoff in $y$ or $1/y$. A nonconstant external factor such as $-y$ must also multiply the remainder descriptor.
+Both this expansion and the $x\log x$ expansion use $t=1/A$ as the local variable. An exponent cutoff in $t$ specifies logarithmic accuracy; it is not a cutoff in $y$ or $1/y$. A nonconstant external factor such as $-y$ must also multiply the remainder bound.
 \end{example}
 
 \subsection{Perturbations of a Lambert core}
@@ -139,7 +139,7 @@ Replacing $t\ell$ by an independent parameter again gives an analytic equation w
 This yields convergence and the same type of finite-order logarithmic remainder as before. The sufficient numerical bound \eqref{eq:lambert-explicit-tail} was proved for $R=1$ and is not asserted unchanged for a general $R$.
 \end{proof}
 
-The polynomial correction modifies the logarithmic coefficients and must be included in the equation; it is not beyond all logarithmic orders. In general this inverse has no claimed exact \wl{ProductLog} expression. The construction also applies to logarithmic cores at either infinite source endpoint after $u=1/x$ or $u=-1/x$, using the observable and sign rules of Section~\ref{sec:endpoints}.
+The polynomial correction modifies the logarithmic coefficients and must be included in the equation; it is not beyond all logarithmic orders. In general this inverse need not be expressible using a single Lambert $W$ function. The construction also applies to logarithmic cores at either infinite source endpoint after $u=1/x$ or $u=-1/x$, using the observable and sign rules of Section~\ref{sec:endpoints}.
 
 \begin{proposition}[Perturbations beyond every logarithmic order]
 \label{prop:lambert-flat-perturbation}
@@ -155,11 +155,11 @@ In the leading-log case $F_0'(u)\sim pF_0(u)/u$, and the perturbation and its de
 In the exponential case $F_0'/F_0\sim cp x^{p-1}$, whereas the additive perturbation $R$ and its derivative have only power--log growth. A bracket of width $\OO(|R(g_0)|/|F_0'(g_0)|)$ has slope comparable to $F_0'(g_0)$: the logarithm of that derivative changes by $\OO(R/F_0)=\oo(1)$ across the bracket. Thus $(g-g_0)/g_0$ is exponentially small in $g_0^p$, while $t$ is comparable to $g_0^{-p}$. Finally apply the mean value theorem to the positive real power $u^r$. Continuous local inverse branches exist because the perturbation derivative is smaller than the nonzero core derivative.
 \end{proof}
 
-The package marks this situation with \wl{"LeadingCoreOnly" -> True}, stores the discarded expression in \wl{"BeyondLogarithmicOrders"}, and leaves \wl{"ExactInverseExpression"} unavailable. Those terms affect an exponentially smaller scale even though they do not change any finite coefficient in the reported logarithmic expansion.
+These perturbations affect an exponentially smaller scale while leaving every finite coefficient in the logarithmic expansion unchanged. The exact core inverse therefore determines all logarithmic orders, but does not equal the full inverse in general.
 
 \subsection{Zero gaps: corrections of relative size \texorpdfstring{$1/\log$}{1/log}}
 
-For $f(x)=x+x/\log x$ the correction has power gap $0$ and relative size $1/\log x$. All corrections of the inverse then sit at the same power $y$ with increasing negative powers of $\log y$, the index set $I_H$ is infinite, and the exponent cutoff has no meaning. The right coordinate is $\tau=1/\log y$: with $g=yW$ the equation becomes $W\bigl(1+\tau/(1+\tau\log W)\bigr)=1$, analytic near $(W,\tau)=(1,0)$, so $W$ is an ordinary convergent power series in $\tau$, $W=1-\tau+\tau^2-2\tau^3+\tfrac72\tau^4-\cdots$, i.e.\ $g(y)=y\bigl(1-1/\log y+1/\log^2y-2/\log^3y+\cdots\bigr)$. The general-core formula produces these terms, but the scale is the reciprocal-logarithm scale, not the power--log scale, and Section~\ref{sec:logarithmic-scales} implements the required reciprocal-logarithm valuation.
+For $f(x)=x+x/\log x$ the correction has power gap $0$ and relative size $1/\log x$. All corrections of the inverse then sit at the same power $y$ with increasing negative powers of $\log y$, the index set $I_H$ is infinite, and the exponent cutoff has no meaning. The right coordinate is $\tau=1/\log y$: with $g=yW$ the equation becomes $W\bigl(1+\tau/(1+\tau\log W)\bigr)=1$, analytic near $(W,\tau)=(1,0)$, so $W$ is an ordinary convergent power series in $\tau$, $W=1-\tau+\tau^2-2\tau^3+\tfrac72\tau^4-\cdots$, i.e.\ $g(y)=y\bigl(1-1/\log y+1/\log^2y-2/\log^3y+\cdots\bigr)$. The general-core formula produces these terms, but the scale is the reciprocal-logarithm scale, not the power--log scale, and Section~\ref{sec:logarithmic-scales} develops the required reciprocal-logarithm valuation.
 
 \subsection{Flat terms}
 
@@ -167,7 +167,7 @@ $e^{-1/x}$ is smaller than every power of $x$; a germ $x+e^{-1/x}$ has the same 
 
 \subsection{Oscillatory coefficients}
 
-$x^2\sin(\log x)$ is $\OO(x^2)$ with all derivatives of the right size, so Theorem~\ref{thm:tame} applies and the marker formula gives a valid expansion $y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4)$ whose ``coefficients'' are bounded oscillating functions of $L=\log y$. They are not polynomials in $L$, the coefficient algebra is different, and the sharp remainder theory of Section~\ref{sec:remainders} (which uses degrees) does not apply; only the tame theorem does. Section~\ref{sec:fourier-coefficients} supplies a finite Fourier coefficient algebra and a nonoscillatory remainder bound. The lower-level \wl{PerturbativeInverse} remains a formula generator.
+$x^2\sin(\log x)$ is $\OO(x^2)$ with all derivatives of the right size, so Theorem~\ref{thm:tame} applies and the marker formula gives a valid expansion $y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4)$ whose ``coefficients'' are bounded oscillating functions of $L=\log y$. They are not polynomials in $L$, the coefficient algebra is different, and the polynomial-coefficient remainder theory of Section~\ref{sec:remainders} requires an extension. The tame theorem already provides a valid remainder estimate. Section~\ref{sec:fourier-coefficients} supplies a finite Fourier coefficient algebra and a nonoscillatory remainder bound.
 
 \subsection{Symbolic exponents and nonuniformity}
 
@@ -177,4 +177,4 @@ When a gap $\delta$ is a symbol, the order of the weights $k\cdot\bdelta$ depend
 
 Non-integer powers $(-\log x)^s$, $\log(-\log x)$, and negative powers of $\log x$ in a correction leave the polynomial coefficient algebra. For example $\varphi(x)=x^{1+\delta}(-\log x)^{1/2}$ is real for small positive $x$ and satisfies Theorem~\ref{thm:tame} with $M=1$, but repeated differentiation produces negative half-integer as well as positive half-integer powers of $-L$. A suitable coefficient algebra therefore contains $(-L)^{1/2}$ and its inverse. The Euler identity and composition recurrence still apply when the coefficient functions are differentiable or analytic as needed; closure and remainder bounds in the enlarged scale must also be established.
 
-The finite hierarchy of Section~\ref{sec:logarithmic-scales} establishes these closure and remainder contracts for generalized Laurent monomials in finitely many positive logarithmic levels. More general coefficient functions still need an independently justified algebra and ordering.
+The finite hierarchy of Section~\ref{sec:logarithmic-scales} establishes these closure and remainder estimates for generalized Laurent monomials in finitely many positive logarithmic levels. More general coefficient functions still need an independently justified algebra and ordering.
