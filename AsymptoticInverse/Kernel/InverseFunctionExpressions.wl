@@ -42,7 +42,7 @@ inverseFunctionEventually[condition_, u_, ass_] := Module[{simple, delta, proof}
 forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] := Block[
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticExpansion, {opts}, "InverseFunctionBranches"]}, Module[
-  {body = f, condition = True, ass, parameterAss, clauses, coord, result, rules, records},
+  {body = f, condition = True, ass, parameterAss, clauses, coord, result, rules, records, targetDomain},
   ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions];
   While[Head[body] === ConditionalExpression,
     condition = condition && body[[2]]; body = body[[1]]];
@@ -57,14 +57,21 @@ forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] 
   result = inverseFunctionDirectExpansion[body, x, x0, cutoff, parameterAss, coord,
     OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]];
   If[result === $Failed,
+    result = gammaForwardExpansion[body, x, x0, cutoff, parameterAss, coord,
+      OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]]];
+  If[result === $Failed,
     result = forwardCore[body, x, x0, cutoff, Assumptions -> parameterAss, Sequence @@ rules]];
   If[! MatchQ[result, _PowerLogSeries], Return[result, Module]];
   records = DeleteDuplicates[$inverseFunctionProvenance];
+  targetDomain = condition && coord["LocalVariable"] > 0 && Lookup[result[[1]], "TargetDomain", True];
   PowerLogSeries[Join[result[[1]],
+    If[AssociationQ[Lookup[result[[1]], "SeriesRepresentation", None]],
+      <|"SeriesRepresentation" -> Join[result["SeriesRepresentation"],
+        <|"Domain" -> targetDomain && Lookup[result["SeriesRepresentation"], "Domain", True]|>]|>, <||>],
     If[Lookup[result[[1]], "Kind", ""] === "Forward", <|"Function" -> ConditionalExpression[body, condition]|>, <||>],
     If[KeyExistsQ[result[[1]], "InverseFunctionExpression"],
       <|"InverseFunctionExpression" -> ConditionalExpression[body, condition]|>, <||>], <|
-    "TargetDomain" -> condition && coord["LocalVariable"] > 0 && Lookup[result[[1]], "TargetDomain", True],
+    "TargetDomain" -> targetDomain,
     "InverseFunctionBranches" -> $inverseFunctionBranchSelections,
     "InverseFunctionProvenance" -> records|>]]]];
 

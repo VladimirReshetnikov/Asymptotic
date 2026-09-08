@@ -19,7 +19,9 @@ exponent strictly less than cutoff in the local variable (|x - x0| or 1/|x|) ret
 as a PowerLogSeries object.
 AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero blocks.
 AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] is equivalent. A unary pure Function \
-or unapplied InverseFunction is applied to x before expansion.";
+or unapplied InverseFunction is applied to x before expansion.
+For Gamma on a positive argument tending to Infinity, an exact prefactor is extracted; \
+the cutoff and term goal apply to the power-log correction bracket.";
 
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
@@ -1108,6 +1110,7 @@ Get[FileNameJoin[{$kernelDirectory, "InverseFunctionSyntax.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionBranches.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionFamilies.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionExpressions.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "GammaForward.wl"}]];
 
 End[];
 EndPackage[];

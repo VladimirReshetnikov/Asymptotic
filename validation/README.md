@@ -1,5 +1,32 @@
 # Review and validation record
 
+The Gamma forward-expansion update is recorded in `gamma-forward-tests.json`.
+Its final native run passes **777 tests in 33 suites, with zero failures**, on
+Wolfram 15.0.1 for Windows. The 18 new regressions verify the requested
+five-term expansion against independent Stirling coefficients, the full
+prefactor-scaled remainder and frontier, a 100-digit normalized numerical
+comparison at `x = 1000`, positive growing argument substitutions, finite
+endpoints, relative cutoffs, domain-preserving refinement, and compatible
+series operations. Invalid budgets, cutoffs, and source approaches are
+also covered. The full suite includes the earlier callable-input regressions.
+
+The implementation expands `LogGamma` using the existing forward engine,
+then uses its explicit series exponential to transport the remainder and
+extract the exact prefactor. The result records a Poincare expansion and
+does not assert convergence or an unproved derivative remainder contract.
+The numerical comparison is evidence of asymptotic accuracy, not an
+interval certificate or pointwise error bound.
+
+To reproduce the Gamma update's full native run:
+
+```powershell
+$env:ASYMPTOTIC_VALIDATION_OUTPUT = Join-Path (Get-Location).Path 'validation\gamma-forward-tests.json'
+wolfram.exe -script AsymptoticInverse\Tests\RunTests.wl
+```
+
+The saved JSON additionally records the baseline commit and SHA-256 hashes
+of the changed kernel and test sources, added after the successful run.
+
 The callable-input update is recorded in `callable-expansion-tests.json`.
 Its final native run passes **759 tests in 32 suites, with zero failures**, on
 Wolfram 15.0.1 for Windows. The 17 new regressions cover rule coordinates,

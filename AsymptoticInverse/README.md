@@ -139,6 +139,47 @@ remains a compatibility alias, without implying exact arithmetic or certificatio
 assumptions are checked on the target approach when expanding an inverse.
 The explicit branch option is also available on `SeriesObservable`.
 
+## Gamma growth and exact prefactors
+
+`Gamma` with a positive real argument tending to infinity is expanded by
+first expanding `LogGamma`, then exponentiating with an exact prefactor:
+
+```wolfram
+s = AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 5];
+Normal[s]
+(* Sqrt[2 Pi] x^(x - 1/2) Exp[-x]
+   (1 + 1/(12 x) + 1/(288 x^2) - 139/(51840 x^3)
+      - 571/(2488320 x^4)) *)
+s["Scale"]        (* "Factored" *)
+s["Remainder"]    (* s["Prefactor"] PowerLogRemainder[1/x, 5, 0] *)
+```
+
+This is the [Stirling expansion](https://dlmf.nist.gov/5.11.E3). Its
+correction series is a Poincare asymptotic expansion; convergence is not
+asserted. `"Terms"` and `"Blocks"` describe the bracket multiplying the exact
+`"Prefactor"`. `SeriesTermGoal` counts its nonzero blocks, including the
+leading `1`; an explicit cutoff, such as `{x, Infinity, 5}`, is an exclusive
+exponent bound **inside that bracket**. The absolute remainder for five
+terms is `O[Prefactor/x^5]`. `"RemainderScaleExpression"` includes the
+prefactor. When computed, `"FrontierTerm"` includes the first omitted
+coefficient and the prefactor; otherwise it records `Missing["Unknown"]`.
+It is an asymptotic frontier, not a pointwise error bound.
+
+The argument's positive infinite limit must be established on the selected
+approach, and its `LogGamma` expansion must belong to the supported
+power-log algebra. This also admits `Gamma[2 x]` and `Gamma[x^2]` at positive
+infinity, and `Gamma[1/x]` as `x -> 0+`. Finite-argument expansions continue
+through the ordinary forward engine. Additional exponential sectors in
+arithmetic expressions are subject to the existing series-operation scope.
+
+The result retains its original function and domain for `SeriesRefine`.
+`SeriesTruncate`, compatible multiplication, reciprocal powers, and
+`SeriesLog` use the prefactor-aware representation. For example,
+`SeriesRefine[s, 6]` computes the next correction, while `SeriesLog[s, 5]`
+recovers the logarithmic Stirling expansion through that absolute order.
+No derivative remainder contract is inferred solely from this finite
+Poincare expansion.
+
 ## Callable and applied `InverseFunction` expressions
 
 A unary `InverseFunction` can be passed directly, with `x -> x0` specifying

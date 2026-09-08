@@ -102,6 +102,21 @@ AsymptoticExpansion[
 Unary pure functions and unapplied `InverseFunction`
 operators are applied to the expansion variable before expansion.
 
+Gamma growth uses an exact prefactor with a power-log correction bracket:
+
+```wolfram
+AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 5]
+(* Sqrt[2 Pi] x^(x - 1/2) Exp[-x]
+   (1 + 1/(12 x) + 1/(288 x^2) - 139/(51840 x^3)
+      - 571/(2488320 x^4) + O[x^-5]) *)
+```
+
+For these `"Factored"` results, term goals and cutoffs apply inside the
+bracket; the absolute remainder includes the prefactor. The construction
+uses `LogGamma` and the existing series exponential operation, preserving
+refinement and compatible series arithmetic. See the package guide for
+the positive-argument and Poincare remainder conventions.
+
 Conditions on the expansion variable must hold on its selected one-sided
 approach. Conditions inside the inverse callable restrict its source; they
 are retained for refinement and numerical evidence. A numerical check tests

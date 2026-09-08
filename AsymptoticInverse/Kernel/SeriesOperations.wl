@@ -176,7 +176,9 @@ seriesLog[s_, cut_, limit_] := Module[{d, flat, ell, ass, h, j, p},
   ell = d["LogVariable"]; ass = seriesAss[d]; h = seriesWorkingCut[d, cut];
   If[! provablyPositive[d["Prefactor"], ass], fail["NonpositiveBase", "A real logarithm needs a provably positive prefactor."]];
   j = fwdLog[d["Jet"], Unique["w$"], ell, ass, h, limit];
-  p = seriesExpressionJet[Log[d["Prefactor"]], d, limit];
+  (* A positive prefactor can combine powers and exponentials (for example
+     Stirling's factor); simplify its real logarithm before parsing the jet. *)
+  p = seriesExpressionJet[FullSimplify[Log[d["Prefactor"]], ass], d, limit];
   If[p === $Failed, fail["UnsupportedScale", "The logarithm of the carrier is outside the recorded power-log coordinate."]];
   j = pAdd[p, j, ell, ass];
   seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> 1|>], {"Log", {s}}, h]];
