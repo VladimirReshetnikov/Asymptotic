@@ -1,0 +1,236 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=26mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array,longtable,enumitem,needspace}
+\usepackage{xcolor,listings,xurl}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\hypersetup{pdftitle={AsymptoticInverse: prioritized implementation and validation plan},
+ pdfauthor={Vladimir Reshetnikov},pdfsubject={Scope, mathematical contracts, implementation stages and acceptance evidence}}
+\setlength{\parskip}{0.3em}
+\setlength{\emergencystretch}{2.5em}
+\allowdisplaybreaks
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\oo}{o}
+\newcommand{\M}{\mathrm M}
+\newcommand{\wl}[1]{\texttt{#1}}
+\newcommand{\planned}{\textsf{Planned}}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,
+ breaklines=true,showstringspaces=false,frame=single,
+ rulecolor=\color{black!25},backgroundcolor=\color{black!3},language=Mathematica}
+\title{AsymptoticInverse\\[0.4em]\large Prioritized implementation and validation plan}
+\author{Vladimir Reshetnikov}
+\date{September 2026}
+\begin{document}
+\setcounter{tocdepth}{1}
+\maketitle
+
+\begin{abstract}
+This plan retains every authorized roadmap proposal and orders their implementation around shared mathematical contracts. The first stage extends the existing engines through explicit coordinate transformations. Later stages add exact-core perturbations, numerical certificates, larger logarithmic scales, composable result operations, incremental computation, finite exponential and Fourier sectors, and special-function adapters. Each stage has concrete acceptance cases and separate requirements for mathematical justification, exact symbolic checks, native tests, numerical evidence, performance measurements and rendered documentation. All stage statuses in this initial plan are \planned; a proposal is not marked complete merely because an interface or theorem statement exists.
+\end{abstract}
+
+\tableofcontents
+
+\section{Scope, priorities and completion rules}
+
+The starting point is the reviewed power--log inverse package, including its Lambert-coordinate engine, exact finite-inverse certificates and sparse arithmetic improvements. The present campaign expands that foundation. Existing tests remain regression requirements, and the article's established distinction between the original function, an exact core, and a truncated forward model remains part of every result contract.
+
+The work is organized into nine stages. A higher number indicates a dependency order, not permission to omit the stage. Independent implementation lanes may proceed concurrently when they do not edit the same files or compete for the native test runner.
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.07\textwidth}>{\raggedright\arraybackslash}p{0.53\textwidth}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.11\textwidth}@{}}
+\toprule
+Stage & Deliverable & Main prerequisite & Status\\
+\midrule
+\endfirsthead
+\toprule
+Stage & Deliverable & Main prerequisite & Status\\
+\midrule
+\endhead
+1 & General exponential phases, pure logarithmic cores, and finite exponential sums through explicit coordinates & Existing inverse engines & \planned\\
+2 & Exact-core perturbations and transported input remainders & Coordinate contracts & \planned\\
+3 & Residual certificates and adaptive absolute/relative accuracy & Valid error transport & \planned\\
+4 & Reciprocal logarithms, iterated logarithms and nonpolynomial logarithmic coefficients & Scale representation & \planned\\
+5 & Composable arithmetic, inverse observables and refinement & Scale and provenance contracts & \planned\\
+6 & Incremental enumeration, Newton and grouped coefficient performance & Stable result semantics & \planned\\
+7 & Finite flat sectors and finite Fourier coefficient algebras & Extended scales and residual checks & \planned\\
+8 & Special-function and threshold adapters & Branch-aware coordinate dispatch & \planned\\
+9 & Generated independent tests and version-range validation & Continuous from stage 1 & \planned\\
+\bottomrule
+\end{longtable}
+
+A stage is complete only when its accepted input family has a stated mathematical domain, its implementation returns the documented semantics, its required native tests pass, and its source documentation is updated. Claims about a PDF require rebuilding and inspecting the PDF. Claims about publication require a verified commit and remote reference. Mathematical proof, successful symbolic simplification, numerical agreement and passing tests are distinct forms of evidence and are reported separately.
+
+Unsupported instances within a broader future family must be identified explicitly. A bounded implementation may support a mathematically defined subclass, but it must not silently relabel the whole roadmap family as completed. If a stage requires further work, its remaining cases and exact blockers stay in the plan.
+
+\section{Shared contracts}
+
+\subsection{Coordinates and branch provenance}
+
+Every transformed inverse retains the original forward function, the source endpoint and side, the transformation, its inverse reconstruction, the transformed target, and the assumptions under which these maps are real and locally one-to-one. The actual expansion variable and cutoff meaning must be inspectable. A cutoff in $1/\log y$ must never be presented as a cutoff in $1/y$.
+
+If $t=T(x)$ is a source coordinate and $x=H(t)$ its reconstruction, solve $F(H(t))=y$ in the $t$ coordinate, then transport the approximation and its error through $H$. A target transformation $v=J(y)$ instead solves $J(F(x))=v$ on a domain where $J$ is one-to-one. Neither transformation changes which source branch the user requested.
+
+\subsection{Remainder information}
+
+An expansion is a finite expression together with a scale, a remainder assertion and its hypotheses. Fixed asymptotic constants are not numerical error bounds until they have been bounded explicitly. An external prefactor multiplies the remainder as well as the displayed expression. Differentiating an unknown remainder requires derivative control; it is not inferred from a value bound alone.
+
+For reconstruction $x=e^{s t}$, $s\ne0$, an additive approximation $t=A+E$ gives a relative approximation $x=e^{sA}(1+\OO(E))$ only when $E\to0$. If $E$ does not tend to zero, the implementation must refine the inner expansion or preserve the exponential enclosure explicitly. It must not exponentiate a coarse additive expansion and claim a small relative error.
+
+\subsection{Exactness and refinement}
+
+The result separately records whether the original forward model is exact, whether the inverse expression is exactly certified, and whether a displayed core omits smaller sectors. A zero remainder needs an exact argument about the original function on the selected branch. Refinement preserves the original assumptions, domain and provenance, and states whether it reused prior coefficients or recomputed them.
+
+\section{Stage 1: coordinate transformations}
+
+\paragraph{Priority and outcome.} This is the first implementation milestone. It removes input restrictions caused by the current recognizers while reusing the established power--log and Lambert engines.
+
+\subsection{General exponential phases}
+
+Recognize $F(x)=a\exp(\Phi(x))$, and products that can be brought into that form on a proved positive domain. Solve $\Phi(x)=\log(y/a)$. Include phases with several distinct powers, polynomial--log terms, affine shifts, and negative signs when the target approaches a finite limit. The transformed inverse carries its own residual; the result also exposes the original residual or a rigorously equivalent transformed residual.
+
+Acceptance cases include:
+\begin{itemize}[leftmargin=1.5em]
+\item $e^{x^2+x}$ at $+\infty$, checked against $(-1+\sqrt{1+4\log y})/2$;
+\item $e^{x^2+x\log x}$ and $x^3e^{x^2+x}$ at $+\infty$, with independent phase residuals;
+\item $e^{(x-3)^2+(x-3)}$ with the requested source endpoint, so translation cannot disappear;
+\item $e^{-x^2-x}$ at $+\infty$, with $y\to0^+$ and the same quadratic inverse after $\log y\mapsto-\log y$;
+\item sign-scaled and target-offset versions such as $7-2e^{x^2+x}$, with the actual target side checked.
+\end{itemize}
+
+The forward phase must be selected structurally or proved equivalent under assumptions. An unproved logarithm identity involving a negative factor is a failure, not a simplification rule.
+
+\subsection{Pure logarithmic cores}
+
+Use $t=\log x$ at $x\to+\infty$ or $t=-\log u$ at a positive source distance $u\to0$. Invert the resulting power--log function of $t$ and reconstruct the original source variable. General powers of logarithmic expressions and finite logarithmic polynomials are included when the transformed branch is valid.
+
+Acceptance cases are $\log x$, $(\log x)^2+\log x$ at $+\infty$, $-\log x$ at $0^+$, $(-\log x)^2-\log x$ at $0^+$, and shifted signed source distances. The quadratic case has an exact exponential reconstruction and tests whether the inner error is refined until it tends to zero. A coarse term count must not create an invalid relative exponential remainder.
+
+\subsection{Finite exponential sums}
+
+For finite sums $\sum_j a_j e^{\lambda_j x}$ with proved real rates and a selected endpoint, use a positive exponential source coordinate. Rates may be rationally related or incommensurable; the resulting powers are handled by the exact exponent engine. A common nonzero rate is chosen with a sign that makes the source coordinate tend to zero. A nonconstant limit or cancellation is resolved before selecting the leading rate.
+
+Acceptance cases are $e^x+e^{2x}$, $e^x+e^{\sqrt2 x}$, $e^{-x}+2e^{-3x}$ at $+\infty$, and $3-e^{-x}+e^{-2x}$. The first has the exact oracle $x=\log((\sqrt{1+4y}-1)/2)$. Include cancellation and duplicate-rate cases, signed target limits, and both source infinities.
+
+\paragraph{Acceptance evidence.} Each family needs exact transformed composition, an oracle where available, high-precision comparisons at several scales, domain-rejection tests, and observable/remainder tests. The article must state the coordinate error-transport theorem and the actual cutoff semantics before these families are described as supported.
+
+\section{Stage 2: exact cores, perturbations and input errors}
+
+Introduce a structured exact-core interface carrying a forward core $F_0$, its inverse $\phi$, the branch domain, the perturbation and any declared remainder. The existing marker formula generates coefficients, but its output must gain scale and error metadata. A core identity is either structurally known or separately certified.
+
+Support finite perturbation orders around Lambert and coordinate-transformed cores. Preserve both perturbation order and logarithmic order when they are independent; corrections beyond every logarithmic order must remain visible as unresolved sectors until this stage computes them. Generalized input remainder declarations specify the coordinate, whether the bound is additive or relative, and the derivative information needed for inversion.
+
+Acceptance cases include $x\log x+x^2$ near $0^+$, $xe^x+x^2$ at $+\infty$, a shifted/scaled version of each, and $x+\log x+x^{-1}$ at infinity. Compare an exact-core perturbative correction against an independently computed residual and numerical difference from the core inverse. Declared remainders must cap both ordinary and transformed inverse observables correctly, including negative powers and finite-source reconstruction.
+
+This stage must also reject an input remainder that destroys local monotonicity or lacks the derivative/branch contract needed to justify transport. A conditionally valid formal correction is labelled as such rather than returned as an unconditional asymptotic statement.
+
+\section{Stage 3: certificates and adaptive accuracy}
+
+\subsection{Residual certificates}
+
+Add an explicit certification operation for a numerical target. Given an approximation $A$ and a proved nonzero slope bound $|F'|\ge\mu$ on a branch interval, derive an enclosure from the residual. Existence requires a bracket contained in that interval; uniqueness requires the derivative sign. An upper slope bound supplies the corresponding lower error estimate when useful.
+
+The certificate records the target, evaluation precision, interval, residual enclosure, slope enclosure, proved source side, resulting inverse interval and method. Interval or directed-rounding calculations must be used when the certificate relies on numerical bounds. A successful \wl{FindRoot} call alone is not a certificate.
+
+Acceptance cases include the globally monotone $x+x^2(1+\log x)$, $x+x^{\sqrt2}$, a nonunit leading power, both Lambert branches and a transformed exponential phase. Include a target near a branch threshold, a deliberately invalid bracket and insufficient numerical precision.
+
+\subsection{Adaptive absolute and relative accuracy}
+
+Implement requested absolute or relative accuracy by increasing expansion order and working precision until a certificate meets the tolerance. Near a zero of the inverse, a relative request needs an explicit absolute fallback or a nonzero lower bound. For convergent expansions, use a valid tail majorant where available; for asymptotic-only families, detect ineffective additional terms and report the unresolved error floor.
+
+Acceptance requires several tolerances per family, observed refinement histories, verified stopping conditions, and a bounded failure mode. An approximation based only on a core cannot claim a tolerance smaller than its unresolved perturbation sector. Resource exhaustion preserves the best available approximation and evidence without claiming the requested accuracy was achieved.
+
+\section{Stage 4: reciprocal and iterated logarithms}
+
+\subsection{Reciprocal-logarithm valuation}
+
+Extend the scale model to allow a logarithmic coordinate independent of the ordinary power coordinate. This directly covers zero-gap corrections such as $x+x/\log x$. Define an exclusive logarithmic cutoff, degree/valuation conventions for reciprocal powers, composition and differentiation, and an ordering policy for mixed power and logarithmic terms.
+
+Acceptance includes the convergent expansion
+\[
+ (x+x/\log x)^{-1}(y)
+ =y\left(1-\frac1{\log y}+\frac1{\log^2y}
+ -\frac2{\log^3y}+\frac7{2\log^4y}+\cdots\right),
+\]
+with the inverse notation understood as function inversion. Add mixed inputs such as $x(1+1/\log x)+x^2$ and a case whose first logarithmic correction cancels. The result must distinguish an omitted reciprocal-logarithm block from an exponentially smaller power block.
+
+\subsection{Iterated logarithms and nonpolynomial coefficients}
+
+Support finitely many explicitly declared logarithmic levels, including $\log(-\log x)$ and real powers of $-\log x$ on $x\to0^+$. The coefficient algebra must be closed under the derivatives actually used; for example $(-L)^{1/2}$ requires negative half-integer powers after differentiation.
+
+Acceptance cases are $x+x^2\sqrt{-\log x}$, $x+x^2\log(-\log x)$ and a leading core containing an iterated logarithm such as $x\log\log x$ at $+\infty$. Include sign-domain failures and two logarithmic truncation depths. This stage needs closure and remainder theorems for the supported finite hierarchy, not only parser changes.
+
+\section{Stage 5: composable results and observables}
+
+Provide public operations for addition, multiplication, division, integer and real powers, logarithms, allowed analytic composition, differentiation where justified, inverse observables and refinement. These operations retain errors and provenance. Incompatible coordinates either undergo a proved conversion or produce a descriptive failure. Computing with \wl{Normal} remains an explicit operation that discards error metadata.
+
+Acceptance cases include products where a discarded boundary block raises the logarithmic degree; division by a series with an uncertain leading term; two inverse observables of the same branch; composition with an analytic function whose first derivatives vanish; and a shifted finite endpoint. The equality of coefficients produced directly and through result operations is checked independently of their remainder assertions.
+
+Refinement requests a larger cutoff, additional blocks or a numerical tolerance while preserving branch assumptions. It must handle a terminating exact inverse without waiting forever for nonexistent terms. Cached intermediate objects are tied to their original data and assumptions, and a result reports what was reused.
+
+\section{Stage 6: incremental and grouped computation}
+
+Reuse the retained multi-index region, its frontier, polynomial powers and coefficient blocks when increasing a cutoff. Group equal exponent weights before expensive canonicalization where possible. Add a grouped coefficient route or dynamic program for repeated gaps and resonances, and use Newton iteration where it reduces the measured work.
+
+The relevant complexity parameters are retained weights, contributing multi-indices, polynomial degrees, coefficient-field cost and the requested precision. A logarithmic Newton iteration count is not by itself a runtime guarantee. Keep the existing exact Lagrange route as an independent reference for bounded cases.
+
+Benchmark acceptance includes dense rational gaps, two and three irrational gaps, repeated/colliding weights, high logarithmic degrees, deep one-gap expansions, and successive refinement requests. Measure total elapsed time, retained result size and bounded allocation or peak memory where available. Every benchmark verifies equality of the compared results. Performance regressions are reported alongside improvements; absolute wall-time thresholds are not used as portable correctness tests.
+
+Resource budgets must cover incremental state as well as output. The grouped and Newton engines must not produce a weaker remainder merely to obtain a faster benchmark.
+
+\section{Stage 7: finite flat sectors and Fourier coefficients}
+
+\subsection{Finite exponential sectors}
+
+Add a finite, explicitly truncated sector representation for positive flat scales such as $E=e^{-1/y}$. It needs a sector order, an inner power--log cutoff, multiplication and composition rules, derivative effects and a remainder that identifies both omitted levels. Begin with a mathematically defined finite family; do not claim a general transseries engine.
+
+The primary acceptance case is the inverse of $x+e^{-1/x}$ at $0^+$, whose first sectors are
+\[
+ y-E+y^{-2}E^2+
+ \left(y^{-3}-\frac32y^{-4}\right)E^3,\qquad E=e^{-1/y}.
+\]
+Further cases include a polynomial prefactor multiplying the flat term, two commensurable sectors, and an input whose sector hierarchy cannot be ordered. Validate the retained sectors by an independent residual calculation and sufficiently high precision to resolve their small differences; ordinary machine arithmetic is inadequate here.
+
+\subsection{Finite Fourier coefficient algebra}
+
+Represent finite sums of Fourier modes in $\log x$, with exact real frequencies when their equalities are provable. Differentiation preserves frequencies and multiplication convolves them; truncation in the power variable is separate from the finite set of frequencies. Remainder bounds use coefficient norms and derivative estimates instead of polynomial logarithmic degree alone.
+
+Acceptance includes $x+x^2\sin(\log x)$, whose inverse begins
+\[
+ y-y^2\sin L+y^3\sin L(2\sin L+\cos L)+\OO(y^4),
+ \qquad L=\log y,
+\]
+and a two-frequency case with resonance. A fixed frequency budget has an explicit failure or truncation policy. Oscillation does not justify assuming a sign for a leading coefficient that crosses zero.
+
+\section{Stage 8: special functions and thresholds}
+
+Create adapters as proved or documented reductions to the shared engines, with domain and branch information attached. Prioritize special functions already expressible through the available power--log, Lambert or transformed coordinates; then add asymptotic forward models with explicit error contracts.
+
+Acceptance includes an inverse based on a valid Stirling-type model, a complementary-error-function tail, Lambert behavior near its real branch threshold, and a coalescing quadratic inverse branch. Near a finite critical point use the appropriate ramified local coordinate, not a large-argument Lambert expansion. For every adapter, identify the reference theorem or exact identity, its remainder conditions and the parameter range supported.
+
+Threshold selection needs overlap tests between neighboring representations and must retain the user's requested branch through the transition. Numerical stabilization, such as avoiding overflow in $\log(e^y)$, is validated separately from the asymptotic formula. If a useful overlap or rigorous error estimate has not been established, the adapter exposes that limitation rather than silently selecting an unverified threshold.
+
+\section{Stage 9: independent generated tests and versions}
+
+Generated tests run throughout the campaign. They use bounded input families and a recorded seed. Their expected values come from exact inverse oracles, independent coefficient recurrences, independent symbolic substitution, interval residual certificates or high-precision solves as appropriate. Comparing two calls that share the same coefficient path is supplementary evidence, not the only oracle.
+
+The generated families cover leading signs and powers, both endpoint directions, exact rational and irrational gaps, logarithmic degrees, collisions, cancellation, coordinate transforms, observable powers, cutoff boundaries, declared remainders and resource limits. Metamorphic checks include consistent rescaling/translation, refinement preserving earlier complete blocks, and composition of certified exact inverse pairs.
+
+Every failure saves a compact reproducible input, assumptions, version, requested operation and observed result. Shrink failures toward small counterexamples. Tests that assert rejection must state which mathematical or resource contract is violated.
+
+Version-range validation records the actual Wolfram kernel versions available and runs the common suite on each. Parser or \wl{Series} differences are isolated in adapters or explicit supported-version constraints. One successful version does not establish an untested version range. Publish the tested range only after those native runs occur.
+
+\section{Integration, documentation and publication}
+
+One owner runs the native Wolfram tests and one owner performs shared-worktree Git mutations. Agents own disjoint implementation or documentation files, exchange mathematical contracts early, and avoid duplicating expensive test runs. Stage interfaces are reviewed before integration; they are not frozen prematurely when a counterexample reveals a missing invariant.
+
+Each meaningful milestone includes a detailed commit stating the behavior changed, its rationale, mathematical/API effects, exact validation performed and remaining scope. Push only after verifying the intended staged files and the remote destination; record the resulting commit and remote state. Do not stage unrelated files or generated scratch artifacts.
+
+Update the article with theorems, worked examples, actual APIs and precisely described limitations. Keep this plan as a status ledger: for every stage, replace \planned only after recording the implementation paths and evidence, and retain any remaining subfamily explicitly. Source and rendered PDF are delivered together. Every changed TeX document receives three serial strict \wl{pdflatex} passes, followed by page rendering and actual layout review. An unbuilt source change must not be accompanied by a claim that the existing PDF represents it.
+
+The campaign closes when all nine stages have an explicit outcome, required acceptance cases and regression tests pass, remaining unsupported cases are documented at their true scope, the edited documents are rebuilt and inspected, and the intended milestones are committed and pushed with verified references. A stopped or partially completed stage remains open in this ledger.
+
+\end{document}
