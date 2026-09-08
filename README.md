@@ -33,7 +33,17 @@ s["Remainder"]
 g = AsymptoticExpansion[Gamma[3 x]/Gamma[x], x -> Infinity,
   SeriesTermGoal -> 5];
 Normal[g]
+
+ig = AsymptoticExpansion[
+  InverseFunction[x |-> ConditionalExpression[Gamma[x], x > 2]][z],
+  z -> Infinity, SeriesTermGoal -> 5];
+Normal[ig]
 ```
+
+The increasing Gamma inverse retains an exact Lambert core and expands in
+complete polynomial reciprocal-logarithmic blocks at successive inverse
+powers of that core. The guide covers its
+[LogGamma, affine, powered, and reciprocal-target extensions](AsymptoticInverse/Documentation/UserGuide.md#inverse-gamma-and-loggamma).
 
 Version 1.5.0 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)

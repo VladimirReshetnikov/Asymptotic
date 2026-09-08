@@ -112,15 +112,26 @@ inverseFunctionConditionOnJet[c_, x_, input_, d_, cut_, limit_] := Module[
     True, False]];
 
 inverseFunctionDirectExpansion[e_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[
-  {data, branch, result, source, record},
-  data = If[inverseFunctionApplicationQ[e], inverseFunctionParsedData[e, ass, limit],
-    inverseFunctionNativeLambertData[e, x]];
+  {data, branch, result, source, record, base = e, power = 1, model},
+  If[Head[e] === Power && FreeQ[e[[2]], x] && inverseFunctionApplicationQ[e[[1]]],
+    base = e[[1]]; power = e[[2]]];
+  data = If[inverseFunctionApplicationQ[base], inverseFunctionParsedData[base, ass, limit],
+    inverseFunctionNativeLambertData[base, x]];
   If[data === $Failed, Return[$Failed, Module]];
   If[data["TargetExpression"] =!= x || ! FreeQ[data["Parameters"], x], Return[$Failed, Module]];
   branch = inverseFunctionSelectedBranch[data, x0, If[coord["Infinite"], 0, coord["Sign"]], ass, limit];
   source = data["SourceVariable"];
+  (* Gamma inversion at a source infinity supports powers of the source
+     itself. Other inverse charts may instead represent a displacement
+     from a finite endpoint, so their outer powers use the ordinary path. *)
+  If[power =!= 1,
+    model = gammaInverseModel[data["Body"], source, ass];
+    If[model === $Failed || branch["SourcePoint"] =!=
+        If[provablyPositive[model["SourceScale"], ass], Infinity, -Infinity],
+      Return[$Failed, Module]]];
   result = inverseDispatch[data["Body"], source, branch["SourcePoint"], x, cut,
-    Assumptions -> ass, Direction -> branch["Direction"], SeriesTermGoal -> goal, "MaxTerms" -> limit];
+    Assumptions -> ass, Direction -> branch["Direction"], SeriesTermGoal -> goal,
+    "Power" -> power, "MaxTerms" -> limit];
   If[FailureQ[result], Throw[result, $tag]];
   result = PowerLogSeries[Join[result[[1]], <|"SourceVariable" -> source,
     "SourceDomain" -> branch["SourceDomain"] && inverseEvidenceSourceDomain[result[[1]], source], "InverseFunctionSyntax" -> data,

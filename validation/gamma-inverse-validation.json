@@ -1,0 +1,117 @@
+{
+  "Purpose": "Ordered increasing inverse-Gamma expansions and adjacent source observables, with separate mathematical article and package guide",
+  "BaselineCommit": "93fbc658f0ae80ceba87b92e9c4ebfc61a1a44b6",
+  "FullPackageSuiteRun": false,
+  "NativeRegression": {
+    "ResultFile": "validation/gamma-inverse-tests.json",
+    "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "Succeeded": 134,
+    "Failed": 0,
+    "Suites": [
+      "GammaInverse.wlt",
+      "GammaInverseOperations.wlt",
+      "InverseFunctionBranches.wlt",
+      "InverseFunctionExpressions.wlt",
+      "SpecialFunctionRegressions.wlt",
+      "GammaProducts.wlt"
+    ],
+    "TestedWorkingTreeByteHashesVerified": true
+  },
+  "NativeGuideExamples": {
+    "ResultFile": "validation/gamma-inverse-documentation-tests.json",
+    "Succeeded": 32,
+    "Failed": 0,
+    "Scope": "Explicit documentation examples, including all three earlier requested examples and six new inverse-Gamma checks; not every guide snippet."
+  },
+  "InitialDocumentationDiagnostic": {
+    "ResultFile": "validation/gamma-inverse-documentation-initial-tests.json",
+    "Succeeded": 31,
+    "Failed": 1,
+    "Resolution": "Equivalent real target inequalities avoid a complex logarithm while rejecting an invalid reciprocal-Gamma target."
+  },
+  "MathematicalReview": "Independent inverse-Stirling coefficient and finite-binomial oracles; finite-model implicit-function proof and first omitted inverse-logarithmic order audited independently. Numerical tests are not interval certificates.",
+  "StaticChecks": {
+    "Guide": {
+      "PublicSymbols": 36,
+      "Anchors": 147,
+      "Links": 81,
+      "BrokenLocalLinks": 0,
+      "DuplicateAnchors": 0,
+      "GeneratedHTMLMatchesSources": true
+    },
+    "MathematicalChapters": 29,
+    "MathematicalLabels": 268,
+    "MathematicalReferences": 249,
+    "BibliographyEntries": 11,
+    "MissingReferences": 0,
+    "MissingCitations": 0,
+    "LandingPageLocalLinks": 48,
+    "PreservedEngineeringFiles": 6,
+    "FullPackageSuiteRun": false
+  },
+  "LaTeX": {
+    "FinalBuild": "Three serial pdflatex -interaction=nonstopmode -halt-on-error passes after the formula-break correction.",
+    "Warnings": 0,
+    "OverfullBoxes": 0,
+    "UnderfullBoxes": 0,
+    "FinalLogSHA256": "1ac0af301e0211d5794f1d31a4a40d637343507239c0583b1a85d4f761b63e31"
+  },
+  "PDFLayout": {
+    "PageCount": 82,
+    "RenderedPages": 82,
+    "Renderer": "pdftoppm.EXE",
+    "DPI": 100,
+    "TextOutsidePage": 0,
+    "VisualReview": "All 82 initial pages inspected in contact sheets with selected full pages. Kept the two-line a3 definition together, rebuilt, rendered all final pages, and inspected changed pages 79 and 80 at full size. The other 80 rendered page images are byte-identical to the reviewed initial render. Two-line subsection openings and ordinary paragraph continuations were accepted.",
+    "FinalChangedRenderedPages": [
+      79,
+      80
+    ]
+  },
+  "HTMLLayout": {
+    "DesktopViewport": [
+      1440,
+      1000
+    ],
+    "MobileViewport": [
+      390,
+      844
+    ],
+    "MobileDocumentWidth": 390,
+    "HorizontalCodeBlockScrolling": true,
+    "ConsoleErrors": 0,
+    "ConsoleWarnings": 0,
+    "VisualReview": "The inverse-Gamma section was inspected in desktop and mobile screenshots; long code blocks scroll within their containers.",
+    "Screenshots": [
+      "validation/documentation-layout/gamma-inverse-desktop.png",
+      "validation/documentation-layout/gamma-inverse-mobile.png"
+    ]
+  },
+  "TextHashConvention": "UTF-8 with LF; separate native tested-source hashes record exact working-tree bytes.",
+  "NormalizedTextSHA256": {
+    "AsymptoticInverse/Documentation/UserGuide.html": "59f1a5de6e2c6cdc0aa42c0ea6fd8ad094230418c75c6a9bc57e0694f917e033",
+    "AsymptoticInverse/Documentation/UserGuide.md": "0e9420b7a0d8ce790420385eae8a76e14b499cbeffef1bab6f514d625033771f",
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "9281c5a0b2a55f6aa313668909b634f3f0976b8442506e5089bf504528fab6c7",
+    "AsymptoticInverse/Kernel/GammaInverse.wl": "92d95330fbe7b726fce199e5469700834ecc80d00734fa03048929b5741c04d6",
+    "AsymptoticInverse/Kernel/GammaInverseChecks.wl": "f40547edcef950382ca055a3db97b16ea2a617bbc2014cdeb1812fefddfbfa1c",
+    "AsymptoticInverse/Kernel/GammaInverseOperations.wl": "20280e2929720da5240f9de9ead9e8cf29a9bdf00b36c65a2288c74b3126649b",
+    "AsymptoticInverse/Kernel/InverseFunctionExpressions.wl": "4d856c0a081bbc175ea5f54b129e74f257d5e3afb22ab733d723712acc477752",
+    "AsymptoticInverse/Kernel/SeriesOperations.wl": "06770e4d96dca7baec5628a13c107194cc5625b2ff5c8284e1fecef4e90cdd45",
+    "AsymptoticInverse/Tests/GammaInverse.wlt": "2966d443848d92e831a468b9c5ae311ffd5cee1b002abe8ed6ccc999b01fb9b5",
+    "AsymptoticInverse/Tests/GammaInverseOperations.wlt": "ecf9e7ed4fabec8ebeda9d91c6d1b79124603a62339d76b6afbc7b7689b6ab97",
+    "README.md": "d734359551e330b9c8a4ac7c32b8b00983134261775270c66d2d4ac7406d22ae",
+    "article/asymptotic-inverse.tex": "8ee472811580d492c4cf4c5568fd5d4df3c749189f225d3fed8f0d70ccbbcd5b",
+    "article/sections/33-gamma-inverse.tex": "73f096ed6c770b2501d2b04fd79691b4a667de68f4ef51b6f5af6e92e02dae06",
+    "validation/CheckDocumentation.wl": "1e1b8756c1d819f6a2d4aff5984e9c51c6f34e7219514e9a757dc1fc77fcfd0a",
+    "validation/CheckGammaInverse.wl": "094b474cc107cb7020309625b60a8f1f9ddec504af7a0230c69971b5dd86c68a",
+    "validation/README.md": "f77a286d6e45857c1e7a3d8ef54d17e946270311cc82c02fb2b5a35737ace3d3",
+    "validation/gamma-inverse-documentation-initial-tests.json": "a0d3a6b0d2547ea0f4d2f4e9818b21abdd2b4c9da88eae2d1a700c4474d32e33",
+    "validation/gamma-inverse-documentation-tests.json": "a21871b0617c4e856f170f9e2c23e470606d382e5c24aec3ef93553791e1e516",
+    "validation/gamma-inverse-tests.json": "15905769370da514635986c323849968e82fee053684ec3eb854c24cdc4a33d4"
+  },
+  "BinarySHA256": {
+    "article/asymptotic-inverse.pdf": "122ea35e9220d0af7f2461a3506afa3a065645147350073ef052e875b5fe0c68",
+    "validation/documentation-layout/gamma-inverse-desktop.png": "f42b13662647ea9d8fd413a732a621ea5a3f03f2a552a8f9db964af56103d309",
+    "validation/documentation-layout/gamma-inverse-mobile.png": "58b6fbccdfba5afdf5619bdd41397eebd6b7d838fa82a4f19e8c13776e87c31c"
+  }
+}

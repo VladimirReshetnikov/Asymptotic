@@ -1,5 +1,50 @@
 # Review and validation record
 
+The inverse-Gamma extension is recorded in `gamma-inverse-tests.json` and
+`gamma-inverse-validation.json`. **All 134 focused regression tests passed**
+on Wolfram 15.0.1 for Windows, in six explicitly selected files: the two
+new inverse-Gamma suites, inverse-function branches and expressions,
+special-function regressions, and Gamma products. The full package suite
+was **not run**, as requested.
+
+The new cases check independent coefficients and the first omitted block,
+affine and signed target transformations, reciprocal Gamma at a finite
+target, exact real source powers, branch ambiguity, source and target
+conditions through refinement, transported `SeriesPower` precision, formal
+finite-Stirling residuals, and a 100-digit numerical comparison at
+`Exp[10000]`. Numerical comparisons use the original `LogGamma` equation;
+they are not interval certificates. The executable runner records every
+test outcome and SHA-256 hashes of the tested kernel and test files.
+
+The separate guide now includes an inverse-Gamma reference section and
+six additional documentation checks. Its current 32-check result is in
+`gamma-inverse-documentation-tests.json`; the earlier 26-check result is
+preserved in `documentation-tests.json`. The mathematical article adds
+the coefficient recurrence, finite-order proof, and first omitted error
+constant. The final article has 82 pages; every page was rendered, and
+contact sheets and selected full pages were visually inspected. The HTML
+guide was checked at desktop and mobile widths.
+
+`gamma-inverse-documentation-initial-tests.json` preserves the first
+documentation run: 31 checks passed and one reported an unexpected message
+while rejecting an invalid target for `-1/Gamma[x]`. The real target
+inequality is now checked without first forming a logarithm outside its
+domain, eliminating the complex-comparison warning.
+
+To reproduce just this milestone from the repository root:
+
+```powershell
+wolfram.exe -script validation/CheckGammaInverse.wl
+$env:ASYMPTOTIC_VALIDATION_OUTPUT = "$PWD/validation/gamma-inverse-documentation-tests.json"
+wolfram.exe -script validation/CheckDocumentation.wl
+Remove-Item Env:ASYMPTOTIC_VALIDATION_OUTPUT
+python validation/check_documentation.py
+```
+
+These runners use explicit test lists. `CheckGammaInverse.wl` also accepts
+`ASYMPTOTIC_VALIDATION_OUTPUT` for an alternate report destination. The
+following records describe their original historical milestones.
+
 The documentation split is recorded in `documentation-split.json` and
 `documentation-tests.json`. The mathematical article was rebuilt with three
 serial LaTeX passes and reviewed as rendered pages. The separate user guide

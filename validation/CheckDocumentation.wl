@@ -11,6 +11,27 @@ documentationGuide = Import[FileNameJoin[{documentationRoot, "AsymptoticInverse"
 
 documentationEqual[s_, expected_, assumptions_: True] :=
   MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expected, assumptions]];
+(* Independent formulas displayed in the guide.  The additional a4 is
+   obtained by equating the X^-4 coefficient in the finite logarithmic
+   Stirling equation; it checks refinement one block beyond the display. *)
+documentationGammaCoefficients[q_] := Module[{c = Log[2 Pi], a0, a1, a2, a3, a4},
+  a0 = (1 - c q)/2;
+  a1 = q/24 - c^2 q^3/8;
+  a2 = c q^2 (1 + q - c^2 q^2 - 3 c^2 q^3)/48;
+  a3 = -q ((a0 - 1/2) a2 + a1^2/2
+    + (-a0^2/2 + a0/2 - 1/12) a1
+    + a0^2 (a0 - 1)^2/12 - 1/360);
+  a4 = q ((1/2 - a0) a3 + (a0^2/2 - a0/2 + 1/12 - a1) a2
+    + (a0/2 - 1/4) a1^2 + (-a0^3/3 + a0^2/2 - a0/6) a1
+    + a0^5/20 - a0^4/8 + a0^3/12 - a0/120);
+  {a0, a1, a2, a3, a4}];
+documentationGammaCore[target_] := target/ProductLog[target/E];
+documentationGammaApproximation[target_, count_Integer] := Module[{core, coefficients},
+  core = documentationGammaCore[target];
+  coefficients = documentationGammaCoefficients[1/Log[core]];
+  core + Sum[coefficients[[j + 1]]/core^j, {j, 0, count - 2}]];
+documentationGammaEqual[s_, expected_] :=
+  MatchQ[s, _PowerLogSeries] && TrueQ[Together[Normal[s] - expected] === 0];
 SetAttributes[documentationTest, HoldAll];
 documentationTest[id_String, expression_, expected_] := VerificationTest[
   TimeConstrained[Print["Checking: ", id]; expression, 60,
@@ -164,7 +185,84 @@ documentationReport = TestReport[{
   documentationTest["docs-quadratic-threshold-affine-target-and-zero-remainder",
     Module[{x, y, s}, s = AsymptoticSpecialInverse["QuadraticThreshold", {x, 3}, {y, 2},
         "TargetOffset" -> 7, "TargetScale" -> -2, "QuadraticCoefficient" -> 3];
-      {documentationEqual[s, 3 + Sqrt[(7 - y)/6], y < 7], s["Remainder"]}], {True, 0}]
+      {documentationEqual[s, 3 + Sqrt[(7 - y)/6], y < 7], s["Remainder"]}], {True, 0}],
+
+  documentationTest["docs-literal-Gamma-inverse-five-displayed-polynomial-blocks",
+    Module[{x, z, s, core},
+      s = AsymptoticExpansion[InverseFunction[
+        x |-> ConditionalExpression[Gamma[x], x > 2]][z],
+        z -> Infinity, SeriesTermGoal -> 5];
+      core = documentationGammaCore[Log[z]];
+      {documentationGammaEqual[s, documentationGammaApproximation[Log[z], 5]],
+        s["CoreInverse"] === core, s["Scale"], s["ReturnedTermCount"],
+        s["RemainderPower"], s["RemainderInverseLogPower"],
+        s["Remainder"] === PowerLogRemainder[1/core, 4, 0]/Log[core]^2,
+        InverseResidual[s]["ZeroBelowCutoff"]}],
+    {True, True, "GammaInverse", 5, 4, 2, True, True}],
+
+  documentationTest["docs-negative-reciprocal-Gamma-target-zero-from-below",
+    Module[{x, z, s},
+      s = AsymptoticInverse[-1/Gamma[x], {x, Infinity}, z, SeriesTermGoal -> 5];
+      {documentationGammaEqual[s, documentationGammaApproximation[-Log[-z], 5]],
+        TrueQ[Together[s["TargetCoordinateExpression"] + Log[-z]] === 0],
+        s["ExpansionPoint"], s["Limit"], s["TargetScale"], s["GammaPower"],
+        TrueQ[s["TargetDomain"] /. z -> -1/2],
+        TrueQ[(s["TargetDomain"] /. z -> 1/2) === False]}],
+    {True, True, Infinity, 0, -1, -1, True, True}],
+
+  documentationTest["docs-negative-affine-Gamma-source-reconstruction",
+    Module[{x, z, s},
+      s = AsymptoticInverse[Gamma[3 - 2 x], {x, -Infinity}, z, SeriesTermGoal -> 3];
+      {documentationGammaEqual[s, (3 - documentationGammaApproximation[Log[z], 3])/2],
+        s["ExpansionPoint"], s["SourceScale"], s["SourceOffset"],
+        TrueQ[s["SourceDomain"] /. x -> 0],
+        TrueQ[(s["SourceDomain"] /. x -> 1) === False]}],
+    {True, -Infinity, -2, 3, True, True}],
+
+  documentationTest["docs-LogGamma-direct-and-symbolic-affine-source-assumptions",
+    Module[{x, z, a, b, direct, affine, assumptions},
+      assumptions = a > 0 && Element[b, Reals];
+      direct = AsymptoticInverse[LogGamma[x], {x, Infinity}, z, SeriesTermGoal -> 3];
+      affine = AsymptoticInverse[LogGamma[a x + b], {x, Infinity}, z,
+        SeriesTermGoal -> 3, Assumptions -> assumptions];
+      {documentationGammaEqual[direct, documentationGammaApproximation[z, 3]],
+        documentationGammaEqual[affine, (documentationGammaApproximation[z, 3] - b)/a],
+        affine["TargetCoordinateExpression"] === z,
+        TrueQ[FullSimplify[affine["SourceDomain"] /. x -> (3 - b)/a, assumptions]]}],
+    {True, True, True, True}],
+
+  documentationTest["docs-Gamma-inverse-truncate-two-refine-five-core-powers",
+    Module[{x, z, s, short, long},
+      s = AsymptoticInverse[Gamma[x], {x, Infinity}, z, SeriesTermGoal -> 5];
+      short = SeriesTruncate[s, 2];
+      long = SeriesRefine[short, 5];
+      {documentationGammaEqual[short, documentationGammaApproximation[Log[z], 3]],
+        short["ReturnedTermCount"], short["Cutoff"],
+        documentationGammaEqual[long, documentationGammaApproximation[Log[z], 6]],
+        long["ReturnedTermCount"], long["Cutoff"]}],
+    {True, 3, 2, True, 6, 5}],
+
+  documentationTest["docs-Gamma-inverse-negative-observable-and-outer-square",
+    Module[{x, z, core, coefficients, a0, a1, a2, a3, negative, directSquare, s, powered,
+        reciprocalExpected, squareExpected},
+      core = documentationGammaCore[Log[z]];
+      coefficients = documentationGammaCoefficients[1/Log[core]];
+      {a0, a1, a2, a3} = Take[coefficients, 4];
+      reciprocalExpected = 1/core - a0/core^2 + (a0^2 - a1)/core^3;
+      squareExpected = core^2 + 2 a0 core + a0^2 + 2 a1
+        + (2 a2 + 2 a0 a1)/core + (2 a3 + 2 a0 a2 + a1^2)/core^2;
+      negative = AsymptoticInverse[Gamma[x], {x, Infinity}, z,
+        "Power" -> -1, SeriesTermGoal -> 3];
+      directSquare = AsymptoticExpansion[InverseFunction[
+        x |-> ConditionalExpression[Gamma[x], x > 2]][z]^2,
+        z -> Infinity, SeriesTermGoal -> 5];
+      s = AsymptoticInverse[Gamma[x], {x, Infinity}, z, SeriesTermGoal -> 5];
+      powered = SeriesPower[s, 2];
+      {documentationGammaEqual[negative, reciprocalExpected],
+        negative["RemainderPower"], negative["RemainderInverseLogPower"],
+        documentationGammaEqual[directSquare, squareExpected],
+        documentationGammaEqual[powered, squareExpected], powered["RemainderPower"]}],
+    {True, 4, 0, True, True, 3}]
 }, ProgressReporting -> False];
 
 Print["Kernel: ", $Version];

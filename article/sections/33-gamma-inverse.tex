@@ -1,0 +1,277 @@
+\section{The increasing inverse of the Gamma function}
+\label{sec:gamma-inverse}
+
+The logarithmic expansion of the Gamma function also provides an inverse
+expansion, but its natural small coordinate is neither the reciprocal of
+the original target nor a bare reciprocal logarithm. Retaining one exact
+Lambert function isolates the dominant balance. The remaining coefficients
+are finite polynomials in the reciprocal logarithm of that balance.
+
+\subsection{The branch and its exact dominant balance}
+
+Let $g(z)$ denote the solution of $\Gamma(g(z))=z$ on the source interval
+$g(z)>2$. This is a unique real inverse for $z>1$. Indeed, $\Gamma(2)=1$,
+$\Gamma(x)\to+\infty$ as $x\to+\infty$, and the positive-axis digamma bound
+\[
+ \frac{\Gamma'(x)}{\Gamma(x)}=\psi(x)
+ \ge \log x-\frac1{2x}-\frac1{12x^2}>0\qquad(x>2)
+\]
+proves strict monotonicity; see the Stirling bounds in
+Section~\ref{sec:special-function-adapters} and \cite[\S5.11]{dlmf}.
+The source restriction matters. Since $\Gamma(x)\to+\infty$ also as
+$x\to0^+$, a large positive target alone does not select the increasing
+source branch. The branch studied here satisfies $g(z)\to+\infty$.
+
+Put
+\begin{equation}
+ Y=\log z,\qquad
+ X=\frac{Y}{W_0(Y/e)},\qquad L=\log X,\qquad
+ t=\frac1X,\qquad q=\frac1L,\qquad C=\log(2\pi).
+ \label{eq:gamma-inverse-coordinate}
+\end{equation}
+For $z>1$, $Y>0$, $X>e$ and $L>1$. The positive Lambert branch gives
+the exact identity
+\[
+ X(\log X-1)=Y.
+\]
+As $z\to+\infty$, both $t$ and $q$ tend to zero, with
+$q=-1/\log t$. Stirling's leading equivalence and monotonicity imply
+$g(z)/X\to1$: for each fixed $a>0$,
+$\log\Gamma(aX)/Y\to a$, which brackets the inverse between fixed
+multiples of $X$ arbitrarily close to one.
+
+\subsection{A polynomial coefficient hierarchy}
+
+Write $g=X(1+U)$ and let
+\[
+ b_k=\frac{B_{2k}}{2k(2k-1)}.
+\]
+Substitute the finite Stirling expansion
+\eqref{eq:stirling-logarithm} into $\log\Gamma(g)=Y$, subtract
+$X(\log X-1)$, and divide by $XL$. The resulting finite equation is
+\begin{align}
+ \Psi_m(U,t,q)={}&U+q\bigl((1+U)\log(1+U)-U\bigr)
+       -\frac t2+\frac{Ctq}{2}\notag\\
+ &-\frac{tq}{2}\log(1+U)
+       +q\sum_{k=1}^{m}b_k t^{2k}(1+U)^{-(2k-1)}.
+ \label{eq:gamma-inverse-normalized-equation}
+\end{align}
+For the actual inverse, the omitted part has order
+$\OO(qt^{2m+2})$. This assertion concerns each fixed $m$, not
+convergence of Stirling's infinite series.
+
+Temporarily regard $t$ and $q$ as independent variables. The formal
+solution has the form
+\begin{equation}
+ U=\sum_{n\ge0}a_n(q)t^{n+1},\qquad a_n\in\mathbb Q[C,q].
+ \label{eq:gamma-inverse-unit-series}
+\end{equation}
+The coefficients are determined successively. If
+$U_{<n}=\sum_{j=0}^{n-1}a_j(q)t^{j+1}$, with $U_{<0}=0$, then
+\begin{equation}
+ a_n(q)=-[t^{n+1}]\,\Psi_m(U_{<n},t,q),
+ \qquad m\ge\left\lfloor\frac{n+1}{2}\right\rfloor.
+ \label{eq:gamma-inverse-coefficient-recurrence}
+\end{equation}
+The new coefficient appears in $\Psi_m$ with coefficient one; every
+other occurrence of $U$ either has an additional positive power of $t$
+or is at least quadratic in $U$. This proves triangular uniqueness.
+Expansion of the finite powers and logarithms at $U=0$ also proves by
+induction that every $a_n$ is a polynomial in $q$. A larger $m$ does not
+change a coefficient already determined at a lower power of $t$.
+
+The asymptotic blocks are
+\[
+ X,\quad a_0(1/L),\quad X^{-1}a_1(1/L),\quad
+ X^{-2}a_2(1/L),\quad\ldots.
+\]
+Each block retains its entire polynomial in $1/L$. In particular, the
+two terms of $a_0$ belong to one block at power $X^0$. A nonzero
+polynomial in $q$ has an eventual leading power of $q$; since every
+positive power of $X^{-1}$ dominates every fixed power of $L$ in decay,
+these complete blocks are ordered by increasing powers of $X^{-1}$.
+This is distinct from truncation by perturbation-marker degree around
+an exact core: one marker coefficient may contain several of these
+ordered power blocks.
+
+\subsection{Five complete blocks and their first omitted order}
+
+The first coefficients can be written compactly as
+\begin{align}
+ a_0(q)&=\frac{1-Cq}{2},\notag\\
+ a_1(q)&=\frac q{24}-\frac{C^2q^3}{8},\notag\\
+ a_2(q)&=\frac{Cq^2}{48}
+             \bigl(1+q-C^2q^2-3C^2q^3\bigr),\notag\\
+ a_3(q)&=-q\Bigl[
+       (a_0-\tfrac12)a_2+\tfrac12a_1^2
+       +(-\tfrac12a_0^2+\tfrac12a_0-\tfrac1{12})a_1\notag\\*
+ &\hspace{7em}+\tfrac1{12}a_0^2(a_0-1)^2-\tfrac1{360}
+       \Bigr],
+ \label{eq:gamma-inverse-first-coefficients}
+\end{align}
+where the $a_j$ on the last two lines are evaluated at $q$.
+Consequently the five-block approximation is
+\begin{equation}
+ G_5(z)=X+a_0(1/L)+\frac{a_1(1/L)}X
+                +\frac{a_2(1/L)}{X^2}
+                +\frac{a_3(1/L)}{X^3}.
+ \label{eq:gamma-inverse-five-blocks}
+\end{equation}
+Their leading coefficient orders are
+\[
+ a_0(q)\sim\frac12,\qquad
+ a_1(q)\sim\frac q{24},\qquad
+ a_2(q)\sim\frac{Cq^2}{48},\qquad
+ a_3(q)\sim-\frac{7q}{2880}.
+\]
+Thus all five blocks in \eqref{eq:gamma-inverse-five-blocks} are
+nonzero eventually. The recurrence gives the complete next coefficient
+$a_4$, whose leading behavior is
+\begin{equation}
+ a_4(q)=-\frac{7C}{1920}q^2+\OO(q^3).
+ \label{eq:gamma-inverse-frontier-coefficient}
+\end{equation}
+
+\begin{theorem}[Finite-order inverse Gamma expansion]
+\label{thm:gamma-inverse-finite-order}
+For each fixed integer $N\ge0$, the increasing inverse satisfies
+\begin{equation}
+ g(z)=X+\sum_{n=0}^{N}X^{-n}a_n(1/L)
+           +\OO\left(\frac{X^{-N-1}}L\right),
+ \qquad z\to+\infty.
+ \label{eq:gamma-inverse-finite-remainder}
+\end{equation}
+In particular,
+\begin{equation}
+ g(z)-G_5(z)=\frac{a_4(1/L)}{X^4}
+          +\OO\left(\frac1{X^5L}\right)
+          =\OO\left(\frac1{X^4L^2}\right),
+ \label{eq:gamma-inverse-sharp-five-remainder}
+\end{equation}
+and its first omitted leading constant is
+\begin{equation}
+ \lim_{z\to+\infty}X^4L^2\bigl(g(z)-G_5(z)\bigr)
+       =-\frac{7\log(2\pi)}{1920}.
+ \label{eq:gamma-inverse-five-error-limit}
+\end{equation}
+\end{theorem}
+\begin{proof}
+Fix $N$ and choose $m\ge\lfloor(N+1)/2\rfloor$. The function
+$\Psi_m$ is analytic near $(U,t,q)=(0,0,0)$, and its derivative with
+respect to $U$ at the origin is one. The analytic implicit function
+theorem gives a solution $U_m(t,q)$ in a common neighborhood of
+$(t,q)=(0,0)$. Since $\Psi_m(U,t,0)=U-t/2$, one has
+$U_m(t,0)=t/2$. Hence $U_m-t/2$ is divisible by $q$ as an analytic
+function. Taylor's theorem in $t$, uniformly for $q$ in a smaller
+neighborhood, gives
+\[
+ U_m(t,q)=\sum_{n=0}^{N}a_n(q)t^{n+1}
+                     +\OO(qt^{N+2}).
+\]
+
+Now specialize $t=1/X$ and $q=1/\log X$. The Stirling remainder,
+uniform for $x=X(1+U)$ with $U$ in a fixed sufficiently small real
+interval, contributes $\OO(qt^{2m+2})$ to the normalized equation.
+Its true derivative with respect to $U$ is $\psi(X(1+U))/L$,
+which tends uniformly to one. The actual inverse already satisfies
+$U\to0$. The mean value theorem therefore bounds its difference from
+$U_m$ by $\OO(qt^{2m+2})$. Multiplying by $X=t^{-1}$ and using
+$2m+1\ge N+1$ proves \eqref{eq:gamma-inverse-finite-remainder}.
+
+For the five-block approximation, use the result with $N=4$ and
+$m=2$, then separate the $a_4$ term. Equation
+\eqref{eq:gamma-inverse-frontier-coefficient} and $L/X\to0$ yield
+both \eqref{eq:gamma-inverse-sharp-five-remainder} and
+\eqref{eq:gamma-inverse-five-error-limit}.
+\end{proof}
+
+The analyticity used in the proof belongs to each finite Stirling model
+in two independent small variables. The theorem makes no claim that
+the inverse expansion converges when $N\to\infty$. Its constants and
+the required target threshold can depend on $N$. A numerical error
+certificate at a fixed target needs explicit residual and derivative
+bounds in addition to the asymptotic statement.
+
+\subsection{Affine arguments, fixed powers and transformed targets}
+
+Let $H(Y)$ be the increasing solution of $\log\Gamma(H(Y))=Y$,
+so $g(z)=H(\log z)$. The same coefficients and theorem give $H$
+directly by using $Y$ as the target in
+\eqref{eq:gamma-inverse-coordinate}. No new coefficient calculation
+is needed to pass between Gamma and log-Gamma inversion.
+
+For fixed real constants $\alpha\ne0$, $a\ne0$, $r\ne0$, $\beta$
+and $d$, consider
+\begin{equation}
+ z=d+a\,\Gamma(\alpha x+\beta)^r,
+ \qquad \alpha x+\beta>2.
+ \label{eq:gamma-inverse-affine-family}
+\end{equation}
+On the target branch
+\[
+ T=\frac{z-d}{a}>0,\qquad
+ Y=\frac{\log T}{r}>0,
+\]
+the inverse is exactly
+\begin{equation}
+ x=\frac{H(Y)-\beta}{\alpha}.
+ \label{eq:gamma-inverse-affine-reconstruction}
+\end{equation}
+The large-source regime is $Y\to+\infty$. For $r>0$ it corresponds
+to $T\to+\infty$; for $r<0$ it corresponds to $T\to0^+$ and
+$z\to d$ from the side determined by $a$. The source tends to
+$+\infty$ when $\alpha>0$ and to $-\infty$ when $\alpha<0$.
+The shift and scaling in \eqref{eq:gamma-inverse-affine-reconstruction}
+transport the absolute error by the factor $1/|\alpha|$.
+
+Likewise $z=d+a\log\Gamma(\alpha x+\beta)$ uses
+$Y=(z-d)/a\to+\infty$ and the same source reconstruction.
+These are exact real coordinate changes; their domain restrictions
+must precede logarithms and noninteger powers. All asymptotic assertions
+hold with the parameters fixed. No uniform claim as $r$, $a$ or
+$\alpha$ tends to zero is implied.
+
+\subsection{Fixed powers of the reconstructed source}
+
+Let $\nu$ be a fixed real number and consider $x^\nu$ for the source
+in \eqref{eq:gamma-inverse-affine-reconstruction}. If $\alpha>0$,
+then $x$ is eventually positive and the usual real power is defined.
+For $\alpha<0$, restrict here to integer $\nu$. Define the polynomial
+coefficients
+\begin{equation}
+ P_j(q)=\alpha^{-\nu}[t^j]
+ \left(1-\beta t+\sum_{n=0}^{j-1}a_n(q)t^{n+1}\right)^\nu,
+ \qquad j\ge0,
+ \label{eq:gamma-inverse-observable-coefficients}
+\end{equation}
+with an empty sum when $j=0$, so $P_0=\alpha^{-\nu}$.
+For every fixed integer $J\ge0$, the finite-order theorem and the
+analytic binomial expansion around one give
+\begin{equation}
+ x^\nu=X^\nu\sum_{j=0}^{J}P_j(1/L)X^{-j}
+                   +\OO(X^{\nu-J-1}).
+ \label{eq:gamma-inverse-observable-expansion}
+\end{equation}
+The coefficients remain polynomials in $q$, with the fixed parameters
+absorbed into their coefficients. The remainder in this general
+statement need not contain a factor $1/L$: at $q=0$ the normalized
+source is $1+(1/2-\beta)t$, whose fixed power can already have
+nonzero coefficients at arbitrarily high powers of $t$.
+
+More precisely, suppose an approximation $A$ retains every nonzero
+block before the first omitted index $j_*$, and
+$P_{j_*}(q)=\gamma q^h+\OO(q^{h+1})$ with $\gamma\ne0$ and
+an integer $h\ge0$. Apply
+\eqref{eq:gamma-inverse-observable-expansion} through $j_*$ to obtain
+\begin{align}
+ x^\nu-A
+   &=X^{\nu-j_*}P_{j_*}(1/L)+\OO(X^{\nu-j_*-1}),\notag\\
+ \frac{x^\nu-A}{X^{\nu-j_*}L^{-h}}&\longrightarrow\gamma.
+ \label{eq:gamma-inverse-observable-first-omitted}
+\end{align}
+Indeed, the contribution of every subsequent core power is smaller
+because $L^h/X\to0$. Thus the first omitted polynomial determines
+both the bound $\OO(X^{\nu-j_*}L^{-h})$ and its leading constant,
+even when later polynomials have a smaller order of vanishing at
+$q=0$. This also covers cancellations of entire blocks: the index
+$j_*$ is the next nonzero polynomial after those cancellations.

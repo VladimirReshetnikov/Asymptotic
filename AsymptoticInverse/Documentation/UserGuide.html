@@ -79,6 +79,8 @@ Options: Coordinates and Cutoffs</a></li>
 <li><a href="#powerlogseries" id="toc-powerlogseries">PowerLogSeries</a></li>
 <li><a href="#powerlogremainder" id="toc-powerlogremainder">PowerLogRemainder</a></li>
 <li><a href="#examples" id="toc-examples">Examples</a></li>
+<li><a href="#inverse-gamma-and-loggamma-functions" id="toc-inverse-gamma-and-loggamma-functions">Inverse Gamma and LogGamma
+Functions</a></li>
 <li><a href="#explicit-series-operations" id="toc-explicit-series-operations">Explicit Series Operations</a></li>
 <li><a href="#applications" id="toc-applications">Applications</a></li>
 <li><a href="#asymptoticcoreinverse" id="toc-asymptoticcoreinverse">AsymptoticCoreInverse</a></li>
@@ -146,6 +148,11 @@ where this makes the expansion easier to read.</p>
 <tr>
 <td>Expand a selected inverse</td>
 <td><a href="#AsymptoticInverse">AsymptoticInverse</a></td>
+</tr>
+<tr>
+<td>Expand the increasing Gamma or LogGamma inverse</td>
+<td><a href="#inverse-gamma-and-loggamma">Inverse Gamma and LogGamma
+Functions</a></td>
 </tr>
 <tr>
 <td>Inspect results and models</td>
@@ -436,6 +443,12 @@ coordinate.</td>
 <td>Lambert expansion</td>
 <td>Exclusive inverse-logarithmic exponent inside its prefactor; inspect
 <code>&quot;LogarithmicVariable&quot;</code>.</td>
+</tr>
+<tr>
+<td>Increasing Gamma or LogGamma inverse</td>
+<td>Exclusive exponent of <code>1/s[&quot;CoreInverse&quot;]</code>; each
+coefficient is a complete polynomial in
+<code>1/Log[s[&quot;CoreInverse&quot;]]</code>.</td>
 </tr>
 <tr>
 <td>Transformed source or target</td>
@@ -776,6 +789,9 @@ interface:</p>
 resulting factors. The original function is retained for refinement.
 Incomplete Gamma, incomplete Beta, and double factorials are outside
 this conversion.</p>
+<p>For expansion of inverse functions on the increasing Gamma tail, see
+<a href="#inverse-gamma-and-loggamma">Inverse Gamma and LogGamma
+Functions</a>.</p>
 <p><strong>Input</strong></p>
 <pre class="wolfram"><code>s = AsymptoticExpansion[Binomial[2 x, x], x -&gt; Infinity,
   SeriesTermGoal -&gt; 5];
@@ -915,6 +931,9 @@ compatible enclosing power-log coordinate. A direct node retains its
 inverse scale. <code>ProductLog[0, y]</code> and
 <code>ProductLog[-1, y]</code> have direct real-branch support when
 their argument is the expansion variable.</p>
+<p>A fixed power of a direct Gamma or LogGamma inverse on a source
+branch at infinity retains the specialized inverse scale. See <a href="#gamma-inverse-operations">Powers and Series Operations</a> for
+the supported forms and precision rules.</p>
 </section>
 </section>
 <section id="options" class="level3">
@@ -962,8 +981,243 @@ beyond that limit returns
 <code>Failure[&quot;InsufficientInputOrder&quot;, ...]</code>. To change the
 mathematical input, construct a new expansion with the stronger
 justified input information.</p>
-<p><a id="series-operations"></a></p>
+<p><a id="inverse-gamma-and-loggamma"></a></p>
 </section>
+</section>
+</section>
+<section id="inverse-gamma-and-loggamma-functions" class="level2">
+<h2>Inverse Gamma and LogGamma Functions</h2>
+<section id="basic-examples-1" class="level3">
+<h3>Basic Examples</h3>
+<p>Expand the real inverse of <code>Gamma</code> on the increasing
+source branch above two:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[
+  InverseFunction[
+    x |-&gt; ConditionalExpression[Gamma[x], x &gt; 2]][z],
+  z -&gt; Infinity, SeriesTermGoal -&gt; 5];
+Normal[s]</code></pre>
+<p>The result retains the exact dominant inverse</p>
+<pre class="wolfram"><code>X = Log[z]/ProductLog[Log[z]/E];</code></pre>
+<p>Here <code>ProductLog</code> uses its principal real branch. With
+<code>q = 1/Log[X]</code> and <code>c = Log[2 Pi]</code>, the five
+complete blocks have the form</p>
+<pre class="wolfram"><code>X + a0 + a1/X + a2/X^2 + a3/X^3</code></pre>
+<p>The coefficient polynomials are</p>
+<pre class="wolfram"><code>a0 = (1 - c q)/2;
+a1 = q/24 - c^2 q^3/8;
+a2 = c q^2 (1 + q - c^2 q^2 - 3 c^2 q^3)/48;
+a3 = -q ((a0 - 1/2) a2 + a1^2/2
+  + (-a0^2/2 + a0/2 - 1/12) a1
+  + a0^2 (a0 - 1)^2/12 - 1/360);</code></pre>
+<p>Each polynomial is retained in full at its power of <code>1/X</code>.
+For example, the two summands of <code>a0</code> together count as one
+block. <code>SeriesTermGoal -&gt; 5</code> counts the leading core and
+four correction blocks.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>{s[&quot;ReturnedTermCount&quot;], s[&quot;RemainderPower&quot;],
+ s[&quot;RemainderInverseLogPower&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{5, 4, 2}</code></pre>
+<p>In terms of <code>X</code>, the remainder descriptor is
+<code>PowerLogRemainder[1/X, 4, 0]/Log[X]^2</code>, corresponding to an
+absolute error of order <code>1/(X^4 Log[X]^2)</code>. The result is a
+finite Poincare asymptotic expansion. Its remainder descriptor does not
+specify a numerical error constant or a pointwise bound.</p>
+<p>Use <code>AsymptoticInverse</code> to specify the source endpoint
+directly:</p>
+<pre class="wolfram"><code>g = AsymptoticInverse[Gamma[x], {x, Infinity}, z,
+  SeriesTermGoal -&gt; 5];
+
+lg = AsymptoticInverse[LogGamma[x], {x, Infinity}, z,
+  SeriesTermGoal -&gt; 5];</code></pre>
+<p>For <code>LogGamma</code>, the exact core is
+<code>z/ProductLog[z/E]</code>. The same coefficient polynomials apply
+with this core substituted for <code>X</code>.</p>
+</section>
+<section id="details-and-options-2" class="level3">
+<h3>Details and Options</h3>
+<p><code>AsymptoticInverse</code> selects the increasing tail through
+its source endpoint. In an <code>InverseFunction</code> expression, the
+condition <code>x &gt; 2</code> identifies that branch. The weaker
+condition <code>x &gt; 0</code> leaves two possible source limits for
+<code>Gamma[x] -&gt; Infinity</code>: zero from above and positive
+infinity. Supply the stronger condition or an explicit
+<code>&quot;InverseFunctionBranches&quot;</code> selection.</p>
+<p>An explicit cutoff is an exclusive exponent bound in
+<code>1/X</code>. For the source-point inverse, cutoff <code>4</code>
+retains the five blocks with exponents <code>-1</code>, <code>0</code>,
+<code>1</code>, <code>2</code>, and <code>3</code>:</p>
+<pre class="wolfram"><code>AsymptoticInverse[Gamma[x], {x, Infinity}, {z, 4}]</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Meaning for this result family</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Kind&quot;</code>, <code>&quot;Scale&quot;</code></td>
+<td>Both are <code>&quot;GammaInverse&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;CoreInverse&quot;</code></td>
+<td>Exact Lambert core <code>X</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;CoreLogExpression&quot;</code></td>
+<td><code>Log[X]</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;Terms&quot;</code></td>
+<td>Pairs <code>{beta, polynomial}</code> representing
+<code>X^-beta</code> times a polynomial in
+<code>&quot;CoefficientVariable&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;CoefficientSubstitution&quot;</code></td>
+<td>Substitution of <code>1/Log[X]</code> for the coefficient
+variable.</td>
+</tr>
+<tr>
+<td><code>&quot;CoefficientFrontier&quot;</code>, <code>&quot;FrontierTerm&quot;</code></td>
+<td>First omitted complete polynomial block, before and after
+substitution.</td>
+</tr>
+<tr>
+<td><code>&quot;RemainderInverseLogPower&quot;</code></td>
+<td>Reciprocal-logarithmic power in the complete remainder
+descriptor.</td>
+</tr>
+<tr>
+<td><code>&quot;TargetCoordinateExpression&quot;</code></td>
+<td>Target of the equivalent <code>LogGamma</code> equation.</td>
+</tr>
+</tbody>
+</table>
+<p>The constructor uses <code>&quot;Truncation&quot; -&gt; &quot;Exponent&quot;</code> and
+selects ordered Stirling reversion automatically. A declared additive
+<code>&quot;InputRemainder&quot;</code> is not supported by this constructor;
+<code>Automatic</code> and <code>None</code> are accepted. The Gamma and
+LogGamma forms of <a href="#AsymptoticSpecialInverse">AsymptoticSpecialInverse</a> remain
+separate constructors with inclusive perturbation-marker depth. Their
+integer order does not count the complete blocks displayed here.</p>
+</section>
+<section id="scope-1" class="level3">
+<h3>Scope</h3>
+<p>Affine source arguments and fixed real nonzero powers of Gamma are
+supported, together with affine target transformations:</p>
+<pre class="wolfram"><code>AsymptoticInverse[Gamma[2 x + 3], {x, Infinity}, z,
+  SeriesTermGoal -&gt; 3]
+
+AsymptoticInverse[7 - 2 Gamma[x]^2, {x, Infinity}, z,
+  SeriesTermGoal -&gt; 3]
+
+AsymptoticInverse[Gamma[3 - 2 x], {x, -Infinity}, z,
+  SeriesTermGoal -&gt; 3]</code></pre>
+<p>For <code>d + a Gamma[alpha x + beta]^r</code>, set
+<code>Y = Log[(z - d)/a]/r</code>. The Gamma argument approaches
+positive infinity and the original source is reconstructed from that
+argument by subtracting <code>beta</code> and dividing by
+<code>alpha</code>. The retained real target domain requires
+<code>(z - d)/a &gt; 0</code> and <code>Y &gt; 0</code>. Fixed
+parameters must have proved real values and the required nonzero signs;
+provide <code>Assumptions</code> for symbolic parameters.</p>
+<p>A negative Gamma power can send an infinite source to a finite
+target. For example:</p>
+<pre class="wolfram"><code>negativeReciprocal = AsymptoticInverse[-1/Gamma[x], {x, Infinity}, z,
+  SeriesTermGoal -&gt; 5];</code></pre>
+<p>Here <code>z</code> approaches zero from below, and the logarithmic
+target is <code>Y = -Log[-z]</code>. Affine LogGamma expressions are
+also admitted: <code>d + a LogGamma[alpha x + beta]</code> uses
+<code>Y = (z - d)/a</code> on the tail where
+<code>Y -&gt; Infinity</code>.</p>
+<p><a id="gamma-inverse-operations"></a></p>
+</section>
+<section id="powers-and-series-operations" class="level3">
+<h3>Powers and Series Operations</h3>
+<p>Use <code>&quot;Power&quot;</code> to expand a fixed power of the source
+inverse:</p>
+<pre class="wolfram"><code>square = AsymptoticInverse[Gamma[x], {x, Infinity}, z,
+  &quot;Power&quot; -&gt; 2, SeriesTermGoal -&gt; 5];
+
+reciprocal = AsymptoticInverse[Gamma[x], {x, Infinity}, z,
+  &quot;Power&quot; -&gt; -1, SeriesTermGoal -&gt; 5];</code></pre>
+<p>The Gamma power inside the forward expression specifies the equation
+being inverted. The option <code>&quot;Power&quot;</code> specifies the observable
+of its source root. An observable power must be a nonzero exact real
+number; a source tending to negative infinity requires an integer
+power.</p>
+<p>A fixed outer power of a direct applied inverse is also
+supported:</p>
+<pre class="wolfram"><code>AsymptoticExpansion[
+  InverseFunction[
+    x |-&gt; ConditionalExpression[Gamma[x], x &gt; 2]][z]^2,
+  z -&gt; Infinity, SeriesTermGoal -&gt; 5]</code></pre>
+<p>This direct power form applies to the admitted Gamma and LogGamma
+families at source infinity and uses the same complete-block
+convention.</p>
+<p>Use the retained source to change the order or take a power of an
+existing result:</p>
+<pre class="wolfram"><code>short = SeriesTruncate[g, 2];
+long = SeriesRefine[short, 5];
+powered = SeriesPower[g, 2];</code></pre>
+<p><code>SeriesTruncate</code> discards complete blocks at or above its
+exclusive core-power cutoff. <code>SeriesRefine[s, h]</code> recomputes
+the expansion from its source equation at cutoff <code>h</code>,
+preserving the selected branch. The <code>&quot;AdditionalBlocks&quot;</code>
+association form is limited to ordinary power-log inverses; request a
+larger cutoff or call the Gamma constructor again with
+<code>SeriesTermGoal</code>.</p>
+<p><code>SeriesPower</code> transports the operand&#39;s remainder. An
+explicit larger cutoff cannot improve the precision supplied by that
+operand. Its result can be refined from the retained source equation.
+Noninteger powers require a positive source branch; only integer
+exponents are admitted on a negative source branch.</p>
+<p>Generic <code>SeriesAdd</code>, <code>SeriesMultiply</code>,
+<code>SeriesLog</code>, <code>SeriesExp</code>,
+<code>SeriesCompose</code>, <code>SeriesObservable</code>, and
+<code>SeriesDifferentiate</code> do not accept this coefficient scale.
+Arithmetic on <code>Normal[s]</code> operates on its finite expression
+and does not transport the remainder.</p>
+</section>
+<section id="residual-and-numerical-checks" class="level3">
+<h3>Residual and Numerical Checks</h3>
+<p>Check the cancellation in the normalized finite Stirling
+equation:</p>
+<pre class="wolfram"><code>residual = InverseResidual[g];
+residual[&quot;ZeroBelowCutoff&quot;]</code></pre>
+<p>The normalized residual is
+<code>(LogGamma[approximation] - Log[z])/(X Log[X])</code> for the
+unshifted Gamma example. <code>InverseResidual[g, h]</code> uses an
+exclusive positive cutoff in powers of <code>1/X</code> for this
+normalized equation. Read <code>&quot;Scope&quot;</code>,
+<code>&quot;ModelRemainderScaleExpression&quot;</code>, and
+<code>&quot;ExactEquationResidualExpression&quot;</code> for the distinction
+between its computed finite-model residual and the original equation.
+<code>&quot;ZeroBelowCutoff&quot; -&gt; True</code> establishes cancellation at
+the requested finite order; the finite Stirling model still has its
+recorded remainder. This helper requires the source-point observable
+<code>&quot;Power&quot; -&gt; 1</code>.</p>
+<p>Compare with a numerical solution of the original logarithmic Gamma
+equation:</p>
+<pre class="wolfram"><code>check = InverseNumericalCheck[g, Exp[10000], WorkingPrecision -&gt; 100];
+{check[&quot;ReferenceRoot&quot;], check[&quot;ReferenceObservable&quot;],
+ check[&quot;Error&quot;], check[&quot;Ratio&quot;]}</code></pre>
+<p>The calculation uses the equivalent <code>LogGamma</code> equation
+and verifies the retained source and target conditions. Powered
+observables are supported: <code>&quot;ReferenceRoot&quot;</code> is the source
+root, while <code>&quot;ReferenceObservable&quot;</code> is its requested power.
+<code>&quot;Ratio&quot;</code> divides the absolute approximation error by the
+recorded remainder scale. Supply an exact target or at least the
+requested working precision, and resolve fixed parameters
+numerically.</p>
+<p>The returned numerical check has
+<code>&quot;Certified&quot; -&gt; False</code>. <code>InverseCertificate</code>
+and certificate-based tolerance refinement are not supported for this
+inverse-Gamma result family.</p>
+<p><a id="series-operations"></a></p>
 </section>
 </section>
 <section id="explicit-series-operations" class="level2">
@@ -999,6 +1253,8 @@ powers can reduce absolute precision.</p>
 <p>The numeric-exponent requirement of this operation is distinct from
 the supported symbolic and varying powers in direct Gamma
 normalization.</p>
+<p>For Gamma and LogGamma inverse results, powers retain the specialized
+coefficient scale and propagate the operand remainder. See <a href="#gamma-inverse-operations">Powers and Series Operations</a>.</p>
 <p><a id="SeriesLog"></a></p>
 </section>
 <section id="serieslog" class="level3">
@@ -1644,6 +1900,10 @@ normalization.</td>
 two. They do not automatically switch to a near-minimum representation.
 Tail adapters retain finite Poincare forward models with separate value
 and derivative remainder contracts.</p>
+<p>For a term goal that counts complete polynomials at successive powers
+of the reciprocal Lambert core, use the direct <a href="#inverse-gamma-and-loggamma">Gamma and LogGamma inverse forms</a>.
+The explicit adapters in this section retain their perturbation-marker
+order convention.</p>
 <table>
 <thead>
 <tr>

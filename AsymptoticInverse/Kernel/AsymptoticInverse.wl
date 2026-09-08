@@ -21,7 +21,10 @@ AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero
 AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] is equivalent. A unary pure Function \
 or unapplied InverseFunction is applied to x before expansion.
 For supported Gamma products, ratios, real varying powers and elementary exponential growth, an exact prefactor is extracted; \
-the cutoff and term goal apply to the power-log correction bracket. See Documentation/UserGuide.md for the admitted real domains and scales.";
+the cutoff and term goal apply to the power-log correction bracket.
+Increasing Gamma and LogGamma inverses, their admitted affine forms and fixed powers use Scale -> \"GammaInverse\": \
+each block is a complete polynomial in 1/Log[CoreInverse] at one power of 1/CoreInverse. \
+See Documentation/UserGuide.md for the admitted real domains and scales.";
 
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
@@ -32,7 +35,10 @@ AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n] retains the first n nonzer
 Recognized leading-logarithmic and exponential cores return Scale -> \"Logarithmic\": \
 the cutoff and term count apply to the unit bracket after extracting Prefactor, in \
 the positive inverse-logarithmic variable LogarithmicVariable. See Documentation/UserGuide.md \
-for this scale's branch and remainder conventions.";
+for this scale's branch and remainder conventions.
+Gamma and LogGamma at a source infinity with Gamma argument tending to positive infinity use Scale -> \"GammaInverse\". \
+The cutoff is exclusive in 1/CoreInverse and the term goal counts complete polynomial inverse-logarithmic blocks. \
+Power specifies a fixed real source observable, with integer powers required on negative source branches.";
 
 PowerLogSeries::usage =
 "PowerLogSeries[assoc] represents a power-log asymptotic expansion together with its \
@@ -47,7 +53,9 @@ O[w^beta (1 + Abs[Log[w]])^k] as w -> 0+.";
 InverseResidual::usage =
 "InverseResidual[s] composes the forward model with the truncated inverse in the exact \
 power-log jet algebra and returns the normalized residual f(g(y))/(a z^p) - 1 below the \
-residual cutoff; InverseResidual[s, h] uses the relative cutoff h in the uniformizer.";
+residual cutoff; InverseResidual[s, h] uses the relative cutoff h in the uniformizer.
+For GammaInverse with Power -> 1, it checks the finite Stirling residual normalized by CoreInverse Log[CoreInverse], \
+reporting the separate forward-model error and the exact logarithmic equation residual expression.";
 
 InverseNumericalCheck::usage =
 "InverseNumericalCheck[s, y1] solves f(x) = y1 numerically on the selected branch and \
@@ -739,6 +747,8 @@ inverseEntry[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
 
 inverseDispatch[f_, x_, x0_, y_, cutoff_, opts___] := Module[{s},
   If[! FreeQ[f, _InverseFunction], Return[construct[f, x, x0, y, cutoff, opts], Module]];
+  s = gammaInverseConstruct[f, x, x0, y, cutoff, opts];
+  If[s =!= $Failed, Return[s, Module]];
   s = lambertConstruct[f, x, x0, y, cutoff, opts];
   If[s === $Failed, s = coordinateConstruct[f, x, x0, y, cutoff, opts]];
   If[s === $Failed, s = sourceCoordinateConstruct[f, x, x0, y, cutoff, opts]];
@@ -999,6 +1009,7 @@ InverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use 
 
 residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["Blocks"], ell = a["LogVariable"], ass = a["Assumptions"],
    p, d, polys, r = a["Power"], cut, U, res, y, v, aa, rint},
+  If[Lookup[a, "Kind", ""] === "GammaInverse", Return[gammaInverseResidual[a, h, limit], Module]];
   If[Lookup[a, "Scale", "PowerLog"] === "Transformed", Return[coordinateResidual[a, h, limit], Module]];
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic", Return[lambertResidual[a, h, limit], Module]];
   If[Lookup[a, "Kind", ""] === "LogarithmicInverse", Return[logarithmicResidual[a, h, limit], Module]];
@@ -1027,6 +1038,7 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
 Options[InverseNumericalCheck] = {WorkingPrecision -> 50};
 InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
   {wp = OptionValue[WorkingPrecision], result, root},
+  If[Lookup[a, "Kind", ""] === "GammaInverse", Return[gammaInverseNumerical[a, yv, wp], Module]];
   If[Lookup[a, "Kind", ""] === "SpecialInverse" || Lookup[a, "Scale", "PowerLog"] === "Transformed",
     result = If[Lookup[a, "Kind", ""] === "SpecialInverse", specialNumerical[a, yv, wp], coordinateNumericalCheck[a, yv, wp]];
     If[FailureQ[result], Return[result, Module]];
@@ -1111,6 +1123,9 @@ Get[FileNameJoin[{$kernelDirectory, "InverseFunctionBranches.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionFamilies.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "InverseFunctionExpressions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaForward.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "GammaInverse.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "GammaInverseChecks.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "GammaInverseOperations.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "ExponentialForward.wl"}]];
 
 End[];
