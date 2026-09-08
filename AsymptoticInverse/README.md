@@ -141,8 +141,9 @@ The explicit branch option is also available on `SeriesObservable`.
 
 ## Gamma growth and exact prefactors
 
-`Gamma` with a positive real argument tending to infinity is expanded by
-first expanding `LogGamma`, then exponentiating with an exact prefactor:
+`Gamma` with a positive real argument tending to infinity, and its fixed
+exact real powers, are expanded through `LogGamma`, then exponentiated with
+an exact prefactor:
 
 ```wolfram
 s = AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 5];
@@ -179,6 +180,23 @@ The result retains its original function and domain for `SeriesRefine`.
 recovers the logarithmic Stirling expansion through that absolute order.
 No derivative remainder contract is inferred solely from this finite
 Poincare expansion.
+
+Powered Gamma expressions use the same construction directly:
+
+```wolfram
+AsymptoticExpansion[Gamma[x]^2, x -> Infinity, SeriesTermGoal -> 5]
+(* 2 Pi x^(2 x - 1) Exp[-2 x]
+   (1 + 1/(6 x) + 1/(72 x^2) - 31/(6480 x^3)
+      - 139/(155520 x^4) + O[x^-5]) *)
+```
+
+For `Gamma[arg]^r`, the logarithmic source is `r LogGamma[arg]`, with `r`
+a fixed exact real numeric exponent. This covers negative, rational, and
+irrational powers on the proved positive Gamma branch. The absolute
+remainder includes the powered prefactor, even when it decays. Refinement
+retains the original powered expression. Term goals are applied after
+coefficient cancellation: for example, `r = 12/Sqrt[5]` cancels the
+`x^-3` correction, so five blocks occupy powers `0, 1, 2, 4, 5` of `1/x`.
 
 ## Callable and applied `InverseFunction` expressions
 

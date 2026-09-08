@@ -20,7 +20,7 @@ as a PowerLogSeries object.
 AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero blocks.
 AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] is equivalent. A unary pure Function \
 or unapplied InverseFunction is applied to x before expansion.
-For Gamma on a positive argument tending to Infinity, an exact prefactor is extracted; \
+For Gamma and its fixed exact real powers on a positive argument tending to Infinity, an exact prefactor is extracted; \
 the cutoff and term goal apply to the power-log correction bracket.";
 
 AsymptoticInverse::usage =

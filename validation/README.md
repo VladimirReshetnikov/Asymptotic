@@ -1,5 +1,28 @@
 # Review and validation record
 
+The Gamma-power update is recorded in `gamma-powers-tests.json`. Its final
+native run passes **789 tests in 34 suites, with zero failures**, on Wolfram
+15.0.1 for Windows. The 12 new regressions cover the exact requested
+`Gamma[x]^2` expression, independently derived correction coefficients and
+frontier, the full absolute remainder, reciprocals, rational and irrational
+powers, scaled arguments, domain-preserving refinement, and finite-point
+behavior. An exact irrational exponent cancels the degree-three correction;
+the term goal correctly skips it. A 100-digit normalized numerical comparison
+at `x = 1000` verifies the square at the independent first-omitted scale.
+
+The tail construction uses `r LogGamma[arg]` for fixed exact real numeric
+`r`, retaining the powered original expression and logarithmic provenance.
+Unsupported tail exponents do not intercept regular finite-point expansions.
+To reproduce the full native run:
+
+```powershell
+$env:ASYMPTOTIC_VALIDATION_OUTPUT = Join-Path (Get-Location).Path 'validation\gamma-powers-tests.json'
+wolfram.exe -script AsymptoticInverse\Tests\RunTests.wl
+```
+
+The saved JSON additionally records the baseline commit and SHA-256 hashes
+of the changed kernel and test sources, added after the successful run.
+
 The Gamma forward-expansion update is recorded in `gamma-forward-tests.json`.
 Its final native run passes **777 tests in 33 suites, with zero failures**, on
 Wolfram 15.0.1 for Windows. The 18 new regressions verify the requested

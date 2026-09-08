@@ -117,6 +117,15 @@ uses `LogGamma` and the existing series exponential operation, preserving
 refinement and compatible series arithmetic. See the package guide for
 the positive-argument and Poincare remainder conventions.
 
+Fixed exact real powers of Gamma are also accepted directly:
+
+```wolfram
+AsymptoticExpansion[Gamma[x]^2, x -> Infinity, SeriesTermGoal -> 5]
+(* 2 Pi x^(2 x - 1) Exp[-2 x]
+   (1 + 1/(6 x) + 1/(72 x^2) - 31/(6480 x^3)
+      - 139/(155520 x^4) + O[x^-5]) *)
+```
+
 Conditions on the expansion variable must hold on its selected one-sided
 approach. Conditions inside the inverse callable restrict its source; they
 are retained for refinement and numerical evidence. A numerical check tests

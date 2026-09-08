@@ -1,4 +1,5 @@
-(* Gamma on a positive growing argument is Exp[LogGamma]. Expand its
+(* A fixed exact real power of Gamma on a positive growing argument is
+   Exp[power LogGamma]. Expand its
    logarithm in the existing power-log algebra, then let the explicit series
    exponential extract the exact growing prefactor. This transports a
    vanishing absolute logarithmic error to a relative Gamma error.
@@ -6,26 +7,32 @@
    https://dlmf.nist.gov/5.11.E3 and https://dlmf.nist.gov/5.11.ii . *)
 
 gammaForwardExpansion[f_, x_, x0_, cutoff0_, ass_, coord_, goal_, limit_] := Module[
-  {arg, localArg, argumentLimit, cutoff = cutoff0, working, tries = 0,
+  {arg, power, localArg, argumentLimit, cutoff = cutoff0, working, tries = 0,
    logarithmic, expanded, data, rows, omitted, frontier, prefactor, domain, result, magnitude},
-  If[! MatchQ[f, Gamma[_]] || FreeQ[f, x], Return[$Failed, Module]];
+  Which[
+    MatchQ[f, Gamma[_]], arg = f[[1]]; power = 1,
+    MatchQ[f, Power[Gamma[_], _]], arg = f[[1, 1]]; power = f[[2]],
+    True, Return[$Failed, Module]];
+  If[FreeQ[arg, x], Return[$Failed, Module]];
   validateInput[f, limit];
   If[cutoff === Automatic,
     If[! IntegerQ[goal] || goal < 1,
       fail["InvalidCutoff", "Give an exponent cutoff or SeriesTermGoal -> n."]];
     If[goal + 1 > limit, fail["ResourceLimit", "The Gamma term goal and its frontier exceed MaxTerms."]],
     If[! exactRealQ[cutoff], fail["InvalidCutoff", "The cutoff must be an exact real number."]]];
-  arg = f[[1]]; localArg = arg /. x -> coord["Substitution"];
+  localArg = arg /. x -> coord["Substitution"];
   argumentLimit = inverseBranchTry[Limit[localArg, coord["u"] -> 0,
     Direction -> "FromAbove", Assumptions -> ass]];
   If[argumentLimit =!= Infinity || ! inverseFunctionEventually[localArg > 0, coord["u"], ass],
     Return[$Failed, Module]];
+  If[! exactRealQ[power],
+    fail["UnsupportedGammaPower", "Gamma powers require a fixed exact real numeric exponent.", <|"Power" -> power|>]];
   domain = coord["LocalVariable"] > 0 && arg > 0;
   working = If[cutoff === Automatic, 1, Max[1, cutoff]];
   While[True,
     If[++tries > 12 || Ceiling[working] + 2 > limit,
       fail["ResourceLimit", "Gamma logarithmic normalization exceeded its working-order budget."]];
-    logarithmic = forwardCore[LogGamma[arg], x, x0, working + 1,
+    logarithmic = forwardCore[power LogGamma[arg], x, x0, working + 1,
       Assumptions -> ass, Direction -> coord["Direction"], "MaxTerms" -> limit];
     expanded = seriesExp[logarithmic, working + 1, limit];
     data = seriesData[expanded, limit]; rows = data["Jet"][[1]];
@@ -52,5 +59,6 @@ gammaForwardExpansion[f_, x_, x0_, cutoff0_, ass_, coord_, goal_, limit_] := Mod
     "FrontierTerm" -> frontier, "RequestedTermGoal" -> goal,
     "ReturnedTermCount" -> Length[result["Terms"]], "LogarithmicExpansion" -> logarithmic,
     "ExactModel" -> TrueQ[result["Exact"]], "ExpansionNature" -> "Poincare",
-    "Transformation" -> "Gamma[arg] == Exp[LogGamma[arg]] on the positive real argument approach.",
+    "GammaPower" -> power, "LogarithmicFunction" -> power LogGamma[arg],
+    "Transformation" -> "Gamma[arg]^power == Exp[power LogGamma[arg]] for a fixed exact real power on the positive real argument approach.",
     "AsymptoticReference" -> "https://dlmf.nist.gov/5.11.E3"|>]]];
