@@ -24,7 +24,11 @@ AsymptoticInverse::usage =
 branch of the inverse function of f near x = x0 (x0 may be a real number, Infinity or \
 -Infinity) as a PowerLogSeries object in y. Every complete block with exponent strictly \
 less than cutoff in the local variable (y - y0, or 1/y when y0 is infinite) is retained.
-AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n] retains the first n nonzero blocks.";
+AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n] retains the first n nonzero blocks.
+Recognized leading-logarithmic and exponential cores return Scale -> \"Logarithmic\": \
+the cutoff and term count apply to the unit bracket after extracting Prefactor, in \
+the positive inverse-logarithmic variable LogarithmicVariable. See the package README \
+for this scale's branch and remainder conventions.";
 
 PowerLogSeries::usage =
 "PowerLogSeries[assoc] represents a power-log asymptotic expansion together with its \
@@ -61,6 +65,8 @@ y0 + a u^p (1 + Sum[u^delta_i B_i[Log[u]]]) in the local variable u and returns 
 
 Begin["`Private`"];
 
+$kernelDirectory = DirectoryName[$InputFileName];
+
 (* ------------------------------------------------------------------ *)
 (* Failure handling                                                     *)
 (* ------------------------------------------------------------------ *)
@@ -76,6 +82,11 @@ catch[body_] := Catch[body, $tag];
 (* ------------------------------------------------------------------ *)
 
 exactQ[e_] := FreeQ[e, _Real | _Complex];
+validateInput[f_, limit_] := (
+  If[! exactQ[f], fail["InexactInput", "Exact real input is required; approximate and complex constants are rejected."]];
+  If[! FreeQ[f, Indeterminate | _DirectedInfinity], fail["NonfiniteInput", "The forward expression must not contain nonfinite constants."]];
+  If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]]);
+exactRealQ[e_] := NumericQ[e] && exactQ[e] && TrueQ[FullSimplify[Element[e, Reals]]];
 algebraicRealQ[e_] := exactQ[e] && NumericQ[e] && Module[{t},
    t = Quiet[Element[e, Algebraics] && Element[e, Reals]];
    If[t === True || t === False, t, TrueQ[Quiet[FullSimplify[t]]]]];
@@ -165,11 +176,22 @@ jetTrim[u_List, cut_, ell_, ass_] := jetMerge[Select[u, less[#[[1]], cut] &], el
 jetAdd[u_List, v_List, cut_, ell_, ass_] := jetTrim[Join[u, v], cut, ell, ass];
 jetScale[u_List, c_, ell_, ass_] := If[zeroQ[c, ass], {}, jetMerge[{#[[1]], c #[[2]]} & /@ u, ell, ass]];
 jetShift[u_List, s_] := {#[[1]] + s, #[[2]]} & /@ u;
-jetMul[u_List, v_List, cut_, ell_, ass_, limit_] := Module[{raw},
+jetMul[u_List, v_List, cut_, ell_, ass_, limit_] := Module[{raw, last = Length[v], counts, products = 0},
   If[u === {} || v === {}, Return[{}, Module]];
-  If[Length[u] Length[v] > limit, fail["ResourceLimit", "A sparse product exceeded the MaxTerms budget."]];
-  raw = Flatten[Table[{a[[1]] + b[[1]], Expand[a[[2]] b[[2]]]}, {a, u}, {b, v}], 1];
-  jetTrim[raw, cut, ell, ass]];
+  (* Canonical jets are sorted by weight.  The last admissible column can only
+     decrease as the row weight increases, so locate the retained products in
+     linear time before multiplying any coefficient polynomials. *)
+  counts = Table[
+    If[cut =!= Infinity,
+     While[last > 0 && ! less[a[[1]] + v[[last, 1]], cut], last--]];
+    products += last;
+    If[products > limit, fail["ResourceLimit", "A truncated sparse product exceeded the MaxTerms budget.",
+      <|"MaxTerms" -> limit|>]];
+    last, {a, u}];
+  raw = Flatten[Table[
+    Table[{u[[i, 1]] + v[[j, 1]], u[[i, 2]] v[[j, 2]]}, {j, counts[[i]]}],
+    {i, Length[u]}], 1];
+  jetMerge[raw, ell, ass]];
 jetValuation[u_List] := If[u === {}, Infinity, u[[1, 1]]];
 jetLeadingDegree[u_List, ell_] := If[u === {}, 0, polyDegree[u[[1, 2]], ell]];
 jetMaxDegree[u_List, ell_] := If[u === {}, 0, Max[polyDegree[#[[2]], ell] & /@ u]];
@@ -219,12 +241,16 @@ jetReciprocalUnit[v_List, cut_, ell_, ass_, limit_] := Module[{c0, rest},
 (* Precision-tracked jets: {terms, P, D} means terms + O(u^P (1+|L|)^D) *)
 (* ------------------------------------------------------------------ *)
 
-pConst[c_, ell_, ass_] := If[zeroQ[c, ass], {{}, Infinity, 0}, {{{0, c}}, Infinity, 0}];
+pConst[c_, ell_, ass_] := (
+  If[! PolynomialQ[c, ell], fail["UnsupportedCoefficient", "Logarithmic coefficients must be polynomials.", <|"Coefficient" -> c|>]];
+  If[zeroQ[c, ass], {{}, Infinity, 0}, {{{0, c}}, Infinity, 0}]);
 pVar = {{{1, 1}}, Infinity, 0};
 
 combinePrecision[{P1_, D1_}, {P2_, D2_}] := Which[less[P1, P2], {P1, D1}, less[P2, P1], {P2, D2}, True, {P1, Max[D1, D2]}];
 
 pAdd[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_] := Module[{pd = combinePrecision[{P1, D1}, {P2, D2}]},
+  If[pd[[1]] =!= Infinity,
+   pd[[2]] = Max[pd[[2]], polyDegree[Total[Cases[Join[T1, T2], {w_, q_} /; equal[w, pd[[1]]] :> q]], ell]]];
   {jetTrim[Join[T1, T2], pd[[1]], ell, ass], pd[[1]], pd[[2]]}];
 pScale[{T_, P_, D_}, c_, ell_, ass_] := If[zeroQ[c, ass], {{}, Infinity, 0}, {jetScale[T, c, ell, ass], P, D}];
 pMul[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_, limit_] := Module[{v1, v2, e1, e2, pd},
@@ -232,15 +258,23 @@ pMul[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_, limit_] := Module[{v1, v2, e1
   v1 = If[T1 === {}, P1, jetValuation[T1]]; e1 = If[T1 === {}, D1, jetLeadingDegree[T1, ell]];
   v2 = If[T2 === {}, P2, jetValuation[T2]]; e2 = If[T2 === {}, D2, jetLeadingDegree[T2, ell]];
   pd = combinePrecision[{If[P1 === Infinity, Infinity, P1 + v2], D1 + e2}, {If[P2 === Infinity, Infinity, P2 + v1], D2 + e1}];
+  If[pd[[1]] =!= Infinity,
+   Do[If[equal[t1[[1]] + t2[[1]], pd[[1]]], pd[[2]] = Max[pd[[2]], polyDegree[t1[[2]], ell] + polyDegree[t2[[2]], ell]]],
+    {t1, T1}, {t2, T2}]];
   {jetMul[T1, T2, pd[[1]], ell, ass, limit], pd[[1]], pd[[2]]}];
-pIntegerPower[j_, n_Integer?NonNegative, ell_, ass_, limit_] := Module[{r = pConst[1, ell, ass], k},
-  Do[r = pMul[r, j, ell, ass, limit], {k, n}]; r];
+pIntegerPower[j_, n_Integer?NonNegative, ell_, ass_, limit_] := Module[{r = pConst[1, ell, ass], b = j, k = n},
+  (* Binary powering also preserves the precision propagation of pMul. *)
+  While[k > 0,
+   If[OddQ[k], r = pMul[r, b, ell, ass, limit]];
+   k = Quotient[k, 2];
+   If[k > 0, b = pMul[b, b, ell, ass, limit]]];
+  r];
 
 (* tail bound of a unit series truncated at relative weight cut, with argument U known to relative precision {PU, DU} *)
 unitSeriesPrecision[U_List, PU_, DU_, cut_, ell_] := Module[{c = minOf[PU, cut], Nn, d},
   If[U === {}, Return[{PU, DU}, Module]];
   If[c === Infinity, Return[{Infinity, 0}, Module]];
-  Nn = Ceiling[N[c/jetValuation[U]]];
+  Nn = Ceiling[canon[c/jetValuation[U]]];
   d = jetMaxDegree[U, ell];
   If[equal[c, cut] && less[cut, PU], {cut, Nn d},
    If[equal[c, PU] && less[PU, cut], {PU, DU}, {c, Max[Nn d, DU]}]]];
@@ -274,9 +308,16 @@ fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e]},
    h === Log && Length[e] == 2, fwd[Log[e[[2]]]/Log[e[[1]]], u, ell, ass, Kw, limit],
    h === Exp, fwdExp[fwd[e[[1]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
    h === Sqrt, fwdPower[fwd[e[[1]], u, ell, ass, Kw, limit], 1/2, u, ell, ass, Kw, limit],
-   h === Abs && provablyPositive[e[[1]], ass && u > 0], fwd[e[[1]], u, ell, ass, Kw, limit],
-   Length[e] == 1 && FreeQ[e, Log], fwdAnalytic[h, fwd[e[[1]], u, ell, ass, Kw, limit], e, u, ell, ass, Kw, limit],
+   h === Abs, fwdAbs[fwd[e[[1]], u, ell, ass, Kw, limit], ell, ass],
+   Length[e] == 1, fwdAnalytic[h, fwd[e[[1]], u, ell, ass, Kw, limit], e, u, ell, ass, Kw, limit],
    True, fwdSeries[e, u, ell, ass, Kw, limit]]];
+
+fwdAbs[j : {T_, P_, D_}, ell_, ass_] := Module[{q, c, degree},
+  If[T === {}, Return[j, Module]];
+  q = T[[1, 2]]; degree = polyDegree[q, ell];
+  c = (-1)^degree Coefficient[q, ell, degree];
+  Which[provablyPositive[c, ass], j, provablyNegative[c, ass], pScale[j, -1, ell, ass],
+    True, fail["UnprovedSign", "The eventual sign of the absolute-value argument could not be proved."]]];
 
 fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, U, PU, DU, cutRel, res, rr},
   If[! (NumericQ[r] && exactQ[r]), fail["SymbolicExponent", "Exponents must be exact numbers.", <|"Exponent" -> r|>]];
@@ -314,28 +355,49 @@ fwdLog[{T_, P_, D_}, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, U, PU,
   {jetAdd[{{0, logCanon[Log[c]] + alpha ell}}, res[[1]], res[[2]], ell, ass], res[[2]], res[[3]]}];
 
 fwdExp[{T_, P_, D_}, u_, ell_, ass_, Kw_, limit_] := Module[{neg, q0, U, k, c, res, cutRel},
+  If[! less[0, P], fail["UnknownLeadingTerm", "The exponential argument needs positive remainder precision."]];
   {neg, q0, U} = splitJet[T];
   If[neg =!= {}, fail["ExponentialScale", "Exp of a quantity that is unbounded at the expansion point produces exponential growth or decay, which is outside the power-log class.", <|"Argument" -> neg|>]];
   If[! (PolynomialQ[q0, ell] && polyDegree[q0, ell] <= 1), fail["ExponentialScale", "Exp of a polynomial of degree > 1 in the logarithm is outside the power-log class."]];
   k = Coefficient[q0, ell, 1]; c = Coefficient[q0, ell, 0];
-  If[! (NumericQ[k] && exactQ[k]), fail["SymbolicExponent", "Exp[k Log[u]] needs an exact numeric k."]];
+  If[! exactRealQ[k], fail["SymbolicExponent", "Exp[k Log[u]] needs an exact real numeric k."]];
   If[T === {}, Return[{{{0, 1}}, P, D}, Module]];
   cutRel = If[Kw === Infinity, Infinity, Kw - k];
   res = If[U === {}, {{}, P, D}, pUnitSeries[U, P, D, Function[j, 1/j!], cutRel, ell, ass, limit]];
   res = {jetAdd[{{0, 1}}, res[[1]], res[[2]], ell, ass], res[[2]], res[[3]]};
   {jetScale[jetShift[res[[1]], k], Exp[c], ell, ass], If[res[[2]] === Infinity, Infinity, res[[2]] + k], res[[3]]}];
 
-fwdAnalytic[h_, {T_, P_, D_}, e_, u_, ell_, ass_, Kw_, limit_] := Module[{neg, q0, U, c0, s, N0, t, coeffs, res, nmin, k, cf},
+fwdAnalytic[h_, {T_, P_, D_}, e_, u_, ell_, ass_, Kw_, limit_] := Module[{neg, q0, U, c0, s, N0, t, coeffs, res, nmin, k, cf, sign, lc, V, rho, pd, power},
+  If[! less[0, P], fail["UnknownLeadingTerm", "A function argument needs positive remainder precision."]];
   {neg, q0, U} = splitJet[T];
   If[neg =!= {} || ! FreeQ[q0, ell], Return[fwdSeries[e, u, ell, ass, Kw, limit], Module]];
   c0 = q0;
-  If[U === {} && T === {}, Return[{{{0, h[0]}}, P, D}, Module]];
   If[Kw === Infinity && U =!= {}, fail["InfiniteSeries", "An infinite series is required; a finite working order is needed."]];
-  N0 = If[U === {}, 1, Max[1, Ceiling[N[minOf[If[P === Infinity, Kw, P], Kw]/jetValuation[U]]]]];
+  N0 = If[U === {}, 1, Max[1, Ceiling[canon[minOf[If[P === Infinity, Kw, P], Kw]/jetValuation[U]]]]];
   If[N0 > 400, fail["ResourceLimit", "Too many Taylor terms are required."]];
-  s = Quiet[Series[h[c0 + t], {t, 0, N0}]];
-  If[! MatchQ[s, _SeriesData] || s[[6]] =!= 1 || s[[4]] < 0 || ! FreeQ[s[[3]], t],
+  sign = 1;
+  If[U =!= {},
+   lc = U[[1, 2]];
+   lc = (-1)^polyDegree[lc, ell] Coefficient[lc, ell, polyDegree[lc, ell]];
+   If[provablyNegative[lc, ass], sign = -1]];
+  s = Quiet[Series[h[c0 + sign t], {t, 0, N0}, Assumptions -> ass && t > 0]];
+  If[! MatchQ[s, _SeriesData] || ! FreeQ[s[[3]], t],
    Return[fwdSeries[e, u, ell, ass, Kw, limit], Module]];
+  (* Compose Laurent and Puiseux expansions in a positive local increment.
+     In particular this handles poles and algebraic branch points even when
+     Series cannot order the irrational powers in the original expression. *)
+  If[s[[6]] =!= 1 || s[[4]] < 0,
+   If[U === {}, fail["UnknownLeadingTerm", "A singular function needs a known leading increment."]];
+   V = {jetScale[U, sign, ell, ass], P, D};
+   res = pConst[0, ell, ass];
+   Do[If[! zeroQ[s[[3, k]], ass],
+     power = (s[[4]] + k - 1)/s[[6]];
+     res = pAdd[res, pScale[fwdPower[V, power, u, ell, ass, Kw, limit], s[[3, k]], ell, ass], ell, ass]],
+     {k, Length[s[[3]]]}];
+   rho = s[[5]]/s[[6]];
+   pd = {canon[rho jetValuation[U]], Max[0, Ceiling[rho jetLeadingDegree[U, ell]]]};
+   Return[pAdd[res, {{}, pd[[1]], pd[[2]]}, ell, ass], Module]];
+  If[sign === -1, U = jetScale[U, -1, ell, ass]];
   coeffs = s[[3]]; nmin = s[[4]];
   c0 = If[nmin <= 0 && Length[coeffs] >= 1 - nmin, coeffs[[1 - nmin]], 0];
   cf = Function[j, If[j >= nmin && j - nmin + 1 <= Length[coeffs], coeffs[[j - nmin + 1]], If[j < nmin, 0, Null]]];
@@ -346,7 +408,7 @@ fwdAnalytic[h_, {T_, P_, D_}, e_, u_, ell_, ass_, Kw_, limit_] := Module[{neg, q
 (* fallback: Series in u; the remainder degree is read from the first omitted block *)
 fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, parts, sd, rest, rows = {}, rho, kdeg, s2, sd2, cand, extra},
   If[Kw === Infinity, fail["InfiniteSeries", "The expression is not a finite power-log sum and no finite working order was given.", <|"Expression" -> e|>]];
-  order = Max[1, Ceiling[N[Kw]]];
+  order = Max[1, Ceiling[canon[Kw]]];
   s = Quiet[Series[e, {u, 0, order}, Assumptions -> ass && u > 0]];
   If[Head[s] === Series || (Head[s] =!= SeriesData && FreeQ[s, SeriesData]),
    fail["UnsupportedInput", "The function could not be expanded in a power-log scale at the expansion point.", <|"Expression" -> e|>]];
@@ -416,7 +478,10 @@ forwardJet[fu_, u_, ell_, ass_, K_, limit_, extra_: 1] := Module[{Kw, res, tries
   Kw = K + extra;
   While[True,
    tries++;
-   res = fwd[fu, u, ell, ass, Kw, limit];
+   res = Catch[fwd[fu, u, ell, ass, Kw, limit], $tag];
+   If[FailureQ[res],
+    If[res[[1]] === "UnknownLeadingTerm" && tries <= 12, Kw = Max[1, 2 Kw + 1]; Continue[]];
+    Throw[res, $tag]];
    If[res[[2]] === Infinity || ! less[res[[2]], K], Break[]];
    If[tries > 8, fail["InsufficientOrder", "Could not reach the requested precision.", <|"Reached" -> res[[2]]|>]];
    Kw = Kw + (K - res[[2]]) + 1];
@@ -433,6 +498,7 @@ forwardPublic[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]]
   {ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions], dir = OptionValue[AsymptoticExpansion, {opts}, Direction],
    goal = OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"],
    coord, u, ell = Unique["ell$"], fu, jet, cutoff = cutoff0, T, tries = 0, K, ex},
+  validateInput[f, limit];
   If[! FreeQ[ass, x], fail["InvalidAssumptions", "Assumptions concern parameters only."]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"];
   fu = f /. x -> coord["Substitution"];
@@ -453,7 +519,7 @@ forwardPublic[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]]
      K = 2 K + 1];
     cutoff = If[Length[T] > goal, T[[goal + 1, 1]], Infinity];
     If[cutoff =!= Infinity, jet = forwardJet[fu, u, ell, ass, cutoff, limit, 1]]],
-   If[! (NumericQ[cutoff] && exactQ[cutoff]), fail["InvalidCutoff", "The cutoff must be an exact real number."]];
+   If[! exactRealQ[cutoff], fail["InvalidCutoff", "The cutoff must be an exact real number."]];
    ex = exactJet[fu, u, ell, ass, limit];
    jet = If[ex =!= $Failed, ex, forwardJet[fu, u, ell, ass, cutoff, limit, 1]]];
   makeForwardObject[jet, cutoff, f, x, x0, coord, u, ell, ass, goal]];
@@ -521,7 +587,11 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
    If[! FreeQ[lead[[2]], ell], fail["LogarithmicLimit", "The function has a logarithmic singularity at the expansion point (leading block Log[u]^k); this is outside the supported class."]];
    y0 = lead[[2]]; rows = Rest[rows];
    If[rows === {}, fail["ZeroFunction", "The function is constant near the expansion point."]];
-   lead = First[rows]];
+   If[symbolic,
+    Module[{cands = Select[rows, Function[r, And @@ (TrueQ[Simplify[r[[1]] <= #[[1]], ass]] & /@ rows)]]},
+     If[cands === {}, fail["UndecidableLeadingTerm", "No provably least nonconstant exponent under the assumptions."]];
+     lead = First[cands]; rows = Prepend[DeleteCases[rows, lead], lead]],
+    lead = First[rows]]];
   p = lead[[1]]; a = lead[[2]];
   If[! FreeQ[a, ell], fail["LogarithmicLeadingTerm",
     "The leading block a u^p Log[u]^k has a logarithmic factor; such a core needs a Lambert-W coordinate and is not supported by this version."]];
@@ -541,24 +611,42 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
 (* Multi-index enumeration                                              *)
 (* ------------------------------------------------------------------ *)
 
-indexRegion[d_List, W_, inclusive_, limit_] := Module[{m = Length[d], inside, nodes = 0, visit, cand, frontier, ok},
+indexRegion[d_List, W_, inclusive_, limit_] := Module[
+  {m = Length[d], inside, nodes = 0, visit, boundary = <||>, ok, add, q, key, indexKey},
   If[m == 0, Return[<|"Inside" -> {{}}, "Boundary" -> {}|>, Module]];
   ok[w_] := If[inclusive, leq[w, W], less[w, W]];
+  add[] := (nodes++;
+    If[nodes > limit, fail["ResourceLimit", "Multi-index enumeration exceeded MaxTerms.", <|"MaxTerms" -> limit|>]]);
   visit[j_, sofar_, prefix_] := Module[{k = 0},
-    If[j > m, Sow[prefix]; Return[Null, Module]];
+    If[j > m,
+     add[]; Sow[prefix];
+     (* Only the outside neighbors can belong to the boundary.  Deduplicate
+        them as they are found, without allocating all m times Length[inside]
+        neighbors.  Both retained and boundary indices consume the budget. *)
+     Do[If[! ok[sofar + d[[h]]],
+       q = ReplacePart[prefix, h -> prefix[[h]] + 1]; key = indexKey[q];
+       If[! KeyExistsQ[boundary, key], add[]; AssociateTo[boundary, key -> q]]], {h, m}];
+     Return[Null, Module]];
     While[ok[sofar + k d[[j]]],
-     nodes++;
-     If[nodes > limit, fail["ResourceLimit", "Multi-index enumeration exceeded MaxTerms.", <|"MaxTerms" -> limit|>]];
      visit[j + 1, sofar + k d[[j]], Append[prefix, k]];
      k++]];
   inside = Reap[visit[1, 0, {}]][[2]];
   inside = If[inside === {}, {}, First[inside]];
-  cand = DeleteDuplicates[Flatten[Table[v + UnitVector[m, j], {v, inside}, {j, m}], 1]];
-  frontier = Select[cand, ! ok[# . d] &];
-  <|"Inside" -> inside, "Boundary" -> frontier|>];
+  <|"Inside" -> inside, "Boundary" -> Values[boundary]|>];
 
-depthRegion[m_, N_] := <|"Inside" -> Select[Tuples[Range[0, N], m], Total[#] <= N &],
-   "Boundary" -> Select[Tuples[Range[0, N + 1], m], Total[#] == N + 1 &]|>;
+depthRegion[m_, N_, limit_] := Module[{visit, indices, count},
+  If[m == 0, Return[<|"Inside" -> {{}}, "Boundary" -> {}|>, Module]];
+  (* Stars and bars counts the retained simplex and its degree-(N+1) shell.
+     Check that count before allocating anything; a surrounding cube is
+     exponentially larger than the requested set when there are many gaps. *)
+  count = Binomial[N + m + 1, m];
+  If[count > limit, fail["ResourceLimit", "Depth enumeration exceeded MaxTerms.",
+    <|"MaxTerms" -> limit, "RequiredTerms" -> count|>]];
+  visit[j_, remaining_, prefix_] := Module[{k},
+    If[j > m, Sow[prefix, If[remaining == 0, "Boundary", "Inside"]]; Return[Null, Module]];
+    Do[visit[j + 1, remaining - k, Append[prefix, k]], {k, 0, remaining}]];
+  indices = Association[Reap[visit[1, N + 1, {}], _, Rule][[2]]];
+  <|"Inside" -> Lookup[indices, "Inside", {}], "Boundary" -> Lookup[indices, "Boundary", {}]|>];
 
 (* ------------------------------------------------------------------ *)
 (* Lagrange coefficient for one multi-index                             *)
@@ -609,11 +697,15 @@ Options[AsymptoticInverse] = {Assumptions -> True, Direction -> Automatic, Metho
   "Power" -> 1, "InputRemainder" -> Automatic, "Truncation" -> "Exponent",
   SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 
-AsymptoticInverse[f_, {x_Symbol, x0_}, {y_Symbol, cutoff_}, opts : OptionsPattern[]] := catch[construct[f, x, x0, y, cutoff, opts]];
-AsymptoticInverse[f_, {x_Symbol, x0_}, y_Symbol, opts : OptionsPattern[]] := catch[construct[f, x, x0, y, Automatic, opts]];
-AsymptoticInverse[f_, x_Symbol, y_Symbol, opts : OptionsPattern[]] := catch[construct[f, x, 0, y, Automatic, opts]];
+AsymptoticInverse[f_, {x_Symbol, x0_}, {y_Symbol, cutoff_}, opts : OptionsPattern[]] := catch[inverseDispatch[f, x, x0, y, cutoff, opts]];
+AsymptoticInverse[f_, {x_Symbol, x0_}, y_Symbol, opts : OptionsPattern[]] := catch[inverseDispatch[f, x, x0, y, Automatic, opts]];
+AsymptoticInverse[f_, x_Symbol, y_Symbol, opts : OptionsPattern[]] := catch[inverseDispatch[f, x, 0, y, Automatic, opts]];
 AsymptoticInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
    "Use AsymptoticInverse[f, {x, x0}, {y, cutoff}] or AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n]."|>];
+
+inverseDispatch[f_, x_, x0_, y_, cutoff_, opts___] := Module[{s},
+  s = lambertConstruct[f, x, x0, y, cutoff, opts];
+  If[s === $Failed, construct[f, x, x0, y, cutoff, opts], s]];
 
 inverseBlocks[d_, polys_, p_, rint_, H_, method_, ell_, ass_, limit_, region_] := Module[{U, blocks},
   If[method === "Newton",
@@ -622,6 +714,25 @@ inverseBlocks[d_, polys_, p_, rint_, H_, method_, ell_, ass_, limit_, region_] :
    If[blocks === {} || ! (blocks[[1, 1]] === 0), blocks = jetMerge[Join[{{0, 1}}, blocks], ell, ass]];
    blocks,
    jetMerge[lagrangeCoefficient[#, d, polys, p, rint, ell, ass, False] & /@ region["Inside"], ell, ass]]];
+
+(* Look past finitely many cancelled boundary blocks. A bounded search retains
+   the original valid (possibly non-sharp) bound if no nonzero block is found. *)
+inverseFrontier[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] := Module[
+  {region = region0, ws, weight, near, poly, first = None, result = None, next, attempt},
+  If[d === {} || region["Boundary"] === {}, Return[None, Module]];
+  Do[
+   ws = canon[# . d] & /@ region["Boundary"];
+   weight = First[Sort[ws, leq]];
+   near = Pick[region["Boundary"], equal[#, weight] & /@ ws];
+   poly = jetMerge[lagrangeCoefficient[#, d, polys, p, rint, ell, ass, False] & /@ near, ell, ass];
+   result = {weight, If[poly === {}, 0, poly[[1, 2]]]};
+   If[first === None, first = result];
+   If[poly =!= {}, Break[]];
+   next = Catch[indexRegion[d, weight, True, limit], $tag];
+   If[FailureQ[next] || next["Boundary"] === {}, result = first; Break[]];
+   region = next,
+   {attempt, 8}];
+  If[result[[2]] === 0, first, result]];
 
 (* finite power-log parser that tolerates symbolic exponents (used by depth truncation) *)
 parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, ok = True},
@@ -638,13 +749,17 @@ parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, 
     If[ok, AppendTo[rows, {expo, coef}]]], {term, summands}];
   If[! ok, $Failed, rows]];
 
+Get[FileNameJoin[{$kernelDirectory, "ExactTermination.wl"}]];
+
 construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
   {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    method = OptionValue[AsymptoticInverse, {opts}, Method], r = OptionValue[AsymptoticInverse, {opts}, "Power"],
    inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"], trunc = OptionValue[AsymptoticInverse, {opts}, "Truncation"],
    goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],
    coord, u, ell = Unique["ell$"], fu, jet, rows, model, p, a, d, polys, y0, symbolic, H, cutoff = cutoff0,
-   region, blocks, frontier, rem, inputCap, v, z, expr, terms, wexpr, rint, obj, remData, forwardRem, depth, exactModel, Kf, tries, gexpr, logw, need},
+   region, blocks, frontier, rem, inputCap, v, z, expr, terms, wexpr, rint, obj, remData, forwardRem, depth, exactModel, Kf, tries, gexpr, logw, need,
+   termination = None, terminationTried = Missing["NotTried"], terminationEligible, reliableBlocks},
+  validateInput[f, limit];
   If[x === y, fail["InvalidVariables", "Source and target variables must be distinct symbols."]];
   If[! FreeQ[f, y], fail["InvalidVariables", "The forward expression must not contain the target variable."]];
   If[! FreeQ[ass, x | y], fail["InvalidAssumptions", "Assumptions concern parameters only; positivity of the local variable is built in."]];
@@ -653,11 +768,12 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
   If[! MemberQ[{"Exponent", "Depth"}, trunc], fail["InvalidOption", "Truncation must be \"Exponent\" or \"Depth\"."]];
   If[! MemberQ[{"Lagrange", "Newton"}, method], fail["InvalidOption", "Method must be \"Lagrange\" or \"Newton\"."]];
   If[! (NumericQ[r] && exactQ[r] && TrueQ[Simplify[Element[r, Reals]]] && r =!= 0), fail["InvalidOption", "\"Power\" must be a nonzero exact real number."]];
-  If[cutoff =!= Automatic && ! symbolic && ! (NumericQ[cutoff] && exactQ[cutoff]), fail["InvalidCutoff", "The cutoff must be an exact real number."]];
+  If[cutoff =!= Automatic && ! symbolic && ! exactRealQ[cutoff], fail["InvalidCutoff", "The cutoff must be an exact real number."]];
   If[cutoff === Automatic && ! (IntegerQ[goal] && goal >= 1), fail["InvalidCutoff", "Give an exponent cutoff or SeriesTermGoal -> n."]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"];
   If[r =!= 1 && coord["Sign"] =!= 1 && ! IntegerQ[r], fail["InvalidOption", "\"Power\" -> r with non-integer r requires a positive local variable (x -> x0 from above or x -> +Infinity)."]];
   rint = If[coord["Infinite"], -r, r];
+  terminationEligible = r === 1 && cutoff0 === Automatic && MemberQ[{Automatic, None}, inputRem] && exactTerminationCoreQ[f, x];
   fu = f /. x -> coord["Substitution"];
   (* ---------------- depth truncation with possibly symbolic exponents ---------------- *)
   If[symbolic,
@@ -665,10 +781,13 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
    If[rows === $Failed, fail["UnsupportedInput", "Depth truncation requires a finite power-log expression."]];
    model = rowsToModel[rows, u, ell, ass, True];
    p = model["LeadingPower"]; a = model["LeadingCoefficient"]; d = model["Gaps"]; polys = model["Polynomials"]; y0 = model["Limit"];
-   If[! TrueQ[Simplify[p != 0, ass]], fail["ZeroLeadingPower", "The leading power must be provably nonzero."]];
+   If[! TrueQ[Simplify[Element[p, Reals], ass]] || ! (provablyPositive[p, ass] || provablyNegative[p, ass]),
+    fail["UnprovedLeadingPower", "The leading power must be provably real with a known nonzero sign."]];
+   If[method =!= "Lagrange", fail["UnsupportedOption", "Depth truncation uses the Lagrange method."]];
    depth = cutoff; If[cutoff === Automatic, depth = goal];
    If[! IntegerQ[depth] || depth < 0, fail["InvalidCutoff", "Depth truncation needs a nonnegative integer cutoff."]];
-   region = depthRegion[Length[d], depth];
+   If[! MemberQ[{Automatic, None}, inputRem], fail["UnsupportedOption", "Explicit InputRemainder is currently supported with exponent truncation only."]];
+   region = depthRegion[Length[d], depth, limit];
    blocks = jetMerge[lagrangeCoefficient[#, d, polys, p, rint, ell, ass, True] & /@ region["Inside"], ell, ass, True];
    If[Length[blocks] > 1, blocks = Quiet[Check[Sort[blocks, TrueQ[Simplify[#1[[1]] <= #2[[1]], ass]] &], blocks]]];
    frontier = Missing["Depth"]; exactModel = True; forwardRem = None; H = Missing["Depth"];
@@ -680,6 +799,9 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     tries++;
     If[jet === $Failed || tries > 1, jet = forwardJet[fu, u, ell, ass, Kf, limit, 0]];
     rows = jet[[1]]; exactModel = (jet[[2]] === Infinity);
+    If[! exactModel && (rows === {} || (Length[rows] === 1 && rows[[1, 1]] === 0 && FreeQ[rows[[1, 2]], ell])),
+     If[tries >= 12, fail["InsufficientForwardOrder", "No nonconstant leading block was found within the working-order budget."]];
+     Kf = Max[Kf + 1, 2 Kf]; Continue[]];
     model = rowsToModel[rows, u, ell, ass, False];
     p = model["LeadingPower"]; a = model["LeadingCoefficient"]; d = model["Gaps"]; polys = model["Polynomials"]; y0 = model["Limit"];
     If[! (NumericQ[p] && exactQ[p]), fail["SymbolicExponent", "The leading power must be an exact number; use \"Truncation\" -> \"Depth\" for symbolic exponents."]];
@@ -693,46 +815,50 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
        region = indexRegion[d, W, True, limit];
        blocks = jetMerge[lagrangeCoefficient[#, d, polys, p, rint, ell, ass, False] & /@ region["Inside"], ell, ass];
        count = Length[blocks];
+       If[terminationEligible,
+        reliableBlocks = If[exactModel, blocks, Select[blocks, less[#[[1]], jet[[2]] - p] &]];
+        If[reliableBlocks =!= terminationTried,
+         terminationTried = reliableBlocks;
+         termination = exactInverseTermination[f, x, x0, coord, model, reliableBlocks, ell, ass];
+         If[AssociationQ[termination], blocks = reliableBlocks; Break[]]]];
        If[count >= goal || region["Boundary"] === {}, Break[]];
        sigmaStar = First[Sort[canon[# . d] & /@ region["Boundary"], leq]];
        W = sigmaStar]];
-     H = If[region["Boundary"] === {}, Infinity, canon[First[Sort[canon[# . d] & /@ region["Boundary"], leq]]]];
+     H = If[AssociationQ[termination] || region["Boundary"] === {}, Infinity, canon[First[Sort[canon[# . d] & /@ region["Boundary"], leq]]]];
      cutoff = If[H === Infinity, Infinity, canon[(rint + H)/Abs[p]]],
      H = canon[Abs[p] cutoff - rint];
      If[! less[0, H], fail["CutoffTooSmall", "The cutoff must exceed the leading exponent r/|p| of the inverse.", <|"LeadingExponent" -> ToRadicals[rint/Abs[p]]|>]]];
-    (* is the forward precision sufficient?  need P >= |p| cutoff + p - 1 *)
-    If[exactModel, Break[]];
+    (* u^rint has error O(z^(P-p+rint)); transport includes the observable derivative. *)
+    If[exactModel || AssociationQ[termination], Break[]];
     If[tries > 8, fail["InsufficientForwardOrder", "Could not obtain a forward expansion of sufficient order.", <|"Reached" -> ToRadicals[jet[[2]]]|>]];
     If[cutoff === Infinity,
      (* the truncated forward jet has too few blocks for the requested number of terms *)
      Kf = Max[Kf + 1, 2 Kf]; cutoff = cutoff0; Continue[]];
-    need = canon[Abs[p] cutoff + p - 1];
+    need = canon[Abs[p] cutoff + p - rint];
     If[! less[jet[[2]], need], Break[]];
-    Kf = Max[Kf + 1, Ceiling[N[need]] + 1];
+    Kf = Max[Kf + 1, Ceiling[need] + 1];
     cutoff = cutoff0];
    forwardRem = If[exactModel, None, {jet[[2]], jet[[3]]}];
-   Which[inputRem === None, forwardRem = None, inputRem === Automatic, Null, True, forwardRem = inputRem];
-   inputCap = If[forwardRem === None, None,
+   If[! MemberQ[{None, Automatic}, inputRem],
+    If[! MatchQ[inputRem, {_, _Integer?NonNegative}] || ! exactRealQ[inputRem[[1]]],
+     fail["InvalidOption", "InputRemainder must be None, Automatic or {rho, k} with exact real rho and nonnegative integer k."]];
+    forwardRem = If[forwardRem === None, inputRem, combinePrecision[forwardRem, inputRem]]];
+   inputCap = If[AssociationQ[termination] || forwardRem === None, None,
      If[! MatchQ[forwardRem, {_, _Integer?NonNegative}], fail["InvalidOption", "\"InputRemainder\" must be None, Automatic or {rho, k}."]];
      If[! less[Last[model["Rows"]][[1]], forwardRem[[1]]], fail["InvalidOption", "The input remainder power must exceed every supplied forward power."]];
-     canon[(forwardRem[[1]] - p + 1)/Abs[p]]];
-   If[inputCap =!= None && cutoff =!= Infinity && less[inputCap, cutoff], fail["InsufficientInputOrder",
-     "The requested cutoff exceeds the precision transported from the forward remainder.", <|"MaximumCutoff" -> ToRadicals[inputCap]|>]];
-   If[cutoff0 =!= Automatic || method === "Newton",
+     canon[(forwardRem[[1]] - p + rint)/Abs[p]]];
+   If[inputCap =!= None && (cutoff === Infinity || less[inputCap, cutoff]),
+    If[cutoff0 === Automatic && Length[Select[blocks, less[(rint + #[[1]])/Abs[p], inputCap] &]] >= goal,
+     cutoff = inputCap; H = canon[Abs[p] cutoff - rint];
+     region = indexRegion[d, H, False, limit];
+     blocks = inverseBlocks[d, polys, p, rint, H, method, ell, ass, limit, region],
+     fail["InsufficientInputOrder", "The request exceeds the precision transported from the forward remainder.", <|"MaximumCutoff" -> ToRadicals[inputCap]|>]]];
+   If[! AssociationQ[termination] && (cutoff0 =!= Automatic || method === "Newton"),
     region = If[H === Infinity, indexRegion[d, 1 + If[d === {}, 0, Max[d]], False, limit], indexRegion[d, H, False, limit]];
     blocks = If[H === Infinity && method === "Newton", inverseBlocks[d, polys, p, rint, 1 + If[d === {}, 0, Max[d]], "Lagrange", ell, ass, limit, region],
       inverseBlocks[d, polys, p, rint, H, method, ell, ass, limit, region]]];
    (* frontier: complete coefficient at the first omitted weight *)
-   frontier = Which[
-     d === {}, None,
-     region["Boundary"] === {}, None,
-     True,
-     Module[{ws, sigmaStar, near, poly},
-      ws = canon[# . d] & /@ region["Boundary"];
-      sigmaStar = First[Sort[ws, leq]];
-      near = Pick[region["Boundary"], equal[#, sigmaStar] & /@ ws];
-      poly = jetMerge[lagrangeCoefficient[#, d, polys, p, rint, ell, ass, False] & /@ near, ell, ass];
-      {sigmaStar, If[poly === {}, 0, poly[[1, 2]]]}]];
+   frontier = If[AssociationQ[termination], None, inverseFrontier[region, d, polys, p, rint, ell, ass, limit]];
    remData = If[frontier === None, None, {canon[(rint + frontier[[1]])/Abs[p]], polyDegree[frontier[[2]], ell]}];
    If[inputCap =!= None,
     remData = Which[remData === None, {inputCap, forwardRem[[2]]},
@@ -744,7 +870,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
   If[! symbolic && less[p, 0], y0 = If[provablyPositive[a, ass], Infinity, -Infinity]];
   If[symbolic && TrueQ[Simplify[p < 0, ass]], y0 = If[provablyPositive[a, ass], Infinity, -Infinity]];
   v = If[y0 === Infinity || y0 === -Infinity, y, y - y0];
-  wexpr = If[y0 === Infinity || y0 === -Infinity, 1/y, If[provablyPositive[a, ass], v, -v]];
+  wexpr = Which[y0 === Infinity, 1/y, y0 === -Infinity, -1/y, provablyPositive[a, ass], v, True, -v];
   z = (v/a)^(1/p);
   logw = Log[v/a]/p;
   terms = Table[{ToRadicals[If[symbolic, Simplify[(rint + b[[1]])/p, ass], canon[(rint + b[[1]])/p]]], ToRadicals[b[[2]]] /. ell -> logw}, {b, blocks}];
@@ -756,13 +882,14 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
   rem = If[remData === None, 0, PowerLogRemainder[wexpr, ToRadicals[remData[[1]]], remData[[2]]]];
   obj = <|
     "Kind" -> "Inverse",
+    "Scale" -> "PowerLog",
     "Expression" -> expr,
     "Remainder" -> rem,
     "RemainderPower" -> If[remData === None, Infinity, ToRadicals[remData[[1]]]],
     "RemainderLogDegree" -> If[remData === None, 0, remData[[2]]],
     "RemainderVariable" -> wexpr,
     "FrontierTerm" -> Which[frontier === None, 0, MissingQ[frontier], frontier,
-      True, (v/a)^ToRadicals[canon[(rint + frontier[[1]])/p]] (ToRadicals[frontier[[2]]] /. ell -> logw)],
+      True, coord["Sign"]^r (v/a)^ToRadicals[canon[(rint + frontier[[1]])/p]] (ToRadicals[frontier[[2]]] /. ell -> logw)],
     "Terms" -> terms,
     "TermConvention" -> "Each {beta, C} means (v/a)^beta C with v = y - y0 (or y when y0 is infinite) and C already containing Log[v/a]/p; the sum is the expansion of (x - x0)^r, of (x0 - x)^r, or of x^r.",
     "Blocks" -> blocks, "LogVariable" -> ell,
@@ -774,6 +901,8 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     "ForwardExpansion" -> (model["Limit"] + Total[(coord["LocalVariable"]^ToRadicals[#[[1]]] (ToRadicals[#[[2]]] /. ell -> Log[coord["LocalVariable"]])) & /@ model["Rows"]]),
     "LocalVariable" -> u, "LocalSubstitution" -> (x -> coord["Substitution"]),
     "ExactModel" -> exactModel, "InputRemainder" -> forwardRem,
+    "ExactTerminationCertificate" -> termination,
+    "RequestedTermGoal" -> goal, "ReturnedTermCount" -> Length[blocks],
     "Function" -> f, "Assumptions" -> ass,
     "Branch" -> "the inverse tends to the expansion point with " <> ToString[coord["LocalVariable"], InputForm] <> " ~ " <> ToString[z, InputForm],
     "SeriesData" -> makeInverseSeriesData[terms, y, y0, a, coord, remData, r, x0]
@@ -802,7 +931,7 @@ PowerLogSeries[a_Association]["Properties"] := Keys[a];
 PowerLogSeries[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
 PowerLogSeries[a_Association][val_?NumericQ] := a["Expression"] /. a["Variable"] -> val;
 remainderScale[PowerLogRemainder[w_, b_, k_]] := Module[{base, lg},
-  {base, lg} = Which[MatchQ[w, Power[_, -1]], {w[[1]]^(-b), Log[w[[1]]]}, MatchQ[w, Times[-1, _]], {(-w)^b, Log[-w]}, True, {w^b, Log[w]}];
+  {base, lg} = If[MatchQ[w, Power[_, -1]], {w[[1]]^(-b), Log[w[[1]]]}, {w^b, Log[w]}];
   If[k === 0, base, base (1 + Abs[lg])^k]];
 PowerLogSeries /: MakeBoxes[PowerLogSeries[a_Association], fmt_] :=
   With[{e = a["Expression"], rm = a["Remainder"]},
@@ -826,6 +955,7 @@ InverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use 
 
 residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["Blocks"], ell = a["LogVariable"], ass = a["Assumptions"],
    p, d, polys, r = a["Power"], cut, U, res, y, v, aa, rint},
+  If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic", Return[lambertResidual[a, h, limit], Module]];
   If[a["Kind"] =!= "Inverse", fail["Unsupported", "Residuals are computed for inverse expansions only."]];
   If[a["Truncation"] === "Depth", fail["Unsupported", "Residuals are computed for exponent truncation only."]];
   p = model["LeadingPower"]; d = model["Gaps"]; polys = model["Polynomials"]; aa = model["LeadingCoefficient"];
@@ -849,16 +979,24 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
 
 Options[InverseNumericalCheck] = {WorkingPrecision -> 50};
 InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
-   {wp = OptionValue[WorkingPrecision], x, y = a["Variable"], f = a["Function"], approx, root, err, scale, rm = a["Remainder"], yy, xr},
+   {wp = OptionValue[WorkingPrecision], x, y = a["Variable"], f = a["Function"], approx, root, err, scale, rm = a["Remainder"], yy, xr, target, local},
    If[a["Kind"] =!= "Inverse", fail["Unsupported", "Numerical checks are for inverse expansions."]];
+   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic", Return[lambertNumericalCheck[a, yv, wp], Module]];
+   If[! IntegerQ[wp] || wp < 10, fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
    x = a["Variables"][[1]];
    If[! (NumericQ[yv] && (exactQ[yv] || Precision[yv] >= wp)), fail["InsufficientPrecision", "Supply an exact evaluation point or one with at least WorkingPrecision digits."]];
    If[a["Power"] =!= 1, fail["Unsupported", "Numerical checks are for the inverse itself (\"Power\" -> 1)."]];
+   target = If[MemberQ[{Infinity, -Infinity}, a["Limit"]], yv, yv - a["Limit"]]/a["LeadingCoefficient"];
+   If[! TrueQ[Im[N[target, wp]] == 0] || ! TrueQ[N[target, wp] > 0],
+    fail["OutsideBranch", "The target must be real and lie on the selected side of the limiting value."]];
    yy = N[yv, wp + 10];
    approx = N[a["Expression"] /. y -> yy, wp + 10];
    xr = With[{xv = x, fv = f, yv2 = yy, start = approx, wp2 = wp + 10, pg = wp},
      Quiet[Check[xv /. FindRoot[fv == yv2, {xv, start}, WorkingPrecision -> wp2, AccuracyGoal -> Infinity, PrecisionGoal -> pg, MaxIterations -> 500], $Failed]]];
    If[xr === $Failed || ! NumericQ[xr], fail["RootNotFound", "FindRoot did not converge from the expansion value."]];
+   local = Which[a["ExpansionPoint"] === Infinity, 1/xr, a["ExpansionPoint"] === -Infinity, -1/xr,
+    a["Direction"] === "FromAbove", xr - a["ExpansionPoint"], True, a["ExpansionPoint"] - xr];
+   If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The numerical root is outside the selected real branch."]];
    err = Abs[xr - approx];
    xr = N[xr, wp]; approx = N[approx, wp]; err = N[err, wp];
    scale = If[rm === 0, 0, N[rm[[1]]^rm[[2]] (1 + Abs[Log[rm[[1]]]])^rm[[3]] /. y -> yy, wp]];
@@ -866,6 +1004,31 @@ InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := c
      "RemainderScale" -> scale, "Ratio" -> If[scale === 0, Indeterminate, err/scale],
      "ForwardResidual" -> N[(f /. x -> approx) - yy, wp]|>]];
 InverseNumericalCheck[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseNumericalCheck[expansion, yvalue]."|>];
+
+lambertNumericalCheck[a_Association, yv_, wp_] := Module[
+  {x = a["Variables"][[1]], y = a["Variable"], yy, approx, xr, local, scale, err, domain, f = a["Function"]},
+  If[! IntegerQ[wp] || wp < 10, fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
+  If[! NumericQ[yv] || (! exactQ[yv] && Precision[yv] < wp),
+   fail["InsufficientPrecision", "Supply an exact evaluation point or one with at least WorkingPrecision digits."]];
+  If[a["Power"] =!= 1, fail["Unsupported", "Numerical checks are for the inverse itself (Power -> 1)."]];
+  yy = N[yv, wp + 10];
+  domain = Lookup[a, "TargetDomain", a["LogarithmicVariable"] > 0] /. y -> yy;
+  If[! TrueQ[domain], fail["OutsideBranch", "The target lies outside the real asymptotic branch domain."]];
+  approx = N[a["Expression"] /. y -> yy, wp + 10];
+  If[! NumericQ[approx] || ! TrueQ[Im[approx] == 0], fail["OutsideBranch", "The expansion is not real at this target."]];
+  xr = With[{xv = x, fv = f, yv2 = yy, start = approx, wp2 = wp + 10, pg = wp},
+    Quiet[Check[xv /. FindRoot[fv == yv2, {xv, start}, WorkingPrecision -> wp2,
+      AccuracyGoal -> Infinity, PrecisionGoal -> pg, MaxIterations -> 500], $Failed]]];
+  If[xr === $Failed || ! NumericQ[xr], fail["RootNotFound", "FindRoot did not converge from the expansion value."]];
+  local = Which[a["ExpansionPoint"] === Infinity, 1/xr, a["ExpansionPoint"] === -Infinity, -1/xr,
+    a["Direction"] === "FromAbove", xr - a["ExpansionPoint"], True, a["ExpansionPoint"] - xr];
+  If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The numerical root is outside the selected real branch."]];
+  scale = N[a["RemainderScaleExpression"] /. y -> yy, wp];
+  err = N[Abs[xr - approx], wp];
+  <|"ExactInverse" -> N[xr, wp], "Approximation" -> N[approx, wp], "Error" -> err,
+    "RemainderScale" -> scale, "Ratio" -> If[TrueQ[scale == 0], Indeterminate, err/scale],
+    "ForwardResidual" -> N[(f /. x -> approx) - yy, wp],
+    "RootResidual" -> N[(f /. x -> xr) - yy, wp]|>];
 
 (* ------------------------------------------------------------------ *)
 (* Perturbative (Lagrange-Buermann) formula generator                   *)
@@ -884,6 +1047,7 @@ PerturbativeInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "
 
 Options[PowerLogModel] = {Assumptions -> True, Direction -> Automatic, "MaxTerms" -> 20000};
 PowerLogModel[f_, {x_Symbol, x0_}, OptionsPattern[]] := catch[Module[{coord, u, ell = Unique["ell$"], jet, ass = OptionValue[Assumptions]},
+   validateInput[f, OptionValue["MaxTerms"]];
    coord = localCoordinate[x, x0, OptionValue[Direction]]; u = coord["u"];
    jet = exactJet[f /. x -> coord["Substitution"], u, ell, ass, OptionValue["MaxTerms"]];
    If[jet === $Failed, fail["UnsupportedInput", "The expression is not a finite power-log sum in the local variable."]];
@@ -897,10 +1061,16 @@ InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catc
    c = lagrangeCoefficient[k, model["Gaps"], model["Polynomials"], model["LeadingPower"], r, model["LogVariable"], True, model["Symbolic"]];
    <|"Weight" -> ToRadicals[c[[1]]], "Exponent" -> ToRadicals[canon[(r + c[[1]])/model["LeadingPower"]]],
      "Coefficient" -> (ToRadicals[c[[2]]] /. model["LogVariable"] -> \[FormalL]),
-     "Meaning" -> "z^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
+     "UniformizerExponent" -> ToRadicals[r + c[[1]]],
+     "Meaning" -> "(v/a)^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
 InverseExpansionCoefficient[PowerLogSeries[a_Association], k_List, opts : OptionsPattern[]] :=
-  InverseExpansionCoefficient[a["Model"], k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts];
+  If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
+   Failure["Unsupported", <|"MessageTemplate" -> "Lambert coefficients are listed in the logarithmic expansion's Terms property; they have no power-gap multi-index."|>],
+   InverseExpansionCoefficient[a["Model"], k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
+
+(* The logarithmic-scale engine shares the exact jet algebra above. *)
+Get[FileNameJoin[{$kernelDirectory, "LambertInverse.wl"}]];
 
 End[];
 EndPackage[];

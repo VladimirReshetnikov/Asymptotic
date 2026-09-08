@@ -47,3 +47,20 @@ show["symbolic exponent (depth truncation)", Normal[AsymptoticInverse[x + x^alph
 show["Lagrange-Buermann formula generator", Expand[PerturbativeInverse[x^2 (1 + Log[x]), {x, y}, 3]]];
 show["single multi-index coefficient", InverseExpansionCoefficient[r1, {6}]["Coefficient"]];
 show["parsed model", PowerLogModel[3 x^2 (1 + x (1 + Log[x])), {x, 0}]];
+
+(* --- Leading logarithms and exponential cores: relative logarithmic order --- *)
+lambertSmall = AsymptoticInverse[x Log[x], {x, 0}, y, SeriesTermGoal -> 4];
+show["x Log[x] at 0+, y approaching 0-", Normal[lambertSmall]];
+show["Lambert branch", lambertSmall["LambertBranch"]];
+show["logarithmic local variable and prefactor", {lambertSmall["LogarithmicVariable"], lambertSmall["Prefactor"]}];
+show["logarithmic remainder", lambertSmall["Remainder"]];
+show["numerical check against x Log[x]", InverseNumericalCheck[lambertSmall, -Exp[-100]]];
+
+lambertLarge = AsymptoticInverse[x Exp[x], {x, Infinity}, y, SeriesTermGoal -> 5];
+show["x Exp[x] at infinity", Normal[lambertLarge]];
+show["Lambert normalized residual", InverseResidual[lambertLarge]];
+show["numerical check against x Exp[x]", InverseNumericalCheck[lambertLarge, Exp[100]]];
+
+show["scaled exponential core", Normal[AsymptoticInverse[2 x Exp[3 x], {x, Infinity}, {y, 4}]]];
+show["logarithmic core with a higher-power correction", AsymptoticInverse[x Log[x] + x^2, {x, 0}, {y, 4}]];
+show["irrational Puiseux composition", AsymptoticExpansion[ArcCos[1 - x^Sqrt[2]], {x, 0, 3}]];

@@ -1,22 +1,32 @@
+\Needspace{14\baselineskip}
 \section{The package}
 \label{sec:package}
 
-The package \wl{AsymptoticInverse} (directory \texttt{AsymptoticInverse/} of the repository; usage in its \texttt{README.md}) implements Sections~\ref{sec:scale}--\ref{sec:endpoints}. Its interface is
+The package \wl{AsymptoticInverse} (directory \texttt{AsymptoticInverse/} of the repository; usage in its \texttt{README.md}) implements the power--log engines of Sections~\ref{sec:scale}--\ref{sec:endpoints} and the Lambert-coordinate construction of Section~\ref{sec:lambert-expansion}. Its interface is
 \begin{lstlisting}
 AsymptoticInverse[f, {x, x0}, {y, cutoff}]         (* or ..., y, SeriesTermGoal -> n *)
 AsymptoticExpansion[f, {x, x0, cutoff}]            (* or {x, x0}, SeriesTermGoal -> n *)
 \end{lstlisting}
-with $x_0$ a real number, \wl{Infinity} or \wl{-Infinity}, options \wl{Assumptions}, \wl{Direction}, \wl{Method} (\wl{"Lagrange"} or \wl{"Newton"}), \wl{"Power"} ($r$), \wl{"Truncation"} (\wl{"Exponent"} or \wl{"Depth"}), \wl{"InputRemainder"} and \wl{"MaxTerms"}. Both return a \wl{PowerLogSeries} object: \wl{Normal} gives the finite expression, \wl{s["Remainder"]} the descriptor \wl{PowerLogRemainder[w, $\beta$, k]}, \wl{s["FrontierTerm"]} the first omitted block, \wl{s["Terms"]} the pairs (exponent, coefficient), \wl{s["SeriesData"]} a \wl{SeriesData} object when the exponents are rational, and \wl{s["Properties"]} the full list. \wl{InverseResidual}, \wl{InverseNumericalCheck}, \wl{PerturbativeInverse}, \wl{InverseExpansionCoefficient} and \wl{PowerLogModel} are the auxiliary functions.
+with $x_0$ a real number, \wl{Infinity} or \wl{-Infinity}, options \wl{Assumptions}, \wl{Direction}, \wl{Method} (\wl{"Lagrange"} or \wl{"Newton"} for the power--log engine), \wl{"Power"} ($r$), \wl{"Truncation"} (\wl{"Exponent"} or \wl{"Depth"}), \wl{"InputRemainder"} and \wl{"MaxTerms"}. Both return a \wl{PowerLogSeries} object: \wl{Normal} gives the finite expression, \wl{s["Remainder"]} its inert descriptor, \wl{s["FrontierTerm"]} the computed first omitted block, \wl{s["Terms"]} exponent/coefficient pairs, \wl{s["SeriesData"]} a \wl{SeriesData} object when the scale permits it, and \wl{s["Properties"]} the full property list.
+
+The auxiliary functions provide residual checking through \wl{InverseResidual}, numerical comparison through \wl{InverseNumericalCheck}, marker formulas through \wl{PerturbativeInverse}, individual coefficients through \wl{InverseExpansionCoefficient}, and normalized model data through \wl{PowerLogModel}.
+
+Recognized Lambert cores dispatch to \wl{"Method" -> "Lambert"}. Their objects carry \wl{"Scale" -> "Logarithmic"}, an exact \wl{"Prefactor"}, and \wl{"LogarithmicVariable" -> t}. A pair $\{n,C\}$ contributes \wl{Prefactor}$\,t^nC(\log t)$, and a cutoff $q$ retains $n<q$ in this normalized bracket. The remainder is $|\wl{Prefactor}|\,\wl{PowerLogRemainder[t, $\beta$, k]}$; the prefactor must not be lost when estimating errors. \wl{"LambertBranch"} and \wl{"TargetDomain"} record the selected real branch. Such objects have no ordinary \wl{SeriesData} in $y$, and depth truncation in the original power gaps does not apply. For example,
+\begin{lstlisting}
+AsymptoticInverse[x Log[x], {x, 0}, {y, 4}]
+AsymptoticInverse[x Exp[x], {x, Infinity}, {y, 5}]
+\end{lstlisting}
+produce the displayed logarithmic orders in Section~\ref{sec:lambert-expansion}. The first uses $y\to0^-$ and the lower Lambert branch; the second uses $y\to+\infty$ and the principal branch.
 
 \subsection{Data structures and exact comparisons}
 
-A jet is a sorted list of pairs $\{\sigma,C_\sigma\}$, the exponent $\sigma$ an exact real number and $C_\sigma$ a polynomial in a private symbol $\ell$ standing for $L$. Exponents are canonicalised with \wl{RootReduce} when they are algebraic (so that $\sqrt2+\sqrt3$ and $\sqrt{5+2\sqrt6}$ become the same \wl{Root} object) and with \wl{FullSimplify} otherwise (exact transcendental exponents such as $\pi$ are admitted when every comparison they enter can be decided). Two exponents are equal if and only if their canonical forms are identical; their order is decided by \wl{Less} on exact numbers (which is exact for distinct algebraic numbers) with \wl{FullSimplify} of the difference as a fallback, and an undecidable comparison is a \wl{Failure}, never a numerical guess. Inexact (\wl{Real}) input is rejected: a floating-point $1.41421$ is a rational number, and inverting $x+x^{1.41421}$ is a different problem (Section~\ref{sec:boundaries}).
+A jet is a sorted list of pairs $\{\sigma,C_\sigma\}$, with exact exponents and polynomial coefficients. Algebraic exponents have \wl{RootReduce} canonical forms, so $\sqrt2+\sqrt3$ and $\sqrt{5+2\sqrt6}$ are recognized as equal. For other exact exponents, symbolic simplification must prove the comparisons used by the computation; it is not a complete equality algorithm for arbitrary transcendental expressions. Undecidable order comparisons produce a \wl{Failure}. Inexact \wl{Real} input is rejected because a rounded exponent does not identify the exact semigroup: choosing a rational decimal approximation to $\sqrt2$ changes both the problem and its possible resonances.
 
 Coefficients are canonicalised too: algebraic numbers with \wl{RootReduce}, logarithms of positive rationals into sums of logarithms of primes, symbolic parameters with \wl{Simplify} under the assumptions. Without this, exactly vanishing residual coefficients such as $-2\sqrt2-2\sqrt3+2\sqrt{5+2\sqrt6}$ or $-\tfrac1{16}\log^24-\tfrac1{64}\log2\log32+\tfrac1{64}\log8\log128$ are not recognised as zero by \wl{Simplify}, which is what caused the two test failures among the nine reports (Section~\ref{sec:reports}).
 
 \subsection{The engines}
 
-\paragraph{Forward.} The evaluator of Section~\ref{sec:evaluator} is a structural recursion returning triples $(T,P,D)$. Finite power--log sums are recognised as exact ($P=\infty$) without any series; otherwise the working order is raised until the requested precision is reached, and the first omitted block is computed when it lies within reach.
+\paragraph{Forward.} The evaluator of Section~\ref{sec:evaluator} is a structural recursion returning triples $(T,P,D)$. Finite power--log sums are recognized as exact. The working order grows when cancellation hides the leading term or prevents the requested precision from being reached. Analytic heads are expanded in their small argument, so expressions such as $\sin(x\log x)$ are handled without asking \wl{Series} to order their full composition. Laurent and Puiseux expansions of supported heads are composed in the same way, with the local increment's sign checked at real branch points. Absolute values use the eventual sign of the leading logarithmic polynomial.
 
 \paragraph{Inverse, Lagrange.} The forward germ is normalised (Section~\ref{sec:branch}); the multi-indices of weight $<H$ are enumerated by a depth-first search with exact comparisons (\eqref{eq:IH}; the one-step boundary is formed at the same time); for each index the polynomial loop
 \begin{lstlisting}
@@ -28,12 +38,29 @@ evaluates \eqref{eq:master}; equal weights are merged and the blocks of weight $
 
 \paragraph{Inverse, Newton.} The normalised equation \eqref{eq:normalized} and its derivative are evaluated with the composition recurrence (Lemma~\ref{lem:composition}), the derivative's reciprocal by the geometric series of a unit with constant leading term, and the Newton step is repeated until the residual vanishes below $H$; the number of iterations is logarithmic in $H/\delta_*$. The two engines are compared in the test suite.
 
-\paragraph{Assembly.} Blocks $z^{r+\sigma}C(L)$ are converted to $(v/a)^{(r+\sigma)/p}C\bigl(\log(v/a)/p\bigr)$, the sign and shift of \eqref{eq:power-back} are applied, and the remainder class is the coarser of the truncation remainder and the transported forward remainder.
+\paragraph{Lambert.} The separate \texttt{Kernel/LambertInverse.wl} module recognizes affine-log powers, arbitrary leading logarithmic polynomials and exponential--power cores. It solves \eqref{eq:lambert-normalized} or its polynomial correction \eqref{eq:polynomial-log-normalized} using unit-series arithmetic, then forms the observable bracket. Logarithmic cores at finite endpoints and either infinity use the same positive source coordinate. For an arbitrary leading polynomial, metadata does not claim an exact \wl{ProductLog} inverse. The original forward expression is retained for numerical checks. The restricted perturbations of Proposition~\ref{prop:lambert-flat-perturbation} carry metadata identifying the leading-core approximation.
+
+\paragraph{Assembly.} Blocks $z^{r+\sigma}C(L)$ are converted to $(v/a)^{(r+\sigma)/p}C\bigl(\log(v/a)/p\bigr)$, and the sign and shift of \eqref{eq:power-back} are applied. The forward remainder is transported with exponent $\rho-p+r$ in the local source variable; at infinite source endpoints, the requested original-variable power changes the local observable to $-r$. This observable dependence is essential for a valid cap on the requested cutoff.
 
 \subsection{Checks}
 
-\wl{InverseResidual} composes the stored forward model with the stored blocks in the jet algebra and reports whether the normalised residual $f(G)/(az^p)-1$ vanishes below the residual cutoff; with a larger cutoff it exhibits the first omitted block with the factor $-p$ of \eqref{eq:residual-identity}. This check is independent of the coefficient formula (it uses only the composition recurrence). \wl{InverseNumericalCheck} solves $f(x)=y_1$ with \wl{FindRoot} at high precision from the expansion value and reports the error, the remainder scale and their ratio (Table~\ref{tab:numbers}); it is evidence, not a certificate. The 49 tests in \texttt{Tests/AsymptoticInverse.wlt} cover the examples of this article, resonances, several gaps, symbolic data, the two methods, all endpoint types, automatically expanded inputs, the checks, and the rejected inputs; all pass on Wolfram 15.0.1.
+\wl{InverseResidual} composes the stored finite forward model with the stored blocks and checks whether $(f(G)-y_0)/(az^p)-1$ vanishes below the relative cutoff. A larger cutoff can expose the first omitted block and its factor $-p$ from \eqref{eq:residual-identity}. This is independent of the coefficient formula, but its scope is the finite model. Lambert objects use the normalized Lambert equation and identify that scope separately. \wl{InverseNumericalCheck} solves the original $f(x)=y_1$ at high precision, checks the selected real source side, and reports the approximation error and remainder scale; numerical agreement does not prove an asymptotic bound. The test runner \texttt{Tests/RunTests.wl} combines the original examples with review regressions, expanded-input cases, Lambert cases and performance regressions.
 
 \subsection{Cost}
 
-The number of retained multi-indices is at most $\prod_i(1+\lfloor H/\delta_i\rfloor)$, and each coefficient costs $|\bk|-1$ applications of a bidiagonal operator to a polynomial of degree $D(\bk)$. The dominant cost in practice is the canonicalisation of algebraic numbers: expansions with two incommensurable gaps below the exponent $3$ take a few seconds, whereas rational exponents take milliseconds. The Newton engine performs $\OO(\log(H/\delta_*))$ compositions whose cost is governed by the sparse products; it is competitive for a single gap and slower for many gaps.
+The retained multi-indices number at most $\prod_i(1+\lfloor H/\delta_i\rfloor)$, and each coefficient uses $|\bk|-1$ bidiagonal polynomial operations. Sparse multiplication now skips product pairs already beyond the cutoff; nonnegative integer powers use repeated squaring; and depth enumeration visits the simplex $|\bk|\le N$ and its boundary directly instead of constructing a Cartesian box. Resource limits are checked while indices are generated. Exact algebraic canonicalization and sparse composition remain significant costs, and Newton's logarithmic iteration count alone does not predict which method is faster.
+
+The reproducible \texttt{Tests/BenchmarkPerformance.wl} compares these changes with frozen reference algorithms and checks equality of their results. A Windows/Wolfram run recorded the following seconds; these are fixture measurements, not portable speed guarantees.
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Fixture & Reference & Updated\\
+\midrule
+$200\times200$ product, cutoff $5$ & 2.90063 & 0.02723\\
+Exact monomial to power $2048$ & 2.08708 & 0.01991\\
+Depth $2$ in $10$ dimensions & 4.14531 & 0.03753\\
+Weights $\{1,2,3,5\}$, cutoff $20$ & 0.23768 & 0.41552\\
+\bottomrule
+\end{tabular}
+\end{center}
+The last fixture is slower after bounded allocation; the improvements target wasted product work, repeated multiplication and Cartesian depth enumeration rather than guaranteeing a speedup for every input.

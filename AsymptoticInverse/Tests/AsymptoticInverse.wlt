@@ -90,7 +90,7 @@ VerificationTest[
 
 VerificationTest[
   {AsymptoticInverse[x + x^2 + 2 x^3, {x, 0}, {y, 3}]["FrontierTerm"], AsymptoticInverse[x + x^2 + 2 x^3, {x, 0}, {y, 3}]["Remainder"]},
-  {0, PowerLogRemainder[y, 3, 0]}, TestID -> "cancelled-frontier-reported-as-zero"]
+  {5 y^4, PowerLogRemainder[y, 4, 0]}, TestID -> "cancelled-frontier-skipped"]
 
 VerificationTest[
   InverseResidual[AsymptoticInverse[x + x^Sqrt[2] (1 + Log[x]) + 2 x^Sqrt[3], {x, 0}, {y, 3}]]["ZeroBelowCutoff"],
@@ -207,7 +207,7 @@ VerificationTest[
 (* ---------- rejected inputs ---------- *)
 
 VerificationTest[AsymptoticInverse[x + x^1.5, {x, 0}, {y, 3}], _Failure, SameTest -> MatchQ, TestID -> "rejects-inexact-exponent"]
-VerificationTest[AsymptoticInverse[x Log[x], {x, 0}, {y, 3}], _Failure, SameTest -> MatchQ, TestID -> "rejects-logarithmic-core"]
+VerificationTest[AsymptoticInverse[x Log[x], {x, 0}, {y, 3}]["Scale"], "Logarithmic", TestID -> "supports-logarithmic-core"]
 VerificationTest[AsymptoticInverse[x + x^2, {x, 0}, {y, 1/2}], _Failure, SameTest -> MatchQ, TestID -> "rejects-cutoff-below-leading-term"]
 VerificationTest[AsymptoticInverse[x + x^alpha, {x, 0}, {y, 3}], _Failure, SameTest -> MatchQ, TestID -> "rejects-symbolic-exponent-in-exponent-mode"]
 VerificationTest[AsymptoticInverse[x + x^2 (1 + Log[x]), {x, 0}, {y, 4}, "InputRemainder" -> {3, 1}], _Failure, SameTest -> MatchQ, TestID -> "rejects-cutoff-beyond-input-remainder"]

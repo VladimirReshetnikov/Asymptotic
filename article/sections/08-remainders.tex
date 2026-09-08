@@ -8,12 +8,12 @@ Let the target cutoff be an exponent $q$ of the local variable of the result, ex
  I_H=\{\bk\in\N^m:\bk\cdot\bdelta<H\},\qquad H=|p|\,q-r ,
  \label{eq:IH}
 \end{equation}
-a finite downward-closed set (Lemma~\ref{lem:finite}). Its \emph{one-step boundary} is
+a finite downward-closed set (Lemma~\ref{lem:finite}). Set $C^{(r)}_0=1$. When $H>0$ its \emph{one-step boundary} is
 \begin{equation}
  \partial I_H=\{\bk+e_i:\bk\in I_H,\ 1\le i\le m\}\setminus I_H ,
  \label{eq:boundary}
 \end{equation}
-also finite. Put
+also finite. When $H\le0$, $I_H$ is empty and we define its boundary to be $\{0\}$, since the leading monomial is already omitted. With at least one correction gap, put
 \begin{equation}
  \sigma_*=\min\{\bnu\cdot\bdelta:\bnu\in\partial I_H\},\qquad
  C^{(r)}_{\sigma_*}=\sum_{\bk\cdot\bdelta=\sigma_*}C^{(r)}_{\bk},\qquad k_*=\deg C^{(r)}_{\sigma_*}\ (k_*=0\text{ if }C^{(r)}_{\sigma_*}=0).
@@ -25,7 +25,7 @@ also finite. Put
 $\sigma_*=\min(S\setminus[0,H))$, and every multi-index of weight $\sigma_*$ lies in $\partial I_H$. Thus the complete coefficient at the first omitted weight is obtained from the boundary alone.
 \end{lemma}
 \begin{proof}
-Let $\bnu\notin I_H$ have weight $\sigma$. Along a path from $0$ to $\bnu$ that increases one coordinate at a time, the weights increase strictly, and the first point outside $I_H$ is a boundary point of weight $\le\sigma$; hence $\sigma_*\le\sigma$, so $\sigma_*$ is the least weight outside $[0,H)$. If $\sigma=\sigma_*$ the first point outside $I_H$ has weight exactly $\sigma_*$ by minimality, and no later point on the path can have the same weight, so $\bnu$ is that boundary point.
+For $H\le0$ the assertion is immediate, with $\sigma_*=0$. For $H>0$, let $\bnu\notin I_H$ have weight $\sigma$. Along a path from $0$ to $\bnu$ that increases one coordinate at a time, the weights increase strictly, and the first point outside $I_H$ is a boundary point of weight $\le\sigma$; hence $\sigma_*\le\sigma$, so $\sigma_*$ is the least weight outside $[0,H)$. If $\sigma=\sigma_*$ the first point outside $I_H$ has weight exactly $\sigma_*$ by minimality, and no later point on the path can have the same weight, so $\bnu$ is that boundary point.
 \end{proof}
 
 \begin{theorem}[Remainder after an exponent cutoff]
@@ -48,10 +48,10 @@ With $w$ the local variable of $y$ ($w=|y-y_0|$ for finite $y_0$, $w=1/|y|$ for 
 \[
  g(y)^r-G^{(r)}_H(y)=\OO\bigl(w^{(r+\sigma_*)/|p|}\,\M(w)^{k_*}\bigr),\qquad\frac{r+\sigma_*}{|p|}\ge q ,
 \]
-since $z=(w/|a|)^{1/|p|}$ and $\M(z)\asymp\M(w)$.
+since $z=(w/|a|)^{1/p}$ for $p>0$, $z=(|a|w)^{1/|p|}$ for $p<0$, and $\M(z)\asymp\M(w)$.
 \end{corollary}
 
-The package reports the pair $\bigl((r+\sigma_*)/|p|,k_*\bigr)$ as \wl{PowerLogRemainder[w, $\beta$, k]} and the block $z^{r+\sigma_*}C^{(r)}_{\sigma_*}$ as \wl{"FrontierTerm"}. When the frontier coefficient cancels, the reported class is still valid, but a request for the next terms is the only way to learn the true order.
+For a pure monomial ($m=0$), the inverse observable is exactly $z^r$: the tail is zero if this term is retained and equals $z^r$ otherwise. The package reports the pair $\bigl((r+\sigma_*)/|p|,k_*\bigr)$ as \wl{PowerLogRemainder[w, $\beta$, k]} and the block $z^{r+\sigma_*}C^{(r)}_{\sigma_*}$ as \wl{"FrontierTerm"}. If that coefficient vanishes, a sharper order requires computing further weights or proving that the remaining series terminates.
 
 \begin{example}[Resonances]
 For $f=x+x^2+x^3$ the gaps are $1$ and $2$; at weight $2$ the indices $(2,0)$ and $(0,1)$ contribute $2$ and $-1$, at weight $3$ the indices $(3,0)$ and $(1,1)$ contribute $-5$ and $+5$, so
@@ -124,6 +124,6 @@ $n=4$ & $9.6\cdot10^{-2}$ & 0.65 & $1.5\cdot10^{-2}$ & 0.69 & $3.4\cdot10^{-4}$ 
 $n=7$ & $2.8\cdot10^{-4}$ & 0.039 & $1.2\cdot10^{-6}$ & 0.023 & $4.0\cdot10^{-11}$ & 0.015\\
 \bottomrule
 \end{tabular}
-\caption{Errors of truncated expansions and their ratio to the remainder scale reported by the package. In the third group the local variable is $1/y$ and the leading term of the inverse is $\sqrt y$, so the absolute errors grow while the relative errors decrease.}
+\caption{Recorded errors of truncated expansions and their ratio to the remainder scale. In the third group the local variable is $1/y$ and the leading inverse term is $\sqrt y$; for the two-block approximation the absolute error grows while its relative error decreases.}
 \label{tab:numbers}
 \end{table}

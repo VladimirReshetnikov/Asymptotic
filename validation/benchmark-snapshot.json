@@ -1,0 +1,35 @@
+{
+  "BaselineCommit": "1716eb8",
+  "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+  "Scope": "Original commit versus updated algorithm snapshot during this review; fixture results verified equal.",
+  "Results": [
+    {
+      "Fixture": "Sparse product 200 x 200 cut 5",
+      "OriginalSeconds": 2.9006334,
+      "CurrentSeconds": 0.0272295,
+      "Speedup": 106.52540076020493,
+      "SameResult": true
+    },
+    {
+      "Fixture": "Monomial power 2048",
+      "OriginalSeconds": 2.0870839,
+      "CurrentSeconds": 0.0199126,
+      "Speedup": 104.81222442071855,
+      "SameResult": true
+    },
+    {
+      "Fixture": "Depth 2 dimension 10",
+      "OriginalSeconds": 4.1453113,
+      "CurrentSeconds": 0.0375339,
+      "Speedup": 110.44179528373019,
+      "SameResult": true
+    },
+    {
+      "Fixture": "Weighted region 1,2,3,5 cut 20",
+      "OriginalSeconds": 0.2376842,
+      "CurrentSeconds": 0.415524,
+      "Speedup": 0.5720107623145715,
+      "SameResult": true
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 PacletObject[<|
   "Name" -> "AsymptoticInverse",
-  "Version" -> "1.0.0",
+  "Version" -> "1.1.0",
   "WolframVersion" -> "13.0+",
-  "Description" -> "Power-log asymptotic expansions of functions and of their inverse functions on a real branch, with exact real exponents and logarithmic coefficients.",
+  "Description" -> "Real inverse asymptotics in power-log and Lambert logarithmic scales, with exact exponents, branch selection, and explicit remainders.",
   "Creator" -> "Vladimir Reshetnikov (with Claude)",
   "License" -> "MIT",
   "Extensions" -> {

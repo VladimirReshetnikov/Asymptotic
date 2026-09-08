@@ -1,29 +1,169 @@
-\section{Boundaries of the theory}
+\section{Lambert coordinates and boundaries of the theory}
 \label{sec:boundaries}
 
-The finite power--log class is closed under the operations of Theorem~\ref{thm:closure} and under inversion of germs with a monomial leading block. Each of the following situations leaves it, and each requires a specific extension, described here to the extent needed to recognise it and to say what the extension must provide.
+The convergent power--log class is closed under the operations of Theorem~\ref{thm:closure} and inversion of germs with a monomial leading block. A leading logarithm or exponential changes the natural coordinate. For exact Lambert cores, that coordinate change reduces the problem to the same polynomial--logarithmic arithmetic. More general perturbations require additional bookkeeping, described below.
 
-\subsection{A leading logarithm: Lambert $W$ and the $\log\log$ scale}
+\subsection{A leading logarithm: Lambert \texorpdfstring{$W$}{W} and the \texorpdfstring{$\log\log$}{log-log} scale}
 
-If the leading block is $ax^p(-\log x)^b$ with $b\ne0$, the equation $ax^p(-\log x)^b=y$ is solved exactly by a Lambert $W$ function. With $t=-\log x\to+\infty$ and $Y=y/a$ it reads $t^be^{-pt}=Y$, i.e.\ $(-\tfrac pb)\,t\,e^{-pt/b}=-\tfrac pbY^{1/b}$, so
+Let $a\ne0$, $p\ne0$, $b\ne0$, and $x\to0^+$ with $x<1$. The exact core $ax^p(-\log x)^b=y$ has $Y=y/a>0$. With $\tau=-\log x\to+\infty$, it reads $\tau^be^{-p\tau}=Y$, hence
 \begin{equation}
- x=\exp\Bigl[\frac bp\,\W_k\Bigl(-\frac pb\,Y^{1/b}\Bigr)\Bigr],\qquad k=-1\ (b>0),\quad k=0\ (b<0),
+ x=\exp\Bigl[\frac bp\,\W_k\Bigl(-\frac pb\,Y^{1/b}\Bigr)\Bigr],\qquad
+ k=\begin{cases}-1,&p/b>0,\\0,&p/b<0.\end{cases}
  \label{eq:lambert-core}
 \end{equation}
-the branch being forced by $t\to+\infty$: for $b>0$ the argument is small and negative and only $\W_{-1}\to-\infty$ gives $t\to+\infty$ (the branch $\W_0$ describes the other real preimage, near $x=e^{-b/p}$, where $ax^p(-\log x)^b$ has its maximum); for $b<0$ the argument is large and positive and $\W_0\to+\infty$. For instance the inverse of $x\log(1/x)$ is $x=-y/\W_{-1}(-y)$. Expanding $\W_{-1}$ for small argument \cite{cghjk} gives, with $\Lambda=\log(a/y)\to\infty$ and $\Lambda_2=\log\Lambda$,
+The branch is forced by $\tau\to\infty$: when $p/b>0$ the argument approaches $0$ from below and $\W_{-1}\to-\infty$; when $p/b<0$ it tends to $+\infty$ and $\W_0\to+\infty$. For $p,b>0$, the other real root on $\W_0$ approaches $x=1$ as $Y\to0$, while the two branches meet at the maximum $x=e^{-b/p}$. For instance the inverse of $x\log(1/x)$ near $0^+$ is $-y/\W_{-1}(-y)$, and that of $x\log x$ on the same source branch is $y/\W_{-1}(y)$ for $y\to0^-$. For $p>0$, with $\Lambda=\log(a/y)\to\infty$ and $\Lambda_2=\log\Lambda$, the expansion begins
 \begin{equation}
  x=\Bigl(\frac ya\Bigr)^{1/p}\Bigl(\frac\Lambda p\Bigr)^{-b/p}\Bigl[1-\frac{b^2}{p\,\Lambda}\log\frac\Lambda p+\OO\Bigl(\frac{\Lambda_2^2}{\Lambda^2}\Bigr)\Bigr],
  \label{eq:loglog}
 \end{equation}
-a series in the two generators $1/\Lambda$ and $\Lambda_2$ multiplying the leading monomial. Perturbations $x^{\delta}B(\log x)$ of such a core can be handled by the general-core formula \eqref{eq:general-core} with $\phi$ the function \eqref{eq:lambert-core}, and the result is a convergent expansion in powers of $\phi(y)$ with coefficients that are rational functions of $t=-\log\phi(y)$, because $\phi'(y)=\bigl[apx^{p-1}t^{b-1}(pt-b)\bigr]^{-1}$ at $x=\phi(y)$ introduces the denominator $pt-b$. Re-expanding those coefficients in $1/\Lambda$ and $\Lambda_2$ produces the ``nested logarithm'' transseries of \cite{proveit,vdh}. An implementation needs a coefficient algebra of rational functions of $t$ (or of polynomials in $\Lambda_2$ and $1/\Lambda$), a second truncation policy for the logarithmic depth, and the corresponding closure and remainder theorems; the package reports such inputs as \wl{Failure["LogarithmicLeadingTerm"]} rather than pretending to be a transseries engine.
+a series in $1/\Lambda$ with polynomial coefficients in $\Lambda_2$, multiplying the leading factor. The following construction computes all its logarithmic orders, with convergence and a remainder bound.
 
-\subsection{Zero gaps: corrections of relative size $1/\log$}
+\subsection{A convergent universal Lambert expansion}
+\label{sec:lambert-expansion}
+
+Let $Z$ approach $+\infty$ on the principal real branch or $0^-$ on the lower real branch. Set
+\[
+ s=\begin{cases}1,&\W_0(Z),\ Z\to+\infty,\\-1,&\W_{-1}(Z),\ Z\to0^-,\end{cases}
+ \qquad A=|\log|Z||,\quad t=A^{-1},\quad\ell=\log t.
+\]
+Then $\log|\W|+\W=\log|Z|=sA$. Writing $\W=s(1+V)/t$ gives the normalized equation
+\begin{equation}
+ V+s t\log(1+V)-s t\ell=0.
+ \label{eq:lambert-normalized}
+\end{equation}
+
+\begin{theorem}[Lambert expansion in a logarithmic coordinate]
+\label{thm:lambert}
+Equation \eqref{eq:lambert-normalized} has a unique solution $V\to0$ of the form $\sum_{n\ge1}t^nP_n(\ell)$ with $P_1=s\ell$ and $\deg P_n\le n-1$ for $n\ge2$. This series converges for sufficiently small $t>0$. For $N\ge1$, truncating $V$ after $t^N$ leaves $\OO(t^{N+1}\M(t)^N)$, and multiplying by $s/t$ gives the corresponding remainder for $\W$. In particular,
+\begin{equation}
+ \W=\frac{s}{t}+\ell-s\ell t+
+ \Bigl(\ell+\frac{\ell^2}{2}\Bigr)t^2
+ -s\Bigl(\ell+\frac{3\ell^2}{2}+\frac{\ell^3}{3}\Bigr)t^3
+ +\OO(t^4\M(t)^4).
+ \label{eq:lambert-universal}
+\end{equation}
+\end{theorem}
+\begin{proof}
+Replace $t\ell$ by an independent parameter $T$. The function $V+s t\log(1+V)-sT$ is analytic near $(V,t,T)=(0,0,0)$ and its $V$-derivative there is $1$. The analytic implicit function theorem gives a convergent Taylor series $V(t,T)$. Moreover $V=sT+t H(t,T)$ for an analytic $H$ with $H(0,0)=0$. After $T=t\log t$, every term of total degree $n\ge2$ therefore has logarithmic degree at most $n-1$, and $P_1=s\ell$. Cauchy estimates bound the coefficient norms exponentially. The tail starting at degree $N+1$ is bounded by a geometric series with first term $t^{N+1}\M(t)^N$, proving the remainder. Coefficients can be computed by the iteration $V\gets s t\ell-s t\log(1+V)$, which gains one power of $t$ each time, or by Newton iteration. The real solution has $\W\sim sA$ and hence belongs to the specified real Lambert branch. Expanding the equation gives \eqref{eq:lambert-universal}.
+\end{proof}
+
+An explicit sufficient convergence condition is
+\begin{equation}
+ q_L=4t(1+|\log t|)<1.
+ \label{eq:lambert-convergence-condition}
+\end{equation}
+Indeed, for complex $|t|,|T|\le1/4$, the map $V\mapsto sT-s t\log(1+V)$ sends $|V|\le1/2$ into itself, since $(1+\log2)/4<1/2$, and has derivative bounded by $1/2$. Its fixed point is jointly analytic and bounded by $1/2$, so its Taylor coefficients are bounded by $4^{a+b}/2$. Beyond the leading term $sT$, every coefficient has $a\ge1$ because $V(0,T)=sT$. If $V_N$ retains total degrees through $N\ge1$, the geometric majorant therefore gives
+\begin{equation}
+ |V-V_N|\le\frac{2t\,q_L^N}{1-q_L},\qquad
+ \left|\W-\frac{s}{t}(1+V_N)\right|
+ \le\frac{2q_L^N}{1-q_L}.
+ \label{eq:lambert-explicit-tail}
+\end{equation}
+The construction follows the two-small-parameter method in the supplied transseries notes \cite{proveit}; it establishes a sufficient domain and does not claim convergence from a fixed-logarithm implicit-function argument alone.
+
+For the leading-log core, put $Z=-(p/b)Y^{1/b}$ and choose $s$ from its branch. Since $-bs/p>0$, an arbitrary real observable power is best assembled as
+\begin{equation}
+ x^r=Y^{r/p}\Bigl(-\frac{bs}{p}\Bigr)^{-br/p}
+ t^{br/p}(1+V)^{-br/p}.
+ \label{eq:lambert-log-observable}
+\end{equation}
+This uses a positive real power of the unit $1+V$. Directly exponentiating a truncated $\W$ would shift the required precision by one order; \eqref{eq:lambert-log-observable} makes that precision shift explicit.
+
+\begin{example}[The inverse of $x\log x$]
+For $y\to0^-$ let $A=\log(1/(-y))$ and $B=\log A$. The branch with $x\to0^+$ is
+\[
+ x=\frac{-y}{A}\left[1-\frac{B}{A}
+ +\frac{B^2-B}{A^2}
+ +\frac{-B^3+\tfrac52B^2-B}{A^3}
+ +\OO\left(\frac{(1+B)^4}{A^4}\right)\right].
+\]
+The endpoint $x\to1$ selects a different inverse germ and is not represented by this expansion.
+\end{example}
+
+\subsection{Exponential cores at infinity}
+
+For a positive source coordinate $x$ with $X=x^p\to+\infty$, consider $y=a x^b e^{c x^p}$, where $a\ne0$, $p\ne0$, $c\ne0$, and $Y=y/a>0$. If $b\ne0$, taking the power $p/b$ gives
+\begin{equation}
+ X=\frac{b}{cp}\,\W_k\left(\frac{cp}{b}Y^{p/b}\right),\qquad
+ k=\begin{cases}0,&cp/b>0,\\-1,&cp/b<0.\end{cases}
+ \label{eq:exponential-core}
+\end{equation}
+These branch choices ensure $X>0$ and $X\to\infty$: the argument tends to $+\infty$ in the first case and $0^-$ in the second. If $b=0$, inversion is elementary, $x=(\log Y/c)^{1/p}$. In the Lambert cases, with $s,t,V$ as above,
+\[
+ x^r=\left(\frac{bs}{cp}\right)^{r/p}t^{-r/p}(1+V)^{r/p},
+\]
+whose positive prefactor and unit series again have explicit precision tracking.
+
+\begin{example}[The inverse of $xe^x$ at infinity]
+Here $x=\W_0(y)$. With $A=\log y$ and $B=\log A$,
+\[
+ x=A-B+\frac{B}{A}+\frac{B(B-2)}{2A^2}
+ +\frac{B(2B^2-9B+6)}{6A^3}
+ +\OO\left(\frac{(1+B)^4}{A^4}\right).
+\]
+Both this expansion and the $x\log x$ expansion use $t=1/A$ as the local variable. An exponent cutoff in $t$ specifies logarithmic accuracy; it is not a cutoff in $y$ or $1/y$. A nonconstant external factor such as $-y$ must also multiply the remainder descriptor.
+\end{example}
+
+\subsection{Perturbations of a Lambert core}
+
+Relative perturbations $F(x)=ax^p(-\log x)^b(1+\sum_i x^{\delta_i}B_i(\log x))$ can be approached with the general-core formula \eqref{eq:general-core}. If $\phi$ is the exact core inverse and $\tau=-\log\phi(y)$, then
+\[
+ \phi'(y)=\left[a x^{p-1}\tau^{b-1}(p\tau-b)\right]^{-1}_{x=\phi(y)}.
+\]
+The marker coefficients have powers of $\phi(y)$ and rational functions of $\tau$, with denominators arising from $p\tau-b$. A convergent marker expansion requires analytic control on the chosen branch, and re-expanding its coefficients introduces a second order of truncation: perturbation power and logarithmic depth. The exact-core Lambert construction proves the logarithmic expansion without asserting support for arbitrary perturbed cores.
+
+The leading logarithmic polynomial itself can also be generalized before introducing a second perturbation scale.
+
+\begin{corollary}[An arbitrary polynomial at the leading exponent]
+\label{cor:polynomial-log-core}
+Let $F_0(u)=a u^p Q(\log u)$, where $p\ne0$ and $Q$ is a nonconstant real polynomial of degree $q\ge1$, on the real branch $u\to0^+$. Its inverse has a convergent relative power--log expansion in a reciprocal-logarithm coordinate, even when $Q$ is not a power of an affine polynomial.
+\end{corollary}
+\begin{proof}
+Absorb the leading coefficient of $Q$ into $a$, so $Q$ is monic, and set $b=[L^{q-1}]Q/q$ and $\tau=-\log u-b$. Then
+\[
+ Q(-\tau-b)=(-\tau)^q R(1/\tau),\qquad
+ R(v)=1+\sum_{j=2}^q r_jv^j.
+\]
+With $Y=y/(a(-1)^q)>0$ (after subtracting any constant target offset), $k=-p/q$, $s=\operatorname{sign}k$ and $Z=kY^{1/q}e^{pb/q}$, take $A=s\log|Z|$, $t=1/A$, and $\tau=(1+V)/(|k|t)$. The inverse equation becomes
+\begin{equation}
+ V+s t\left[-\ell+\log(1+V)
+ +\frac1q\log R\left(\frac{|k|t}{1+V}\right)\right]=0.
+ \label{eq:polynomial-log-normalized}
+\end{equation}
+Replacing $t\ell$ by an independent parameter again gives an analytic equation with $V$-derivative $1$ at the origin. Its solution is jointly analytic, and $R(0)=1$ makes its real powers analytic too. For any real local-coordinate observable power $r$,
+\[
+ u^r=Y^{r/p}\left(\frac{A}{|k|}\right)^{-qr/p}
+ (1+V)^{-qr/p}
+ R\left(\frac{|k|t}{1+V}\right)^{-r/p}.
+\]
+This yields convergence and the same type of finite-order logarithmic remainder as before. The sufficient numerical bound \eqref{eq:lambert-explicit-tail} was proved for $R=1$ and is not asserted unchanged for a general $R$.
+\end{proof}
+
+The polynomial correction modifies the logarithmic coefficients and must be included in the equation; it is not beyond all logarithmic orders. In general this inverse has no claimed exact \wl{ProductLog} expression. The construction also applies to logarithmic cores at either infinite source endpoint after $u=1/x$ or $u=-1/x$, using the observable and sign rules of Section~\ref{sec:endpoints}.
+
+\begin{proposition}[Perturbations beyond every logarithmic order]
+\label{prop:lambert-flat-perturbation}
+Suppose a finite leading-log core $F_0(u)=a u^p Q(\log u)$ from Corollary~\ref{cor:polynomial-log-core}, or an affine-log power core, is supplemented by finitely many polynomial--logarithmic terms of strictly larger $u$-exponent. Alternatively, suppose a growing exponential core $F_0(x)=a x^b e^{c x^p}$ with $c,p>0$ at $x\to+\infty$ is supplemented by a finite power--log sum. Let $g_0$ and $g$ be the corresponding inverse branches, with any common target offset subtracted, and let $t$ be the Lambert coordinate of $g_0$. For every fixed real $r$ and every $N>0$,
+\[
+ g(y)^r-g_0(y)^r=\oo\bigl(g_0(y)^r t^N\bigr).
+\]
+Consequently every finite relative logarithmic expansion of the core inverse is also an expansion of the full inverse, with the same finite-order remainder class.
+\end{proposition}
+\begin{proof}
+In the leading-log case $F_0'(u)\sim pF_0(u)/u$, and the perturbation and its derivative are smaller by a factor $\OO(u^\delta\M(u)^D)$ for some $\delta>0$ and finite $D$. A mean-value bracket near $g_0$ yields $(g-g_0)/g_0=\OO(g_0^\delta\M(g_0)^D)$. Here $1/t$ is a positive constant times $|\log g_0|$ plus lower logarithmic terms, so this bound is $\oo(t^N)$ for every $N$.
+
+In the exponential case $F_0'/F_0\sim cp x^{p-1}$, whereas the additive perturbation $R$ and its derivative have only power--log growth. A bracket of width $\OO(|R(g_0)|/|F_0'(g_0)|)$ has slope comparable to $F_0'(g_0)$: the logarithm of that derivative changes by $\OO(R/F_0)=\oo(1)$ across the bracket. Thus $(g-g_0)/g_0$ is exponentially small in $g_0^p$, while $t$ is comparable to $g_0^{-p}$. Finally apply the mean value theorem to the positive real power $u^r$. Continuous local inverse branches exist because the perturbation derivative is smaller than the nonzero core derivative.
+\end{proof}
+
+The package marks this situation with \wl{"LeadingCoreOnly" -> True}, stores the discarded expression in \wl{"BeyondLogarithmicOrders"}, and leaves \wl{"ExactInverseExpression"} unavailable. Those terms affect an exponentially smaller scale even though they do not change any finite coefficient in the reported logarithmic expansion.
+
+\subsection{Zero gaps: corrections of relative size \texorpdfstring{$1/\log$}{1/log}}
 
 For $f(x)=x+x/\log x$ the correction has power gap $0$ and relative size $1/\log x$. All corrections of the inverse then sit at the same power $y$ with increasing negative powers of $\log y$, the index set $I_H$ is infinite, and the exponent cutoff has no meaning. The right coordinate is $\tau=1/\log y$: with $g=yW$ the equation becomes $W\bigl(1+\tau/(1+\tau\log W)\bigr)=1$, analytic near $(W,\tau)=(1,0)$, so $W$ is an ordinary convergent power series in $\tau$, $W=1-\tau+\tau^2-2\tau^3+\tfrac72\tau^4-\cdots$, i.e.\ $g(y)=y\bigl(1-1/\log y+1/\log^2y-2/\log^3y+\cdots\bigr)$. The general-core formula produces these terms, but the scale is the reciprocal-logarithm scale, not the power--log scale, and a package extension needs $\tau$ as a second generator with its own valuation.
 
 \subsection{Flat terms}
 
-$e^{-1/x}$ is smaller than every power of $x$; a germ $x+e^{-1/x}$ has the same power--log expansion as $x$, and its inverse differs from $y$ by $-e^{-1/y}(1+\oo(1))$ (by Theorem~\ref{thm:transport} the difference is $\OO(e^{-1/y})$, and the marker formula gives $y-e^{-1/y}+y^{-2}e^{-2/y}+(y^{-3}-\tfrac32y^{-4})e^{-3/y}+\cdots$). Such terms live in exponential sectors of a transseries; the power--log expansion is blind to them, and the package rejects exponentials of unbounded arguments instead of dropping them.
+$e^{-1/x}$ is smaller than every power of $x$; a germ $x+e^{-1/x}$ has the same asymptotic power--log expansion as $x$. Its inverse obeys $g=y-e^{-1/g}$, so $y-e^{-1/y}\le g<y$ and $(y-g)/y^2\to0$. Consequently $e^{-1/g}/e^{-1/y}\to1$, proving $g-y=-e^{-1/y}(1+\oo(1))$. The marker formula begins $y-e^{-1/y}+y^{-2}e^{-2/y}+(y^{-3}-\tfrac32y^{-4})e^{-3/y}+\cdots$. These exponential sectors are invisible to a pure power--log expansion. They require a different extension from the exact exponential cores above, whose inverses reduce to Lambert coordinates.
 
 \subsection{Oscillatory coefficients}
 
@@ -31,8 +171,8 @@ $x^2\sin(\log x)$ is $\OO(x^2)$ with all derivatives of the right size, so Theor
 
 \subsection{Symbolic exponents and nonuniformity}
 
-When a gap $\delta$ is a symbol, the order of the weights $k\cdot\bdelta$ is a question about the parameter: for two gaps $\delta_1,\delta_2$ the relative order of $2\delta_1$ and $\delta_2$ depends on whether $\delta_2<2\delta_1$. Exponent truncation therefore requires a proof of every comparison from the assumptions, which the package attempts (\wl{FullSimplify} under \wl{Assumptions}) and refuses when it fails; depth truncation (Theorem~\ref{thm:depth}) needs only the positivity of the gaps. Nothing is uniform in a gap tending to $0$: the convergence radius \eqref{eq:radius} of the $x+x^\alpha$ inverse tends to $0$ as $\alpha\downarrow1$, and at $\alpha=1$ the inverse is $y/2$, not $y+\oo(y)$.
+When a gap $\delta$ is a symbol, the order of the weights $k\cdot\bdelta$ depends on the parameter: the order of $2\delta_1$ and $\delta_2$ changes at $\delta_2=2\delta_1$. Exponent truncation needs provable comparisons; depth truncation (Theorem~\ref{thm:depth}) only needs positive gaps after a valid leading term and real branch have been selected. Nothing is uniform as a gap tends to $0$: the $y$-radius $R_\alpha^{1/(\alpha-1)}$ of the $x+x^\alpha$ inverse tends to $0$ as $\alpha\downarrow1$, although $R_\alpha\to1$, and at $\alpha=1$ the inverse is $y/2$.
 
 \subsection{Nested powers of the logarithm}
 
-Non-integer powers $(\log x)^{s}$ or $\log\log x$ in a correction, and negative powers of $\log x$ in a coefficient, all leave the polynomial coefficient algebra; a correction $x^\delta(\log x)^{1/2}$ is admissible in the sense of Theorem~\ref{thm:tame} (with $M=1$) but its inverse expansion has coefficients in $\R[L^{1/2}]$. Each such extension is a change of the coefficient ring with the same exponent bookkeeping; the Euler identity and the composition recurrence survive (they only use $\partial_L$), and what has to be added is the closure of the new coefficient ring under the operations and the corresponding remainder classes.
+Non-integer powers $(-\log x)^s$, $\log(-\log x)$, and negative powers of $\log x$ in a correction leave the polynomial coefficient algebra. For example $\varphi(x)=x^{1+\delta}(-\log x)^{1/2}$ is real for small positive $x$ and satisfies Theorem~\ref{thm:tame} with $M=1$, but repeated differentiation produces negative half-integer as well as positive half-integer powers of $-L$. A suitable coefficient algebra therefore contains $(-L)^{1/2}$ and its inverse. The Euler identity and composition recurrence still apply when the coefficient functions are differentiable or analytic as needed; closure and remainder bounds in the enlarged scale must also be established.

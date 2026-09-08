@@ -7,28 +7,34 @@ The theory so far concerns an exact finite germ. In practice the forward functio
 
 \begin{theorem}[Transport of a forward remainder]
 \label{thm:transport}
-Let $f$ be the germ \eqref{eq:model} with $p>0$ and let $F=f+R$ on $(0,u_0)$, where
+Let $f$ be the germ \eqref{eq:model} with $p\ne0$ and let $F=f+R$ on $(0,u_0)$, where
 \begin{equation}
  R(u)=\OO\bigl(u^\rho\M(u)^k\bigr),\qquad R'(u)=\OO\bigl(u^{\rho-1}\M(u)^k\bigr),\qquad \rho>p,\ k\in\N .
  \label{eq:R-hypothesis}
 \end{equation}
 Then $F$ has a local inverse $G$ on the same branch as $g$, and
 \begin{equation}
- G(y)-g(y)=\OO\bigl(z^{\rho-p+1}\M(z)^k\bigr)=\OO\bigl(w^{(\rho-p+1)/p}\M(w)^k\bigr),\qquad w=|y-y_0| .
+ G(y)-g(y)=\OO\bigl(z^{\rho-p+1}\M(z)^k\bigr)=\OO\bigl(w^{(\rho-p+1)/|p|}\M(w)^k\bigr),
  \label{eq:transport}
 \end{equation}
-The same conclusion holds if the derivative hypothesis is replaced by the assumption that $F$ is monotone near $0$.
+where $w=|y-y_0|$ for $p>0$ and $w=1/|y|$ for $p<0$. For any fixed real observable power $r$,
+\begin{equation}
+ G(y)^r-g(y)^r=\OO\bigl(z^{\rho-p+r}\M(z)^k\bigr)
+ =\OO\bigl(w^{(\rho-p+r)/|p|}\M(w)^k\bigr).
+ \label{eq:transport-power}
+\end{equation}
+For $r=0$ this difference is identically zero. The same conclusions hold if the derivative hypothesis is replaced by the assumption that $F$ is continuous and strictly monotone near $0$.
 \end{theorem}
 \begin{proof}
-From \eqref{eq:R-hypothesis} and Lemma~\ref{lem:dominance}, $F(u)-y_0\sim au^p$ and $F'(u)\sim apu^{p-1}$, so $F$ is strictly monotone near $0$ and its inverse $G$ satisfies $G\sim z$ (Theorem~\ref{thm:branch} applies verbatim). Put $u=G(y)$, $v=g(y)$; both are $\sim z$. Then $F(v)-y=F(v)-f(v)=R(v)=\OO(z^\rho\M(z)^k)$, while $F(u)-y=0$. On the interval between $u$ and $v$, which lies in $[z/2,2z]$ for small $z$, $F'$ is $\ge\frac12|ap|z^{p-1}2^{-|p-1|}$ in absolute value, so the mean value theorem gives $|u-v|\le|R(v)|/\min|F'|=\OO(z^{\rho-p+1}\M(z)^k)$. Under monotonicity instead of the derivative bound, use $f$'s derivative: $f(u)-f(v)=y-R(u)-y=-R(u)$, and $f'\asymp z^{p-1}$ on $[z/2,2z]$ gives the same estimate.
+From \eqref{eq:R-hypothesis} and Lemma~\ref{lem:dominance}, $F(u)-y_0\sim au^p$ and $F'(u)\sim apu^{p-1}$, so $F$ is strictly monotone near $0$ and its inverse $G$ satisfies $G\sim z$ (Theorem~\ref{thm:branch} applies verbatim). Put $u=G(y)$, $v=g(y)$; both are $\sim z$. Then $F(v)-y=R(v)=\OO(z^\rho\M(z)^k)$, while $F(u)-y=0$. On the interval between $u$ and $v$, which lies in $[z/2,2z]$ for small $z$, $F'$ is at least $\frac12|ap|z^{p-1}2^{-|p-1|}$ in absolute value. The mean value theorem gives \eqref{eq:transport}. With continuous strict monotonicity instead of the derivative bound, the leading equivalence still supplies a continuous local inverse with $G\sim z$, and $f(u)-f(v)=-R(u)$ together with $|f'|\asymp z^{p-1}$ gives the same estimate. Finally the derivative of $s^r$ on $[z/2,2z]$ is $\OO(z^{r-1})$, giving \eqref{eq:transport-power}.
 \end{proof}
 
 \begin{remark}
-The derivative hypothesis is not a consequence of the value bound: $R(u)=u^2\sin(u^{-2})$ is $\OO(u^2)$, but $R'(u)=2u\sin(u^{-2})-2u^{-1}\cos(u^{-2})$ destroys the monotonicity of $u+R(u)$, and $u+R$ has no inverse near $0$. Truncated expansions produced by \wl{Series} of log-exp functions do satisfy \eqref{eq:R-hypothesis}, because termwise differentiation of their asymptotic expansions is valid; the package records the hypothesis as \wl{"InputRemainder" -> \{$\rho$, k\}} and never proves it.
+The derivative hypothesis is not a consequence of the value bound: $R(u)=u^2\sin(u^{-2})$ is $\OO(u^2)$, but $R'(u)=2u\sin(u^{-2})-2u^{-1}\cos(u^{-2})$ destroys the monotonicity of $u+R(u)$. Nor does non-strict monotonicity alone ensure an inverse, since it permits plateaus. Expansions obtained by the convergent structural operations above admit corresponding derivative estimates, but a formal \wl{Series} result is not itself a proof of them. A declared \wl{"InputRemainder" -> \{$\rho$, k\}} carries the derivative or continuous strict monotonicity hypothesis of this theorem.
 \end{remark}
 
 \begin{corollary}[Cutoff cap]
-If the inverse of $F$ is computed from the truncated germ $f$ with an exponent cutoff $q$ in $w$, the result is a valid expansion of $G$ only for $q\le(\rho-p+1)/p$; for such $q$ the remainder class is the coarser of the truncation remainder (Corollary~\ref{cor:remainder-y}) and \eqref{eq:transport}, compared by exponent first and by logarithmic degree at equal exponents.
+The data justify every block of $G^r$ strictly below the exponent $(\rho-p+r)/|p|$ in $w$. Thus a requested cutoff $q$ is certified from those data when $q\le(\rho-p+r)/|p|$; the reported remainder is the coarser of the truncation remainder and \eqref{eq:transport-power}, compared by exponent first and by logarithmic degree at equal exponents. A larger requested cutoff requires a sharper forward remainder or additional information. For powers of the original variable at an infinite source endpoint, replace $r$ here by the local-coordinate power $-r$.
 \end{corollary}
 
 For example $\sin x+x^2\log x=x+x^2\log x-x^3/6+\OO(x^5)$ is a germ with $p=1$, gaps $1,2$ and $\rho=5$, $k=0$; the inverse can be requested up to the cutoff $q=5$ and is $y-y^2\log y+y^3(\tfrac16+\log y+2\log^2y)+\OO(y^4\M^3)$ for $q=4$.
@@ -39,12 +45,13 @@ For example $\sin x+x^2\log x=x+x^2\log x-x^3/6+\OO(x^5)$ is a germ with $p=1$, 
 \label{thm:bracket}
 Let $F$ be continuous on $[A,B]$ and differentiable inside with $F'\ge\mu>0$. Let $x_0\in(A,B)$, $y\in\R$, $\varrho=F(x_0)-y$. If $[x_0-|\varrho|/\mu,\ x_0+|\varrho|/\mu]\subseteq[A,B]$, then $F(x)=y$ has exactly one solution $x_*$ in $[A,B]$, it lies in that interval, and
 \begin{equation}
- \frac{|\varrho|}{\max F'}\ \le\ |x_*-x_0|\ \le\ \frac{|\varrho|}{\mu} .
+ |x_*-x_0|\ \le\ \frac{|\varrho|}{\mu} .
  \label{eq:bracket}
 \end{equation}
+If also $F'\le M_1<\infty$ on $(A,B)$, then $|x_*-x_0|\ge|\varrho|/M_1$.
 \end{theorem}
 \begin{proof}
-$F(x_0+|\varrho|/\mu)\ge F(x_0)+|\varrho|\ge y$ and $F(x_0-|\varrho|/\mu)\le y$; the intermediate value theorem gives a root in the interval, monotonicity its uniqueness in $[A,B]$, and the mean value theorem both inequalities.
+$F(x_0+|\varrho|/\mu)\ge F(x_0)+|\varrho|\ge y$ and $F(x_0-|\varrho|/\mu)\le y$; the intermediate value theorem gives a root in the interval, monotonicity its uniqueness in $[A,B]$, and the mean value theorem gives the error bounds. A finite derivative maximum was not part of the hypotheses, so the lower error bound is stated separately.
 \end{proof}
 
 This gives an a posteriori certificate that needs no expansion theory, only a lower bound on the derivative. For the two examples the global bounds \eqref{eq:global-slopes} give, for every $y>0$ and every $G>0$,
@@ -52,14 +59,14 @@ This gives an a posteriori certificate that needs no expansion theory, only a lo
  |G-g_1(y)|\le\frac{|G+G^2(1+\log G)-y|}{1-2e^{-5/2}},\qquad |G-g_2(y)|\le|G+G^{\sqrt2}-y| .
  \label{eq:certificates}
 \end{equation}
-For a general germ the derivative is $\asymp z^{p-1}$, and the bracket must be applied on $[z/2,2z]$ with $\mu=\frac12|ap|z^{p-1}2^{-|p-1|}$ (valid for small $z$), giving $|G-g|\le\frac{2^{1+|p-1|}}{|ap|}z^{1-p}|f(G)-y|$.
+For a general germ, $|f'|\asymp z^{p-1}$. For an approximation $G\sim z$, apply the bracket on $[z/2,2z]$ with $\mu=\frac12|ap|z^{p-1}2^{-|p-1|}$, after replacing $(f,y)$ by $(-f,-y)$ if the derivative is negative. A residual small enough that the bracket lies in this interval yields $|G-g|\le\frac{2^{1+|p-1|}}{|ap|}z^{1-p}|f(G)-y|$.
 
 \paragraph{The residual of the truncated expansion.} Combining Theorem~\ref{thm:remainder} with the mean value theorem, the truncated inverse $G_H$ satisfies
 \begin{equation}
- \frac{f(G_H(y))}{a\,z^p}-1=-p\,z^{\sigma_*}C_{\sigma_*}(L)+\oo(z^{\sigma_*}),
+ \frac{f(G_H(y))-y_0}{a\,z^p}-1=-p\,z^{\sigma_*}C_{\sigma_*}(L)+\oo(z^{\sigma_*}),
  \label{eq:residual-identity}
 \end{equation}
-since $f(G_H)-y\approx f'(g)(G_H-g)=-apz^{p-1}\cdot z^{1+\sigma_*}C_{\sigma_*}$. The normalized residual has the same first block as the error, up to the factor $-p$; the package's \wl{InverseResidual} computes it exactly in the jet algebra (with a higher cutoff it displays the first omitted block; below the cutoff it must vanish identically, which is an independent check of every coefficient), and its ``forward residual cutoff'' in the variable of $y$ is $q+(p-1)/p$.
+Here $y_0=0$ for $p<0$, and the truncation retains the leading term so $G_H\sim z$. Indeed $f'(s)=apz^{p-1}(1+\OO(z^{\delta_*}\M^D))$ between $g$ and $G_H$, with a positive power margin that absorbs the logarithms in the error. Multiplying by $G_H-g$ proves the stated little-$o$ term. The normalized residual has the first error block multiplied by $-p$; \wl{InverseResidual} computes it in the jet algebra. If the inverse is retained to cutoff $q$ in $w$, its unnormalized forward residual cutoff is $q+(p-1)/|p|$; the normalized cutoff subtracts $p/|p|$ from that value.
 
 \subsection{Finite smoothness suffices}
 
@@ -97,8 +104,9 @@ Since $|\varphi(x)|\le x/2$ for $x<x_1$ (after shrinking $x_1$), $F_\lambda(y/2)
 \end{equation}
 For $n=1$: $\partial_\lambda\Psi(G)=\Psi'(G)\partial_\lambda G=\Psi'(G)\psi(G)\partial_yG=\psi(G)\partial_y[\Psi(G)]$. Assume \eqref{eq:transport-identity} for $n$ and all $\Psi$. Then, using it once more for the functions $\psi^n$ and $\Psi$ in the second step,
 \begin{align*}
- \partial_\lambda^{n+1}[\Psi(G)]&=\partial_y^{n-1}\,\partial_\lambda\bigl[\psi(G)^n\partial_y\Psi(G)\bigr]
- =\partial_y^{n-1}\bigl[\psi(G)\,\partial_y(\psi(G)^n)\,\partial_y\Psi(G)+\psi(G)^n\,\partial_y\bigl(\psi(G)\partial_y\Psi(G)\bigr)\bigr]\\
+ \partial_\lambda^{n+1}[\Psi(G)]&=\partial_y^{n-1}\,\partial_\lambda\bigl[\psi(G)^n\partial_y\Psi(G)\bigr]\\
+ &=\partial_y^{n-1}\bigl[\psi(G)\,\partial_y(\psi(G)^n)\,\partial_y\Psi(G)\\
+ &\hspace{5em}+\psi(G)^n\,\partial_y\bigl(\psi(G)\partial_y\Psi(G)\bigr)\bigr]\\
  &=\partial_y^{n-1}\,\partial_y\bigl[\psi(G)^{n+1}\partial_y\Psi(G)\bigr],
 \end{align*}
 where the last equality is the product rule read backwards: $\partial_y[\psi^{n+1}\Psi_y]=(n+1)\psi^n\psi_y\Psi_y+\psi^{n+1}\Psi_{yy}$ and the bracket equals $n\psi^n\psi_y\Psi_y+\psi^n(\psi_y\Psi_y+\psi\Psi_{yy})$, the same thing. (Here $\psi_y$ stands for $\partial_y[\psi(G)]$.)

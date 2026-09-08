@@ -20,6 +20,12 @@ Both problems live in the same algebra of finite **power–log expansions**
 logarithmic coefficients, and both are solved by the package in this
 repository.
 
+The inverse engine also handles leading logarithmic and exponential cores,
+including `x Log[x]` near `0` and `x Exp[x]` at infinity. It selects the real
+Lambert-W branch and returns a finite expansion in inverse logarithms and
+logarithms of logarithms, with a separate prefactor and remainder. See the
+package README for the logarithmic cutoff convention.
+
 ## Layout
 
 | Path | Content |
@@ -59,7 +65,8 @@ AsymptoticExpansion[(1 + x + x^Sqrt[2])^Sqrt[2], {x, Infinity}, SeriesTermGoal -
 
 - Package tests: `wolfram -script AsymptoticInverse/Tests/RunTests.wl`
   (or `TestReport` on `AsymptoticInverse/Tests/AsymptoticInverse.wlt`).
-- Article: `cd article && pdflatex asymptotic-inverse.tex` (twice).
+- Article: run `pdflatex -interaction=nonstopmode -halt-on-error asymptotic-inverse.tex`
+  three times serially from `article/`; render the PDF to inspect its layout.
 - Native test runs of the nine delivered packages: see `reports/COMPARISON.md`.
 
 ## License

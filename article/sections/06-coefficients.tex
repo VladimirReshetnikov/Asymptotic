@@ -59,15 +59,15 @@ which shows why the inverse of a sum of perturbations is not the sum of the sepa
 
 \begin{proposition}[Degrees]
 \label{prop:degrees}
-Let $d_i=\deg B_i$ and $D(\bk)=\sum_ik_id_i$. Then $\deg C^{(r)}_{\bk}=D(\bk)$ exactly, with leading coefficient
+Let $d_i=\deg B_i$ and $D(\bk)=\sum_ik_id_i$. Then $\deg C^{(r)}_{\bk}\le D(\bk)$, with coefficient at the largest possible degree
 \begin{equation}
  [L^{D(\bk)}]\,C^{(r)}_{\bk}=\frac{(-1)^nr}{p^n\bk!}\prod_{j=1}^{n-1}(r+\sigma+pj)\prod_i\bigl([L^{d_i}]B_i\bigr)^{k_i},
  \label{eq:leading-coefficient}
 \end{equation}
-which is nonzero whenever $r+\sigma+pj\ne0$ for $1\le j\le n-1$ (always true for $r>0$, $p>0$). A block $C^{(r)}_\sigma$ of the aggregated expansion has degree at most $\max\{D(\bk):\bk\cdot\bdelta=\sigma\}$, with equality unless the leading coefficients of the contributing multi-indices cancel.
+which is nonzero exactly when $r\ne0$ and $r+\sigma+pj\ne0$ for $1\le j\le n-1$ (always true for $r>0$, $p>0$). Under those conditions the degree is exactly $D(\bk)$. Zero operator constants differentiate and may lower the degree or annihilate the polynomial, while $r=0$ annihilates every correction. An aggregated block $C^{(r)}_\sigma$ has degree at most $\max\{D(\bk):\bk\cdot\bdelta=\sigma\}$; equality requires a nonzero sum of its top-degree coefficients.
 \end{proposition}
 \begin{proof}
-Each factor $\D+c$ with $c\ne0$ preserves the degree and multiplies the top coefficient by $c$; the product $B^{\bk}$ has degree $D(\bk)$.
+Each factor $\D+c$ with $c\ne0$ preserves the degree and multiplies the top coefficient by $c$; a factor with $c=0$ differentiates. The product $B^{\bk}$ has degree $D(\bk)$, and the prefactor contains $r$.
 \end{proof}
 
 For the log example ($a=p=\delta=1$, $B=1+L$, single index $n$) the formula reads
@@ -98,7 +98,7 @@ When every $B_i$ is a constant $b_i$, the operators act as scalars and
  =\frac{r}{r+\sigma}\binom{-(r+\sigma)/p}{n}\frac{n!}{\bk!}\prod_ib_i^{k_i}.
  \label{eq:constant-coefficients}
 \end{equation}
-For $f(x)=x+bx^\alpha$ ($p=1$, $\delta=\alpha-1$, $r=1$) this is the generalised Fuss--Catalan law
+The binomial expression in \eqref{eq:constant-coefficients} is read by its removable limit when $r+\sigma=0$; the operator-product expression has no division by $r+\sigma$ and remains directly valid. For $f(x)=x+bx^\alpha$ ($p=1$, $\delta=\alpha-1$, $r=1$) this is the generalised Fuss--Catalan law
 \begin{equation}
 \begin{aligned}
  g(y)&=\sum_{n\ge0}c_n\,b^n\,y^{1+n(\alpha-1)},\\
@@ -106,12 +106,12 @@ For $f(x)=x+bx^\alpha$ ($p=1$, $\delta=\alpha-1$, $r=1$) this is the generalised
 \end{aligned}
  \label{eq:fuss-catalan}
 \end{equation}
-valid for every real $\alpha>1$ (no rationality is used). For $\alpha=2$ the $c_n$ are the signed Catalan numbers and $g=(\sqrt{1+4y}-1)/2$; for $\alpha=\sqrt2$,
+valid for every real $\alpha>1$ (no rationality is used), with $c_0=1$ understood separately in the product formula. For $\alpha=2$ the $c_n$ are the signed Catalan numbers and, when $b\ne0$, $g=(\sqrt{1+4by}-1)/(2b)$; the limit at $b=0$ is $g=y$. For $b=1$ and $\alpha=\sqrt2$,
 \begin{gather*}
  c_1=-1,\qquad c_2=\sqrt2,\qquad c_3=-\frac{6-\sqrt2}{2},\\
  c_4=\frac{17\sqrt2}{3}-4,\qquad c_5=\frac{51\sqrt2}{4}-\frac{305}{12},\qquad c_6=\frac{322\sqrt2}{5}-77,
 \end{gather*}
-which gives \eqref{eq:answer2}. In this one-gap case $g(y)=yV(y^{\alpha-1})$ with $V$ the solution of $V+tV^\alpha=1$, $V(0)=1$, analytic at $t=0$ with radius of convergence
+which gives \eqref{eq:answer2}. In this one-gap case $g(y)=yV(by^{\alpha-1})$ with $V$ the solution of $V+tV^\alpha=1$, $V(0)=1$, analytic at $t=0$ with radius of convergence
 \begin{equation}
  R_\alpha=\frac{(\alpha-1)^{\alpha-1}}{\alpha^\alpha},\qquad |c_n|\sim\frac{\sqrt\alpha}{\sqrt{2\pi}\,(\alpha-1)^{3/2}}\,n^{-3/2}R_\alpha^{-n},
  \label{eq:radius}
