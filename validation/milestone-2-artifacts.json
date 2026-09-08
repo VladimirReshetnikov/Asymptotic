@@ -1,0 +1,72 @@
+{
+  "Version": "1.3.0",
+  "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+  "Tests": {
+    "Suites": 13,
+    "Succeeded": 311,
+    "Failed": 0,
+    "Results": "milestone-2-tests.json"
+  },
+  "OtherKernelProbe": {
+    "InstalledVersion": "14.3",
+    "Executable": "C:/Program Files/Wolfram Research/Wolfram Engine/14.3/wolfram.exe",
+    "ExitCode": 62,
+    "Result": "No valid password found; no package test ran"
+  },
+  "Compatibility": {
+    "DeclaredMinimum": "15.0",
+    "ValidatedNativeVersions": [
+      "15.0.1"
+    ]
+  },
+  "Documents": [
+    {
+      "Path": "article/asymptotic-inverse.pdf",
+      "SHA256": "f19fa00cb67a99410970331db7b5a59262ac8a1e71b3ba42ac019648ddd633a6",
+      "Pages": 57,
+      "RenderedPages": 57,
+      "StrictSerialPasses": 3,
+      "BuildWarnings": 0,
+      "TextOutsidePage": 0,
+      "VisualReview": "All pages inspected on rendered contact sheets"
+    },
+    {
+      "Path": "article/implementation-plan.pdf",
+      "SHA256": "ef64480edb9582289212400e623eda48270d33c05fa68591a7a85f4f2c24a8c1",
+      "Pages": 9,
+      "RenderedPages": 9,
+      "StrictSerialPasses": 3,
+      "BuildWarnings": 0,
+      "TextOutsidePage": 0,
+      "VisualReview": "All pages inspected on rendered contact sheets"
+    }
+  ],
+  "Files": {
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "cfff75212db2ffb52283dde20d358f2f4eea3c9a83bb8d345d4af5c0d6dc85b7",
+    "AsymptoticInverse/Kernel/CoordinateInverse.wl": "0223cfd2abbf4014671b59e8fc3d65893b5ac4285931d9575cbef65790e525d3",
+    "AsymptoticInverse/Kernel/CorePerturbation.wl": "47550eeb022ba164abdedcb5b05f4da53208fdb6c3fa499012b954053149e452",
+    "AsymptoticInverse/Kernel/InverseCertificates.wl": "e970f650c4d409f1123dfbf4ab0f0928d5e89df0ed55a898f1acc41640bb3c31",
+    "AsymptoticInverse/Kernel/SeriesOperations.wl": "509043298195daaed11dfd38ea69433583b63db9b817a2abacb025c1be582e9d",
+    "AsymptoticInverse/Kernel/SourceCoordinates.wl": "965cd416545a5915980d4b0a9778711d1cb5f75be986778cd88d883c3713ac40",
+    "AsymptoticInverse/PacletInfo.wl": "79252377f640de683a1c2929a93cd7a3fa615653325b46ddc69c41a9150da428",
+    "AsymptoticInverse/README.md": "01ca24b94d535faadfff40cafb51ab497f06e1024da525c55ab8c7d25d33fb90",
+    "AsymptoticInverse/Tests/RunTests.wl": "5d0c3da1dec00edb4868c5492c1961c6d39cb1c15381c9f7bb80863f55d56440",
+    "AsymptoticInverse/Tests/CertificateRegressions.wlt": "a3c414d7a40867edb49e692da6887fd7085412c7ed817e03e5ece91d5c596b25",
+    "AsymptoticInverse/Tests/CorePerturbation.wlt": "5feb241b45a1237ffea2151605454531e7b79e6e4446f0c02adb8aad248aef47",
+    "AsymptoticInverse/Tests/GeneratedInverseOracles.wlt": "2028c03212936da12289e73ed814d0f188311364125630e216831ad9b430128a",
+    "AsymptoticInverse/Tests/SeriesOperations.wlt": "0ff41d8dd70ac2142d3c99a4050e684b84081defda3d73ca3a9d512d93c7f9ad",
+    "AsymptoticInverse/Tests/SourceCoordinateRegressions.wlt": "cd464cb673827c12364c6de819017a21bc8a80c81721e5934fd9a0a6113a6f09",
+    "article/asymptotic-inverse.tex": "9a6b67fc4f02d0634af4e631331e4390ff428e210ad70d718ae30a2c45d6df6c",
+    "article/asymptotic-inverse.pdf": "f19fa00cb67a99410970331db7b5a59262ac8a1e71b3ba42ac019648ddd633a6",
+    "article/implementation-plan.tex": "f975352d13f4ec004042aa3bf65b51b8a347f6cc06e06618deb9ce7ad42a2a23",
+    "article/implementation-plan.pdf": "ef64480edb9582289212400e623eda48270d33c05fa68591a7a85f4f2c24a8c1",
+    "article/sections/13-package.tex": "88a18b3874fbff959234d6e9726f2742c6371e62d9ba5149b72b4645c25ef12c",
+    "article/sections/17-calculus.tex": "137f2ef3b8d73c64fb2742ab35545c80048320662f4620331ed650606b11092c",
+    "article/sections/18-core-perturbations.tex": "71f142d4b92ea411d40e2e1b4175f28078b1d8db747b128d7a4fb64df77f1f59",
+    "article/sections/19-certificates.tex": "a6056d382c352f49a9a45b114dcf8bcccfa8fcb9e3029a9b559fea0405d67a7a",
+    "article/sections/23-source-coordinates.tex": "40ca43a184fca698201be7f8f4e75958794441f2b6009c1636117d37b574771b",
+    "validation/README.md": "c98e9fb9c614d1c546c5f478e0370ad84093ca43cbd1c894b98e145fc08b5e4c",
+    "validation/milestone-2-tests.json": "cc9020a2ac9ba636f313a0f55ecae0f97e7413aff6447ea8537dd09d5c158272"
+  },
+  "Scope": "Second implementation milestone: explicit calculus, retained exact cores, rational certificates, source reconstruction, generated inverse oracles. Later logarithmic, flat, Fourier, special-function and refinement-state modules are excluded."
+}

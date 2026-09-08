@@ -50,6 +50,8 @@ InverseNumericalCheck::usage =
 compares a high-precision reference root with the truncated expansion at y = y1. \
 This comparison is numerical evidence, not an interval certificate.";
 
+InverseCertificate::usage = "InverseCertificate[s,y1,\"Interval\"->{lo,hi}] proves a unique root enclosure by exact rational interval arithmetic and explicit elementary-function tail bounds. TargetError requests adaptive absolute accuracy; a rational Center may be fixed explicitly. WorkingPrecision affects seed selection only.";
+
 PerturbativeInverse::usage =
 "PerturbativeInverse[phi, h, {x, y}, n] gives the Lagrange-Buermann expansion \
 phi(y) + Sum[(-1)^N/N! D^(N-1)[phi'(y) h(phi(y))^N], {N, 1, n}] of the solution x of \
@@ -63,6 +65,17 @@ coefficient attached to one multi-index of the inverse expansion s (or of a Powe
 PowerLogModel::usage =
 "PowerLogModel[f, {x, x0}] parses f near x0 into the normalized model \
 y0 + a u^p (1 + Sum[u^delta_i B_i[Log[u]]]) in the local variable u and returns an Association.";
+
+SeriesAdd::usage = "SeriesAdd[s,t] adds two compatible expansion objects, transporting both remainders. A real scalar may replace either operand.";
+SeriesMultiply::usage = "SeriesMultiply[s,t] multiplies two compatible expansion objects, transporting both remainders. A real scalar may replace either operand.";
+SeriesPower::usage = "SeriesPower[s,r] expands a real power with a proved branch and a transported remainder; SeriesPower[s,r,h] uses cutoff h.";
+SeriesLog::usage = "SeriesLog[s] expands the real logarithm of an eventually positive expansion; SeriesLog[s,h] uses cutoff h.";
+SeriesExp::usage = "SeriesExp[s] exponentiates an expansion with an absolute remainder tending to zero, retaining any unbounded exponential prefactor exactly; SeriesExp[s,h] uses cutoff h.";
+SeriesCompose::usage = "SeriesCompose[outer,inner] composes compatible expansion objects and transports the outer and inner remainders.";
+SeriesObservable::usage = "SeriesObservable[s,expr,z] applies a supported real analytic expression expr in z to the expansion s while preserving precision.";
+SeriesTruncate::usage = "SeriesTruncate[s,h] discards complete blocks at or above the exclusive cutoff h, retaining a valid remainder.";
+SeriesRefine::usage = "SeriesRefine[s,h] recomputes a retained source or operation recipe at cutoff h. It never improves precision without source evidence.";
+SeriesDifferentiate::usage = "SeriesDifferentiate[s,n] differentiates n times when matching remainder derivative bounds are known. RemainderDerivativeOrder declares such bounds; a magnitude Big-O bound alone is insufficient.";
 
 Begin["`Private`"];
 
@@ -698,6 +711,7 @@ AsymptoticInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
 inverseDispatch[f_, x_, x0_, y_, cutoff_, opts___] := Module[{s},
   s = lambertConstruct[f, x, x0, y, cutoff, opts];
   If[s === $Failed, s = coordinateConstruct[f, x, x0, y, cutoff, opts]];
+  If[s === $Failed, s = sourceCoordinateConstruct[f, x, x0, y, cutoff, opts]];
   If[s === $Failed, construct[f, x, x0, y, cutoff, opts], s]];
 
 inverseBlocks[d_, polys_, p_, rint_, H_, method_, ell_, ass_, limit_, region_] := Module[{U, blocks},
@@ -898,6 +912,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     "ForwardExpansion" -> (model["Limit"] + Total[(coord["LocalVariable"]^ToRadicals[#[[1]]] (ToRadicals[#[[2]]] /. ell -> Log[coord["LocalVariable"]])) & /@ model["Rows"]]),
     "LocalVariable" -> u, "LocalSubstitution" -> (x -> coord["Substitution"]),
     "ExactModel" -> exactModel, "InputRemainder" -> forwardRem,
+    "DeclaredInputRemainder" -> inputRem,
     "ExactTerminationCertificate" -> termination,
     "ComputationState" -> computationState,
     "RequestedTermGoal" -> goal, "ReturnedTermCount" -> Length[blocks],
@@ -1073,6 +1088,10 @@ InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTempla
 Get[FileNameJoin[{$kernelDirectory, "LambertInverse.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "CoordinateInverse.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "IncrementalInverse.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "SeriesOperations.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "SourceCoordinates.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "CorePerturbation.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "InverseCertificates.wl"}]];
 
 End[];
 EndPackage[];

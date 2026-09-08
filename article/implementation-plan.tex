@@ -51,10 +51,10 @@ Stage & Deliverable & Main prerequisite & Status\\
 \midrule
 \endhead
 1 & General exponential phases, pure logarithmic cores, and finite exponential sums through explicit coordinates & Existing inverse engines & Partial\\
-2 & Exact-core perturbations and transported input remainders & Coordinate contracts & \planned\\
-3 & Residual certificates and adaptive absolute/relative accuracy & Valid error transport & \planned\\
+2 & Exact-core perturbations and transported input remainders & Coordinate contracts & Partial\\
+3 & Residual certificates and adaptive absolute/relative accuracy & Valid error transport & Partial\\
 4 & Reciprocal logarithms, iterated logarithms and nonpolynomial logarithmic coefficients & Scale representation & \planned\\
-5 & Composable arithmetic, inverse observables and refinement & Scale and provenance contracts & \planned\\
+5 & Composable arithmetic, inverse observables and refinement & Scale and provenance contracts & Partial\\
 6 & Incremental enumeration, Newton and grouped coefficient performance & Stable result semantics & Partial\\
 7 & Finite flat sectors and finite Fourier coefficient algebras & Extended scales and residual checks & \planned\\
 8 & Special-function and threshold adapters & Branch-aware coordinate dispatch & \planned\\
@@ -75,9 +75,26 @@ The eight delivered native suites pass 161 tests on Wolfram 15.0.1.
 Three reproducible performance comparisons have equal results; the term-goal
 and Newton fixtures improve, while the small grouped fixture is slower.
 The article supplies the coordinate and grouped-coefficient derivations.
-Pure-logarithm and finite-exponential-sum reconstruction, public arithmetic
-and refinement, wider scaling measurements, generated families and version
-coverage remain open. All other stages retain their complete scope below.
+The later milestones preserve the remaining families and acceptance
+obligations listed below.
+
+\paragraph{Second delivered milestone.}
+Version 1.3.0 adds source-logarithm and finite-exponential-sum charts with
+transported reconstruction errors, ten public calculus operations,
+exact-core marker corrections with a complete-tail theorem, and rational
+interval certificates with adaptive absolute and relative accuracy.
+Forty-six generated cases use independent inverse oracles. Certificates
+distinguish the stored explicit equation from a declared input remainder.
+Wolfram 15.0.1 is validated; the installed 14.3 engine cannot start because
+its license is invalid. The former untested 13.0 minimum is replaced by 15.0.
+The tests and artifact manifest for this milestone record the exact suite,
+source hashes, PDF builds and visual review.
+
+General exponential exact-core perturbations, transformed input-error
+contracts, automatic discovery of certificate intervals, broader composite
+observables, public incremental refinement, and additional generated
+families remain open within their respective stages. The reciprocal-log,
+flat-sector and other subsequent modules are not part of this milestone.
 
 \section{Shared contracts}
 
@@ -236,6 +253,7 @@ Every failure saves a compact reproducible input, assumptions, version, requeste
 
 Version-range validation records the actual Wolfram kernel versions available and runs the common suite on each. Parser or \wl{Series} differences are isolated in adapters or explicit supported-version constraints. One successful version does not establish an untested version range. Publish the tested range only after those native runs occur.
 
+\clearpage
 \section{Integration, documentation and publication}
 
 One owner runs the native Wolfram tests and one owner performs shared-worktree Git mutations. Agents own disjoint implementation or documentation files, exchange mathematical contracts early, and avoid duplicating expensive test runs. Stage interfaces are reviewed before integration; they are not frozen prematurely when a counterexample reveals a missing invariant.

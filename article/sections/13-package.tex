@@ -11,6 +11,15 @@ with $x_0$ a real number, \wl{Infinity} or \wl{-Infinity}, options \wl{Assumptio
 
 The auxiliary functions provide residual checking through \wl{InverseResidual}, numerical comparison through \wl{InverseNumericalCheck}, marker formulas through \wl{PerturbativeInverse}, individual coefficients through \wl{InverseExpansionCoefficient}, and normalized model data through \wl{PowerLogModel}.
 
+Expansion objects support explicit arithmetic, composition, observables,
+truncation and refinement through the \wl{Series} operations of
+Section~\ref{sec:series-calculus}. The operation \wl{AsymptoticCoreInverse}
+retains an exact inverse while computing higher-power perturbation corrections
+with the complete-tail contract of Section~\ref{sec:core-perturbations}.
+\wl{InverseCertificate} uses rational intervals and explicit elementary-function
+tail estimates to enclose a numerical root; Section~\ref{sec:executable-certificates}
+states the existence, uniqueness and accuracy conditions.
+
 Recognized Lambert cores dispatch to \wl{"Method" -> "Lambert"}. Their objects carry \wl{"Scale" -> "Logarithmic"}, an exact \wl{"Prefactor"}, and \wl{"LogarithmicVariable" -> t}. A pair $\{n,C\}$ contributes \wl{Prefactor}$\,t^nC(\log t)$, and a cutoff $q$ retains $n<q$ in this normalized bracket. The remainder is $|\wl{Prefactor}|\,\wl{PowerLogRemainder[t, $\beta$, k]}$; the prefactor must not be lost when estimating errors. \wl{"LambertBranch"} and \wl{"TargetDomain"} record the selected real branch. Such objects have no ordinary \wl{SeriesData} in $y$, and depth truncation in the original power gaps does not apply. For example,
 \begin{lstlisting}
 AsymptoticInverse[x Log[x], {x, 0}, {y, 4}]

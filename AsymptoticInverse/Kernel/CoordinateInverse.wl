@@ -67,6 +67,8 @@ coordinateConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticIn
       "InverseMap" -> data["Offset"] + data["AmplitudeSign"] data["AmplitudeScale"] Exp[target]|>}|>]]];
 
 coordinateResidual[a_, h_, limit_] := Module[{result},
+  If[MemberQ[{"SourceExp", "SourceLog"}, Lookup[a, "CoordinateKind", ""]],
+    Return[sourceCoordinateResidual[a, h, limit], Module]];
   result = residual[a["CoordinateSeries"][[1]], h, limit] /. a["CoordinateSubstitution"];
   Join[result, <|"TargetCoordinate" -> a["TargetCoordinateExpression"],
     "Scope" -> "Formal composition with the transformed forward model in the logarithmic target coordinate.",
@@ -75,6 +77,8 @@ coordinateResidual[a_, h_, limit_] := Module[{result},
 coordinateNumericalCheck[a_, yv_, wp_] := Module[
   {x = a["Variables"][[1]], y = a["Variable"], yy, approx, seed, xr, local,
    base = a["CoordinateSeries"], phase, target, r = a["Power"], observed, err, scale, z},
+  If[MemberQ[{"SourceExp", "SourceLog"}, Lookup[a, "CoordinateKind", ""]],
+    Return[sourceCoordinateNumericalCheck[a, yv, wp], Module]];
   If[! IntegerQ[wp] || wp < 10, fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
   If[! NumericQ[yv] || (! exactQ[yv] && Precision[yv] < wp),
     fail["InsufficientPrecision", "Supply an exact target or at least WorkingPrecision digits."]];

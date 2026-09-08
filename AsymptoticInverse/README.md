@@ -21,6 +21,11 @@ AsymptoticExpansion[(1 + x + x^Sqrt[2])^Sqrt[2], {x, Infinity}, SeriesTermGoal -
 
 The mathematics is explained in `../article/asymptotic-inverse.tex`.
 
+Version 1.3.0 is tested on Wolfram 15.0.1 for Windows and declares a minimum
+kernel version of 15.0. The former untested `13.0+` claim has been removed.
+An installed 14.3 engine could not start because it lacks a valid license;
+that installation provides no compatibility evidence.
+
 Leading logarithmic and exponential cores are supported by the Lambert engine:
 
 ```wolfram
@@ -131,6 +136,87 @@ remains a compatibility alias, without implying exact arithmetic or certificatio
 `AsymptoticExpansion` accepts `Assumptions`, `Direction`, `SeriesTermGoal` and
 `"MaxTerms"`.
 
+## Operations on expansion objects
+
+Use explicit operations to keep the remainder attached to the calculation:
+
+```wolfram
+s = AsymptoticExpansion[x + x^2, {x, 0, 5}];
+SeriesLog[s, 4]                  (* Log[x] + x - x^2/2 + x^3/3 + O[x^4] *)
+SeriesPower[s, -1, 3]            (* reciprocal, with transported precision *)
+SeriesMultiply[s, s]
+SeriesObservable[s, Sin[z], z, "Cutoff" -> 4]
+SeriesRefine[AsymptoticInverse[x + x^2, {x, 0}, {y, 2}], 5]
+```
+
+`SeriesAdd`, `SeriesMultiply`, `SeriesPower`, `SeriesLog`, `SeriesExp`,
+`SeriesCompose`, `SeriesObservable`, `SeriesTruncate`, `SeriesRefine`, and
+`SeriesDifferentiate` share an explicit positive coordinate, exact offset and
+prefactor, and a precision-tracked jet. Arithmetic requires compatible
+coordinates. Exponentiation requires an absolute argument remainder tending
+to zero and retains unbounded exponential prefactors exactly. Differentiating
+a magnitude Big-O bound requires a matching derivative bound; provide
+`"RemainderDerivativeOrder" -> n` only when that hypothesis is established.
+Refinement replays the retained source or operation recipe and preserves
+declared input precision ceilings. It does not yet reuse all work across
+separate public refinement calls.
+`"DeclaredInputRemainder"` distinguishes a user-declared error from the
+automatically generated forward remainder, so analytic sources can be
+expanded further during refinement.
+
+## Retaining an exact inverse core
+
+```wolfram
+s = AsymptoticCoreInverse[x Log[x], x^2, {x, 0}, {y, 2}];
+s["CoreInverse"]               (* retained lower Lambert branch *)
+s["MarkerTerms"]               (* complete perturbation coefficients *)
+s["Remainder"]
+```
+
+`AsymptoticCoreInverse[core, perturbation, {x,x0}, {y,n}]` retains the exact
+core inverse and computes through perturbation marker degree `n`. Automatic
+cores include monomials and affine-logarithm powers; `"CoreInverse" -> phi`
+supplies another exact inverse whose branch identity must be verified.
+The admitted core is a finite power-log expression with nonzero leading
+source power, and every perturbation has a strictly higher source power.
+The article proves an asymptotic bound for the complete marker tail. Its
+constants are existential, separately identified from the first omitted term.
+An optional `"InputRemainder" -> {rho,k}` is transported with its declared
+derivative contract. Equal-power logarithmically small corrections and
+general exponential exact cores still need separate contracts.
+
+## Rigorous numerical root enclosures
+
+```wolfram
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+c = InverseCertificate[s, 1/10, "Interval" -> {1/20, 1/5},
+  "TargetError" -> 1/10^12];
+c["RootEnclosure"]             (* exact rational endpoints *)
+c["CertifiedErrorBound"]       (* error of c["Center"] *)
+```
+
+`InverseCertificate` proves continuity, a derivative interval separated from
+zero, and containment of a residual-based root bracket. Its arithmetic uses
+exact rational endpoints, outward dyadic rounding, and proved exponential
+and logarithm series tails. `WorkingPrecision` only selects the initial
+rational center; a successful `FindRoot` is not used as proof. Adaptive
+`"TargetError"` requests an absolute error for the returned center, which may
+change during refinement. An explicit rational `"Center"` remains fixed and
+can produce a proved `Failure["AccuracyFloor", ...]`.
+
+The certificate encloses a unique root in the supplied interval on the
+selected source side. It does not establish a global inverse branch. Its
+scope is the stored explicit forward expression; an unspecified input
+remainder is not certified by evaluating that expression. Unsupported
+elementary operations, a pole, an unproved sign or an exhausted refinement
+budget return a descriptive failure with the best available evidence.
+
+`"RelativeError" -> tau` requests a relative error using a proved lower
+bound for the root magnitude. When combined with `"TargetError" -> epsilon`,
+the goal is `Abs[center-root] <= Max[epsilon, tau Abs[root]]`. A zero root
+requires the explicit absolute fallback. The returned center's relative
+error bound uses the enclosing interval, not its decimal approximation.
+
 ## Supported inputs
 
 The forward engine expands expressions built from constants, the variable,
@@ -161,15 +247,37 @@ closed-form `ProductLog` inverse. `InverseResidual` composes the returned
 truncated bracket, and `InverseNumericalCheck` compares against the original
 forward function.
 
-Pure logarithmic leading cores with zero algebraic power and general
-transseries with independently truncated exponential
-sectors or reciprocal-logarithm corrections remain outside this version's
-recognizers and coefficient algebras.
+Pure logarithmic source dependence is handled by the exact chart
+`u = Exp[-h]` in the positive local source distance. Polynomial and supported
+real powers of logarithms become ordinary inverse problems in `h`; the
+source is reconstructed by exponentiation only when the transported
+absolute argument error tends to zero. Exact repeated charts can retain
+an exact inverse such as `Exp[-Exp[y]]`. Finite sums of exponentials at either
+source infinity use `u = Exp[-side x]`; arbitrary exact real rates become
+ordinary real powers, so rational commensurability is unnecessary.
+
+```wolfram
+AsymptoticInverse[Log[x]^2 + Log[x], {x, 0}, {y, 1}]
+(* Exp[-Sqrt[y]-1/2] (1 - 1/(8 Sqrt[y])) + O[Exp[-Sqrt[y]-1/2]/y] *)
+AsymptoticInverse[Exp[-x] + Exp[-2 x], {x, Infinity}, {y, 4}]
+(* -Log[y] + y - 3 y^2/2 + 10 y^3/3 + O[y^4] *)
+```
+
+The source result retains `"CoordinateSeries"`, `"ReconstructedSeries"`,
+`"SourceCoordinateExpression"`, and `"SourceTransformExpression"`, alongside
+the original function and branch. Its residual checks the displayed
+reconstruction, including the reconstruction's own truncation. A residual
+whose ordering needs a larger coefficient algebra is returned as an exact
+expression with the order claim marked uncomputed. Explicit declared input
+remainders require a separate source-chart transport contract.
+
+General transseries with independently truncated exponential sectors and
+reciprocal-logarithm corrections remain outside this version's shipping
+coefficient algebras.
 The logarithmic target route accepts a single exponential product with an
 eventually signed power-log amplitude and a phase with a negative leading
 power in the positive local source coordinate. It includes phases containing
-several powers and polynomial logarithms. Source-logarithm reconstruction and
-finite sums of distinct exponentials remain planned extensions.
+several powers and polynomial logarithms.
 Exponentially small or large terms (`Exp[-1/x]`), oscillatory coefficients
 (`Sin[Log[x]]`) and nested logarithms are rejected with a descriptive
 `Failure` by the ordinary forward engine.
@@ -183,6 +291,10 @@ Exponentially small or large terms (`Exp[-1/x]`), oscillatory coefficients
   (`wolfram -script AsymptoticInverse/Tests/RunTests.wl`).
 - `Kernel/CoordinateInverse.wl`, `Kernel/IncrementalInverse.wl` — coordinate
   transformations and reusable exact-weight computation states.
+- `Kernel/SeriesOperations.wl`, `Kernel/CorePerturbation.wl`,
+  `Kernel/InverseCertificates.wl`, `Kernel/SourceCoordinates.wl` — explicit
+  calculus, exact-core marker expansions, exact rational root certificates,
+  and source-chart reconstruction.
 - `Tests/BenchmarkPerformance.wl` — reproducible comparisons with the original
   sparse-product, integer-power, and enumeration algorithms.
 - `Examples/Examples.wl` — worked examples.

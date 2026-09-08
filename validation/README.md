@@ -13,6 +13,31 @@ exactly equal comparisons. Term-goal coefficient evaluations fall from 95 to
 public-method case is slower. Historical snapshots are retained as evidence
 of their original milestone, not as hashes of the current source tree.
 
+The second extension milestone, version 1.3.0, is recorded in
+`milestone-2-tests.json` and `milestone-2-artifacts.json`. All **311 tests in
+13 shipping suites pass** on Wolfram 15.0.1. The new suites cover explicit
+calculus, exact-core marker corrections, rigorous rational certificates,
+source charts, and 46 independent generated inverse oracles. Certificate
+tests include absolute and relative accuracy, zero-root fallback, both
+Lambert branches, a near-turning-point bracket and exact-core seeds.
+The combined run is a regression run, not a performance comparison with
+earlier, smaller suites. Refinement regressions distinguish automatic
+forward truncation from a binding declared input error.
+
+`Tests/GeneratedInverseOracles.wlt` records seed 236367 and the generator
+method. Forty quadratic cases compare against an independent radical inverse
+expanded by the native Taylor-series implementation; six irrational-gap
+cases use independent first-coefficient formulas. Case IDs include the
+generated parameters. Failed test exports retain expected and actual output
+and messages for reproduction. Wider generated families and automatic
+counterexample shrinking remain campaign work.
+
+The installed 14.3 engine failed its startup probe with exit code 62 and
+`No valid password found`; no package test ran on that engine. The paclet
+minimum is now 15.0, replacing the former untested 13.0 declaration.
+Only 15.0.1 is validated; successful 15.0.1 tests do not establish a result
+for an older engine or a future version.
+
 The review corrected observable-dependent transport of forward remainders,
 negative-target remainder coordinates, source-side frontier signs, logarithmic
 degrees lost at precision boundaries, hidden leading terms after cancellation,
@@ -77,8 +102,9 @@ python validation/inspect_pdf.py article/asymptotic-inverse.pdf TEMP_RENDER_DIRE
 
 `inspect_pdf.py` uses Poppler, Pillow, and pdfplumber to render every page,
 generate contact sheets, and inspect text geometry. `article-validation.json`
-records the final PDF hash, page count, build diagnostics, and completed visual
-review. Geometry checks supplement visual inspection; they do not establish
+records the historical review PDF; each milestone artifact manifest records
+its own PDF hash, page count, build diagnostics, and completed visual review.
+Geometry checks supplement visual inspection; they do not establish
 mathematical correctness. The local Fabius research sources were read as
 references and were not modified.
 

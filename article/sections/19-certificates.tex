@@ -1,0 +1,220 @@
+\section{Executable residual certificates}
+\label{sec:executable-certificates}
+
+An asymptotic remainder describes a limiting scale; it need not supply a
+constant or a numerical neighborhood. A root obtained by numerical iteration
+is useful independent evidence, but is not a verified enclosure.
+The function \wl{InverseCertificate} implements the residual bracket of
+Theorem~\ref{thm:bracket} on an explicit source interval. Its successful output
+contains rational endpoints enclosing a unique root, a bound for the error of
+the reported center, and the derivative and residual enclosures used to prove
+those statements.
+
+\subsection{The certificate theorem with interval data}
+
+Let $I=[A,B]$, let $c\in(A,B)$, and suppose a structural interval evaluator
+proves that $F$ is continuous on $I$ and differentiable inside, with
+\[
+ F'(I)\subseteq[d_-,d_+],\qquad
+ F(c)-y\in[\rho_-,\rho_+].
+\]
+Assume either $d_->0$ or $d_+<0$, and put
+\[
+ \mu=\min(|d_-|,|d_+|),\quad
+ M=\max(|d_-|,|d_+|),\quad
+ \epsilon=\max(|\rho_-|,|\rho_+|),\quad h=\epsilon/\mu.
+\]
+If $[c-h,c+h]\subseteq I$, Theorem~\ref{thm:bracket}, after changing the sign
+of $F$ if necessary, proves a unique root $x_*$ in $I$ and
+\[
+ |x_*-c|\le h.
+\]
+The mean-value identity further gives
+\[
+ x_*\in I\cap[c-h,c+h]\cap
+ \left(c-\frac{[\rho_-,\rho_+]}{[d_-,d_+]}\right).
+\]
+Division is interval division; its denominator is separated from zero. This
+last interval is the returned \wl{"RootEnclosure"}. If the residual interval
+does not contain zero, there is also the lower bound
+\[
+ |x_*-c|\ge\frac{\min(|\rho_-|,|\rho_+|)}{M}.
+\]
+It can prove that a requested accuracy is impossible for a fixed center.
+
+The theorem asserts uniqueness on the supplied interval, which the evaluator
+also checks lies on the requested side of the source endpoint. It does not
+certify global injectivity or identify disconnected monotone intervals as the
+same continuation of an inverse germ. This scope is recorded in the result.
+
+\subsection{Rational arithmetic and elementary enclosures}
+
+The proof path uses exact rational endpoints. Addition, multiplication,
+reciprocals, and integer powers use the usual enclosing interval operations.
+After arithmetic, an endpoint $q\ne0$ is rounded outward to a dyadic grid with
+a prescribed number of significant bits. Its magnitude exponent is determined
+from the binary lengths of the exact numerator and denominator, followed by
+one rational comparison. Rounding uses $\lfloor q/\eta\rfloor\eta$ at a lower
+endpoint and $\lceil q/\eta\rceil\eta$ at an upper endpoint. Thus even rounding
+is justified by integer arithmetic. Approximate decimal values and
+floating-point comparisons are absent from every enclosure and every final
+sign or containment test.
+
+For $0\le t\le\tfrac12$, the exponential evaluator uses
+\[
+ S_N(t)=\sum_{j=0}^N\frac{t^j}{j!},\qquad
+ 0\le e^t-S_N(t)\le
+ \frac{t^{N+1}}{(N+1)!}\frac1{1-t/(N+2)}.
+\]
+The bound follows by majorizing the ratio of successive omitted terms by
+$t/(N+2)$. A positive argument is reduced by powers of two, and the enclosure
+is squared back using directed rounding. Negative arguments use the reciprocal
+of the positive exponential enclosure. An explicit resource bound on the
+argument prevents unbounded integer growth.
+
+For $1\le q\le2$, put $v=(q-1)/(q+1)\in[0,\tfrac13]$. Then
+\[
+ T_N(q)=2\sum_{j=0}^{N-1}\frac{v^{2j+1}}{2j+1},\qquad
+ 0\le\log q-T_N(q)\le
+ \frac{2v^{2N+1}}{(2N+1)(1-v^2)}.
+\]
+Every positive rational argument is written exactly as $2^k q$ with
+$1\le q<2$, using binary numerator and denominator lengths. The identity
+$\log(2^kq)=k\log2+\log q$ therefore reduces all logarithms to the displayed
+bound. Both tails are positive rational expressions. Increasing $N$ improves
+their analytic precision independently of the directed arithmetic precision.
+
+Before enclosing a logarithm, exact structural identities can remove an
+exponential whose real exponent has been enclosed, or split a product whose
+factors each have a real logarithm enclosure. Positivity is therefore checked
+before distributing logarithms. If, for example, a positive product has
+negative factors, the evaluator retains the direct interval route. This avoids
+materializing a huge exponential only to take its logarithm while preserving
+the real-branch conditions.
+
+Noninteger powers on a strictly positive base are evaluated through
+$a^b=\exp(b\log a)$, including supported exact irrational exponents. A positive
+rational power also admits a zero lower base endpoint. Expressions are handled
+by structural recursion through sums, products, powers, exponentials and
+logarithms. A reciprocal crossing zero, a logarithm reaching a nonpositive
+argument, or an unsupported head produces a failure. In particular, a
+numerical value of an unsupported expression is never accepted as a proof.
+Successful structural evaluation establishes the needed continuity on the
+whole interval; successful evaluation of the symbolic derivative establishes
+the derivative enclosure. Symbolic parameters without exact supported values
+are currently rejected with the unresolved expression recorded.
+
+\subsection{Interface, phase coordinates, and adaptive accuracy}
+
+The basic call is
+\begin{lstlisting}
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+InverseCertificate[s, 6, "Interval" -> {1, 3},
+  "Center" -> 21/10]
+\end{lstlisting}
+The independently known root is $2$. The derivative enclosure is $[3,7]$;
+the certified bracket encloses $2$ even though the asymptotic expansion was
+not requested at a target where its truncation is especially accurate. The
+residual theorem is independent of the formal truncation theorem.
+
+Targets must be exact supported numeric expressions. Interval endpoints and
+an explicitly supplied center must be rational, with the center strictly
+inside the interval. With \wl{"Center" -> Automatic}, numerical evaluation of
+the expansion chooses a rational center; an unusable seed is replaced by the
+interval midpoint. This decimal calculation selects a candidate only. All
+proofs are subsequently rebuilt with exact rational arithmetic. The returned
+error bound applies to that recorded center, including its rationalization.
+It does not silently claim an error bound for a different displayed expression.
+
+The equation being certified is always the object's stored explicit
+\wl{"Function"}. A declared \wl{"InputRemainder"} describes further possible
+forward functions, but supplies no computable interval bound for their values
+or derivatives. The certificate therefore does not cover those unspecified
+terms. Results retain that descriptor, set
+\wl{"CertifiesInputRemainderFamily" -> False}, and label the scope
+\wl{"StoredExpressionOnly"} when it is nontrivial. An automatically computed
+forward truncation can also populate the remainder field, so this label does
+not guess the descriptor's provenance. The original function and exact target
+are recorded separately from any phase equation. Asymptotic remainder data
+are never silently promoted into a numerical error certificate.
+
+For an object using a logarithmic target transformation, or a recognized
+Lambert exponential core admitting the same exact transformation, the certificate
+evaluates the exact phase and transformed target. The source-domain condition
+of the coordinate map is proved on the entire interval first. Since the
+exponential is strictly monotone there, the resulting root is a root of the
+original equation. This avoids constructing enormous values such as
+$\exp(x^2+x)$ merely to subtract two nearly equal numbers.
+
+The option \wl{"TargetError" -> epsilon} requests an exact positive rational
+tolerance. After an initial certificate, a sharper interval-Newton enclosure
+can supply a new center and verification interval. The preceding certificate
+already proves a root exists in that interval, so subsequent error estimates
+need not re-prove existence by the initial bracket-containment condition.
+Derivative bounds and residual bounds are nevertheless recomputed. Unless
+disabled by \wl{"RefineExpansion" -> False}, refinement also tries a larger
+asymptotic term goal as a source of a better seed; every accepted seed is
+verified independently. A bounded failed or unsupported expansion refinement
+does not invalidate an already established interval theorem.
+
+An \wl{AsymptoticCoreInverse} object is also accepted as a seed. Its exact
+Lambert core and marker corrections may be evaluated numerically to select
+the center, while the certificate evaluates the full explicit
+\wl{"Core" + "Perturbation"} equation with rational enclosures. If expansion
+refinement is requested, the stored exact core inverse is replayed at a larger
+marker depth. Its symbolic identity check and computation are time bounded;
+a failed replay falls back to the already certified interval information.
+The marker majorant's uncomputed constants are not used as numerical bounds.
+
+With an explicit fixed center, refinement increases enclosure precision without
+silently changing the center. A certified lower error bound above the target
+causes \wl{Failure["AccuracyFloor", ...]}. Exhausting the refinement budget
+causes \wl{Failure["AccuracyNotReached", ...]}, retaining the best established
+certificate if one exists. Neither outcome is reported as a successful accuracy
+request. The \wl{"History"} property records the attempted centers and
+enclosure orders. Resource failures and unresolved derivative signs are
+reported separately from mathematical impossibility.
+
+\paragraph{Relative accuracy.}
+
+An optional \wl{"RelativeError" -> tau} requests a relative tolerance with
+an independently proved root magnitude. If the root interval $I$ is
+separated from zero, set $m_I=\min_{z\in I}|z|$ and
+$M_I=\max_{z\in I}|z|$. An absolute error bound $r$ proves the requested
+combined tolerance when
+\[
+ r\le\max(\epsilon,\tau m_I),
+\]
+where $\epsilon$ is an explicitly supplied \wl{TargetError}, or zero when
+none is supplied. This implies
+$|A-x_*|\le\max(\epsilon,\tau|x_*|)$ for the unique enclosed root.
+The reported relative error bound is $r/m_I$. A proved zero root requires
+an explicit positive absolute fallback; no relative quotient at zero is
+invented. If an interval merely crosses zero, further refinement can
+establish a nonzero lower magnitude or report that the goal was not reached.
+For a fixed-center impossibility claim, the opposite bound is needed:
+the certified lower error must exceed $\max(\epsilon,\tau M_I)$.
+Using $m_I$ in that last test would incorrectly turn a conservative
+success criterion into an impossibility assertion.
+
+\subsection{Validation scope}
+
+The regression cases exercise outward rounding at both signs and widely
+different magnitudes, explicit exponential and logarithmic bounds, interval
+powers crossing zero, positive and negative derivatives, and a zero residual.
+Known rational roots provide independent checks of the final enclosures.
+Further cases cover the lower Lambert branch, a logarithmic phase, successful
+adaptive accuracy, a proved fixed-center accuracy floor, and rejection of
+rounded targets, turning points, poles, invalid logarithm domains, and
+unsupported heads. These tests validate an executable exact-arithmetic
+implementation of the theorem; they do not constitute a separate formal
+verification of the Wolfram evaluator.
+
+The package's two motivating functions
+$x+x^2(1+\log x)$ and $x+x^{\sqrt2}$ are included, together with a nonunit
+leading power and coefficient, both real Lambert branches, and exact-core
+perturbations. A supplied interval immediately below $x=e^{-1}$ tests the
+small derivative near the turning point of $x\log x$. There the reported
+derivative lower bound is small but strictly positive in absolute value; the
+result remains an interval theorem, without relying on a logarithmic
+asymptotic truncation being accurate near that threshold.
