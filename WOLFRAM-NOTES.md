@@ -1,7 +1,8 @@
 # Notes on subtle Wolfram Language behaviour
 
-Findings collected while developing `RootDecomposition.wl` (Wolfram 15.0.1,
-Windows).  Kept as a checklist for future work on exact algebraic-number code.
+Findings collected while developing `RootDecomposition.wl` and
+`AsymptoticInverse` (Wolfram 15.0.1, Windows). Kept as a checklist for exact
+algebraic-number code, asymptotic computation, and Wolfram evaluation semantics.
 
 ## Control flow
 
@@ -234,3 +235,82 @@ Windows).  Kept as a checklist for future work on exact algebraic-number code.
   the precision of the starting value (`N[expr, 60]`) first.
 - `Check[expr, $Failed]` around `Quiet[...]` is the wrong order: use
   `Quiet[Check[expr, $Failed]]` so that the messages still trigger `Check`.
+
+### Applied inverse functions and conditional branches (version 1.5.0)
+
+- `InverseFunction[F, k, n][a1, ..., an]` solves the scalar equation
+  `F[a1, ..., t, ..., an] == ak`, with `t` in position `k`. The other
+  argument positions are retained. It does not represent a multivariate
+  inverse map. A real source condition can select a branch, but realness
+  alone need not do so: both signs of `Sqrt[y]` invert `t^2` near `y = 0+`.
+  [Official inverse-function semantics](https://reference.wolfram.com/language/ref/InverseFunction.html).
+- Apply a pure function to fresh source arguments instead of replacing its
+  formal symbols or slots throughout its body. Native application handles
+  nested scopes and renames named parameters to avoid capture. Inspect a
+  formal-parameter declaration under `HoldComplete`: an `OwnValue` on a
+  global symbol used as a formal must not alter its declared arity. Slot,
+  named, named-list and `Function[Null, body, attrs]` forms are distinct
+  syntactic cases. [Official pure-function semantics](https://reference.wolfram.com/language/ref/Function.html).
+- `ConditionalExpression` may propagate out of mathematical arguments and
+  contribute conditions to an assumptions-aware function. A public
+  `HoldAllComplete` boundary lets the package separate expansion-variable
+  conditions from parameter assumptions before that propagation can change
+  the call. The private entry then evaluates normally, including supplied
+  option sequences and native closed-form inverses.
+  [ConditionalExpression](https://reference.wolfram.com/language/ref/ConditionalExpression.html),
+  [HoldAllComplete](https://reference.wolfram.com/language/ref/HoldAllComplete.html).
+- Source and target conditions have different variables. Inside
+  `InverseFunction[ConditionalExpression[F[#], C[#]] &]`, `C` restricts the
+  original source. An outer condition on `y` restricts the target approach.
+  On the common `AsymptoticExpansion` and `AsymptoticInverse` boundaries,
+  variable-dependent `Assumptions` clauses are checked as eventual approach
+  conditions and parameter-only clauses stay separate. Checking at the
+  endpoint itself is wrong for deleted conditions such as `0 < y < 1`
+  near `y -> 0+`.
+- Conditions inside unevaluated binders, holding heads or control branches
+  cannot safely be hoisted just because the expression contains a
+  `ConditionalExpression`. Evaluate an ordinary callable first, and reject
+  a remaining scope whose condition semantics are unsupported.
+- A bounded list of real roots is not a completeness proof. Automatic inverse
+  selection needs a complete real fiber and boundary analysis, or a verified
+  unique candidate under strict monotonicity on a connected real domain.
+  An unresolved candidate is different from a disproved candidate. An
+  explicit `"InverseFunctionBranches"` choice still needs its local domain,
+  target limit, approach side and derivative sign validated.
+- Native `InverseFunction` can evaluate before the adapter sees its syntax:
+  `InverseFunction[Sin][y]` becomes `ArcSin[y]`. Preserve that native branch.
+  Do not attempt to reconstruct an earlier callable or condition from an
+  already computed closed form. An inverse operator that remains unevaluated
+  must use the selected real inverse engine; native `Series` on that operator
+  can reproduce the original complex-root or undefined-coefficient failure.
+- Varying non-inverted arguments cannot be frozen at their limiting values.
+  The supported exact family reduction is
+  `A(x) F(t) + B(x) == Y(x)` to `F(t) == (Y(x) - B(x))/A(x)`, with eventual
+  `A(x) != 0` proved from the argument's available jet. The identity is checked
+  independently. More general coupled variation, and varying source
+  conditions the reduction cannot preserve, fail explicitly.
+- Repeated working-order attempts revisit the same inverse node. Cache its
+  parsed callable and branch proof for the duration of a public call, keyed
+  by the full relevant expression, assumptions, target germ and explicit
+  selection. Do not reuse a proof across changed parameter contexts merely
+  because the printed callable is similar.
+- Numerical branch checks must substitute the recovered **source root** into
+  `SourceDomain`, even when the object displays a squared inverse or another
+  power. Legacy logarithmic results express some domains in their positive
+  local variable; normalize that coordinate before substitution. The result
+  remains numerical evidence, not a certificate.
+- A certificate proves the source restriction on its whole closed interval.
+  Rational affine comparisons should use exact endpoint ranges: independently
+  rounding `x` and `1/10` in `x - 1/10` can leave a negative lower bound at
+  the exact endpoint `x = 1/10`, however high the precision. This is not a
+  reason to weaken a strict inequality or introduce a numerical tolerance.
+  Likewise, an exact root at the supplied center need not produce a singleton
+  enclosure after other outward-rounded arithmetic; test exact containment
+  and the certified width/error bound.
+- In an observable `e[z]` applied to a series in `y`, an expression free of
+  `z` may still depend on `y`. Expand that dependence in the recorded local
+  coordinate; it is not a constant coefficient. Otherwise the input
+  `Sin[y] = y + O[y^3]` can falsely prove `z != y` from a spurious leading
+  constant block. Relational decisions must respect the remaining error.
+- `Unequal[a,b,c]` requires all three pairs to be distinct. Adjacent-pair
+  checks suffice for ordered chains, but not for n-ary `Unequal`.

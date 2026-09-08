@@ -1,5 +1,39 @@
 # Review and validation record
 
+Version **1.5.0**, the fourth extension milestone, is recorded in
+`milestone-4-tests.json` and `milestone-4-artifacts.json`. The suite covers
+applied `InverseFunction` expressions, both original conditional examples,
+lexical and selected-argument callable forms, exact varying affine output
+families, nested and critical-point composition, native `ProductLog` branches,
+symbolic real offsets, algebraic coefficients, and condition-preserving
+refinement. Numerical checks and interval certificates retain source domains;
+closed rational endpoint comparisons use exact affine bounds before interval
+rounding. Tests use explicit coefficient formulas, original-equation residuals,
+independently known source roots and certified rational containment.
+The final native run passes **742 tests in 31 suites, with zero failures**, on
+Wolfram 15.0.1 for Windows.
+
+The milestone also admits expansion-variable assumptions after proving them
+on the selected deleted neighborhood. A former test requiring their blanket
+rejection is replaced by acceptance with a retained domain and rejection of
+an incompatible approach. Unknown input remainders cannot prove equality in
+an observable condition, and an excluded inverse endpoint is not silently
+filled by continuity.
+
+Observable comparisons distinguish the input placeholder from the original
+expansion variable. An expression involving that original variable is expanded
+in its own recorded coordinate instead of being mistaken for a constant
+coefficient. N-ary `Unequal` checks every pair. These rules prevent a truncated
+`Sin[y] = y + O[y^3]` input from falsely proving inequality with `y`.
+
+The artifact register records the tested source hashes and both rebuilt PDF
+hashes. Each document received three serial strict LaTeX passes and complete
+page rendering; the visual-review scope is recorded separately. Only Wolfram
+15.0.1 is validated. The earlier standalone generated campaign and performance
+benchmark remain historical evidence and were not rerun for this milestone.
+No new quantitative performance claim is made for the per-call syntax and
+branch caches.
+
 The original review started from commit `1716eb8`. The native baseline contained
 49 passing tests. The historical records below describe version 1.1.0.
 

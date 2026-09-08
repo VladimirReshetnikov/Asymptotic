@@ -2,6 +2,21 @@
    Exact target substitution precedes numerical evaluation so large offsets
    do not erase the small target distance. This is not certification. *)
 
+(* Shared by ordinary and coordinate-specific numerical routes. The source
+   predicate is checked at the recovered source root, not at an observable
+   power or at the expansion seed. This is numerical evidence only. *)
+numericalSourceDomainCheck[a_, root_, target_, wp_] := Module[{x, y, condition, evaluated},
+  x = If[MatchQ[Lookup[a, "Variables", {}], {_Symbol, _Symbol}],
+    First[a["Variables"]], inverseEvidenceSourceVariable[a]];
+  y = Lookup[a, "Variable", Missing["NotSpecified"]];
+  condition = inverseEvidenceSourceDomain[a, x];
+  evaluated = condition /. x -> root;
+  If[MatchQ[y, _Symbol] && y =!= x, evaluated = evaluated /. y -> target];
+  If[! TrueQ[Quiet[Check[N[evaluated, wp + 10], False]]],
+    fail["OutsideBranch", "The recovered numerical source root does not satisfy the retained source-domain condition.",
+      <|"UnprovedCondition" -> condition, "ReferenceRoot" -> root, "Target" -> target|>]];
+  True];
+
 numericalInverseEvidence[a_, target_, wp_] := Module[
  {x, y, power, endpoint, side, domain, approximate, seed, equation, root,
   sourceDistance, observed, error, scale, remainder},
@@ -32,6 +47,7 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
  sourceDistance = If[MemberQ[{Infinity, -Infinity}, endpoint], side root, side (root - endpoint)];
  If[! TrueQ[Im[root] == 0] || ! TrueQ[sourceDistance > 0],
   fail["OutsideBranch", "The numerical root is outside the selected original source branch."]];
+ numericalSourceDomainCheck[a, root, target, wp];
  observed = Which[power === 1, root, MemberQ[{Infinity, -Infinity}, endpoint], root^power,
    True, (root - endpoint)^power];
  remainder = Lookup[a, "RemainderScaleExpression", a["Remainder"] /. rr_PowerLogRemainder :> remainderScale[rr]];
@@ -40,6 +56,7 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
  <|"ReferenceRoot" -> N[root, wp], "ExactInverse" -> N[root, wp],
    "ReferenceObservable" -> N[observed, wp], "Approximation" -> N[approximate, wp],
    "ApproximationSourceRoot" -> N[seed, wp], "Error" -> error, "RemainderScale" -> scale,
+   "SourceDomainChecked" -> inverseEvidenceSourceDomain[a, x], "SourceDomainVerified" -> True,
    "Ratio" -> If[TrueQ[scale == 0], Indeterminate, error/scale],
    "ForwardResidual" -> N[equation /. x -> seed, wp], "RootResidual" -> N[equation /. x -> root, wp],
    "Scope" -> "Stored explicit forward equation; a declared input remainder is not a numerical function.",

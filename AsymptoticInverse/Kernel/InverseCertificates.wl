@@ -124,13 +124,69 @@ certEnclose[expression_, x_Symbol, interval_, ctx_] := Module[{args, base, expon
    True, certFail["UnsupportedEnclosure", "The exact interval evaluator does not support this expression.",
      <|"Expression" -> expression, "SupportedOperations" -> {"Rational constants", "Plus", "Times", "Power on a positive base", "Exp", "Log"}|>]]];
 
-certPositiveCondition[condition_, x_, interval_, ctx_] := Module[{bound},
-  Which[condition === True, True,
-   Head[condition] === And, And @@ (certPositiveCondition[#, x, interval, ctx] & /@ (List @@ condition)),
-   Head[condition] === Greater && Length[condition] == 2,
-    bound = certEnclose[condition[[1]] - condition[[2]], x, interval, ctx]; bound[[1]] > 0,
-   Head[condition] === Less && Length[condition] == 2,
-    bound = certEnclose[condition[[2]] - condition[[1]], x, interval, ctx]; bound[[1]] > 0,
+(* Conditions may use an explicitly named source symbol or a legacy local
+   coordinate. Normalize both to the source variable used by the equation.
+   The logarithmic hierarchy stores its domain in LocalVariable; its inverse
+   chart is the same real local coordinate recorded by the constructor. *)
+inverseEvidenceSourceVariable[a_] := Module[{variables, source},
+  source = Lookup[a, "SourceVariable", Missing["NotSpecified"]];
+  If[MatchQ[source, _Symbol], Return[source, Module]];
+  variables = Lookup[a, "Variables", {}];
+  If[MatchQ[variables, {_Symbol, _Symbol}], First[variables], Lookup[a, "Variable", source]]];
+
+inverseEvidenceSourceDomain[a_, x_] := Module[
+  {condition = Lookup[a, "SourceDomain", True], source, local, coordinate, endpoint, direction},
+  source = inverseEvidenceSourceVariable[a];
+  If[MatchQ[source, _Symbol] && source =!= x, condition = condition /. source -> x];
+  local = Lookup[a, "LocalVariable", Missing["NotSpecified"]];
+  If[MatchQ[local, _Symbol] && local =!= x && ! FreeQ[condition, local],
+    endpoint = Lookup[a, "ExpansionPoint", Missing["NotSpecified"]];
+    direction = Lookup[a, "Direction", "FromAbove"];
+    coordinate = Which[endpoint === Infinity, 1/x, endpoint === -Infinity, -1/x,
+      direction === "FromBelow", endpoint - x, True, x - endpoint];
+    condition = condition /. local -> coordinate];
+  condition];
+
+(* Prove a Boolean domain on the entire CLOSED verification interval.
+   Strict inequalities therefore exclude equality at either endpoint. Real
+   source identities (Im[x]==0, Element[x,Reals]) are simplified exactly;
+   the remaining comparisons use outward rational interval bounds. An
+   unrecognized predicate is unproved, never silently discarded. *)
+certPositiveCondition[condition_, x_, interval_, ctx_] := Module[{c, bound, parts, relation, proof, difference},
+  c = TimeConstrained[Quiet[Refine[condition, Element[x, Reals]]], 1, condition];
+  Which[c === True, True, c === False, False,
+   Head[c] === And, And @@ (certPositiveCondition[#, x, interval, ctx] & /@ List @@ c),
+   Head[c] === Or,
+    AnyTrue[List @@ c, TrueQ[catch[certPositiveCondition[#, x, interval, ctx]]] &],
+   Head[c] === Not,
+    parts = First[c];
+    relation = Switch[Head[parts], Greater, LessEqual, GreaterEqual, Less,
+      Less, GreaterEqual, LessEqual, Greater, Equal, Unequal, Unequal, Equal, _, None];
+    If[relation === None || Length[parts] =!= 2, False,
+      certPositiveCondition[Apply[relation, parts], x, interval, ctx]],
+   Head[c] === Inequality,
+    parts = List @@ c;
+    And @@ Table[certPositiveCondition[parts[[i + 1]][parts[[i]], parts[[i + 2]]],
+      x, interval, ctx], {i, 1, Length[parts] - 2, 2}],
+   MemberQ[{Greater, GreaterEqual, Less, LessEqual, Equal, Unequal}, Head[c]] && Length[c] >= 2,
+    relation = Head[c]; parts = List @@ c;
+    If[Length[parts] > 2,
+      Return[If[relation === Unequal,
+        And @@ (certPositiveCondition[Apply[relation, #], x, interval, ctx] & /@ Subsets[parts, {2}]),
+        And @@ (certPositiveCondition[Apply[relation, #], x, interval, ctx] & /@ Partition[parts, 2, 1])], Module]];
+    difference = Expand[parts[[1]] - parts[[2]]];
+    (* Preserve exact contact with a rational interval endpoint. Rounding
+       the two sides of x-a independently loses the equality at x=a,
+       regardless of precision; an affine range is attained at endpoints. *)
+    proof = If[PolynomialQ[difference, x] && Exponent[difference, x] <= 1 &&
+        And @@ (certRationalQ /@ CoefficientList[difference, x]),
+      Sort[(difference /. x -> #) & /@ interval],
+      catch[certEnclose[difference, x, interval, ctx]]];
+    If[! MatchQ[proof, {_, _}], Return[False, Module]];
+    bound = proof;
+    Switch[relation, Greater, bound[[1]] > 0, GreaterEqual, bound[[1]] >= 0,
+      Less, bound[[2]] < 0, LessEqual, bound[[2]] <= 0,
+      Equal, bound === {0, 0}, Unequal, bound[[1]] > 0 || bound[[2]] < 0],
    True, False]];
 
 certSourceInterval[a_, interval_, x_, ctx_] := Module[{endpoint, side},
@@ -175,9 +231,11 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
   If[! certSourceInterval[a, interval, x, ctx],
    certFail["OutsideBranch", "The certificate interval is not proved to lie on the selected source side.",
     <|"Interval" -> interval, "ExpansionPoint" -> a["ExpansionPoint"], "Direction" -> a["Direction"]|>]];
-  If[route === "LogarithmicPhase" && ! certPositiveCondition[a["SourceDomain"], x, interval, ctx],
-   certFail["OutsideBranch", "The transformed source-domain condition is not proved on the whole interval.",
-    <|"UnprovedCondition" -> a["SourceDomain"]|>]];
+  domain = inverseEvidenceSourceDomain[a, x];
+  If[! TrueQ[certPositiveCondition[domain, x, interval, ctx]],
+   certFail["OutsideBranch", "The retained source-domain condition is not proved on the whole closed verification interval.",
+    <|"UnprovedCondition" -> domain, "Interval" -> interval,
+      "ConditionScope" -> "EntireClosedVerificationInterval"|>]];
   (* Successful structural evaluation also proves continuity on this interval. *)
   forward = certEnclose[function, x, interval, ctx];
   derivativeExpression = D[function, x];
@@ -215,6 +273,7 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
     "ResidualAbsoluteBound" -> epsilon, "DerivativeEnclosure" -> derivative,
     "DerivativeLowerBound" -> mu, "DerivativeSign" -> If[derivative[[1]] > 0, 1, -1],
     "VerificationInterval" -> interval, "CertifiedFunction" -> function,
+    "CertifiedSourceDomain" -> domain, "SourceDomainVerified" -> True,
     "CertifiedTarget" -> target, "Route" -> route,
     "ExistenceEvidence" -> Which[knownRoot, "The preceding certificate enclosed a root in this interval",
       endpointBracket, "Exact endpoint signs and continuity", True, "Residual bracket containment"],
@@ -225,7 +284,7 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
       "ExplicitFunction", "StoredExpressionOnly"],
     "CertifiesInputRemainderFamily" -> False,
     "Arithmetic" -> "Exact rational intervals with directed dyadic rounding and explicit exponential/logarithm series tails",
-    "Scope" -> "A unique real root of the stored explicit Function in VerificationInterval, on the selected source side. Unspecified terms represented by InputRemainder are not enclosed, and no global inverse-branch certificate is asserted."|>];
+    "Scope" -> "A unique real root of the stored explicit Function in VerificationInterval, on the selected source side and within every retained source-domain condition. Unspecified terms represented by InputRemainder are not enclosed, and no global inverse-branch certificate is asserted."|>];
 
 Options[AsymptoticInverse`InverseCertificate] = {"Interval" -> Automatic, "Center" -> Automatic,
   "TargetError" -> Automatic, "RelativeError" -> Automatic, WorkingPrecision -> 50, "EnclosureOrder" -> Automatic,
@@ -267,7 +326,8 @@ AsymptoticInverse`InverseCertificate[PowerLogSeries[a_Association], yv_, opts : 
    If[AssociationQ[phaseData],
     f = phaseData["Phase"];
     target = Log[phaseData["AmplitudeSign"] (yv - phaseData["Offset"])/phaseData["AmplitudeScale"]];
-    certificateModel = Join[a, <|"SourceDomain" -> (phaseData["PositiveAmplitude"] > 0)|>];
+    certificateModel = Join[a, <|"SourceDomain" -> (inverseEvidenceSourceDomain[a, x] && phaseData["PositiveAmplitude"] > 0),
+      "SourceVariable" -> x|>];
     route = "LogarithmicPhase"]];
   fixed = center =!= Automatic;
   If[! fixed,

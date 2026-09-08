@@ -35,6 +35,15 @@ absolute or relative accuracy. The article states each admitted family's
 branch and error contract; these bounded algebras have distinct cutoff
 meanings and do not claim a general transseries field.
 
+Version 1.5.0 also accepts applied `InverseFunction` expressions, including
+the original `ConditionalExpression` forms used to select a real branch.
+The adapter establishes the source domain and local branch, then uses the
+inverse engine and its remainder calculus. Inverse calls can occur inside
+supported arithmetic, nested inverses, and series observables. Explicit
+branch choices are available when the real domain admits several germs.
+The package is tested on Wolfram 15.0.1 for Windows; see the
+[package guide](AsymptoticInverse/README.md) for the precise scope.
+
 ## Layout
 
 | Path | Content |
@@ -68,7 +77,32 @@ AsymptoticInverse[x + x^Sqrt[2], {x, 0}, y, SeriesTermGoal -> 4]
 (* y - y^Sqrt[2] + Sqrt[2] y^(2 Sqrt[2] - 1) - (6 - Sqrt[2])/2 y^(3 Sqrt[2] - 2) + O[y^(4 Sqrt[2] - 3)] *)
 
 AsymptoticExpansion[(1 + x + x^Sqrt[2])^Sqrt[2], {x, Infinity}, SeriesTermGoal -> 7]
+
+AsymptoticExpansion[
+  InverseFunction[Function[t,
+    ConditionalExpression[t + t^2 (1 + Log[t]), Im[t] == 0]]][y],
+  {y, 0, 4}]
+(* The same positive real logarithmic inverse as above. *)
+
+AsymptoticExpansion[
+  InverseFunction[ConditionalExpression[# + #^Sqrt[2], # >= 0] &][y],
+  {y, 0}, SeriesTermGoal -> 4]
 ```
+
+Conditions on the expansion variable must hold on its selected one-sided
+approach. Conditions inside the inverse callable restrict its source; they
+are retained for refinement and numerical evidence. A numerical check tests
+the recovered source root, and a certificate proves the restriction over its
+whole closed verification interval. Unknown or incompatible conditions fail
+explicitly.
+
+Multiargument inverses keep the declared argument position. Varying arguments
+are supported when the equation reduces exactly to
+`A(x) F(t) + B(x) == Y(x)`, with `A(x)` proved eventually nonzero; the adapter
+expands `F^-1[(Y(x) - B(x))/A(x)]`. More general coupled parameter variation
+is rejected. A direct inverse node can retain the inverse engine's logarithmic
+or transformed scale; embedding it in general arithmetic still requires a
+compatible power–log composition scale.
 
 ## Reproducing
 

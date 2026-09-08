@@ -203,8 +203,16 @@ AsymptoticInverse`SeriesExp[s_PowerLogSeries, h_?exactRealQ, opts : OptionsPatte
 (* Apply an expression to a precision-tracked jet. A unary Taylor germ is
    admitted only at a finite constant argument; its coefficients, including
    the precision of the inner argument, are composed by pUnitSeries. *)
+seriesIndependentJet[e_, d_, cut_, limit_] := Module[{u, rule},
+  If[FreeQ[e, d["Variable"]], Return[pConst[e, d["LogVariable"], seriesAss[d]], Module]];
+  u = Unique["coefficientScale$"]; rule = seriesCoordinateRule[d, u];
+  If[rule === $Failed, fail["UnsupportedObservableCoefficient", "A coefficient depending on the expansion variable needs its exact local coordinate."]];
+  If[cut === Infinity, fwd[e /. rule, u, d["LogVariable"], seriesAss[d] /. rule, cut, limit],
+    forwardJet[e /. rule, u, d["LogVariable"], seriesAss[d] /. rule, cut, limit]]];
+
 seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d["LogVariable"], ass = seriesAss[d], j, parts, c, u, native, n, cf, res},
-  Which[FreeQ[e, x], pConst[e, ell, ass], e === x, input,
+  Which[inverseFunctionApplicationQ[e], inverseFunctionJetApply[e, x, input, d, cut, limit],
+    FreeQ[e, x], seriesIndependentJet[e, d, cut, limit], e === x, input,
     h === Plus, Fold[pAdd[#1, seriesJetApply[#2, x, input, d, cut, limit], ell, ass] &, pConst[0, ell, ass], List @@ e],
     h === Times, Fold[pMul[#1, seriesJetApply[#2, x, input, d, cut, limit], ell, ass, limit] &, pConst[1, ell, ass], List @@ e],
     h === Power && e[[1]] === E, fwdExp[seriesJetApply[e[[2]], x, input, d, cut, limit], x, ell, ass, cut, limit],
@@ -229,15 +237,24 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
       pAdd[pConst[h[c], ell, ass], res, ell, ass],
     True, fail["UnsupportedObservable", "This observable is not in the supported algebra of regular unary analytic functions, powers, logarithms and exponentials."]]];
 
-AsymptoticInverse`SeriesObservable[s_PowerLogSeries, e_, x_Symbol, opts : OptionsPattern[]] := catch[Module[{d, h, j, limit = OptionValue["MaxTerms"]},
+AsymptoticInverse`SeriesObservable[s_PowerLogSeries, e_, x_Symbol, opts : OptionsPattern[]] := catch[Block[
+  {$inverseFunctionBranchSelections = OptionValue["InverseFunctionBranches"], $inverseFunctionProvenance = {},
+    $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>},
+  Module[{d, h, j, body = e, condition = True, result, limit = OptionValue["MaxTerms"]},
   validateInput[e, limit];
   If[e === Log[x], Return[seriesLog[s, OptionValue["Cutoff"], limit], Module]];
   If[e === Exp[x], Return[seriesExp[s, OptionValue["Cutoff"], limit], Module]];
   If[Head[e] === Power && e[[1]] === x && FreeQ[e[[2]], x], Return[seriesPower[s, e[[2]], OptionValue["Cutoff"], limit], Module]];
   d = seriesFlat[seriesData[s, limit], limit];
   If[d === $Failed, fail["UnsupportedScale", "This observable requires a single power-log representation of its argument."]];
-  h = seriesWorkingCut[d, OptionValue["Cutoff"]]; j = seriesJetApply[e, x, d["Jet"], d, h, limit];
-  seriesMake[Join[d, <|"Jet" -> j|>], {"Observable", {s}, e, x}, h]]];
+  h = seriesWorkingCut[d, OptionValue["Cutoff"]];
+  While[Head[body] === ConditionalExpression, condition = condition && body[[2]]; body = body[[1]]];
+  If[! TrueQ[inverseFunctionConditionOnJet[condition, x, d["Jet"], d, h, limit]],
+    fail["IncompatibleObservableCondition", "The observable condition is not proved on the precision-tracked input germ.", <|"Condition" -> condition|>]];
+  j = seriesJetApply[body, x, d["Jet"], d, h, limit];
+  result = seriesMake[Join[d, <|"Jet" -> j|>], {"Observable", {s}, e, x}, h];
+  PowerLogSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,
+    "InverseFunctionProvenance" -> DeleteDuplicates[$inverseFunctionProvenance]|>]]]]];
 
 AsymptoticInverse`SeriesCompose[outer_PowerLogSeries, inner_PowerLogSeries, opts : OptionsPattern[]] := catch[Module[
   {a, b, input, wj, term, result, p, deg, alpha, lc, ell, ass, h, limit = OptionValue["MaxTerms"]},
@@ -308,8 +325,19 @@ seriesRefinementResult[result_, original_, cutoff_] := Module[{data, stats},
 AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : OptionsPattern[]] := catch[seriesRefinementResult[Module[
   {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared},
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
+  If[KeyExistsQ[a, "InverseFunctionExpression"],
+    Return[AsymptoticExpansion[a["InverseFunctionExpression"], {a["Variable"], a["InverseFunctionExpansionPoint"], h},
+      Assumptions -> a["Assumptions"], Direction -> a["InverseFunctionExpansionDirection"],
+      "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit], Module]];
   r = refineStoredInverse[s, h, limit];
   If[r =!= $Failed, Return[r, Module]];
+  If[KeyExistsQ[a, "ConditionalSourceReplay"] && MatchQ[Lookup[a, "Variables", None], {_Symbol, _Symbol}],
+    {x, y} = a["Variables"];
+    Return[AsymptoticInverse[a["ConditionalSourceReplay"], {x, a["ExpansionPoint"]}, {y, h},
+      Assumptions -> a["Assumptions"], Direction -> a["Direction"],
+      Method -> Lookup[a, "RequestedMethod", Lookup[a, "Method", "Lagrange"]],
+      "Power" -> Lookup[a, "Power", 1], "InputRemainder" -> Lookup[a, "DeclaredInputRemainder", Automatic],
+      "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit], Module]];
   If[Lookup[a, "Kind", ""] === "SpecialInverse" && ListQ[Lookup[a, "AdapterOptions", None]],
     {x, y} = a["Variables"];
     Return[AsymptoticInverse`AsymptoticSpecialInverse[a["Adapter"], {x, a["ExpansionPoint"]}, {y, h},
@@ -320,7 +348,8 @@ AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : Opt
       Assumptions -> a["Assumptions"], Direction -> a["Direction"], "Power" -> a["Power"],
       "LogarithmicLevels" -> a["LogarithmicLevels"], "MaxTerms" -> limit], Module]];
   If[Lookup[a, "Kind", ""] === "Forward", Return[AsymptoticExpansion[a["Function"], {a["Variable"], a["ExpansionPoint"], h},
-    Assumptions -> a["Assumptions"], Direction -> a["Direction"], "MaxTerms" -> limit], Module]];
+    Assumptions -> a["Assumptions"], Direction -> a["Direction"],
+    "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit], Module]];
   If[Lookup[a, "Kind", ""] === "Inverse" && MatchQ[Lookup[a, "Variables", None], {_Symbol, _Symbol}],
     {x, y} = a["Variables"];
     sourceOptions = {Assumptions -> a["Assumptions"], Direction -> a["Direction"],
@@ -348,7 +377,8 @@ AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : Opt
     "Power", seriesPower[First[args], recipe[[3]], h, limit],
     "Log", seriesLog[First[args], h, limit],
     "Exp", seriesExp[First[args], h, limit],
-    "Observable", AsymptoticInverse`SeriesObservable[First[args], recipe[[3]], recipe[[4]], "Cutoff" -> h, "MaxTerms" -> limit],
+    "Observable", AsymptoticInverse`SeriesObservable[First[args], recipe[[3]], recipe[[4]], "Cutoff" -> h,
+      "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit],
     "Compose", AsymptoticInverse`SeriesCompose[args[[1]], args[[2]], "Cutoff" -> h, "MaxTerms" -> limit],
     "Truncate", AsymptoticInverse`SeriesTruncate[First[args], h, "MaxTerms" -> limit],
     "Constant", seriesConstant[recipe[[3]], First[args], limit],

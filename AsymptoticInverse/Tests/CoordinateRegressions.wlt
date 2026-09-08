@@ -75,7 +75,13 @@ VerificationTest[
  Failure["UnsupportedOption", _Association], SameTest -> MatchQ,
  TestID -> "coordinate-does-not-reinterpret-additive-input-error-as-phase-error"]
 
+VerificationTest[Module[{x,y,s},
+ s=AsymptoticInverse[x Exp[x^2+x], {x, Infinity}, y, SeriesTermGoal -> 3, Assumptions -> x > 0];
+ {MatchQ[s,_PowerLogSeries], TrueQ[s["SourceDomain"] /. x -> 2],
+  TrueQ[Not[s["SourceDomain"] /. x -> -2]]}],
+ {True,True,True}, TestID -> "coordinate-source-assumption-is-proved-and-retained"]
+
 VerificationTest[
- AsymptoticInverse[x Exp[x^2+x], {x, Infinity}, y, SeriesTermGoal -> 3, Assumptions -> x > 0],
- Failure["InvalidAssumptions", _Association], SameTest -> MatchQ,
- TestID -> "coordinate-assumptions-remain-parameter-only"]
+ AsymptoticInverse[x Exp[x^2+x], {x, Infinity}, y, SeriesTermGoal -> 3, Assumptions -> x < 0],
+ Failure["IncompatibleSourceCondition", _Association], SameTest -> MatchQ,
+ TestID -> "coordinate-source-assumption-rejects-incompatible-approach"]

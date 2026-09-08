@@ -311,6 +311,7 @@ provablyNegative[c_, ass_] := TrueQ[Simplify[c < 0, ass]];
 
 fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e]},
   Which[
+   inverseFunctionApplicationQ[e], inverseFunctionForwardJet[e, u, ell, ass, Kw, limit],
    FreeQ[e, u], pConst[e, ell, ass],
    e === u, pVar,
    h === Plus, Fold[pAdd[#1, fwd[#2, u, ell, ass, Kw, limit], ell, ass] &, pConst[0, ell, ass], List @@ e],
@@ -482,9 +483,11 @@ localCoordinate[x_, x0_, direction_] := Module[{dir = direction, u = Unique["u$"
 (* ------------------------------------------------------------------ *)
 
 Options[AsymptoticExpansion] = {Assumptions -> True, Direction -> Automatic, SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
-AsymptoticExpansion[f_, {x_Symbol, x0_, cutoff_}, opts : OptionsPattern[]] := catch[forwardPublic[f, x, x0, cutoff, opts]];
-AsymptoticExpansion[f_, {x_Symbol, x0_}, opts : OptionsPattern[]] := catch[forwardPublic[f, x, x0, Automatic, opts]];
-AsymptoticExpansion[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
+SetAttributes[AsymptoticExpansion, HoldAllComplete];
+AsymptoticExpansion[args___] := catch[forwardEntry[args]];
+forwardEntry[f_, {x_Symbol, x0_, cutoff_}, opts : OptionsPattern[AsymptoticExpansion]] := forwardPublic[f, x, x0, cutoff, opts];
+forwardEntry[f_, {x_Symbol, x0_}, opts : OptionsPattern[AsymptoticExpansion]] := forwardPublic[f, x, x0, Automatic, opts];
+forwardEntry[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
    "Use AsymptoticExpansion[f, {x, x0, cutoff}] or AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]."|>];
 
 (* compute the forward jet of f in the local variable to absolute precision >= K *)
@@ -508,7 +511,7 @@ exactJet[fu_, u_, ell_, ass_, limit_] := Module[{r = Catch[fwd[fu, u, ell, ass, 
    FailureQ[r], Throw[r, $tag],
    True, r]];
 
-forwardPublic[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] := Module[
+forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] := Module[
   {ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions], dir = OptionValue[AsymptoticExpansion, {opts}, Direction],
    goal = OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"],
    coord, u, ell = Unique["ell$"], fu, jet, cutoff = cutoff0, T, tries = 0, K, ex},
@@ -702,13 +705,16 @@ Options[AsymptoticInverse] = {Assumptions -> True, Direction -> Automatic, Metho
   "Power" -> 1, "InputRemainder" -> Automatic, "Truncation" -> "Exponent",
   SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 
-AsymptoticInverse[f_, {x_Symbol, x0_}, {y_Symbol, cutoff_}, opts : OptionsPattern[]] := catch[inverseDispatch[f, x, x0, y, cutoff, opts]];
-AsymptoticInverse[f_, {x_Symbol, x0_}, y_Symbol, opts : OptionsPattern[]] := catch[inverseDispatch[f, x, x0, y, Automatic, opts]];
-AsymptoticInverse[f_, x_Symbol, y_Symbol, opts : OptionsPattern[]] := catch[inverseDispatch[f, x, 0, y, Automatic, opts]];
-AsymptoticInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
+SetAttributes[AsymptoticInverse, HoldAllComplete];
+AsymptoticInverse[args___] := catch[inverseEntry[args]];
+inverseEntry[f_, {x_Symbol, x0_}, {y_Symbol, cutoff_}, opts : OptionsPattern[AsymptoticInverse]] := inverseFunctionPublicInverse[f, x, x0, y, cutoff, opts];
+inverseEntry[f_, {x_Symbol, x0_}, y_Symbol, opts : OptionsPattern[AsymptoticInverse]] := inverseFunctionPublicInverse[f, x, x0, y, Automatic, opts];
+inverseEntry[f_, x_Symbol, y_Symbol, opts : OptionsPattern[AsymptoticInverse]] := inverseFunctionPublicInverse[f, x, 0, y, Automatic, opts];
+inverseEntry[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
    "Use AsymptoticInverse[f, {x, x0}, {y, cutoff}] or AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n]."|>];
 
 inverseDispatch[f_, x_, x0_, y_, cutoff_, opts___] := Module[{s},
+  If[! FreeQ[f, _InverseFunction], Return[construct[f, x, x0, y, cutoff, opts], Module]];
   s = lambertConstruct[f, x, x0, y, cutoff, opts];
   If[s === $Failed, s = coordinateConstruct[f, x, x0, y, cutoff, opts]];
   If[s === $Failed, s = sourceCoordinateConstruct[f, x, x0, y, cutoff, opts]];
@@ -996,9 +1002,13 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
 
 Options[InverseNumericalCheck] = {WorkingPrecision -> 50};
 InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
-  {wp = OptionValue[WorkingPrecision]},
-  If[Lookup[a, "Kind", ""] === "SpecialInverse", Return[specialNumerical[a, yv, wp], Module]];
-  If[Lookup[a, "Scale", "PowerLog"] === "Transformed", Return[coordinateNumericalCheck[a, yv, wp], Module]];
+  {wp = OptionValue[WorkingPrecision], result, root},
+  If[Lookup[a, "Kind", ""] === "SpecialInverse" || Lookup[a, "Scale", "PowerLog"] === "Transformed",
+    result = If[Lookup[a, "Kind", ""] === "SpecialInverse", specialNumerical[a, yv, wp], coordinateNumericalCheck[a, yv, wp]];
+    If[FailureQ[result], Return[result, Module]];
+    root = Lookup[result, "ReferenceRoot", Lookup[result, "ExactInverse", Missing["NotAvailable"]]];
+    If[KeyExistsQ[a, "SourceDomain"] && ! MissingQ[root], numericalSourceDomainCheck[a, root, yv, wp]];
+    Return[result, Module]];
   numericalInverseEvidence[a, yv, wp]]];
 InverseNumericalCheck[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseNumericalCheck[expansion, yvalue]."|>];
 
@@ -1020,13 +1030,24 @@ PerturbativeInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "
 (* ------------------------------------------------------------------ *)
 
 Options[PowerLogModel] = {Assumptions -> True, Direction -> Automatic, "MaxTerms" -> 20000};
-PowerLogModel[f_, {x_Symbol, x0_}, OptionsPattern[]] := catch[Module[{coord, u, ell = Unique["ell$"], jet, ass = OptionValue[Assumptions]},
-   validateInput[f, OptionValue["MaxTerms"]];
-   coord = localCoordinate[x, x0, OptionValue[Direction]]; u = coord["u"];
-   jet = exactJet[f /. x -> coord["Substitution"], u, ell, ass, OptionValue["MaxTerms"]];
+SetAttributes[PowerLogModel, HoldAllComplete];
+PowerLogModel[args___] := catch[powerLogModelEntry[args]];
+powerLogModelEntry[f_, {x_Symbol, x0_}, opts : OptionsPattern[PowerLogModel]] := Module[
+   {coord, u, ell = Unique["ell$"], jet, ass = OptionValue[PowerLogModel, {opts}, Assumptions],
+    body = f, condition = True, clauses, parameterAss, limit = OptionValue[PowerLogModel, {opts}, "MaxTerms"]},
+   validateInput[f, limit];
+   While[Head[body] === ConditionalExpression, condition = condition && body[[2]]; body = body[[1]]];
+   clauses = If[Head[ass] === And, List @@ ass, {ass}];
+   parameterAss = And @@ Select[clauses, FreeQ[#, x] &];
+   condition = condition && And @@ Select[clauses, ! FreeQ[#, x] &];
+   coord = localCoordinate[x, x0, OptionValue[PowerLogModel, {opts}, Direction]]; u = coord["u"];
+   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], u, parameterAss],
+     fail["IncompatibleSourceCondition", "The model condition must hold eventually on the requested real source approach."]];
+   jet = exactJet[body /. x -> coord["Substitution"], u, ell, parameterAss, limit];
    If[jet === $Failed, fail["UnsupportedInput", "The expression is not a finite power-log sum in the local variable."]];
-   rowsToModel[jet[[1]], u, ell, ass, False]]];
-PowerLogModel[f_, x_Symbol, opts : OptionsPattern[]] := PowerLogModel[f, {x, 0}, opts];
+   Join[rowsToModel[jet[[1]], u, ell, parameterAss, False], <|"SourceDomain" -> condition, "SourceVariable" -> x|>]];
+powerLogModelEntry[f_, x_Symbol, opts : OptionsPattern[PowerLogModel]] := powerLogModelEntry[f, {x, 0}, opts];
+powerLogModelEntry[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use PowerLogModel[f,{x,x0}] or PowerLogModel[f,x]."|>];
 
 Options[InverseExpansionCoefficient] = {"Power" -> 1};
 InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catch[Module[{r = OptionValue["Power"], c},
@@ -1061,6 +1082,10 @@ Get[FileNameJoin[{$kernelDirectory, "ExponentialCorePerturbation.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NumericalInverseChecks.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "RefinementRequests.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "ReciprocalLogOperations.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "InverseFunctionSyntax.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "InverseFunctionBranches.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "InverseFunctionFamilies.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "InverseFunctionExpressions.wl"}]];
 
 End[];
 EndPackage[];
