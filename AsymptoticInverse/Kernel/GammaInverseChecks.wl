@@ -16,7 +16,7 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
   If[! And @@ (NumericQ /@ {scale, offset, power}),
     fail["UnresolvedParameters", "Substitute numerical values for the expansion's fixed parameters before numerical checking."]];
   If[! TrueQ[Quiet[Check[N[a["TargetDomain"] /. y -> target, wp + 20], False]]],
-    fail["OutsideBranch", "The target does not satisfy the retained real inverse-Gamma branch conditions."]];
+    fail["OutsideBranch", "The target does not satisfy the retained real inverse Gamma/Barnes G branch conditions."]];
   (* Substitute the exact target before numerical evaluation, preserving
      identities such as Log[Exp[v]] == v for a real exact v. *)
   coordinate = N[a["TargetCoordinateExpression"] /. y -> target, wp + 20];
@@ -25,10 +25,10 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
   If[Precision[coordinate] < wp,
     fail["InsufficientPrecision", "The transformed target lost precision through cancellation; supply a more precise or exact target."]];
   approximate = N[a["Expression"] /. y -> target, wp + 20];
-  seed = N[((a["CoreInverse"] - a["SourceOffset"])/a["SourceScale"]) /. y -> target, wp + 20];
+  seed = N[Lookup[a, "RootSeedExpression", (a["CoreInverse"] - a["SourceOffset"])/a["SourceScale"]] /. y -> target, wp + 20];
   If[! And @@ (NumericQ /@ {approximate, seed}) ||
      ! TrueQ[Im[approximate] == 0 && Im[seed] == 0],
-    fail["InvalidSeed", "The inverse-Gamma expansion and retained core must give real numerical values."]];
+    fail["InvalidSeed", "The inverse Gamma/Barnes G expansion and retained core must give real numerical values."]];
   equation = a["ExactTransformedFunction"];
   root = With[{xx = x, ff = equation, rhs = coordinate, start = seed,
       precision = wp + 20, goal = wp},
@@ -36,7 +36,7 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
       WorkingPrecision -> precision, AccuracyGoal -> Infinity,
       PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
   If[root === $Failed || ! NumericQ[root] || ! TrueQ[Im[root] == 0],
-    fail["ReferenceRootNotFound", "The exact logarithmic Gamma equation did not yield a real numerical reference."]];
+    fail["ReferenceRootNotFound", "The exact logarithmic Gamma/Barnes equation did not yield a real numerical reference."]];
   numericalSourceDomainCheck[a, root, target, wp];
   observed = N[root^power, wp + 20];
   If[! NumericQ[observed] || ! TrueQ[Im[observed] == 0],
@@ -55,7 +55,7 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
     "SourceDomainChecked" -> inverseEvidenceSourceDomain[a, x],
     "SourceDomainVerified" -> True, "SeedPhaseResidual" -> phaseResidual,
     "RootResidual" -> rootResidual, "Certified" -> False,
-    "Scope" -> "The exact logarithmic Gamma equation on the retained real source branch.",
+    "Scope" -> "The exact logarithmic " <> If[a["Kind"] === "BarnesGInverse", "Barnes G", "Gamma"] <> " equation on the retained real source branch.",
     "Evidence" -> "High-precision numerical comparison, not an interval certificate. ExactInverse is a legacy alias for ReferenceRoot."|>,
     If[power === 1, <|"ApproximationSourceRoot" -> N[approximate, wp],
       "PhaseResidual" -> N[(equation /. x -> approximate) - coordinate, wp]|>, <||>]]];
@@ -65,7 +65,7 @@ gammaInverseResidual[a_Association, h_, limit_] := Module[
    logarithm, correction = 0, polynomial, coefficient, blocks, residual,
    substitutions, modelTerms, modelPower, x, y, exactResidual, checkSize},
   If[Lookup[a, "Power", 1] =!= 1,
-    fail["UnsupportedObservable", "A Gamma-inverse residual currently requires the source-point observable Power -> 1; a finite powered approximation is not inverted to recover a source root."]];
+    fail["UnsupportedObservable", "A Gamma/Barnes inverse residual currently requires the source-point observable Power -> 1; a finite powered approximation is not inverted to recover a source root."]];
   If[! IntegerQ[limit] || limit < 1,
     fail["InvalidOption", "MaxTerms must be a positive integer."]];
   cut = If[h === Automatic, a["RemainderPower"] + 1, h];

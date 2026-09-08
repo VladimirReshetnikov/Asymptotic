@@ -33,8 +33,8 @@ seriesWorkingCut[d_, requested_] := Module[{h = requested, p = d["Jet"][[2]], ro
 seriesData[s : PowerLogSeries[a_Association], limit_] := Module[
   {d, base, rules, ell, w, j, var, off = 0, pref = 1, u, rows, coord},
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
-  If[Lookup[a, "Kind", ""] === "GammaInverse",
-    fail["UnsupportedScale", "This operation requires polynomial logarithmic coefficients. The inverse-Gamma scale supports SeriesTruncate, SeriesRefine, SeriesPower, inverse checks, and the constructor's Power observable."]];
+  If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]],
+    fail["UnsupportedScale", "This operation requires polynomial logarithmic coefficients. The Gamma/Barnes inverse scales support SeriesTruncate, SeriesRefine, SeriesPower, inverse checks, and the constructor's Power observable."]];
   If[AssociationQ[Lookup[a, "SeriesRepresentation", None]], Return[a["SeriesRepresentation"], Module]];
   If[MatchQ[Lookup[a, "CoordinateSeries", None], _PowerLogSeries],
     base = seriesData[a["CoordinateSeries"], limit]; rules = Lookup[a, "CoordinateSubstitution", {}];
@@ -158,7 +158,7 @@ AsymptoticInverse`SeriesMultiply[c_ /; FreeQ[c, _PowerLogSeries], s_PowerLogSeri
   AsymptoticInverse`SeriesMultiply[s, c, opts];
 
 seriesPower[s_, r_, cut_, limit_] := Module[{d, flat, ell, ass, h, j},
-  If[Lookup[s[[1]], "Kind", ""] === "GammaInverse",
+  If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[s[[1]], "Kind", ""]],
     Return[gammaInverseSeriesPower[s, r, cut, limit], Module]];
   If[! exactRealQ[r], fail["InvalidPower", "The power must be an exact real number."]];
   d = seriesData[s, limit]; flat = seriesFlat[d, limit]; If[flat =!= $Failed, d = flat];
@@ -287,7 +287,7 @@ AsymptoticInverse`SeriesCompose[outer_PowerLogSeries, inner_PowerLogSeries, opts
     "RemainderDerivativeOrder" -> Min[Lookup[a, "RemainderDerivativeOrder", 0], Lookup[b, "RemainderDerivativeOrder", 0]]|>], {"Compose", {outer, inner}}, h]]];
 
 AsymptoticInverse`SeriesTruncate[s_PowerLogSeries, h_, opts : OptionsPattern[]] := catch[Module[{d},
-  If[Lookup[s[[1]], "Kind", ""] === "GammaInverse", Return[gammaInverseTruncate[s, h, OptionValue["MaxTerms"]], Module]];
+  If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[s[[1]], "Kind", ""]], Return[gammaInverseTruncate[s, h, OptionValue["MaxTerms"]], Module]];
   d = seriesData[s, OptionValue["MaxTerms"]];
   If[! exactRealQ[h], fail["InvalidCutoff", "The truncation cutoff must be an exact real number."]];
   seriesMake[d, {"Truncate", {s}}, h]]];
@@ -320,7 +320,7 @@ AsymptoticInverse`SeriesDifferentiate[s_PowerLogSeries, n_Integer : 1, opts : Op
 seriesRefinementResult[result_, original_, cutoff_] := Module[{data, stats},
   If[! MatchQ[result, _PowerLogSeries], Return[result, Module]];
   data = result[[1]];
-  If[Lookup[original[[1]], "Kind", ""] === "GammaInverse",
+  If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[original[[1]], "Kind", ""]],
     data = Join[data, <|"TargetDomain" -> Lookup[original[[1]], "TargetDomain", True] &&
       Lookup[data, "TargetDomain", True]|>]];
   If[KeyExistsQ[data, "RefinementStatistics"], Return[PowerLogSeries[data], Module]];
@@ -361,7 +361,7 @@ AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : Opt
   If[Lookup[a, "Kind", ""] === "Forward", Return[AsymptoticExpansion[a["Function"], {a["Variable"], a["ExpansionPoint"], h},
     Assumptions -> a["Assumptions"], Direction -> a["Direction"],
     "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit], Module]];
-  If[MemberQ[{"Inverse", "GammaInverse"}, Lookup[a, "Kind", ""]] && MatchQ[Lookup[a, "Variables", None], {_Symbol, _Symbol}],
+  If[MemberQ[{"Inverse", "GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]] && MatchQ[Lookup[a, "Variables", None], {_Symbol, _Symbol}],
     {x, y} = a["Variables"];
     sourceOptions = {Assumptions -> a["Assumptions"], Direction -> a["Direction"],
       Method -> Lookup[a, "RequestedMethod", a["Method"]], "Power" -> a["Power"],

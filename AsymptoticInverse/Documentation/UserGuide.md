@@ -46,6 +46,7 @@ Outputs below are written in algebraically equivalent factored forms where this 
 | Expand a function | [AsymptoticExpansion](#AsymptoticExpansion) |
 | Expand a selected inverse | [AsymptoticInverse](#AsymptoticInverse) |
 | Expand the increasing Gamma or LogGamma inverse | [Inverse Gamma and LogGamma Functions](#inverse-gamma-and-loggamma) |
+| Expand the increasing Barnes G inverse | [Inverse Barnes G Functions](#barnes-inverse-expansions) |
 | Inspect results and models | [PowerLogSeries](#PowerLogSeries), [PowerLogRemainder](#PowerLogRemainder), [PowerLogModel](#PowerLogModel), [InverseExpansionCoefficient](#InverseExpansionCoefficient) |
 | Perform series arithmetic | [SeriesAdd](#SeriesAdd), [SeriesMultiply](#SeriesMultiply), [SeriesPower](#SeriesPower), [SeriesLog](#SeriesLog), [SeriesExp](#SeriesExp) |
 | Compose or apply a function | [SeriesCompose](#SeriesCompose), [SeriesObservable](#SeriesObservable) |
@@ -140,6 +141,7 @@ For an inverse, the target coordinate also includes the limiting value and selec
 | `LogGamma` or a supported real logarithm of a Gamma or Barnes G product | Ordinary exclusive exponent bound in the positive local coordinate; complete logarithmic polynomials count as blocks. |
 | Lambert expansion | Exclusive inverse-logarithmic exponent inside its prefactor; inspect `"LogarithmicVariable"`. |
 | Increasing Gamma or LogGamma inverse | Exclusive exponent of `1/s["CoreInverse"]`; each coefficient is a complete polynomial in `1/Log[s["CoreInverse"]]`. |
+| Increasing Barnes G inverse or logarithmic Barnes inverse | Exclusive exponent of `1/s["CoreInverse"]`; each coefficient is a complete polynomial in `1/(Log[s["CoreInverse"]] - 1)`. |
 | Transformed source or target | Convention of `s["CoordinateSeries"]`, followed by its recorded substitution and reconstruction. |
 | Reciprocal-logarithmic unit or leading logarithmic monomial | Positive exclusive cutoff in the recorded inverse-logarithmic coordinate. |
 | Generalized logarithmic coefficients | Exclusive target-power cutoff above the leading observable power; this cutoff may be negative. |
@@ -555,6 +557,8 @@ s = AsymptoticExpansion[BarnesG[x + 1]/(Gamma[x] BarnesG[x]),
 
 `SeriesRefine` retains the original source expression and obtains additional correction blocks at the requested cutoff. Its cutoff is relative to the prefactor for a Barnes product and absolute in the local coordinate for its logarithm. The displayed asymptotic series does not assert convergence or provide a pointwise numerical error certificate.
 
+For expansion of the increasing inverse on the source branch above three, see [Inverse Barnes G Functions](#barnes-inverse-expansions).
+
 #### Elementary Exponential Products
 
 Multiplicative exponentials and varying powers of positive bases can retain exact growing or decaying prefactors. At least one individual logarithmic source must grow faster in magnitude than the logarithm of the local coordinate. The combined logarithmic expansion must be supported.
@@ -905,6 +909,136 @@ check = InverseNumericalCheck[g, Exp[10000], WorkingPrecision -> 100];
 The calculation uses the equivalent `LogGamma` equation and verifies the retained source and target conditions. Powered observables are supported: `"ReferenceRoot"` is the source root, while `"ReferenceObservable"` is its requested power. `"Ratio"` divides the absolute approximation error by the recorded remainder scale. Supply an exact target or at least the requested working precision, and resolve fixed parameters numerically.
 
 The returned numerical check has `"Certified" -> False`. `InverseCertificate` and certificate-based tolerance refinement are not supported for this inverse-Gamma result family.
+
+<a id="barnes-inverse-expansions"></a>
+## Inverse Barnes G Functions
+
+### Basic Examples
+
+Expand the inverse of Barnes G on its increasing real source branch above three:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[
+  InverseFunction[
+    x |-> ConditionalExpression[BarnesG[x], x > 3]][z],
+  z -> Infinity, SeriesTermGoal -> 3];
+Normal[s]
+```
+
+The exact dominant inverse and its coefficient coordinate are
+
+```wolfram
+X = Sqrt[4 Log[z]/ProductLog[4 Log[z]/E^3]];
+q = 1/(Log[X] - 1);
+```
+
+`ProductLog` uses the principal real branch. With `c = Log[2 Pi]` and `a = Log[Glaisher]`, the finite approximation has three complete blocks:
+
+```wolfram
+X + (1 - c q/2) + (1/12 + a q + c^2 q^2/8 - c^2 q^3/8)/X
+```
+
+The blocks have exponents `-1`, `0`, and `1` in `1/X`. Each retains its entire polynomial in `q`; the constant translation by one belongs to the second block. The remainder descriptor is `PowerLogRemainder[1/X, 2, 0]/(Log[X] - 1)^3`, corresponding to an absolute error of order `1/(X^2 (Log[X] - 1)^3)`.
+
+Specify the source endpoint directly, or invert the real logarithm of Barnes G:
+
+```wolfram
+g = AsymptoticInverse[BarnesG[x], {x, Infinity}, z,
+  SeriesTermGoal -> 3];
+
+lg = AsymptoticInverse[Log[BarnesG[x]], {x, Infinity}, z,
+  SeriesTermGoal -> 3];
+```
+
+For the logarithmic forward function, the dominant inverse is `Sqrt[4 z/ProductLog[4 z/E^3]]`. The same coefficient polynomials apply with this core in place of `X`.
+
+### Details and Options
+
+The condition `x > 3` selects an interval on which Barnes G is strictly increasing, with target `z > 1`. Conditions attached to a callable inverse must establish the admitted source branch. Additional source and target conditions are preserved during refinement and checked by the numerical helper.
+
+With a broader source condition, select the endpoint explicitly:
+
+```wolfram
+inv = InverseFunction[t |-> ConditionalExpression[BarnesG[t], t > 0]];
+AsymptoticExpansion[inv[z], z -> Infinity, SeriesTermGoal -> 3,
+  "InverseFunctionBranches" -> <|
+    inv -> <|"SourcePoint" -> Infinity, "Direction" -> "FromBelow"|>|>]
+```
+
+This selects the source tail above three. The branch record retains the original condition separately and verifies that it holds eventually at the selected endpoint.
+
+| Property | Meaning for this result family |
+| --- | --- |
+| `"Kind"`, `"Scale"` | Both are `"BarnesGInverse"`. |
+| `"CoreInverse"` | Exact Lambert core `X`. |
+| `"CoreLogExpression"` | `Log[X] - 1`. |
+| `"CoefficientSubstitution"` | Substitution of `1/(Log[X] - 1)` for the coefficient variable. |
+| `"Terms"`, `"CoefficientFrontier"` | Complete retained and first omitted polynomial blocks in the coefficient variable. |
+| `"RemainderPower"`, `"RemainderInverseLogPower"` | For the three-block request above, `2` and `3`. |
+| `"TargetCoordinateExpression"` | Target of the equivalent real `Log[BarnesG[...]]` equation. |
+
+The cutoff is exclusive in powers of `1/X`: cutoff `2` retains the three blocks displayed above. `SeriesTermGoal` counts complete nonzero blocks after cancellation. The inverse expansion is justified at each fixed order by a finite Barnes logarithmic model; it does not assert convergence or a pointwise error constant.
+
+### Scope
+
+Affine source arguments, fixed real nonzero Barnes powers, and affine target changes use the same constructor:
+
+```wolfram
+AsymptoticInverse[BarnesG[2 x + 3], {x, Infinity}, z,
+  SeriesTermGoal -> 3]
+
+AsymptoticInverse[7 - 2 BarnesG[x]^2, {x, Infinity}, z,
+  SeriesTermGoal -> 3]
+
+AsymptoticInverse[BarnesG[3 - 2 x], {x, -Infinity}, z,
+  SeriesTermGoal -> 3]
+
+AsymptoticInverse[-1/BarnesG[x], {x, Infinity}, z,
+  SeriesTermGoal -> 3]
+```
+
+For `d + a BarnesG[alpha x + beta]^r`, the logarithmic target is `Y = Log[(z - d)/a]/r`, with `(z - d)/a > 0`, `Y > 0`, and source condition `alpha x + beta > 3`. The original source is reconstructed from the Barnes argument by subtracting `beta` and dividing by `alpha`. Fixed parameters must have proved real values and the required nonzero signs; use `Assumptions` for symbolic parameters.
+
+The last example approaches target zero from below and uses `Y = -Log[-z]`. Affine logarithmic forward expressions `d + a Log[BarnesG[alpha x + beta]]` instead use `Y = (z - d)/a`.
+
+### Powers, Refinement, and Checks
+
+The option `"Power"` expands a fixed power of the original source root:
+
+```wolfram
+AsymptoticInverse[BarnesG[x], {x, Infinity}, z,
+  "Power" -> -1, SeriesTermGoal -> 3]
+
+short = SeriesTruncate[g, 1];
+long = SeriesRefine[short, 3];
+powered = SeriesPower[g, 2];
+
+AsymptoticExpansion[
+  InverseFunction[t |-> ConditionalExpression[BarnesG[t], t > 3]][z]^2,
+  z -> Infinity, SeriesTermGoal -> 3]
+```
+
+An observable power must be a nonzero exact real number, and a negative source branch requires an integer power. `SeriesPower` propagates the operand remainder; a larger requested cutoff cannot restore precision lost in that operand. Cutoff-based `SeriesRefine` can obtain more information from the retained source equation. The `"AdditionalBlocks"` request form is limited to ordinary power-log inverses.
+
+`SeriesPower[g, 0]` returns the exact constant one while retaining the target-domain condition.
+
+Check the source-point inverse with a formal residual or a numerical reference:
+
+```wolfram
+residual = InverseResidual[g];
+residual["ZeroBelowCutoff"]
+
+check = InverseNumericalCheck[g, Exp[1000], WorkingPrecision -> 60];
+{check["ReferenceRoot"], check["ReferenceObservable"], check["Error"]}
+```
+
+The formal residual uses the finite logarithmic Barnes model, normalized by `X^2 (Log[X] - 1)`. Read its `"Scope"` and separate model remainder. This helper requires `"Power" -> 1`; cancellation below its stated cutoff does not make the truncated model exact.
+
+The numerical check solves the original logarithmic Barnes equation on the retained real branch and also supports powered source observables. Supply an exact target or sufficient input precision and resolve fixed parameters numerically. Its `"Certified"` property is `False`.
+
+Generic series addition, multiplication, logarithms, exponentials, composition, and differentiation do not accept this inverse coefficient scale. Interval certification and certificate-based tolerance refinement are also unsupported. Arithmetic on `Normal[s]` operates on the finite expression without transporting its remainder.
 
 <a id="series-operations"></a>
 ## Explicit Series Operations

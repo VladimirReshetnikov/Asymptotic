@@ -45,7 +45,7 @@ inverseBranchContinuousQ[body_, x_] := Module[{heads},
   FreeQ[body, ArcTan[_, _]] &&
   And @@ (MemberQ[{Plus, Times, Power, Log, Exp, Abs, Sin, Cos, Tan, Cot, Sec, Csc,
     Sinh, Cosh, Tanh, Coth, Sech, Csch, ArcSin, ArcCos, ArcTan,
-    ArcSinh, ArcCosh, ArcTanh, Erf, Erfc, Gamma, LogGamma, ProductLog}, #] & /@ heads)];
+    ArcSinh, ArcCosh, ArcTanh, Erf, Erfc, Gamma, LogGamma, BarnesG, ProductLog}, #] & /@ heads)];
 
 inverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[
   {left = Unique["left$"], right = Unique["right$"], middle = Unique["middle$"],
@@ -150,6 +150,8 @@ inverseFunctionSelectBranchInternal[data_, target_, targetSide_, ass_, limit_, s
   validateInput[body, limit];
   If[! MemberQ[{Infinity, -Infinity}, target] && (! inverseBranchRealQ[target, ass] || ! MemberQ[{-1, 1}, targetSide]),
     fail["UnprovedInverseTargetLimit", "The inverse argument needs an exact real endpoint and a proved one-sided approach, or a signed infinity."]];
+  choice = barnesInverseBranch[data, target, targetSide, ass, limit, selection];
+  If[AssociationQ[choice], Return[choice, Module]];
   If[! inverseBranchContinuousQ[body, x],
     fail["UnsupportedInverseFunctionBody", "Branch inference requires an explicit supported continuous elementary or special-function body."]];
   realDomain = inverseBranchTry[FunctionDomain[body, x, Reals]];

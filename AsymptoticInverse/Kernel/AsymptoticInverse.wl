@@ -20,10 +20,11 @@ as a PowerLogSeries object.
 AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero blocks.
 AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] is equivalent. A unary pure Function \
 or unapplied InverseFunction is applied to x before expansion.
-For supported Gamma products, ratios, real varying powers and elementary exponential growth, an exact prefactor is extracted; \
+For supported Gamma/Barnes G products, ratios, real varying powers and elementary exponential growth, an exact prefactor is extracted; \
 the cutoff and term goal apply to the power-log correction bracket.
 Increasing Gamma and LogGamma inverses, their admitted affine forms and fixed powers use Scale -> \"GammaInverse\": \
 each block is a complete polynomial in 1/Log[CoreInverse] at one power of 1/CoreInverse. \
+The increasing Barnes G inverse uses Scale -> \"BarnesGInverse\", with coefficients polynomial in 1/(Log[CoreInverse]-1). \
 Real logarithms of supported positive Gamma products are normalized to LogGamma before ordinary absolute power-log expansion. \
 See Documentation/UserGuide.md for the admitted real domains and scales.";
 
@@ -38,6 +39,7 @@ the cutoff and term count apply to the unit bracket after extracting Prefactor, 
 the positive inverse-logarithmic variable LogarithmicVariable. See Documentation/UserGuide.md \
 for this scale's branch and remainder conventions.
 Gamma and LogGamma at a source infinity with Gamma argument tending to positive infinity use Scale -> \"GammaInverse\". \
+BarnesG and Log[BarnesG] use Scale -> \"BarnesGInverse\", with an exact Lambert core for the Barnes argument minus one. \
 The cutoff is exclusive in 1/CoreInverse and the term goal counts complete polynomial inverse-logarithmic blocks. \
 Power specifies a fixed real source observable, with integer powers required on negative source branches.";
 
@@ -56,7 +58,8 @@ InverseResidual::usage =
 power-log jet algebra and returns the normalized residual f(g(y))/(a z^p) - 1 below the \
 residual cutoff; InverseResidual[s, h] uses the relative cutoff h in the uniformizer.
 For GammaInverse with Power -> 1, it checks the finite Stirling residual normalized by CoreInverse Log[CoreInverse], \
-reporting the separate forward-model error and the exact logarithmic equation residual expression.";
+reporting the separate forward-model error and the exact logarithmic equation residual expression. \
+BarnesGInverse uses CoreInverse^2 CoreLogExpression and a finite Barnes logarithmic model.";
 
 InverseNumericalCheck::usage =
 "InverseNumericalCheck[s, y1] solves f(x) = y1 numerically on the selected branch and \
@@ -1020,6 +1023,7 @@ InverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use 
 residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["Blocks"], ell = a["LogVariable"], ass = a["Assumptions"],
    p, d, polys, r = a["Power"], cut, U, res, y, v, aa, rint},
   If[Lookup[a, "Kind", ""] === "GammaInverse", Return[gammaInverseResidual[a, h, limit], Module]];
+  If[Lookup[a, "Kind", ""] === "BarnesGInverse", Return[barnesInverseResidual[a, h, limit], Module]];
   If[Lookup[a, "Scale", "PowerLog"] === "Transformed", Return[coordinateResidual[a, h, limit], Module]];
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic", Return[lambertResidual[a, h, limit], Module]];
   If[Lookup[a, "Kind", ""] === "LogarithmicInverse", Return[logarithmicResidual[a, h, limit], Module]];
@@ -1048,7 +1052,7 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
 Options[InverseNumericalCheck] = {WorkingPrecision -> 50};
 InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
   {wp = OptionValue[WorkingPrecision], result, root},
-  If[Lookup[a, "Kind", ""] === "GammaInverse", Return[gammaInverseNumerical[a, yv, wp], Module]];
+  If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]], Return[gammaInverseNumerical[a, yv, wp], Module]];
   If[Lookup[a, "Kind", ""] === "SpecialInverse" || Lookup[a, "Scale", "PowerLog"] === "Transformed",
     result = If[Lookup[a, "Kind", ""] === "SpecialInverse", specialNumerical[a, yv, wp], coordinateNumericalCheck[a, yv, wp]];
     If[FailureQ[result], Return[result, Module]];
@@ -1135,7 +1139,9 @@ Get[FileNameJoin[{$kernelDirectory, "InverseFunctionExpressions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaForward.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "BarnesForward.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaInverse.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "BarnesInverse.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaInverseChecks.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "BarnesInverseChecks.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaInverseOperations.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "ExponentialForward.wl"}]];
 

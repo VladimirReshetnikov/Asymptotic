@@ -1,0 +1,226 @@
+\section{The increasing inverse of Barnes' \texorpdfstring{$G$}{G}-function}
+\label{sec:barnes-inverse}
+
+The logarithmic expansion \eqref{eq:barnes-logarithm} permits inversion
+in a scale whose dominant term is expressed exactly by the Lambert
+function. Keeping that term exact separates the successive powers of
+the large source from the slower logarithmic coefficients.
+
+\subsection{The real branch above three}
+
+The Barnes function is strictly increasing on $(3,\infty)$ and maps
+this interval onto $(1,\infty)$. To establish monotonicity, put
+$v=x-1$ and $C=\log(2\pi)$. Differentiating
+\cite[(5.17.4)]{dlmf} gives the exact identity
+\begin{equation}
+ \frac{d}{dv}\log G(v+1)
+   =v\bigl(\psi(v+1)-1\bigr)+\frac{C-1}{2},
+ \label{eq:barnes-logarithmic-derivative}
+\end{equation}
+where $\psi$ is the digamma function. Its defining series gives
+\[
+ \psi(v+1)=\lim_{n\to\infty}
+   \left(\log n-\sum_{k=1}^{n}\frac1{v+k}\right).
+\]
+The function $t\mapsto1/(v+t)$ is strictly convex. Comparing each
+midpoint value with its integral over $[k-1/2,k+1/2]$ gives a positive
+gap; the gap from the first interval persists in the limit. Thus
+$\psi(v+1)>\log(v+1/2)$ for $v>0$. Consequently the derivative
+in \eqref{eq:barnes-logarithmic-derivative} exceeds
+\[
+ h(v)=v\bigl(\log(v+1/2)-1\bigr)+\frac{C-1}{2}.
+\]
+For $v\ge2$, one has
+$h'(v)=\log(v+1/2)-1/(2v+1)>0$ and $h(2)>0$.
+For an elementary strict bound, the inequality
+$\log u>2(u-1)/(u+1)$ for $u>1$, applied to the factors in
+$5/2=(3/2)(5/3)$, gives
+\[
+ \log(5/2)=\log(3/2)+\log(5/3)
+   >\frac25+\frac12=\frac9{10}>\frac89.
+\]
+Likewise, $2\pi>6=(3/2)2^2$ gives
+\[
+ C>\log(3/2)+2\log2
+   >\frac25+\frac43=\frac{26}{15}>\frac53.
+\]
+These bounds imply $h(2)>1/9$.
+Thus the derivative is positive for $x>3$.
+The recurrence gives $G(3)=1$, and \eqref{eq:barnes-logarithm}
+gives $G(x)\to\infty$. Denote this increasing inverse by $g(y)$.
+All subsequent assertions concern $y\to+\infty$ on this branch.
+
+\subsection{An exact Lambert balance}
+
+Write $Y=\log y$ and define
+\begin{equation}
+ X=\sqrt{\frac{4Y}{W_0(4Y/e^3)}},\qquad
+ L=\log X,\qquad t=\frac1X,\qquad q=\frac1{L-1},
+ \label{eq:barnes-inverse-coordinate}
+\end{equation}
+where $W_0$ is the principal real Lambert function. Then
+\begin{equation}
+ \frac{X^2}{2}\left(\log X-\frac32\right)=Y,
+ \qquad
+ L-1=\frac{1+W_0(4Y/e^3)}2>0.
+ \label{eq:barnes-inverse-balance}
+\end{equation}
+As $y\to\infty$, both $X$ and $L$ tend to infinity. The leading
+balance and monotonicity imply $(g(y)-1)/X\to1$.
+The coefficient coordinate $q$ uses $L-1$ because the derivative
+of the dominant logarithmic phase is $X(L-1)$.
+
+Let $A=\log\mathcal A$, where $\mathcal A$ is Glaisher's constant,
+so that $\zeta'(-1)=1/12-A$. Write
+$g(y)=1+X(1+U)$. After substituting the finite expansion
+\eqref{eq:barnes-logarithm} and dividing the logarithmic residual
+by $X^2(L-1)$, the normalized finite equation is
+$\Psi_m(U,t,q)=0$, where
+\begin{equation}
+\begin{aligned}
+ \Psi_m(U,t,q)={}&U+\frac{U^2}{2}
+   +\frac q2\left((1+U)^2\log(1+U)-U-\frac{U^2}{2}\right)\\
+ &+\frac{Cqt}{2}(1+U)-t^2\left(\frac1{12}+Aq\right)
+   -\frac{qt^2}{12}\log(1+U)\\
+ &+q\sum_{k=1}^{m}
+   \frac{B_{2k+2}\,t^{2k+2}(1+U)^{-2k}}{2k(2k+2)}.
+\end{aligned}
+ \label{eq:barnes-inverse-normalized-equation}
+\end{equation}
+The omitted part of the true normalized equation is
+$\OO(qt^{2m+4})$, uniformly for $U$ in a fixed sufficiently small
+real interval. The finite equation is analytic near the origin in
+the three independent variables $U,t,q$ and has derivative one
+with respect to $U$ there.
+
+\subsection{Polynomial coefficients and three complete blocks}
+
+Temporarily regard $t$ and $q$ as independent. Seek a formal solution
+\begin{equation}
+ U=\sum_{n\ge0}b_n(q)t^{n+1},\qquad
+ b_n\in\mathbb Q[A,C,q].
+ \label{eq:barnes-inverse-unit-series}
+\end{equation}
+With $U_{<n}=\sum_{j=0}^{n-1}b_j(q)t^{j+1}$, the triangular recurrence is
+\begin{equation}
+ b_n(q)=-[t^{n+1}]\Psi_m(U_{<n},t,q),\qquad
+ m\ge\max\left(0,\left\lfloor\frac{n-1}{2}\right\rfloor\right).
+ \label{eq:barnes-inverse-coefficient-recurrence}
+\end{equation}
+After the linear terms inside the logarithmic bracket cancel,
+only the first term $U$ contains the new coefficient at the requested
+power; every other occurrence has an additional factor $t$ or $U$.
+This proves uniqueness and polynomiality by induction. A larger $m$
+does not change coefficients already determined.
+
+The first coefficients are
+\begin{align}
+ b_0(q)&=-\frac{Cq}{2},\notag\\
+ b_1(q)&=\frac1{12}+Aq+\frac{C^2q^2}{8}-\frac{C^2q^3}{8},\notag\\
+ b_2(q)&=\frac{CAq^3}{2}+\frac{C^3q^4}{12}-\frac{C^3q^5}{16}.
+ \label{eq:barnes-inverse-first-coefficients}
+\end{align}
+Thus the first three complete blocks of the original source are
+\begin{equation}
+ G_3(y)=X+\left(1-\frac{Cq}{2}\right)
+       +\frac1X\left(\frac1{12}+Aq
+                    +\frac{C^2q^2}{8}-\frac{C^2q^3}{8}\right).
+ \label{eq:barnes-inverse-three-blocks}
+\end{equation}
+The source translation by one belongs to the block at power $X^0$.
+Each block retains its whole polynomial in $q$. Since
+$X^{-1}(L-1)^d\to0$ for every fixed real $d$, distinct nonzero
+blocks are ordered by their powers of $X^{-1}$ even when their
+coefficient polynomials have different orders of vanishing at $q=0$.
+
+\begin{theorem}[Finite-order inverse Barnes expansion]
+\label{thm:barnes-inverse-finite-order}
+For every fixed integer $N\ge0$,
+\begin{equation}
+ g(y)=1+X+\sum_{n=0}^{N}X^{-n}b_n(q)+\OO(X^{-N-1}).
+ \label{eq:barnes-inverse-finite-remainder}
+\end{equation}
+In particular,
+\begin{equation}
+ g(y)-G_3(y)=\frac{b_2(q)}{X^2}+\OO(X^{-3})
+            =\OO\left(\frac1{X^2(L-1)^3}\right),
+ \label{eq:barnes-inverse-three-remainder}
+\end{equation}
+and
+\begin{equation}
+ \lim_{y\to\infty}X^2(L-1)^3\bigl(g(y)-G_3(y)\bigr)
+   =\frac{\log(2\pi)\log\mathcal A}{2}>0.
+ \label{eq:barnes-inverse-three-error-limit}
+\end{equation}
+\end{theorem}
+\begin{proof}
+Fix $N$ and choose
+$m\ge\max(0,\lfloor(N-1)/2\rfloor)$. The analytic implicit function
+theorem gives a solution $U_m(t,q)$ of \eqref{eq:barnes-inverse-normalized-equation}
+in a common neighborhood of $(t,q)=(0,0)$. Taylor expansion in $t$,
+uniformly for $q$ in a smaller neighborhood, gives
+\[
+ U_m(t,q)=\sum_{n=0}^{N}b_n(q)t^{n+1}+\OO(t^{N+2}).
+\]
+For the true normalized equation, differentiation with respect to $U$
+gives
+\[
+ \frac{\left.\dfrac{d}{dv}\log G(v+1)\right|_{v=X(1+U)}}{X(L-1)}.
+\]
+By \eqref{eq:barnes-logarithmic-derivative} and the digamma asymptotics,
+this tends uniformly to $1+U$ on any fixed sufficiently small interval
+about zero. It is therefore bounded away from zero there.
+The true inverse has $U\to0$. The mean value theorem and the finite
+Barnes remainder bound its difference from $U_m$ by
+$\OO(qt^{2m+4})$. Multiplication by $X=t^{-1}$ and the inequality
+$2m+3\ge N+1$ prove \eqref{eq:barnes-inverse-finite-remainder}.
+For \eqref{eq:barnes-inverse-three-remainder}, use $N=2$ and separate
+the $b_2$ term. Its leading coefficient is $CAq^3/2$, and
+$(L-1)^3/X\to0$, which also proves
+\eqref{eq:barnes-inverse-three-error-limit}.
+\end{proof}
+
+The generic finite-order remainder has no obligatory factor $q$.
+Indeed, at $q=0$ the analytic finite-model solution is
+$U_m(t,0)=-1+\sqrt{1+t^2/6}$, which already has nonzero coefficients
+at arbitrarily high even powers of $t$. The proof concerns each fixed
+finite model and makes no assertion that the inverse series converges
+as its truncation order tends to infinity.
+
+\subsection{Affine reconstruction and real powers}
+
+Let $H(Y)$ be the increasing solution of $\log G(H(Y))=Y$, so
+$g(y)=H(\log y)$. For fixed real parameters
+$\alpha a r\ne0$, the equation
+\[
+ y=d+a\,G(\alpha x+\beta)^r,\qquad \alpha x+\beta>3,
+\]
+has the exact source reconstruction
+\begin{equation}
+ x=\frac{H(Y)-\beta}{\alpha},\qquad
+ Y=\frac1r\log\frac{y-d}{a}>0,
+ \qquad \frac{y-d}{a}>0.
+ \label{eq:barnes-inverse-affine-reconstruction}
+\end{equation}
+The regime $Y\to\infty$ corresponds to $(y-d)/a\to\infty$ for
+$r>0$, and to $(y-d)/a\to0^+$ for $r<0$. The latter approaches
+the finite target $d$ from the side determined by $a$.
+An affine logarithmic target $y=d+a\log G(\alpha x+\beta)$ instead
+uses $Y=(y-d)/a$. All these assertions keep the parameters fixed.
+
+A fixed real power $x^\nu$ is defined eventually for $\alpha>0$;
+for $\alpha<0$, restrict here to integer $\nu$. Its normalized
+expression is
+\[
+ x^\nu=\alpha^{-\nu}X^\nu
+       \bigl(1+(1-\beta)t+U\bigr)^\nu.
+\]
+Finite analytic composition therefore gives polynomial coefficients
+in $q$ at successive powers of $X^{-1}$, with the same argument as
+\eqref{eq:gamma-inverse-observable-expansion}. If the first omitted
+nonzero coefficient at $X^{\nu-j}$ is
+$\gamma q^h+\OO(q^{h+1})$, then the corresponding error is
+asymptotic to $\gamma X^{\nu-j}(L-1)^{-h}$: the next full core power
+has size at most $\OO(X^{\nu-j-1})$, and
+$X^{-1}(L-1)^h\to0$. Entire zero blocks are omitted before selecting
+this first coefficient.

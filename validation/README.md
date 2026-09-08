@@ -1,5 +1,45 @@
 # Review and validation record
 
+The increasing Barnes G inverse update is recorded in
+`barnes-g-inverse-tests.json` and `barnes-g-inverse-validation.json`.
+**All 142 focused tests passed**, with zero failures on Wolfram 15.0.1
+for Windows. The full package suite was skipped at the user's request.
+The runner explicitly selects the 24-test inverse Barnes file and five
+adjacent inverse Gamma, branch, callable-expression, and Barnes forward files.
+
+The new tests independently derive the first four source blocks, the next
+frontier coefficient, and powered observables. They cover the literal
+applied conditional inverse, affine and logarithmic targets, reciprocal
+forward powers at a finite target, named and slot callables, exclusive
+cutoffs, refinement, inherited power precision, branch restrictions,
+formal residuals, and a 60-digit numerical reference at `BarnesG[100]`.
+That exact target has source root 100 by the Barnes recurrence. The
+three-block error is positive and agrees with its first omitted term.
+The numerical comparison is explicitly not an interval certificate.
+A regression also ensures that a Barnes-valued affine constant inside
+Gamma or LogGamma does not change the inverse family.
+
+The pure mathematical article proves monotonicity above three, derives
+the Lambert balance and polynomial recurrence, and transports the finite
+Barnes remainder to the inverse. The separate Wolfram-style guide gives
+the requested syntax, related forms, operations, and limitations. The
+87-page PDF was rebuilt with three serial LaTeX passes and every page was
+rendered. Changed and new pages were visually reviewed; unchanged pages
+20-82 were verified to have identical rendered bytes to the preceding
+Barnes milestone. Desktop and mobile guide screenshots were inspected,
+with no document overflow or broken local links.
+
+To reproduce this focused milestone:
+
+```powershell
+wolfram.exe -script validation/CheckBarnesGInverse.wl
+python validation/check_documentation.py
+```
+
+The native report records exact byte hashes of the tested kernel, tests,
+and runner. The validation ledger also records the final PDF hash and
+the scope of static, browser, and mathematical review.
+
 The Barnes G update is recorded in `barnes-g-tests.json` and
 `barnes-g-validation.json`. **All 94 focused tests passed**, with zero
 failures on Wolfram 15.0.1 for Windows. The full package suite was skipped
