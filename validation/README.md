@@ -1,5 +1,26 @@
 # Review and validation record
 
+The callable-input update is recorded in `callable-expansion-tests.json`.
+Its final native run passes **759 tests in 32 suites, with zero failures**, on
+Wolfram 15.0.1 for Windows. The 17 new regressions cover rule coordinates,
+unapplied inverse and pure functions, native inverse simplification, lexical
+scoping, option forwarding, arity failures, conditional wrappers, and source
+conditions retained through refinement. The requested five-term inverse of
+`x + x^Sqrt[2]` at infinity is checked against independently derived Lagrange
+coefficients, its exact reciprocal-coordinate remainder, and a vanishing
+formal composition residual. The JSON also records the baseline commit and
+SHA-256 hashes of the changed source and test files.
+
+To reproduce this run from the repository root:
+
+```powershell
+$env:ASYMPTOTIC_VALIDATION_OUTPUT = Join-Path (Get-Location).Path 'validation\callable-expansion-tests.json'
+wolfram.exe -script AsymptoticInverse\Tests\RunTests.wl
+```
+
+The runner exports test outcomes; the baseline and changed-source hashes in
+the saved record were added after the successful run.
+
 Version **1.5.0**, the fourth extension milestone, is recorded in
 `milestone-4-tests.json` and `milestone-4-artifacts.json`. The suite covers
 applied `InverseFunction` expressions, both original conditional examples,

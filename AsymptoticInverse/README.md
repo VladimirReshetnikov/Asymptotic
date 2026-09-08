@@ -67,7 +67,7 @@ remains a compatibility alias, without implying exact arithmetic or certificatio
 | --- | --- |
 | `AsymptoticInverse[f, {x, x0}, {y, cutoff}]` | Expansion of the real branch of the inverse of `f` near `x0` in powers of `y - y0` (or of `1/y`), with logarithms. |
 | `AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n]` | The same with the first `n` nonzero blocks. |
-| `AsymptoticExpansion[f, {x, x0, cutoff}]`, `AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]` | Forward expansion of `f`, including admitted applied `InverseFunction` expressions. A direct inverse node retains its inverse engine's scale and cutoff convention. |
+| `AsymptoticExpansion[f, {x, x0, cutoff}]`, `AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n]` | Forward expansion of `f`, also accepting `{x, x0}`. Unary pure functions and unapplied `InverseFunction` operators are applied to `x`. A direct inverse node retains its inverse engine's scale and cutoff convention. |
 | `PowerLogSeries[assoc]` | Result object; `Normal`, `s["Remainder"]`, `s["Terms"]`, `s["FrontierTerm"]`, `s["SeriesData"]`, `s["Properties"]`, `s[value]`. |
 | `PowerLogRemainder[w, beta, k]` | Inert descriptor of `O[w^beta (1 + Abs[Log[w]])^k]`, `w -> 0+`. |
 | `InverseResidual[s]`, `InverseResidual[s, h]` | Exact composition of the forward model with the truncated inverse; the normalized residual vanishes below the residual cutoff. |
@@ -139,7 +139,34 @@ remains a compatibility alias, without implying exact arithmetic or certificatio
 assumptions are checked on the target approach when expanding an inverse.
 The explicit branch option is also available on `SeriesObservable`.
 
-## Applied `InverseFunction` expressions
+## Callable and applied `InverseFunction` expressions
+
+A unary `InverseFunction` can be passed directly, with `x -> x0` specifying
+the target approach. The expansion variable is supplied as its argument:
+
+```wolfram
+s = AsymptoticExpansion[
+  InverseFunction[x |-> ConditionalExpression[x + x^Sqrt[2], x > 0]],
+  x -> Infinity, SeriesTermGoal -> 5];
+Normal[s]
+(* x^(1/Sqrt[2]) - x^(Sqrt[2] - 1)/Sqrt[2]
+   + (3 - Sqrt[2])/4 x^(3/Sqrt[2] - 2)
+   + (6 - 5 Sqrt[2])/6 x^(2 Sqrt[2] - 3)
+   + (235 - 162 Sqrt[2])/96 x^(5/Sqrt[2] - 4) *)
+s["Remainder"]
+(* PowerLogRemainder[1/x, 5 - 3 Sqrt[2], 0], i.e. O[x^(3 Sqrt[2] - 5)] *)
+```
+
+The rule form is equivalent to `{x, x0}` for expressions as well as callables.
+Pure `Function` forms are also applied to the expansion variable. Both callable
+forms accept `{x, x0, cutoff}` for an explicit exponent cutoff. Ordinary lexical
+scoping applies, so the same name can be used for the pure function's formal
+parameter and the expansion variable. Literal inverse syntax is recognized
+before native simplification: `AsymptoticExpansion[InverseFunction[Exp],
+x -> Infinity, SeriesTermGoal -> 2]` returns the exact `Log[x]` expansion.
+A bare symbol is still an expression; use `Log[x]` or `Log[#] &` to pass that
+function explicitly. An inverse with several arguments must be applied with
+all its arguments, as described below.
 
 Use the expression from the original problem directly:
 

@@ -17,7 +17,9 @@ AsymptoticExpansion::usage =
 as x -> x0 (x0 may be a real number, Infinity or -Infinity) with every block of \
 exponent strictly less than cutoff in the local variable (|x - x0| or 1/|x|) retained, \
 as a PowerLogSeries object.
-AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero blocks.";
+AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero blocks.
+AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] is equivalent. A unary pure Function \
+or unapplied InverseFunction is applied to x before expansion.";
 
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
@@ -484,11 +486,31 @@ localCoordinate[x_, x0_, direction_] := Module[{dir = direction, u = Unique["u$"
 
 Options[AsymptoticExpansion] = {Assumptions -> True, Direction -> Automatic, SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 SetAttributes[AsymptoticExpansion, HoldAllComplete];
-AsymptoticExpansion[args___] := catch[forwardEntry[args]];
-forwardEntry[f_, {x_Symbol, x0_, cutoff_}, opts : OptionsPattern[AsymptoticExpansion]] := forwardPublic[f, x, x0, cutoff, opts];
-forwardEntry[f_, {x_Symbol, x0_}, opts : OptionsPattern[AsymptoticExpansion]] := forwardPublic[f, x, x0, Automatic, opts];
+AsymptoticExpansion[args___] := catch[forwardHeldEntry[args]];
+(* Preserve explicit callable syntax before native evaluation can turn, for
+   example, InverseFunction[Exp] into the symbol Log. All other arguments still
+   receive the ordinary evaluation of forwardEntry, including option Sequences. *)
+SetAttributes[{forwardHeldEntry, forwardHeldExpression, forwardCallable}, HoldAllComplete];
+forwardHeldEntry[f_, args___] := forwardEntry[forwardHeldExpression[f], args];
+forwardHeldEntry[args___] := forwardEntry[args];
+forwardHeldExpression[f : (_InverseFunction | _Function)] := forwardCallable[f];
+forwardHeldExpression[ConditionalExpression[f_, condition_]] := ConditionalExpression[forwardHeldExpression[f], condition];
+forwardHeldExpression[f_] := f;
+forwardApplyCallable[f_Function, x_] := Module[{arity},
+  arity = catch[inverseFunctionCallableArity[f, 1]];
+  If[FailureQ[arity], fail["CallableArity", "An unapplied pure Function must accept one expansion variable.", <|"Cause" -> arity|>]];
+  Quiet[Check[f[x], fail["CallableArity", "An unapplied pure Function must accept one expansion variable."],
+    {Function::slotn}], Function::slotn]];
+forwardApplyCallable[f_, x_] := f[x];
+forwardExpression[forwardCallable[f_], x_] := forwardApplyCallable[f, x];
+forwardExpression[f : (_InverseFunction | _Function), x_] := forwardApplyCallable[f, x];
+forwardExpression[ConditionalExpression[f_, condition_], x_] := ConditionalExpression[forwardExpression[f, x], condition];
+forwardExpression[f_, x_] := f;
+forwardEntry[f_, {x_Symbol, x0_, cutoff_}, opts : OptionsPattern[AsymptoticExpansion]] := forwardPublic[forwardExpression[f, x], x, x0, cutoff, opts];
+forwardEntry[f_, {x_Symbol, x0_}, opts : OptionsPattern[AsymptoticExpansion]] := forwardPublic[forwardExpression[f, x], x, x0, Automatic, opts];
+forwardEntry[f_, x_Symbol -> x0_, opts : OptionsPattern[AsymptoticExpansion]] := forwardEntry[f, {x, x0}, opts];
 forwardEntry[___] := Failure["InvalidArguments", <|"MessageTemplate" ->
-   "Use AsymptoticExpansion[f, {x, x0, cutoff}] or AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]."|>];
+   "Use AsymptoticExpansion[f, {x, x0, cutoff}] or AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] (also accepting {x, x0})."|>];
 
 (* compute the forward jet of f in the local variable to absolute precision >= K *)
 forwardJet[fu_, u_, ell_, ass_, K_, limit_, extra_: 1] := Module[{Kw, res, tries = 0},

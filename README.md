@@ -87,7 +87,20 @@ AsymptoticExpansion[
 AsymptoticExpansion[
   InverseFunction[ConditionalExpression[# + #^Sqrt[2], # >= 0] &][y],
   {y, 0}, SeriesTermGoal -> 4]
+
+AsymptoticExpansion[
+  InverseFunction[x |-> ConditionalExpression[x + x^Sqrt[2], x > 0]],
+  x -> Infinity, SeriesTermGoal -> 5]
+(* x^(1/Sqrt[2]) - x^(Sqrt[2] - 1)/Sqrt[2]
+   + (3 - Sqrt[2])/4 x^(3/Sqrt[2] - 2)
+   + (6 - 5 Sqrt[2])/6 x^(2 Sqrt[2] - 3)
+   + (235 - 162 Sqrt[2])/96 x^(5/Sqrt[2] - 4)
+   + O[x^(3 Sqrt[2] - 5)] *)
 ```
+
+`AsymptoticExpansion` accepts `x -> x0` in place of `{x, x0}`.
+Unary pure functions and unapplied `InverseFunction`
+operators are applied to the expansion variable before expansion.
 
 Conditions on the expansion variable must hold on its selected one-sided
 approach. Conditions inside the inverse callable restrict its source; they
