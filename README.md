@@ -45,7 +45,24 @@ complete polynomial reciprocal-logarithmic blocks at successive inverse
 powers of that core. The guide covers its
 [LogGamma, affine, powered, and reciprocal-target extensions](AsymptoticInverse/Documentation/UserGuide.md#inverse-gamma-and-loggamma).
 
-Version 1.5.0 declares Wolfram Language 15.0 or later. Native validation
+Series objects normalize ordinary arithmetic and retain their remainders:
+
+```wolfram
+a = AsymptoticExpansion[Sin[x], {x, 0, 5}];
+b = AsymptoticExpansion[Cos[x], {x, 0, 4}];
+a + b
+a b
+a/(1 + x)
+b^(1/2)
+SeriesNormalize[(1 + a)/(1 - a), "Cutoff" -> 4]
+```
+
+`Normal` extracts only the finite expression. The
+[arithmetic guide](AsymptoticInverse/Documentation/UserGuide.md#series-operations)
+explains precision propagation, ordinary function operands, held normalization,
+and composite error bounds for compatible expansions in different scales.
+
+Version 1.6.0 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)
 for the exact scope of each run.
 

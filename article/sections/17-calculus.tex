@@ -91,3 +91,80 @@ continued to arbitrary finite order because the original function is known.
 If only a finite approximation $T$ and a bound $F-T=\OO(w^P\M^D)$ are given,
 then the unknown coefficients of $F$ at or beyond that precision are not
 determined. Higher-order operations on $T$ cannot remove this uncertainty.
+
+\subsection{Separate error envelopes}
+\label{sec:separate-error-envelopes}
+
+A common ordered coefficient algebra is unnecessary for transporting
+magnitude bounds. Along one fixed real approach, suppose
+$F=A+\OO(R)$ and $G=B+\OO(S)$, where $F,G,A,B$ are real-valued and
+$R,S\ge0$ are error envelopes. Their coordinates and rates of decay may
+differ. The arithmetic of Section~\ref{sec:evaluator} then has the
+following form, without selecting a single exponent cutoff.
+
+\begin{proposition}[Error envelopes for compound functions]
+\label{prop:separate-error-envelopes}
+Under these hypotheses,
+\begin{equation}
+\begin{aligned}
+ F+G&=A+B+\OO(R+S),\\
+ FG&=AB+\OO\bigl(|A|S+|B|R+RS\bigr).
+\end{aligned}
+\label{eq:separate-envelope-arithmetic}
+\end{equation}
+For every fixed positive integer $n$,
+\begin{equation}
+ F^n=A^n+\OO\!\left(
+   \sum_{k=1}^{n}\binom nk |A|^{n-k}R^k\right),
+\label{eq:separate-envelope-integer-power}
+\end{equation}
+where the factor $|A|^0$ in the last summand is $1$, including at $A=0$.
+No nonvanishing or relative-smallness hypothesis is needed here.
+
+If $A$ is eventually nonzero and $R/|A|\to0$, then for fixed real $r$
+\[
+ F^r=A^r+\OO\bigl(|A|^{r-1}R\bigr),
+\]
+provided $A>0$ eventually when $r$ is not an integer. In particular,
+$F^{-1}=A^{-1}+\OO(R/|A|^2)$. The logarithm and exponential obey
+\begin{equation}
+\begin{aligned}
+ \log F&=\log A+\OO(R/A)
+   &&\text{if }A>0\text{ eventually and }R/A\to0,\\
+ e^F&=e^A+\OO(e^A R)
+   &&\text{if }R\to0.
+\end{aligned}
+\label{eq:separate-envelope-log-exp}
+\end{equation}
+Finally $\phi(F)=\phi(A)+\OO(R)$ for
+$\phi(t)=|t|,\sin t,\cos t$, without a smallness hypothesis on $R$ or
+a finite-limit hypothesis on $A$.
+\end{proposition}
+
+\begin{proof}
+Write $F=A+u$ and $G=B+v$, with $|u|\le CR$ and $|v|\le DS$
+eventually. Addition and the identity
+$FG-AB=Av+Bu+uv$ give \eqref{eq:separate-envelope-arithmetic}.
+The binomial formula gives \eqref{eq:separate-envelope-integer-power},
+absorbing the finitely many factors $C^k$ into one constant.
+Under relative smallness, $u/A\to0$, so $F/A$ stays near $1$ and
+$F$ has the same eventual sign as $A$. The functions $(1+t)^r$ and
+$\log(1+t)$ have bounded derivatives near $t=0$. Apply their mean value
+bounds to $t=u/A$ and multiply by the exact prefactor.
+If $R\to0$, then $u\to0$ and $e^u-1=\OO(u)$, giving the exponential
+bound. Absolute value, sine and cosine are globally $1$-Lipschitz on
+the real line, giving the final assertion. As in
+Proposition~\ref{prop:soundness}, induction permits finite compositions
+whenever each operation satisfies its stated hypotheses.
+\end{proof}
+
+These are asymptotic bounds with unspecified constants and thresholds;
+the constants may depend on fixed data and powers. Cancellation of
+$A+B$ supplies no cancellation of unknown errors without additional
+relations between them. The retained expression need not be ordered as
+a Poincar\'e expansion, and a trigonometric bound may identify no leading
+term at all. Thus these assertions alone provide neither a single
+cutoff nor a pointwise numerical certificate, and they imply no
+derivative bounds. For a pure error, the integer-power rule gives
+$\OO(R)^n=\OO(R^n)$; a fractional power additionally needs a real-branch
+condition that a magnitude bound alone does not supply.

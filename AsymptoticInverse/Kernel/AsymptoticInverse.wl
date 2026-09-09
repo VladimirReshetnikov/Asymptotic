@@ -84,8 +84,8 @@ PowerLogModel::usage =
 "PowerLogModel[f, {x, x0}] parses f near x0 into the normalized model \
 y0 + a u^p (1 + Sum[u^delta_i B_i[Log[u]]]) in the local variable u and returns an Association.";
 
-SeriesAdd::usage = "SeriesAdd[s,t] adds two compatible expansion objects, transporting both remainders. A real scalar may replace either operand.";
-SeriesMultiply::usage = "SeriesMultiply[s,t] multiplies two compatible expansion objects, transporting both remainders. A real scalar may replace either operand.";
+SeriesAdd::usage = "SeriesAdd[s,t] adds compatible expansion objects, transporting both remainders. A regular real expression may replace either operand. Ordinary s+t also normalizes automatically.";
+SeriesMultiply::usage = "SeriesMultiply[s,t] multiplies compatible expansion objects, transporting both remainders. A regular real expression may replace either operand. Ordinary s t also normalizes automatically.";
 SeriesPower::usage = "SeriesPower[s,r] expands a real power with a proved branch and a transported remainder; SeriesPower[s,r,h] uses cutoff h.";
 SeriesLog::usage = "SeriesLog[s] expands the real logarithm of an eventually positive expansion; SeriesLog[s,h] uses cutoff h.";
 SeriesExp::usage = "SeriesExp[s] exponentiates an expansion with an absolute remainder tending to zero, retaining any unbounded exponential prefactor exactly; SeriesExp[s,h] uses cutoff h.";
@@ -1190,6 +1190,8 @@ Get[FileNameJoin[{$kernelDirectory, "GammaInverseChecks.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "BarnesInverseChecks.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "GammaInverseOperations.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "ExponentialForward.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "SeriesEnvelopeArithmetic.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "SeriesArithmetic.wl"}]];
 
 End[];
 EndPackage[];

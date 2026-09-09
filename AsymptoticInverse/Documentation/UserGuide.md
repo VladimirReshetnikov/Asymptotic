@@ -48,7 +48,7 @@ Outputs below are written in algebraically equivalent factored forms where this 
 | Expand the increasing Gamma or LogGamma inverse | [Inverse Gamma and LogGamma Functions](#inverse-gamma-and-loggamma) |
 | Expand the increasing Barnes G inverse | [Inverse Barnes G Functions](#barnes-inverse-expansions) |
 | Inspect results and models | [PowerLogSeries](#PowerLogSeries), [PowerLogRemainder](#PowerLogRemainder), [PowerLogModel](#PowerLogModel), [InverseExpansionCoefficient](#InverseExpansionCoefficient) |
-| Perform series arithmetic | [SeriesAdd](#SeriesAdd), [SeriesMultiply](#SeriesMultiply), [SeriesPower](#SeriesPower), [SeriesLog](#SeriesLog), [SeriesExp](#SeriesExp) |
+| Perform series arithmetic | [Ordinary Arithmetic](#ordinary-series-arithmetic), [SeriesNormalize](#SeriesNormalize), [SeriesAdd](#SeriesAdd), [SeriesMultiply](#SeriesMultiply), [SeriesPower](#SeriesPower), [SeriesLog](#SeriesLog), [SeriesExp](#SeriesExp) |
 | Compose or apply a function | [SeriesCompose](#SeriesCompose), [SeriesObservable](#SeriesObservable) |
 | Change the retained order | [SeriesTruncate](#SeriesTruncate), [SeriesRefine](#SeriesRefine) |
 | Differentiate an expansion | [SeriesDifferentiate](#SeriesDifferentiate) |
@@ -170,7 +170,7 @@ Conditions need only hold on a sufficiently small deleted neighborhood or suffic
 
 ### Usage
 
-`PowerLogSeries[association]` is the result representation returned by the constructors. Use constructors and explicit series operations to create and transform it.
+`PowerLogSeries[association]` is the result representation returned by the constructors. Use constructors, supported arithmetic, and series operations to create and transform it.
 
 | Form | Meaning |
 | --- | --- |
@@ -198,7 +198,7 @@ y - y^2 + 2 y^3 - 5 y^4 + O[y^5]
 
 An exact result displays only its finite expression. A result with zero finite expression and a nonzero remainder displays only the remainder; an exact zero displays `0`.
 
-The underlying object still has head `PowerLogSeries`. Copying the formatted object into Wolfram Language input preserves the full series, including its remainder and metadata. The formatted object is read-only; use constructors or explicit series operations to change it.
+The underlying object still has head `PowerLogSeries`. Copying the formatted object into Wolfram Language input preserves the full series, including its remainder and metadata. The formatted object is read-only; use constructors, supported arithmetic, or series operations to change it.
 
 | Form | Display or result |
 | --- | --- |
@@ -208,14 +208,15 @@ The underlying object still has head `PowerLogSeries`. Copying the formatted obj
 | `OutputForm[s]` | Compact diagnostic representation. |
 | `Normal[s]` | Ordinary Wolfram Language expression, with the remainder and series metadata dropped. |
 
-For the example above, `Normal[s]` returns `y - y^2 + 2 y^3 - 5 y^4`. To propagate remainder information, use the explicit series operations:
+For the example above, `Normal[s]` returns `y - y^2 + 2 y^3 - 5 y^4`. Arithmetic on `s` propagates its remainder:
 
 ```wolfram
-SeriesAdd[s, s]
-SeriesPower[s, 2]
+s + s
+s^2
+SeriesNormalize[(1 + s)/(1 - s), "Cutoff" -> 4]
 ```
 
-Formatting does not give ordinary `Plus`, `Times`, or `Power` automatic series arithmetic. See [Explicit Series Operations](#series-operations) for supported operations and precision rules.
+Ordinary arithmetic on `Normal[s]` uses only the finite expression. Keep the series object when further operations must include its uncertainty. See [Series Arithmetic and Normalization](#series-operations) for supported functions, branch requirements, and precision rules.
 
 ### Common Properties
 
@@ -238,6 +239,8 @@ Formatting does not give ordinary `Plus`, `Times`, or `Power` automatic series a
 | `"SeriesData"` | A native `SeriesData` object when the coordinate and exponents permit it; otherwise `Missing[...]`. |
 
 Property availability varies by family. Inspect `s["Properties"]` before relying on specialized metadata. Do not edit the underlying association to change a branch or precision claim.
+
+An arithmetic result with `"Scale" -> "Composite"` retains a finite expression and separate error scales. It has no single remainder exponent or cutoff. See [Composite Results](#composite-series-results).
 
 Native `SeriesData` uses rational exponents and may hide the logarithmic degree inside its `O` term. Keep `s["Remainder"]` when the logarithmic envelope matters.
 
@@ -930,7 +933,11 @@ powered = SeriesPower[g, 2];
 
 `SeriesPower` transports the operand's remainder. An explicit larger cutoff cannot improve the precision supplied by that operand. Its result can be refined from the retained source equation. Noninteger powers require a positive source branch; only integer exponents are admitted on a negative source branch.
 
-Generic `SeriesAdd`, `SeriesMultiply`, `SeriesLog`, `SeriesExp`, `SeriesCompose`, `SeriesObservable`, and `SeriesDifferentiate` do not accept this coefficient scale. Arithmetic on `Normal[s]` operates on its finite expression and does not transport the remainder.
+Addition and multiplication of compatible results are supported through ordinary arithmetic, `SeriesAdd`, and `SeriesMultiply`. When an operation cannot use a common ordered coefficient scale, it returns a [composite result](#composite-series-results), retaining separate error bounds. Such a result has no single core-power cutoff. The specialized power operation above retains the Gamma inverse scale.
+
+`Log`, `Exp`, `Abs`, `Sin`, and `Cos` can return composite bounds when their real-branch and error conditions are established; `SeriesLog` and `SeriesExp` use the same fallback. These operations retain a finite function of the approximation and a transported bound, without asserting an ordered Gamma inverse expansion for that function. See [Composite Results](#composite-series-results).
+
+Generic `SeriesCompose`, `SeriesObservable`, and `SeriesDifferentiate` do not accept this inverse coefficient scale. Composite results do not acquire inverse-checking or refinement support merely by retaining their operands. Arithmetic on `Normal[s]` drops the remainder.
 
 ### Residual and Numerical Checks
 
@@ -1111,38 +1118,178 @@ checkLog = InverseNumericalCheck[lg, LogBarnesG[1000],
 {checkLog["ReferenceRoot"], checkLog["Error"]}
 ```
 
-Generic series addition, multiplication, logarithms, exponentials, composition, and differentiation do not accept this inverse coefficient scale. Interval certification and certificate-based tolerance refinement are also unsupported. Arithmetic on `Normal[s]` operates on the finite expression without transporting its remainder.
+Addition and multiplication of compatible results are supported through ordinary arithmetic, `SeriesAdd`, and `SeriesMultiply`. Operations without a common ordered coefficient scale return a [composite result](#composite-series-results), preserving separate errors. The specialized power operation above retains the Barnes inverse scale.
+
+`Log`, `Exp`, `Abs`, `Sin`, and `Cos` can return composite bounds under their real-branch and error conditions; `SeriesLog` and `SeriesExp` use the same fallback. See [Composite Results](#composite-series-results). Generic composition, arbitrary observables, and differentiation remain unsupported for this inverse coefficient scale. Composite results do not acquire inverse residual, numerical-check, or refinement support merely by retaining their operands. Interval certification and certificate-based tolerance refinement are also unsupported. Arithmetic on `Normal[s]` drops the remainder.
 
 <a id="series-operations"></a>
-## Explicit Series Operations
+## Series Arithmetic and Normalization
 
-Use these operations to transport remainders. Ordinary arithmetic on `Normal[s]` operates only on the displayed finite expression.
+Arithmetic on a `PowerLogSeries` transports its remainder together with its finite expression. Operands must have compatible variables, endpoints, approach sides, and real branch conditions. Requested precision is limited by the available operand precision.
 
-Most operations accept `"Cutoff" -> Automatic` and `"MaxTerms" -> 20000`. Coordinates, endpoint limits, and real branches must be compatible. Requested precision is limited by the available operand precision.
+| Task | Use |
+| --- | --- |
+| Combine expansions with the available precision | Ordinary `+`, `-`, `*`, `/`, and supported real powers. |
+| Normalize a compound expression with a final cutoff | `SeriesNormalize[expr, "Cutoff" -> h]`. |
+| Apply one operation with explicit options | `SeriesAdd`, `SeriesMultiply`, `SeriesPower`, `SeriesLog`, or `SeriesExp`. |
+| Discard known blocks | `SeriesTruncate[s, h]`. |
+| Obtain more coefficients from a supported retained source | `SeriesRefine[s, h]`. |
+| Work with the finite expression alone | `Normal[s]`. |
+
+<a id="ordinary-series-arithmetic"></a>
+### Ordinary Arithmetic
+
+| Form | Operation |
+| --- | --- |
+| `s + t`, `s - t` | Addition or subtraction, including both operand remainders. |
+| `s t` | Multiplication, including the products of finite parts and errors. |
+| `s/t` | A reciprocal and a product, with the required nonzero denominator branch. |
+| `s^r` | A fixed exact real numeric power. Noninteger powers require a proved positive branch. |
+| `s^e`, `a^s` | A supported varying power, using the real logarithm and exponential calculus. |
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Exp[x], {x, 0, 5}];
+t = AsymptoticExpansion[Sin[x], {x, 0, 5}];
+{s + t, s - t, s t, s/t, s^(1/2)}
+```
+
+Varying exponents are handled through `Exp[exponent Log[base]]` when the positive-base branch and each intermediate remainder condition can be established. The exponent may depend on the expansion variable or itself be a series. Fixed exact real numeric powers use the direct power rules.
+
+```wolfram
+2^t
+s^x
+SeriesNormalize[s^t, "Cutoff" -> 4]
+```
+
+A regular Wolfram Language expression may replace either arithmetic operand. It can depend on the expansion variable. On a common ordered scale, its expansion is computed in the recorded local coordinate with enough precision for the operation; it is not treated as a constant coefficient.
+
+```wolfram
+s + Sin[x]
+s/(1 + x)
+SeriesAdd[s, Sin[x]]
+SeriesMultiply[s, 1 + x]
+```
+
+The unary forms `Sin[s]`, `Cos[s]`, `Tan[s]`, `Sinh[s]`, `Cosh[s]`, `Tanh[s]`, `ArcSin[s]`, `ArcCos[s]`, and `ArcTan[s]` use the regular observable calculus when the argument tends to an admissible finite real value. `Abs[s]`, `Log[s]`, and `Exp[s]` use their corresponding sign, branch, and remainder rules. When no ordered expansion is available, `Abs`, `Sin`, `Cos`, `Log`, and `Exp` can instead return the [composite bounds](#composite-series-results) described below. This does not assert an ordered expansion at every pole, branch point, or infinite argument.
+
+```wolfram
+Sin[t]
+Exp[t]
+Log[s]
+```
+
+<a id="SeriesNormalize"></a>
+### SeriesNormalize
+
+| Form | Result |
+| --- | --- |
+| `SeriesNormalize[expr]` | Normalize supported arithmetic and functions containing series objects, retaining their errors. |
+| `SeriesNormalize[expr, "Cutoff" -> h]` | Apply the exclusive cutoff `h` to the normalized result in its recorded scale. |
+| `SeriesNormalize[s]` | Return an already normalized series unchanged. |
+
+Options are `"Cutoff" -> Automatic` and `"MaxTerms" -> 20000`. An explicit cutoff must be an exact real number. It applies to the final result; intermediate operands are not independently truncated at that cutoff. Normalization can increase the working order of newly formed regular and nonlinear expressions when cancellation or a later reciprocal needs more terms. It does not call `SeriesRefine` on the supplied series, improve an unknown operand remainder, or recover coefficients discarded before the call.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Exp[x], {x, 0, 5}];
+t = AsymptoticExpansion[Sin[x], {x, 0, 5}];
+SeriesNormalize[(s + Sin[x])/(1 + x), "Cutoff" -> 4]
+SeriesNormalize[Exp[t] + Log[s], "Cutoff" -> 4]
+```
+
+`SeriesNormalize` has attribute `HoldAllComplete`. It resolves stored symbol values, including delayed aliases, while keeping their expression structure held for normalization. A denominator is therefore checked before native cancellation can remove it from the supplied expression. For example:
+
+```wolfram
+ratio := (s + Sin[x])/(1 + x);
+SeriesNormalize[ratio, "Cutoff" -> 4]
+```
+
+An ordinary immediate assignment has already evaluated its right-hand side. The normalizer can use that stored value, but cannot recover terms or syntax removed during the assignment. Expressions without series objects retain ordinary Wolfram Language evaluation.
+
+Cancellation inside a newly formed expression can require a larger intermediate order:
+
+```wolfram
+u = AsymptoticExpansion[x, {x, 0, 3}];
+SeriesNormalize[1/(Exp[u] - 1 - u), "Cutoff" -> 3]
+```
+
+Here `u` is exact. The normalizer can compute more terms of the exponential and its reciprocal without refining `u`. With an uncertain input, the propagated input remainder still limits the result.
+
+An explicit cutoff is unavailable for a composite result, because its errors may use different coordinates. Truncate the operands in their own scales before combining them when that is the intended loss of information.
+
+<a id="composite-series-results"></a>
+### Composite Results
+
+When an arithmetic operation or a supported unary function cannot use one ordered coefficient scale, compatible operands can produce a result with `"Scale" -> "Composite"`. Its finite expression is retained, and its remainder keeps the separate input error scales. The operands must have the same expansion variable, endpoint, and real approach side, with compatible domains.
+
+For example, Gamma and Barnes inverse expansions can be combined on their common positive target approach:
+
+```wolfram
+g = AsymptoticInverse[Gamma[x], {x, Infinity}, z,
+  SeriesTermGoal -> 5];
+b = AsymptoticInverse[BarnesG[x], {x, Infinity}, z,
+  SeriesTermGoal -> 3];
+c = g + b;
+{c["Scale"], Normal[c], c["Remainder"]}
+```
+
+If the finite approximations are `a` and `b`, with respective errors `O[R]` and `O[S]`, their sum has error `O[R + S]` and their product has error `O[Abs[a] S + Abs[b] R + R S]`. Canceling terms in the finite expression does not cancel these unknown errors.
+
+Positive integer powers use the finite binomial error bound, without requiring a nonzero finite approximation or a small relative error. In particular, squaring a pure remainder `O[R]` gives a pure remainder `O[R^2]`. A reciprocal requires an eventually nonzero approximation with an error proved smaller than that approximation; a pure remainder cannot supply a denominator. Noninteger powers also require a proved positive branch. A fractional power of a pure remainder is declined because its value bound alone does not establish that branch.
+
+The following unary operations use conservative bounds for a real represented function `e + O[R]`, where `R` is the nonnegative error scale:
+
+| Operation | Required condition | Finite expression and error |
+| --- | --- | --- |
+| `Log[s]`, `SeriesLog[s]` | `e > 0` eventually and `R/Abs[e] -> 0`. | `Log[e] + O[R/Abs[e]]`. |
+| `Exp[s]`, `SeriesExp[s]` | `e` is eventually real and `R -> 0`. | `Exp[e] + O[Exp[e] R]`. |
+| `Abs[s]` | Real branch. | `Abs[e] + O[R]`. |
+| `Sin[s]`, `Cos[s]` | Real branch. | `Sin[e] + O[R]` or `Cos[e] + O[R]`. |
+
+The `Abs`, `Sin`, and `Cos` bounds use their real Lipschitz inequalities and do not require a finite limiting argument or a vanishing error. They need not identify a leading asymptotic term. The logarithm uses a vanishing relative error; the exponential requires a vanishing absolute error. An explicit cutoff remains unavailable for these composite results.
+
+Read `"RemainderScaleExpression"` for the resulting asymptotic bound and `"TargetDomain"` for its retained domain. This is an asymptotic assertion with an unspecified constant, not a pointwise numerical certificate. A composite result has no single exponent cutoff, native `SeriesData`, or general refinement, composition, differentiation, or inverse-checking contract. More information can be obtained by refining supported source operands and combining them again.
+
+### Precision and Evaluation Order
+
+Division, negative powers, and multiplication by a singular factor can reduce absolute precision. Requesting a final cutoff does not create missing input coefficients. If subtraction leaves only a remainder, more source terms may be needed before its sign or reciprocal can be determined.
+
+The order of truncation matters. Truncating `x^2 + x^3` at cutoff `2` discards both known terms. Dividing that truncated result by `x` cannot recover them. Dividing the original expression by `x` before truncating at cutoff `2` retains the term `x`. Use `SeriesNormalize` to apply one final cutoff to the compound expression.
+
+Equal finite expressions do not establish equal represented functions. An expansion of `Sin[x]` through order `O[x^3]` and the exact expression `x` have the same finite part, but their difference still has an unknown `O[x^3]` tail at that precision. Series operations use conservative error transport; repeated operands do not guarantee cancellation of their recorded remainders.
+
+Ordinary Wolfram Language arithmetic may simplify identities before a series operation sees them. Such simplification does not prove an eventual nonzero branch or restore discarded precision. Use the held `SeriesNormalize` form to check a supplied quotient before cancellation. See the Wolfram Language documentation for [Times](https://reference.wolfram.com/language/ref/Times.html) and [HoldAllComplete](https://reference.wolfram.com/language/ref/HoldAllComplete.html).
+
+Most explicit operations below accept `"Cutoff" -> Automatic` and `"MaxTerms" -> 20000`.
 
 <a id="SeriesAdd"></a>
 ### SeriesAdd
 
-`SeriesAdd[s, t]` adds compatible expansions. A real scalar may replace either operand. Addition of unrelated exponential prefactors is not a general multi-sector operation.
+`SeriesAdd[s, t]` adds compatible expansions. An exact real scalar or a supported regular expression in the expansion variable may replace either operand. It uses the same operand promotion and composite fallback as ordinary addition. An explicit cutoff is supported only when the result has an ordered scale.
 
 <a id="SeriesMultiply"></a>
 ### SeriesMultiply
 
-`SeriesMultiply[s, t]` multiplies compatible expansions. A real scalar may replace either operand. The result includes uncertainty from both operands.
+`SeriesMultiply[s, t]` multiplies compatible expansions. An exact real scalar or a supported regular expression in the expansion variable may replace either operand. It uses the same operand promotion and composite fallback as ordinary multiplication, including uncertainty from both operands. An explicit cutoff is supported only when the result has an ordered scale.
 
 <a id="SeriesPower"></a>
 ### SeriesPower
 
-`SeriesPower[s, r]` takes a fixed exact real numeric power. `SeriesPower[s, r, h]` supplies an explicit cutoff. A noninteger real power requires a proved positive branch. Reciprocal powers can reduce absolute precision.
+`SeriesPower[s, r]` takes a power using the same dispatch and remainder rules as `s^r`. A fixed exponent must be an exact real numeric value. Supported varying exponents use the real logarithm and exponential calculus. `SeriesPower[s, r, h]` supplies an explicit cutoff. Noninteger and varying powers require the appropriate positive-base branch. Reciprocal powers can reduce absolute precision.
 
-The numeric-exponent requirement of this operation is distinct from the supported symbolic and varying powers in direct Gamma normalization.
+An admissible power of a composite result retains a composite error bound. Such a result does not support an explicit cutoff.
+
+The constructor's specialized Gamma power normalization has its own symbolic-parameter and varying-power admission rules; success there does not guarantee that the same form follows from an existing series at its available precision.
 
 For Gamma and LogGamma inverse results, powers retain the specialized coefficient scale and propagate the operand remainder. See [Powers and Series Operations](#gamma-inverse-operations).
 
 <a id="SeriesLog"></a>
 ### SeriesLog
 
-`SeriesLog[s]` takes an eventually positive real logarithm. `SeriesLog[s, h]` supplies a cutoff. The logarithm of an exact prefactor is included in the result.
+`SeriesLog[s]` takes an eventually positive real logarithm, using the same dispatch as `Log[s]`. `SeriesLog[s, h]` supplies a cutoff for an ordered result. The logarithm of an exact prefactor is included in the result. A composite fallback requires the error to be proved smaller than the positive finite approximation and does not accept an explicit cutoff.
 
 **Input**
 
@@ -1160,7 +1307,7 @@ Log[x] + x - x^2/2 + x^3/3
 <a id="SeriesExp"></a>
 ### SeriesExp
 
-`SeriesExp[s]` exponentiates an expansion. `SeriesExp[s, h]` supplies a cutoff. The absolute remainder of the argument must tend to zero. Nonvanishing terms in the argument are retained in an exact prefactor.
+`SeriesExp[s]` exponentiates an expansion, using the same dispatch as `Exp[s]`. `SeriesExp[s, h]` supplies a cutoff for an ordered result. The absolute remainder of the argument must tend to zero. Nonvanishing terms in an ordered argument are retained in an exact prefactor. A composite fallback retains `Exp[Normal[s]]` and multiplies the input error scale by that factor; it does not accept an explicit cutoff.
 
 **Input**
 
@@ -1664,10 +1811,12 @@ For positive Gamma prefactors, `SeriesLog` returns the additive logarithmic expa
 | Refinement stops at an input error | Supply stronger justified input information in a new construction. |
 | Derivative operation fails | Establish the necessary derivative remainder contract; a value Big-O is insufficient. |
 | Certificate fails near an interval boundary | Check poles, endpoint signs, strict source conditions, and the interval's containment in the selected branch. |
-| `"SeriesData"` is missing | Use the explicit series operations and recorded remainder; the result may have irrational exponents or another scale. |
+| `"SeriesData"` is missing | Use supported series arithmetic and the recorded remainder; the result may have irrational exponents or separate error scales. |
+| A composite result rejects `"Cutoff"` | Truncate or refine supported operands in their own scales, then combine them again. |
+| A quotient loses precision or fails | Check the denominator's leading term and relative remainder; normalization cannot infer a nonzero function from a pure remainder. |
 | Resource limit | Reduce the order or expression complexity, or raise the relevant budget. A partial result does not establish omitted coefficients. |
 
-Ordinary power-log coefficients are polynomials in a single logarithm. Arbitrary nested logarithms, unrelated exponential-sector sums, and arbitrary oscillatory coefficients require a compatible specialized family or are rejected.
+Ordinary power-log coefficients are polynomials in a single logarithm. Arbitrary nested logarithms, unrelated exponential-sector sums, and arbitrary oscillatory coefficients require a compatible specialized family for an ordered expansion. Arithmetic can retain compatible existing expansions as a composite bound without asserting closure in a single coefficient scale.
 
 The ordinary factor `Log[x]` in `Log[x] Exp[x]` or `Log[x] Gamma[x]` produces the unsupported combined logarithmic source `Log[Log[x]]` in direct normalization. The existence of a formal factored expression alone does not guarantee that the direct constructor can expand it.
 

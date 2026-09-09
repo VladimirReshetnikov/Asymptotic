@@ -289,12 +289,14 @@ VerificationTest[Module[{y, s, zeroPower, refined},
   {True, 0, True, 0, True, True, True},
   TestID -> "barnes-g-inverse-zero-power-and-refinement-retain-exact-value-and-target-domain"]
 
-VerificationTest[Module[{x, y, s},
+VerificationTest[Module[{x, y, s, doubled, shifted},
   s = AsymptoticInverse[BarnesG[x], {x, Infinity}, y, SeriesTermGoal -> 3];
-  Quiet[{MatchQ[SeriesAdd[s, s], Failure["UnsupportedScale", _Association]],
-    MatchQ[SeriesAdd[s, 1], Failure["UnsupportedScale", _Association]]}]],
-  {True, True},
-  TestID -> "barnes-g-inverse-generic-addition-rejects-unsupported-inverse-log-scale"]
+  doubled = SeriesAdd[s, s]; shifted = SeriesAdd[s, 1];
+  {MatchQ[doubled, _PowerLogSeries], MatchQ[shifted, _PowerLogSeries],
+    Expand[Normal[doubled] - 2 Normal[s]] === 0, Normal[shifted] === 1 + Normal[s],
+    doubled["Scale"] === "Composite", shifted["Remainder"] =!= 0}],
+  {True, True, True, True, True, True},
+  TestID -> "barnes-g-inverse-addition-retains-a-composite-bound-for-inverse-log-coefficients"]
 
 VerificationTest[Module[{x, y, parameter, constant, ass, gamma, logarithm, core, logCore},
   constant = BarnesG[parameter]; ass = Element[constant, Reals];

@@ -1,0 +1,215 @@
+{
+  "Purpose": "Automatic arithmetic and held normalization of asymptotic series, with propagated precision, real branches, and separate error envelopes when an ordered coefficient scale is unavailable",
+  "BaselineCommit": "ea5d37d50cb3be5ebad330724a82e0cc247f1cc4",
+  "PackageVersion": "1.6.0",
+  "FullPackageSuiteRun": false,
+  "NativeRegression": {
+    "ResultFile": "validation/series-arithmetic-tests.json",
+    "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "Succeeded": 137,
+    "Failed": 0,
+    "Suites": [
+      "SeriesArithmetic.wlt",
+      "SeriesEnvelopeArithmetic.wlt",
+      "SeriesEnvelopeFunctions.wlt",
+      "SeriesOperations.wlt",
+      "Formatting.wlt",
+      "GammaInverseOperations.wlt",
+      "BarnesGInverse.wlt"
+    ],
+    "SuiteResults": [
+      {
+        "Suite": "SeriesArithmetic.wlt",
+        "Succeeded": 28,
+        "Failed": 0,
+        "Seconds": 5.9838625
+      },
+      {
+        "Suite": "SeriesEnvelopeArithmetic.wlt",
+        "Succeeded": 17,
+        "Failed": 0,
+        "Seconds": 2.9672738
+      },
+      {
+        "Suite": "SeriesEnvelopeFunctions.wlt",
+        "Succeeded": 11,
+        "Failed": 0,
+        "Seconds": 2.3020442
+      },
+      {
+        "Suite": "SeriesOperations.wlt",
+        "Succeeded": 28,
+        "Failed": 0,
+        "Seconds": 1.8592975
+      },
+      {
+        "Suite": "Formatting.wlt",
+        "Succeeded": 13,
+        "Failed": 0,
+        "Seconds": 0.6873505
+      },
+      {
+        "Suite": "GammaInverseOperations.wlt",
+        "Succeeded": 16,
+        "Failed": 0,
+        "Seconds": 98.4904778
+      },
+      {
+        "Suite": "BarnesGInverse.wlt",
+        "Succeeded": 24,
+        "Failed": 0,
+        "Seconds": 141.9903685
+      }
+    ],
+    "TestedKernelTestAndRunnerByteHashesVerified": true
+  },
+  "API": {
+    "Automatic": [
+      "Plus",
+      "Times",
+      "Power",
+      "Log",
+      "Exp",
+      "Abs",
+      "Sin",
+      "Cos",
+      "Tan",
+      "Sinh",
+      "Cosh",
+      "Tanh",
+      "ArcSin",
+      "ArcCos",
+      "ArcTan"
+    ],
+    "NewPublicSymbol": "SeriesNormalize",
+    "NormalizerAttributes": [
+      "HoldAllComplete"
+    ],
+    "NormalizerOptions": {
+      "Cutoff": "Automatic",
+      "MaxTerms": 20000
+    },
+    "ExplicitEntryPoints": [
+      "SeriesAdd",
+      "SeriesMultiply",
+      "SeriesPower",
+      "SeriesLog",
+      "SeriesExp"
+    ],
+    "NormalContract": "Normal returns the finite ordinary expression, without the PowerLogSeries wrapper, remainder, or metadata. Pure remainders return zero.",
+    "PrecisionContract": "Final cutoffs do not refine input series. New operations can increase their working order where needed, but unknown input remainders continue to bound the available precision.",
+    "CompositeContract": "Compatible target approaches retain separate nonnegative error envelopes. Composite results do not assert a single exponent cutoff, a numerical certificate, or general refinement, differentiation, composition, or inverse-checking support."
+  },
+  "ImplementationReview": "Independent bounded review checked dispatcher and guide contracts. A missing unary UnsupportedObservable fallback was fixed, with an independent regression for exact and inexact unbounded ordinary sine/cosine phases and continued rejection of unbounded tangent. Real-branch and remainder conditions remain required.",
+  "RunnableExample": {
+    "Command": "wolfram.exe -script AsymptoticInverse/Examples/Arithmetic.wl",
+    "ExitCode": 0,
+    "ObservedFiniteProduct": "x - 2 x^3/3",
+    "ObservedProductRemainder": "PowerLogRemainder[x, 5, 0]",
+    "ObservedCompositeSum": "2 Sqrt[y/ProductLog[4 y/E^3]] + y/ProductLog[y/E]"
+  },
+  "NativeVisualReview": {
+    "Renderer": "validation/RenderSeriesArithmetic.wl",
+    "Image": "validation/series-arithmetic-preview.png",
+    "Dimensions": [
+      1169,
+      908
+    ],
+    "Inspected": true,
+    "Checks": [
+      "Automatic arithmetic results and retained remainders",
+      "Ordinary remainder-free Normal output",
+      "Division, square root, and regular function coefficients",
+      "Final cutoff and cancellation examples",
+      "Grouping and absence of clipping"
+    ],
+    "EnvironmentMessage": "RegisterFormat::interr reported ImageMetadataTools could not be installed. Rasterize returned an Image and PNG export succeeded; the exported image was visually inspected."
+  },
+  "StaticDocumentationChecks": {
+    "Guide": {
+      "PublicSymbols": 37,
+      "Anchors": 167,
+      "Links": 99,
+      "BrokenLocalLinks": 0,
+      "DuplicateAnchors": 0,
+      "GeneratedHTMLMatchesSources": true
+    },
+    "MathematicalChapters": 30,
+    "MathematicalLabels": 295,
+    "MathematicalReferences": 269,
+    "BibliographyEntries": 11,
+    "MissingReferences": 0,
+    "MissingCitations": 0,
+    "LandingPageLocalLinks": 50,
+    "PreservedEngineeringFiles": 6,
+    "FullPackageSuiteRun": false
+  },
+  "MathematicalArticle": {
+    "Source": "article/sections/17-calculus.tex",
+    "NewSection": "16.1 Separate error envelopes",
+    "MathematicalReview": "The stated addition, full product, binomial power, reciprocal, fixed real power, logarithm, exponential, and real Lipschitz bounds were reviewed under their explicit branch and smallness hypotheses.",
+    "BuildCommand": "pdflatex.exe -interaction=nonstopmode -halt-on-error asymptotic-inverse.tex",
+    "SerialSuccessfulPasses": 3,
+    "LaTeXWarnings": 0,
+    "PDF": "article/asymptotic-inverse.pdf",
+    "PDFSHA256": "9a9b1547625b610470ec3af9bd94e68312374a1ff45faae702dc600e8a3c0687",
+    "PageCount": 88,
+    "RenderedPages": 88,
+    "Renderer": "pdftoppm.EXE",
+    "DPI": 100,
+    "TextCharactersOutsidePage": 0,
+    "ContactSheetsVisuallyInspected": [
+      "contact-01.png",
+      "contact-02.png",
+      "contact-03.png",
+      "contact-04.png",
+      "contact-05.png",
+      "contact-06.png",
+      "contact-07.png",
+      "contact-08.png",
+      "contact-09.png",
+      "contact-10.png",
+      "contact-11.png",
+      "contact-12.png",
+      "contact-13.png",
+      "contact-14.png",
+      "contact-15.png"
+    ],
+    "ContactSheetPageCoverage": "All pages 1-88, reviewed in three independent read-only ranges: 1-30, 31-60, 61-88.",
+    "FullPagesVisuallyInspected": [
+      18,
+      30,
+      43,
+      44,
+      45
+    ],
+    "VisualFindings": "No clipping, overlapping text or equations, blank document pages, or problematic section transitions. The new theorem and proof fit on page 44. Short final continuation on page 87 precedes References on page 88.",
+    "LayoutDiagnosticsSHA256": "d78d014bbeb79387affc59a9007e8f3aabc413d0e4e92372b7a1c339d189f58d",
+    "ReviewArtifacts": "Page PNGs, contact sheets, and layout-diagnostics.json are reproducible temporary output of validation/inspect_pdf.py; the PDF and native arithmetic preview are committed."
+  },
+  "ArtifactSHA256": {
+    "AsymptoticInverse/Documentation/UserGuide.html": "7982295b0d1e14e9daa4a0187d889bd0ddfd754d02b1baa34fbae706d829b848",
+    "AsymptoticInverse/Documentation/UserGuide.md": "e0201bb24ced42b2e4afa5f2dc7154f5001fec274913e3f50a5d1df85f3518f0",
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "490df828154038b67b3ed8d064c84e863eb61439e5ecdb0ed85a8b9d519d3af3",
+    "AsymptoticInverse/Kernel/SeriesOperations.wl": "5d6f00aba9d75d8df6a20b7913bbfdd8a64315f32f93b863b5629d965e07b9ce",
+    "AsymptoticInverse/Kernel/SeriesArithmetic.wl": "40093681c6b3a275acd99a9576ff1f6d5ea823908180f3c9c6be04997f948f91",
+    "AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl": "937cd8cf1453a7fce8fa35c08f44cc9f6e79e854171b514a800e94b96b52da44",
+    "AsymptoticInverse/PacletInfo.wl": "b360e213bed1630b527e3159aa2659d5f6f0dbadee31a1b2729f31a31c5b17e4",
+    "AsymptoticInverse/README.md": "28395fe008d364f69ba6affb4baa3cf8d6cb88ea2346bb9449c2b952686e8291",
+    "AsymptoticInverse/Tests/BarnesGInverse.wlt": "718832e2a9785b7d201cd1512d6a88a5811f99b38e7887a9c4c4a4d397a48098",
+    "AsymptoticInverse/Tests/SeriesArithmetic.wlt": "4d035eca02ace35380eb3eacc8837b1585101842070529d84e85c643213599c2",
+    "AsymptoticInverse/Tests/SeriesEnvelopeArithmetic.wlt": "358f19289fbeaab4699ae153c9fdf4c7693f18bf149012e6175447f2604edb9f",
+    "AsymptoticInverse/Tests/SeriesEnvelopeFunctions.wlt": "c7c4c95423bdef7b46257fe28a0ef6ef180d16d47e3f4447be680ccbfa86ca5c",
+    "AsymptoticInverse/Examples/Arithmetic.wl": "74b91ae314301d71658aaa03d752aa797cd5c0846fe1a8c08f68a314147a8231",
+    "README.md": "02cca5d98f1773a607633527384426f562d425fd2eb26ac91ef9fa4d9a8b347a",
+    "WOLFRAM-NOTES.md": "25c205599fea812a4b5475e70fd648890d843c4aebd5b6b8520742bd38f5168e",
+    "article/sections/17-calculus.tex": "4d145427d9b893417da0c7a581cace34d4014a0827c65fb77d9b154f8e03c24d",
+    "article/asymptotic-inverse.pdf": "9a9b1547625b610470ec3af9bd94e68312374a1ff45faae702dc600e8a3c0687",
+    "validation/CheckDocumentation.wl": "97d3f336806239f5c4a36dbe2d2d1bfc87aa09146c0f83ce7c9fe18c336ab144",
+    "validation/CheckSeriesArithmetic.wl": "31bae4783964dc3959adcb1d180aac8f94714770b77782d4d1b6d76822f6bfff",
+    "validation/RenderSeriesArithmetic.wl": "552141145065021fad0268d8597b885f8bda365ffda5e5c292213a9944de6eba",
+    "validation/README.md": "a1258e6b74d694a8772385b25de8d2d93ffdf2595899d25f04ad8e68cbc790ca",
+    "validation/series-arithmetic-tests.json": "b10da06e5fc2c413f6a040cf096c6505c691d0a591f895279523a19d1fb4da6f",
+    "validation/series-arithmetic-preview.png": "5ee1eda5fb5286503cfbdb5b6e12b4a9dedfd168898edcc7896d6f10f6ba5585"
+  }
+}

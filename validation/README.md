@@ -1,5 +1,47 @@
 # Review and validation record
 
+The automatic series arithmetic update is recorded in
+`series-arithmetic-tests.json` and `series-arithmetic-validation.json`.
+**All 137 focused tests passed**, with zero failures on Wolfram 15.0.1
+for Windows. Seven files were explicitly selected: automatic arithmetic,
+composite arithmetic, composite functions, existing series operations,
+formatting, Gamma inverse operations, and Barnes inverse regressions.
+The full package suite was skipped at the user's request.
+
+The checks cover ordinary operators, regular function operands, exact
+coefficients, propagated precision, held normalization before cancellation,
+adaptive working orders for new nonlinear operations, real branches,
+separate error scales, contradictory domains, resource bounds, and existing
+inverse and formatting behavior. Independent formulas check the retained
+coefficients and error orders. `Normal` continues to return the ordinary
+finite expression, dropping the remainder and the series metadata.
+
+`AsymptoticInverse/Examples/Arithmetic.wl` ran successfully. The native
+front-end renderer produced `series-arithmetic-preview.png`, which was
+visually inspected for notation, grouping, remainder display, and clipping.
+The renderer reported that ImageMetadataTools could not be installed, but
+returned an image and exported the reviewed PNG successfully.
+
+The Wolfram-style guide documents ordinary arithmetic, `SeriesNormalize`,
+precision limits, and composite results. Its HTML was regenerated and
+checked for links and source parity. The separate mathematical article
+proves the error-envelope rules for arithmetic and supported functions.
+The 88-page PDF was rebuilt with three serial LaTeX passes and every page
+was rendered for layout inspection. The validation JSON records the final
+artifact hashes and the scope of visual review.
+
+To reproduce this focused milestone:
+
+```powershell
+wolfram.exe -script validation/CheckSeriesArithmetic.wl
+wolfram.exe -script AsymptoticInverse/Examples/Arithmetic.wl
+wolfram.exe -script validation/RenderSeriesArithmetic.wl
+python validation/build_user_guide.py
+python validation/check_documentation.py
+```
+
+The article build and rendering commands are in `article/README.md`.
+
 The invisible `PowerLogSeries` display update is recorded in
 `formatting-tests.json` and `formatting-validation.json`. **All 13 focused
 tests passed**, with zero failures on Wolfram 15.0.1 for Windows. Only

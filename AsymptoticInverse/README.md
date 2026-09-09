@@ -24,7 +24,7 @@ PacletDirectoryLoad["/absolute/path/to/AsymptoticInverse"];
 Needs["AsymptoticInverse`"];
 ```
 
-Version 1.5.0 requires Wolfram Language 15.0 or later. The recorded native
+Version 1.6.0 requires Wolfram Language 15.0 or later. The recorded native
 checks used version 15.0.1 for Windows.
 
 ## First expansion
@@ -36,6 +36,18 @@ Normal[s]
 s["Remainder"]
 (* PowerLogRemainder[y, 4, 3] *)
 ```
+
+Ordinary arithmetic preserves the series remainder:
+
+```wolfram
+s + y^2
+s/(1 + y)
+s^2
+SeriesNormalize[(s + y^2)/(1 + y), "Cutoff" -> 3]
+```
+
+See [Series Arithmetic and Normalization](Documentation/UserGuide.md#series-operations)
+for regular function operands, available precision, and composite error bounds.
 
 Use the guide's [function overview](Documentation/UserGuide.md#function-overview)
 for the public API and its [possible issues](Documentation/UserGuide.md#possible-issues)

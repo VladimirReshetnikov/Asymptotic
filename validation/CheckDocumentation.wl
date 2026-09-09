@@ -39,11 +39,11 @@ documentationTest[id_String, expression_, expected_] := VerificationTest[
   expected, TestID -> id];
 
 documentationReport = TestReport[{
-  documentationTest["docs-all-36-public-symbols-have-explicit-guide-anchors",
+  documentationTest["docs-all-37-public-symbols-have-explicit-guide-anchors",
     Module[{names = Last[StringSplit[#, "`"]] & /@ Names["AsymptoticInverse`*"]},
       {Length[names], Select[names,
         ! StringContainsQ[documentationGuide, "<a id=\"" <> # <> "\"></a>"] &]}],
-    {36, {}}],
+    {37, {}}],
 
   documentationTest["docs-getting-started-Catalan-expression-remainder-and-residual",
     Module[{x, y, s}, s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];

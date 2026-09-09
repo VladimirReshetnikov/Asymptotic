@@ -78,7 +78,7 @@ seriesExpressionJet[e_, d_, limit_] := Module[{u = Unique["w$"], rule, q, probe,
   q = Simplify[e /. rule, (ass /. rule) && u > 0];
   probe = catch[exactJet[q, u, ell, ass /. rule, limit]];
   If[FailureQ[probe],
-    If[probe[[1]] === "ResourceLimit", Throw[probe, $tag], $Failed], probe]];
+    If[MatchQ[probe, Failure["ResourceLimit", _Association]], Throw[probe, $tag], $Failed], probe]];
 
 seriesFlat[d_, limit_] := Module[{p, b, j, ass = seriesAss[d], ell = d["LogVariable"]},
   If[d["Prefactor"] === 1 && d["Offset"] === 0, Return[d, Module]];
@@ -109,9 +109,11 @@ seriesMake[d0_, recipe_, cutoff_: Automatic] := Module[{d = d0, j, w, ell, p, of
     "SeriesRepresentation" -> d, "SeriesRecipe" -> recipe,
     "SeriesData" -> Missing["ExplicitCalculus"]|>]];
 
-seriesCompatible[a_, b_] := If[a["Variable"] =!= b["Variable"] ||
-  ! TrueQ[Simplify[a["ScaleVariable"] == b["ScaleVariable"], seriesAss[a] && seriesAss[b]]],
-  fail["IncompatibleScales", "The operands must use the same variable and positive asymptotic coordinate."]];
+seriesCompatible[a_, b_] := Module[{ass = seriesAss[a] && seriesAss[b]},
+  If[TrueQ[Simplify[Not[ass]]], fail["IncompatibleDomains", "The operands have conflicting branch domains."]];
+  If[a["Variable"] =!= b["Variable"] ||
+    ! TrueQ[Simplify[a["ScaleVariable"] == b["ScaleVariable"], ass]],
+    fail["IncompatibleScales", "The operands must use the same variable and positive asymptotic coordinate."]]];
 
 seriesAlign[a_, b_] := Join[b /. b["LogVariable"] -> a["LogVariable"],
   <|"Assumptions" -> a["Assumptions"] && b["Assumptions"],
@@ -138,9 +140,9 @@ seriesBinary[op_, s_, t_, cut_, limit_] := Module[{a, b, af, bf, ratio, j, ell, 
   seriesMake[d, {op, {s, t}}, h]];
 
 AsymptoticInverse`SeriesAdd[s_PowerLogSeries, t_PowerLogSeries, opts : OptionsPattern[]] :=
-  catch[seriesBinary["Add", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]]];
+  seriesArithmeticPublicBinary["Add", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 AsymptoticInverse`SeriesMultiply[s_PowerLogSeries, t_PowerLogSeries, opts : OptionsPattern[]] :=
-  catch[seriesBinary["Multiply", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]]];
+  seriesArithmeticPublicBinary["Multiply", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 
 seriesConstant[c_, s_, limit_] := Module[{d = seriesData[s, limit]},
   If[! FreeQ[c, d["Variable"]], fail["InvalidConstant", "The scalar must be independent of the expansion variable."]];
@@ -149,30 +151,39 @@ seriesConstant[c_, s_, limit_] := Module[{d = seriesData[s, limit]},
   seriesMake[Join[d, <|"Offset" -> 0, "Prefactor" -> 1,
     "Jet" -> pConst[c, d["LogVariable"], seriesAss[d]], "RemainderDerivativeOrder" -> Infinity|>], {"Constant", {s}, c}]];
 AsymptoticInverse`SeriesAdd[s_PowerLogSeries, c_ /; FreeQ[c, _PowerLogSeries], opts : OptionsPattern[]] :=
-  catch[AsymptoticInverse`SeriesAdd[s, seriesConstant[c, s, OptionValue["MaxTerms"]], opts]];
+  seriesArithmeticPublicBinary["Add", s, c, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 AsymptoticInverse`SeriesAdd[c_ /; FreeQ[c, _PowerLogSeries], s_PowerLogSeries, opts : OptionsPattern[]] :=
   AsymptoticInverse`SeriesAdd[s, c, opts];
 AsymptoticInverse`SeriesMultiply[s_PowerLogSeries, c_ /; FreeQ[c, _PowerLogSeries], opts : OptionsPattern[]] :=
-  catch[AsymptoticInverse`SeriesMultiply[s, seriesConstant[c, s, OptionValue["MaxTerms"]], opts]];
+  seriesArithmeticPublicBinary["Multiply", s, c, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 AsymptoticInverse`SeriesMultiply[c_ /; FreeQ[c, _PowerLogSeries], s_PowerLogSeries, opts : OptionsPattern[]] :=
   AsymptoticInverse`SeriesMultiply[s, c, opts];
 
-seriesPower[s_, r_, cut_, limit_] := Module[{d, flat, ell, ass, h, j},
+seriesPower[s_, r_, cut_, limit_, truncate_: True] := Module[{d, flat, ell, ass, h, j, alpha},
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[s[[1]], "Kind", ""]],
     Return[gammaInverseSeriesPower[s, r, cut, limit], Module]];
   If[! exactRealQ[r], fail["InvalidPower", "The power must be an exact real number."]];
   d = seriesData[s, limit]; flat = seriesFlat[d, limit]; If[flat =!= $Failed, d = flat];
   If[d["Offset"] =!= 0, fail["UnsupportedScale", "First separate the finite offset from this non-power-log carrier."]];
   If[r === 0 && d["Jet"][[1]] === {}, fail["IndeterminatePower", "A zeroth power requires a known nonzero leading term."]];
+  If[! IntegerQ[r] && d["Jet"][[1]] === {} && d["Jet"][[2]] =!= Infinity,
+    fail["UnknownLeadingTerm", "A pure remainder does not establish the real branch required by a noninteger power."]];
   ell = d["LogVariable"]; ass = seriesAss[d]; h = seriesWorkingCut[d, cut];
+  alpha = If[d["Jet"][[1]] === {}, d["Jet"][[2]], jetValuation[d["Jet"][[1]]]];
+  If[cut === Automatic && d["Jet"][[2]] =!= Infinity,
+    h = canon[d["Jet"][[2]] + alpha (r - 1)]];
+  If[! TrueQ[truncate] && alpha =!= Infinity,
+    h = Max[h, alpha r + 1];
+    If[d["Jet"][[2]] =!= Infinity, h = Max[h, d["Jet"][[2]] + alpha (r - 1)]]];
   If[! IntegerQ[r] && ! provablyPositive[d["Prefactor"], ass],
     fail["NonpositiveBase", "A fractional observable power needs a provably positive exact prefactor."]];
   j = fwdPower[d["Jet"], r, Unique["w$"], ell, ass, h, limit];
-  seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> d["Prefactor"]^r|>], {"Power", {s}, r}, h]];
+  seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> d["Prefactor"]^r|>], {"Power", {s}, r},
+    If[cut === Automatic || ! TrueQ[truncate], Automatic, h]]];
 AsymptoticInverse`SeriesPower[s_PowerLogSeries, r_, opts : OptionsPattern[]] :=
-  catch[seriesPower[s, r, OptionValue["Cutoff"], OptionValue["MaxTerms"]]];
+  seriesArithmeticPublicPower[s, r, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 AsymptoticInverse`SeriesPower[s_PowerLogSeries, r_, h_?exactRealQ, opts : OptionsPattern[]] :=
-  catch[seriesPower[s, r, h, OptionValue["MaxTerms"]]];
+  seriesArithmeticPublicPower[s, r, h, OptionValue["MaxTerms"]];
 
 seriesLog[s_, cut_, limit_] := Module[{d, flat, ell, ass, h, j, p},
   d = seriesData[s, limit]; flat = seriesFlat[d, limit]; If[flat =!= $Failed, d = flat];
@@ -187,9 +198,9 @@ seriesLog[s_, cut_, limit_] := Module[{d, flat, ell, ass, h, j, p},
   j = pAdd[p, j, ell, ass];
   seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> 1|>], {"Log", {s}}, h]];
 AsymptoticInverse`SeriesLog[s_PowerLogSeries, opts : OptionsPattern[]] :=
-  catch[seriesLog[s, OptionValue["Cutoff"], OptionValue["MaxTerms"]]];
+  seriesArithmeticPublicUnary[Log, s, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 AsymptoticInverse`SeriesLog[s_PowerLogSeries, h_?exactRealQ, opts : OptionsPattern[]] :=
-  catch[seriesLog[s, h, OptionValue["MaxTerms"]]];
+  seriesArithmeticPublicUnary[Log, s, h, OptionValue["MaxTerms"]];
 
 seriesExp[s_, cut_, limit_] := Module[{d, ell, ass, h, rows, big, small, carrier, j},
   d = seriesFlat[seriesData[s, limit], limit];
@@ -202,9 +213,9 @@ seriesExp[s_, cut_, limit_] := Module[{d, ell, ass, h, rows, big, small, carrier
   j = fwdExp[{small, d["Jet"][[2]], d["Jet"][[3]]}, Unique["w$"], ell, ass, h, limit];
   seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> carrier|>], {"Exp", {s}}, h]];
 AsymptoticInverse`SeriesExp[s_PowerLogSeries, opts : OptionsPattern[]] :=
-  catch[seriesExp[s, OptionValue["Cutoff"], OptionValue["MaxTerms"]]];
+  seriesArithmeticPublicUnary[Exp, s, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 AsymptoticInverse`SeriesExp[s_PowerLogSeries, h_?exactRealQ, opts : OptionsPattern[]] :=
-  catch[seriesExp[s, h, OptionValue["MaxTerms"]]];
+  seriesArithmeticPublicUnary[Exp, s, h, OptionValue["MaxTerms"]];
 
 (* Apply an expression to a precision-tracked jet. A unary Taylor germ is
    admitted only at a finite constant argument; its coefficients, including
@@ -393,6 +404,7 @@ AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : Opt
     "Compose", AsymptoticInverse`SeriesCompose[args[[1]], args[[2]], "Cutoff" -> h, "MaxTerms" -> limit],
     "Truncate", AsymptoticInverse`SeriesTruncate[First[args], h, "MaxTerms" -> limit],
     "Constant", seriesConstant[recipe[[3]], First[args], limit],
+    "RegularOperand", seriesRegularOperand[recipe[[3]], First[args], recipe[[4]], h, limit],
     "Differentiate", If[recipe[[4]] =!= Automatic &&
       Lookup[seriesData[First[args], limit], "RemainderDerivativeOrder", 0] < recipe[[3]],
         fail["UnprovedRefinedDerivative", "A derivative bound declared for the old remainder does not establish the stronger bound for the refined remainder. Refine the source first, then supply its derivative contract."]];

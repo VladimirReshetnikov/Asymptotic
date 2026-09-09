@@ -314,3 +314,25 @@ algebraic-number code, asymptotic computation, and Wolfram evaluation semantics.
   constant block. Relational decisions must respect the remaining error.
 - `Unequal[a,b,c]` requires all three pairs to be distinct. Adjacent-pair
   checks suffice for ordered chains, but not for n-ary `Unequal`.
+- Automatic series arithmetic needs a guard around internal evaluation.
+  Match the whole n-ary `Plus` or `Times`, rather than repeatedly matching
+  subsets under their `Flat` and `Orderless` attributes. Restrict upvalues to
+  deliberate arithmetic and function heads so that `Normal`, formatting,
+  property access, and explicit operation APIs retain their own semantics.
+- `SeriesNormalize` holds the supplied tree with `HoldAllComplete`, including
+  symbolic aliases resolved from held `OwnValues`. Releasing a delayed alias
+  with arithmetic disabled can otherwise simplify `s/s` to `1` before checking
+  whether `s` has a nonzero leading term. The native regression distinguishes
+  that case from an expression already evaluated and stored by the caller.
+- A final cutoff cannot be imposed independently on every child. The held
+  normalizer retains exact input terms through products and divisions, then
+  truncates the result. It can increase the work order of newly formed
+  functions after cancellation, but never refines an input's unknown tail.
+- Native `FailureQ[$Failed]` is true. Test the structural form
+  `Failure["ResourceLimit", _Association]` before taking failure parts;
+  indexing `$Failed[[1]]` emits a message during an ordinary exact-jet probe.
+- Native `Limit` ignores assumptions involving its limit variable. Prove the
+  branch on the recorded approach first, simplify absolute values with those
+  branch facts, and pass independent parameter conditions to the limit.
+  Lambert-core limits are often much easier in the original target variable
+  than after replacing it by the reciprocal of a fresh small coordinate.
