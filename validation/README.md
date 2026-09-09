@@ -1,5 +1,95 @@
 # Review and validation record
 
+This directory contains focused runners, characterization probes, build and
+provenance tools, benchmarks, and saved evidence from individual milestones.
+The [test directory guide](../AsymptoticInverse/Tests/README.md) explains test
+selection and how to add a small reproducible harness. The
+[implementation register](../docs/development/CODE_REVIEW_STATUS.md) tracks
+review findings; the [review archive](../code-review/README.md) preserves the
+reviewers' reports and their original execution scope.
+
+## Choose a focused check
+
+The current development request is to **skip the full package suite**. Select
+the files relevant to a change and run one Wolfram kernel at a time. A broader
+run is a separate validation decision; the historical full-suite commands
+later in this document are reproduction instructions, not the default workflow.
+Run the following example from the repository root:
+
+```powershell
+$env:ASYMPTOTIC_VALIDATION_OUTPUT = Join-Path $env:TEMP 'asymptotic-native-tails-local.json'
+wolfram.exe -noinit -script validation/CheckReviewNativeTails.wl
+if ($LASTEXITCODE -ne 0) { throw 'Focused validation failed' }
+```
+
+The output override prevents this local run from replacing a saved acceptance
+record. It remains set for subsequent commands in that PowerShell session;
+change or clear it when choosing another destination. The report directory
+must already exist. Without the override, each focused entry script uses its
+configured filename under `validation/`.
+
+| Area | Focused entry script | Explicitly selected scope |
+| --- | --- | --- |
+| Native import/export remainder contracts | [CheckReviewNativeTails.wl](CheckReviewNativeTails.wl) | Nine files covering native tails, ordinary operations, special functions, and refinement |
+| Complete real coefficients | [CheckReviewRealCoefficients.wl](CheckReviewRealCoefficients.wl) | Eleven files covering coefficient reality and adjacent assumptions, core, coordinate, and special-function paths |
+| Assumption capture | [CheckReviewAssumptions.wl](CheckReviewAssumptions.wl) | Eight files covering construction, arithmetic, inverse branches, and refinement |
+| Delayed options and stored assumptions | [CheckReviewAssumptionReplay.wl](CheckReviewAssumptionReplay.wl) | One supplemental regression file |
+| Nonlinear input precision and terminating coefficients | [CheckReviewUnitArithmetic.wl](CheckReviewUnitArithmetic.wl) | Nine files covering remainder degrees, recurrence termination, and adjacent operations |
+| Fractional-power branches | [CheckReviewPowerBranches.wl](CheckReviewPowerBranches.wl) | Six files covering shared power checks and forward/observable operations |
+| Automatic arithmetic and composite bounds | [CheckSeriesArithmetic.wl](CheckSeriesArithmetic.wl) | Seven files covering arithmetic, envelopes, formatting, and inverse operations |
+
+These scripts call [FocusedTests.wl](FocusedTests.wl), which runs only their
+listed files. Its JSON records the actual kernel version, selected files,
+per-suite time constraint and results, failed expected/actual outputs and
+messages, and SHA-256 hashes of the kernel sources, selected tests, entry
+script, and shared runner. It checks package loading before testing and
+returns a nonzero exit code for failed, empty, or aborted suites, changed
+sources during the run, or report-export failure. The configured timeout
+applies to each selected file, not to the whole invocation.
+
+[CheckFocusedRunner.wl](CheckFocusedRunner.wl) tests the runner itself using
+temporary synthetic fixtures; it does not execute the package regression
+suite. It deliberately exercises failure paths, so its printed fixture
+failures must be interpreted through its final self-check result. It writes
+`focused-runner-tests.json` directly, independently of the output override.
+
+## Pending native compatibility
+
+Compatibility checks for explicit native `Series` and `Asymptotic` backends
+are **prospective and unexecuted**. Those backends are not implemented in the
+current kernel. The focused entry scripts above do not establish that the
+proposed options or native result kind work. The
+[native compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md)
+records the proposed implementation and its contract boundaries.
+
+[RunTests.wl](../AsymptoticInverse/Tests/RunTests.wl) discovers every `.wlt`
+file. A historical all-passing run therefore does not establish acceptance
+of a later test set. Existing native ingress
+and export tests concern the package's current analytic representation;
+their results do not establish the pending native-backend compatibility.
+
+## Read the evidence by scope
+
+- A saved native acceptance report establishes its recorded assertions on
+  its recorded kernel and source snapshot. Compare its hashes with the
+  checkout before presenting it as current validation.
+- A characterization probe records observed behavior, including known
+  defects. It is not a passing acceptance suite. A reviewer-supplied run
+  remains the reviewer's evidence until reproduced locally.
+- Python checks, source inspection, generated-file freshness, and native
+  Wolfram execution establish different facts. PDF compilation, rendering,
+  and visual inspection also have separate scopes.
+- Numerical residuals and high-precision comparisons are evidence of
+  behavior. An interval certificate needs the certificate's stated
+  hypotheses and proved enclosure; a finite-model residual is not that
+  certificate.
+- Benchmarks describe their recorded fixtures, samples, kernel, and host.
+  A faster fixture does not establish a package-wide performance claim.
+
+The milestone records below retain their original counts, snapshot details,
+and validation limits. They are historical evidence, not a claim that those
+commands were rerun for a later documentation or implementation change.
+
 ## Complete real coefficients and wave-2 intake
 
 `CheckReviewRealCoefficients.wl` records **280 passed, zero failed** across
@@ -1175,9 +1265,12 @@ growing and decaying exponential cores, and specified higher-power
 perturbations. Numerical checks use the original forward expression.
 General polynomial logarithmic cores do not claim an exact ProductLog inverse.
 
-## Native regression tests
+## Historical full native regression runner
 
-Run from the repository root:
+The full runner discovers all `.wlt` files and has no focused-selection
+argument. The current development request skips this runner; the following
+command is retained for deliberate full-run reproduction from the repository
+root:
 
 ```powershell
 $env:ASYMPTOTIC_VALIDATION_OUTPUT = Join-Path $env:TEMP 'asymptotic-local-tests.json'

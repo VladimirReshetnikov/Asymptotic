@@ -1,5 +1,9 @@
 # Development and provenance
 
+This directory connects current implementation work to its mathematical
+hypotheses, public contracts, and validation evidence. Return to the
+[documentation index](../README.md) for reader-facing and historical material.
+
 The maintained reader-facing documentation consists of the
 [mathematical article](../../article/asymptotic-inverse.pdf) and the
 [package user guide](../../AsymptoticInverse/Documentation/UserGuide.html).
@@ -28,13 +32,38 @@ The [real-coefficient notes](REAL_COEFFICIENTS.md) explain why complete
 coefficients are checked after collection, including target offsets and
 observables, and distinguish this check from a proof that the source is real.
 
+## Working on a change
+
+1. Check the [implementation register](CODE_REVIEW_STATUS.md) and the relevant
+   pinned review. Reproduce the issue on the current source before treating a
+   historical observation as a current defect.
+2. Use the [kernel source map](../../AsymptoticInverse/Kernel/README.md) to
+   locate the implementation, then update the relevant tests and contract
+   notes. Preserve the distinction between formal order, asymptotic remainder,
+   numerical comparison, and a quantitative certificate.
+3. Select a [focused validation run](../../validation/README.md), regenerate
+   affected distribution or documentation artifacts, and record exactly what
+   ran. The current instruction is to skip the full package suite.
+4. Commit coherent source, documentation, and validation changes together.
+   Keep proposed behavior and unexecuted regression specifications labeled as
+   pending until their implementation and focused acceptance are available.
+
+Update the [user guide source](../../AsymptoticInverse/Documentation/UserGuide.md)
+and rebuild its HTML for public behavior changes. Update the
+[mathematical article](../../article/README.md) when its hypotheses, results,
+or examples change, and rebuild its PDF using the documented three-pass
+procedure. Wolfram-specific evaluation subtleties belong in these development
+notes or [WOLFRAM-NOTES.md](../../WOLFRAM-NOTES.md).
+
+## Historical engineering material
+
 This directory preserves engineering material that previously appeared in
 or alongside the combined article:
 
 - [Implementation plan (PDF)](implementation-plan.pdf) and
   [LaTeX source](implementation-plan.tex): the original engineering roadmap,
   moved without changing its contents.
-- [Former article chapters](article-notes/): historical package, report,
+- [Former article chapters](article-notes/README.md): historical package, report,
   validation, and integration notes preserved verbatim from revision `2a3d75a`.
 
 These documents describe their original milestones. Consult the current
@@ -42,7 +71,8 @@ guide for supported behavior and the [validation record](../../validation/README
 for the precise revision and scope of each test run. Historical validation
 manifests retain their original artifact paths and hashes.
 
-The [original report comparison](../../reports/COMPARISON.md) and
+The [original reports](../../reports/README.md), their
+[comparison](../../reports/COMPARISON.md), and
 [Wolfram development notes](../../WOLFRAM-NOTES.md) remain separate sources
 of engineering history.
 

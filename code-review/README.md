@@ -12,3 +12,20 @@ The maintained [implementation status](../docs/development/CODE_REVIEW_STATUS.md
 The wave indexes distinguish source and mathematical checks from native package observations, executed patch checks, and unrun regression specifications. Reviewers' independent test counts are not a combined acceptance run of this repository.
 
 Reports describe their pinned source snapshots. Their inclusion does not establish that a finding still applies or that a proposed fix has been implemented and verified in the current checkout. Preserve each package's supplied evidence, licensing, and attribution notices when reorganizing this directory.
+
+## Using the reviews
+
+Start with the implementation register to see which findings share a cause
+and which fixes have focused evidence. Follow the relevant wave index to the
+original report, then check its reproduction against the current source.
+Proposed patches and tests are review material until integrated and validated.
+
+The [development instructions](../docs/development/README.md) describe the
+source and documentation workflow; the [validation record](../validation/README.md)
+links executable focused runners and their recorded scope. The current
+instruction is to skip the full package suite.
+
+These reviews concern the unified package. The nine earlier research and
+implementation submissions have their own [reports index](../reports/README.md)
+and comparison. Return to the [repository README](../README.md) for package
+loading and the mathematical article and user guide.

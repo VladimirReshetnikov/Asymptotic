@@ -23,7 +23,8 @@ the required interfaces, result semantics, and validation boundaries.
 
 The article is independent of software syntax. The guide follows the
 organization of Wolfram Language reference documentation and explains the
-package's supported interfaces.
+package's supported interfaces. The [documentation index](docs/README.md)
+also gives reading paths for contributors and the historical research material.
 
 ## Get started
 
@@ -105,7 +106,11 @@ SeriesNormalize[(1 + a)/(1 - a), "Cutoff" -> 4]
 
 Constructors return [`GeneralizedSeries`](AsymptoticInverse/Documentation/UserGuide.md#GeneralizedSeries)
 objects. StandardForm and TraditionalForm hide the head; `Normal` extracts
-only the finite expression. Version 1.8.0 renames the former `PowerLogSeries`
+only the finite expression. Keep the series object when doing further
+arithmetic that needs its remainder. A specification such as `{x, 0, 5}`
+uses an **exclusive power cutoff**; `SeriesTermGoal` requests complete
+nonzero blocks. These are distinct from the native `Series` order convention.
+Version 1.8.0 renames the former `PowerLogSeries`
 head, so explicit patterns should now use `_GeneralizedSeries`. The
 [arithmetic guide](AsymptoticInverse/Documentation/UserGuide.md#series-operations)
 explains precision propagation, ordinary function operands, held normalization,
@@ -120,14 +125,15 @@ for the exact scope of each run.
 | Location | Content |
 | --- | --- |
 | [AsymptoticInverse.wl](AsymptoticInverse.wl) | Generated standalone package for loading from a URL download or single-file offline use. |
-| [AsymptoticInverse/](AsymptoticInverse/) | Package, paclet metadata, examples, and focused test files. |
-| [article/](article/) | Mathematical article and its build instructions. |
-| [docs/development/](docs/development/) | Engineering roadmap and preserved operational chapters from the former combined article. |
+| [AsymptoticInverse/](AsymptoticInverse/README.md) | Package loading, [kernel source](AsymptoticInverse/Kernel/README.md), [examples](AsymptoticInverse/Examples/README.md), and [focused tests](AsymptoticInverse/Tests/README.md). |
+| [article/](article/README.md) | Mathematical article and its build instructions. |
+| [docs/](docs/README.md) | Reading paths and links between mathematical, user, and contributor documentation. |
+| [docs/development/](docs/development/README.md) | Current review status, implementation plans, gotcha notes, and preserved historical engineering chapters. |
 | [code-review/](code-review/README.md) | Seventeen review packages across two waves, with articles, evidence, and reproduction tools. |
-| [vendor/proveit/](vendor/proveit/README.md) | Revision-pinned articles on asymptotic expansions and inverses, with TeX, PDFs, topic reading lists, and upstream build provenance. |
+| [vendor/](vendor/README.md) | Revision-pinned ProveIt articles on asymptotic expansions and inverses, with TeX, PDFs, topic reading lists, and upstream build provenance. |
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
-| [reports/COMPARISON.md](reports/COMPARISON.md) | Analysis of the nine original research and implementation reports; their submitted artifacts remain in `reports/`. |
-| [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/) | The two motivating questions and source snapshots. |
+| [reports/](reports/README.md) | The nine original research and implementation reports, with their analysis and comparison. |
+| [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/README.md) | The two motivating questions, original online sources, and saved snapshots. |
 | [WOLFRAM-NOTES.md](WOLFRAM-NOTES.md) | Development notes on Wolfram Language behavior. |
 
 When changing the kernel sources, regenerate the standalone file with
@@ -137,3 +143,21 @@ the freshness check and focused loading validation.
 
 Documentation build and review commands are in [article/README.md](article/README.md)
 and [Documentation/README.md](AsymptoticInverse/Documentation/README.md).
+
+## Development status
+
+The [implementation register](docs/development/CODE_REVIEW_STATUS.md) maps
+findings from both review waves to completed fixes, focused evidence, and
+outstanding work. Begin there when choosing a repair; a supplied report or
+patch describes its pinned snapshot, not necessarily today's behavior.
+
+The public forward function is currently `AsymptoticExpansion`. The proposed
+`AsymptoticExpand` alias and general native backend selector belong to the
+[compatibility plan](docs/development/NATIVE_COMPATIBILITY.md) and are not yet
+implemented. Existing native-assisted special-function support does not
+establish complete `Series` or `Asymptotic` coverage.
+
+For a change, update the applicable source, guide, mathematical hypotheses,
+and [development notes](docs/development/README.md). Run the relevant focused
+checks and report their scope. The current instruction is to **skip the full
+package suite**; historical test totals are not current full-suite acceptance.
