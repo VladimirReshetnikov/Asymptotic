@@ -118,6 +118,7 @@ for the exact scope of each run.
 | [article/](article/) | Mathematical article and its build instructions. |
 | [docs/development/](docs/development/) | Engineering roadmap and preserved operational chapters from the former combined article. |
 | [code-review/](code-review/README.md) | Review articles, evidence, and reproduction tools, indexed by review package. |
+| [vendor/proveit/](vendor/proveit/README.md) | Revision-pinned articles on asymptotic expansions and inverses, with TeX, PDFs, topic reading lists, and upstream build provenance. |
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
 | [reports/COMPARISON.md](reports/COMPARISON.md) | Analysis of the nine original research and implementation reports; their submitted artifacts remain in `reports/`. |
 | [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/) | The two motivating questions and source snapshots. |

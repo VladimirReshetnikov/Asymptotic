@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-09-09T20:48:40.427721+00:00",
+  "repository_url": "https://github.com/VladimirReshetnikov/ProveIt",
+  "source_commit": "a9e9c597c2a355702dfe775766ba2c0601653840",
+  "source_commit_url": "https://github.com/VladimirReshetnikov/ProveIt/commit/a9e9c597c2a355702dfe775766ba2c0601653840",
+  "scope": "Final artifact, inventory, provenance, and freshness audit. This is not a mathematical proof or an all-page visual review.",
+  "source_checkout_clean": true,
+  "source_integrity": {
+    "verified_files": 537,
+    "pinned_source_verified": true,
+    "dependency_closure_complete": true,
+    "verified_rebuilt_pdfs": 0,
+    "pending_pdfs": [],
+    "pdf_artifacts_complete": true
+  },
+  "catalog": {
+    "ok": true,
+    "counts": {
+      "archived_exclusions": 32,
+      "catalog_links": 228,
+      "combinatorial_reading_list_attempted": 195,
+      "combinatorial_reading_list_verified": 195,
+      "excluded_articles": 39,
+      "external_links_skipped": 1,
+      "line_anchors_verified": 126,
+      "local_links_verified": 227,
+      "original_combinatorial_reading_list_attempted": 195,
+      "original_combinatorial_reading_list_verified": 195,
+      "original_q_reading_list_attempted": 57,
+      "original_q_reading_list_verified": 57,
+      "original_selection_evidence_attempted": 239,
+      "original_selection_evidence_verified": 239,
+      "q_reading_list_attempted": 57,
+      "q_reading_list_verified": 57,
+      "reference_companions": 2,
+      "reviewed_document_roots": 87,
+      "selected_articles": 46,
+      "selected_files_present": 96,
+      "selection_evidence_attempted": 205,
+      "selection_evidence_verified": 205,
+      "verified_upstream_builds": 42
+    },
+    "errors": [],
+    "pending": []
+  },
+  "freshness": {
+    "preserved_current_pdfs": 48,
+    "local_rebuilds": 0,
+    "pending_builds": 0
+  },
+  "git_index": {
+    "source_files_matching_pinned_blob_and_mode": 537,
+    "published_pass_logs_matching_recorded_bytes": 126
+  },
+  "metadata_sha256": {
+    "manifest.json": "f2e94ae9f0d53318655cbfe38cbf0e54f2ded706082064a6540999bb6607f880",
+    "selection.json": "ae73cb0d3f16839c8cdfae12d8c0a03867dbe85f5611650aa90f62c096a9068d",
+    "q-reading-list.json": "47c1d38e147b909b521d27ca5a12311a2068d573c3901210349a53db837afb92",
+    "combinatorial-reading-list.json": "72ea355b7f0d83da3fd8324364798a468be13a7f1291c3a0175612d1d6ecbc0f",
+    "upstream-builds.json": "2f49a1eceb5ece67048a86b9ef563e2a8e91f7fe02fa0975960604290ffcb907",
+    "builds.json": "a90edf6fec7bf3c2c616907a95980dfef2333dce5806709251aa3b39a9449080",
+    "README.md": "fb4e377213cee1d931cb28e86a99a660fda5196de356b822a1865431e50f533e"
+  },
+  "validation_script_sha256": {
+    "validation/build_proveit_pdfs.py": "e2700660eed5ff36df7def2590d01b33600bcd354c542d09e428517eea96d32e",
+    "validation/check_proveit_catalog.py": "aaa691b52d68e8a5078528dcab17993559f43bf075310ae782f72080f104e636",
+    "validation/proveit_build_patches.py": "f1209429b66c114d7a7b7c7102d75f5dbaf204cf55bed28a8d67a6da25a9ee52",
+    "validation/proveit_catalog.py": "d194847bf1ebafc4ee13ecd4b749a59edce2dd8d516b195589985e978a45a335",
+    "validation/refresh_proveit_selection.py": "5466a141123b5e9cdf852310bdd3ad84553edca57f49126a2bd9f002fed9a135",
+    "validation/sync_proveit_pdfs.py": "8b1efc1228967a2b616a154d684c768f8ce3aec91708c2850b20b01bffe19096",
+    "validation/vendor_proveit_articles.py": "8c714639b8945910d6cd5479b0f96d9b67ff62ac0876abefaaf98365961765df"
+  },
+  "reproduction_commands": [
+    "python validation/vendor_proveit_articles.py check",
+    "python validation/check_proveit_catalog.py",
+    "python validation/build_proveit_pdfs.py --list"
+  ],
+  "optional_dependency_notices": [
+    {
+      "article": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "from": "Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "line": 62,
+      "command": "IfFileExists",
+      "requested": "repo-metadata.tex",
+      "status": "optional_missing",
+      "severity": "info",
+      "resolution": "Use the explicit absent-file branch; no missing asset was generated."
+    },
+    {
+      "article": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "from": "Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "line": 677,
+      "command": "IfFileExists",
+      "requested": "figures/edgeworth-density.pdf",
+      "status": "optional_missing",
+      "severity": "info",
+      "resolution": "Use the explicit absent-file branch; no missing asset was generated."
+    },
+    {
+      "article": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "from": "Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "line": 926,
+      "command": "IfFileExists",
+      "requested": "figures/resonant-fourier.pdf",
+      "status": "optional_missing",
+      "severity": "info",
+      "resolution": "Use the explicit absent-file branch; no missing asset was generated."
+    },
+    {
+      "article": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "from": "Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "line": 1051,
+      "command": "IfFileExists",
+      "requested": "figures/mellin-periodic-residual.pdf",
+      "status": "optional_missing",
+      "severity": "info",
+      "resolution": "Use the explicit absent-file branch; no missing asset was generated."
+    },
+    {
+      "article": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "from": "Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "line": 1359,
+      "command": "IfFileExists",
+      "requested": "figures/legendre-envelope.pdf",
+      "status": "optional_missing",
+      "severity": "info",
+      "resolution": "Use the explicit absent-file branch; no missing asset was generated."
+    },
+    {
+      "article": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "from": "Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "line": 1496,
+      "command": "IfFileExists",
+      "requested": "data/mellin_comparison.tex",
+      "status": "optional_missing",
+      "severity": "info",
+      "resolution": "Use the explicit absent-file branch; no missing asset was generated."
+    },
+    {
+      "article": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "from": "Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+      "line": 1568,
+      "command": "IfFileExists",
+      "requested": "corpus-summary.tex",
+      "status": "optional_missing",
+      "severity": "info",
+      "resolution": "Use the explicit absent-file branch; no missing asset was generated."
+    }
+  ],
+  "validation_limits": [
+    "Each of the 42 rebuilt PDFs completed three serial pdflatex passes and passed structure/font checks.",
+    "Rendered-page reviews are targeted samples, documented under qa/. Cosmetic warnings remain.",
+    "Seven upstream optional report-H assets remain absent; the original explicit TeX fallbacks are preserved.",
+    "No Lean build or full Wolfram package suite was run."
+  ]
+}

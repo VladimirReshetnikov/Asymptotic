@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-09-09T20:46:02.469067+00:00",
+  "review_status": "sampled_pages_reviewed_no_material_layout_issue_observed",
+  "source_provenance": {
+    "repository_url": "https://github.com/VladimirReshetnikov/ProveIt",
+    "source_commit": "a9e9c597c2a355702dfe775766ba2c0601653840"
+  },
+  "renderer": {
+    "executable": "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+    "version": "pdftoppm version 26.07.0"
+  },
+  "sample_count": 2,
+  "checks": [
+    {
+      "pdf": "docs/FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.pdf",
+      "pdf_sha256": "eedcd83a9bd0de357432af186e3499d5b20084d430d5579971ccceacfd74b1c9",
+      "page_count": 135,
+      "pdf_page": 80,
+      "printed_page": 80,
+      "selection_reason": "Section 15: research-frontier namespaces; rank-two valuation, logarithmic coefficient blocks, and exclusive truncation.",
+      "text_evidence": "FabiusFunction notation catalogue 15 Research-frontier namespaces\nLeading block, monomial, and scalar.Let\npνt(F) (L) =aL d +lower powers, a∈K ×.\nThen the leading coefficient block is the whole polynomial pνt(F) ; the leading monomial is tνt(F) Ld;\nand the scalar leading coefficient is a. These are three different objects. For F= 0 , the degree, leading\nmonomial, and leading coefficient are undefined unless a separate extended convention is declared.\nRank-two valuation.The refined monomial valuat",
+      "image": "C:/Temp/proveit-final-synchronization-qa/notation-080.png",
+      "image_sha256": "534c898fe33d42beab810a6a215719e477da8d3e7b0907a9d6f58a496a00acaf",
+      "render_dpi": 125,
+      "renderer_argv": [
+        "pdftoppm",
+        "-f",
+        "80",
+        "-l",
+        "80",
+        "-singlefile",
+        "-r",
+        "125",
+        "-png",
+        "vendor/proveit/docs/FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.pdf",
+        "C:/Temp/proveit-final-synchronization-qa/notation-080"
+      ],
+      "renderer_exit_code": 0,
+      "visually_inspected": true,
+      "observation": "The displayed valuations, piecewise log-degree profile, truncation sums, and formal-remainder identity are legible. All sampled body text, headers, and footer are visible, with no observed clipping, collisions, or missing glyphs."
+    },
+    {
+      "pdf": "docs/semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.pdf",
+      "pdf_sha256": "5a4c051c5191af16cfb0f475e581cf42c1d1046270f85033fc040dbce66b0004",
+      "page_count": 192,
+      "pdf_page": 152,
+      "printed_page": 152,
+      "selection_reason": "Part III: diagonal laws of repeated Thue-Morse summation; section 3.3 bivariate generating functions and section 4.1 summation-order polynomials.",
+      "text_evidence": "Thue–Morse atlas and frontiers 4 Why fixed-index iterated sums are polynomials\nCorollary 3.3(Local discrete equation).With the conventions n,k = 0fork <0, one has, forn≥1,\nsn,k −2s n,k−1 +s n,k−2 =s n−1,k−1.(3.8)\nProof.Multiply (3.7) by(1−z) 2 and compare coefficients ofz k.\nEquation (3.8) fills a rectangular portion of the table in constant work per cell. It is often preferable\nto reevaluating the weighted sum in (1.2) for each new cell.\n3.3 Two bivariate generating functions\nSumming (3.3) over",
+      "image": "C:/Temp/proveit-final-synchronization-qa/atlas-152.png",
+      "image_sha256": "c17514433de493964c2a01fdf08489481fc073d4a51d2a43c93ba9178e1be459",
+      "render_dpi": 125,
+      "renderer_argv": [
+        "pdftoppm",
+        "-f",
+        "152",
+        "-l",
+        "152",
+        "-singlefile",
+        "-r",
+        "125",
+        "-png",
+        "vendor/proveit/docs/semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.pdf",
+        "C:/Temp/proveit-final-synchronization-qa/atlas-152"
+      ],
+      "renderer_exit_code": 0,
+      "visually_inspected": true,
+      "observation": "The boxed bivariate generating functions and polynomial formula, theorem text, equation labels, headings, and footer are legible. No observed clipping, collisions, or missing glyphs on the sampled page. One inline denominator wraps onto the following line while remaining readable; no repair was requested."
+    }
+  ],
+  "scope": {
+    "requested": "One representative page of each freshly rebuilt PDF, including the atlas Part III diagonal-polynomial material.",
+    "inspected_pdf_pages": 2,
+    "total_pdf_pages": 327,
+    "limitations": [
+      "This is a two-page visual spot check, not a full-document layout review.",
+      "This record does not establish mathematical correctness, source/PDF parity, or build success.",
+      "No compile logs were audited and no claim is made that all layout warnings have been removed.",
+      "Existing minor warnings remain outside this sample; no cosmetic changes were made."
+    ]
+  },
+  "repairs": []
+}

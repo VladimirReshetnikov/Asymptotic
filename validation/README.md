@@ -1,5 +1,28 @@
 # Review and validation record
 
+## Vendored ProveIt articles
+
+The [article catalog](../vendor/proveit/README.md) contains 46 articles and two
+reference companions, each with TeX and PDF, pinned to the published ProveIt
+revision recorded in its [manifest](../vendor/proveit/manifest.json). All 42
+regenerated PDFs and the associated source repairs were committed upstream
+before the final snapshot. The other six PDFs passed the dependency freshness
+checks without a rebuild. Archived roots are excluded.
+
+`vendor_proveit_articles.py check --source-root C:/ProveIt` verifies copied
+bytes against the pinned Git objects. `check_proveit_catalog.py --source-root
+C:/ProveIt` checks the complete article inventory, selection evidence, reading
+lists, links, freshness, and published build receipts. `build_proveit_pdfs.py
+--list` reports any required builds; its build mode uses three serial LaTeX
+passes. The [final verification record](../vendor/proveit/verification.json)
+binds the audit results to the manifest and validation scripts.
+
+Every rebuilt PDF passed structural and font checks. Targeted rendered-page
+reviews cover repaired text loss and the final synchronization; minor layout
+warnings remain in the logs. This validates artifact provenance and compilation,
+not all mathematical claims or every rendered page. No Lean build or full
+Wolfram package suite was run for the document work.
+
 ## Parameterized composition probes
 
 Parameterized special-function composition now examines the argument jet

@@ -42,7 +42,10 @@ def main() -> None:
     selection = read("selection.json")
     build_data = read("builds.json", {"regenerated_pdfs": {}})
     builds = build_data["regenerated_pdfs"]
+    upstream_builds = read("upstream-builds.json", {"articles": {}})["articles"]
     manifest = read("manifest.json")
+    selected_pdfs = {article["destination_pdf"] for article in manifest["articles"]}
+    upstream_count = len(selected_pdfs & upstream_builds.keys())
     originals = {item["destination"]: item for item in manifest["files"]}
     plans = {article["destination_tex"]: plan_article(article, ROOT, build_data, originals, False)
              for article in manifest["articles"]}
@@ -67,8 +70,8 @@ def main() -> None:
              "standalone TeX root in the inventory, including exclusions.",
              "- [File manifest](manifest.json) records the immutable upstream commit, Git blob IDs, "
              "copied-file SHA-256 hashes, dependency closure, source checkout state, and path diagnostics.",
-             "- [PDF build receipts](builds.json) distinguish regenerated PDFs from upstream snapshots "
-             "and record input hashes, tool versions, commands, logs, and validation details.",
+             "- [Local PDF build receipts](builds.json) record any PDFs rebuilt after this upstream "
+             "snapshot, with input hashes, tool versions, commands, logs, and validation details.",
              "- [Upstream refresh evidence](upstream-builds.json) records the PDF builds and source "
              "repairs published to ProveIt before this snapshot was copied.",
              "- [Upstream license](LICENSE) is retained. Sources, figures, bibliographies, and provenance "
@@ -83,6 +86,7 @@ def main() -> None:
              "python validation/build_proveit_pdfs.py --list",
              "python validation/build_proveit_pdfs.py",
              "python validation/proveit_catalog.py",
+             "python validation/check_proveit_catalog.py --source-root C:/ProveIt",
              "```", "",
              "Run these commands from the Asymptotic repository root. "
              "PDF builds are serial and use three LaTeX passes. "
@@ -90,8 +94,12 @@ def main() -> None:
              "Git on Windows should have `core.longpaths=true` for the preserved source hierarchy.", ""]
     pending = sum(plan["action"] == "build" for plan in plans.values())
     preserved = sum(plan["action"] == "preserve-upstream" for plan in plans.values())
-    lines += [f"Current audit: **{len(builds)} regenerated PDFs**, **{preserved} current upstream PDFs**, "
-              f"and **{pending} PDFs requiring a build**. Freshness checks use both the pinned Git history "
+    local = sum(plan["action"] == "skip" for plan in plans.values())
+    lines += [f"The upstream refresh records **{upstream_count} PDFs regenerated and committed upstream**. "
+              f"The current snapshot preserves **{preserved} current upstream PDFs**, with "
+              f"**{pending} PDFs requiring a build**. "
+              + (f"A further **{local} local PDF builds** have matching receipts. " if local else "")
+              + "Freshness checks use both the pinned Git history "
               "and the source checkout's recorded modification times for the full compile dependency closure. "
               "A build receipt is accepted only while its PDF, inputs, and all three pass logs retain "
               "their recorded hashes.", ""]
@@ -103,8 +111,11 @@ def main() -> None:
         tex = article["tex"]
         pdf = article.get("pdf") or str(Path(tex).with_suffix(".pdf")).replace("\\", "/")
         receipt = builds.get("docs/" + pdf)
+        upstream_receipt = upstream_builds.get("docs/" + pdf)
         action = plans["docs/" + tex]["action"]
         status = (f"Fresh build verified ({receipt['pdf_check']['page_count']} pages)" if action == "skip"
+                  else f"Regenerated and committed upstream ({upstream_receipt['page_count']} pages); "
+                       "current by recorded source dates" if action == "preserve-upstream" and upstream_receipt is not None
                   else "Upstream PDF current by recorded source dates" if action == "preserve-upstream"
                   else "Fresh PDF build pending")
         title = article["title"].replace("|", "/")
@@ -125,7 +136,8 @@ def main() -> None:
               "or withdrawn expansion claims. In particular, a Bell-polynomial coefficient formula "
               "is not automatically an asymptotic inverse interpolation of the Bell-number sequence.", ""]
     (ROOT / "README.md").write_text("\n".join(lines), encoding="utf-8", newline="\n")
-    print(f"Catalog: {len(articles)} roots; {len(builds)} regenerated PDF receipts")
+    print(f"Catalog: {len(articles)} roots; {upstream_count} upstream regenerated PDFs; "
+          f"{preserved} current preserved PDFs; {pending} pending builds")
 
 
 if __name__ == "__main__":
