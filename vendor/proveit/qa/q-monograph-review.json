@@ -1,0 +1,491 @@
+{
+  "schema_version": 1,
+  "pdf": "docs/semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.pdf",
+  "pdf_sha256": "8757f8f43f2d5bbb4079ebee97c060cf7125d9bba179f74afaa0782879a4afd5",
+  "page_count": 408,
+  "review_status": "targeted_repair_review_passed",
+  "before": {
+    "schema_version": 1,
+    "reviewed_at": "2026-09-09T19:58:39.436162+00:00",
+    "pdf": "docs/semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.pdf",
+    "pdf_sha256": "56156d8a5ae591ce609bbedd79cd9f4c9e5b018834ea8a911f072fd776fe4e57",
+    "page_count": 407,
+    "review_status": "issues_found",
+    "scope": "Targeted visual inspection of7 rendered pages, not a complete407-page review.",
+    "renderer": {
+      "name": "pdftoppm",
+      "version": "pdftoppm version 26.07.0\r\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\r\nCopyright 1996-2011, 2022 Glyph & Cog, LLC",
+      "dpi": 150,
+      "format": "PNG"
+    },
+    "text_and_font_tool": {
+      "name": "pypdf",
+      "version": "6.13.2"
+    },
+    "reviewed_pages": [
+      {
+        "pdf_page": 1,
+        "printed_label": "i",
+        "purpose": "title",
+        "image_path": "C:\\Temp\\proveit-qa-q\\page-001.png",
+        "image_sha256": "b3af9a647cc12c214fcb287a4915485763c8842501359d21975f03d330a576ef",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "Title, subtitle, attribution and edition date are centered and legible, with intentional title-page whitespace; no clipping or overlap observed."
+      },
+      {
+        "pdf_page": 23,
+        "printed_label": "11",
+        "purpose": "forward q-asymptotic expansion",
+        "image_path": "C:\\Temp\\proveit-qa-q\\page-023.png",
+        "image_sha256": "e0c73d21503ca70aa9bee83b16d971e19bcf1a059ecce737dacce118f2656deb",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "Theorem 1.22 dilogarithmic expansion and its displayed remainder proof are legible, aligned and inside page margins."
+      },
+      {
+        "pdf_page": 273,
+        "printed_label": "261",
+        "purpose": "base inverse and uniform q-asymptotic expansion",
+        "image_path": "C:\\Temp\\proveit-qa-q\\page-273.png",
+        "image_sha256": "de3ab77c6c1089580755c3e61a3fa186577ea266d418f9b79234ad2f9b888f41",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "Small-base inverse formula 32.19 and uniform fixed-argument expansion 32.20 are readable, numbered cleanly and contained inside the page."
+      },
+      {
+        "pdf_page": 277,
+        "printed_label": "265",
+        "purpose": "all-order fixed-target inverse",
+        "image_path": "C:\\Temp\\proveit-qa-q\\page-277.png",
+        "image_sha256": "86c2587f69e3558b91e991c3f3738fd1cbad0959f1760972357123191593f34f",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "The coefficient recurrence 32.28 and five-term inverse 32.29 are readable and aligned; no clipping or equation-number collision observed."
+      },
+      {
+        "pdf_page": 392,
+        "printed_label": "380",
+        "purpose": "both logged overfull boxes",
+        "image_path": "C:\\Temp\\proveit-qa-q\\page-392.png",
+        "image_sha256": "cef5eaeb2d32b2328b77b3f892880bf34445b2c23b2d01e2040634be081b2550",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "Both long identifiers in Theorem 28.62 extend approximately 10.14 pt beyond their table column. Their full text is visible inside the page margin; no clipping at the paper edge observed."
+      },
+      {
+        "pdf_page": 393,
+        "printed_label": "381",
+        "purpose": "continuation of overfull table row",
+        "image_path": "C:\\Temp\\proveit-qa-q\\page-393.png",
+        "image_sha256": "a45a4cc61581441de83b29e1eaec5c71271d1306445aeb9b78913cb78460a552",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "Theorem 28.62 continuation is taller than the printable page. Final text reaches the physical bottom edge and docs/doc_audit_baseline.json is below it. This is actual clipping, not merely a log warning."
+      },
+      {
+        "pdf_page": 394,
+        "printed_label": "382",
+        "purpose": "following table page",
+        "image_path": "C:\\Temp\\proveit-qa-q\\page-394.png",
+        "image_sha256": "5d07b339a39ee0ae826c28dcb1d4017c128abf9d6c92fefe3556d920acb7b82d",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "The next page begins with Proposition 28.63. It does not continue the clipped final line of the preceding row; other displayed rows fit within the sampled page."
+      }
+    ],
+    "final_log": {
+      "path": "build-logs/f4354bfa7566-560e7ec0dc27/pass-3.log",
+      "sha256": "3159eaf20a4176f2ec453723e1529ae4cb4f80e5e7d48e110995a487bad3a70f",
+      "recorded_warning_counts": {
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "undefined_reference_summary": 0,
+        "undefined_citation_summary": 0,
+        "overfull_boxes": 2,
+        "underfull_boxes": 0,
+        "rerun_requests": 0,
+        "missing_characters": 0,
+        "warnings": 2
+      }
+    },
+    "findings": [
+      {
+        "id": "q-table-identifiers",
+        "severity": "minor",
+        "pdf_pages": [
+          392
+        ],
+        "printed_pages": [
+          "380"
+        ],
+        "source": "docs/semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+        "source_lines": [
+          16625,
+          16645
+        ],
+        "overfull_warning_count": 2,
+        "overfull_width_pt": 10.13962,
+        "description": "Both overfull warnings belong to the same Theorem 28.62 row on PDF page 392; nearby log output [340] precedes delayed longtable pagination and is not the affected PDF page."
+      },
+      {
+        "id": "q-table-row-clipped",
+        "severity": "layout_defect",
+        "pdf_pages": [
+          393
+        ],
+        "printed_pages": [
+          "381"
+        ],
+        "description": "The continuation row is too tall and clips its final lines below the physical page.",
+        "position_evidence": {
+          "coordinate_system": "PDF points from bottom-left; pypdf text matrices",
+          "baseline_y_computed_by": 1.271,
+          "baseline_y_docs_doc_audit_baseline_json": -12.278,
+          "page_height_pt": 841.89
+        }
+      }
+    ],
+    "font_inspection": {
+      "font_count": 42,
+      "fonts": [
+        {
+          "name": "/ALVQSD+CMSY6",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/BNQFIC+EUFM10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/CJCVVY+rsfs10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/CNZCTK+CMMI9",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/EJKTVU+CMEX7",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/EXRELA+CMR6",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/EXRUUD+CMMI8",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/GMAGVF+NimbusSanL-Bold",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/GOGOJR+CMEX10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/GRRBIB+CMBX8",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/GYIXGZ+MSBM7",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/HESGOZ+CMR8",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/HJWULA+CMSY10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/HMPEFZ+CMSY5",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/IJLYIH+CMR7",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/JOCXWJ+CMMI5",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/KNRUAZ+CMSY7",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/MRQAFJ+CMR5",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/NMEEIH+LibertinusMono-Regular",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/OBDYSV+CMR17",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/OJANWI+CMR9",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/OJVZHR+CMR10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/OQPNVI+CMMI12",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/PNNXLP+LibertinusSerif-Italic",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/ROMRLD+CMEX9",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/SEHBPZ+CMMI6",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/SSTSFZ+LibertinusSerif-Bold",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/UHBDTA+CMR12",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/URONVZ+NimbusSanL-Regu",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/WNKBXZ+CMTT9",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/WSJZOJ+LibertinusSerif-Regular",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/WTRILN+CMMIB10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/XHZNOR+CMMI7",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/XLWUYC+CMSS10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/YAZMHR+CMSY8",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/YDYKQX+MSAM10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/YQXPFG+MSBM10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/YTNAWM+CMMI10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/YWHYIG+CMBX10",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/ZINIIC+CMEX8",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/ZJDTIH+CMMIB8",
+          "subtype": "/Type1",
+          "embedded": true
+        },
+        {
+          "name": "/ZUQEPY+CMSY9",
+          "subtype": "/Type1",
+          "embedded": true
+        }
+      ],
+      "scope": "Direct page font resources across all 407 pages; sampled glyph shapes visually inspected. Embedded flags reflect FontDescriptor streams, not a PDF/A conformance check.",
+      "observed_missing_glyphs_in_sample": false
+    },
+    "limitations": [
+      "Only the seven listed pages received visual review.",
+      "No mathematical proof verification or Lean declaration verification was performed.",
+      "No TeX source edits or recompilation were performed during this review.",
+      "PDF page-count/font checks and successful compilation do not imply absence of layout defects.",
+      "Historical statuses and prose are preserved upstream content."
+    ]
+  },
+  "after": {
+    "reviewed_at": "2026-09-09T20:09:21.734859+00:00",
+    "pdf": "docs/semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.pdf",
+    "pdf_sha256": "8757f8f43f2d5bbb4079ebee97c060cf7125d9bba179f74afaa0782879a4afd5",
+    "page_count": 408,
+    "review_status": "targeted_repair_review_passed",
+    "scope": "Visual re-review of repaired PDF pages 392-395 only, with text preservation checking of the affected table. This is not a complete 408-page review.",
+    "renderer": {
+      "name": "pdftoppm",
+      "version": "pdftoppm version 26.07.0\r\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\r\nCopyright 1996-2011, 2022 Glyph & Cog, LLC",
+      "dpi": 150,
+      "format": "PNG"
+    },
+    "text_and_font_tool": {
+      "name": "pypdf",
+      "version": "6.13.2"
+    },
+    "reviewed_pages": [
+      {
+        "pdf_page": 392,
+        "printed_label": "380",
+        "image_path": "C:\\Temp\\proveit-qa-q\\after\\page-392.png",
+        "image_sha256": "89f1065a33528234dd55d9ae27c87cf306417d0402e0879fc152d4150044055a",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "Both formerly overlong identifiers now break inside their table column. Full identifier text is visible, with no overlap or clipping.",
+        "minimum_text_baseline_y_pt": 285.804,
+        "final_path_positions": []
+      },
+      {
+        "pdf_page": 393,
+        "printed_label": "381",
+        "image_path": "C:\\Temp\\proveit-qa-q\\after\\page-393.png",
+        "image_sha256": "72c583715139454781226e5462e68627ad35fea20c86b7a69e088a00d065213a",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "The mathematical-status continuation row ends above the lower margin. No bottom clipping occurs; its source text is preserved.",
+        "minimum_text_baseline_y_pt": 380.649,
+        "final_path_positions": []
+      },
+      {
+        "pdf_page": 394,
+        "printed_label": "382",
+        "image_path": "C:\\Temp\\proveit-qa-q\\after\\page-394.png",
+        "image_sha256": "0a4fe0471006da7122167cd8161502fe26b2090605a4be21d56671c3e7b628d7",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "The new historical-status continuation row contains the formerly clipped final path docs/doc_audit_baseline.json completely inside the page. The repeated continuation label makes the page transition explicit.",
+        "minimum_text_baseline_y_pt": 340.001,
+        "final_path_positions": [
+          {
+            "text": "docs/doc_audit_baseline.json",
+            "baseline_y_pt": 340.001
+          }
+        ]
+      },
+      {
+        "pdf_page": 395,
+        "printed_label": "383",
+        "image_path": "C:\\Temp\\proveit-qa-q\\after\\page-395.png",
+        "image_sha256": "2592c347d41ea0730f79e567069f295331c076df5837eab0082e441c26964092",
+        "image_width": 1241,
+        "image_height": 1754,
+        "observation": "The following Proposition 28.63 and subsequent rows remain legible and fit within page boundaries.",
+        "minimum_text_baseline_y_pt": 96.116,
+        "final_path_positions": [
+          {
+            "text": "docs/doc_audit_baseline.json",
+            "baseline_y_pt": 353.55
+          }
+        ]
+      }
+    ],
+    "resolved_findings": [
+      "q-table-identifiers",
+      "q-table-row-clipped"
+    ],
+    "final_log": {
+      "path": "build-logs/f4354bfa7566-885f6f825259/pass-3.log",
+      "sha256": "2b103a30f20c2bd028079ceea901f9ba58cfc4962a5f39557e1dd702d832f1b7",
+      "recorded_warning_counts": {
+        "undefined_references": 0,
+        "undefined_citations": 0,
+        "undefined_reference_summary": 0,
+        "undefined_citation_summary": 0,
+        "overfull_boxes": 0,
+        "underfull_boxes": 0,
+        "rerun_requests": 0,
+        "missing_characters": 0,
+        "warnings": 2
+      }
+    },
+    "text_preservation": {
+      "before_pdf_pages": [
+        392,
+        393
+      ],
+      "after_pdf_pages": [
+        392,
+        393,
+        394
+      ],
+      "normalization": "Remove whitespace, page/table headers, and repeated Theorem 28.62 continuation labels only.",
+      "before_characters": 3798,
+      "after_characters": 3798,
+      "exact_normalized_match": true
+    },
+    "layout_notes": [
+      "The two smaller continuation rows occupy separate pages with more lower-page whitespace; this retains the existing table structure and avoids an over-height unbreakable row.",
+      "The previously clipped final path now has baseline y=340.001 pt above the bottom edge on PDF page 394."
+    ],
+    "limitations": [
+      "The title and sample mathematical pages were visually reviewed in the before snapshot; this after review covers the repaired appendix region.",
+      "No mathematical claims or Lean proofs were reverified.",
+      "No TeX, source modifications, or Git operations were run by this reviewer."
+    ]
+  }
+}

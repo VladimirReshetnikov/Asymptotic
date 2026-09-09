@@ -1,0 +1,464 @@
+{
+  "readingOrder": [
+    {
+      "order": 1,
+      "title": "Universal inverse machinery",
+      "scopeAndStatus": "Start here for branch-aware regular/Puiseux inverses, asymptotic transfer, Lambert balance, and residual certificates. These are not by themselves sequence-specific interpolated inverse results.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/00_scope_status_and_normalizations.tex",
+          "line": 97,
+          "source": "\\section{What an inverse symbol means}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/01_universal_inversion.tex",
+          "line": 434,
+          "source": "\\section{Finite ramification and Puiseux inversion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/01_universal_inversion.tex",
+          "line": 547,
+          "source": "\\section{\\texorpdfstring{Asymptotic inverse transfer and Lambert \\(W\\)}{Asymptotic inverse transfer and Lambert W}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/01_universal_inversion.tex",
+          "line": 932,
+          "source": "\\section{Residual, Rouch\\'e, and interval-Newton certificates}"
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Fixed and infinite q-Pochhammer near q=0 or finite inverse anchors",
+      "scopeAndStatus": "All-order finite-product base inversion at q=0; convergent logarithmic jet at q=1; reciprocal-base inverse at infinity; infinite-product endpoint and central inverse jets. Keep argument inversion and base inversion distinct.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/02_finite_q_pochhammer.tex",
+          "line": 285,
+          "source": "\\subsection{\\texorpdfstring{All-order inversion at \\(q=0\\)}{All-order inversion at q=0}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/02_finite_q_pochhammer.tex",
+          "line": 344,
+          "source": "\\subsection{\\texorpdfstring{The complete logarithmic jet at \\(q=1\\)}{The complete logarithmic jet at q=1}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/02_finite_q_pochhammer.tex",
+          "line": 547,
+          "source": "\\subsection{Reciprocal-base inversion at infinity}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+          "line": 287,
+          "source": "\\subsection{Endpoint and central inverse jets}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+          "line": 463,
+          "source": "\\section{\\texorpdfstring{Inversion in the base at \\(q=0\\) and on the real interval}{Inversion in the base at q=0 and on the real interval}}"
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Fixed-argument q→1 product expansion and inverse",
+      "scopeAndStatus": "Uniform all-order expansion for q=exp(-t), fixed |a|≤rho<1, closed subsectors Re t>0. Leading -Li_2(a)/t, logarithmic constant, Bernoulli/polylogarithm odd powers; each finite truncation has a stated uniform remainder. Followed by the base inverse.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 941,
+          "source": "\\begin{theorem}[Asymptotic expansion near $q=1$]\\label{thm:poch-dilog}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+          "line": 525,
+          "source": "\\begin{theorem}[Uniform all-order fixed-argument expansion]"
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Coalescing q→1 Pochhammer and fixed-target inverse",
+      "scopeAndStatus": "Separate regime a=q^x: all-order Bernoulli-polynomial expansion with Gamma normalization for x in compact subsets Re x>0. Fixed target (a;exp(-epsilon))_infinity=exp(-L) has its own all-order inverse a(epsilon) and recurrence, with five explicit coefficients. This is not obtained by assuming uniformity up to a=1 in the fixed-a theorem.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+          "line": 619,
+          "source": "\\begin{theorem}[All-order coalescing expansion]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+          "line": 810,
+          "source": "\\begin{theorem}[All-order fixed-target inverse and recurrence]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+          "line": 832,
+          "source": "In particular,"
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "title": "q-Gamma and other q-special-function inverses",
+      "scopeAndStatus": "q-Gamma at q→0 has an exact convergent generalized-power series: rational x yields Puiseux powers and irrational x requires collecting ordered exponent collisions. At q→1 the logarithm has an all-order expansion with the t term and even powers; base inverse through cubic order is displayed for x≠1,2. Also q-digamma, q-beta, q-exponential inverse reductions and finite-order generator with remainder.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/05_q_special_functions.tex",
+          "line": 226,
+          "source": "\\begin{proposition}[Exact generalized expansion at \\(q=0\\)]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/05_q_special_functions.tex",
+          "line": 279,
+          "source": "\\begin{theorem}[Unique \\(q\\)-gamma minimum and two real inverse branches]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/05_q_special_functions.tex",
+          "line": 311,
+          "source": "\\begin{theorem}[All-order \\(q\\to1\\) expansion of \\(\\Gamma_q\\)]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/05_q_special_functions.tex",
+          "line": 358,
+          "source": "In particular,"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/05_q_special_functions.tex",
+          "line": 375,
+          "source": "\\section{\\texorpdfstring{\\(q\\)-digamma inversion}{q-digamma inversion}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/05_q_special_functions.tex",
+          "line": 459,
+          "source": "\\section{\\texorpdfstring{\\(q\\)-beta coordinate and base inverses}{q-beta coordinate and base inverses}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/05_q_special_functions.tex",
+          "line": 578,
+          "source": "\\begin{proposition}[Exact inverse reduction and \\(q\\to1\\) generator]"
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Gaussian/q-binomial and multinomial inverses",
+      "scopeAndStatus": "Complete finite parameter expansion and inversion at q=1, q=0 inverse, centered palindromic ramification, cyclotomic roots, and reciprocal/large-target inverse. Gaussian Coefficient Calculus adds the distinct fixed-base/fixed-lower-index, fixed-base/both-large, and q=exp(-tau/n) double-scaling regimes; the latter has a uniform all-order logarithmic expansion.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/04_gaussian_multinomial.tex",
+          "line": 105,
+          "source": "\\section{\\texorpdfstring{The inverse at \\(q=0\\)}{The inverse at q=0}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/04_gaussian_multinomial.tex",
+          "line": 155,
+          "source": "\\section{\\texorpdfstring{Complete expansion and inversion at \\(q=1\\)}{Complete expansion and inversion at q=1}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/04_gaussian_multinomial.tex",
+          "line": 411,
+          "source": "\\section{Cyclotomic roots and the alternating base}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/04_gaussian_multinomial.tex",
+          "line": 533,
+          "source": "\\section{The reciprocal and large-target inverse}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/04_gaussian_multinomial.tex",
+          "line": 609,
+          "source": "\\section{Multinomial extension}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.tex",
+          "line": 3848,
+          "source": "\\section{Fixed lower index and fixed base}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.tex",
+          "line": 3867,
+          "source": "\\section{Both sides large and fixed base}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.tex",
+          "line": 3942,
+          "source": "\\begin{theorem}[Uniform all-order logarithmic expansion]\\label{q3:thm:double-scaling}"
+        }
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Fixed-q large argument and theta/log-periodic inverse",
+      "scopeAndStatus": "A different limit: fixed 0<q<1 and x→infinity. The logarithm of (-x;q)_infinity has a quadratic/linear/log-periodic phase formula with O(1/x); its large-target inverse includes an explicit phase correction.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+          "line": 399,
+          "source": "\\begin{theorem}[Theta-modulated growth and its inverse]"
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Root-of-unity radial products and inverse branches",
+      "scopeAndStatus": "For q=zeta exp(-t), the infinite-Pochhammer chapter proves a finite uniform radial formula -A/t+C-Dt+O(t^2) and base inverse A/X+DA^2/X^3+O(X^-4). Do not label this statement all-order. Distinct cyclotomic blow-up scaling for geometric products has a proved all-order logarithmic expansion and Bell exponentiation, universal analytic-germ specialization to q-Pochhammer, and formal inverse frequency/base series. Formal inverse branches are not automatically certified analytic inverses.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+          "line": 938,
+          "source": "\\begin{theorem}[Uniform radial cyclotomic expansion and inverse]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 19529,
+          "source": "\\begin{theorem}[Uniform two-term radial root-of-unity expansion]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 19996,
+          "source": "\\begin{theorem}[Cyclotomic blow-up limit]\\label{p9:thm:cyclotomic-blow-limit}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 20060,
+          "source": "\\begin{theorem}[All-orders logarithmic expansion]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 20208,
+          "source": "\\begin{theorem}[Universal resonant germ]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 20314,
+          "source": "\\begin{corollary}[Sinc and $q$-Pochhammer specializations]\\label{p9:cor:sinc-and-pochhammer-specializations}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 20895,
+          "source": "\\begin{proposition}[Formal inverse frequency series]\\label{p9:prop:formal-inverse-frequency-series}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 20986,
+          "source": "\\begin{proposition}[Formal inverse $q$-series at a root of unity]"
+        }
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Modular exponentially small corrections and proof boundaries",
+      "scopeAndStatus": "Exact modular acceleration expresses the q-product in a dual exponentially small nome, preserving information beyond algebraic orders. The certification chapter explains asymptotic truncation certificates; cyclotomic resurgence with fixed normalization is a separately labeled open frontier.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/12_limits_reciprocity_and_frontiers.tex",
+          "line": 10,
+          "source": "\\section{An exact modular acceleration}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/07_certification_and_frontiers.tex",
+          "line": 336,
+          "source": "\\subsection{Asymptotic truncation is part of the certificate}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/07_certification_and_frontiers.tex",
+          "line": 715,
+          "source": "\\subsection{Cyclotomic resurgence with fixed normalization}"
+        }
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Geometric q-Fabius endpoint and inverse regimes",
+      "scopeAndStatus": "Fixed geometric q, endpoint variable→0: periodic endpoint/Lambert analysis and inverse transport. This is distinct from the parameter-boundary Gaussian limit q↑1. The q-frontier synthesis includes both proved endpoint formulas and separately labeled general-q programs.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 3719,
+          "source": "\\section{Mellin reflection, periodic endpoint hierarchies, and Lambert inversion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 3888,
+          "source": "\\subsection{Inverse endpoint consequence}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 14378,
+          "source": "\\section{Endpoint tails, inverse Fabius behavior, and Lambert \\texorpdfstring{$W$}{W}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 17160,
+          "source": "\\section{Endpoint asymptotics and the general-\\texorpdfstring{$q$}{q} Lambert program}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 17988,
+          "source": "\\subsection{Exact transport of the Lambert--\\texorpdfstring{$W_{-1}$}{W-1} endpoint phase}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/06_cyclotomic_fabius.tex",
+          "line": 412,
+          "source": "\\section{Endpoint regimes and conditioning}"
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "title": "Geometric q-Fabius all-order Gaussian and quantile limits",
+      "scopeAndStatus": "At standardized q↑1, the strongest current theorem is an all-order Edgeworth expansion in every fixed Schwartz seminorm with finite Bernoulli-Bell-Hermite coefficients. The CDF and central Cornish-Fisher inverse are treated with an all-order central quantile expansion. Keep the compact central quantile regime separate from endpoint Lambert and moderate-deviation regimes.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 22816,
+          "source": "\\section{Uniform all-orders Edgeworth expansion for \\texorpdfstring{$q\\uparrow1$}{q tends to 1}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 23821,
+          "source": "\\begin{theorem}[All-orders continuous-parameter Edgeworth expansion]\\label{p11:thm:edgeworth-schwartz}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 23839,
+          "source": "\\begin{proposition}[Re-expansion in powers of \\(h\\)]\\label{p11:prop:h-power-series}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 24305,
+          "source": "\\section{CDF and inverse-distribution asymptotics}\\label{p11:sec:quantiles}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 24381,
+          "source": "\\begin{theorem}[All-orders central quantile expansion]\\label{p11:thm:quantile-expansion}"
+        }
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Combinatorial sequence companion",
+      "scopeAndStatus": "Combinatorial Coefficient Calculus proves the leading Bell saddle/Lambert estimate and a de Bruijn logarithmic expansion, plus Catalan asymptotics and general inverse coefficients. Its purported uniform higher-order Moser-Wyman theorem was expressly withdrawn at lines 3658–3674. No Fibonacci-named treatment or interpolated Bell-number inverse was found in these two live coefficient-calculus volumes; use the archive/inverse-collection lane for those specific sequence inverses.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 3629,
+          "source": "\\begin{theorem}[Leading Bell asymptotic]\\label{thm:bell-leading-asymptotic}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 3658,
+          "source": "\\begin{remark}[Status of the refined Moser--Wyman expansion]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 3677,
+          "source": "\\begin{corollary}[de Bruijn logarithmic expansion]\\label{cor:bell-debruijn}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 6020,
+          "source": "\\section{Inverse coefficients in Bell-polynomial form}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 10491,
+          "source": "\\section{Catalan asymptotics}"
+        }
+      ]
+    }
+  ],
+  "qMonographDirectInputs": [
+    {
+      "masterLine": 15,
+      "input": "../../../../fabius-notation.tex",
+      "resolvedPath": "fabius-notation.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 4002,
+      "input": "chapters/09_very_well_poised_summations",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/09_very_well_poised_summations.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 5336,
+      "input": "chapters/10_theta_modularity_and_squares",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/10_theta_modularity_and_squares.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 5815,
+      "input": "chapters/11_bailey_andrews_gordon",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/11_bailey_andrews_gordon.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 7443,
+      "input": "chapters/12_limits_reciprocity_and_frontiers",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/12_limits_reciprocity_and_frontiers.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13500,
+      "input": "chapters/00_scope_status_and_normalizations",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/00_scope_status_and_normalizations.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13501,
+      "input": "chapters/01_universal_inversion",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/01_universal_inversion.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13502,
+      "input": "chapters/02_finite_q_pochhammer",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/02_finite_q_pochhammer.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13503,
+      "input": "chapters/03_infinite_q_pochhammer",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/03_infinite_q_pochhammer.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13504,
+      "input": "chapters/04_gaussian_multinomial",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/04_gaussian_multinomial.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13505,
+      "input": "chapters/05_q_special_functions",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/05_q_special_functions.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13506,
+      "input": "chapters/06_cyclotomic_fabius",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/06_cyclotomic_fabius.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13507,
+      "input": "chapters/07_certification_and_frontiers",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/07_certification_and_frontiers.tex",
+      "exists": true
+    },
+    {
+      "masterLine": 13511,
+      "input": "chapters/08_reference_appendices",
+      "resolvedPath": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/chapters/08_reference_appendices.tex",
+      "exists": true
+    }
+  ],
+  "initial_audit_commit": "7c4e3f109405b9805b35d27ae96bf09c7ee5f3d5",
+  "source_commit": "8369ae3c05e8c5f5cf6e3123f57bcff94264211f",
+  "repository_url": "https://github.com/VladimirReshetnikov/ProveIt",
+  "source_url": "https://github.com/VladimirReshetnikov/ProveIt/tree/8369ae3c05e8c5f5cf6e3123f57bcff94264211f/Analysis/FabiusFunction/docs",
+  "initial_audit_url": "https://github.com/VladimirReshetnikov/ProveIt/tree/7c4e3f109405b9805b35d27ae96bf09c7ee5f3d5/Analysis/FabiusFunction/docs"
+}

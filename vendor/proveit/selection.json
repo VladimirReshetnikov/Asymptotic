@@ -1,0 +1,1973 @@
+{
+  "commit": "8369ae3c05e8c5f5cf6e3123f57bcff94264211f",
+  "docs_root": "Analysis/FabiusFunction/docs",
+  "scope": {
+    "reviewed_document_roots": 87,
+    "selected_articles": 46,
+    "reference_companions": 2,
+    "archive_excluded": true,
+    "fresh_pdfs_required": true
+  },
+  "articles": [
+    {
+      "title": "Mathematical Glossary for Analysis/FabiusFunction -- Complete Updated Edition",
+      "role": "reference-companion",
+      "reason": "Include separately as a reference companion for asymptotic/transseries terminology and normalization; not counted as a substantive article.",
+      "evidence": [
+        {
+          "path": "FabiusFunction_Mathematical_Glossary/FabiusFunction_Mathematical_Glossary.tex",
+          "line": 50,
+          "source": "  pdfkeywords={Fabius function, Rvachev up-function, Thue-Morse, q-series, glossary, Lean, Lambert W, transseries, spectral theory}"
+        },
+        {
+          "path": "FabiusFunction_Mathematical_Glossary/FabiusFunction_Mathematical_Glossary.tex",
+          "line": 149,
+          "source": "endpoint analysis, polynomial--logarithmic transseries, and the active frontier"
+        },
+        {
+          "path": "FabiusFunction_Mathematical_Glossary/FabiusFunction_Mathematical_Glossary.tex",
+          "line": 172,
+          "source": "proof-status distinction, transform convention, asymptotic coordinate, and"
+        },
+        {
+          "path": "FabiusFunction_Mathematical_Glossary/FabiusFunction_Mathematical_Glossary.tex",
+          "line": 209,
+          "source": "\\hyperlink{gls:algebraic-function-branch}{Algebraic function branch} & \\hyperlink{gls:aliasing}{Aliasing} & \\hyperlink{gls:all-orders-asymptotic-expansion}{All-orders asymptotic expansion} \\\\"
+        },
+        {
+          "path": "FabiusFunction_Mathematical_Glossary/FabiusFunction_Mathematical_Glossary.tex",
+          "line": 216,
+          "source": "\\hyperlink{gls:arithmetic-ray}{Arithmetic ray} & \\hyperlink{gls:associahedron}{Associahedron} & \\hyperlink{gls:asymptotic-coefficient-jet}{Asymptotic coefficient jet} \\\\"
+        }
+      ],
+      "pdf": "FabiusFunction_Mathematical_Glossary/FabiusFunction_Mathematical_Glossary.pdf",
+      "tex": "FabiusFunction_Mathematical_Glossary/FabiusFunction_Mathematical_Glossary.tex"
+    },
+    {
+      "title": "Mathematical Notation Catalogue for Analysis/FabiusFunction",
+      "role": "reference-companion",
+      "reason": "Include separately as a reference companion for asymptotic/transseries terminology and normalization; not counted as a substantive article.",
+      "evidence": [
+        {
+          "path": "FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.tex",
+          "line": 145,
+          "source": "binary, $q$-series, asymptotic, fractional-calculus, approximation, and operator"
+        },
+        {
+          "path": "FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.tex",
+          "line": 225,
+          "source": "      measures, equality in distribution, or asymptotic equivalence?"
+        },
+        {
+          "path": "FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.tex",
+          "line": 676,
+          "source": "object whose value is exactly $b$.  It is not an asymptotic statement.}"
+        },
+        {
+          "path": "FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.tex",
+          "line": 844,
+          "source": "and asymptotic truncation order are prose-qualified quantities.  The shared operator"
+        },
+        {
+          "path": "FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.tex",
+          "line": 1710,
+          "source": "decay bounds, saddle locations, convexity assertions, and asymptotic optima inherit the"
+        }
+      ],
+      "pdf": "FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.pdf",
+      "tex": "FabiusFunction_Mathematical_Notation_Catalogue/FabiusFunction_Mathematical_Notation_Catalogue.tex"
+    },
+    {
+      "title": "The Fabius Function and Rvachev's Up-Function",
+      "role": "article",
+      "reason": "Complete endpoint asymptotic hierarchy, lower-Lambert saddle, periodic correction coefficients, and endpoint-transfer algebra.",
+      "evidence": [
+        {
+          "path": "Fabius_Function_and_Rvachev_Up/Fabius_Function_and_Rvachev_Up.tex",
+          "line": 12399,
+          "source": "\\section{Endpoint asymptotics: the exact formal hierarchy}"
+        },
+        {
+          "path": "Fabius_Function_and_Rvachev_Up/Fabius_Function_and_Rvachev_Up.tex",
+          "line": 12603,
+          "source": "\\subsection{The lower-Lambert saddle and exact reduction}"
+        },
+        {
+          "path": "Fabius_Function_and_Rvachev_Up/Fabius_Function_and_Rvachev_Up.tex",
+          "line": 13152,
+          "source": "\\subsection{The first two periodic saddle corrections}"
+        },
+        {
+          "path": "Fabius_Function_and_Rvachev_Up/Fabius_Function_and_Rvachev_Up.tex",
+          "line": 13312,
+          "source": "\\subsection{Universal finite endpoint-transfer algebra}"
+        }
+      ],
+      "pdf": "Fabius_Function_and_Rvachev_Up/Fabius_Function_and_Rvachev_Up.pdf",
+      "tex": "Fabius_Function_and_Rvachev_Up/Fabius_Function_and_Rvachev_Up.tex"
+    },
+    {
+      "title": "The Fabius Function Ecosystem in Lean: Complete Walkthrough of the ProveIt Development",
+      "role": "article",
+      "reason": "Mathematical walkthrough contains a substantial sharp-saddle and all-order asymptotic expansion treatment.",
+      "evidence": [
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough (part II).tex",
+          "line": 1486,
+          "source": "\\chapter{The logarithmic scale near the flat endpoint}\\label{ch:logscale}\\label{ch:asymptotics}"
+        },
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough (part II).tex",
+          "line": 1653,
+          "source": "\\chapter{Bromwich inversion and the sharp saddle point}\\label{ch:saddle}"
+        },
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough (part II).tex",
+          "line": 1755,
+          "source": "\\chapter{All-order asymptotic expansions}\\label{ch:all-orders}"
+        },
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough (part II).tex",
+          "line": 1772,
+          "source": "\\section{Higher small-argument expansion}"
+        },
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough (part II).tex",
+          "line": 1813,
+          "source": "\\section{Assembling the normalized mass expansion}"
+        },
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough (part II).tex",
+          "line": 2916,
+          "source": "\\chapter{Lambert coordinates and phase-locked extrapolation}\\label{ch:lambert-current}"
+        }
+      ],
+      "pdf": "fabius_lean_walkthrough/fabius_lean_walkthrough (part II).pdf",
+      "tex": "fabius_lean_walkthrough/fabius_lean_walkthrough (part II).tex"
+    },
+    {
+      "title": "The Fabius Function in Lean: A Guided Walkthrough of the ProveIt Formalization",
+      "role": "article",
+      "reason": "Mathematical walkthrough contains a substantial sharp-saddle and all-order asymptotic expansion treatment.",
+      "evidence": [
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough.tex",
+          "line": 3391,
+          "source": "\\section{The logarithmic scale near the flat endpoint}\\label{ch:logscale}\\label{ch:asymptotics}"
+        },
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough.tex",
+          "line": 3593,
+          "source": "\\section{Bromwich inversion and the sharp saddle point}\\label{ch:saddle}"
+        },
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough.tex",
+          "line": 3734,
+          "source": "\\section{All-order asymptotic expansions}\\label{ch:all-orders}"
+        },
+        {
+          "path": "fabius_lean_walkthrough/fabius_lean_walkthrough.tex",
+          "line": 3796,
+          "source": "\\subsection{Universal endpoint-transfer polynomials and finite expectations}"
+        }
+      ],
+      "pdf": "fabius_lean_walkthrough/fabius_lean_walkthrough.pdf",
+      "tex": "fabius_lean_walkthrough/fabius_lean_walkthrough.tex"
+    },
+    {
+      "title": "Combinatorial Coefficient Calculus: A Unified Formulae Monograph",
+      "role": "priority-combinatorial",
+      "reason": "Stirling and Bell asymptotics, Lambert-W saddle analysis, Laplace expansions, Catalan transfer, and generic inverse-coefficient calculus; not an interpolated Bell inverse monograph.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 1898,
+          "source": "\\chapter{Asymptotics, bounds, and special-function sums}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 2085,
+          "source": "\\section{A uniform saddle-point approximation}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 3627,
+          "source": "\\section{Saddle-point asymptotics and Lambert \\texorpdfstring{$W$}{W}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 6020,
+          "source": "\\section{Inverse coefficients in Bell-polynomial form}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 6323,
+          "source": "\\chapter{Laplace-type asymptotic integrals}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex",
+          "line": 10491,
+          "source": "\\section{Catalan asymptotics}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Combinatorial_Coefficient_Calculus/Combinatorial_Coefficient_Calculus.tex"
+    },
+    {
+      "title": "Gaussian Coefficient Calculus: q-Binomial Kernels, Newton Bases, Bell Polynomials, Parameter Jets, Inversion, and Asymptotics",
+      "role": "priority-q-combinatorial",
+      "reason": "Gaussian/q-binomial coefficient parameter jets and three distinct large-index/q asymptotic regimes, with Bell and inverse coefficient machinery.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.tex",
+          "line": 1759,
+          "source": "\\section{Bell formulae for every diagonal}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.tex",
+          "line": 1916,
+          "source": "\\section{A \\qbname-Dobinski identity}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.tex",
+          "line": 2650,
+          "source": "\\chapter{Parameter derivatives and the expansion at one}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.tex",
+          "line": 3838,
+          "source": "\\chapter{Three distinct asymptotic regimes}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/combinatorial-coefficient-calculus/Gaussian_Coefficient_Calculus/Gaussian_Coefficient_Calculus.tex"
+    },
+    {
+      "title": "Geometric q-Fabius-Rvachev Frontiers",
+      "role": "priority-q",
+      "reason": "Geometric-q endpoint/Lambert expansions, root-of-unity blow-ups, all-order Gaussian/Edgeworth expansions, and inverse-CDF Cornish-Fisher theory.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 17160,
+          "source": "\\section{Endpoint asymptotics and the general-\\texorpdfstring{$q$}{q} Lambert program}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 18924,
+          "source": "\\), and the surrounding repository develops its Fabius, Thue--Morse, $q$-series, Bell--Bernoulli, inverse, sampling, and Lambert-$W$ structures in considerable depth.  The current consolidated $q$-series frontier explicitly leaves two related tasks open: proving a generic natural boundary in the $q$-plane and constructing root-of-unity renormalizations.  This report resolves a concrete scalar version of both tasks for the complex geometric-uniform transform"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 22816,
+          "source": "\\section{Uniform all-orders Edgeworth expansion for \\texorpdfstring{$q\\uparrow1$}{q tends to 1}}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 23797,
+          "source": "\\section{All-orders Edgeworth expansion in Schwartz seminorms}\\label{p11:sec:edgeworth}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 24305,
+          "source": "\\section{CDF and inverse-distribution asymptotics}\\label{p11:sec:quantiles}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex",
+          "line": 24378,
+          "source": "\\subsection{Central Cornish--Fisher inversion}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/geometric_q_fabius_frontiers/geometric_q_fabius_frontiers.tex"
+    },
+    {
+      "title": "q-Series and Inverse q-Analogs",
+      "role": "priority-q",
+      "reason": "Primary q-products and inverse-q synthesis: all-order q→1 Pochhammer and q-Gamma expansions, q→0/generalized and ramified inverses, root-of-unity radial inverse expansions, and fixed-target double scaling. Chapter dependencies are essential.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 937,
+          "source": "\\section{The dilogarithmic limit}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 13497,
+          "source": "\\part{Branch-aware inverse theory}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 13500,
+          "source": "\\input{chapters/00_scope_status_and_normalizations}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 13501,
+          "source": "\\input{chapters/01_universal_inversion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 13502,
+          "source": "\\input{chapters/02_finite_q_pochhammer}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 13503,
+          "source": "\\input{chapters/03_infinite_q_pochhammer}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 13504,
+          "source": "\\input{chapters/04_gaussian_multinomial}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex",
+          "line": 13505,
+          "source": "\\input{chapters/05_q_special_functions}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/exponents-and-q-series/q_pochhammer_q_binomial_monograph/q_pochhammer_q_binomial_monograph.tex"
+    },
+    {
+      "title": "Collected Frontier Reports for the Fabius--Rvachev System",
+      "role": "article",
+      "reason": "All-order prefix, endpoint, heat, Mellin, and Gaussian/Edgeworth expansion material.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.tex",
+          "line": 1310,
+          "source": "\\section{An all-orders expansion for the ordinary prefix}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.tex",
+          "line": 3118,
+          "source": "\\subsection{Complete large-$y$ expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.tex",
+          "line": 7580,
+          "source": "\\section{A universal endpoint-transfer theorem}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.tex",
+          "line": 10241,
+          "source": "\\subsection{Complete heat expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.tex",
+          "line": 10583,
+          "source": "\\section{Mellin asymptotics of the $q$-Pochhammer tower}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.tex",
+          "line": 12276,
+          "source": "\\section{The all-orders endpoint template}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.tex",
+          "line": 16140,
+          "source": "\\section{Gaussian degeneration and an Edgeworth frontier}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/frontier-compilations/Frontier_Compilations/Frontier_Compilations.tex"
+    },
+    {
+      "title": "Geometric Uniform Convolutions and New Frontiers around the Fabius--Rvachev System",
+      "role": "article",
+      "reason": "Gaussian/mod-Gaussian expansion, all-order Bell saddles, explicit inverse asymptotics, and exponentially improved transseries.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+          "line": 598,
+          "source": "\\section{The Gaussian end of the deformation: a mod-Gaussian expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+          "line": 1061,
+          "source": "\\section{Endpoint saddle points and phase-aware Lambert--$W$ inversion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+          "line": 1210,
+          "source": "\\subsection{Explicit phase-free inverse expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+          "line": 1237,
+          "source": "\\subsection{All-orders Bell-polynomial saddle calculus}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex",
+          "line": 1372,
+          "source": "\\subsection{Exponentially improved endpoint transseries}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Convolutions_and_New_Frontiers/fabius-frontier-report-H.tex"
+    },
+    {
+      "title": "Frontier Directions for Fabius--Rvachev Analysis",
+      "role": "article-with-conjectural-expansions",
+      "reason": "Dedicated Edgeworth/inverse-quantile and general-q Lambert endpoint-inverse programs, including explicitly conjectural extensions.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Frontier_Directions/fabius_frontier_report.tex",
+          "line": 431,
+          "source": "\\subsection{Edgeworth and inverse-quantile conjectures}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Frontier_Directions/fabius_frontier_report.tex",
+          "line": 1223,
+          "source": "\\section{A general-$q$ Lambert-$W$ endpoint and inverse program}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Frontier_Directions/fabius_frontier_report.tex",
+          "line": 1444,
+          "source": "\\subsection{First-harmonic endpoint phases}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Frontier_Directions/fabius_frontier_report.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/frontier-compilations/Geometric_Uniform_Frontier_Directions/fabius_frontier_report.tex"
+    },
+    {
+      "title": "Integration and Transform Frontiers for the Fabius--Rvachev System",
+      "role": "article",
+      "reason": "Weighted primitive inverse asymptotics, periodic saddle expansions, fractional endpoint transseries, and all-order endpoint transfer.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/Integration_and_Transform_Frontiers.tex",
+          "line": 2473,
+          "source": "\\section{New inverse-primitive asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/Integration_and_Transform_Frontiers.tex",
+          "line": 2693,
+          "source": "\\subsection{A periodic saddle expansion for weighted primitives}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/Integration_and_Transform_Frontiers.tex",
+          "line": 6282,
+          "source": "\\section{Asymptotic tails for negative powers}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/Integration_and_Transform_Frontiers.tex",
+          "line": 14087,
+          "source": "\\subsection{Exact completion of the periodic endpoint term}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/Integration_and_Transform_Frontiers.tex",
+          "line": 14496,
+          "source": "\\subsection{Fractional endpoint transseries}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/Integration_and_Transform_Frontiers.tex",
+          "line": 23206,
+          "source": "\\subsection{All-order endpoint expansions}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/Integration_and_Transform_Frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/Integration_and_Transform_Frontiers.tex",
+      "extra_files": [
+        "semi-formalized-research-frontiers/drafts/integration-and-transforms/Integration_and_Transform_Frontiers/assets/fabius_monomial_antiderivatives_report-2/newton_series_convergence.png"
+      ],
+      "dependency_note": "The initial audit found an incorrect IfFileExists guard; the repaired upstream source now tests the actual asset path. The supplied Newton convergence plot is retained as an explicit companion."
+    },
+    {
+      "title": "Inverse Fabius Theory: Analyticity, asymptotics, computability, and dyadic sampling",
+      "role": "article",
+      "reason": "Substantial inverse-transfer and all-orders endpoint asymptotics, Wright-omega resummation, forward saddles and exact dyadic completion.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/Inverse_Fabius_Analyticity_Asymptotics_and_Computability/chapters/03_inverse_germs_and_deconvolution.tex",
+          "line": 22,
+          "source": "\\begin{theorem}[Uniform inverse-transfer expansion]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/Inverse_Fabius_Analyticity_Asymptotics_and_Computability/chapters/04_endpoint_all_orders.tex",
+          "line": 227,
+          "source": "\\section{The diagonal Lagrange--B\\\"urmann calculus}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/Inverse_Fabius_Analyticity_Asymptotics_and_Computability/chapters/04_endpoint_all_orders.tex",
+          "line": 826,
+          "source": "\\section{A log-free resummation: the Wright-omega carrier}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/Inverse_Fabius_Analyticity_Asymptotics_and_Computability/chapters/04_endpoint_all_orders.tex",
+          "line": 1227,
+          "source": "\\section{The forward saddle engine: constrained partition sums}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/Inverse_Fabius_Analyticity_Asymptotics_and_Computability/inverse_fabius_theory.pdf",
+      "topics": [
+        "inversion",
+        "all-orders",
+        "endpoint expansions"
+      ],
+      "tex": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/Inverse_Fabius_Analyticity_Asymptotics_and_Computability/inverse_fabius_theory.tex"
+    },
+    {
+      "title": "Comb Interpolation and Sampling Frontiers",
+      "role": "article",
+      "reason": "Power, Puiseux and logarithmic endpoint expansions with filtered remainder bounds; compact-parameter complex-power Euler-Maclaurin expansion and Richardson filtering.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/comb-interpolation/comb_interpolation_synthesis/chapters/02_geometric_extensions.tex",
+          "line": 1831,
+          "source": "\\subsection{Power, Puiseux, and logarithmic endpoint expansions}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/comb-interpolation/comb_interpolation_synthesis/chapters/03_additive_dyadic.tex",
+          "line": 3166,
+          "source": "\\subsection{Complex-power Euler--Maclaurin and Richardson filtering}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/comb-interpolation/comb_interpolation_synthesis/comb_interpolation_synthesis.pdf",
+      "topics": [
+        "interpolation",
+        "Puiseux",
+        "Euler-Maclaurin"
+      ],
+      "tex": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/comb-interpolation/comb_interpolation_synthesis/comb_interpolation_synthesis.tex"
+    },
+    {
+      "title": "Exact Dyadic Extraction of Rvachev Up-Function from Finite Sinc-Product Splines",
+      "role": "article",
+      "reason": "Substantial exact terminating geometric correction expansion, finite-jet deconvolution, mode recovery and Romberg extrapolation.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Dyadic_Up_Extraction/Dyadic_Up_Extraction.tex",
+          "line": 1885,
+          "source": "\\subsection{Finite deconvolution on a polynomial jet}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Dyadic_Up_Extraction/Dyadic_Up_Extraction.tex",
+          "line": 2627,
+          "source": "\\section{The exact eventual geometric law}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Dyadic_Up_Extraction/Dyadic_Up_Extraction.tex",
+          "line": 3291,
+          "source": "\\subsection{Relation to the Exponents volume: exact versus asymptotic}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Dyadic_Up_Extraction/Dyadic_Up_Extraction.tex",
+          "line": 4124,
+          "source": "\\section{Recovering every mode and the Romberg tableau}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Dyadic_Up_Extraction/Dyadic_Up_Extraction.pdf",
+      "topics": [
+        "terminating expansions",
+        "extrapolation"
+      ],
+      "tex": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Dyadic_Up_Extraction/Dyadic_Up_Extraction.tex"
+    },
+    {
+      "title": "Recurrence-Free Dyadic Values of the Fabius and Rvachev Functions",
+      "role": "article",
+      "reason": "Finite-jet deconvolution and exact finite-prefix polynomials in quarter-base scale, with remainder annihilation and extraction sharpness.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Recurrence_Free_Dyadic_Values/Recurrence_Free_Dyadic_Values.tex",
+          "line": 1452,
+          "source": "\\section{The exact polynomial hidden in centred finite splines}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Recurrence_Free_Dyadic_Values/Recurrence_Free_Dyadic_Values.tex",
+          "line": 1530,
+          "source": "\\subsection{Finite-jet deconvolution}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Recurrence_Free_Dyadic_Values/Recurrence_Free_Dyadic_Values.tex",
+          "line": 1733,
+          "source": "\\section{Quarter-base extraction and its sharpness}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Recurrence_Free_Dyadic_Values/Recurrence_Free_Dyadic_Values.pdf",
+      "topics": [
+        "terminating expansions",
+        "extrapolation"
+      ],
+      "tex": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/dyadic-up-extraction/Recurrence_Free_Dyadic_Values/Recurrence_Free_Dyadic_Values.tex"
+    },
+    {
+      "title": "Exact Information Geometry and New Frontiers for the Fabius Function, Rvachev Up-Function, Thue-Morse Sinc Products, and Geometric q-Convolutions",
+      "role": "article",
+      "reason": "Small-noise deconvolution, Lambert endpoint information, and formal Hermite/Edgeworth entropy coefficients; a uniform entropic Edgeworth theorem remains conjectural.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/fabius_information_frontier/fabius_information_frontier.tex",
+          "line": 1041,
+          "source": "\\subsection{A reverse-small-noise expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/fabius_information_frontier/fabius_information_frontier.tex",
+          "line": 1235,
+          "source": "\\section{Inverse-Fabius endpoint information on the lower-Lambert scale}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/fabius_information_frontier/fabius_information_frontier.tex",
+          "line": 1423,
+          "source": "\\subsection{Formal Hermite calculation of the entropy deficit}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/fabius_information_frontier/fabius_information_frontier.tex",
+          "line": 1471,
+          "source": "\\begin{conjecture}[Entropic Edgeworth theorem for geometric uniforms]"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/fabius_information_frontier/fabius_information_frontier.pdf",
+      "topics": [
+        "q-analogs",
+        "Edgeworth",
+        "inversion"
+      ],
+      "tex": "semi-formalized-research-frontiers/drafts/inverse-and-sampling/fabius_information_frontier/fabius_information_frontier.tex"
+    },
+    {
+      "title": "The Lambert W Function: A Real-Variable Guide with Proofs",
+      "role": "article",
+      "reason": "Branch-point Puiseux and logarithmic/all-branch asymptotic expansions, foundational for asymptotic inversion.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/lambert-w/Lambert_W_Guide/Lambert_W_Guide.tex",
+          "line": 1324,
+          "source": "\\section{The square-root expansion at the branch point}\\label{sec:branchpoint}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/lambert-w/Lambert_W_Guide/Lambert_W_Guide.tex",
+          "line": 1555,
+          "source": "\\section{Logarithmic asymptotic expansions}\\label{sec:asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/lambert-w/Lambert_W_Guide/Lambert_W_Guide.tex",
+          "line": 1734,
+          "source": "\\subsection{The expansion written separately for each branch}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/lambert-w/Lambert_W_Guide/Lambert_W_Guide.tex",
+          "line": 3463,
+          "source": "\\subsection{Indexing and the all-branch asymptotic expansion}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/lambert-w/Lambert_W_Guide/Lambert_W_Guide.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/lambert-w/Lambert_W_Guide/Lambert_W_Guide.tex"
+    },
+    {
+      "title": "Fabius--Rvachev New Frontiers",
+      "role": "article",
+      "reason": "Szego/Nevai and strong norm asymptotics with endpoint-flatness and Christoffel/Lambert consequences.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_New_Frontiers-2/fabius_rvachev_new_frontiers.tex",
+          "line": 1081,
+          "source": "\\section{Szeg\\H{o}--Nevai asymptotics forced by endpoint flatness}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_New_Frontiers-2/fabius_rvachev_new_frontiers.tex",
+          "line": 1126,
+          "source": "\\subsection{Nevai limit, ratio asymptotics, and zeros}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_New_Frontiers-2/fabius_rvachev_new_frontiers.tex",
+          "line": 1192,
+          "source": "\\subsection{Strong norm asymptotics and a Fabius--Szeg\\H{o} constant}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_New_Frontiers-2/fabius_rvachev_new_frontiers.tex",
+          "line": 1432,
+          "source": "\\subsection{Strong center asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_New_Frontiers-2/fabius_rvachev_new_frontiers.tex",
+          "line": 2492,
+          "source": "\\subsection{Christoffel--Lambert double scaling}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_New_Frontiers-2/fabius_rvachev_new_frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_New_Frontiers-2/fabius_rvachev_new_frontiers.tex"
+    },
+    {
+      "title": "Noncommutative Cumulant Frontiers for the Fabius--Rvachev Law",
+      "role": "article-with-conditional-expansions",
+      "reason": "Dedicated Boolean-cumulant asymptotic theorem under a convolution-subexponential hypothesis and further Lambert asymptotic-transfer program.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Noncommutative_Frontiers/Fabius_Rvachev_Noncommutative_Frontiers.tex",
+          "line": 833,
+          "source": "\\subsection{A conditional defective-renewal theorem}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Noncommutative_Frontiers/Fabius_Rvachev_Noncommutative_Frontiers.tex",
+          "line": 840,
+          "source": "\\begin{proposition}[Boolean asymptotics under a subexponential hypothesis]\\label{prop:booleanrenewal}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Noncommutative_Frontiers/Fabius_Rvachev_Noncommutative_Frontiers.tex",
+          "line": 847,
+          "source": "\\frac{b_{2n}}{m_{2n}}\\longrightarrow\\frac1{(1+\\rho)^2}=S^{-2}."
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Noncommutative_Frontiers/Fabius_Rvachev_Noncommutative_Frontiers.tex",
+          "line": 915,
+          "source": "\\subsection{Why Lambert--\\texorpdfstring{\\(W\\)}{W} should reappear}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Noncommutative_Frontiers/Fabius_Rvachev_Noncommutative_Frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Noncommutative_Frontiers/Fabius_Rvachev_Noncommutative_Frontiers.tex"
+    },
+    {
+      "title": "Shape, Divisibility, and Stein Geometry of the Fabius--Rvachev Law",
+      "role": "article",
+      "reason": "Endpoint Stein-kernel/Lambert asymptotics, followed by an explicitly conjectural full endpoint transseries.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Shape_Divisibility_Stein_Geometry/Fabius_Rvachev_Shape_Divisibility_Stein_Geometry.tex",
+          "line": 1319,
+          "source": "\\section{Endpoint Stein asymptotics and Lambert scales}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Shape_Divisibility_Stein_Geometry/Fabius_Rvachev_Shape_Divisibility_Stein_Geometry.tex",
+          "line": 1436,
+          "source": "\\begin{conjecture}[Full endpoint transseries]"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Shape_Divisibility_Stein_Geometry/Fabius_Rvachev_Shape_Divisibility_Stein_Geometry.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Fabius_Rvachev_Shape_Divisibility_Stein_Geometry/Fabius_Rvachev_Shape_Divisibility_Stein_Geometry.tex"
+    },
+    {
+      "title": "Dyadic Stein--Koopman and q-Oscillator Calculus for the Fabius--Rvachev Law",
+      "role": "article",
+      "reason": "Watson-ratio and lower-Lambert endpoint Stein-kernel asymptotics; full-transseries extension is labeled conjectural.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Stein_Koopman_Frontier_Report/dyadic_stein_koopman_frontier.tex",
+          "line": 1197,
+          "source": "\\section{Lambert--periodic endpoint asymptotics of the Stein kernel}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Stein_Koopman_Frontier_Report/dyadic_stein_koopman_frontier.tex",
+          "line": 1244,
+          "source": "\\label{lem:R-asymptotic}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Stein_Koopman_Frontier_Report/dyadic_stein_koopman_frontier.tex",
+          "line": 1287,
+          "source": "\\subsection{The endpoint theorem}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Stein_Koopman_Frontier_Report/dyadic_stein_koopman_frontier.tex",
+          "line": 1317,
+          "source": "\\subsection{Lower-Lambert form}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Stein_Koopman_Frontier_Report/dyadic_stein_koopman_frontier.tex",
+          "line": 1516,
+          "source": "\\subsection{A full Stein-kernel transseries}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Fabius_Stein_Koopman_Frontier_Report/dyadic_stein_koopman_frontier.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Fabius_Stein_Koopman_Frontier_Report/dyadic_stein_koopman_frontier.tex"
+    },
+    {
+      "title": "Zero-Bias Towers and Spectral Peeling in the Fabius--Rvachev System",
+      "role": "article",
+      "reason": "Substantive endpoint-bias and phase-modulated mod-Gamma asymptotics, with quantitative convergence rates.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Zero_Bias_Frontier_Report/Zero_Bias_Towers_and_Spectral_Peeling.tex",
+          "line": 1163,
+          "source": "\\section{Fabius endpoint bias and phase-modulated mod-Gamma asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Fabius_Zero_Bias_Frontier_Report/Zero_Bias_Towers_and_Spectral_Peeling.tex",
+          "line": 1527,
+          "source": "asymptotics."
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Fabius_Zero_Bias_Frontier_Report/Zero_Bias_Towers_and_Spectral_Peeling.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Fabius_Zero_Bias_Frontier_Report/Zero_Bias_Towers_and_Spectral_Peeling.tex"
+    },
+    {
+      "title": "Jacobi-Digit Deformations of the Fabius--Rvachev Law",
+      "role": "article",
+      "reason": "Endpoint Laplace and inverse asymptotic programs plus small/large-parameter Gaussianization expansions.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Jacobi_Digit_Fabius_Rvachev_Frontier_Report/jacobi_digit_frontier_report.tex",
+          "line": 983,
+          "source": "\\section{Endpoint fractional pantographs and inverse asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Jacobi_Digit_Fabius_Rvachev_Frontier_Report/jacobi_digit_frontier_report.tex",
+          "line": 1075,
+          "source": "\\subsection{Endpoint Laplace product and periodic renormalization}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Jacobi_Digit_Fabius_Rvachev_Frontier_Report/jacobi_digit_frontier_report.tex",
+          "line": 1231,
+          "source": "\\begin{conjecture}[Periodic Lambert-\\(W_{-1}\\) transseries]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Jacobi_Digit_Fabius_Rvachev_Frontier_Report/jacobi_digit_frontier_report.tex",
+          "line": 1333,
+          "source": "\\subsection{Gaussianization as \\(q\\uparrow1\\)}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Jacobi_Digit_Fabius_Rvachev_Frontier_Report/jacobi_digit_frontier_report.tex",
+          "line": 1391,
+          "source": "\\subsection{Gaussianization as \\(\\alpha\\to\\infty\\)}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Jacobi_Digit_Fabius_Rvachev_Frontier_Report/jacobi_digit_frontier_report.tex",
+          "line": 1623,
+          "source": "\\section{Small-\\(q\\) and large-\\(q\\) expansions}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Jacobi_Digit_Fabius_Rvachev_Frontier_Report/jacobi_digit_frontier_report.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Jacobi_Digit_Fabius_Rvachev_Frontier_Report/jacobi_digit_frontier_report.tex"
+    },
+    {
+      "title": "Matrix-Dilated Fabius--Rvachev Laws",
+      "role": "article-with-conjectural-expansions",
+      "reason": "Dedicated directional-cap asymptotic and inverse-Lambert section with an explicit conjectural multi-term Laplace expansion.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Matrix_Dilated_Fabius_Rvachev_Frontier_Report/matrix_dilated_fabius_rvachev.tex",
+          "line": 1499,
+          "source": "\\section{Directional caps, generalized inverse Fabius functions, and Lambert scales}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Matrix_Dilated_Fabius_Rvachev_Frontier_Report/matrix_dilated_fabius_rvachev.tex",
+          "line": 1549,
+          "source": "\\end{equation}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Matrix_Dilated_Fabius_Rvachev_Frontier_Report/matrix_dilated_fabius_rvachev.tex",
+          "line": 1570,
+          "source": "of cosine can create large negative excursions.  This is the new obstruction to"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Matrix_Dilated_Fabius_Rvachev_Frontier_Report/matrix_dilated_fabius_rvachev.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Matrix_Dilated_Fabius_Rvachev_Frontier_Report/matrix_dilated_fabius_rvachev.tex"
+    },
+    {
+      "title": "Representation Frontiers for the Fabius--Rvachev System",
+      "role": "article",
+      "reason": "Endpoint Laplace/Lambert, phase-locked Haar alias transseries, Mellin-Barnes pole expansions, and all-order level/remainder theory.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex",
+          "line": 2899,
+          "source": "\\section{Endpoint Laplace phases, Lambert \\texorpdfstring{$W$}{W}, and inverse asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex",
+          "line": 6082,
+          "source": "\\subsection{Local Taylor expansion of a Haar coefficient}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex",
+          "line": 6291,
+          "source": "\\begin{conjecture}[Phase-locked Haar alias transseries]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex",
+          "line": 8456,
+          "source": "\\section{A Mellin--Barnes Fredholm representation of the endpoint transform}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex",
+          "line": 8503,
+          "source": "\\subsection{Pole geometry and the periodic endpoint term}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex",
+          "line": 8784,
+          "source": "\\subsection{Exponentially small endpoint structure}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex",
+          "line": 17145,
+          "source": "\\subsection{All-orders level asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex",
+          "line": 18301,
+          "source": "\\section{Remainder proof for the all-orders energy expansion}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Representation_Frontiers/Representation_Frontiers.tex"
+    },
+    {
+      "title": "Exact Rvachev Up-Function Polynomial Synthesis",
+      "role": "article",
+      "reason": "Proved polynomial/quasipolynomial coefficient asymptotics with leading term and O(N^(m-2)) remainder; factorial/Lambert normalization context.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Up_Polynomial_Synthesis/Up_Polynomial_Synthesis.tex",
+          "line": 493,
+          "source": "\\begin{proposition}[Green pair and quasipolynomial structure]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/Up_Polynomial_Synthesis/Up_Polynomial_Synthesis.tex",
+          "line": 503,
+          "source": " p_m(N)=\\frac{N^{m-1}}{(m-1)!\\,2^{m(m-1)/2}}+\\BigO(N^{m-2});"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/Up_Polynomial_Synthesis/Up_Polynomial_Synthesis.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/Up_Polynomial_Synthesis/Up_Polynomial_Synthesis.tex"
+    },
+    {
+      "title": "Common-Digit Fabius Zonoids",
+      "role": "article",
+      "reason": "Modular small-parameter expansion, Gaussianization corrections beyond Wick, and conjectural boundary transseries.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/common_digit_fabius_zonoids_frontier_report/common_digit_fabius_zonoids.tex",
+          "line": 565,
+          "source": "Using $(-Q;Q)_\\infty=(Q^2;Q^2)_\\infty/(Q;Q)_\\infty$ and the modular asymptotic of the Dedekind eta function yields, as $h\\downarrow0$,"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/common_digit_fabius_zonoids_frontier_report/common_digit_fabius_zonoids.tex",
+          "line": 851,
+          "source": "\\section{The hyperbolic-secant process and Gaussianization}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/common_digit_fabius_zonoids_frontier_report/common_digit_fabius_zonoids.tex",
+          "line": 889,
+          "source": "\\subsection{Exact mixed cumulants under hyperbolic translation}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/common_digit_fabius_zonoids_frontier_report/common_digit_fabius_zonoids.tex",
+          "line": 998,
+          "source": "\\subsection{Bell partitions beyond Wick's rule}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/common_digit_fabius_zonoids_frontier_report/common_digit_fabius_zonoids.tex",
+          "line": 1712,
+          "source": "\\begin{conjecture}[Polynomial-geometric small-ball expansion]"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/common_digit_fabius_zonoids_frontier_report/common_digit_fabius_zonoids.tex",
+          "line": 1733,
+          "source": "\\begin{conjecture}[Copula boundary transseries]"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/common_digit_fabius_zonoids_frontier_report/common_digit_fabius_zonoids.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/common_digit_fabius_zonoids_frontier_report/common_digit_fabius_zonoids.tex"
+    },
+    {
+      "title": "Dyadic Sensitivity and Polynomial-Chaos Frontiers for the Fabius--Rvachev Law",
+      "role": "article",
+      "reason": "Small-field q-binomial/Bell-Bernoulli expansions and endpoint negative-Laplace asymptotics.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/fabius_dyadic_chaos_frontier/fabius_dyadic_chaos_frontiers.tex",
+          "line": 1466,
+          "source": "\\section{Small-field q-binomial asymptotics and Bell--Bernoulli structure}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/fabius_dyadic_chaos_frontier/fabius_dyadic_chaos_frontiers.tex",
+          "line": 1469,
+          "source": "\\subsection{Local expansion and the leading Gaussian-binomial row}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/fabius_dyadic_chaos_frontier/fabius_dyadic_chaos_frontiers.tex",
+          "line": 1652,
+          "source": "\\subsection{Refinement and convergent small-field series}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/fabius_dyadic_chaos_frontier/fabius_dyadic_chaos_frontiers.tex",
+          "line": 2194,
+          "source": "\\section{The no-active atom and the negative Fabius Laplace endpoint}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/fabius_dyadic_chaos_frontier/fabius_dyadic_chaos_frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/fabius_dyadic_chaos_frontier/fabius_dyadic_chaos_frontiers.tex"
+    },
+    {
+      "title": "Nowhere Analyticity of Every Positive Compositional Iterate of the Fabius Function",
+      "role": "article",
+      "reason": "A proved finite-spine derivative asymptotic expansion is central to the nowhere-analyticity argument.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/fabius_iterates_nowhere_analytic/fabius_iterates_nowhere_analytic.tex",
+          "line": 654,
+          "source": "\\section[The orbit-spine asymptotic for compositional iterates]{The orbit-spine asymptotic for $F^{\\comp n}$}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/representations/fabius_iterates_nowhere_analytic/fabius_iterates_nowhere_analytic.tex",
+          "line": 682,
+          "source": "\\begin{theorem}[Finite spine expansion]"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/representations/fabius_iterates_nowhere_analytic/fabius_iterates_nowhere_analytic.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/representations/fabius_iterates_nowhere_analytic/fabius_iterates_nowhere_analytic.tex"
+    },
+    {
+      "title": "Fourier Decay of Rvachev's Up-Function: A Guided and Rigorous Account",
+      "role": "article",
+      "reason": "Sharp finite-q shell asymptotics, incomplete-shell endpoint phase, and Lambert optimization.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay-2/Rvachev_Up_Fourier_Decay-2.tex",
+          "line": 1443,
+          "source": "\\subsection{Sharp finite-\\texorpdfstring{\\(q\\)}{q} shell asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay-2/Rvachev_Up_Fourier_Decay-2.tex",
+          "line": 1891,
+          "source": "\\subsection{The endpoint phase left by an incomplete shell}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay-2/Rvachev_Up_Fourier_Decay-2.tex",
+          "line": 2997,
+          "source": "\\subsection{Lambert--\\texorpdfstring{\\(W\\)}{W} optimization}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay-2/Rvachev_Up_Fourier_Decay-2.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay-2/Rvachev_Up_Fourier_Decay-2.tex"
+    },
+    {
+      "title": "Fourier Decay of Rvachev's Up-Function: A Consolidated Account",
+      "role": "article",
+      "reason": "Asymptotic flattening and explicit lower-Lambert optimization of dyadic-annulus maxima.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay/Rvachev_Up_Fourier_Decay.tex",
+          "line": 2086,
+          "source": "\\subsection{Smooth asymptotic flattening}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay/Rvachev_Up_Fourier_Decay.tex",
+          "line": 2525,
+          "source": "\\section{The raw dyadic-annulus maximum and its Lambert boundary layer}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay/Rvachev_Up_Fourier_Decay.tex",
+          "line": 2702,
+          "source": "\\subsection{Lambert optimization}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay/Rvachev_Up_Fourier_Decay.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/rvachev_up_fourier_decay/Rvachev_Up_Fourier_Decay/Rvachev_Up_Fourier_Decay.tex"
+    },
+    {
+      "title": "Combinatorial Transseries and Their Inverses",
+      "role": "article",
+      "reason": "All-orders Gamma-quotient, exponential-sum, moment, moving-saddle, arithmetic and q-product expansions and their inverses.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.tex",
+          "line": 724,
+          "source": "\\section{Convergent inverse transseries for analytic exponential tails}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.tex",
+          "line": 1062,
+          "source": "\\section{All-orders inversion of the balanced case}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.tex",
+          "line": 2640,
+          "source": "\\section{A fixed-order exponential transseries theorem}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.tex",
+          "line": 3101,
+          "source": "\\part{$q$-products and finite-field enumeration}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.tex",
+          "line": 3998,
+          "source": "\\section{Inverse theta transseries}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.tex",
+          "line": 4093,
+          "source": "\\section{An all-order dilogarithmic expansion of the tail}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.pdf",
+      "topics": [
+        "transseries",
+        "q-analogs",
+        "combinatorial sequences",
+        "interpolated inverses"
+      ],
+      "tex": "semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.tex"
+    },
+    {
+      "title": "Transseries: The polynomial-logarithmic calculus, series reversal at infinity, and the inversion of rapidly growing functions",
+      "role": "article",
+      "reason": "Central treatment of asymptotic scales, Poincare expansions, transseries and controlled inversion, with q-analogs and combinatorial sequence interpolations.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.tex",
+          "line": 1357,
+          "source": "\\section{Asymptotic scales, dominance, and blocks}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.tex",
+          "line": 2387,
+          "source": "\\section{Formal, asymptotic, convergent}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.tex",
+          "line": 20648,
+          "source": "\\chapter{Poincar\\'e asymptotics on the polynomial--logarithmic scale}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.tex",
+          "line": 39232,
+          "source": "\\subsection{Transport of a controlled forward remainder}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.tex",
+          "line": 53973,
+          "source": "\\chapter{A real-argument Fibonacci function}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.tex",
+          "line": 54625,
+          "source": "\\chapter{The Bell numbers: a Lambert saddle}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.pdf",
+      "topics": [
+        "transseries",
+        "q-analogs",
+        "combinatorial sequences",
+        "Fibonacci",
+        "Bell",
+        "interpolated inverses"
+      ],
+      "tex": "semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.tex"
+    },
+    {
+      "title": "Automatic Scale Factorizations of the Rvachev Law",
+      "role": "article",
+      "reason": "Endpoint Laplace asymptotic formulas and inverse-quantile Lambert analysis.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Automatic_Scale_Factorizations_Rvachev_2026-08-30/automatic_scale_factorizations.tex",
+          "line": 1072,
+          "source": "\\section{Sharp logarithmic endpoint laws}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Automatic_Scale_Factorizations_Rvachev_2026-08-30/automatic_scale_factorizations.tex",
+          "line": 1090,
+          "source": "\\subsection{Laplace asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Automatic_Scale_Factorizations_Rvachev_2026-08-30/automatic_scale_factorizations.tex",
+          "line": 1214,
+          "source": "\\section{Inverse-edge quantiles and Lambert-W coordinates}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Automatic_Scale_Factorizations_Rvachev_2026-08-30/automatic_scale_factorizations.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Automatic_Scale_Factorizations_Rvachev_2026-08-30/automatic_scale_factorizations.tex"
+    },
+    {
+      "title": "Digital Spectral Geometry and Log-Periodic Saddles",
+      "role": "article",
+      "reason": "Exact log-periodic cumulant transseries, all-order endpoint saddle expansion, and refined inverse.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Digital_Spectral_Geometry_and_Log_Periodic_Saddles/Fabius_Rvachev_Frontier_Report.tex",
+          "line": 722,
+          "source": "\\section{An exact log-periodic transseries for \\(K(t)\\)}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Digital_Spectral_Geometry_and_Log_Periodic_Saddles/Fabius_Rvachev_Frontier_Report.tex",
+          "line": 916,
+          "source": "\\section{The endpoint saddle and a phase-locked Lambert equation}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Digital_Spectral_Geometry_and_Log_Periodic_Saddles/Fabius_Rvachev_Frontier_Report.tex",
+          "line": 991,
+          "source": "\\subsection{Arbitrary-order saddle expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Digital_Spectral_Geometry_and_Log_Periodic_Saddles/Fabius_Rvachev_Frontier_Report.tex",
+          "line": 1065,
+          "source": "\\section{A refined asymptotic for the inverse Fabius function}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Digital_Spectral_Geometry_and_Log_Periodic_Saddles/Fabius_Rvachev_Frontier_Report.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Digital_Spectral_Geometry_and_Log_Periodic_Saddles/Fabius_Rvachev_Frontier_Report.tex"
+    },
+    {
+      "title": "Dyadic Radon Profiles in the Fabius--Rvachev Web",
+      "role": "article-with-conjectural-expansions",
+      "reason": "Dedicated inverse-Fabius/Lambert frontier and explicitly conjectural all-order endpoint expansion.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Radon_Profiles_Fabius_Rvachev_2026-08-30/dyadic_radon_profiles_fabius_rvachev.tex",
+          "line": 1369,
+          "source": "\\section{Inverse-Fabius coordinates and the Lambert endpoint frontier}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Radon_Profiles_Fabius_Rvachev_2026-08-30/dyadic_radon_profiles_fabius_rvachev.tex",
+          "line": 1448,
+          "source": "\\subsection{A conjectural all-orders endpoint law}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Radon_Profiles_Fabius_Rvachev_2026-08-30/dyadic_radon_profiles_fabius_rvachev.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Radon_Profiles_Fabius_Rvachev_2026-08-30/dyadic_radon_profiles_fabius_rvachev.tex"
+    },
+    {
+      "title": "Dyadic Spectral Divisors and Gamma Duality",
+      "role": "article",
+      "reason": "Complete algebraic/log-periodic heat-trace expansion, exact Jacobi-dual beyond-all-orders transseries, and large-argument determinant transseries.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Spectral_Divisors_and_Gamma_Duality/fabius_frontier_report.tex",
+          "line": 683,
+          "source": "\\section{The arithmetic heat trace}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Spectral_Divisors_and_Gamma_Duality/fabius_frontier_report.tex",
+          "line": 775,
+          "source": "\\begin{theorem}[Complete algebraic/log-periodic skeleton]\\label{thm:heat-skeleton}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Spectral_Divisors_and_Gamma_Duality/fabius_frontier_report.tex",
+          "line": 826,
+          "source": "\\subsection{Exact beyond-all-orders remainder}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Spectral_Divisors_and_Gamma_Duality/fabius_frontier_report.tex",
+          "line": 830,
+          "source": "\\begin{theorem}[Jacobi-dual transseries]\\label{thm:exact-heat-remainder}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Spectral_Divisors_and_Gamma_Duality/fabius_frontier_report.tex",
+          "line": 1008,
+          "source": "\\begin{corollary}[Large-\\(z\\) transseries]\\label{cor:large-z}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Spectral_Divisors_and_Gamma_Duality/fabius_frontier_report.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Dyadic_Spectral_Divisors_and_Gamma_Duality/fabius_frontier_report.tex"
+    },
+    {
+      "title": "Automatic Spectra, Exact Dyadic Cubature, and Probabilistic Duals in the Pascal--Rvachev Hierarchy",
+      "role": "article",
+      "reason": "Poisson/mod-Poisson/Gaussian asymptotic phase diagram and Gamma/Edgeworth frontier.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Pascal_Frontiers_Report/Fabius_Pascal_Frontiers.tex",
+          "line": 1224,
+          "source": "\\subsection{A Poisson, mod-Poisson, and Gaussian phase diagram}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Pascal_Frontiers_Report/Fabius_Pascal_Frontiers.tex",
+          "line": 1628,
+          "source": "\\subsection{Gamma Edgeworth theory}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Pascal_Frontiers_Report/Fabius_Pascal_Frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Pascal_Frontiers_Report/Fabius_Pascal_Frontiers.tex"
+    },
+    {
+      "title": "Critical Ultradifferentiable Geometry of the Fabius--Rvachev System",
+      "role": "article",
+      "reason": "Lambert-saddle associated-function expansion and Bell-polynomial endpoint asymptotics, with explicitly conjectural refinements.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Carleman_Frontiers_2026-08-30/fabius_carleman_frontiers.tex",
+          "line": 1222,
+          "source": "\\section{The associated function and a \\texorpdfstring{Lambert--$W_{-1}$}{Lambert-W(-1)} saddle}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Carleman_Frontiers_2026-08-30/fabius_carleman_frontiers.tex",
+          "line": 1439,
+          "source": "\\section{Bell-polynomial edge asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Carleman_Frontiers_2026-08-30/fabius_carleman_frontiers.tex",
+          "line": 1511,
+          "source": "\\subsection{A two-edge asymptotic conjecture}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Carleman_Frontiers_2026-08-30/fabius_carleman_frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Carleman_Frontiers_2026-08-30/fabius_carleman_frontiers.tex"
+    },
+    {
+      "title": "Reciprocal-Integer Convolution Divisors of the Rvachev Law",
+      "role": "article",
+      "reason": "Endpoint log-periodicity, Mellin complex dimensions, and hybrid Lambert asymptotic inversion.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors.tex",
+          "line": 1475,
+          "source": "\\section{Exact endpoint log-periodicity and inverse scaling}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors.tex",
+          "line": 1826,
+          "source": "\\section{Mellin complex dimensions of the endpoint phase}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors.tex",
+          "line": 2022,
+          "source": "\\subsection{Hybrid Lambert-$W$/divisor inversion}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors/Fabius_Rvachev_Reciprocal_Integer_Convolution_Divisors.tex"
+    },
+    {
+      "title": "Total Positivity and Cartwright Geometry in the Fabius--Rvachev Dyadic Sinc Product",
+      "role": "article",
+      "reason": "Poisson-binomial saddle coefficient asymptotic and explicit multi-scale logarithmic coefficient expansion.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Total_Positivity_Frontier_Report/Fabius_Total_Positivity_Frontier_Report.tex",
+          "line": 641,
+          "source": "\\section{A Poisson-binomial saddle model}\\label{sec:poisson}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Total_Positivity_Frontier_Report/Fabius_Total_Positivity_Frontier_Report.tex",
+          "line": 708,
+          "source": "\\begin{theorem}[Probabilistic saddle formula]\\label{thm:saddle}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Total_Positivity_Frontier_Report/Fabius_Total_Positivity_Frontier_Report.tex",
+          "line": 715,
+          "source": " \\log a_n(q)=2n-2n\\log\\!\\left(\\frac{2n}{\\sigma_q}\\right)"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Total_Positivity_Frontier_Report/Fabius_Total_Positivity_Frontier_Report.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Fabius_Total_Positivity_Frontier_Report/Fabius_Total_Positivity_Frontier_Report.tex"
+    },
+    {
+      "title": "Half-Integer Spectral Arithmetic for the Fabius--Rvachev System",
+      "role": "article",
+      "reason": "Endpoint Laplace/Lambert, higher-rank endpoint transseries, large-p norms, Euler-constant inverse corrections, and full norm transseries.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Spectra_and_Arithmetic_Frontiers/Spectra_and_Arithmetic_Frontiers.tex",
+          "line": 5355,
+          "source": "\\section{Endpoint Laplace asymptotics and Lambert \\texorpdfstring{$W$}{W}}\\label{p3:sec:endpoint}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Spectra_and_Arithmetic_Frontiers/Spectra_and_Arithmetic_Frontiers.tex",
+          "line": 5904,
+          "source": "\\subsection{Exact higher-rank endpoint transseries}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Spectra_and_Arithmetic_Frontiers/Spectra_and_Arithmetic_Frontiers.tex",
+          "line": 7470,
+          "source": "\\section{Large-p norms, Lambert coordinates, and phase tomography}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Spectra_and_Arithmetic_Frontiers/Spectra_and_Arithmetic_Frontiers.tex",
+          "line": 7512,
+          "source": "\\subsection{Euler's constant shifts the inverse correction}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Spectra_and_Arithmetic_Frontiers/Spectra_and_Arithmetic_Frontiers.tex",
+          "line": 8133,
+          "source": "\\subsection{A full norm transseries}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Spectra_and_Arithmetic_Frontiers/Spectra_and_Arithmetic_Frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/Spectra_and_Arithmetic_Frontiers/Spectra_and_Arithmetic_Frontiers.tex"
+    },
+    {
+      "title": "Holonomic Rank, Exact Overlaps, and Non-P-Recursiveness in the Fabius--Rvachev System",
+      "role": "article",
+      "reason": "Discriminant asymptotic expansion via Barnes G and saddle analysis of an order-zero generating function.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/fabius_holonomic_frontiers_report/fabius_holonomic_frontiers.tex",
+          "line": 974,
+          "source": "\\subsection{Discriminant and Barnes-\\texorpdfstring{$G$}{G} asymptotics}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/fabius_holonomic_frontiers_report/fabius_holonomic_frontiers.tex",
+          "line": 1998,
+          "source": "\\subsection{Saddle analysis of the order-zero sample OGF}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/fabius_holonomic_frontiers_report/fabius_holonomic_frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/spectra-and-arithmetic/fabius_holonomic_frontiers_report/fabius_holonomic_frontiers.tex"
+    },
+    {
+      "title": "The Thue--Morse Sequence: Formula Atlas and Fabius--Rvachev Frontier Results",
+      "role": "article",
+      "reason": "All-order finite-block endpoint-Laplace, Bernoulli-zeta tail, and certified weak differential expansions. The consolidated diagonal-polynomial material is retained in Part III of this atlas; the three former standalone report roots were deleted upstream.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.tex",
+          "line": 8304,
+          "source": "\\section{The zeta--Lambert tail calculus}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.tex",
+          "line": 8608,
+          "source": "\\section{An all-orders finite-block formula for the endpoint Laplace product}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.tex",
+          "line": 8665,
+          "source": "\\subsection{Bernoulli--zeta expansion of the negative tail}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.tex",
+          "line": 9028,
+          "source": "\\section{Exact random tails and a weak differential expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.tex",
+          "line": 9179,
+          "source": "\\subsection{A certified weak expansion}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.tex"
+    },
+    {
+      "title": "Thue-Morse Frontier Deductions: Boundary Corrections, Dyadic Completion and Mellin Renormalization, Rational Resonances, Spline and Lattice Corrections, and Nonlinear Prouhet Geometry",
+      "role": "article",
+      "reason": "Uniform all-order coefficient expansions and Lambert saddles, explicit remainders, and functions sharing an asymptotic series.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Frontier_Deductions/Thue_Morse_Frontier_Deductions.tex",
+          "line": 3125,
+          "source": "\\chapter{A uniform all-orders expansion with an explicit remainder}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Frontier_Deductions/Thue_Morse_Frontier_Deductions.tex",
+          "line": 3628,
+          "source": "\\chapter{Coefficient asymptotics and optimized error bounds}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Frontier_Deductions/Thue_Morse_Frontier_Deductions.tex",
+          "line": 4094,
+          "source": "\\chapter{Identical asymptotic series, different positive functions}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Frontier_Deductions/Thue_Morse_Frontier_Deductions.tex",
+          "line": 8470,
+          "source": "\\chapter{An all-order Lambert-\\texorpdfstring{\\(W\\)}{W} saddle expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Frontier_Deductions/Thue_Morse_Frontier_Deductions.tex",
+          "line": 9252,
+          "source": "\\section{A direct nonrecursive formula for every asymptotic coefficient}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Frontier_Deductions/Thue_Morse_Frontier_Deductions.pdf",
+      "tex": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Frontier_Deductions/Thue_Morse_Frontier_Deductions.tex"
+    },
+    {
+      "title": "Semi-Formalized Research Frontiers for the Fabius Function",
+      "role": "article",
+      "reason": "Substantial all-order Poincare/saddle calculus, endpoint inversion, closed periodic saddle jets, and normalized-mass expansions.",
+      "evidence": [
+        {
+          "path": "semi-formalized-research-frontiers/semi-formalized-research-frontiers.tex",
+          "line": 5185,
+          "source": "\\section{The formal and analytic machinery of the all-orders saddle expansion}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/semi-formalized-research-frontiers.tex",
+          "line": 5187,
+          "source": "\\subsection{Parameter-dependent Poincar\\'e expansions}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/semi-formalized-research-frontiers.tex",
+          "line": 5225,
+          "source": "\\subsubsection{Elementary algebra of full expansions}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/semi-formalized-research-frontiers.tex",
+          "line": 16321,
+          "source": "\\section{Inverting the sharp small-argument asymptotic}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/semi-formalized-research-frontiers.tex",
+          "line": 16520,
+          "source": "\\section{Closed periodic saddle jets}"
+        },
+        {
+          "path": "semi-formalized-research-frontiers/semi-formalized-research-frontiers.tex",
+          "line": 17529,
+          "source": "\\subsection{The all-orders mass expansion}"
+        }
+      ],
+      "pdf": "semi-formalized-research-frontiers/semi-formalized-research-frontiers.pdf",
+      "tex": "semi-formalized-research-frontiers/semi-formalized-research-frontiers.tex"
+    }
+  ],
+  "excluded_articles": [
+    {
+      "path": "archive/early-notes/Fabius Asymptotic/Fabius Asymptotic.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/early-notes/K-fold summation over the signed Thue-Morse sequence/K-fold summation over the signed Thue-Morse sequence.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/glossary/FabiusFunction_Mathematical_Glossary-2/FabiusFunction_Mathematical_Glossary.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/glossary/FabiusFunction_Mathematical_Glossary/FabiusFunction_Mathematical_Glossary.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/lean-walkthrough/Fabius_Function_Lean_Walkthrough/Fabius_Function_Lean_Walkthrough.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/lean-walkthrough/fabius_lean_walkthrough/fabius_lean_walkthrough.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/primary-exposition/Fabius_Function_and_Rvachev_Up-2/Fabius_Function_and_Rvachev_Up.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/primary-exposition/Fabius_Function_and_Rvachev_Up-3/Fabius_Function_and_Rvachev_Up.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/primary-exposition/Fabius_Function_and_Rvachev_Up/Fabius_Function_and_Rvachev_Up.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/primary-exposition/Fabius_and_Rvachev_Up-2/Fabius_and_Rvachev_Up.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/primary-exposition/Fabius_and_Rvachev_up/Fabius_and_Rvachev_up.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/primary-exposition/Fabius_function_and_up_function/Fabius_function_and_up_function.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/primary-supplements/Fabius_Function_Missing_Parts-2/Fabius_Function_Missing_Parts.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/primary-supplements/Fabius_Function_Missing_Parts/Fabius_Function_Missing_Parts.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/q-calculus/Fabius_q_Special_Functions/Fabius_q_Special_Functions.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/q-calculus/fabius-q-special-functions/fabius-q-special-functions.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Fabius_Dyadic_Asymptotic_Bridge/Fabius_Dyadic_Asymptotic_Bridge.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Fabius_Dyadic_Formulae_and_Alternative_Representations/Fabius_Dyadic_Formulae_and_Alternative_Representations.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Fabius_Dyadic_Formulae_to_Asymptotics/Fabius_Dyadic_Formulae_to_Asymptotics.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Fabius_Dyadic_q_Connections/Fabius_Dyadic_q_Connections.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Fabius_Thue_Morse_Convergence_Rate/Fabius_Thue_Morse_Convergence_Rate.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Fabius_Thue_Morse_Convergence_Rates/Fabius_Thue_Morse_Convergence_Rates.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Primary_Exposition_Gap_Register/Primary_Exposition_Gap_Register.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Repeated_Integration_and_Rvachev_Up/Repeated_Integration_and_Rvachev_Up.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Rvachev_Up_from_Repeated_Integration/Rvachev_Up_from_Repeated_Integration.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Thue_Morse_Formula_Atlas-1/Thue_Morse_Formula_Atlas.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Thue_Morse_Formula_Atlas-2/Consolidated_Formula_Atlas_for_the_Thue_Morse_Sequence.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/Thue_Morse_Formula_Atlas-3/Thue_Morse_Formula_Atlas.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/research-frontiers/non-formalized-research-frontiers/non-formalized-research-frontiers.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/standalone-studies/Non_Elementarity_of_the_Fabius_Function/Non_Elementarity_of_the_Fabius_Function.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/standalone-studies/Small_Argument_Asymptotics/Small_Argument_Asymptotics.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "archive/standalone-studies/fabius-inverse-dyadic-closed-form/fabius-inverse-dyadic-closed-form.tex",
+      "include": false,
+      "role": "archived",
+      "reason": "Excluded at the user's direction; historical versions under docs/archive are outside this vendored collection."
+    },
+    {
+      "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0-corrected.tex",
+      "title": "On Evil Kronecker Sequences and Lacunary Trigonometric Products",
+      "include": false,
+      "role": "excluded-external-paper",
+      "reason": "Lacunary-product LIL/discrepancy estimates and growth orders; no substantive asymptotic or transseries expansion treatment.",
+      "evidence": [
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0-corrected.tex",
+          "line": 51,
+          "source": "\\begin{abstract}"
+        },
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0-corrected.tex",
+          "line": 98,
+          "source": "\\section*{1. Introduction and statement of results}"
+        },
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0-corrected.tex",
+          "line": 396,
+          "source": "\\section*{2. Probabilistic results for lacunary trigonometric products}"
+        },
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0-corrected.tex",
+          "line": 612,
+          "source": "\\section*{3. Proofs of results from Section 2}"
+        },
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0-corrected.tex",
+          "line": 1135,
+          "source": "\\section*{4. Exponential Sums and Trigonometric Products: Proofs of Theorem 1.1 and Theorem 1.2}"
+        }
+      ],
+      "pdf": null
+    },
+    {
+      "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0.tex",
+      "title": "ON EVIL KRONECKER SEQUENCES AND LACUNARY TRIGONOMETRIC PRODUCTS",
+      "include": false,
+      "role": "excluded-external-paper",
+      "reason": "Lacunary-product LIL/discrepancy estimates and growth orders; no substantive asymptotic or transseries expansion treatment.",
+      "evidence": [
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0.tex",
+          "line": 52,
+          "source": "\\begin{abstract}"
+        },
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0.tex",
+          "line": 62,
+          "source": "}\\section*{1. Introduction and statement of results}"
+        },
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0.tex",
+          "line": 357,
+          "source": "\\section*{2. Probabilistic results for lacunary trigonometric products}"
+        },
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0.tex",
+          "line": 552,
+          "source": "\\section*{3. Proofs of results from Section 2}"
+        },
+        {
+          "path": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0.tex",
+          "line": 1007,
+          "source": "\\section*{4. Exponential Sums and Trigonometric Products: Proofs of Theorem 1.1 and Theorem 1.2}"
+        }
+      ],
+      "pdf": "papers/AIF_2017__67_2_637_0/AIF_2017__67_2_637_0.pdf"
+    },
+    {
+      "path": "papers/arXiv-1502.06738v2/Lacunary_products.tex",
+      "title": "Lacunary products",
+      "include": false,
+      "role": "excluded-external-paper",
+      "reason": "Lacunary-product LIL/discrepancy estimates and growth orders; no substantive asymptotic or transseries expansion treatment.",
+      "evidence": [
+        {
+          "path": "papers/arXiv-1502.06738v2/Lacunary_products.tex",
+          "line": 65,
+          "source": "\\begin{abstract}"
+        },
+        {
+          "path": "papers/arXiv-1502.06738v2/Lacunary_products.tex",
+          "line": 73,
+          "source": "\\section{Introduction and statement of results} \\label{sect_int}"
+        },
+        {
+          "path": "papers/arXiv-1502.06738v2/Lacunary_products.tex",
+          "line": 272,
+          "source": "\\section{Probabilistic results for lacunary trigonometric products} \\label{sect_lac}"
+        },
+        {
+          "path": "papers/arXiv-1502.06738v2/Lacunary_products.tex",
+          "line": 426,
+          "source": "\\section{Proofs of results from Section~\\ref{sect_lac}} \\label{sect_lac2}"
+        },
+        {
+          "path": "papers/arXiv-1502.06738v2/Lacunary_products.tex",
+          "line": 725,
+          "source": "\\section{Exponential Sums and Trigonometric Products: Proofs of Theorem~\\ref{th_thue} and Theorem~\\ref{th_theorem2}} \\label{sect_proof}"
+        }
+      ],
+      "pdf": null
+    },
+    {
+      "path": "papers/arXiv-1702.05442v1/09-Function.tex",
+      "title": "09-Function",
+      "include": false,
+      "role": "excluded-external-paper",
+      "reason": "Classical Fabius/Rvachev construction or exact arithmetic; Taylor/Fourier identities occur, but no substantive asymptotic expansion treatment.",
+      "evidence": [
+        {
+          "path": "papers/arXiv-1702.05442v1/09-Function.tex",
+          "line": 100,
+          "source": "%\\begin{abstract} "
+        },
+        {
+          "path": "papers/arXiv-1702.05442v1/09-Function.tex",
+          "line": 105,
+          "source": "\\section{Introduction.}"
+        },
+        {
+          "path": "papers/arXiv-1702.05442v1/09-Function.tex",
+          "line": 152,
+          "source": "\\section{Existence and Unicity.}"
+        },
+        {
+          "path": "papers/arXiv-1702.05442v1/09-Function.tex",
+          "line": 323,
+          "source": "\\section{Other expressions for $\\varphi$.}"
+        },
+        {
+          "path": "papers/arXiv-1702.05442v1/09-Function.tex",
+          "line": 429,
+          "source": "\\section{Properties.}"
+        }
+      ],
+      "pdf": null
+    },
+    {
+      "path": "papers/arXiv-1702.06487v3/157-Arithmetic-v3.tex",
+      "title": "Arithmetic of the Fabius function",
+      "include": false,
+      "role": "excluded-external-paper",
+      "reason": "Classical Fabius/Rvachev construction or exact arithmetic; Taylor/Fourier identities occur, but no substantive asymptotic expansion treatment.",
+      "evidence": [
+        {
+          "path": "papers/arXiv-1702.06487v3/157-Arithmetic-v3.tex",
+          "line": 105,
+          "source": "\\begin{abstract}"
+        },
+        {
+          "path": "papers/arXiv-1702.06487v3/157-Arithmetic-v3.tex",
+          "line": 124,
+          "source": "\\section{Introduction.}"
+        },
+        {
+          "path": "papers/arXiv-1702.06487v3/157-Arithmetic-v3.tex",
+          "line": 224,
+          "source": "\\section{Properties of the Fabius function.}"
+        },
+        {
+          "path": "papers/arXiv-1702.06487v3/157-Arithmetic-v3.tex",
+          "line": 270,
+          "source": "\\section{The values of the Fabius function and two sequences of rational numbers.}"
+        },
+        {
+          "path": "papers/arXiv-1702.06487v3/157-Arithmetic-v3.tex",
+          "line": 464,
+          "source": "\\section{Reshetnikov question.}"
+        }
+      ],
+      "pdf": null
+    },
+    {
+      "path": "papers/arXiv-2211.13570v1/document.tex",
+      "title": "document",
+      "include": false,
+      "role": "excluded-external-paper",
+      "reason": "Exact linear combinations of Thue-Morse Dirichlet series; no substantive asymptotic expansion treatment.",
+      "evidence": [
+        {
+          "path": "papers/arXiv-2211.13570v1/document.tex",
+          "line": 66,
+          "source": "\t\\begin{abstract}"
+        },
+        {
+          "path": "papers/arXiv-2211.13570v1/document.tex",
+          "line": 71,
+          "source": "\t\\section{Introduction}"
+        },
+        {
+          "path": "papers/arXiv-2211.13570v1/document.tex",
+          "line": 114,
+          "source": "\\section{Linear combinations}"
+        },
+        {
+          "path": "papers/arXiv-2211.13570v1/document.tex",
+          "line": 254,
+          "source": "\\section{Conclusion and further work}"
+        }
+      ],
+      "pdf": null
+    },
+    {
+      "path": "papers/ubiq15/ubiq15-corrected.tex",
+      "title": "The ubiquitous Prouhet-Thue-Morse sequence",
+      "include": false,
+      "role": "excluded-external-paper",
+      "reason": "Thue-Morse survey: incidental asymptotic mentions and base/Fourier expansions do not constitute asymptotic expansion theory.",
+      "evidence": [
+        {
+          "path": "papers/ubiq15/ubiq15-corrected.tex",
+          "line": 29,
+          "source": "\\begin{abstract}"
+        },
+        {
+          "path": "papers/ubiq15/ubiq15-corrected.tex",
+          "line": 33,
+          "source": "\\section*{1 Introduction}"
+        },
+        {
+          "path": "papers/ubiq15/ubiq15-corrected.tex",
+          "line": 42,
+          "source": "\\section*{2 Definition}"
+        },
+        {
+          "path": "papers/ubiq15/ubiq15-corrected.tex",
+          "line": 63,
+          "source": "\\section*{3 Combinatorics on words}"
+        },
+        {
+          "path": "papers/ubiq15/ubiq15-corrected.tex",
+          "line": 120,
+          "source": "\\section*{4 Differential geometry}"
+        }
+      ],
+      "pdf": null
+    }
+  ],
+  "extra_files": [
+    "ASYMPTOTIC_PDF_REFRESH.json"
+  ],
+  "initial_audit_commit": "7c4e3f109405b9805b35d27ae96bf09c7ee5f3d5",
+  "repository_url": "https://github.com/VladimirReshetnikov/ProveIt",
+  "source_url": "https://github.com/VladimirReshetnikov/ProveIt/tree/8369ae3c05e8c5f5cf6e3123f57bcff94264211f/Analysis/FabiusFunction/docs",
+  "initial_audit_url": "https://github.com/VladimirReshetnikov/ProveIt/tree/7c4e3f109405b9805b35d27ae96bf09c7ee5f3d5/Analysis/FabiusFunction/docs",
+  "source_refresh": {
+    "previous_commit": "7c4e3f109405b9805b35d27ae96bf09c7ee5f3d5",
+    "commit": "8369ae3c05e8c5f5cf6e3123f57bcff94264211f",
+    "removed_selected_roots": [
+      "semi-formalized-research-frontiers/drafts/thue-morse/thue_morse_diagonal_polynomials-2/thue_morse_diagonal_polynomials.tex",
+      "semi-formalized-research-frontiers/drafts/thue-morse/thue_morse_diagonal_polynomials/thue_morse_diagonal_polynomials.tex",
+      "semi-formalized-research-frontiers/drafts/thue-morse/thue_morse_diagonal_polynomials_article_and_code/thue_morse_diagonal_polynomials.tex"
+    ],
+    "consolidations": [
+      {
+        "sources": [
+          "semi-formalized-research-frontiers/drafts/thue-morse/thue_morse_diagonal_polynomials-2/thue_morse_diagonal_polynomials.tex",
+          "semi-formalized-research-frontiers/drafts/thue-morse/thue_morse_diagonal_polynomials/thue_morse_diagonal_polynomials.tex",
+          "semi-formalized-research-frontiers/drafts/thue-morse/thue_morse_diagonal_polynomials_article_and_code/thue_morse_diagonal_polynomials.tex"
+        ],
+        "into": "semi-formalized-research-frontiers/drafts/thue-morse/Thue_Morse_Atlas_and_Frontiers/Thue_Morse_Atlas_and_Frontiers.tex",
+        "note": "The consolidated diagonal-polynomial material is retained in Part III of this atlas; the three former standalone report roots were deleted upstream."
+      }
+    ],
+    "policy": "Existing reviewed scope retained. Deleted selected roots were retired, not added to exclusions. Evidence text was preserved and its source lines reanchored exactly."
+  }
+}

@@ -13,6 +13,7 @@ information.
 | **[Mathematical article (PDF)](article/asymptotic-inverse.pdf)** · [LaTeX source](article/asymptotic-inverse.tex) | Definitions, theorems, proofs, mathematical examples, and the hypotheses behind each scale and error estimate. |
 | **[User guide (HTML)](AsymptoticInverse/Documentation/UserGuide.html)** · [Markdown source](AsymptoticInverse/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
 | **[Code review reports](code-review/README.md)** | Nine review packages with mathematical and engineering findings, supporting evidence, regression candidates, and proposed patches tied to their reviewed snapshots. |
+| **[Vendored ProveIt articles](vendor/proveit/README.md)** | A revision-pinned TeX/PDF library on asymptotic expansions, transseries, q-analogs, combinatorial sequences, and their interpolated inverses, with topic reading lists and build provenance. |
 
 The article is independent of software syntax. The guide follows the
 organization of Wolfram Language reference documentation and explains the

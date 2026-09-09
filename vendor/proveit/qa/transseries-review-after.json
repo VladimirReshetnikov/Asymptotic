@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-09-09T20:16:37.574828+00:00",
+  "document": "docs/semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.pdf",
+  "sha256": "2b4bd3069c787b09940aec5cc97769b6f4269836ef462ccd1c0d8f8c8cf65215",
+  "page_count": 720,
+  "status": "three_targeted_clipping_repairs_visually_confirmed",
+  "before_review": {
+    "path": "qa/transseries-review.json",
+    "sha256": "1cd2c3916052732d8dd94fd80a4ac70223af1175f21c5d8100352aab5f02a1ac",
+    "pdf_sha256": "14deeb774fcf607b484cda0a942dd78e5bb1680e012f214b7ba710c6b1347dd2",
+    "unchanged": true
+  },
+  "scope": {
+    "sampled": true,
+    "full_document_visual_review": false,
+    "reviewed_pdf_pages": [
+      530,
+      531,
+      546,
+      547,
+      656,
+      657
+    ],
+    "sample_page_count": 6,
+    "selection_method": "Re-located RemarkM.21, Eq.M.106, and Eq.Q.62 using the current PDF text, then rendered each affected page and its following page.",
+    "limitations": [
+      "This confirms the three previously reported repairs only; the remaining714 pages were not re-reviewed.",
+      "The current final pass still reports111 overfull boxes and203 underfull boxes globally. No whole-document clean-layout claim is made.",
+      "This is visual layout QA, not mathematical validation."
+    ]
+  },
+  "tools": {
+    "rendering": "pdftoppm26.07.0",
+    "text_extraction": "pypdf6.13.2",
+    "dpi": 140,
+    "inspection": "view_image full-page images and contact sheet"
+  },
+  "build_evidence": {
+    "receipt_status": "three passes and basic PDF validation succeeded",
+    "final_log": "build-logs/d79e7f9c6c0f-cdc8652389e7/pass-3.log",
+    "final_log_sha256": "cc31ba265de8eec435b881e8a9f2bb099af0ad4999ae1bd6acb7d56395803e13",
+    "final_warning_counts": {
+      "undefined_references": 0,
+      "undefined_citations": 0,
+      "undefined_reference_summary": 0,
+      "undefined_citation_summary": 0,
+      "overfull_boxes": 111,
+      "underfull_boxes": 203,
+      "rerun_requests": 0,
+      "missing_characters": 0,
+      "warnings": 12
+    },
+    "source_patches": {
+      "specification_path": "build-patches.json",
+      "specification_sha256": "e6e37d46beb3d77950f3c97c339bce04d5b3a7c690a4f7df5c19c61833b54842",
+      "files": [
+        {
+          "path": "docs/semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.tex",
+          "upstream_sha256": "a3e188716c8cddbffa0840990a0282d04a7265f68cbf1c4b368a825bcf77fc08",
+          "effective_sha256": "b1fdc18538fe86ffb54da82ae6f4d4c6d766ef1e3a981593a48d18cbf4896eec",
+          "replacement_count": 4
+        }
+      ],
+      "application": "Only the temporary build mirror is patched; vendored Git blobs remain unchanged."
+    }
+  },
+  "renders": [
+    {
+      "pdf_page": 530,
+      "printed_page": 512,
+      "path": "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-530.png",
+      "sha256": "1e85ee672f0d560ec08f5f5b0c3f7fc5f806c8a1d81d07a42013cd7deceaa71e",
+      "dpi": 140,
+      "pixels": [
+        1158,
+        1638
+      ],
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "530",
+        "-l",
+        "530",
+        "-singlefile",
+        "-r",
+        "140",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-530"
+      ],
+      "visual_review_method": "full-page image and contact sheet"
+    },
+    {
+      "pdf_page": 531,
+      "printed_page": 513,
+      "path": "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-531.png",
+      "sha256": "adc304042dbddf070f37987ce0f8c4ff0bb3927d09b3769a67c9350d0e9e75cc",
+      "dpi": 140,
+      "pixels": [
+        1158,
+        1638
+      ],
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "531",
+        "-l",
+        "531",
+        "-singlefile",
+        "-r",
+        "140",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-531"
+      ],
+      "visual_review_method": "contact sheet"
+    },
+    {
+      "pdf_page": 546,
+      "printed_page": 528,
+      "path": "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-546.png",
+      "sha256": "8c8453e097deb5249652426fb3984c148c21a8e06c3ae5477c3aa79faf7d5c39",
+      "dpi": 140,
+      "pixels": [
+        1158,
+        1638
+      ],
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "546",
+        "-l",
+        "546",
+        "-singlefile",
+        "-r",
+        "140",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-546"
+      ],
+      "visual_review_method": "full-page image and contact sheet"
+    },
+    {
+      "pdf_page": 547,
+      "printed_page": 529,
+      "path": "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-547.png",
+      "sha256": "b2bbdd88d847e4dab4f1f619e5bd61c207b7743459b5b50a47bbb597bbfa6c34",
+      "dpi": 140,
+      "pixels": [
+        1158,
+        1638
+      ],
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "547",
+        "-l",
+        "547",
+        "-singlefile",
+        "-r",
+        "140",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-547"
+      ],
+      "visual_review_method": "contact sheet"
+    },
+    {
+      "pdf_page": 656,
+      "printed_page": 638,
+      "path": "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-656.png",
+      "sha256": "af68c0af3e8c359e73b042855090de757ac59fd5885cb1153fc276643217591c",
+      "dpi": 140,
+      "pixels": [
+        1158,
+        1638
+      ],
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "656",
+        "-l",
+        "656",
+        "-singlefile",
+        "-r",
+        "140",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-656"
+      ],
+      "visual_review_method": "full-page image and contact sheet"
+    },
+    {
+      "pdf_page": 657,
+      "printed_page": 639,
+      "path": "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-657.png",
+      "sha256": "45573a61d10195ff344a9a88f5db06b733111ebf6de77369ef3e9649ae8e7603",
+      "dpi": 140,
+      "pixels": [
+        1158,
+        1638
+      ],
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "657",
+        "-l",
+        "657",
+        "-singlefile",
+        "-r",
+        "140",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\page-657"
+      ],
+      "visual_review_method": "full-page image and contact sheet"
+    }
+  ],
+  "contact_sheet": {
+    "path": "C:\\Temp\\proveit-qa-transseries-after\\2b4bd3069c78\\contact.png",
+    "sha256": "c1487d19b89cb07ae595063248b0a859d34a13b6136fbb838926ce96eb252c61",
+    "pixels": [
+      1440,
+      3060
+    ]
+  },
+  "observations": [
+    {
+      "before_finding_id": "remark-m21-clipping",
+      "pdf_page": 530,
+      "printed_page": 512,
+      "result": "resolved",
+      "finding": "RemarkM.21 now puts the complete double sum on a centered unnumbered display. The final rho power and punctuation are visible, and the following paragraphs and equations do not overlap."
+    },
+    {
+      "before_finding_id": "equation-m106-clipping",
+      "pdf_page": 546,
+      "printed_page": 528,
+      "result": "resolved",
+      "finding": "Eq.M.106 now has three aligned rows. The phase and both complete decimal constants are visible within the text area, with the equation number separate at the right."
+    },
+    {
+      "before_finding_id": "equation-q62-clipping",
+      "pdf_page": 656,
+      "printed_page": 638,
+      "result": "resolved",
+      "finding": "Eq.Q.62 now has three aligned rows. The complete final summand, closing bracket, and punctuation are visible; the equation number remains distinct."
+    },
+    {
+      "id": "adjacent-pagination",
+      "pdf_pages": [
+        531,
+        547,
+        657
+      ],
+      "result": "no_new_issue_observed",
+      "finding": "The following pages have readable headings, tables, equations, and prose. The Barnes proof continues from page656 to657 without a broken display. No clipped page edge, overlapping body text, unexplained blank page, or stranded heading was observed in this sample."
+    }
+  ],
+  "tex_or_source_writes": false,
+  "tex_builds_or_git_mutations": false
+}

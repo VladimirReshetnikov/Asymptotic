@@ -16,5 +16,10 @@
 *.gz binary
 *.7z binary
 
+# Immutable vendored blobs and hashed build logs must survive checkout unchanged.
+vendor/proveit/docs/** -text -whitespace
+vendor/proveit/LICENSE -text
+vendor/proveit/build-logs/** -text -whitespace
+
 # Preserve checksummed arrival files whose submitted bytes contain trailing spaces.
 Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/representations/Matrix_Dilated_Fabius_Rvachev_Frontier_Report/matrix_dilated_fabius_rvachev.tex -whitespace

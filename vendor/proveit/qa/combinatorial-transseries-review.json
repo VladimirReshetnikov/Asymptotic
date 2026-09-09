@@ -1,0 +1,52 @@
+{
+  "pdf": "docs/semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.pdf",
+  "before": {
+    "pdf": "docs/semi-formalized-research-frontiers/drafts/series-and-transseries/Combinatorial_Transseries_Inverses/Combinatorial_Transseries_Inverses.pdf",
+    "pdf_sha256": "fb5dd982958a0ae2ea7a20d92cc71d052f0c369dbf90606bdca8f107d96a422c",
+    "pages": [
+      {
+        "page": 1,
+        "render": "C:\\Temp\\proveit-qa-combinatorial\\page-1.png",
+        "render_sha256": "7ba8f1ca65955c1ce000cc5e8741c3730cd086bb98fd3234989395359c286db5"
+      },
+      {
+        "page": 77,
+        "render": "C:\\Temp\\proveit-qa-combinatorial\\page-77.png",
+        "render_sha256": "c8ec689fc1add796954a2cae603496a2e5c52930a0e0b145d9005521ab871eae"
+      },
+      {
+        "page": 92,
+        "render": "C:\\Temp\\proveit-qa-combinatorial\\page-92.png",
+        "render_sha256": "99ef5f75af50264209396bbe639d3218f4a82cc55286b91134253035ca770ebf"
+      },
+      {
+        "page": 98,
+        "render": "C:\\Temp\\proveit-qa-combinatorial\\page-98.png",
+        "render_sha256": "7885868c2016542289a1aa3236c859affed3bd4cf2b3856d6c40142b626c8171"
+      }
+    ],
+    "review": {
+      "scope": "Visual inspection of four rendered sample pages, not the entire 126-page book.",
+      "observations": [
+        "Title page and q-binomial inverse/crossover sample pages 77 and 92 are legible with intact formulas and margins.",
+        "PDF page 98 has an inherited collision between the long chapter running header and the book running header. Body text and formulas remain legible."
+      ],
+      "source_policy": "The vendored upstream TeX is preserved byte-for-byte; this review records the existing typesetting defect without silently editing the source.",
+      "result": "Samples inspected; inherited running-header overlap recorded."
+    }
+  },
+  "after": {
+    "pdf_sha256": "046f1d4028b05723506d390e7137d87c61d9c160538874fbffb477861ca97595",
+    "page_count": 126,
+    "reviewed_pages": [
+      98
+    ],
+    "render": "C:/Temp/proveit-qa-combinatorial/after-98.png",
+    "render_sha256": "8efba377b79c9dc0c5951dd3030b0fd927a3f73a6afadf477ccdcd4c4158e371",
+    "observations": [
+      "Long chapter running header is now fully visible, with no collision or clipping. Body formulas, margins, and page number remain intact."
+    ],
+    "upstream_repair": "Removed redundant book-title running header; source edit and matched PDF are being published to ProveIt.",
+    "scope": "Focused re-review of the previously colliding header, in addition to the before-build sample."
+  }
+}

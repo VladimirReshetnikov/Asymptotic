@@ -1,0 +1,727 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-09-09T20:01:14.105378+00:00",
+  "document": "docs/semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.pdf",
+  "sha256": "14deeb774fcf607b484cda0a942dd78e5bb1680e012f214b7ba710c6b1347dd2",
+  "page_count": 720,
+  "expected_sha256_matches": true,
+  "status": "sampled_review_found_inherited_clipping",
+  "scope": {
+    "sampled": true,
+    "full_document_visual_review": false,
+    "rendered_reviewed_pages": [
+      1,
+      2,
+      3,
+      530,
+      546,
+      656,
+      685,
+      686,
+      687,
+      688,
+      689,
+      690,
+      691,
+      692,
+      694,
+      695,
+      696,
+      697
+    ],
+    "sample_page_count": 18,
+    "selection_method": "Title/abstract, all pages of the Fibonacci inverse and Bell-number forward chapters located by PDF text extraction, and the three largest final-pass overfull boxes located by log shipout labels and matching equation/remark text.",
+    "limitations": [
+      "The remaining702 pages were not visually reviewed.",
+      "This is layout QA, not a mathematical proof audit.",
+      "The three proposed compile-mirror repairs have not been built or rendered by this reviewer; the report remains tied to the pre-repair PDF hash."
+    ]
+  },
+  "tools": {
+    "text_extraction": "pypdf6.13.2",
+    "rendering": "pdftoppm26.07.0",
+    "dpi": 130,
+    "image_inspection": "view_image full pages and contact sheets"
+  },
+  "build_evidence": {
+    "receipt_status": "three passes and basic PDF validation succeeded",
+    "final_log": "build-logs/d79e7f9c6c0f-2b21b3f59f85/pass-3.log",
+    "final_log_sha256": "19758a02d03e6c481311168c1d2e7b32a136e1136833acb6b74966221891444b",
+    "final_warning_counts": {
+      "undefined_references": 0,
+      "undefined_citations": 0,
+      "undefined_reference_summary": 0,
+      "undefined_citation_summary": 0,
+      "overfull_boxes": 114,
+      "underfull_boxes": 203,
+      "rerun_requests": 0,
+      "missing_characters": 0,
+      "warnings": 15
+    },
+    "source_commit": "7c4e3f109405b9805b35d27ae96bf09c7ee5f3d5",
+    "source_input_hashes_verified": true
+  },
+  "renders": [
+    {
+      "pdf_page": 1,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-001.png",
+      "sha256": "9d064c852dafbe804a872e26742c3928ac78f4e76cef558b949e47346a4ea667",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "1",
+        "-l",
+        "1",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-001"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": null
+    },
+    {
+      "pdf_page": 2,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-002.png",
+      "sha256": "f20c693311dcde580cdda10f9ba78e09cfbe0749a6b026d036fe7d318bc5870b",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "2",
+        "-l",
+        "2",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-002"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": "ii"
+    },
+    {
+      "pdf_page": 3,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-003.png",
+      "sha256": "b6b61010f32b6ada1ae37b66fa6ded50c2e2d90a22daf9c135ef0fdaf77bdf41",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "3",
+        "-l",
+        "3",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-003"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": "iii"
+    },
+    {
+      "pdf_page": 530,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-530.png",
+      "sha256": "52a3d457018ca49979938f0594c13b1cd80f5ca236b40732874ff3e5faf995e5",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "530",
+        "-l",
+        "530",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-530"
+      ],
+      "visual_review_method": "full-page image and contact sheet",
+      "printed_page": 512
+    },
+    {
+      "pdf_page": 546,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-546.png",
+      "sha256": "17131a4a113d12f33dc0a64453d39f03837550410562a1bb84fcc193793dae95",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "546",
+        "-l",
+        "546",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-546"
+      ],
+      "visual_review_method": "full-page image and contact sheet",
+      "printed_page": 528
+    },
+    {
+      "pdf_page": 656,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-656.png",
+      "sha256": "a6c925637cd4fe3cafac8169a28779e9776e212f1e69ab3d9a82504f8b454017",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "656",
+        "-l",
+        "656",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-656"
+      ],
+      "visual_review_method": "full-page image and contact sheet",
+      "printed_page": 638
+    },
+    {
+      "pdf_page": 685,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-685.png",
+      "sha256": "55151587db024a10541f4da3ddb207458bde9ebf11461f737bffb7bf1170fb6b",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "685",
+        "-l",
+        "685",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-685"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": 667
+    },
+    {
+      "pdf_page": 686,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-686.png",
+      "sha256": "24980e1fbf48c45846c5ffdedf447fdd8fb59fb4b6d12a688c67e4c755552266",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "686",
+        "-l",
+        "686",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-686"
+      ],
+      "visual_review_method": "full-page image and contact sheet",
+      "printed_page": 668
+    },
+    {
+      "pdf_page": 687,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-687.png",
+      "sha256": "03791cbd1b7a8c991f904b1867a5253b9b52eb1b9b6362a96723fbf9b40911b5",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "687",
+        "-l",
+        "687",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-687"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": 669
+    },
+    {
+      "pdf_page": 688,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-688.png",
+      "sha256": "730c0ec095d7aba43ce14a724322dc1a983c48489a84cc73ad3d7edc255bfa84",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "688",
+        "-l",
+        "688",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-688"
+      ],
+      "visual_review_method": "full-page image and contact sheet",
+      "printed_page": 670
+    },
+    {
+      "pdf_page": 689,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-689.png",
+      "sha256": "363c0b387033404dc5fe3c891de20abec0982863d69ef406522dd2a3f77ad1a1",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "689",
+        "-l",
+        "689",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-689"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": 671
+    },
+    {
+      "pdf_page": 690,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-690.png",
+      "sha256": "ec679e5d78146e4c6afbb070f2b84455f9867a5ca36203607c1dbdeb68b0c7c4",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "690",
+        "-l",
+        "690",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-690"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": 672
+    },
+    {
+      "pdf_page": 691,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-691.png",
+      "sha256": "e84b2dcec4eab700ceca231e7eb8dafa26904a317b9bdd2fc13a6b72e73cb139",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "691",
+        "-l",
+        "691",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-691"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": 673
+    },
+    {
+      "pdf_page": 692,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-692.png",
+      "sha256": "28c7ef92663f2f4091792c59871ef27145b499b88b6fe5fe9e9f6c33b39a02fc",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "692",
+        "-l",
+        "692",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-692"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": 674
+    },
+    {
+      "pdf_page": 694,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-694.png",
+      "sha256": "1c0aee8dc8735c0d80b4afb8241b3c6658cc7a478fb9c8a17481f72af8118867",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "694",
+        "-l",
+        "694",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-694"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": 676
+    },
+    {
+      "pdf_page": 695,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-695.png",
+      "sha256": "e505a62c345384782841a471382f11eda52011949b4397f32f215becbee9fb31",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "695",
+        "-l",
+        "695",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-695"
+      ],
+      "visual_review_method": "full-page image and contact sheet",
+      "printed_page": 677
+    },
+    {
+      "pdf_page": 696,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-696.png",
+      "sha256": "63c4e2ca976459e4a09aaa8b9439d4b50c99bee15729d9aefc974234ea6996fb",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "696",
+        "-l",
+        "696",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-696"
+      ],
+      "visual_review_method": "full-page image and contact sheet",
+      "printed_page": 678
+    },
+    {
+      "pdf_page": 697,
+      "path": "C:\\Temp\\proveit-qa-transseries\\page-697.png",
+      "sha256": "ee59762641e745d633fcd4a68182e5c204a06c0e08c71aa20ce24d7870d9dc32",
+      "pixels": [
+        1075,
+        1521
+      ],
+      "dpi": 130,
+      "command": [
+        "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+        "-f",
+        "697",
+        "-l",
+        "697",
+        "-singlefile",
+        "-r",
+        "130",
+        "-png",
+        "C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\vendor\\proveit\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+        "C:\\Temp\\proveit-qa-transseries\\page-697"
+      ],
+      "visual_review_method": "contact sheet",
+      "printed_page": 679
+    }
+  ],
+  "contact_sheets": [
+    {
+      "path": "C:\\Temp\\proveit-qa-transseries\\contact-01.png",
+      "sha256": "c9cc0380e9640e7aab1edd995b93bd7663095319170aae8556f4f15686c4ee3a",
+      "pixels": [
+        1440,
+        3060
+      ],
+      "visually_inspected": true
+    },
+    {
+      "path": "C:\\Temp\\proveit-qa-transseries\\contact-02.png",
+      "sha256": "8debc729fff94e22b2eade27efc41e49ac04038bb56b47d3cdc4b3dca11a4c96",
+      "pixels": [
+        1440,
+        3060
+      ],
+      "visually_inspected": true
+    },
+    {
+      "path": "C:\\Temp\\proveit-qa-transseries\\contact-03.png",
+      "sha256": "6f931f837bb95b3c9426525f68100b8424231650d1fd1fd41dc5cad03f86fe29",
+      "pixels": [
+        1440,
+        3060
+      ],
+      "visually_inspected": true
+    }
+  ],
+  "upstream_comparison": {
+    "source_pdf": "C:/ProveIt/Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/series-and-transseries/Transseries_And_Inversion/transseries_and_inversion.pdf",
+    "sha256": "91b68f17403c78525530934bc7b44db2b1854ffb1290a53161a4f291b9f6cc79",
+    "page_count": 721,
+    "rendered_reviewed_pages": [
+      531,
+      547,
+      657
+    ],
+    "renders": [
+      {
+        "pdf_page": 531,
+        "path": "C:\\Temp\\proveit-qa-transseries\\upstream-page-531.png",
+        "sha256": "567b9d9ebdf2a235d4c5c510bf08503d6ce16314b537021499144db55ea689eb",
+        "dpi": 130,
+        "command": [
+          "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+          "-f",
+          "531",
+          "-l",
+          "531",
+          "-singlefile",
+          "-r",
+          "130",
+          "-png",
+          "C:\\ProveIt\\Analysis\\FabiusFunction\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+          "C:\\Temp\\proveit-qa-transseries\\upstream-page-531"
+        ]
+      },
+      {
+        "pdf_page": 547,
+        "path": "C:\\Temp\\proveit-qa-transseries\\upstream-page-547.png",
+        "sha256": "9c4694888e586789c84ff375b246874111567fbb51ae17ef54a99f6f0761c7d6",
+        "dpi": 130,
+        "command": [
+          "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+          "-f",
+          "547",
+          "-l",
+          "547",
+          "-singlefile",
+          "-r",
+          "130",
+          "-png",
+          "C:\\ProveIt\\Analysis\\FabiusFunction\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+          "C:\\Temp\\proveit-qa-transseries\\upstream-page-547"
+        ]
+      },
+      {
+        "pdf_page": 657,
+        "path": "C:\\Temp\\proveit-qa-transseries\\upstream-page-657.png",
+        "sha256": "7ec32db8ce46371b0da52351c8ae4118be6469c83914a4d51f2676356c215d2d",
+        "dpi": 130,
+        "command": [
+          "C:\\Users\\vresh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.EXE",
+          "-f",
+          "657",
+          "-l",
+          "657",
+          "-singlefile",
+          "-r",
+          "130",
+          "-png",
+          "C:\\ProveIt\\Analysis\\FabiusFunction\\docs\\semi-formalized-research-frontiers\\drafts\\series-and-transseries\\Transseries_And_Inversion\\transseries_and_inversion.pdf",
+          "C:\\Temp\\proveit-qa-transseries\\upstream-page-657"
+        ]
+      }
+    ],
+    "finding": "All three severe clipping defects are directly visible at the matching locations in the upstream PDF; they were not introduced by this regeneration."
+  },
+  "observations": [
+    {
+      "id": "title",
+      "pdf_pages": [
+        1
+      ],
+      "severity": "none",
+      "finding": "The centered title, subtitle, author, institutional line, and date are legible and remain within the page. The deliberately sparse title-page layout has no observed clipping or overlap."
+    },
+    {
+      "id": "front-matter-verso",
+      "pdf_pages": [
+        2
+      ],
+      "severity": "informational",
+      "finding": "A nearly blank verso contains only the running rule and roman page number ii. Its position after the title is consistent with the book front-matter layout; it is not evidence of missing extracted page content."
+    },
+    {
+      "id": "abstract",
+      "pdf_pages": [
+        3
+      ],
+      "severity": "none",
+      "finding": "The abstract is legible with regular text flow and clear margins; no visible missing glyphs or overflow in this sample."
+    },
+    {
+      "id": "fibonacci-inverse",
+      "pdf_pages": [
+        685,
+        686,
+        687,
+        688,
+        689,
+        690,
+        691,
+        692
+      ],
+      "severity": "none",
+      "finding": "The branch discussion, exact factorization, closed inverse formula, log-periodic coefficients, residual statement, generalization, and numerical table are readable. Sampled equations and table remain inside the page. The proof continues across pages687-688 without a visibly clipped equation. Page692 ends the chapter with substantial blank lower space."
+    },
+    {
+      "id": "bell-forward",
+      "pdf_pages": [
+        694,
+        695,
+        696,
+        697
+      ],
+      "severity": "none",
+      "finding": "The Lambert-saddle forward expansion, finite coefficient formula, and first three rational coefficients are readable. The split numerator in Eq.U.11 and adjacent equation number remain distinct. A long formal theorem identifier wraps across lines on page695. Page697 ends the short chapter with substantial blank lower space; no lost text was observed."
+    },
+    {
+      "id": "remark-m21-clipping",
+      "pdf_pages": [
+        530
+      ],
+      "printed_pages": [
+        512
+      ],
+      "severity": "major",
+      "finding": "The unbroken inline double sum in RemarkM.21 extends past the right paper edge; its final factor is clipped.",
+      "final_log_overfull_points": 81.21204,
+      "source_lines": [
+        41073,
+        41078
+      ],
+      "inherited_from_upstream_pdf": true,
+      "upstream_matching_pdf_page": 531,
+      "proposed_patch_id": "transseries-inline-double-sum"
+    },
+    {
+      "id": "equation-m106-clipping",
+      "pdf_pages": [
+        546
+      ],
+      "printed_pages": [
+        528
+      ],
+      "severity": "major",
+      "finding": "Eq.M.106 places the phase and two long decimal constants on one row. The last constant extends beyond the right paper edge and is clipped.",
+      "final_log_overfull_points": 90.04074,
+      "source_line": 42523,
+      "inherited_from_upstream_pdf": true,
+      "upstream_matching_pdf_page": 547,
+      "proposed_patch_id": "transseries-inverse-phase-constants"
+    },
+    {
+      "id": "equation-q62-clipping",
+      "pdf_pages": [
+        656
+      ],
+      "printed_pages": [
+        638
+      ],
+      "severity": "major",
+      "finding": "The all-orders Barnes inverse recurrence Eq.Q.62 exceeds the right paper edge; the ending of the final summand and closing delimiter are clipped.",
+      "final_log_overfull_points": 80.33621,
+      "source_line": 51717,
+      "inherited_from_upstream_pdf": true,
+      "upstream_matching_pdf_page": 657,
+      "proposed_patch_id": "transseries-barnes-inverse-recurrence"
+    }
+  ],
+  "proposed_build_mirror_repairs": {
+    "path": "C:/Temp/proveit-transseries-build-patches.json",
+    "sha256": "e004c83bdea2dd036d439dd1149e4c13518277f29fffed9ffc020c1bd40f7a5e",
+    "count": 3,
+    "applied_by_this_reviewer": false,
+    "all_original_matches_unique": true
+  },
+  "source_or_pdf_edits_by_this_reviewer": false,
+  "tex_builds_or_git_mutations_by_this_reviewer": false
+}
