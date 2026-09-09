@@ -12,6 +12,7 @@ information.
 | --- | --- |
 | **[Mathematical article (PDF)](article/asymptotic-inverse.pdf)** · [LaTeX source](article/asymptotic-inverse.tex) | Definitions, theorems, proofs, mathematical examples, and the hypotheses behind each scale and error estimate. |
 | **[User guide (HTML)](AsymptoticInverse/Documentation/UserGuide.html)** · [Markdown source](AsymptoticInverse/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
+| **[Code review reports](code-review/README.md)** | Nine review packages with mathematical and engineering findings, supporting evidence, regression candidates, and proposed patches tied to their reviewed snapshots. |
 
 The article is independent of software syntax. The guide follows the
 organization of Wolfram Language reference documentation and explains the
@@ -115,6 +116,7 @@ for the exact scope of each run.
 | [AsymptoticInverse/](AsymptoticInverse/) | Package, paclet metadata, examples, and focused test files. |
 | [article/](article/) | Mathematical article and its build instructions. |
 | [docs/development/](docs/development/) | Engineering roadmap and preserved operational chapters from the former combined article. |
+| [code-review/](code-review/README.md) | Review articles, evidence, and reproduction tools, indexed by review package. |
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
 | [reports/COMPARISON.md](reports/COMPARISON.md) | Analysis of the nine original research and implementation reports; their submitted artifacts remain in `reports/`. |
 | [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/) | The two motivating questions and source snapshots. |
