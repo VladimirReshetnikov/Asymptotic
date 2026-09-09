@@ -45,6 +45,14 @@ the immutable standalone at `fd357dd2e022bfd8deceae5537fcd2a594c41938`.
 Both records verify the published bytes against the local artifact before
 and after native loading. No full package suite was run.
 
+`github-convenience-loading-tests.json` records **21 successful checks in
+three fresh kernels** using the exact recommended direct `Get` of the
+published `Load.wl`, including explicit reloads. Both published files match
+their local bytes before and after the run. Across the four recorded runs,
+**all 94 native checks passed in 14 fresh kernels**, with zero failures.
+The [GitHub freshness workflow](https://github.com/VladimirReshetnikov/Asymptotic/actions/runs/34314410752)
+also passed for implementation commit `62e7ec5`.
+
 To reproduce these checks:
 
 ```powershell
