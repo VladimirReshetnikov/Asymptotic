@@ -4,6 +4,13 @@ loadingSource = Environment["ASYMPTOTIC_LOAD_SOURCE"];
 loadingMode = Environment["ASYMPTOTIC_LOAD_MODE"];
 loadingOutput = Environment["ASYMPTOTIC_LOAD_RESULT"];
 loadingPath = Environment["ASYMPTOTIC_LOAD_PATH"];
+loadingDirectURL = Environment["ASYMPTOTIC_LOAD_DIRECT_URL"] === "1";
+loadingRemote = ! loadingDirectURL && StringQ[loadingSource] &&
+  StringStartsQ[loadingSource, "http://" | "https://"];
+loadingMethod = Which[loadingRemote, "URLRead Body followed by Get Method String",
+  loadingDirectURL, "Direct URL Get", True, "Automatic"];
+loadingGet[] := If[loadingRemote,
+  Get[URLRead[loadingSource, "Body"], Method -> "String"], Get[loadingSource]];
 If[! StringQ[loadingSource] || ! StringQ[loadingOutput], Exit[2]];
 If[MemberQ[$Packages, "AsymptoticInverse`"] ||
     Names["AsymptoticInverse`*"] =!= {} ||
@@ -12,8 +19,9 @@ If[MemberQ[$Packages, "AsymptoticInverse`"] ||
   Print["Acceptance checks require a kernel without preloaded package definitions."];
   Exit[2]];
 If[StringQ[loadingPath] && loadingPath =!= "", PrependTo[$Path, loadingPath]];
-loadingResult = Quiet[Check[If[loadingMode === "Needs",
-  Needs["AsymptoticInverse`"], Get[loadingSource]], $Failed]];
+loadingStringStreamsBefore = Count[Streams[], InputStream["String", _]];
+loadingResult = If[loadingMode === "Missing", Quiet[Check[loadingGet[], $Failed]],
+  Check[If[loadingMode === "Needs", Needs["AsymptoticInverse`"], loadingGet[]], $Failed]];
 If[loadingMode === "Missing",
   loadingChecks = {loadingResult === $Failed,
     ! MemberQ[$Packages, "AsymptoticInverse`"], $Context === "Global`"};
@@ -28,8 +36,9 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticInverse`"],
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
   VerificationTest[{$Context, Context[AsymptoticExpansion],
-    Names["Global`AsymptoticExpansion"], Names["Global`PowerLogSeries"]},
-    {"Global`", "AsymptoticInverse`", {}, {}}, TestID -> "loading-contexts"],
+    Names["Global`AsymptoticExpansion"], Names["Global`PowerLogSeries"],
+    Count[Streams[], InputStream["String", _]] === loadingStringStreamsBefore},
+    {"Global`", "AsymptoticInverse`", {}, {}, True}, TestID -> "loading-contexts-and-stream-cleanup"],
   VerificationTest[Module[{x, y, s},
     s = AsymptoticInverse[x + x^Sqrt[2], {x, 0}, y, SeriesTermGoal -> 3];
     MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] ==
@@ -60,16 +69,18 @@ loadingReport = TestReport[{
     {True, True, True, True}, TestID -> "loading-arithmetic-normal-and-display"],
   VerificationTest[Module[{before, result, x, s},
     before = Length[UpValues[PowerLogSeries]];
-    result = Check[Get[loadingSource], $Failed];
+    result = Check[loadingGet[], $Failed];
     s = AsymptoticExpansion[Zeta[x], x -> Infinity, SeriesTermGoal -> 3];
     {result =!= $Failed, Length[UpValues[PowerLogSeries]] === before,
-      Normal[s] === 1 + 2^-x + 3^-x}],
-    {True, True, True}, TestID -> "loading-explicit-reload-and-dirichlet" ]
+      Normal[s] === 1 + 2^-x + 3^-x,
+      Count[Streams[], InputStream["String", _]] === loadingStringStreamsBefore}],
+    {True, True, True, True}, TestID -> "loading-explicit-reload-and-dirichlet" ]
 }, ProgressReporting -> False];
 loadingResults = (<|"TestID" -> #["TestID"], "Outcome" -> #["Outcome"],
   "ActualOutput" -> ToString[#["ActualOutput"], InputForm]|> &) /@ Values[loadingReport["TestResults"]];
 Export[loadingOutput, <|"Kernel" -> $Version, "Source" -> loadingSource,
-  "Mode" -> loadingMode, "Succeeded" -> loadingReport["TestsSucceededCount"],
+  "Mode" -> loadingMode, "GetMethod" -> ToString[loadingMethod, InputForm],
+  "Succeeded" -> loadingReport["TestsSucceededCount"],
   "Failed" -> loadingReport["TestsFailedCount"], "Results" -> loadingResults|>, "RawJSON"];
 Print["Succeeded: ", loadingReport["TestsSucceededCount"], "  Failed: ", loadingReport["TestsFailedCount"]];
 Do[If[result["Outcome"] =!= "Success", Print[InputForm[result]]], {result, loadingResults}];

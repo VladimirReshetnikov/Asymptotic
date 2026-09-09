@@ -19,60 +19,17 @@
     "Load.wl": "690b9631c8a943fb66817f0da66a1ebe0eedfcdc4e346644b11fe47f85b9ef02"
   },
   "SourcesUnchangedDuringRun": true,
-  "RemoteSHA256Before": null,
-  "RemoteSHA256After": null,
-  "FreshKernelRuns": 7,
+  "RemoteSHA256Before": {
+    "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl": "4316b52349cc10ff89a97dd6afa2251d916be06e1e5982071ce4f61b00380374"
+  },
+  "RemoteSHA256After": {
+    "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl": "4316b52349cc10ff89a97dd6afa2251d916be06e1e5982071ce4f61b00380374"
+  },
+  "FreshKernelRuns": 3,
   "Results": [
     {
       "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-      "Source": "isolated-local",
-      "Mode": "Get",
-      "GetMethod": "\"Automatic\"",
-      "Succeeded": 7,
-      "Failed": 0,
-      "Results": [
-        {
-          "TestID": "loading-contexts-and-stream-cleanup",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticInverse`\", {}, {}, True}]"
-        },
-        {
-          "TestID": "loading-irrational-inverse",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-early-exact-termination",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, 0, True}]"
-        },
-        {
-          "TestID": "loading-gamma-ratio",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-late-native-special-functions",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-arithmetic-normal-and-display",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, True, True, True}]"
-        },
-        {
-          "TestID": "loading-explicit-reload-and-dirichlet",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, True, True, True}]"
-        }
-      ],
-      "Case": "isolated-local",
-      "ExitCode": 0
-    },
-    {
-      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-      "Source": "isolated-http",
+      "Source": "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl",
       "Mode": "Get",
       "GetMethod": "\"URLRead Body followed by Get Method String\"",
       "Succeeded": 7,
@@ -114,12 +71,12 @@
           "ActualOutput": "HoldForm[{True, True, True, True}]"
         }
       ],
-      "Case": "isolated-http",
+      "Case": "published-1",
       "ExitCode": 0
     },
     {
       "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-      "Source": "isolated-gzip-http",
+      "Source": "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl",
       "Mode": "Get",
       "GetMethod": "\"URLRead Body followed by Get Method String\"",
       "Succeeded": 7,
@@ -161,14 +118,14 @@
           "ActualOutput": "HoldForm[{True, True, True, True}]"
         }
       ],
-      "Case": "isolated-gzip-http",
+      "Case": "published-2",
       "ExitCode": 0
     },
     {
       "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-      "Source": "modular",
+      "Source": "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl",
       "Mode": "Get",
-      "GetMethod": "\"Automatic\"",
+      "GetMethod": "\"URLRead Body followed by Get Method String\"",
       "Succeeded": 7,
       "Failed": 0,
       "Results": [
@@ -208,129 +165,15 @@
           "ActualOutput": "HoldForm[{True, True, True, True}]"
         }
       ],
-      "Case": "modular",
-      "ExitCode": 0
-    },
-    {
-      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-      "Source": "modular-init",
-      "Mode": "Get",
-      "GetMethod": "\"Automatic\"",
-      "Succeeded": 7,
-      "Failed": 0,
-      "Results": [
-        {
-          "TestID": "loading-contexts-and-stream-cleanup",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticInverse`\", {}, {}, True}]"
-        },
-        {
-          "TestID": "loading-irrational-inverse",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-early-exact-termination",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, 0, True}]"
-        },
-        {
-          "TestID": "loading-gamma-ratio",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-late-native-special-functions",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-arithmetic-normal-and-display",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, True, True, True}]"
-        },
-        {
-          "TestID": "loading-explicit-reload-and-dirichlet",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, True, True, True}]"
-        }
-      ],
-      "Case": "modular-init",
-      "ExitCode": 0
-    },
-    {
-      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-      "Source": "needs",
-      "Mode": "Needs",
-      "GetMethod": "\"Automatic\"",
-      "Succeeded": 7,
-      "Failed": 0,
-      "Results": [
-        {
-          "TestID": "loading-contexts-and-stream-cleanup",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticInverse`\", {}, {}, True}]"
-        },
-        {
-          "TestID": "loading-irrational-inverse",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-early-exact-termination",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, 0, True}]"
-        },
-        {
-          "TestID": "loading-gamma-ratio",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-late-native-special-functions",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[True]"
-        },
-        {
-          "TestID": "loading-arithmetic-normal-and-display",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, True, True, True}]"
-        },
-        {
-          "TestID": "loading-explicit-reload-and-dirichlet",
-          "Outcome": "Success",
-          "ActualOutput": "HoldForm[{True, True, True, True}]"
-        }
-      ],
-      "Case": "needs",
-      "ExitCode": 0
-    },
-    {
-      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-      "Source": "missing-http",
-      "Mode": "Missing",
-      "Succeeded": 3,
-      "Failed": 0,
-      "Checks": [
-        true,
-        true,
-        true
-      ],
-      "Case": "missing-http",
+      "Case": "published-3",
       "ExitCode": 0
     }
   ],
-  "Succeeded": 45,
+  "Succeeded": 21,
   "Failed": 0,
-  "HTTPFixtureRequests": [
-    "/AsymptoticInverse.wl",
-    "/AsymptoticInverse.wl",
-    "/compressed/AsymptoticInverse.wl",
-    "/compressed/AsymptoticInverse.wl",
-    "/missing.wl"
-  ],
+  "HTTPFixtureRequests": [],
   "IsolatedFixtureFiles": [
     "AsymptoticInverse.wl"
   ],
-  "HTTPFixtureHasNoCompanionFiles": true
+  "HTTPFixtureHasNoCompanionFiles": null
 }

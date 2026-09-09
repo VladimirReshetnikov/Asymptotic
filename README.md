@@ -19,16 +19,22 @@ package's supported interfaces.
 
 ## Get started
 
-Load directly from GitHub in a Wolfram kernel:
+Load the current `main` version directly from GitHub in a Wolfram kernel:
 
 ```wolfram
-Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"];
+Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl"];
 ```
 
-This standalone file includes the complete package; no installation or local
-checkout is required. For a reproducible version, replace `main` in the URL
-with a full commit hash containing this file. You can also download the file
-and load it with `Get` offline.
+The small loader retrieves the complete standalone package before evaluating
+it. No installation or local checkout is required. Direct `Get` of the larger,
+compressed package response was intermittently truncated on Wolfram 15.0.1;
+buffered retrieval avoids that reading path.
+
+`Load.wl` always follows `main`, even when its own URL contains a commit hash.
+For a fixed version, use the guide's
+[buffered, commit-pinned loading form](AsymptoticInverse/Documentation/UserGuide.md#loading-fixed-versions).
+The repository-root `AsymptoticInverse.wl` is also a complete single-file
+package that you can download and load with local `Get` offline.
 
 From a local checkout, load the modular entry point instead:
 
@@ -102,7 +108,8 @@ for the exact scope of each run.
 
 | Location | Content |
 | --- | --- |
-| [AsymptoticInverse.wl](AsymptoticInverse.wl) | Generated standalone package for direct URL loading or single-file offline use. |
+| [Load.wl](Load.wl) | Small GitHub entry point that retrieves and loads the current `main` package. |
+| [AsymptoticInverse.wl](AsymptoticInverse.wl) | Generated standalone package for buffered URL loading or single-file offline use. |
 | [AsymptoticInverse/](AsymptoticInverse/) | Package, paclet metadata, examples, and focused test files. |
 | [article/](article/) | Mathematical article and its build instructions. |
 | [docs/development/](docs/development/) | Engineering roadmap and preserved operational chapters from the former combined article. |

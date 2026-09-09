@@ -11,8 +11,19 @@ algebraic-number code, asymptotic computation, and Wolfram evaluation semantics.
   Do not assume that a remotely loaded entry point can locate sibling
   modules through these variables. The repository-root `AsymptoticInverse.wl`
   includes all modules and needs only one HTTP fetch.
-- Keep generated package text at the top level. Wrapping the entire file
-  in `Module` or another holding expression can parse symbols before
+- Cold `Get` calls against the unbuffered 574,410-byte GitHub distribution
+  intermittently emitted `Syntax::sntue` at varying positions and omitted
+  definitions. The package could still return `Null` and register its context.
+  `URLRead` retrieved the correct complete bytes. A loopback gzip fixture
+  reproduced the failure, also with `Method -> "HTTP"`. Holding the source
+  in a literal inside the downloaded file did not fix its outer reader.
+  The precise internal cause was not established.
+- Retrieve the complete body first and evaluate it with
+  `Get[URLRead[url, "Body"], Method -> "String"]`. The small `Load.wl`
+  convenience entry uses this public buffered path and checks HTTP status
+  before parsing the response body. It always targets the current `main`.
+- Keep package source as a sequence of top-level expressions. Wrapping the
+  source expressions in `Module` or another holding expression can parse symbols before
   `BeginPackage` and `Begin` establish their intended contexts. Inline
   companion files at their original load positions, including the early
   exact-termination helper.

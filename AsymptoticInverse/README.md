@@ -11,15 +11,22 @@ Real asymptotic expansions of functions and their inverses in Wolfram Language.
 
 ## Loading
 
-Load the complete package directly from GitHub:
+Load the current `main` package directly from GitHub:
 
 ```wolfram
-Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"];
+Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl"];
 ```
 
-The repository-root file is self-contained. Replace `main` with a full
-commit hash containing this file to select a fixed version. Downloading
-that file also gives you a single-file package for offline `Get`.
+This small loader downloads the complete standalone package before evaluating
+it; no installation or checkout is needed. Direct `Get` of the larger,
+compressed package response was intermittently truncated on Wolfram 15.0.1.
+The loader uses buffered retrieval to avoid that reading path.
+
+`Load.wl` always follows `main`; pinning the loader URL does not pin the
+package. For a fixed version, use the guide's
+[buffered, commit-pinned form](Documentation/UserGuide.md#loading-fixed-versions).
+You can also download the repository-root `AsymptoticInverse.wl` and load that
+complete single-file package with local `Get` offline.
 
 From the repository root of a local checkout, use the modular entry point:
 

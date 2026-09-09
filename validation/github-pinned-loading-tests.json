@@ -1,0 +1,85 @@
+{
+  "Artifact": {
+    "Artifact": "AsymptoticInverse.wl",
+    "SourceFiles": 38,
+    "Bytes": 574410,
+    "SHA256": "4316b52349cc10ff89a97dd6afa2251d916be06e1e5982071ce4f61b00380374",
+    "MatchesSources": true
+  },
+  "FullPackageSuiteRun": false,
+  "DirectConvenienceLoader": false,
+  "KernelInitializationDisabled": true,
+  "InitializationEnvironmentCleared": true,
+  "PackageAbsentBeforeEachLoad": true,
+  "TestedSourcesSHA256": {
+    "AsymptoticInverse.wl": "4316b52349cc10ff89a97dd6afa2251d916be06e1e5982071ce4f61b00380374",
+    "validation/build_standalone.py": "5db37e59cff38f0cca584bece730eb73677d2cb97c4af42a76c7958368f9cf4c",
+    "validation/CheckStandalone.wl": "1a36eac09abd44a752b3081825b156bddfb8ee2dcd2d6948387062745c229f80",
+    "validation/check_standalone_loading.py": "fe6103aeb7bac8c6eaa34afe8ad452bf012a521389c273c1be297c7b55ba992e",
+    "Load.wl": "690b9631c8a943fb66817f0da66a1ebe0eedfcdc4e346644b11fe47f85b9ef02"
+  },
+  "SourcesUnchangedDuringRun": true,
+  "RemoteSHA256Before": {
+    "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/fd357dd2e022bfd8deceae5537fcd2a594c41938/AsymptoticInverse.wl": "4316b52349cc10ff89a97dd6afa2251d916be06e1e5982071ce4f61b00380374"
+  },
+  "RemoteSHA256After": {
+    "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/fd357dd2e022bfd8deceae5537fcd2a594c41938/AsymptoticInverse.wl": "4316b52349cc10ff89a97dd6afa2251d916be06e1e5982071ce4f61b00380374"
+  },
+  "FreshKernelRuns": 1,
+  "Results": [
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "Source": "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/fd357dd2e022bfd8deceae5537fcd2a594c41938/AsymptoticInverse.wl",
+      "Mode": "Get",
+      "GetMethod": "\"URLRead Body followed by Get Method String\"",
+      "Succeeded": 7,
+      "Failed": 0,
+      "Results": [
+        {
+          "TestID": "loading-contexts-and-stream-cleanup",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticInverse`\", {}, {}, True}]"
+        },
+        {
+          "TestID": "loading-irrational-inverse",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-early-exact-termination",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, 0, True}]"
+        },
+        {
+          "TestID": "loading-gamma-ratio",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-late-native-special-functions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-arithmetic-normal-and-display",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True}]"
+        },
+        {
+          "TestID": "loading-explicit-reload-and-dirichlet",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True}]"
+        }
+      ],
+      "Case": "published-1",
+      "ExitCode": 0
+    }
+  ],
+  "Succeeded": 7,
+  "Failed": 0,
+  "HTTPFixtureRequests": [],
+  "IsolatedFixtureFiles": [
+    "AsymptoticInverse.wl"
+  ],
+  "HTTPFixtureHasNoCompanionFiles": null
+}

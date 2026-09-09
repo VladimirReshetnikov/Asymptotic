@@ -3,7 +3,7 @@
 Version 1.7.1 adds a standalone distribution at the repository root:
 
 ```wolfram
-Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"]
+Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl"]
 ```
 
 The generated file contains all 38 canonical kernel sources, in their
@@ -15,11 +15,12 @@ The user guide HTML was rebuilt; documentation consistency and local-link
 checks passed. This packaging change does not change the mathematical
 article or require a new PDF build.
 
-`standalone-loading-tests.json` records **38 successful native checks in
-six fresh Wolfram 15.0.1 kernels**. It covers isolated local and HTTP loads,
+`standalone-loading-tests.json` records **45 successful native checks in
+seven fresh Wolfram 15.0.1 kernels**. It covers isolated local, plain HTTP,
+and gzip HTTP loads,
 the modular kernel entry and `init.m`, `Needs`, explicit reloads, and a
 missing HTTP file. The served directory contains only the standalone file;
-the request log contains exactly one request per `Get`, plus the expected
+the request log contains exactly one request per buffered remote load, plus the expected
 missing-file request. Kernels run with `-noinit`, startup-argument environment
 variables cleared, and a pre-load check for existing package definitions.
 Input hashes are recorded and verified unchanged throughout the run.
@@ -28,6 +29,21 @@ Acceptance examples check irrational inversion, certified exact termination,
 Gamma ratios, Bessel asymptotics, automatic arithmetic, `Normal`, StandardForm
 formatting, and Zeta expansion after an explicit reload. This is focused
 loading validation; **the full package suite is skipped**.
+
+The small `Load.wl` entry retrieves the complete distribution with `URLRead`
+and evaluates its body with `Get[..., Method -> "String"]`. This addresses
+intermittent premature-EOF errors observed with direct cold HTTPS `Get` of
+the large file, also reproduced by the local gzip fixture. Both explicit
+HTTP stream selection and a literal wrapper in the large file still failed.
+The checks verify context placement and string-stream cleanup after both
+initial loading and reloading.
+
+`github-loading-tests.json` records **21 successful checks in three fresh
+kernels** against the real `main` standalone URL using buffered loading.
+`github-pinned-loading-tests.json` records **seven successful checks** against
+the immutable standalone at `fd357dd2e022bfd8deceae5537fcd2a594c41938`.
+Both records verify the published bytes against the local artifact before
+and after native loading. No full package suite was run.
 
 To reproduce these checks:
 
@@ -38,15 +54,20 @@ python validation/check_standalone_loading.py
 python validation/check_documentation.py
 ```
 
-After publishing the generated file, check the real GitHub URL with:
+After publishing, check the simple convenience entry and the buffered
+standalone form with:
 
 ```powershell
-python validation/check_standalone_loading.py --url https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl --output validation/github-loading-tests.json
+python validation/check_standalone_loading.py --loader --url https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl --repeat 3 --output validation/github-convenience-loading-tests.json
+python validation/check_standalone_loading.py --url https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl --repeat 3 --output validation/github-loading-tests.json
 ```
 
 The published-URL runner compares the remote file byte for byte with the
-local build before and after native loading. Replacing `main` with a full
-commit hash selects an immutable revision for the same check.
+local build before and after native loading. In convenience-loader mode,
+both the loader and its current `main` standalone target are compared.
+Replacing `main` in the standalone URL with a full commit hash selects an
+immutable revision for the same buffered check; `Load.wl` always follows
+the current `main`, regardless of the revision of its own URL.
 
 The special-function extension in version 1.7.0 is recorded in
 `special-functions-tests.json` and `special-functions-validation.json`.

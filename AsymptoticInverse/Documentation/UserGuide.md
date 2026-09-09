@@ -6,17 +6,37 @@ This guide describes the Wolfram Language interface. See the [mathematical artic
 
 ## Getting Started
 
-The package requires Wolfram Language 15.0 or later. Load it directly from GitHub:
+The package requires Wolfram Language 15.0 or later. Load the current `main` version directly from GitHub:
 
 ```wolfram
-Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"];
+Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl"];
 ```
 
-This loads the package into the current kernel without installation. The file contains all package modules, so loading it requires only one file download. Evaluate the command again in each new kernel session.
+This loads the package into the current kernel without installation or a local checkout. It retrieves the small loader and then the complete standalone package. Evaluate the command again in each new kernel session.
 
-The URL above selects the current `main` revision. To select a fixed version, replace `main` with the full hash of a commit containing `AsymptoticInverse.wl`. You can also download that file once and use `Get["/absolute/path/to/AsymptoticInverse.wl"]` offline.
+Direct `Get` of the larger, compressed standalone response was intermittently truncated on Wolfram 15.0.1. The loader uses `URLRead` to finish retrieving the package, then `Get[..., Method -> "String"]` to evaluate the complete source. This avoids the affected reading path.
 
-Use the **repository-root** `AsymptoticInverse.wl` for URL loading. The file under `AsymptoticInverse/Kernel/` loads companion files from a local checkout. From that checkout's repository directory, load it with:
+<a id="loading-fixed-versions"></a>
+### Fixed Versions and Offline Loading
+
+`Load.wl` always retrieves the current `main` package, including when the loader itself is addressed by a commit hash. To select a fixed version, set `commit` to the full hash of a commit containing the **repository-root** `AsymptoticInverse.wl` and use buffered loading:
+
+```wolfram
+commit = "FULL_COMMIT_HASH";
+url = "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/" <>
+  commit <> "/AsymptoticInverse.wl";
+Get[URLRead[url, "Body"], Method -> "String"];
+```
+
+The repository-root file contains every package module. Download it once for offline use:
+
+```wolfram
+Get["/absolute/path/to/AsymptoticInverse.wl"];
+```
+
+### Loading a Local Checkout
+
+The file under `AsymptoticInverse/Kernel/` loads companion files from a local checkout. From that checkout's repository directory, load it with:
 
 ```wolfram
 Get["AsymptoticInverse/Kernel/AsymptoticInverse.wl"];
@@ -28,6 +48,8 @@ Alternatively, register the local package directory and load its context:
 PacletDirectoryLoad["AsymptoticInverse"];
 Needs["AsymptoticInverse`"];
 ```
+
+### First Expansion
 
 Use exact input such as `Sqrt[2]` and `1/10`. Leave the source and target symbols unassigned.
 

@@ -31,6 +31,18 @@ It preserves the original module order and top-level context transitions.
 Each included source carries its path and SHA-256 hash, calculated after
 normalizing line endings to LF.
 
+The small repository-root `Load.wl` is the direct-URL convenience entry.
+It always selects the current `main` distribution, retrieves it completely
+with `URLRead`, checks HTTP status, and evaluates the body using
+`Get[..., Method -> "String"]`. Cold direct HTTP loading of the large
+distribution intermittently produced premature end-of-file errors in
+Wolfram 15.0.1, including a local gzip fixture. Buffering the response before
+`Get` avoids that reader path and preserves sequential context changes.
+The convenience loader takes two HTTP fetches: the small entry and the
+standalone source. A commit-pinned standalone URL can instead be passed
+directly to the buffered form, using one fetch. Pinning `Load.wl` does not
+pin its target, which deliberately follows `main`.
+
 After editing kernel sources, rebuild and commit the standalone file with
 the source changes:
 
@@ -54,8 +66,10 @@ For focused native acceptance checks, run:
 python validation/check_standalone_loading.py
 ```
 
-This checks isolated local and HTTP loading, both modular entry points,
+This checks isolated local, plain HTTP, and gzip HTTP loading, both modular
+entry points,
 `Needs`, explicit reloads, and a missing HTTP file in separate Wolfram
-kernels. The HTTP fixture contains only the standalone file and records
+kernels. It checks stream cleanup on initial load and reload. The HTTP fixture
+contains only the standalone file and records
 every request. It does not run the full package suite. See the
 [validation record](../../validation/README.md) for published-URL checks.
