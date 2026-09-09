@@ -359,20 +359,20 @@ and any remaining contract boundary. Update this register alongside that evidenc
 Passing an unrelated historical suite, a source-only model, or a patched review
 fixture alone does not close an item in the current package.
 
-[R1]: ../../code-review/code-review-1/evidence/findings.csv
-[R2]: ../../code-review/code-review-2/README.md#findings-and-supplied-implementation-scope
-[R3]: ../../code-review/code-review-3/README.md#start-here
-[R4]: ../../code-review/code-review-4/evidence/findings.json
-[R5]: ../../code-review/code-review-5/evidence/findings.json
-[R6]: ../../code-review/code-review-6/evidence/findings.csv
-[R7]: ../../code-review/code-review-7/evidence/findings.csv
-[R8]: ../../code-review/code-review-8/evidence/findings.csv
-[R9]: ../../code-review/code-review-9/README.md#findings
-[R2-article]: ../../code-review/code-review-2/article/asymptotic-review.tex
-[R3-article]: ../../code-review/code-review-3/article/asymptotic-audit.tex
-[R4-article]: ../../code-review/code-review-4/article.tex
-[R5-article]: ../../code-review/code-review-5/article/asymptotic-audit.tex
-[R6-article]: ../../code-review/code-review-6/article/article.tex
-[R7-roadmap]: ../../code-review/code-review-7/article/04-engineering-and-roadmap.tex
-[R8-article]: ../../code-review/code-review-8/article/asymptotic_repository_audit.tex
-[R9-article]: ../../code-review/code-review-9/article.tex
+[R1]: ../../code-review/wave-1/code-review-1/evidence/findings.csv
+[R2]: ../../code-review/wave-1/code-review-2/README.md#findings-and-supplied-implementation-scope
+[R3]: ../../code-review/wave-1/code-review-3/README.md#start-here
+[R4]: ../../code-review/wave-1/code-review-4/evidence/findings.json
+[R5]: ../../code-review/wave-1/code-review-5/evidence/findings.json
+[R6]: ../../code-review/wave-1/code-review-6/evidence/findings.csv
+[R7]: ../../code-review/wave-1/code-review-7/evidence/findings.csv
+[R8]: ../../code-review/wave-1/code-review-8/evidence/findings.csv
+[R9]: ../../code-review/wave-1/code-review-9/README.md#findings
+[R2-article]: ../../code-review/wave-1/code-review-2/article/asymptotic-review.tex
+[R3-article]: ../../code-review/wave-1/code-review-3/article/asymptotic-audit.tex
+[R4-article]: ../../code-review/wave-1/code-review-4/article.tex
+[R5-article]: ../../code-review/wave-1/code-review-5/article/asymptotic-audit.tex
+[R6-article]: ../../code-review/wave-1/code-review-6/article/article.tex
+[R7-roadmap]: ../../code-review/wave-1/code-review-7/article/04-engineering-and-roadmap.tex
+[R8-article]: ../../code-review/wave-1/code-review-8/article/asymptotic_repository_audit.tex
+[R9-article]: ../../code-review/wave-1/code-review-9/article.tex
