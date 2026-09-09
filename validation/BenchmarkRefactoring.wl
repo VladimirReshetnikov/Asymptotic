@@ -1,7 +1,7 @@
 (* Run the same fixtures in fresh kernels before and after a refactor.
    ASYMPTOTIC_BENCHMARK_ROOT selects an immutable source copy; the default is
    this checkout. ASYMPTOTIC_BENCHMARK_OUTPUT selects the JSON report.
-   ASYMPTOTIC_BENCHMARK_SET selects Core (default) or Operations fixtures.
+   ASYMPTOTIC_BENCHMARK_SET selects Core (default), Operations or Construction.
    One warm-up and three measured samples per fixture; no timing assertions. *)
 benchmarkRoot = Environment["ASYMPTOTIC_BENCHMARK_ROOT"];
 If[! StringQ[benchmarkRoot] || benchmarkRoot === "",
@@ -62,6 +62,27 @@ benchmarkResults = Switch[benchmarkSet, "Core", {
         benchmarkFourierProduct, benchmarkFourierProduct, 4, ell, True, 20, 8]],
     benchmarkMeasure["Public Fourier inverse through target weight 4",
       benchmarkSeriesResult[AsymptoticFourierInverse[x + x^2 Sin[Log[x]], {x, 0}, {y, 4}]]]
+  }, "Construction",
+  benchmarkEnvelope = AsymptoticInverse[LogGamma[x], {x, Infinity}, y, SeriesTermGoal -> 2] + 1;
+  {
+    benchmarkMeasure["Generalized logarithmic inverse with six blocks",
+      benchmarkSeriesResult[AsymptoticLogarithmicInverse[x + x^2 Sqrt[-Log[x]],
+        {x, 0}, y, SeriesTermGoal -> 6]]],
+    benchmarkMeasure["Cancelled logarithmic resonance with five blocks",
+      benchmarkSeriesResult[AsymptoticLogarithmicInverse[
+        x + x^2 Sqrt[-Log[x]] + x^3 (-2 Log[x] - 1/2), {x, 0}, y, SeriesTermGoal -> 5]]],
+    benchmarkMeasure["Lerch positive weight with twelve blocks",
+      benchmarkSeriesResult[AsymptoticExpansion[LerchPhi[1/2, 2, x], x -> Infinity, SeriesTermGoal -> 12]]],
+    benchmarkMeasure["Lerch negative weight with twelve blocks",
+      benchmarkSeriesResult[AsymptoticExpansion[LerchPhi[-1/2, 2, x], x -> Infinity, SeriesTermGoal -> 12]]],
+    benchmarkMeasure["Lerch growing order with sixteen bound moments",
+      benchmarkSeriesResult[AsymptoticExpansion[LerchPhi[1/2, -31/2, x], x -> Infinity, SeriesTermGoal -> 1]]],
+    benchmarkMeasure["Add an identical Gamma inverse composite operand",
+      benchmarkSeriesResult[SeriesAdd[benchmarkEnvelope, benchmarkEnvelope]]],
+    benchmarkMeasure["Multiply an identical Gamma inverse composite operand",
+      benchmarkSeriesResult[SeriesMultiply[benchmarkEnvelope, benchmarkEnvelope]]],
+    benchmarkMeasure["Add an exact scalar to a Gamma inverse composite",
+      benchmarkSeriesResult[SeriesAdd[benchmarkEnvelope, 1]]]
   }, _, Print["Unknown benchmark set: ", benchmarkSet]; Exit[2]];
 benchmarkUnchanged = benchmarkBefore === benchmarkHashes[];
 benchmarkOutput = Environment["ASYMPTOTIC_BENCHMARK_OUTPUT"];

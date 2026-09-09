@@ -1,5 +1,56 @@
 # Review and validation record
 
+## Request-local construction reuse
+
+Generalized logarithmic term-goal searches now keep one lazy builder per
+request. Normalized source data and complete multi-index coefficients are
+reused between construction calls, including zero coefficients. Every cutoff
+still builds its own index region, merges complete blocks and computes the
+full boundary remainder. A final shrinking cutoff cannot retain an earlier
+overshoot. New constructor calls and `SeriesRefine` start fresh builders.
+
+Composite arithmetic reuses operand data only for literally identical
+operands and skips a domain simplification only when its predicate is exactly
+the one already checked in that invocation. Both independent input errors
+and their product remain present. Different errors and new conditions still
+undergo their original checks.
+
+`CheckConstructionRefactoring.wl` selects eight files and records **135 passed,
+zero failed** in `construction-refactoring-tests.json`, with unchanged source
+hashes. This includes ten new checks for shrinking cutoffs, cancelled
+resonances, independent constructor state, refinement, validation order,
+error propagation and domain intersections. The standalone build, 11 Python
+builder tests and documentation consistency checks also passed.
+**The full package suite was not run.**
+
+The `Construction` benchmark set compares immutable commit
+`07a9781212beb2eeb9ff16aa625b50ac27974078` with these sources in fresh Wolfram
+15.0.1 kernels. All eight finite expressions and remainders agree exactly.
+Each fixture has one warm-up and three measured runs; source and harness
+hashes are retained in `construction-benchmark-before.json` and
+`construction-benchmark-after.json`.
+
+| Fixture | Before, median seconds | After, median seconds |
+| --- | ---: | ---: |
+| Generalized logarithmic inverse, six blocks | 8.09769 | 8.08571 |
+| Cancelled logarithmic resonance, five blocks | 6.14373 | 6.09454 |
+| Identical Gamma inverse composite operands, addition | 0.00170 | 0.00093 |
+| Identical Gamma inverse composite operands, multiplication | 0.00116 | 0.00085 |
+| Exact scalar added to a Gamma inverse composite | 0.00153 | 0.00130 |
+
+The public logarithmic times are essentially unchanged: bounded exact
+composition checks dominate these examples. The cache avoids repeated
+coefficient work, but these timings do not establish a public logarithmic
+speedup. The three unchanged Lerch control fixtures also show the variability
+of millisecond measurements. A separate exploratory moment recurrence was
+slower for negative and algebraic geometric weights; it was not adopted.
+
+```powershell
+$env:ASYMPTOTIC_BENCHMARK_SET = 'Construction'
+wolfram.exe -noinit -script validation/BenchmarkRefactoring.wl
+wolfram.exe -noinit -script validation/CheckConstructionRefactoring.wl
+```
+
 ## GeneralizedSeries and operation simplification (version 1.8.0)
 
 The public result head is now `GeneralizedSeries`. Constructors, arithmetic,

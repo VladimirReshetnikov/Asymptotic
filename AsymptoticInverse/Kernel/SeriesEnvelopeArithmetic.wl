@@ -203,7 +203,7 @@ seriesEnvelopeBinary[op_String, s_GeneralizedSeries, t_, cut_, limit_] := Module
     fail["UnsupportedCompositeOperation", "Composite binary arithmetic supports addition and multiplication."]];
   a = seriesEnvelopeData[s, limit];
   If[MatchQ[t, _GeneralizedSeries],
-    b = seriesEnvelopeData[t, limit];
+    b = If[s === t, a, seriesEnvelopeData[t, limit]];
     assumptions = a["Assumptions"] && b["Assumptions"];
     compatible = a["Variable"] === b["Variable"] &&
       a["Approach"]["Direction"] === b["Approach"]["Direction"] &&
@@ -221,7 +221,10 @@ seriesEnvelopeBinary[op_String, s_GeneralizedSeries, t_, cut_, limit_] := Module
         assumptions && a["Domain"]],
       fail["UnprovedRealCoefficient", "The ordinary operand must be exact and eventually real on the series target approach."]];
     b = <|"Expression" -> exact, "Remainder" -> 0|>];
-  If[seriesEnvelopeTry[FullSimplify[assumptions && domain]] === False,
+  (* seriesEnvelopeData already checked this exact predicate locally. New
+     conditions still require the combined-domain check. *)
+  If[(assumptions && domain) =!= (a["Assumptions"] && a["Domain"]) &&
+      seriesEnvelopeTry[FullSimplify[assumptions && domain]] === False,
     fail["IncompatibleDomains", "The series operands have incompatible target domains."]];
   If[op === "Add",
     expression = a["Expression"] + b["Expression"];

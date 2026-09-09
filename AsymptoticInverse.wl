@@ -3260,7 +3260,7 @@ AsymptoticInverse`InverseCertificate[___] := Failure["InvalidArguments", <|"Cert
 (* END SOURCE: AsymptoticInverse/Kernel/InverseCertificates.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/LogarithmicScales.wl
-   Source SHA256 (UTF-8/LF): 8f550cfab7703e867d1fabe84216c604f4ed7230f9b9f486469cb0926aac49bd *)
+   Source SHA256 (UTF-8/LF): 7e855710fd1783861fbe93d6e2ba67568ce2e685fb1bda99818fc9d8c262c206 *)
 (* Finite logarithmic hierarchies. Loaded in AsymptoticInverse`Private`.
    Exact source-coordinate charts live separately in SourceCoordinates.wl. *)
 
@@ -3463,25 +3463,33 @@ logarithmicCoefficient[k_, gaps_, coefficients_, p_, r_, levels_, ass_, limit_] 
     If[LeafCount[c] > limit, fail["ResourceLimit", "The generalized logarithmic coefficient exceeded MaxTerms leaves."]], {j, 1, n - 1}];
   {weight, Simplify[(-1)^n r c/(p^n (Times @@ (Factorial /@ k))), ass && And @@ (# > 1 & /@ levels)]}];
 
-logarithmicPowerConstruct[rows_, offset_, p_, levels_, f_, x_, x0_, y_, coord_, cutoff_, r_, ass_, limit_] := Module[
-  {a = rows[[1, 2]], gaps, coefficients, monomials, degreeBounds, rint, h, region, blocks,
-   boundary, beta, degree, z, target, sign, w, levelValues, terms, expression, domain, offsetValue},
-  If[! FreeQ[a, Alternatives @@ levels] || ! TrueQ[Simplify[Element[a, Reals], ass]], Return[$Failed, Module]];
-  If[! (provablyPositive[a, ass] || provablyNegative[a, ass]), fail["UnprovedSign", "The leading source coefficient must have a provable nonzero real sign."]];
-  coefficients = Simplify[#[[2]]/a, ass] & /@ Rest[rows];
-  monomials = logarithmicMonomials[#, levels, ass] & /@ coefficients;
-  If[MemberQ[monomials, $Failed], Return[$Failed, Module]];
-  If[FreeQ[coefficients, Alternatives @@ Rest[levels]] &&
-     And @@ (PolynomialQ[#, First[levels]] & /@ coefficients), Return[$Failed, Module]];
-  gaps = canon[#[[1]] - p] & /@ Rest[rows];
-  rint = If[coord["Infinite"], -r, r]; h = Abs[p] cutoff - rint;
+(* One builder belongs to one constructor call and its fixed logarithmic
+   symbols. Cache complete multi-indices, including zero coefficients;
+   regions and merged blocks are rebuilt when the goal changes the cutoff. *)
+logarithmicPowerBuilder[rows_, offset_, p_, levels_, f_, x_, x0_, y_, coord_, r_, ass_, limit_] := Module[
+  {a = rows[[1, 2]], gaps, coefficients, monomials, degreeBounds, rint, coefficient, prepared = False},
+  coefficient[k_] := coefficient[k] = logarithmicCoefficient[k, gaps, coefficients, p, rint, levels, ass, limit];
+  Function[cutoff, Module[{h, region, blocks, boundary, beta, degree, z, target, sign,
+    w, levelValues, terms, expression, domain, offsetValue},
+  (* Keep preparation lazy so public option and goal checks still run first. *)
+  If[! prepared,
+    If[! FreeQ[a, Alternatives @@ levels] || ! TrueQ[Simplify[Element[a, Reals], ass]], Return[$Failed, Module]];
+    If[! (provablyPositive[a, ass] || provablyNegative[a, ass]), fail["UnprovedSign", "The leading source coefficient must have a provable nonzero real sign."]];
+    coefficients = Simplify[#[[2]]/a, ass] & /@ Rest[rows];
+    monomials = logarithmicMonomials[#, levels, ass] & /@ coefficients;
+    If[MemberQ[monomials, $Failed], Return[$Failed, Module]];
+    If[FreeQ[coefficients, Alternatives @@ Rest[levels]] &&
+       And @@ (PolynomialQ[#, First[levels]] & /@ coefficients), Return[$Failed, Module]];
+    gaps = canon[#[[1]] - p] & /@ Rest[rows];
+    rint = If[coord["Infinite"], -r, r]; prepared = True];
+  h = Abs[p] cutoff - rint;
   If[! less[0, h], fail["CutoffTooSmall", "The cutoff must exceed the leading target power of the requested observable."]];
   If[coord["Sign"] === -1 && ! IntegerQ[r], fail["NonrealObservable", "A negative selected source branch requires integer observable powers."]];
   region = indexRegion[gaps, h, False, limit];
-  blocks = logarithmicMerge[logarithmicCoefficient[#, gaps, coefficients, p, rint, levels, ass, limit] & /@ region["Inside"], ass];
+  blocks = logarithmicMerge[coefficient /@ region["Inside"], ass];
   boundary = region["Boundary"];
   beta = If[boundary === {}, Infinity, Min[canon[# . gaps] & /@ boundary]];
-  degreeBounds = logarithmicCoefficientBound[#, levels, ass] & /@ coefficients;
+  If[! ListQ[degreeBounds], degreeBounds = logarithmicCoefficientBound[#, levels, ass] & /@ coefficients];
   degree = If[boundary === {}, 0, Max[(# . degreeBounds) & /@ boundary]];
   sign = If[provablyPositive[a, ass], 1, -1]; target = (y - offset)/a;
   z = target^(1/p); w = If[less[0, p], sign (y - offset), sign/(y - offset)];
@@ -3508,7 +3516,7 @@ logarithmicPowerConstruct[rows_, offset_, p_, levels_, f_, x_, x0_, y_, coord_, 
     "ExactModel" -> True, "LeadingCoreOnly" -> False,
     "RemainderExplanation" -> "The complete multi-index tail is bounded by the least excluded source weight and a conservative logarithmic envelope over the finite boundary. Exact nonpolynomial logarithmic coefficients remain unexpanded.",
     "ConvergenceContract" -> <|"Type" -> "FiniteAnalyticLogarithmicLift", "NumericCertificate" -> False|>,
-    "SeriesData" -> Missing["GeneralizedLogarithmicCoefficients"], "RemainderDerivativeOrder" -> 0|>]];
+    "SeriesData" -> Missing["GeneralizedLogarithmicCoefficients"], "RemainderDerivativeOrder" -> 0|>]]]];
 
 (* A finite zero prefix is not an exact-termination certificate. Verify a
    candidate against the original equation, with the already selected real
@@ -3620,7 +3628,7 @@ logarithmicConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymptotic
   If[! MemberQ[{None, Automatic}, input], fail["UnsupportedOption", "InputRemainder for this logarithmic hierarchy requires a separately supplied transport contract."]];
   make = If[data =!= $Failed,
     Function[h, logarithmicUnitConstruct[data, rows, offset, p, levels, f, x, x0, y, coord, h, r, ass, limit]],
-    Function[h, logarithmicPowerConstruct[rows, offset, p, levels, f, x, x0, y, coord, h, r, ass, limit]]];
+    logarithmicPowerBuilder[rows, offset, p, levels, f, x, x0, y, coord, r, ass, limit]];
   result = If[cutoff === Automatic,
     If[! IntegerQ[goal] || goal < 1, fail["InvalidCutoff", "Give a positive logarithmic cutoff or SeriesTermGoal -> n."]];
     logarithmicGoalConstruct[make, data =!= $Failed, rows, p, If[coord["Infinite"], -r, r], goal, limit],
@@ -6582,7 +6590,7 @@ exponentialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] :
 (* END SOURCE: AsymptoticInverse/Kernel/ExponentialForward.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl
-   Source SHA256 (UTF-8/LF): 3d39ba88d7cc4a76d6c9725deff39a6ba1518f1e4425f1d6d17cb5268f4f57e5 *)
+   Source SHA256 (UTF-8/LF): 723ed21d423764159c31d153cc4086cd382ca6b90ae514caa1a744f2d0825039 *)
 (* Conservative arithmetic when no common ordered coefficient algebra applies.
    Each input denotes e + O(R), with R a nonnegative asymptotic envelope.
    Separate error summands are retained; cancellation of finite expressions
@@ -6788,7 +6796,7 @@ seriesEnvelopeBinary[op_String, s_GeneralizedSeries, t_, cut_, limit_] := Module
     fail["UnsupportedCompositeOperation", "Composite binary arithmetic supports addition and multiplication."]];
   a = seriesEnvelopeData[s, limit];
   If[MatchQ[t, _GeneralizedSeries],
-    b = seriesEnvelopeData[t, limit];
+    b = If[s === t, a, seriesEnvelopeData[t, limit]];
     assumptions = a["Assumptions"] && b["Assumptions"];
     compatible = a["Variable"] === b["Variable"] &&
       a["Approach"]["Direction"] === b["Approach"]["Direction"] &&
@@ -6806,7 +6814,10 @@ seriesEnvelopeBinary[op_String, s_GeneralizedSeries, t_, cut_, limit_] := Module
         assumptions && a["Domain"]],
       fail["UnprovedRealCoefficient", "The ordinary operand must be exact and eventually real on the series target approach."]];
     b = <|"Expression" -> exact, "Remainder" -> 0|>];
-  If[seriesEnvelopeTry[FullSimplify[assumptions && domain]] === False,
+  (* seriesEnvelopeData already checked this exact predicate locally. New
+     conditions still require the combined-domain check. *)
+  If[(assumptions && domain) =!= (a["Assumptions"] && a["Domain"]) &&
+      seriesEnvelopeTry[FullSimplify[assumptions && domain]] === False,
     fail["IncompatibleDomains", "The series operands have incompatible target domains."]];
   If[op === "Add",
     expression = a["Expression"] + b["Expression"];
