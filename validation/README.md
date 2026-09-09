@@ -1,5 +1,50 @@
 # Review and validation record
 
+## Complete real coefficients and wave-2 intake
+
+`CheckReviewRealCoefficients.wl` records **280 passed, zero failed** across
+eleven selected files on Wolfram 15.0.1 for Windows. The 23 new public cases
+test complete-coefficient reality, target offsets, assumptions, cancellation,
+diagnostics, known exact terms before truncation, and signed observable
+increments. All tested source/harness hashes match the accepted worktree;
+sources were unchanged during execution. The same 23 cases against immutable
+`7d98eca3248b9d59e27109f9b4b48fd52f45b00c` passed 12 and failed 11.
+
+`review-real-coefficients-first-pass.json` preserves the earlier 20-case
+version's broader run: 275 passed, two cancellation controls failed. The
+bounded stronger realness proof and signed positive native Taylor increment
+fixed those cases. `review-real-coefficients-tests.json` is the final record;
+the first-pass record is historical diagnostic evidence.
+
+```powershell
+wolfram.exe -noinit -script validation/CheckReviewRealCoefficients.wl
+```
+
+The mathematical article adds a proof that a real-valued germ has real
+complete coefficients strictly below its error power. It does not infer a
+real source from a finite real prefix. The 96-page PDF was rebuilt with three
+strict serial LaTeX passes; all pages were rendered and reviewed in layout
+overviews, with pages 9–10 inspected at full size. No final LaTeX warnings or
+overfull/underfull boxes were reported. Standalone freshness, eleven Python
+builder tests and documentation consistency checks passed. Artifact hashes
+and the exact visual-review scope are in `review-real-coefficients-artifacts.json`.
+
+`ProbeReviewWave2.wl` records **six bounded characterization probes**, not a
+passing acceptance suite. Its `review-wave-2-intake.json` confirms current
+fixed-parameter composition and semantic-weight boundary-degree errors. It
+also records the oversized native index, rejection of the old hostile-context
+certificate, and C07 rejections of the known nonreal-root and particular opaque
+function witnesses. The last rejection does not establish analytic regularity
+for arbitrary opaque functions. The [implementation register](../docs/development/CODE_REVIEW_STATUS.md)
+maps all 119 numbered findings across 17 reports and distinguishes current
+local observations from the reviewers' historical evidence.
+
+The real-coefficient acceptance belongs to the existing real representation.
+The user's newly required complete `Series`/`Asymptotic` coverage will also
+need native-supported complex and formal result kinds, without promoting
+formal native orders to proved analytic remainders. That compatibility work
+is required and pending. **The full package suite was not run.**
+
 ## Native series remainder preservation
 
 C03/C06 now preserve the distinction between a native formal power cutoff and

@@ -1,7 +1,7 @@
 # Code review implementation status
 
-Updated September 9, 2026. This register consolidates the **87 numbered finding
-entries in all nine [review packages](../../code-review/README.md)** into shared
+Updated September 9, 2026. This register consolidates the **119 numbered finding
+entries in all seventeen [review packages](../../code-review/README.md)** into shared
 work items. It also records substantive roadmap proposals separately. It is a
 work map, not a claim that every recommendation is a defect or an accepted API
 change.
@@ -13,6 +13,14 @@ and check current source before adapting a patch. Reviews 3 and 8 include limite
 native execution; the other reports' independent mathematical and patch-fixture
 checks do not execute this package. See the [review index](../../code-review/README.md)
 for each report's evidence boundary.
+
+Wave 2 adds reports 10–17, all pinned to
+`921387e5ba1239bfda96e63e64e89bf63d9c41e6`, with 32 numbered items.
+Reports 10–13 and 17 record selected Wolfram 15.0.0 Linux observations;
+reports 14–16 record independent checks without successful package execution.
+These snapshots precede the recent C04–C07 repairs. The eight supplied packages
+were merged from `origin/main` commit `c19c0cd` without editing their contents.
+See the [wave-2 index](../../code-review/wave-2/README.md).
 
 Status meanings:
 
@@ -30,9 +38,29 @@ The current user instruction is to **skip the full suite**. Focused native
 acceptance remains appropriate; the broader release-gate proposal below is
 recorded without overriding that instruction. This register was prepared by
 reading the ledgers, relevant report sections, source, and existing validation
-artifacts; no kernel or suite was run to prepare it.
+artifacts. Current native claims refer only to the named focused records and
+the separately identified wave-2 characterization probes.
 
 ## Correctness and information preservation
+
+### Required native expansion coverage
+
+The updated user objective requires the package's expansion functionality to
+handle every input successfully handled by built-in `Series` or `Asymptotic`,
+with a different result form permitted. This is an accepted requirement, not
+an optional extension or a claim about current coverage. The existing public
+name is `AsymptoticExpansion`; the user refers to the target functionality as
+`AsymptoticExpand`.
+
+| ID | Required work and acceptance boundary |
+| --- | --- |
+| B01 | **Pending — accepted scope.** Preserve access to the native engines for all their successful input families, including complex, approximate, symbolic, opaque-function and multivariable expansions. Current real power-log admission is a representation contract, not grounds for permanently excluding a native-supported input from the expansion API. |
+| B02 | **Pending.** Define and implement compatible call forms, option forwarding, order conventions, native method selection and held evaluation. Existing exclusive power cutoffs and complete-block goals must remain explicit when adapting native order specifications. |
+| B03 | **Pending.** Represent native formal series and native asymptotic results without inventing analytic remainder proofs. Preserve conditions, coordinates, nested orders and branch information. `Normal` must give the finite native expression; operations must retain each result's actual uncertainty contract. Coordinate with C06, C07, C13 and C16. |
+| B04 | **Pending.** Record differential native comparisons across the documented input/option families, including R17 N4's Zeta comparison, and correct claims of native unavailability. A finite passing corpus supports particular cases; full coverage needs an implementation argument that the native-supported path remains available. Keep focused runs under the user's no-full-suite instruction. |
+
+Native-supported complex and formal cases in B01–B03 are required even where
+the broader custom complex-sector research proposal X09 remains separate.
 
 ### C01 — Bound optional native `SeriesData` allocation
 
@@ -183,17 +211,33 @@ Findings: [R4 R03][R4], [R7 F03][R7].
 
 ### C07 — Apply the advertised real-coefficient contract consistently
 
-**Audit candidate.** Trace constant operands, analytic forward coefficients,
-and nested observables through the same realness policy. A valid formal complex
-coefficient is not automatically a valid result under a real asymptotic
-contract. Distinguish false, proved, and undecidable realness; avoid blanket
-rejection of supported symbolic parameters or conditional real branches.
+**Focused verified for the ordinary real representation.** Complete coefficient
+rows are normalized and checked at forward-result, inverse-model and explicit
+series-operation boundaries. The inverse offset is checked before extraction.
+Temporary complex summands and Taylor coefficients can cancel; ordinary proof
+uses `Simplify` followed by a one-second `FullSimplify` fallback when needed.
+Failure metadata distinguish proved nonrealness from an unproved condition.
+Observable Taylor probes use a signed positive local increment.
+
+The [23 focused cases](../../AsymptoticInverse/Tests/ReviewRealCoefficients.wlt)
+cover constant/native coefficients, offsets, retained assumptions, cancellation,
+known exact blocks above a requested cutoff and real special-function controls.
+The [eleven-file acceptance](../../validation/review-real-coefficients-tests.json)
+records **280 passed, zero failed** on Wolfram 15.0.1 Windows with unchanged
+sources. The pinned `7d98eca` baseline records 12 passed and 11 failed.
+Implementation checkpoint: `5ca0ee7`. See [coefficient notes](REAL_COEFFICIENTS.md).
+
+This check does not prove arbitrary sources real or analytic, nor settle
+semantic exponent grouping (C14). Native-supported complex/formal inputs need
+the distinct compatibility representation in B01–B03; they must not remain
+excluded merely because they do not satisfy the real representation's contract.
 
 Sources: [core constants and analytic expansion](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl),
 [observables](../../AsymptoticInverse/Kernel/SeriesOperations.wl),
 [special-function domains](../../AsymptoticInverse/Kernel/SpecialFunctionRealDomain.wl).
-Findings: [R4 R02][R4], [R7 F04][R7], [R9 F04][R9]. Native witnesses and the
-chosen common policy are still needed.
+Findings: [R4 R02][R4], [R7 F04][R7], [R9 F04][R9], [R11 N04][R11],
+[R12 N02][R12], [R13 A2][R13]. The wave-2 nonreal algebraic-root witness
+is now rejected by this real representation, as recorded in the intake probe.
 
 ### C08 — Make refinement meet or honestly report its precision target
 
@@ -261,6 +305,42 @@ Sources: [series operations](../../AsymptoticInverse/Kernel/SeriesOperations.wl)
 Findings: [R4 R01][R4], [R7 R01][R7]. Preserve existing conservative refusals;
 neither report establishes a current counterexample.
 
+## Additional wave-2 obligations
+
+The [current characterization](../../validation/review-wave-2-intake.json)
+comes from [six bounded public probes](../../validation/ProbeReviewWave2.wl),
+not an acceptance suite. It confirms two current mathematical errors: diagonal
+composition returns `1 + O(a^2)` where the exact answer is `1/2` (C15), and
+semantic duplicate powers yield logarithmic remainder degree 3 where degree 6
+is required (C14). It also records an unrepresentable native index (C17).
+The hostile-assumption certificate is now rejected with `OutsideBranch` under
+C05. C07 rejects both the nonreal algebraic-root witness and the particular
+opaque-function probe; the latter rejection does not prove a general analytic
+source-admission policy.
+
+| ID | Current evidence and required repair | Findings |
+| --- | --- | --- |
+| C14 | **Current native wrong bound.** Merge mathematically equal exponents before coefficient collection, truncation, boundary-degree scans and inverse enumeration. Structural keys distinguish `Sinh[1]^2` from `(Cosh[2]-1)/2`; the squared logarithmic block needs degree 6, not 3. Coordinate equality and strict ordering with C12; preserve distinct close powers and proof budgets. | [R13 A1][R13] |
+| C15 | **Current native wrong composition.** Preserve the fixed-parameter scope of the outer remainder when the inner varying symbol was an outer parameter. Outer `x/(a+x)` at fixed positive `a`, composed with `x=a` as `a` tends to zero, requires a new diagonal expansion or a refusal to transport the nonuniform bound. Inspect source and remainder dependence, not only retained coefficients; exact outer expressions remain usable. | [R11 N02][R11], [R14 N01][R14]; C13, X10 |
+| C16 | **Source admission audit remains open.** Native `Series` may use formal analyticity for an opaque function with only a few truthful derivatives. C06's finite-log allowance presupposes an analytic tail theorem. The reported smooth nonanalytic function is now rejected by C07 because a derivative coefficient is unproved real, but this incidental refusal is not a regularity proof. Native coverage B03 must preserve formal output separately from a proved analytic bound. | [R11 N03][R11]; C06, B03 |
+| C17 | **Current native invalid optional view.** Check native integer/index representability as well as dense allocation length. A one-slot view for `1+x^(2^100)` still contains a native endpoint outside the supported machine range. Check denominator and signed lattice indices before constructing the optional view; preserve the sparse result. | [R12 N03][R12]; C01 |
+| C18 | **Pending — source inspected.** Derive and verify the target endpoint and approach direction from the complete target chart. Current composite fallback misuses flat offsets and isolated target scales: flat pole inverses approach infinity, negative-source Erfc approaches 2 from below, and negative quadratic curvature reverses the side. Cover original and derived objects. | [R15 F01][R15]; D01, D02 |
+| C19 | **Pending — source inspected.** A successful but inaccurate interval-certificate attempt must increase arithmetic precision when needed. Plan relative-only targets, tighten bounds from the proved root interval, retain the best certificate, and distinguish certification from reaching requested accuracy. | [R15 F02][R15], [R16 N02][R16]; C08, X05 |
+| C20 | **Pending — source inspected.** Evaluate exact rational affine cancellation before interval rounding. Separately enclosing a huge translation and its cancellation can make even a linear certificate unusably wide. Preserve outward enclosures for nonlinear subexpressions; this is an availability failure, not evidence of an unsound certificate. | [R14 N02][R14]; X05 |
+| C21 | **Pending — source inspected.** Solve and compare in the local source coordinate, and expose unresolved numerical error/ratio states. A large source origin can erase a small displacement; an inexact zero with poor accuracy is not exact agreement. Use bounded precision retries or normalized corrections without manufacturing target digits; keep numerical diagnostics distinct from interval certificates. | [R13 A3][R13], [R14 N03][R14], [R17 N3][R17]; D05, D06 |
+| C22 | **Pending — source inspected.** Retain quantitative remainder bounds and their conditions through truncation. Transport a known upper bound by adding the absolute discarded finite part; do not copy a signed lower bound blindly. Include a no-op truncation of a Zeta/Lerch result and later supported arithmetic. | [R14 N05][R14]; D02, X05 |
+| C23 | **Pending — source inspected; historical native witness.** Keep exponential sector grades until omitted-tail dominance is decided. Dropping a later sector's grade too soon weakens the leading flat-product error and can make deeper input look worse. Preserve exact/unknown-zero distinctions and validate any retained-only convolution optimization separately. | [R15 F03][R15], [R17 N2][R17]; P01, P06, X08 |
+
+Additional concrete existing-item work: R10 N02 supplies a sparse flat-product
+budget witness for P06; R14 N04 adds ignored Fourier term goals to D01/D02;
+R16 N03 requires correcting the documented seed-only `WorkingPrecision`
+contract and its capped proof-order conversion; R16 N04 requires a common
+cutoff/term-goal policy. R16 S01 is optional sharper closed-boundary convolution
+under C04/P02/P03, not a reason to erase C04's verified conservative fix.
+R15 F04 adds reflected positive Gamma/Barnes observables to X02.
+R16 O01/O02 and R17's derivative extension supply concrete Zeta/Lerch tail
+derivative obligations for X04/X05, with parameter and coordinate restrictions.
+
 ## Performance and resource contracts
 
 | ID | Current status and bounded next action | Report evidence and source |
@@ -302,7 +382,8 @@ observations, and include peak memory and unchanged controls.
 
 These are explicit **scope decisions**, not defects in a documented unsupported
 case. They remain visible for future work but are not prerequisites for closing
-C01–C13. Each accepted extension needs a finite admitted domain, independent
+C01–C23. Required native coverage B01–B04 is not deferred here. Each additional
+custom extension needs a finite admitted domain, independent
 coefficient oracles, remainder/branch obligations, and refusal cases.
 
 | ID | Proposal and boundary | Report source |
@@ -337,21 +418,31 @@ number of required fixes. Unnumbered roadmap proposals are covered above.
 | [7][R7] — 11 entries | F01 → C01; F02 → C02; F03 → C06; F04 → C07; F05 → X01; E01 → V01; E02 → D01, D02, D03, D06; E03 → D08; E04 → D04; R01 → C13; R02 → P07, P08. |
 | [8][R8] — 10 entries | F01 → C05; F02 → C02; F03 → C01; F04 → P02; F05 → P03; F06 → P06; F07 → V01; F08 → D03; F09 → D08; F10 → D04. |
 | [9][R9] — 6 entries | F01 → C01; F02 → P01; F03 → P04; F04 → C07; F05 → C08; F06 → C03. |
+| [10][R10] — 2 entries | N01 → C05; N02 → P06. |
+| [11][R11] — 4 entries | N01 → C05; N02 → C15; N03 → C16, B03; N04 → C07, B01. |
+| [12][R12] — 3 entries | N01 → C05; N02 → C07, C13, B01; N03 → C17. |
+| [13][R13] — 3 entries | A1 → C14, C12; A2 → C07, B01; A3 → C21. |
+| [14][R14] — 5 entries | N01 → C15; N02 → C20; N03 → C21; N04 → D01, D02; N05 → C22. |
+| [15][R15] — 4 entries | F01 → C18; F02 → C19; F03 → C23; F04 → X02. |
+| [16][R16] — 7 entries | N01 → C05; N02 → C19; N03 → D01, P06; N04 → D01; S01 → C04, P02, P03; O01 → X04, X05; O02 → X04, X05. |
+| [17][R17] — 4 entries | N1 → C05; N2 → C23; N3 → C21; N4 → B04. |
 
 ## Next priorities and acceptance records
 
-1. Retain the focused acceptance boundaries for C01, C02, C04 and P03.
-   Keep C01's exact scope and benchmark evidence attached to its published
-   implementation; none of these changes closes the other native-tail items.
-2. Address C05 with a public-entry inventory. Assumptions used to prove a result
-   must survive reuse after the ambient symbolic context changes.
-3. Settle C03's export policy and C06's incoming-tail proof obligation. Add
-   independent logarithmic-envelope witnesses, not only printed-form comparisons.
+1. Implement B01–B03's native-compatible entry and result contracts, preserving
+   native formal/complex output without giving it an unproved real analytic
+   interpretation. Current real-model repairs remain scoped to that model.
+2. Repair the current wrong results C14/C15, then target-chart correctness C18.
+   Establish C16's source/admission boundary alongside native compatibility.
+3. Retain the focused acceptance boundaries for C01–C07 and P03; extend their
+   evidence with wave-2 witnesses where applicable. C17 adds a distinct native
+   index constraint beyond C01's dense-allocation bound.
 4. Establish C08's achieved-precision postcondition; then replace the fixed
    margins with backward demand planning. Address P01–P03 as bounded resource
    fixes, followed by measured P04/P05 work.
-5. Resolve C09/C10, D04/D08 and V02 with narrow compatibility checks. Leave the
-   larger API and mathematical proposals explicitly deferred until scoped.
+5. Address C19–C23, C09/C10, D04/D08 and V02 with focused contract checks.
+   Required native input coverage is not deferred with the optional research
+   proposals; preserve that distinction when prioritizing extensions.
 
 For each completed item, record the implementation revision, exact source hashes,
 focused tests and kernel, independent oracle, relevant benchmark/control results,
@@ -368,6 +459,14 @@ fixture alone does not close an item in the current package.
 [R7]: ../../code-review/wave-1/code-review-7/evidence/findings.csv
 [R8]: ../../code-review/wave-1/code-review-8/evidence/findings.csv
 [R9]: ../../code-review/wave-1/code-review-9/README.md#findings
+[R10]: ../../code-review/wave-2/code-review-10/evidence/review_crosswalk.json
+[R11]: ../../code-review/wave-2/code-review-11/evidence/findings-delta.json
+[R12]: ../../code-review/wave-2/code-review-12/evidence/novelty_ledger.csv
+[R13]: ../../code-review/wave-2/code-review-13/README.md#principal-results
+[R14]: ../../code-review/wave-2/code-review-14/evidence/findings.json
+[R15]: ../../code-review/wave-2/code-review-15/evidence/findings.csv
+[R16]: ../../code-review/wave-2/code-review-16/evidence/findings.csv
+[R17]: ../../code-review/wave-2/code-review-17/evidence/novelty_matrix.json
 [R2-article]: ../../code-review/wave-1/code-review-2/article/asymptotic-review.tex
 [R3-article]: ../../code-review/wave-1/code-review-3/article/asymptotic-audit.tex
 [R4-article]: ../../code-review/wave-1/code-review-4/article.tex

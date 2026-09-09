@@ -6,13 +6,19 @@ and infinite endpoints, and selected logarithmic, exponential, flat, and
 oscillatory scales. Results carry an explicit remainder and real branch
 information.
 
+The current development target is complete input coverage of the built-in
+Wolfram `Series` and `Asymptotic` functions, including native-supported cases
+outside the existing real expansion models. This is ongoing work; the
+[native compatibility plan](docs/development/NATIVE_COMPATIBILITY.md) records
+the required interfaces, result semantics, and validation boundaries.
+
 ## Documentation
 
 | Document | Read it for |
 | --- | --- |
 | **[Mathematical article (PDF)](article/asymptotic-inverse.pdf)** · [LaTeX source](article/asymptotic-inverse.tex) | Definitions, theorems, proofs, mathematical examples, and the hypotheses behind each scale and error estimate. |
 | **[User guide (HTML)](AsymptoticInverse/Documentation/UserGuide.html)** · [Markdown source](AsymptoticInverse/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
-| **[Code review reports](code-review/README.md)** | Review packages grouped by wave, beginning with [nine reports in wave 1](code-review/wave-1/README.md), with mathematical and engineering findings, supporting evidence, regression candidates, and proposed patches. |
+| **[Code review reports](code-review/README.md)** | Seventeen reports in two waves: [reports 1–9](code-review/wave-1/README.md) and [reports 10–17](code-review/wave-2/README.md), with pinned revisions, mathematical and engineering findings, evidence, regression candidates, and proposed patches. |
 | **[Vendored ProveIt articles](vendor/proveit/README.md)** | A revision-pinned TeX/PDF library on asymptotic expansions, transseries, q-analogs, combinatorial sequences, and their interpolated inverses, with topic reading lists and build provenance. |
 
 The article is independent of software syntax. The guide follows the
@@ -117,7 +123,7 @@ for the exact scope of each run.
 | [AsymptoticInverse/](AsymptoticInverse/) | Package, paclet metadata, examples, and focused test files. |
 | [article/](article/) | Mathematical article and its build instructions. |
 | [docs/development/](docs/development/) | Engineering roadmap and preserved operational chapters from the former combined article. |
-| [code-review/](code-review/README.md) | Review articles, evidence, and reproduction tools, indexed by wave and review package. |
+| [code-review/](code-review/README.md) | Seventeen review packages across two waves, with articles, evidence, and reproduction tools. |
 | [vendor/proveit/](vendor/proveit/README.md) | Revision-pinned articles on asymptotic expansions and inverses, with TeX, PDFs, topic reading lists, and upstream build provenance. |
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
 | [reports/COMPARISON.md](reports/COMPARISON.md) | Analysis of the nine original research and implementation reports; their submitted artifacts remain in `reports/`. |

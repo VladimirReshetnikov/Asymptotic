@@ -4,9 +4,19 @@ The maintained reader-facing documentation consists of the
 [mathematical article](../../article/asymptotic-inverse.pdf) and the
 [package user guide](../../AsymptoticInverse/Documentation/UserGuide.html).
 
-The maintained [code review status](CODE_REVIEW_STATUS.md) consolidates findings
-from all nine review packages, links current implementation evidence, and keeps
-pending repairs separate from deferred API and research proposals.
+The [code review library](../../code-review/README.md) contains seventeen
+packages in two waves: [reports 1–9](../../code-review/wave-1/README.md) and
+[reports 10–17](../../code-review/wave-2/README.md). The maintained
+[code review status](CODE_REVIEW_STATUS.md) consolidates findings, links current
+implementation evidence, and keeps pending repairs separate from deferred API
+and research proposals. The wave indexes record each package's pinned snapshot
+and distinguish executed native observations from independent models and
+unrun regression specifications.
+
+The [native compatibility plan](NATIVE_COMPATIBILITY.md) records the required
+expansion-API coverage of built-in `Series` and `Asymptotic`, including formal,
+complex and multivariable results. This accepted scope extends beyond the
+current real representations and is tracked as required work in the register.
 
 The [assumption-context notes](ASSUMPTION_CONTEXT.md) explain how constructor
 hypotheses survive coefficient queries, arithmetic and refinement, including
