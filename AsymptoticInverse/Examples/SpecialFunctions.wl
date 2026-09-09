@@ -14,9 +14,9 @@ specialExamples = {
 specialExampleFailed = False;
 Do[
   s = AsymptoticExpansion[example[[2]], x -> example[[3]], SeriesTermGoal -> 3];
-  If[! MatchQ[s, _PowerLogSeries] ||
+  If[! MatchQ[s, _GeneralizedSeries] ||
       ! TrueQ[FullSimplify[Normal[s] == example[[4]], x > 1]] ||
-      ! FreeQ[Normal[s], _PowerLogSeries | _PowerLogRemainder | _SeriesData],
+      ! FreeQ[Normal[s], _GeneralizedSeries | _PowerLogRemainder | _SeriesData],
     specialExampleFailed = True];
   Print[example[[1]], "\n  Normal: ", InputForm[Normal[s]],
     "\n  Remainder: ", InputForm[s["Remainder"]]],

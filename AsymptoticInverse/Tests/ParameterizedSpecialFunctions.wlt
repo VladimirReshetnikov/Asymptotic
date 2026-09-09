@@ -2,7 +2,7 @@
    coefficients come from defining series and derivatives, not Series. *)
 
 parameterizedSpecialEqual[s_, expected_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expected, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expected, ass]];
 
 VerificationTest[Module[{x, s, nu = Sqrt[2]},
   s = AsymptoticExpansion[BesselJ[nu, x^nu], {x, 0, 5}];

@@ -41,7 +41,7 @@ PacletDirectoryLoad["/absolute/path/to/AsymptoticInverse"];
 Needs["AsymptoticInverse`"];
 ```
 
-Version 1.7.1 requires Wolfram Language 15.0 or later. The recorded native
+Version 1.8.0 requires Wolfram Language 15.0 or later. The recorded native
 checks used version 15.0.1 for Windows.
 
 ## First expansion

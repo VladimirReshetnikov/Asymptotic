@@ -12,7 +12,7 @@ inverseFamilyFixture[body_, t_, target_, params_, condition_: True, positions_: 
     "OriginalOperator" -> HoldComplete["family fixture operator"]|>;
 inverseFamilyReduce[d_, x_, ass_: True, limit_: 20000] := AsymptoticInverse`Private`catch[
   AsymptoticInverse`Private`inverseFunctionSeparateFamily[d, x, ass, limit]];
-inverseFamilyEqual[s_, expected_, ass_] := MatchQ[s, _PowerLogSeries] &&
+inverseFamilyEqual[s_, expected_, ass_] := MatchQ[s, _GeneralizedSeries] &&
   TrueQ[FullSimplify[Normal[s] == expected, ass]];
 inverseFamilyH[t_] := t + t^2 (1 + Log[t]);
 inverseFamilyOracle[y_] := y - y^2 (1 + Log[y]) + y^3 (2 Log[y]^2 + 5 Log[y] + 3);

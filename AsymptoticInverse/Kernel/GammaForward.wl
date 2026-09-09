@@ -173,7 +173,7 @@ logarithmicForwardExpansion[f_, logFunction_, sign_, domain_, x_, x0_, cutoff0_,
   magnitude = sign prefactor;
   frontier = If[omitted === {}, If[result["Remainder"] === 0, 0, Missing["Unknown"]],
     prefactor seriesJetExpression[{{First[omitted]}, Infinity, 0}, data["ScaleVariable"], data["LogVariable"]]];
-  PowerLogSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
+  GeneralizedSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
     "ExpansionPoint" -> x0, "Direction" -> coord["Direction"],
     "Remainder" -> If[result["Remainder"] === 0, 0,
       magnitude PowerLogRemainder[data["ScaleVariable"], result["RemainderPower"], result["RemainderLogDegree"]]],

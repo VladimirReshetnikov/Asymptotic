@@ -4,7 +4,7 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
 acceptanceKnownSources[s_, f_, x_, y_, points_, factor_] := Module[{ratios},
-  If[! MatchQ[s, _PowerLogSeries], Return[False, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[False, Module]];
   ratios = Table[With[{target = N[f /. x -> point, 110]},
     N[Abs[(Normal[s] /. y -> target) - N[point, 100]]/
       (s["RemainderScaleExpression"] /. y -> target), 80]], {point, points}];

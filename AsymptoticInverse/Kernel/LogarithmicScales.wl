@@ -167,7 +167,7 @@ logarithmicUnitConstruct[data_, rows_, offset_, p_, levels_, f_, x_, x0_, y_, co
       "Assumptions" -> ass, "Domain" -> domain, "Cutoff" -> cutoff, "RemainderDerivativeOrder" -> 0|>,
     Missing["NestedLogarithmicCoefficients"]];
   sourceLevels = logarithmicLevels[coord["u"], Length[levels]];
-  PowerLogSeries[<|"Kind" -> "LogarithmicInverse", "Scale" -> data["Type"],
+  GeneralizedSeries[<|"Kind" -> "LogarithmicInverse", "Scale" -> data["Type"],
     "Expression" -> expression, "Remainder" -> rem, "RemainderScaleExpression" -> remainderScale,
     "RemainderVariable" -> variable, "RemainderPower" -> beta, "RemainderLogDegree" -> logdegree,
     "Prefactor" -> prefactor, "Offset" -> finiteOffset, "Terms" -> terms, "Blocks" -> blocks,
@@ -228,7 +228,7 @@ logarithmicPowerConstruct[rows_, offset_, p_, levels_, f_, x_, x0_, y_, coord_, 
   offsetValue = If[r === 1 && ! coord["Infinite"], x0, 0];
   expression = offsetValue + Total[(w^#[[1]] #[[2]]) & /@ terms];
   domain = ass && target > 0 && And @@ (# > 1 & /@ levelValues);
-  PowerLogSeries[<|"Kind" -> "LogarithmicInverse", "Scale" -> "GeneralizedLogarithmicCoefficients",
+  GeneralizedSeries[<|"Kind" -> "LogarithmicInverse", "Scale" -> "GeneralizedLogarithmicCoefficients",
     "Expression" -> expression, "Terms" -> terms, "Blocks" -> blocks,
     "Remainder" -> If[beta === Infinity, 0, PowerLogRemainder[w, (rint + beta)/Abs[p], degree]],
     "RemainderScaleExpression" -> If[beta === Infinity, 0, w^((rint + beta)/Abs[p]) (1 + Abs[Log[w]])^degree],
@@ -251,7 +251,7 @@ logarithmicPowerConstruct[rows_, offset_, p_, levels_, f_, x_, x0_, y_, coord_, 
    candidate against the original equation, with the already selected real
    source branch, before removing a remainder. Failure or timeout only means
    that the bounded term search must continue. *)
-logarithmicGoalTermination[PowerLogSeries[a_Association]] := Module[
+logarithmicGoalTermination[GeneralizedSeries[a_Association]] := Module[
   {x, y, rint, sign, magnitude, candidate, domain, verified, representation},
   If[! TrueQ[Lookup[a, "ExactModel", False]] || LeafCount[a["Function"]] > 300 ||
      LeafCount[a["Expression"]] > 500, Return[None, Module]];
@@ -269,7 +269,7 @@ logarithmicGoalTermination[PowerLogSeries[a_Association]] := Module[
   representation = Lookup[a, "SeriesRepresentation", Missing["Unavailable"]];
   If[AssociationQ[representation], representation = Join[representation,
     <|"Jet" -> {a["Blocks"], Infinity, 0}|>]];
-  PowerLogSeries[Join[a, <|"Remainder" -> 0, "RemainderScaleExpression" -> 0,
+  GeneralizedSeries[Join[a, <|"Remainder" -> 0, "RemainderScaleExpression" -> 0,
     "RemainderPower" -> Infinity, "RemainderLogDegree" -> 0,
     "SeriesRepresentation" -> representation,
     "ExactTerminationCertificate" -> <|"Verified" -> True,
@@ -306,7 +306,7 @@ logarithmicGoalConstruct[make_, unitQ_, rows_, p_, rint_, goal_, limit_] := Modu
     If[count === goal || result["Remainder"] === 0, Break[]];
     If[result["Blocks"] =!= triedBlocks,
       triedBlocks = result["Blocks"]; termination = logarithmicGoalTermination[result];
-      If[MatchQ[termination, PowerLogSeries[_Association]], result = termination; Break[]]];
+      If[MatchQ[termination, GeneralizedSeries[_Association]], result = termination; Break[]]];
     If[unitQ,
       nextCutoff = If[count === previousCount, Min[2 cutoff, limit - 3], cutoff + 1];
       If[! less[cutoff, nextCutoff], fail["ResourceLimit", "The logarithmic search cannot advance within MaxTerms.",
@@ -316,7 +316,7 @@ logarithmicGoalConstruct[make_, unitQ_, rows_, p_, rint_, goal_, limit_] := Modu
       boundary = result["IndexRegion"]["Boundary"];
       If[boundary === {}, Break[]];
       cutoff = canon[(rint + Min[canon[# . gaps] & /@ boundary] + step)/Abs[p]]]];
-  PowerLogSeries[Join[result[[1]], <|"RequestedTermGoal" -> goal,
+  GeneralizedSeries[Join[result[[1]], <|"RequestedTermGoal" -> goal,
     "ReturnedTermCount" -> Length[result["Blocks"]],
     "TermGoalReached" -> (Length[result["Blocks"]] === goal),
     "TermSelection" -> "CompleteNonzeroBlocks", "TermGoalConstructionCalls" -> tries|>]]];
@@ -365,7 +365,7 @@ logarithmicConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymptotic
       fail["InvalidCutoff", "The cutoff must be an exact real number, positive for a logarithmic unit. A target-power cutoff must exceed the leading observable power."]];
     make[cutoff]];
   If[result === $Failed, Return[$Failed, Module]];
-  PowerLogSeries[Join[result[[1]], <|"RequestedMethod" -> method,
+  GeneralizedSeries[Join[result[[1]], <|"RequestedMethod" -> method,
     "Method" -> If[data === $Failed, "GeneralizedLogarithmicLagrange", "LogarithmicFixedPoint"]|>]]];
 
 logarithmicPublic[f_, x_, x0_, y_, cutoff_, opts___] := Module[{result = logarithmicConstruct[f, x, x0, y, cutoff, opts]},
@@ -406,5 +406,5 @@ logarithmicResidual[a_, requested_, limit_] := Module[{data, t, w, polynomial, o
     "Scope" -> "Exact formal composition of the normalized leading logarithmic core; separately recorded higher source-power sectors are beyond this logarithmic cutoff.",
     "OriginalFunction" -> a["Function"], "LeadingCoreOnly" -> a["LeadingCoreOnly"]|>];
 
-AsymptoticInverse`LogarithmicInverseResidual[PowerLogSeries[a_Association]] := catch[logarithmicResidual[a, Automatic, 200000]];
+AsymptoticInverse`LogarithmicInverseResidual[GeneralizedSeries[a_Association]] := catch[logarithmicResidual[a, Automatic, 200000]];
 AsymptoticInverse`LogarithmicInverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Supply a logarithmic-unit expansion object."|>];

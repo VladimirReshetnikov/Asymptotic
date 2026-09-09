@@ -8,7 +8,7 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
 
 exponentialForwardBracket[z_, n_] := Sum[z^-k/k!, {k, 0, n - 1}];
 exponentialForwardEqual[s_, expr_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
 
 VerificationTest[Module[{x, s, refined},
   (* The combined logarithm is -5 Log[x]-1/2+x/3-x^2/4+... .

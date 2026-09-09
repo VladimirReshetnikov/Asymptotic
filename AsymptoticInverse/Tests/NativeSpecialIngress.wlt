@@ -6,11 +6,11 @@
 If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
-nativeIngressEqual[s_, expected_, x_] := MatchQ[s, _PowerLogSeries] &&
+nativeIngressEqual[s_, expected_, x_] := MatchQ[s, _GeneralizedSeries] &&
   TrueQ[FullSimplify[Normal[s] == expected, x > 0]];
 
 nativeIngressErrorAtScale[s_, scale_, x_] := Module[{bound, ratio},
-  If[! MatchQ[s, _PowerLogSeries] || s["Remainder"] === 0, Return[False, Module]];
+  If[! MatchQ[s, _GeneralizedSeries] || s["Remainder"] === 0, Return[False, Module]];
   bound = s["Remainder"] /.
     PowerLogRemainder[w_, p_, d_] :> w^p (1 + Abs[Log[w]])^d;
   ratio = FullSimplify[bound/scale, x > 0];
@@ -94,6 +94,6 @@ VerificationTest[Module[{x, s, expected},
   expected = ((1 - 1/x) Exp[x] + (1 + 1/x) Exp[-x])/Sqrt[2 Pi x];
   s = AsymptoticExpansion[BesselI[3/2, x], x -> Infinity, SeriesTermGoal -> 3];
   {nativeIngressEqual[s, expected, x],
-    MatchQ[s, _PowerLogSeries] && s["Remainder"] === 0}],
+    MatchQ[s, _GeneralizedSeries] && s["Remainder"] === 0}],
   {True, True},
   TestID -> "native-ingress-exact-half-integer-bessel-retains-subdominant-exponential"]

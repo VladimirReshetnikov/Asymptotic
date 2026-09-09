@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/AsymptoticInverse.wl
-   Source SHA256 (UTF-8/LF): e224617abde5c3a0116cdcb44a1498ce4785ad3ccb8b57438f795dd6b7ab030b *)
+   Source SHA256 (UTF-8/LF): e1bddb7ed3f8c15bc4931314276a12abdcdde9de0690f8c3bbd0452328e9cfeb *)
 (* ::Package:: *)
 (* AsymptoticInverse -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -25,7 +25,7 @@ AsymptoticExpansion::usage =
 "AsymptoticExpansion[f, {x, x0, cutoff}] gives the power-log asymptotic expansion of f \
 as x -> x0 (x0 may be a real number, Infinity or -Infinity) with every block of \
 exponent strictly less than cutoff in the local variable (|x - x0| or 1/|x|) retained, \
-as a PowerLogSeries object.
+as a GeneralizedSeries object.
 AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero blocks.
 AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] is equivalent. A unary pure Function \
 or unapplied InverseFunction is applied to x before expansion.
@@ -40,7 +40,7 @@ See Documentation/UserGuide.md for the admitted real domains and scales.";
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
 branch of the inverse function of f near x = x0 (x0 may be a real number, Infinity or \
--Infinity) as a PowerLogSeries object in y. Every complete block with exponent strictly \
+-Infinity) as a GeneralizedSeries object in y. Every complete block with exponent strictly \
 less than cutoff in the local variable (y - y0, or 1/y when y0 is infinite) is retained.
 AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n] retains the first n nonzero blocks.
 Recognized leading-logarithmic and exponential cores return Scale -> \"Logarithmic\": \
@@ -52,10 +52,10 @@ BarnesG, LogBarnesG and the positive-real Log[BarnesG] use Scale -> \"BarnesGInv
 The cutoff is exclusive in 1/CoreInverse and the term goal counts complete polynomial inverse-logarithmic blocks. \
 Power specifies a fixed real source observable, with integer powers required on negative source branches.";
 
-PowerLogSeries::usage =
-"PowerLogSeries[assoc] represents a power-log asymptotic expansion together with its \
+GeneralizedSeries::usage =
+"GeneralizedSeries[assoc] represents a generalized asymptotic expansion together with its \
 remainder and provenance. StandardForm and TraditionalForm display the finite expression \
-and remainder without the PowerLogSeries head. Normal[s] drops the remainder and returns \
+and remainder without the GeneralizedSeries head. Normal[s] drops the remainder and returns \
 the ordinary finite expression. InputForm retains the complete object. s[\"Remainder\"], \
 s[\"Terms\"], s[\"SeriesData\"], s[\"Properties\"] and other properties are available; \
 s[value] evaluates the finite expression at a numerical value of the variable.";
@@ -520,6 +520,15 @@ localCoordinate[x_, x0_, direction_] := Module[{dir = direction, u = Unique["u$"
     (* the local variable and its logarithm in terms of x *)
     "LocalVariable" -> Which[x0 === Infinity, 1/x, x0 === -Infinity, -1/x, dir === "FromAbove", x - x0, True, x0 - x]|>];
 
+(* Only peel outer conditions and split top-level assumption conjuncts.
+   Held scopes and nested conditional expressions retain their own meaning. *)
+splitApproachInput[f_, x_, ass_] := Module[{body = f, condition = True, clauses},
+  While[Head[body] === ConditionalExpression,
+    condition = condition && body[[2]]; body = body[[1]]];
+  clauses = If[Head[ass] === And, List @@ ass, {ass}];
+  {body, And @@ Select[clauses, FreeQ[#, x] &],
+    condition && And @@ Select[clauses, ! FreeQ[#, x] &]}];
+
 (* ------------------------------------------------------------------ *)
 (* Forward expansion: public                                            *)
 (* ------------------------------------------------------------------ *)
@@ -604,7 +613,7 @@ forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] :
    jet = If[ex =!= $Failed, ex, forwardJet[fu, u, ell, ass, cutoff, limit, 1]]];
   result = makeForwardObject[jet, cutoff, f, x, x0, coord, u, ell, ass, goal];
   If[! TrueQ[normalized["Changed"]], Return[result, Module]];
-  PowerLogSeries[Join[result[[1]], <|
+  GeneralizedSeries[Join[result[[1]], <|
     "TargetDomain" -> Lookup[result[[1]], "TargetDomain", True] && normalized["Domain"],
     "NormalizedExpression" -> normalized["Expression"],
     "Transformation" -> "Real logarithms of positive Gamma and Barnes G products are normalized before ordinary power-log expansion.",
@@ -626,7 +635,7 @@ makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := 
   terms = {ToRadicals[#[[1]]], ToRadicals[#[[2]]] /. ell -> logw} & /@ kept;
   expr = Total[(Which[x0 === Infinity, x^(-#[[1]]), x0 === -Infinity, (-x)^(-#[[1]]), True, wexpr^#[[1]]] #[[2]]) & /@ terms];
   sd = makeSeriesData[terms, x, x0, coord, remData, logw];
-  PowerLogSeries[<|
+  GeneralizedSeries[<|
     "Kind" -> "Forward",
     "Expression" -> expr,
     "Remainder" -> If[remData === None, 0, PowerLogRemainder[wexpr, ToRadicals[remData[[1]]], remData[[2]]]],
@@ -1033,7 +1042,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     "Branch" -> "the inverse tends to the expansion point with " <> ToString[coord["LocalVariable"], InputForm] <> " ~ " <> ToString[z, InputForm],
     "SeriesData" -> makeInverseSeriesData[terms, y, y0, a, coord, remData, r, x0]
     |>;
-  PowerLogSeries[obj]];
+  GeneralizedSeries[obj]];
 
 makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] := Module[{exps, den, nmin, nmax, coeffs},
   If[r =!= 1 || coord["Sign"] =!= 1 || coord["Infinite"] || x0 =!= 0, Return[Missing["NotAvailable"], Module]];
@@ -1049,13 +1058,13 @@ makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] := Module[
   SeriesData[y, y0, coeffs, nmin, nmax, den]];
 
 (* ------------------------------------------------------------------ *)
-(* The PowerLogSeries object                                            *)
+(* The GeneralizedSeries object                                            *)
 (* ------------------------------------------------------------------ *)
 
-PowerLogSeries /: Normal[PowerLogSeries[a_Association]] := a["Expression"];
-PowerLogSeries[a_Association]["Properties"] := Keys[a];
-PowerLogSeries[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
-PowerLogSeries[a_Association][val_?NumericQ] := a["Expression"] /. a["Variable"] -> val;
+GeneralizedSeries /: Normal[GeneralizedSeries[a_Association]] := a["Expression"];
+GeneralizedSeries[a_Association]["Properties"] := Keys[a];
+GeneralizedSeries[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
+GeneralizedSeries[a_Association][val_?NumericQ] := a["Expression"] /. a["Variable"] -> val;
 remainderScale[PowerLogRemainder[w_, b_, k_]] := Module[{base, lg},
   {base, lg} = If[MatchQ[w, Power[_, -1]], {w[[1]]^(-b), Log[w[[1]]]}, {w^b, Log[w]}];
   If[k === 0, base, base (1 + Abs[lg])^k]];
@@ -1070,12 +1079,12 @@ heldSeriesSum[HoldComplete[Plus[e___]], HoldComplete[r_]] := HoldComplete[Plus[e
 heldSeriesSum[HoldComplete[e_], HoldComplete[Plus[r___]]] := HoldComplete[Plus[e, r]];
 heldSeriesSum[HoldComplete[e_], HoldComplete[r_]] := HoldComplete[e + r];
 
-PowerLogSeries /: MakeBoxes[PowerLogSeries[a_Association], fmt : StandardForm | TraditionalForm] :=
-  powerLogSeriesBoxes[HoldComplete[PowerLogSeries[a]], fmt];
-powerLogSeriesBoxes[held : HoldComplete[PowerLogSeries[a_Association]], fmt_] := Module[{rules, fields},
+GeneralizedSeries /: MakeBoxes[GeneralizedSeries[a_Association], fmt : StandardForm | TraditionalForm] :=
+  generalizedSeriesBoxes[HoldComplete[GeneralizedSeries[a]], fmt];
+generalizedSeriesBoxes[held : HoldComplete[GeneralizedSeries[a_Association]], fmt_] := Module[{rules, fields},
   (* Matching the association's rules works for both evaluated associations and
      raw associations inside MakeBoxes; ordinary Lookup would evaluate them. *)
-  rules = Replace[held, HoldComplete[PowerLogSeries[Association[r___]]] :> HoldComplete[r]];
+  rules = Replace[held, HoldComplete[GeneralizedSeries[Association[r___]]] :> HoldComplete[r]];
   fields = (Cases[rules, HoldPattern[(Rule | RuleDelayed)[#, value_]] :> HoldComplete[value], {1}] &) /@
     {"Expression", "Remainder"};
   Replace[fields, {
@@ -1083,8 +1092,8 @@ powerLogSeriesBoxes[held : HoldComplete[PowerLogSeries[a_Association]], fmt_] :=
     {{HoldComplete[0]}, {HoldComplete[r_]}} :> seriesInterpretationBoxes[HoldComplete[r], held, fmt],
     {{HoldComplete[e_]}, {HoldComplete[r_]}} :>
       seriesInterpretationBoxes[heldSeriesSum[HoldComplete[e], HoldComplete[r]], held, fmt],
-    _ :> RowBox[{"PowerLogSeries", "[", MakeBoxes[a, fmt], "]"}]}]];
-Format[PowerLogSeries[a_Association], OutputForm] := PowerLogSeries[a["Expression"], a["Remainder"]];
+    _ :> RowBox[{"GeneralizedSeries", "[", MakeBoxes[a, fmt], "]"}]}]];
+Format[GeneralizedSeries[a_Association], OutputForm] := GeneralizedSeries[a["Expression"], a["Remainder"]];
 
 (* Small syntactic reductions keep scales readable without evaluating symbols
    or arbitrary expressions supplied to a held MakeBoxes call. *)
@@ -1115,8 +1124,8 @@ Format[r_PowerLogRemainder, OutputForm] := With[{sc = remainderScale[r]}, HoldFo
 (* ------------------------------------------------------------------ *)
 
 Options[InverseResidual] = {"MaxTerms" -> 200000};
-InverseResidual[PowerLogSeries[a_Association], opts : OptionsPattern[]] := catch[residual[a, Automatic, OptionValue["MaxTerms"]]];
-InverseResidual[PowerLogSeries[a_Association], h_, opts : OptionsPattern[]] := catch[residual[a, h, OptionValue["MaxTerms"]]];
+InverseResidual[GeneralizedSeries[a_Association], opts : OptionsPattern[]] := catch[residual[a, Automatic, OptionValue["MaxTerms"]]];
+InverseResidual[GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := catch[residual[a, h, OptionValue["MaxTerms"]]];
 InverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseResidual[expansion] or InverseResidual[expansion, relativeCutoff]."|>];
 
 residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["Blocks"], ell = a["LogVariable"], ass = a["Assumptions"],
@@ -1149,7 +1158,7 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
 (* ------------------------------------------------------------------ *)
 
 Options[InverseNumericalCheck] = {WorkingPrecision -> 50};
-InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
+InverseNumericalCheck[GeneralizedSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
   {wp = OptionValue[WorkingPrecision], result, root},
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]], Return[gammaInverseNumerical[a, yv, wp], Module]];
   If[Lookup[a, "Kind", ""] === "SpecialInverse" || Lookup[a, "Scale", "PowerLog"] === "Transformed",
@@ -1183,12 +1192,9 @@ SetAttributes[PowerLogModel, HoldAllComplete];
 PowerLogModel[args___] := catch[powerLogModelEntry[args]];
 powerLogModelEntry[f_, {x_Symbol, x0_}, opts : OptionsPattern[PowerLogModel]] := Module[
    {coord, u, ell = Unique["ell$"], jet, ass = OptionValue[PowerLogModel, {opts}, Assumptions],
-    body = f, condition = True, clauses, parameterAss, limit = OptionValue[PowerLogModel, {opts}, "MaxTerms"]},
+    body = f, condition, parameterAss, limit = OptionValue[PowerLogModel, {opts}, "MaxTerms"]},
    validateInput[f, limit];
-   While[Head[body] === ConditionalExpression, condition = condition && body[[2]]; body = body[[1]]];
-   clauses = If[Head[ass] === And, List @@ ass, {ass}];
-   parameterAss = And @@ Select[clauses, FreeQ[#, x] &];
-   condition = condition && And @@ Select[clauses, ! FreeQ[#, x] &];
+   {body, parameterAss, condition} = splitApproachInput[body, x, ass];
    coord = localCoordinate[x, x0, OptionValue[PowerLogModel, {opts}, Direction]]; u = coord["u"];
    If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], u, parameterAss],
      fail["IncompatibleSourceCondition", "The model condition must hold eventually on the requested real source approach."]];
@@ -1207,7 +1213,7 @@ InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catc
      "Coefficient" -> (ToRadicals[c[[2]]] /. model["LogVariable"] -> \[FormalL]),
      "UniformizerExponent" -> ToRadicals[r + c[[1]]],
      "Meaning" -> "(v/a)^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
-InverseExpansionCoefficient[PowerLogSeries[a_Association], k_List, opts : OptionsPattern[]] :=
+InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : OptionsPattern[]] :=
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
    Failure["Unsupported", <|"MessageTemplate" -> "Lambert coefficients are listed in the logarithmic expansion's Terms property; they have no power-gap multi-index."|>],
    InverseExpansionCoefficient[a["Model"], k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
@@ -1215,7 +1221,7 @@ InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTempla
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/LambertInverse.wl
-   Source SHA256 (UTF-8/LF): 1da19f04df8efd2dc05405651026cf423bac019838e856143f8a7df90ab3a6cf *)
+   Source SHA256 (UTF-8/LF): 1fa1025554dd41ebebc96dd1075cd42872e5d9548f50f00d630017acd4c9a529 *)
 (* Loaded in AsymptoticInverse`Private`.  Inverse-logarithmic expansions of
    real Lambert-W cores.  The finite bracket is an actual power-log jet in
    t = 1/A, with an exact, separately recorded leading prefactor. *)
@@ -1424,7 +1430,7 @@ lambertConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInve
   If[kind === "PowerLog" && r === 1 && ! coord["Infinite"], expression += x0];
   remainder = If[beta === Infinity, 0, Abs[prefactor] PowerLogRemainder[t, beta, degree]];
   perturbation = Simplify[f - leadingCore, ass];
-  PowerLogSeries[<|
+  GeneralizedSeries[<|
     "Kind" -> "Inverse", "Scale" -> "Logarithmic", "Method" -> "Lambert", "RequestedMethod" -> method,
     "Expression" -> expression, "Prefactor" -> prefactor, "Terms" -> terms, "Blocks" -> blocks,
     "TermConvention" -> "Each {n,C} contributes Prefactor t^n C with t=LogarithmicVariable; a finite source endpoint is added when Power is 1. Cutoff bounds n in the normalized bracket.",
@@ -1495,7 +1501,7 @@ lambertResidual[a_Association, h_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/LambertInverse.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/CoordinateInverse.wl
-   Source SHA256 (UTF-8/LF): f6994d5da0a5dae44332cf11e79a47dfe817491224c0bdc55bae3fb403e3cd45 *)
+   Source SHA256 (UTF-8/LF): 8fe06e9207db54e1757919367c01e995032627a1eb3027fba5ad42a4f7d6d06d *)
 (* Exact changes of coordinates around the existing inverse engines.
    Loaded inside AsymptoticInverse`Private`. *)
 
@@ -1553,7 +1559,7 @@ coordinateConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticIn
       If[MemberQ[{Infinity, -Infinity}, base["Limit"]], targetExpression, targetExpression - base["Limit"]]/base["LeadingCoefficient"] > 0];
   targetLimit = Which[base["Limit"] === Infinity, data["AmplitudeSign"] Infinity,
     base["Limit"] === -Infinity, data["Offset"], True, data["Offset"] + data["AmplitudeSign"] data["AmplitudeScale"] Exp[base["Limit"]]];
-  PowerLogSeries[Join[a, <|"Scale" -> "Transformed", "CoordinateKind" -> "TargetLog",
+  GeneralizedSeries[Join[a, <|"Scale" -> "Transformed", "CoordinateKind" -> "TargetLog",
     "CoordinateSeries" -> base, "CoordinateSubstitution" -> {sub},
     "TargetCoordinateExpression" -> targetExpression, "TransformedFunction" -> data["Phase"],
     "SourceDomain" -> data["PositiveAmplitude"] > 0,
@@ -1785,7 +1791,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: AsymptoticInverse/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 5d6f00aba9d75d8df6a20b7913bbfdd8a64315f32f93b863b5629d965e07b9ce *)
+   Source SHA256 (UTF-8/LF): 5b4e484e7e0f430ad47d03633c3882b0395a0342fe43777081ee419d4b5019e2 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -1818,13 +1824,13 @@ seriesWorkingCut[d_, requested_] := Module[{h = requested, p = d["Jet"][[2]], ro
     h = If[p =!= Infinity, p, If[rows === {}, 1, Max[1, Last[rows][[1]] + 1]]]];
   If[! exactRealQ[h], fail["InvalidCutoff", "A series operation cutoff must be an exact real number."]]; h];
 
-seriesData[s : PowerLogSeries[a_Association], limit_] := Module[
+seriesData[s : GeneralizedSeries[a_Association], limit_] := Module[
   {d, base, rules, ell, w, j, var, off = 0, pref = 1, u, rows, coord},
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]],
     fail["UnsupportedScale", "This operation requires polynomial logarithmic coefficients. The Gamma/Barnes inverse scales support SeriesTruncate, SeriesRefine, SeriesPower, inverse checks, and the constructor's Power observable."]];
   If[AssociationQ[Lookup[a, "SeriesRepresentation", None]], Return[a["SeriesRepresentation"], Module]];
-  If[MatchQ[Lookup[a, "CoordinateSeries", None], _PowerLogSeries],
+  If[MatchQ[Lookup[a, "CoordinateSeries", None], _GeneralizedSeries],
     base = seriesData[a["CoordinateSeries"], limit]; rules = Lookup[a, "CoordinateSubstitution", {}];
     d = base /. rules; Return[Join[d, <|"Variable" -> a["Variable"],
       "Domain" -> Lookup[a, "TargetDomain", Lookup[d, "Domain", True]]|>], Module]];
@@ -1854,8 +1860,16 @@ seriesData[s : PowerLogSeries[a_Association], limit_] := Module[
 
 (* Only invert the explicitly recorded coordinate. No inversion of the unknown
    function represented by the expansion is attempted here. *)
-seriesCoordinateRule[d_, u_] := Module[{w = d["ScaleVariable"], x = d["Variable"], sol},
+seriesCoordinateRule[d_, u_] := Module[{w = d["ScaleVariable"], x = d["Variable"], offset, sol},
   If[w === x, Return[x -> u, Module]];
+  If[w === 1/x, Return[x -> 1/u, Module]];
+  If[w === -1/x, Return[x -> -1/u, Module]];
+  (* Standard charts have exact real offsets. Leave parameter-dependent
+     and other coordinates to the real solver's existing branch checks. *)
+  offset = w - x;
+  If[FreeQ[offset, x] && exactRealQ[offset], Return[x -> u - offset, Module]];
+  offset = w + x;
+  If[FreeQ[offset, x] && exactRealQ[offset], Return[x -> offset - u, Module]];
   sol = Quiet[TimeConstrained[Solve[w == u, x, Reals], 3, $Failed]];
   If[! ListQ[sol] || Length[sol] =!= 1 || ! MatchQ[First[sol], {_Rule}], Return[$Failed, Module]];
   First[First[sol]]];
@@ -1885,7 +1899,7 @@ seriesMake[d0_, recipe_, cutoff_: Automatic] := Module[{d = d0, j, w, ell, p, of
   expr = off + p seriesJetExpression[j, w, ell];
   rem = If[j[[2]] === Infinity, 0, Abs[p] PowerLogRemainder[w, j[[2]], j[[3]]]];
   terms = {#[[1]], #[[2]] /. ell -> Log[w]} & /@ j[[1]];
-  PowerLogSeries[<|"Kind" -> "Derived", "Scale" -> If[p === 1, "PowerLog", "Factored"],
+  GeneralizedSeries[<|"Kind" -> "Derived", "Scale" -> If[p === 1, "PowerLog", "Factored"],
     "Expression" -> expr, "Remainder" -> rem,
     "RemainderScaleExpression" -> If[rem === 0, 0, Abs[p] w^j[[2]] (1 + Abs[Log[w]])^j[[3]]],
     "RemainderPower" -> j[[2]], "RemainderLogDegree" -> j[[3]], "RemainderVariable" -> w,
@@ -1927,9 +1941,9 @@ seriesBinary[op_, s_, t_, cut_, limit_] := Module[{a, b, af, bf, ratio, j, ell, 
   h = If[cut === Automatic, Automatic, seriesWorkingCut[d, cut]];
   seriesMake[d, {op, {s, t}}, h]];
 
-AsymptoticInverse`SeriesAdd[s_PowerLogSeries, t_PowerLogSeries, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesAdd[s_GeneralizedSeries, t_GeneralizedSeries, opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Add", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
-AsymptoticInverse`SeriesMultiply[s_PowerLogSeries, t_PowerLogSeries, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesMultiply[s_GeneralizedSeries, t_GeneralizedSeries, opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Multiply", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 
 seriesConstant[c_, s_, limit_] := Module[{d = seriesData[s, limit]},
@@ -1938,13 +1952,13 @@ seriesConstant[c_, s_, limit_] := Module[{d = seriesData[s, limit]},
   If[! TrueQ[Simplify[Element[c, Reals], seriesAss[d]]], fail["UnprovedRealCoefficient", "The scalar must be provably real under the series assumptions."]];
   seriesMake[Join[d, <|"Offset" -> 0, "Prefactor" -> 1,
     "Jet" -> pConst[c, d["LogVariable"], seriesAss[d]], "RemainderDerivativeOrder" -> Infinity|>], {"Constant", {s}, c}]];
-AsymptoticInverse`SeriesAdd[s_PowerLogSeries, c_ /; FreeQ[c, _PowerLogSeries], opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesAdd[s_GeneralizedSeries, c_ /; FreeQ[c, _GeneralizedSeries], opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Add", s, c, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
-AsymptoticInverse`SeriesAdd[c_ /; FreeQ[c, _PowerLogSeries], s_PowerLogSeries, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesAdd[c_ /; FreeQ[c, _GeneralizedSeries], s_GeneralizedSeries, opts : OptionsPattern[]] :=
   AsymptoticInverse`SeriesAdd[s, c, opts];
-AsymptoticInverse`SeriesMultiply[s_PowerLogSeries, c_ /; FreeQ[c, _PowerLogSeries], opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesMultiply[s_GeneralizedSeries, c_ /; FreeQ[c, _GeneralizedSeries], opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Multiply", s, c, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
-AsymptoticInverse`SeriesMultiply[c_ /; FreeQ[c, _PowerLogSeries], s_PowerLogSeries, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesMultiply[c_ /; FreeQ[c, _GeneralizedSeries], s_GeneralizedSeries, opts : OptionsPattern[]] :=
   AsymptoticInverse`SeriesMultiply[s, c, opts];
 
 seriesPower[s_, r_, cut_, limit_, truncate_: True] := Module[{d, flat, ell, ass, h, j, alpha},
@@ -1968,9 +1982,9 @@ seriesPower[s_, r_, cut_, limit_, truncate_: True] := Module[{d, flat, ell, ass,
   j = fwdPower[d["Jet"], r, Unique["w$"], ell, ass, h, limit];
   seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> d["Prefactor"]^r|>], {"Power", {s}, r},
     If[cut === Automatic || ! TrueQ[truncate], Automatic, h]]];
-AsymptoticInverse`SeriesPower[s_PowerLogSeries, r_, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesPower[s_GeneralizedSeries, r_, opts : OptionsPattern[]] :=
   seriesArithmeticPublicPower[s, r, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
-AsymptoticInverse`SeriesPower[s_PowerLogSeries, r_, h_?exactRealQ, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesPower[s_GeneralizedSeries, r_, h_?exactRealQ, opts : OptionsPattern[]] :=
   seriesArithmeticPublicPower[s, r, h, OptionValue["MaxTerms"]];
 
 seriesLog[s_, cut_, limit_] := Module[{d, flat, ell, ass, h, j, p},
@@ -1985,9 +1999,9 @@ seriesLog[s_, cut_, limit_] := Module[{d, flat, ell, ass, h, j, p},
   If[p === $Failed, fail["UnsupportedScale", "The logarithm of the carrier is outside the recorded power-log coordinate."]];
   j = pAdd[p, j, ell, ass];
   seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> 1|>], {"Log", {s}}, h]];
-AsymptoticInverse`SeriesLog[s_PowerLogSeries, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesLog[s_GeneralizedSeries, opts : OptionsPattern[]] :=
   seriesArithmeticPublicUnary[Log, s, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
-AsymptoticInverse`SeriesLog[s_PowerLogSeries, h_?exactRealQ, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesLog[s_GeneralizedSeries, h_?exactRealQ, opts : OptionsPattern[]] :=
   seriesArithmeticPublicUnary[Log, s, h, OptionValue["MaxTerms"]];
 
 seriesExp[s_, cut_, limit_] := Module[{d, ell, ass, h, rows, big, small, carrier, j},
@@ -2000,9 +2014,9 @@ seriesExp[s_, cut_, limit_] := Module[{d, ell, ass, h, rows, big, small, carrier
   carrier = Exp[seriesJetExpression[{big, Infinity, 0}, d["ScaleVariable"], ell]];
   j = fwdExp[{small, d["Jet"][[2]], d["Jet"][[3]]}, Unique["w$"], ell, ass, h, limit];
   seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> carrier|>], {"Exp", {s}}, h]];
-AsymptoticInverse`SeriesExp[s_PowerLogSeries, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesExp[s_GeneralizedSeries, opts : OptionsPattern[]] :=
   seriesArithmeticPublicUnary[Exp, s, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
-AsymptoticInverse`SeriesExp[s_PowerLogSeries, h_?exactRealQ, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesExp[s_GeneralizedSeries, h_?exactRealQ, opts : OptionsPattern[]] :=
   seriesArithmeticPublicUnary[Exp, s, h, OptionValue["MaxTerms"]];
 
 (* Apply an expression to a precision-tracked jet. A unary Taylor germ is
@@ -2042,7 +2056,7 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
       pAdd[pConst[h[c], ell, ass], res, ell, ass],
     True, fail["UnsupportedObservable", "This observable is not in the supported algebra of regular unary analytic functions, powers, logarithms and exponentials."]]];
 
-AsymptoticInverse`SeriesObservable[s_PowerLogSeries, e_, x_Symbol, opts : OptionsPattern[]] := catch[Block[
+AsymptoticInverse`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : OptionsPattern[]] := catch[Block[
   {$inverseFunctionBranchSelections = OptionValue["InverseFunctionBranches"], $inverseFunctionProvenance = {},
     $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>},
   Module[{d, h, j, body = e, condition = True, result, limit = OptionValue["MaxTerms"]},
@@ -2058,10 +2072,10 @@ AsymptoticInverse`SeriesObservable[s_PowerLogSeries, e_, x_Symbol, opts : Option
     fail["IncompatibleObservableCondition", "The observable condition is not proved on the precision-tracked input germ.", <|"Condition" -> condition|>]];
   j = seriesJetApply[body, x, d["Jet"], d, h, limit];
   result = seriesMake[Join[d, <|"Jet" -> j|>], {"Observable", {s}, e, x}, h];
-  PowerLogSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,
+  GeneralizedSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,
     "InverseFunctionProvenance" -> DeleteDuplicates[$inverseFunctionProvenance]|>]]]]];
 
-AsymptoticInverse`SeriesCompose[outer_PowerLogSeries, inner_PowerLogSeries, opts : OptionsPattern[]] := catch[Module[
+AsymptoticInverse`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[Module[
   {a, b, input, wj, term, result, p, deg, alpha, lc, ell, ass, h, limit = OptionValue["MaxTerms"]},
   result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], limit];
   If[result =!= $Failed, Return[result, Module]];
@@ -2085,7 +2099,7 @@ AsymptoticInverse`SeriesCompose[outer_PowerLogSeries, inner_PowerLogSeries, opts
       a["Variable"] -> seriesJetExpression[b["Jet"], b["ScaleVariable"], b["LogVariable"]]),
     "RemainderDerivativeOrder" -> Min[Lookup[a, "RemainderDerivativeOrder", 0], Lookup[b, "RemainderDerivativeOrder", 0]]|>], {"Compose", {outer, inner}}, h]]];
 
-AsymptoticInverse`SeriesTruncate[s_PowerLogSeries, h_, opts : OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`SeriesTruncate[s_GeneralizedSeries, h_, opts : OptionsPattern[]] := catch[Module[{d},
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[s[[1]], "Kind", ""]], Return[gammaInverseTruncate[s, h, OptionValue["MaxTerms"]], Module]];
   d = seriesData[s, OptionValue["MaxTerms"]];
   If[! exactRealQ[h], fail["InvalidCutoff", "The truncation cutoff must be an exact real number."]];
@@ -2113,26 +2127,26 @@ seriesDerivative[s_, n_, declared_, cut_, limit_] := Module[{d, contract, ell, a
       seriesBinary["Add", first, second, Automatic, limit]], {k, n}];
   d = seriesData[result, limit];
   seriesMake[d, {"Differentiate", {s}, n, declared}, If[cut === Automatic, Automatic, seriesWorkingCut[d, cut]]]];
-AsymptoticInverse`SeriesDifferentiate[s_PowerLogSeries, n_Integer : 1, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesDifferentiate[s_GeneralizedSeries, n_Integer : 1, opts : OptionsPattern[]] :=
   catch[seriesDerivative[s, n, OptionValue["RemainderDerivativeOrder"], OptionValue["Cutoff"], OptionValue["MaxTerms"]]];
 
 seriesRefinementResult[result_, original_, cutoff_] := Module[{data, stats},
-  If[! MatchQ[result, _PowerLogSeries], Return[result, Module]];
+  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
   data = result[[1]];
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[original[[1]], "Kind", ""]],
     data = Join[data, <|"TargetDomain" -> Lookup[original[[1]], "TargetDomain", True] &&
       Lookup[data, "TargetDomain", True]|>]];
-  If[KeyExistsQ[data, "RefinementStatistics"], Return[PowerLogSeries[data], Module]];
+  If[KeyExistsQ[data, "RefinementStatistics"], Return[GeneralizedSeries[data], Module]];
   stats = <|"Strategy" -> If[Lookup[original[[1]], "Kind", ""] === "Derived" &&
       KeyExistsQ[original[[1]], "SeriesRecipe"], "ReplayOperationRecipe", "ReplayOriginalSource"],
     "SourceCutoff" -> Lookup[original[[1]], "Cutoff", Missing["NotAvailable"]], "RequestedCutoff" -> cutoff,
     "ModelReused" -> False, "ReusedBlocks" -> 0,
     "NewCoefficientEvaluations" -> Missing["ReplayNotInstrumented"],
     "Evidence" -> "Recomputed from retained source or operation recipe; no coefficient reuse or work count is claimed."|>;
-  PowerLogSeries[Join[data, <|"RefinementStatistics" -> stats,
+  GeneralizedSeries[Join[data, <|"RefinementStatistics" -> stats,
     "RefinementHistory" -> Append[Lookup[original[[1]], "RefinementHistory", {}], stats]|>]]];
 
-AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : OptionsPattern[]] := catch[seriesRefinementResult[Module[
+AsymptoticInverse`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := catch[seriesRefinementResult[Module[
   {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared},
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
   If[KeyExistsQ[a, "InverseFunctionExpression"],
@@ -2169,7 +2183,7 @@ AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : Opt
     If[MemberQ[{None, Automatic}, declared] || ListQ[declared],
       AppendTo[sourceOptions, "InputRemainder" -> declared]];
     Return[AsymptoticInverse[a["Function"], {x, a["ExpansionPoint"]}, {y, h}, Sequence @@ sourceOptions], Module]];
-  If[MatchQ[Lookup[a, "CoordinateSeries", None], _PowerLogSeries],
+  If[MatchQ[Lookup[a, "CoordinateSeries", None], _GeneralizedSeries],
     base = AsymptoticInverse`SeriesRefine[a["CoordinateSeries"], h, "MaxTerms" -> limit];
     If[FailureQ[base], Return[base, Module]];
     rules = Lookup[a, "CoordinateSubstitution", {}]; r = seriesData[base, limit] /. rules;
@@ -2201,7 +2215,7 @@ AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : Opt
 (* END SOURCE: AsymptoticInverse/Kernel/SeriesOperations.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/RefinementState.wl
-   Source SHA256 (UTF-8/LF): f65ff31dcfa490ad9279dccad86518fac557e0e86639ddf450229be37117468f *)
+   Source SHA256 (UTF-8/LF): 57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c *)
 (* Reuse of ordinary inverse coefficient prefixes. No global cache is used.
    $Failed requests the existing source-replay path (for example when a new
    automatic forward expansion is needed). All returned states are values. *)
@@ -2311,7 +2325,7 @@ refinementAssemble[a_, cutoff_, blocks_, frontier_, state_, statistics_] := Modu
   remainder = If[remData === None, 0, PowerLogRemainder[a["RemainderVariable"], ToRadicals[remData[[1]]], remData[[2]]]];
   frontierTerm = If[frontier === None, 0, coord["Sign"]^r (v/leading)^ToRadicals[canon[(rint + frontier[[1]])/p]]
     (ToRadicals[frontier[[2]]] /. ell -> logw)];
-  PowerLogSeries[Join[a, <|"Expression" -> expression, "Terms" -> terms, "Blocks" -> blocks,
+  GeneralizedSeries[Join[a, <|"Expression" -> expression, "Terms" -> terms, "Blocks" -> blocks,
     "Remainder" -> remainder, "RemainderPower" -> If[remData === None, Infinity, ToRadicals[remData[[1]]]],
     "RemainderLogDegree" -> If[remData === None, 0, remData[[2]]],
     "RemainderScaleExpression" -> If[remainder === 0, 0, remainderScale[remainder]],
@@ -2321,7 +2335,7 @@ refinementAssemble[a_, cutoff_, blocks_, frontier_, state_, statistics_] := Modu
     "RefinementHistory" -> Append[Lookup[a, "RefinementHistory", {}], statistics],
     "SeriesData" -> makeInverseSeriesData[terms, y, a["Limit"], leading, coord, remData, r, a["ExpansionPoint"]]|>]]];
 
-refineStoredInverse[s : PowerLogSeries[a_Association], cutoff_, limit_] := Module[
+refineStoredInverse[s : GeneralizedSeries[a_Association], cutoff_, limit_] := Module[
   {m, method, p, rint, cut, oldCut, cap, declared, signature, state, origin, before, after, blocks,
    frontier, stats, region, frontierWork = 0, pair, result, exactStats},
   If[Lookup[a, "Kind", ""] =!= "Inverse" || Lookup[a, "Scale", "PowerLog"] =!= "PowerLog" ||
@@ -2340,12 +2354,12 @@ refineStoredInverse[s : PowerLogSeries[a_Association], cutoff_, limit_] := Modul
   If[a["Cutoff"] =!= Infinity && equal[cutoff, a["Cutoff"]],
     exactStats = <|"Strategy" -> "UnchangedCutoff", "SourceCutoff" -> a["Cutoff"], "RequestedCutoff" -> cutoff,
       "ModelReused" -> True, "NewCoefficientEvaluations" -> 0, "NewNewtonSteps" -> {}, "ReusedBlocks" -> Length[a["Blocks"]]|>;
-    Return[PowerLogSeries[Join[a, <|"RefinementStatistics" -> exactStats,
+    Return[GeneralizedSeries[Join[a, <|"RefinementStatistics" -> exactStats,
       "RefinementHistory" -> Append[Lookup[a, "RefinementHistory", {}], exactStats]|>]], Module]];
   If[a["Remainder"] === 0 && And @@ (less[#[[1]], cut] & /@ a["Blocks"]),
     exactStats = <|"Strategy" -> "ExactFiniteInverse", "SourceCutoff" -> a["Cutoff"], "RequestedCutoff" -> cutoff,
       "ModelReused" -> True, "NewCoefficientEvaluations" -> 0, "NewNewtonSteps" -> {}, "ReusedBlocks" -> Length[a["Blocks"]]|>;
-    Return[PowerLogSeries[Join[a, <|"Cutoff" -> cutoff, "RefinementStatistics" -> exactStats,
+    Return[GeneralizedSeries[Join[a, <|"Cutoff" -> cutoff, "RefinementStatistics" -> exactStats,
       "RefinementHistory" -> Append[Lookup[a, "RefinementHistory", {}], exactStats]|>]], Module]];
   If[a["Cutoff"] === Infinity, Return[$Failed, Module]];
   signature = refinementSignature[a];
@@ -2388,7 +2402,7 @@ refineStoredInverse[s : PowerLogSeries[a_Association], cutoff_, limit_] := Modul
 (* END SOURCE: AsymptoticInverse/Kernel/RefinementState.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SourceCoordinates.wl
-   Source SHA256 (UTF-8/LF): 29520105f2ff2d266eb8194b36824bec0a891f72df25ddf0524f2bd2536be675 *)
+   Source SHA256 (UTF-8/LF): f1b179acb05192f67aa8013660f1c1584a53384717f8744da4ef52d296e688db *)
 (* Exact source charts, loaded in AsymptoticInverse`Private` after the series
    calculus. Each underlying inverse is for the chart variable itself; the
    requested original observable is reconstructed with transported precision. *)
@@ -2425,7 +2439,7 @@ sourceExponentialChart[f_, x_, x0_, dir_, ass_, limit_] := Module[{coord, u, pha
 sourceExactObservable[base_, expression_, limit_, certificate_] := Module[{d = seriesData[base, limit], s},
   s = seriesMake[Join[d, <|"Offset" -> 0, "Prefactor" -> expression,
     "Jet" -> {{{0, 1}}, Infinity, 0}, "RemainderDerivativeOrder" -> Infinity|>], {"ExactSourceObservable", {base}}];
-  PowerLogSeries[Join[s[[1]], <|"ExactSourceCertificate" -> certificate|>]]];
+  GeneralizedSeries[Join[s[[1]], <|"ExactSourceCertificate" -> certificate|>]]];
 
 sourceBaseDomain[base_] := Module[{a = base[[1]], y = base["Variable"]},
   Lookup[a, "TargetDomain", If[MemberQ[{Infinity, -Infinity}, a["Limit"]], y, y - a["Limit"]]/a["LeadingCoefficient"] > 0]];
@@ -2531,7 +2545,7 @@ sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymp
   domain = ass && sourceBaseDomain[base];
   positive = If[chart["ChartEndpoint"] === 0, Normal[base] > 0, True];
   exact = If[a["Remainder"] === 0 && r === 1, a["Expression"], Missing["NonexactSourceReconstruction"]];
-  PowerLogSeries[Join[a, <|"Kind" -> "Inverse", "Scale" -> "Transformed", "CoordinateKind" -> chart["Kind"],
+  GeneralizedSeries[Join[a, <|"Kind" -> "Inverse", "Scale" -> "Transformed", "CoordinateKind" -> chart["Kind"],
     "CoordinateSeries" -> base, "CoordinateSubstitution" -> {}, "ReconstructedSeries" -> result,
     "SourceCoordinateVariable" -> chart["ChartVariable"], "SourceCoordinateEndpoint" -> chart["ChartEndpoint"],
     "SourceCoordinateDirection" -> chart["ChartDirection"], "SourceCoordinateExpression" -> chart["SourceCoordinateExpression"],
@@ -2644,7 +2658,7 @@ sourceCoordinateNumericalCheck[a_, yv_, wp_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/SourceCoordinates.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/CorePerturbation.wl
-   Source SHA256 (UTF-8/LF): a3af395e7d0a8554e2003ced31def5c902bf8df70c061e74f260bb8dcc6c09cf *)
+   Source SHA256 (UTF-8/LF): a52953710f5bec0708df2adb1784d6d10c32a38a3ba0e71dcdde381a822538bd *)
 (* Exact-core marker expansions with a proved asymptotic contract for finite
    power-log cores and higher-power perturbations. Loaded in Private`. *)
 
@@ -2819,7 +2833,7 @@ corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : Opti
     "LocalObservablePower" -> rint, "MarkerDepth" -> depth,
     "Justification" -> "Joint analytic implicit function theorem in reciprocal logarithm, fixed core parameters and finite higher-power perturbation parameters."|>;
   sourceAssumptions = ass && 0 < u < radius;
-  PowerLogSeries[<|"Kind" -> "CoreInverse", "Scale" -> "ExactCorePerturbation",
+  GeneralizedSeries[<|"Kind" -> "CoreInverse", "Scale" -> "ExactCorePerturbation",
     "Expression" -> expression, "Variable" -> y, "Variables" -> {x, y},
     "Function" -> core + perturbation, "Core" -> core, "Perturbation" -> perturbation,
     "CoreInverse" -> phi, "CoreLocalInverse" -> u0, "CoreCertificate" -> inverse["Certificate"],
@@ -2852,7 +2866,7 @@ AsymptoticInverse`AsymptoticCoreInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: AsymptoticInverse/Kernel/CorePerturbation.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/InverseCertificates.wl
-   Source SHA256 (UTF-8/LF): 6d6050e19e9c2156bac5b6417d10ebb12891e4d595b3c45c25609d99f31ee415 *)
+   Source SHA256 (UTF-8/LF): ef67eb2fc10bf65c476c70b1ebfe58ca9965c54a369b619d19c73ab75e496121 *)
 (* Exact rational residual certificates. Decimal arithmetic is used only to
    choose a center; every successful proof uses rational interval endpoints. *)
 
@@ -3071,14 +3085,14 @@ certRefinedSeed[a_, yv_, iteration_, wp_] := Module[{s, goal, x, y, options},
        Direction -> a["Direction"], "InputRemainder" -> Lookup[a, "InputRemainder", None],
        "SourceRadius" -> Lookup[a["CoreCertificate"], "SourceRadius", 1/E],
        "CoreCheckTimeConstraint" -> 1]], 5, $Failed]];
-   Return[If[MatchQ[s, _PowerLogSeries], certSeed[s[[1]], yv, wp], $Failed], Module]];
+   Return[If[MatchQ[s, _GeneralizedSeries], certSeed[s[[1]], yv, wp], $Failed], Module]];
   goal = Max[2, Lookup[a, "ReturnedTermCount", 1] + 2 iteration];
   options = {Assumptions -> Lookup[a, "Assumptions", True], Direction -> a["Direction"],
     Method -> If[Lookup[a, "Method", "Lagrange"] === "Lambert", "Lagrange", a["Method"]],
     "Power" -> 1, SeriesTermGoal -> goal};
   s = Quiet[TimeConstrained[catch[AsymptoticInverse[a["Function"], {x, a["ExpansionPoint"]}, y,
       Sequence @@ options]], 5, $Failed]];
-  If[MatchQ[s, _PowerLogSeries], certSeed[s[[1]], yv, wp], $Failed]];
+  If[MatchQ[s, _GeneralizedSeries], certSeed[s[[1]], yv, wp], $Failed]];
 
 certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[
   {forward, derivative, derivativeExpression, residual, epsilon, mu, radius, bracket, correction, sharp, domain,
@@ -3145,7 +3159,7 @@ Options[AsymptoticInverse`InverseCertificate] = {"Interval" -> Automatic, "Cente
   "TargetError" -> Automatic, "RelativeError" -> Automatic, WorkingPrecision -> 50, "EnclosureOrder" -> Automatic,
   "MaxRefinements" -> 6, "RefineExpansion" -> True, "ExponentMagnitudeLimit" -> 10000};
 
-AsymptoticInverse`InverseCertificate[PowerLogSeries[a_Association], yv_, opts : OptionsPattern[]] := catch[Module[
+AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts : OptionsPattern[]] := catch[Module[
   {interval = OptionValue["Interval"], center = OptionValue["Center"], tolerance = OptionValue["TargetError"],
    relative = OptionValue["RelativeError"], lowerMagnitude, upperMagnitude, goalBound, floorBound, absoluteTolerance,
    wp = OptionValue[WorkingPrecision], order = OptionValue["EnclosureOrder"],
@@ -3246,7 +3260,7 @@ AsymptoticInverse`InverseCertificate[___] := Failure["InvalidArguments", <|"Cert
 (* END SOURCE: AsymptoticInverse/Kernel/InverseCertificates.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/LogarithmicScales.wl
-   Source SHA256 (UTF-8/LF): d4258c4529b8ceae3f990a32dbda9cb701097c684089987397033ef91f837327 *)
+   Source SHA256 (UTF-8/LF): 8f550cfab7703e867d1fabe84216c604f4ed7230f9b9f486469cb0926aac49bd *)
 (* Finite logarithmic hierarchies. Loaded in AsymptoticInverse`Private`.
    Exact source-coordinate charts live separately in SourceCoordinates.wl. *)
 
@@ -3416,7 +3430,7 @@ logarithmicUnitConstruct[data_, rows_, offset_, p_, levels_, f_, x_, x0_, y_, co
       "Assumptions" -> ass, "Domain" -> domain, "Cutoff" -> cutoff, "RemainderDerivativeOrder" -> 0|>,
     Missing["NestedLogarithmicCoefficients"]];
   sourceLevels = logarithmicLevels[coord["u"], Length[levels]];
-  PowerLogSeries[<|"Kind" -> "LogarithmicInverse", "Scale" -> data["Type"],
+  GeneralizedSeries[<|"Kind" -> "LogarithmicInverse", "Scale" -> data["Type"],
     "Expression" -> expression, "Remainder" -> rem, "RemainderScaleExpression" -> remainderScale,
     "RemainderVariable" -> variable, "RemainderPower" -> beta, "RemainderLogDegree" -> logdegree,
     "Prefactor" -> prefactor, "Offset" -> finiteOffset, "Terms" -> terms, "Blocks" -> blocks,
@@ -3477,7 +3491,7 @@ logarithmicPowerConstruct[rows_, offset_, p_, levels_, f_, x_, x0_, y_, coord_, 
   offsetValue = If[r === 1 && ! coord["Infinite"], x0, 0];
   expression = offsetValue + Total[(w^#[[1]] #[[2]]) & /@ terms];
   domain = ass && target > 0 && And @@ (# > 1 & /@ levelValues);
-  PowerLogSeries[<|"Kind" -> "LogarithmicInverse", "Scale" -> "GeneralizedLogarithmicCoefficients",
+  GeneralizedSeries[<|"Kind" -> "LogarithmicInverse", "Scale" -> "GeneralizedLogarithmicCoefficients",
     "Expression" -> expression, "Terms" -> terms, "Blocks" -> blocks,
     "Remainder" -> If[beta === Infinity, 0, PowerLogRemainder[w, (rint + beta)/Abs[p], degree]],
     "RemainderScaleExpression" -> If[beta === Infinity, 0, w^((rint + beta)/Abs[p]) (1 + Abs[Log[w]])^degree],
@@ -3500,7 +3514,7 @@ logarithmicPowerConstruct[rows_, offset_, p_, levels_, f_, x_, x0_, y_, coord_, 
    candidate against the original equation, with the already selected real
    source branch, before removing a remainder. Failure or timeout only means
    that the bounded term search must continue. *)
-logarithmicGoalTermination[PowerLogSeries[a_Association]] := Module[
+logarithmicGoalTermination[GeneralizedSeries[a_Association]] := Module[
   {x, y, rint, sign, magnitude, candidate, domain, verified, representation},
   If[! TrueQ[Lookup[a, "ExactModel", False]] || LeafCount[a["Function"]] > 300 ||
      LeafCount[a["Expression"]] > 500, Return[None, Module]];
@@ -3518,7 +3532,7 @@ logarithmicGoalTermination[PowerLogSeries[a_Association]] := Module[
   representation = Lookup[a, "SeriesRepresentation", Missing["Unavailable"]];
   If[AssociationQ[representation], representation = Join[representation,
     <|"Jet" -> {a["Blocks"], Infinity, 0}|>]];
-  PowerLogSeries[Join[a, <|"Remainder" -> 0, "RemainderScaleExpression" -> 0,
+  GeneralizedSeries[Join[a, <|"Remainder" -> 0, "RemainderScaleExpression" -> 0,
     "RemainderPower" -> Infinity, "RemainderLogDegree" -> 0,
     "SeriesRepresentation" -> representation,
     "ExactTerminationCertificate" -> <|"Verified" -> True,
@@ -3555,7 +3569,7 @@ logarithmicGoalConstruct[make_, unitQ_, rows_, p_, rint_, goal_, limit_] := Modu
     If[count === goal || result["Remainder"] === 0, Break[]];
     If[result["Blocks"] =!= triedBlocks,
       triedBlocks = result["Blocks"]; termination = logarithmicGoalTermination[result];
-      If[MatchQ[termination, PowerLogSeries[_Association]], result = termination; Break[]]];
+      If[MatchQ[termination, GeneralizedSeries[_Association]], result = termination; Break[]]];
     If[unitQ,
       nextCutoff = If[count === previousCount, Min[2 cutoff, limit - 3], cutoff + 1];
       If[! less[cutoff, nextCutoff], fail["ResourceLimit", "The logarithmic search cannot advance within MaxTerms.",
@@ -3565,7 +3579,7 @@ logarithmicGoalConstruct[make_, unitQ_, rows_, p_, rint_, goal_, limit_] := Modu
       boundary = result["IndexRegion"]["Boundary"];
       If[boundary === {}, Break[]];
       cutoff = canon[(rint + Min[canon[# . gaps] & /@ boundary] + step)/Abs[p]]]];
-  PowerLogSeries[Join[result[[1]], <|"RequestedTermGoal" -> goal,
+  GeneralizedSeries[Join[result[[1]], <|"RequestedTermGoal" -> goal,
     "ReturnedTermCount" -> Length[result["Blocks"]],
     "TermGoalReached" -> (Length[result["Blocks"]] === goal),
     "TermSelection" -> "CompleteNonzeroBlocks", "TermGoalConstructionCalls" -> tries|>]]];
@@ -3614,7 +3628,7 @@ logarithmicConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymptotic
       fail["InvalidCutoff", "The cutoff must be an exact real number, positive for a logarithmic unit. A target-power cutoff must exceed the leading observable power."]];
     make[cutoff]];
   If[result === $Failed, Return[$Failed, Module]];
-  PowerLogSeries[Join[result[[1]], <|"RequestedMethod" -> method,
+  GeneralizedSeries[Join[result[[1]], <|"RequestedMethod" -> method,
     "Method" -> If[data === $Failed, "GeneralizedLogarithmicLagrange", "LogarithmicFixedPoint"]|>]]];
 
 logarithmicPublic[f_, x_, x0_, y_, cutoff_, opts___] := Module[{result = logarithmicConstruct[f, x, x0, y, cutoff, opts]},
@@ -3655,12 +3669,12 @@ logarithmicResidual[a_, requested_, limit_] := Module[{data, t, w, polynomial, o
     "Scope" -> "Exact formal composition of the normalized leading logarithmic core; separately recorded higher source-power sectors are beyond this logarithmic cutoff.",
     "OriginalFunction" -> a["Function"], "LeadingCoreOnly" -> a["LeadingCoreOnly"]|>];
 
-AsymptoticInverse`LogarithmicInverseResidual[PowerLogSeries[a_Association]] := catch[logarithmicResidual[a, Automatic, 200000]];
+AsymptoticInverse`LogarithmicInverseResidual[GeneralizedSeries[a_Association]] := catch[logarithmicResidual[a, Automatic, 200000]];
 AsymptoticInverse`LogarithmicInverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Supply a logarithmic-unit expansion object."|>];
 (* END SOURCE: AsymptoticInverse/Kernel/LogarithmicScales.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/FlatSectors.wl
-   Source SHA256 (UTF-8/LF): d8caeb47a9ef4fd7649ce6f0d40a00f8f9a5f522d261926e54e4a7d1d443da96 *)
+   Source SHA256 (UTF-8/LF): 521bf6d99591b0f4b6afeb39a8d1338e1e9cbe7798d171893925185fce32ee71 *)
 (* Finite commensurate flat sectors around an exact monomial core.
    This module is loaded in Private` and uses a separate exponential degree.
    It never represents a finite power-log truncation as an exact zero sector. *)
@@ -3762,7 +3776,7 @@ flatConstruct[f_, x_, x0_, y_, n_, opts : OptionsPattern[AsymptoticInverse`Asymp
  d = Max[0, Max[polyDegree[#[[2]], ell] & /@ rowBounds]];
  envelope = u0^(-b) (1 + Abs[Log[u0]])^d;
  rem = phase^(n + 1) PowerLogRemainder[u0, canon[rint + p - (n + 1) b], (n + 1) d];
- PowerLogSeries[<|"Kind" -> "FlatInverse", "Scale" -> "FiniteFlatSectors",
+ GeneralizedSeries[<|"Kind" -> "FlatInverse", "Scale" -> "FiniteFlatSectors",
   "Expression" -> expression, "Variable" -> y, "Variables" -> {x, y}, "Function" -> f,
   "ExpansionPoint" -> x0, "Direction" -> coord["Direction"], "Power" -> r,
   "Assumptions" -> ass, "TargetDomain" -> ass && (y - model["Offset"])/a > 0,
@@ -3786,7 +3800,7 @@ AsymptoticInverse`AsymptoticFlatInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: AsymptoticInverse/Kernel/FlatSectors.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/FlatSectorOperations.wl
-   Source SHA256 (UTF-8/LF): 5d7aa1898b547c34bc7a968c1a7f16e611db336d50f16c8869078687b8113840 *)
+   Source SHA256 (UTF-8/LF): 74e5c150b1cd42f4d62edafce31cf42c8fbce5e34110b11d8ae878cc8e82cd05 *)
 (* Two independent truncations: inclusive exponential degree and exclusive
    inner power. A discarded inner coefficient remains in its own sector. *)
 
@@ -3822,7 +3836,7 @@ flatOpsParse[e_, d_, limit_] := Module[{u = d["LocalVariable"], ell = d["LogVari
     fail["UnsupportedFlatCoefficient", "The exact coefficient must be a finite real power-log expression in the monomial core coordinate."]];
   {jetMerge[rows, ell, d["Assumptions"]], Infinity, 0}];
 
-flatOpsData[s : PowerLogSeries[a_Association], limit_] := Module[
+flatOpsData[s : GeneralizedSeries[a_Association], limit_] := Module[
   {d, model, u = Unique["flatCoordinate$"], ell = Unique["flatLog$"], n, jets, tail, proof},
   If[AssociationQ[Lookup[a, "FlatRepresentation", None]],
     Return[flatOpsBudget[a["FlatRepresentation"], limit], Module]];
@@ -3973,7 +3987,7 @@ flatOpsMake[d_, recipe_] := Module[
     phase^(d["SectorDepth"] + 1) PowerLogRemainder[u0, tail[[1]], tail[[2]]]];
   remainder = sectorRemainder + Total[(phase^#[[1]] #[[2]]) & /@ inner];
   envelope = remainder /. rr_PowerLogRemainder :> remainderScale[rr];
-  PowerLogSeries[<|"Kind" -> "FlatDerived", "Scale" -> "FiniteFlatSectors", "Variable" -> d["Variable"],
+  GeneralizedSeries[<|"Kind" -> "FlatDerived", "Scale" -> "FiniteFlatSectors", "Variable" -> d["Variable"],
     "Expression" -> expression, "Assumptions" -> d["Assumptions"], "TargetDomain" -> d["TargetDomain"],
     "CoreInverseCoordinate" -> u0, "FlatScale" -> phase, "ZeroSector" -> zero, "Sectors" -> sectors,
     "Terms" -> Join[{{0, zero}}, sectors], "SectorDepth" -> d["SectorDepth"], "InnerCutoff" -> d["InnerCutoff"],
@@ -3986,22 +4000,22 @@ flatOpsMake[d_, recipe_] := Module[
     "FlatAnalyticRemainder" -> d["DerivativeProvenance"], "RemainderDerivativeOrder" -> If[remainder === 0 || TrueQ[d["DerivativeContract"]], Infinity, 0],
     "FlatRepresentation" -> d, "FlatRecipe" -> recipe, "SeriesData" -> Missing["IndependentFlatSectorTruncations"]|>]];
 
-AsymptoticInverse`FlatSeriesTruncate[s_PowerLogSeries, h_, OptionsPattern[]] :=
+AsymptoticInverse`FlatSeriesTruncate[s_GeneralizedSeries, h_, OptionsPattern[]] :=
   catch[flatOpsMake[flatOpsTruncateData[flatOpsData[s, OptionValue["MaxTerms"]], h, OptionValue["MaxTerms"]], {"Truncate", {s}, h}]];
-AsymptoticInverse`FlatSeriesMultiply[s_PowerLogSeries, t_PowerLogSeries, OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`FlatSeriesMultiply[s_GeneralizedSeries, t_GeneralizedSeries, OptionsPattern[]] := catch[Module[{d},
   d = flatOpsMultiplyData[flatOpsData[s, OptionValue["MaxTerms"]], flatOpsData[t, OptionValue["MaxTerms"]], OptionValue["MaxTerms"]];
   flatOpsMake[flatOpsTruncateData[d, OptionValue["InnerCutoff"], OptionValue["MaxTerms"]], {"Multiply", {s, t}}]]];
-AsymptoticInverse`FlatSeriesMultiply[s_PowerLogSeries, c_ /; FreeQ[c, _PowerLogSeries], OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`FlatSeriesMultiply[s_GeneralizedSeries, c_ /; FreeQ[c, _GeneralizedSeries], OptionsPattern[]] := catch[Module[{d},
   d = flatOpsData[s, OptionValue["MaxTerms"]];
   flatOpsMake[flatOpsTruncateData[flatOpsMultiplyData[d, flatOpsConstantData[c, d, OptionValue["MaxTerms"]], OptionValue["MaxTerms"]],
     OptionValue["InnerCutoff"], OptionValue["MaxTerms"]], {"MultiplyScalar", {s}, c}]]];
-AsymptoticInverse`FlatSeriesMultiply[c_ /; FreeQ[c, _PowerLogSeries], s_PowerLogSeries, opts : OptionsPattern[]] :=
+AsymptoticInverse`FlatSeriesMultiply[c_ /; FreeQ[c, _GeneralizedSeries], s_GeneralizedSeries, opts : OptionsPattern[]] :=
   AsymptoticInverse`FlatSeriesMultiply[s, c, opts];
-AsymptoticInverse`FlatSeriesObservable[s_PowerLogSeries, h_, z_Symbol, OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`FlatSeriesObservable[s_GeneralizedSeries, h_, z_Symbol, OptionsPattern[]] := catch[Module[{d},
   d = flatOpsObservableData[flatOpsData[s, OptionValue["MaxTerms"]], h, z,
     OptionValue["MaxPolynomialDegree"], OptionValue["MaxTerms"]];
   flatOpsMake[flatOpsTruncateData[d, OptionValue["InnerCutoff"], OptionValue["MaxTerms"]], {"PolynomialObservable", {s}, h, z}]]];
-AsymptoticInverse`FlatSeriesDifferentiate[s_PowerLogSeries, n_Integer : 1, OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`FlatSeriesDifferentiate[s_GeneralizedSeries, n_Integer : 1, OptionsPattern[]] := catch[Module[{d},
   d = flatOpsDifferentiateData[flatOpsData[s, OptionValue["MaxTerms"]], n, OptionValue["MaxTerms"]];
   flatOpsMake[flatOpsTruncateData[d, OptionValue["InnerCutoff"], OptionValue["MaxTerms"]], {"Differentiate", {s}, n}]]];
 
@@ -4012,7 +4026,7 @@ AsymptoticInverse`FlatSeriesDifferentiate[___] := Failure["InvalidArguments", <|
 (* END SOURCE: AsymptoticInverse/Kernel/FlatSectorOperations.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/FourierCoefficients.wl
-   Source SHA256 (UTF-8/LF): 83075c84e2f13e259872a1175a8a729e7e68f7a959a3eb5e2201095e784092ff *)
+   Source SHA256 (UTF-8/LF): ca81678b82b77af000dfa5984fafd1f2c6ccfa4e412c62c38a755a430f57aa1b *)
 (* Finite Fourier-polynomial coefficient algebra in L = Log[u].
    A coefficient is {{omega,P_omega(L)},...}, representing
    Sum[P_omega(L) Exp[I omega L]]. Source weights remain separate. *)
@@ -4033,16 +4047,23 @@ fourierPoly[q_, ell_, ass_] := Module[{coefficients, canonical, expanded},
   coefficients = canonical /@ CoefficientList[expanded, ell];
   Expand[coefficients . ell^Range[0, Length[coefficients] - 1]]];
 
+(* The first entry is an exact source weight or frequency. Mathematical
+   equality, rather than structural equality, groups algebraic resonances. *)
+fourierWeightGroups[rows_List] := Split[
+  Sort[MapAt[canon, #, 1] & /@ rows, less[#1[[1]], #2[[1]]] &],
+  equal[#1[[1]], #2[[1]]] &];
+fourierFrequencyBudget[count_, limit_] := If[count > limit,
+  fail["FrequencyLimit", "The exact Fourier coefficient exceeds MaxFrequencies; no modes were silently discarded.",
+    <|"MaxFrequencies" -> limit, "RequiredFrequencies" -> count|>]];
+fourierJetFrequencies[rows_List] := #[[1, 1]] & /@ fourierWeightGroups[
+  List /@ Flatten[(#[[2, All, 1]] &) /@ rows]];
+
 fourierMerge[rows_List, ell_, ass_, frequencyLimit_] := Module[{groups, result},
   If[rows === {}, Return[{}, Module]];
-  groups = Split[Sort[({canon[#[[1]]], #[[2]]} & /@ rows), less[#1[[1]], #2[[1]]] &],
-    equal[#1[[1]], #2[[1]]] &];
-  result = {canon[#[[1, 1]]], fourierPoly[Total[#[[All, 2]]], ell, ass]} & /@ groups;
+  groups = fourierWeightGroups[rows];
+  result = {#[[1, 1]], fourierPoly[Total[#[[All, 2]]], ell, ass]} & /@ groups;
   result = Select[result, ! TrueQ[Simplify[#[[2]] == 0, ass && Element[ell, Reals]]] &];
-  If[Length[result] > frequencyLimit,
-   fail["FrequencyLimit", "The exact Fourier coefficient exceeds MaxFrequencies; no modes were silently discarded.",
-    <|"MaxFrequencies" -> frequencyLimit, "RequiredFrequencies" -> Length[result]|>]];
-  Sort[result, less[#1[[1]], #2[[1]]] &]];
+  fourierFrequencyBudget[Length[result], frequencyLimit]; result];
 fourierScale[a_, scalar_, ell_, ass_, limit_] := fourierMerge[{#[[1]], scalar #[[2]]} & /@ a, ell, ass, limit];
 fourierAdd[a_, b_, ell_, ass_, limit_] := fourierMerge[Join[a, b], ell, ass, limit];
 fourierMul[a_, b_, ell_, ass_, limit_, frequencyLimit_] := Module[{rows},
@@ -4083,30 +4104,28 @@ fourierReadCoefficient[expression_, ell_, ass_, frequencyLimit_] := Module[
    AppendTo[rows, {frequency, polynomial}], {term, terms}];
   fourierMerge[rows, ell, ass, frequencyLimit]];
 
-fourierJetMerge[rows_, ell_, ass_, limit_, frequencyLimit_] := Module[{groups, result, frequencies},
+fourierJetMerge[rows_, ell_, ass_, limit_, frequencyLimit_] := Module[{groups, result},
   If[rows === {}, Return[{}, Module]];
-  groups = Split[Sort[({canon[#[[1]]], #[[2]]} & /@ rows), less[#1[[1]], #2[[1]]] &],
-    equal[#1[[1]], #2[[1]]] &];
-  result = {canon[#[[1, 1]]], fourierMerge[Flatten[#[[All, 2]], 1], ell, ass, frequencyLimit]} & /@ groups;
+  groups = fourierWeightGroups[rows];
+  result = {#[[1, 1]], fourierMerge[Flatten[#[[All, 2]], 1], ell, ass, frequencyLimit]} & /@ groups;
   result = Select[result, #[[2]] =!= {} &];
   If[Length[result] > limit, fail["ResourceLimit", "The Fourier source-weight jet exceeds MaxTerms."]];
-  frequencies = First /@ fourierMerge[({#, 1} &) /@
-    Flatten[(#[[2, All, 1]] &) /@ result], ell, ass, frequencyLimit];
-  If[Length[frequencies] > frequencyLimit,
-   fail["FrequencyLimit", "The Fourier jet exceeds MaxFrequencies distinct modes across its retained blocks.",
-    <|"MaxFrequencies" -> frequencyLimit, "RequiredFrequencies" -> Length[frequencies]|>]];
-  Sort[result, less[#1[[1]], #2[[1]]] &]];
+  fourierFrequencyBudget[Length[fourierJetFrequencies[result]], frequencyLimit]; result];
 fourierJetTrim[rows_, cutoff_, ell_, ass_, limit_, frequencyLimit_] :=
   fourierJetMerge[Select[rows, less[First[#], cutoff] &], ell, ass, limit, frequencyLimit];
 fourierJetAdd[a_, b_, cutoff_, ell_, ass_, limit_, frequencyLimit_] :=
   fourierJetTrim[Join[a, b], cutoff, ell, ass, limit, frequencyLimit];
 fourierJetScale[a_, c_, ell_, ass_, limit_, frequencyLimit_] :=
   fourierJetMerge[{#[[1]], fourierScale[#[[2]], c, ell, ass, frequencyLimit]} & /@ a, ell, ass, limit, frequencyLimit];
-fourierJetMul[a_, b_, cutoff_, ell_, ass_, limit_, frequencyLimit_] := Module[{rows = {}, count = 0},
-  Do[If[less[aa[[1]] + bb[[1]], cutoff],
-    count++; If[count > limit, fail["ResourceLimit", "Fourier jet multiplication exceeded MaxTerms retained pairs."]];
-    AppendTo[rows, {aa[[1]] + bb[[1]], fourierMul[aa[[2]], bb[[2]], ell, ass, limit, frequencyLimit]}]],
-   {aa, a}, {bb, b}];
+fourierJetMul[a_, b_, cutoff_, ell_, ass_, limit_, frequencyLimit_] := Module[
+  {rows = {}, count = 0, last = Length[b]},
+  (* Source jets are sorted. Retain the original row-major convolution and
+     failure order while skipping columns beyond the exclusive cutoff. *)
+  Do[If[cutoff =!= Infinity,
+    While[last > 0 && ! less[aa[[1]] + b[[last, 1]], cutoff], last--]];
+   Do[count++; If[count > limit, fail["ResourceLimit", "Fourier jet multiplication exceeded MaxTerms retained pairs."]];
+    AppendTo[rows, {aa[[1]] + b[[j, 1]], fourierMul[aa[[2]], b[[j, 2]], ell, ass, limit, frequencyLimit]}],
+    {j, last}], {aa, a}];
   fourierJetMerge[rows, ell, ass, limit, frequencyLimit]];
 
 fourierRead[f_, x_, coord_, ell_, ass_, limit_, frequencyLimit_] := Module[
@@ -4214,9 +4233,9 @@ fourierConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInver
       coord["Sign"]^r Abs[amplitude]^(-(rint + #[[1]])/p) (fourierExpression[#[[2]], ell, ass] /. ell -> logz)} & /@ blocks;
   expression = If[r === 1 && ! coord["Infinite"], x0, 0] + Total[(w^#[[1]] #[[2]]) & /@ terms];
   rem = If[beta === Infinity, 0, PowerLogRemainder[w, beta, degree]];
-  frequencies = Sort[DeleteDuplicates[Flatten[(#[[2, All, 1]] &) /@ blocks]], less];
+  frequencies = fourierJetFrequencies[blocks];
   domain = ass && target > 0 && 0 < z < 1;
-  PowerLogSeries[<|"Kind" -> "FourierInverse", "Scale" -> "FourierPolynomialCoefficients", "Method" -> "Lagrange",
+  GeneralizedSeries[<|"Kind" -> "FourierInverse", "Scale" -> "FourierPolynomialCoefficients", "Method" -> "Lagrange",
     "Expression" -> expression, "Terms" -> terms, "Blocks" -> blocks,
     "FourierFrequencies" -> frequencies, "MaxFrequencies" -> frequencyLimit,
     "CoefficientEnvelopes" -> ({#[[1]], fourierEnvelope[#[[2]], ell, 1 + Abs[logz], ass]} & /@ blocks),
@@ -4260,12 +4279,12 @@ fourierResidual[a_, cutoff_, limit_] := Module[
     "NormalizedResidual" -> Total[(a["Uniformizer"]^#[[1]] (fourierExpression[#[[2]], ell, ass] /. ell -> a["LogarithmicValue"])) & /@ answer],
     "RelativeCutoff" -> h, "Scope" -> "Exact formal composition with the stored finite Fourier forward expression; unspecified InputRemainder terms are not composed."|>];
 Options[AsymptoticInverse`FourierInverseResidual] = {"MaxTerms" -> 20000};
-AsymptoticInverse`FourierInverseResidual[PowerLogSeries[a_Association], cutoff_: Automatic, OptionsPattern[]] := catch[
+AsymptoticInverse`FourierInverseResidual[GeneralizedSeries[a_Association], cutoff_: Automatic, OptionsPattern[]] := catch[
   If[Lookup[a, "Kind", None] =!= "FourierInverse", fail["UnsupportedResidual", "A Fourier inverse object is required."]];
   fourierResidual[a, cutoff, OptionValue["MaxTerms"]]];
 AsymptoticInverse`FourierInverseResidual[___] := Failure["InvalidArguments", <|
   "MessageTemplate" -> "Use FourierInverseResidual[FourierInverseResult] or FourierInverseResidual[result,relativeCutoff]."|>];
-AsymptoticInverse`FourierInverseCoefficient[PowerLogSeries[a_Association], k_List] := catch[Module[{r, coefficient},
+AsymptoticInverse`FourierInverseCoefficient[GeneralizedSeries[a_Association], k_List] := catch[Module[{r, coefficient},
   If[Lookup[a, "Kind", None] =!= "FourierInverse" || Length[k] =!= Length[a["PowerGaps"]] ||
     ! And @@ (IntegerQ[#] && NonNegative[#] & /@ k), fail["InvalidMultiIndex", "Supply a nonnegative integer multi-index of the Fourier model's dimension."]];
   r = If[MemberQ[{Infinity, -Infinity}, a["ExpansionPoint"]], -a["Power"], a["Power"]];
@@ -4279,7 +4298,7 @@ AsymptoticInverse`FourierInverseCoefficient[___] := Failure["InvalidArguments", 
 (* END SOURCE: AsymptoticInverse/Kernel/FourierCoefficients.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl
-   Source SHA256 (UTF-8/LF): deae27086814dc566514bc9757625c9ceed2faa25a102abb6dd39cb3ef14b841 *)
+   Source SHA256 (UTF-8/LF): 3d4a44ba90f44b25567da0a3f8fad8da0c8d9dd1984d78be0964d7ba6d62404e *)
 (* Real special-function adapters with explicit forward-model provenance.
    Finite Poincare models are never labelled convergent exact forward data. *)
 
@@ -4333,7 +4352,7 @@ specialErfc[fam_, x_, endpoint_, y_, cutoff_, ass_, direction_, modelTerms_, off
   representation = seriesData[inner, limit] /. v -> target;
   representation = Join[representation, <|"Variable" -> y, "Domain" -> domain,
     "Prefactor" -> sign representation["Prefactor"], "Offset" -> sign representation["Offset"]|>];
-  PowerLogSeries[Join[innerData, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction",
+  GeneralizedSeries[Join[innerData, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction",
     "Adapter" -> "Erfc", "Expression" -> expression, "Terms" -> terms,
     "SeriesRepresentation" -> representation,
     "Remainder" -> remainder, "RemainderScaleExpression" -> tailScale,
@@ -4381,7 +4400,7 @@ specialGamma[fam_, x_, endpoint_, y_, depth_, ass_, direction_, modelTerms_, off
   data = inner[[1]] /. v -> target;
   original = offset + scale If[fam === "Gamma", Gamma[x], LogGamma[x]];
   domain = ass && If[fam === "Gamma", (y - offset)/scale > 1, (y - offset)/scale > 0];
-  PowerLogSeries[Join[data, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction", "Adapter" -> fam,
+  GeneralizedSeries[Join[data, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction", "Adapter" -> fam,
     "Function" -> original, "Variable" -> y, "Variables" -> {x, y}, "TargetDomain" -> domain,
     "ExpansionPoint" -> Infinity, "Direction" -> "FromBelow", "Limit" -> If[provablyPositive[scale, ass], Infinity, -Infinity],
     "TargetOffset" -> offset, "TargetScale" -> scale, "TargetCoordinateExpression" -> target,
@@ -4426,7 +4445,7 @@ specialThreshold[fam_, x_, endpoint_, y_, cutoff_, ass_, direction_, branch_, of
     If[FailureQ[inner], Return[inner, Module]];
     data = inner[[1]]; target = (y - offset)/coefficient;
     domain = ass && target > 0; exactInverse = endpoint + sign Sqrt[target]; chosen = Missing["QuadraticSourceDirection"]];
-  PowerLogSeries[Join[data, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction", "Adapter" -> fam,
+  GeneralizedSeries[Join[data, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction", "Adapter" -> fam,
     "Function" -> original, "Variable" -> y, "Variables" -> {x, y}, "ExpansionPoint" -> endpoint,
     "Direction" -> dir, "TargetDomain" -> domain, "TargetOffset" -> offset, "TargetScale" -> scale,
     "ExactInverseExpression" -> exactInverse, "ThresholdBranch" -> chosen,
@@ -4458,7 +4477,7 @@ specialConstruct[fam_, x_, endpoint_, y_, cutoff_, opts : OptionsPattern[Asympto
     "LambertThreshold" | "QuadraticThreshold", specialThreshold[fam, x, endpoint, y, cutoff, ass, dir, branch, offset, scale, q, limit],
     _, fail["UnknownSpecialFunctionAdapter", "Available adapters are Erfc, LogGamma, Gamma, LambertThreshold and QuadraticThreshold."]];
   If[FailureQ[result], Return[result, Module]];
-  PowerLogSeries[Join[result[[1]], <|"RequestedCutoff" -> cutoff,
+  GeneralizedSeries[Join[result[[1]], <|"RequestedCutoff" -> cutoff,
     "AdapterOptions" -> {Assumptions -> ass, Direction -> dir, "ModelTerms" -> m,
       "TargetOffset" -> offset, "TargetScale" -> scale, "QuadraticCoefficient" -> q,
       "LambertBranch" -> branch}|>]]];
@@ -4492,13 +4511,13 @@ specialNumerical[a_, target_, wp_] := Module[{x, y, value, approximate, referenc
     "Evidence" -> "High-precision comparison with the original special-function equation or exact local inverse; no interval certificate.",
     "Adapter" -> a["Adapter"], "Certified" -> False|>];
 
-AsymptoticInverse`SpecialInverseNumericalCheck[PowerLogSeries[a_Association], target_, opts : OptionsPattern[]] :=
+AsymptoticInverse`SpecialInverseNumericalCheck[GeneralizedSeries[a_Association], target_, opts : OptionsPattern[]] :=
   catch[If[Lookup[a, "Kind", None] =!= "SpecialInverse", fail["InvalidAdapterObject", "Supply a special-function adapter result."]]; specialNumerical[a, target, OptionValue[WorkingPrecision]]];
 AsymptoticInverse`SpecialInverseNumericalCheck[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use SpecialInverseNumericalCheck[adapterResult,target]."|>];
 (* END SOURCE: AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/ExponentialCorePerturbation.wl
-   Source SHA256 (UTF-8/LF): 0eb5f5c72d385a4c24f1af2c30c89b2f0bec663f41106e771f4ae9718850a82d *)
+   Source SHA256 (UTF-8/LF): b984a12dffddf6518d8faa5617f8b6f47fcc38cc5369a4f12c8bf8779652fb4f *)
 (* Exact growing exponential cores with finite power-log perturbations.
    Loaded in Private`.  Exact Lambert/elementary cores remain unexpanded. *)
 
@@ -4637,7 +4656,7 @@ exponentialCoreConstruct[core_, perturbation_, x_, endpoint_, y_, depth_, opts :
       "Statement" -> "A declared unknown polynomial-scale forward error induces a first-exponential-sector inverse error. This accuracy ceiling is independent of the retained model's sector depth."|>];
   remainder = sectorRemainder + inputRemainder;
   targetLimit = If[provablyPositive[a, ass], Infinity, -Infinity];
-  PowerLogSeries[<|"Kind" -> "ExponentialCoreInverse", "Scale" -> "ExactExponentialCoreSectors",
+  GeneralizedSeries[<|"Kind" -> "ExponentialCoreInverse", "Scale" -> "ExactExponentialCoreSectors",
     "Expression" -> expression, "Remainder" -> remainder, "RemainderScaleExpression" -> sectorScale + inputScale,
     "Core" -> core, "Perturbation" -> perturbation, "Function" -> core + perturbation,
     "Variable" -> y, "Variables" -> {x, y}, "ExpansionPoint" -> endpoint, "Direction" -> coordinates["Direction"],
@@ -4739,11 +4758,11 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/NumericalInverseChecks.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/RefinementRequests.wl
-   Source SHA256 (UTF-8/LF): 12658bdf2b9d35b0886fb3c9301b3901402f0f8182124095d4df20220426bcaa *)
+   Source SHA256 (UTF-8/LF): 35888af4c3c2b9f4f78da69a8c074ec6cbebd117c069f8e58c70870249cbb461 *)
 (* Structured refinement requests keep coefficient goals distinct from
    certified numerical tolerances. Resource failures preserve the last object. *)
 
-refinementRequest[s : PowerLogSeries[a_Association], request_, limit_, maximum_] := Module[
+refinementRequest[s : GeneralizedSeries[a_Association], request_, limit_, maximum_] := Module[
  {unknown, extra, desired, count, current = s, next, step, cutoff, iterations = 0, certificate, options},
  If[! IntegerQ[limit] || limit < 1 || ! IntegerQ[maximum] || maximum < 0,
   fail["InvalidOption", "MaxTerms must be positive and MaxRefinements nonnegative integers."]];
@@ -4766,7 +4785,7 @@ refinementRequest[s : PowerLogSeries[a_Association], request_, limit_, maximum_]
    If[FailureQ[next], Throw[Failure[next[[1]], Join[next[[2]], <|"BestExpansion" -> current,
      "RequestedBlocks" -> desired, "ReturnedBlocks" -> Length[current["Blocks"]]|>]], $tag]];
    current = next];
-  Return[PowerLogSeries[Join[current[[1]], <|"RefinementRequest" -> <|
+  Return[GeneralizedSeries[Join[current[[1]], <|"RefinementRequest" -> <|
     "AdditionalBlocks" -> extra, "InitialBlocks" -> count, "RequestedBlocks" -> desired,
     "ReturnedBlocks" -> Length[current["Blocks"]], "GoalReached" -> (Length[current["Blocks"]] >= desired),
     "ExactTermination" -> (current["Remainder"] === 0), "RefinementCalls" -> iterations|>|>]], Module]];
@@ -4782,12 +4801,12 @@ refinementRequest[s : PowerLogSeries[a_Association], request_, limit_, maximum_]
    "RefinementRequest" -> request,
    "RefinementMeaning" -> "Certified accuracy of the returned rational center. This does not change the symbolic expansion remainder."|>]];
 
-AsymptoticInverse`SeriesRefine[s : PowerLogSeries[_Association], request_Association, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesRefine[s : GeneralizedSeries[_Association], request_Association, opts : OptionsPattern[]] :=
  catch[refinementRequest[s, request, OptionValue["MaxTerms"], OptionValue["MaxRefinements"]]];
 (* END SOURCE: AsymptoticInverse/Kernel/RefinementRequests.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/ReciprocalLogOperations.wl
-   Source SHA256 (UTF-8/LF): 8d5d95767ece61a370562f7b52c235d7ef778c7b1466aecf1ccdfe734b4fb843 *)
+   Source SHA256 (UTF-8/LF): 40fa57ed1c5b86314939eaa0f509732989661eecfaa2c36530aa44cb759f1336 *)
 (* Analytic calculus for C y^alpha A(epsilon/Log[y]), epsilon = +/-1.
    Hooks return $Failed outside their proved reciprocal-log scope. *)
 
@@ -4798,7 +4817,7 @@ AsymptoticInverse`ReciprocalLogDifferentiate::usage =
 Options[AsymptoticInverse`ReciprocalLogCompose] = {"Cutoff" -> Automatic, "MaxTerms" -> 20000};
 Options[AsymptoticInverse`ReciprocalLogDifferentiate] = {"Cutoff" -> Automatic, "MaxTerms" -> 20000};
 
-reciprocalLogData[s : PowerLogSeries[a_Association], limit_] := Module[
+reciprocalLogData[s : GeneralizedSeries[a_Association], limit_] := Module[
   {stored, y, p, power, endpoint, rint, alpha, coefficient, epsilon, t, scale,
    beta, polynomial, rows, ass, side, expected, exactRechart = False, originalCutoff},
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
@@ -4863,7 +4882,7 @@ reciprocalLogMake[d0_, recipe_, cut_, limit_] := Module[
     "Assumptions" -> d["Assumptions"], "Domain" -> d["Domain"], "Cutoff" -> h,
     "RemainderDerivativeOrder" -> Infinity|>;
   result = seriesMake[representation, recipe, h];
-  PowerLogSeries[Join[result[[1]], <|"Scale" -> "ReciprocalLogCalculus",
+  GeneralizedSeries[Join[result[[1]], <|"Scale" -> "ReciprocalLogCalculus",
     "ReciprocalLogRepresentation" -> d,
     "AnalyticRemainderContract" -> <|"Type" -> "HolomorphicReciprocalLogarithmicUnit",
       "AllFixedDerivativeOrders" -> True, "NumericCertificate" -> False,
@@ -4934,10 +4953,10 @@ reciprocalLogDifferentiate[s_, n_, declared_, cut_, limit_] := Module[
     "Origin" -> "Exact carrier differentiation with a holomorphic Taylor remainder"|>],
     {"Differentiate", {s}, n, Automatic}, h, limit]];
 
-AsymptoticInverse`ReciprocalLogCompose[outer_PowerLogSeries, inner_PowerLogSeries, opts : OptionsPattern[]] := catch[
+AsymptoticInverse`ReciprocalLogCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[
   Module[{result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},
     If[result === $Failed, fail["UnsupportedReciprocalLogComposition", "Use exact reciprocal-log-unit inverse carriers with zero offsets and positive monomial prefactors."], result]]];
-AsymptoticInverse`ReciprocalLogDifferentiate[s_PowerLogSeries, n_Integer : 1, opts : OptionsPattern[]] := catch[
+AsymptoticInverse`ReciprocalLogDifferentiate[s_GeneralizedSeries, n_Integer : 1, opts : OptionsPattern[]] := catch[
   Module[{result = reciprocalLogDifferentiate[s, n, Automatic, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},
     If[result === $Failed, fail["UnsupportedReciprocalLogDerivative", "A retained exact reciprocal-log implicit model or its supported calculus result is required; unknown and omitted higher-power input sectors are excluded."], result]]];
 (* END SOURCE: AsymptoticInverse/Kernel/ReciprocalLogOperations.wl *)
@@ -5418,7 +5437,7 @@ inverseFunctionSeparateFamily[___] :=
 (* END SOURCE: AsymptoticInverse/Kernel/InverseFunctionFamilies.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/InverseFunctionExpressions.wl
-   Source SHA256 (UTF-8/LF): 40062a23175f9f80105aba2c8ac45f1a281cc836a9693f25775b7c404bfbdca2 *)
+   Source SHA256 (UTF-8/LF): 5381c66b49ade9619938fff640fdd0d8a62d9d6237d22b730adc483876864e8f *)
 (* Applied inverse functions are implicit scalar germs.  Parse their callable,
    establish its real source branch, then compose the existing inverse with
    the precision-tracked target argument.  Never use native Series on an
@@ -5463,13 +5482,9 @@ inverseFunctionEventually[condition_, u_, ass_] := Module[{simple, delta, proof}
 forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] := Block[
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticExpansion, {opts}, "InverseFunctionBranches"]}, Module[
-  {body = f, condition = True, ass, parameterAss, clauses, coord, result, rules, records, targetDomain},
+  {body = f, condition, ass, parameterAss, coord, result, rules, records, targetDomain},
   ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions];
-  While[Head[body] === ConditionalExpression,
-    condition = condition && body[[2]]; body = body[[1]]];
-  clauses = If[Head[ass] === And, List @@ ass, {ass}];
-  parameterAss = And @@ Select[clauses, FreeQ[#, x] &];
-  condition = condition && And @@ Select[clauses, ! FreeQ[#, x] &];
+  {body, parameterAss, condition} = splitApproachInput[body, x, ass];
   coord = localCoordinate[x, x0, OptionValue[AsymptoticExpansion, {opts}, Direction]];
   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], coord["u"], parameterAss],
     fail["IncompatibleTargetCondition", "The expression's condition must hold eventually on the requested real approach.",
@@ -5494,10 +5509,10 @@ forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] 
       OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]]];
   If[result === $Failed,
     result = forwardCore[body, x, x0, cutoff, Assumptions -> parameterAss, Sequence @@ rules]];
-  If[! MatchQ[result, _PowerLogSeries], Return[result, Module]];
+  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
   records = DeleteDuplicates[$inverseFunctionProvenance];
   targetDomain = condition && coord["LocalVariable"] > 0 && Lookup[result[[1]], "TargetDomain", True];
-  PowerLogSeries[Join[result[[1]],
+  GeneralizedSeries[Join[result[[1]],
     If[AssociationQ[Lookup[result[[1]], "SeriesRepresentation", None]],
       <|"SeriesRepresentation" -> Join[result["SeriesRepresentation"],
         <|"Domain" -> targetDomain && Lookup[result["SeriesRepresentation"], "Domain", True]|>]|>, <||>],
@@ -5563,7 +5578,7 @@ inverseFunctionDirectExpansion[e_, x_, x0_, cut_, ass_, coord_, goal_, limit_] :
     Assumptions -> ass, Direction -> branch["Direction"], SeriesTermGoal -> goal,
     "Power" -> power, "MaxTerms" -> limit];
   If[FailureQ[result], Throw[result, $tag]];
-  result = PowerLogSeries[Join[result[[1]], <|"SourceVariable" -> source,
+  result = GeneralizedSeries[Join[result[[1]], <|"SourceVariable" -> source,
     "SourceDomain" -> branch["SourceDomain"] && inverseEvidenceSourceDomain[result[[1]], source], "InverseFunctionSyntax" -> data,
     "InverseFunctionBranch" -> branch, "InverseFunctionExpression" -> e,
     "InverseFunctionExpansionPoint" -> x0, "InverseFunctionExpansionDirection" -> coord["Direction"]|>]];
@@ -5589,23 +5604,19 @@ inverseFunctionNativeLambertData[e_, x_] := Module[{k, argument, source},
 inverseFunctionPublicInverse[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse]] := Block[
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticInverse, {opts}, "InverseFunctionBranches"]}, Module[
-  {body = f, condition = True, ass, parameterAss, clauses, coord, result, rules},
+  {body = f, condition, ass, parameterAss, coord, result, rules},
   ass = OptionValue[AsymptoticInverse, {opts}, Assumptions];
-  While[Head[body] === ConditionalExpression,
-    condition = condition && body[[2]]; body = body[[1]]];
-  clauses = If[Head[ass] === And, List @@ ass, {ass}];
-  parameterAss = And @@ Select[clauses, FreeQ[#, x] &];
-  condition = condition && And @@ Select[clauses, ! FreeQ[#, x] &];
+  {body, parameterAss, condition} = splitApproachInput[body, x, ass];
   coord = localCoordinate[x, x0, OptionValue[AsymptoticInverse, {opts}, Direction]];
   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], coord["u"], parameterAss],
     fail["IncompatibleSourceCondition", "The forward expression's condition must hold eventually on the requested real source approach.",
       <|"Condition" -> condition, "Variable" -> x, "ExpansionPoint" -> x0, "Direction" -> coord["Direction"]|>]];
   rules = DeleteCases[{opts}, HoldPattern[Assumptions -> _] | HoldPattern["InverseFunctionBranches" -> _]];
   result = inverseDispatch[body, x, x0, y, cutoff, Assumptions -> parameterAss, Sequence @@ rules];
-  If[! MatchQ[result, _PowerLogSeries], Return[result, Module]];
+  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
   If[condition === True && $inverseFunctionProvenance === {} && $inverseFunctionBranchSelections === Automatic,
     Return[result, Module]];
-  PowerLogSeries[Join[result[[1]], <|"OriginalExpression" -> f,
+  GeneralizedSeries[Join[result[[1]], <|"OriginalExpression" -> f,
     "ConditionalSourceReplay" -> ConditionalExpression[body, condition],
     "SourceVariable" -> x, "SourceDomain" -> condition &&
       inverseEvidenceSourceDomain[result[[1]], x],
@@ -5668,7 +5679,7 @@ inverseFunctionJetApply[e_, x_, input_, d_, cut_, limit_] := Module[
   outer = inverseDispatch[data["Body"], source, branch["SourcePoint"], v, outerCut,
     Assumptions -> ass, Direction -> branch["Direction"], "MaxTerms" -> limit];
   If[FailureQ[outer], Throw[outer, $tag]];
-  outer = PowerLogSeries[Join[outer[[1]], <|"SourceVariable" -> source,
+  outer = GeneralizedSeries[Join[outer[[1]], <|"SourceVariable" -> source,
     "SourceDomain" -> branch["SourceDomain"] && inverseEvidenceSourceDomain[outer[[1]], source], "InverseFunctionSyntax" -> data,
     "InverseFunctionBranch" -> branch|>]];
   inner = seriesMake[Join[d, <|"Jet" -> target, "Prefactor" -> 1, "Offset" -> 0|>], {"InverseTarget", {}, e}];
@@ -5682,7 +5693,7 @@ inverseFunctionJetApply[e_, x_, input_, d_, cut_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/InverseFunctionExpressions.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/GammaForward.wl
-   Source SHA256 (UTF-8/LF): a4182442d3d51e6e845d0714b6da3c45648c62bbd691bc9e0e325c00dc816a74 *)
+   Source SHA256 (UTF-8/LF): f9fb80f55892521f0150bca280d448e53c1aa3c3dcb5b1d542a45642a61e5d40 *)
 (* Combine real Gamma products in the logarithmic domain. Stirling's
    expansion is Poincare asymptotic, not a convergent series:
    https://dlmf.nist.gov/5.11.E3 and https://dlmf.nist.gov/5.11.ii . *)
@@ -5858,7 +5869,7 @@ logarithmicForwardExpansion[f_, logFunction_, sign_, domain_, x_, x0_, cutoff0_,
   magnitude = sign prefactor;
   frontier = If[omitted === {}, If[result["Remainder"] === 0, 0, Missing["Unknown"]],
     prefactor seriesJetExpression[{{First[omitted]}, Infinity, 0}, data["ScaleVariable"], data["LogVariable"]]];
-  PowerLogSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
+  GeneralizedSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
     "ExpansionPoint" -> x0, "Direction" -> coord["Direction"],
     "Remainder" -> If[result["Remainder"] === 0, 0,
       magnitude PowerLogRemainder[data["ScaleVariable"], result["RemainderPower"], result["RemainderLogDegree"]]],
@@ -5969,7 +5980,7 @@ barnesLogJet[arg_, u_, ell_, ass_, Kw_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/BarnesForward.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/GammaInverse.wl
-   Source SHA256 (UTF-8/LF): 3039ec9db86fee866cf6290e6c4fc14df3aca7963d0badfbbb172e9c73ca3618 *)
+   Source SHA256 (UTF-8/LF): ef031c957b0fccadc44f97a76653f9cbf624d9a6578d1b4052872d4c7a1fba33 *)
 (* Ordered inverse-Gamma corrections around an exact Lambert core.
    The coefficients are polynomials in q=1/Log[X], retained whole at each
    power of t=1/X. Stirling is used only to a finite, justified order. *)
@@ -6097,7 +6108,7 @@ gammaInverseConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[Asymptotic
       "LogBarnesRemainderPower" -> 2 modelTerms + 2, "Reference" -> "https://dlmf.nist.gov/5.17.E5"|>,
     <|"Type" -> "FiniteStirlingPoincare", "ConvergentForwardSeries" -> False,
       "LogGammaRemainderPower" -> 2 modelTerms + 1, "Reference" -> "https://dlmf.nist.gov/5.11.ii"|>];
-  PowerLogSeries[Join[<|"Kind" -> scale, "Scale" -> scale,
+  GeneralizedSeries[Join[<|"Kind" -> scale, "Scale" -> scale,
     "Expression" -> expression, "Terms" -> retained, "Blocks" -> retained,
     "CoreInverse" -> core, "CoreLogExpression" -> coefficientLog,
     "CoreArgumentOffset" -> model["CoreArgumentOffset"],
@@ -6130,7 +6141,7 @@ gammaInverseConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[Asymptotic
     If[barnes, <|"BarnesFamily" -> model["Family"], "BarnesPower" -> model["GammaPower"]|>,
       <|"GammaFamily" -> model["Family"], "GammaPower" -> model["GammaPower"]|>], bound]]];
 
-gammaInverseTruncate[s : PowerLogSeries[a_Association], h_, limit_] := Module[{kept, omitted, frontier, q, core, bound},
+gammaInverseTruncate[s : GeneralizedSeries[a_Association], h_, limit_] := Module[{kept, omitted, frontier, q, core, bound},
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
   validateInput[{a["Terms"], h}, limit];
   If[! exactRealQ[h], fail["InvalidCutoff", "The core-power cutoff must be an exact real number."]];
@@ -6139,7 +6150,7 @@ gammaInverseTruncate[s : PowerLogSeries[a_Association], h_, limit_] := Module[{k
   If[omitted === {}, Return[s, Module]];
   frontier = First[omitted]; q = a["CoefficientVariable"]; core = a["CoreInverse"];
   bound = gammaInverseBound[frontier, core, q, a["Assumptions"], a["CoreLogExpression"]];
-  PowerLogSeries[Join[a, <|"Terms" -> kept, "Blocks" -> kept, "Cutoff" -> h,
+  GeneralizedSeries[Join[a, <|"Terms" -> kept, "Blocks" -> kept, "Cutoff" -> h,
     "Expression" -> Total[(core^(-#[[1]]) (#[[2]] /. a["CoefficientSubstitution"])) & /@ kept],
     "CoefficientFrontier" -> frontier,
     "FrontierTerm" -> core^(-frontier[[1]]) (frontier[[2]] /. a["CoefficientSubstitution"]),
@@ -6235,7 +6246,7 @@ barnesInverseBranch[data_, target_, targetSide_, ass_, limit_, selection_] := Mo
 (* END SOURCE: AsymptoticInverse/Kernel/BarnesInverse.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/GammaInverseChecks.wl
-   Source SHA256 (UTF-8/LF): 5c63f888643584607af9c85330120def03ca522198260c0c4d0a968616061d82 *)
+   Source SHA256 (UTF-8/LF): 4a51a03be40b24a6d454d24ae5b717aacdc58a249bdf54974ab32c03a9050a8e *)
 (* Checks for inverse Gamma expansions in powers of the retained Lambert
    core. Numerical comparisons use the original logarithmic equation.
    Formal residuals independently expand a finite Stirling model; they do
@@ -6298,32 +6309,72 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
     If[power === 1, <|"ApproximationSourceRoot" -> N[approximate, wp],
       "PhaseResidual" -> N[(equation /. x -> approximate) - coordinate, wp]|>, <||>]]];
 
-gammaInverseResidual[a_Association, h_, limit_] := Module[
-  {cut, order, t = Unique["gammaResidualPower$"], q, ass, rows, source, unit,
-   logarithm, correction = 0, polynomial, coefficient, blocks, residual,
-   substitutions, modelTerms, modelPower, x, y, exactResidual, checkSize},
+(* The two residuals share their input checks and coefficient bookkeeping.
+   Their finite phase formulas below and in BarnesInverseChecks remain
+   independent of the inverse constructors and their coefficient recurrences. *)
+inverseCoreResidualSize[expression_, limit_, family_] := If[LeafCount[expression] > limit,
+  fail["ResourceLimit", "An intermediate exact " <> family <> " residual expression exceeded MaxTerms."], expression];
+
+inverseCoreResidualSetup[a_Association, h_, limit_, family_, argumentOffset_] := Module[
+  {cut, order, t = Unique[ToLowerCase[family] <> "ResidualPower$"], q, ass, rows, source, unit},
   If[Lookup[a, "Power", 1] =!= 1,
-    fail["UnsupportedObservable", "A Gamma/Barnes inverse residual currently requires the source-point observable Power -> 1; a finite powered approximation is not inverted to recover a source root."]];
-  If[! IntegerQ[limit] || limit < 1,
-    fail["InvalidOption", "MaxTerms must be a positive integer."]];
+    fail["UnsupportedObservable", If[family === "Gamma",
+      "A Gamma/Barnes inverse residual currently requires the source-point observable Power -> 1; a finite powered approximation is not inverted to recover a source root.",
+      "A Barnes-inverse residual requires the source-point observable Power -> 1."]]];
+  If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
   cut = If[h === Automatic, a["RemainderPower"] + 1, h];
   If[! exactRealQ[cut] || ! less[0, cut],
-    fail["InvalidCutoff", "The normalized Gamma residual cutoff must be a positive exact real number."]];
+    fail["InvalidCutoff", "The normalized " <> family <> " residual cutoff must be a positive exact real number."]];
   order = Ceiling[cut] - 1;
   If[order + 2 > limit,
-    fail["ResourceLimit", "The requested normalized Gamma residual order exceeds MaxTerms."]];
+    fail["ResourceLimit", "The " <> If[family === "Gamma", "requested ", ""] <>
+      "normalized " <> family <> " residual order exceeds MaxTerms."]];
   q = a["CoefficientVariable"]; ass = a["Assumptions"]; rows = a["Terms"];
   validateInput[rows, limit];
   If[! ListQ[rows] || ! And @@ (MatchQ[#, {_Integer, _}] && #[[1]] >= -1 & /@ rows),
-    fail["UnsupportedResidualScale", "The source-point Gamma residual requires integer powers of the reciprocal Lambert core."]];
-  checkSize[expression_] := If[LeafCount[expression] > limit,
-    fail["ResourceLimit", "An intermediate exact Gamma residual expression exceeded MaxTerms."], expression];
+    fail["UnsupportedResidualScale", "The source-point " <> family <>
+      " residual requires integer powers of the reciprocal Lambert core."]];
   source = Total[(t^#[[1]] #[[2]]) & /@ rows];
-  unit = checkSize[FullSimplify[Expand[t (a["SourceScale"] source + a["SourceOffset"])], ass]];
-  If[! PolynomialQ[unit, t] ||
-     ! TrueQ[FullSimplify[(unit /. t -> 0) == 1, ass]],
-    fail["InvalidGammaInverseNormalization", "The retained source approximation must give a Gamma argument whose ratio to its Lambert core tends to one."]];
-  logarithm = checkSize[Normal[Series[Log[unit], {t, 0, order}]]];
+  unit = inverseCoreResidualSize[FullSimplify[
+    Expand[t (a["SourceScale"] source + a["SourceOffset"] - argumentOffset)], ass], limit, family];
+  If[! PolynomialQ[unit, t] || ! TrueQ[FullSimplify[(unit /. t -> 0) == 1, ass]],
+    fail["Invalid" <> family <> "InverseNormalization", If[family === "Gamma",
+      "The retained source approximation must give a Gamma argument whose ratio to its Lambert core tends to one.",
+      "The Barnes argument minus one must have ratio one to its Lambert core."]]];
+  <|"Cutoff" -> cut, "Order" -> order, "PowerVariable" -> t, "CoefficientVariable" -> q,
+    "Assumptions" -> ass, "Unit" -> unit, "Family" -> family, "MaxTerms" -> limit,
+    "Logarithm" -> inverseCoreResidualSize[Normal[Series[Log[unit], {t, 0, order}]], limit, family]|>];
+
+inverseCoreResidualReport[a_Association, data_, polynomial_, modelTerms_, modelPower_, normalizer_, tailLog_, metadata_] := Module[
+  {t, q, ass, order, limit, family, coefficient, blocks, residual, x},
+  {t, q, ass, order, limit, family} = Lookup[data,
+    {"PowerVariable", "CoefficientVariable", "Assumptions", "Order", "MaxTerms", "Family"}];
+  blocks = Reap[Do[
+    coefficient = inverseCoreResidualSize[FullSimplify[Coefficient[polynomial, t, n], ass], limit, family];
+    If[! TrueQ[coefficient === 0], Sow[{n, coefficient}]], {n, 0, order}]][[2]];
+  blocks = If[blocks === {}, {}, First[blocks]];
+  residual = Total[(t^#[[1]] #[[2]]) & /@ blocks] /.
+    Join[{t -> 1/a["CoreInverse"]}, a["CoefficientSubstitution"]];
+  x = First[a["Variables"]];
+  <|"ZeroBelowCutoff" -> (blocks === {}), "Residual" -> residual,
+    "NormalizedResidual" -> residual, "ResidualBlocks" -> blocks,
+    "Cutoff" -> data["Cutoff"], "RelativeCutoff" -> data["Cutoff"],
+    "ScaleVariable" -> 1/a["CoreInverse"], "CoefficientVariable" -> q,
+    "CoefficientSubstitution" -> a["CoefficientSubstitution"],
+    "ExactEquationResidualExpression" -> ((a["ExactTransformedFunction"] /. x -> a["Expression"]) -
+      a["TargetCoordinateExpression"])/normalizer,
+    "Normalization" -> metadata["Normalization"],
+    "ForwardModelTerms" -> modelTerms, "ModelRemainderPower" -> modelPower,
+    "ModelRemainderScaleExpression" -> 1/(a["CoreInverse"]^modelPower tailLog),
+    "ForwardRemainderContract" -> metadata["ForwardRemainderContract"],
+    "ExactModel" -> False, "Scope" -> metadata["Scope"]|>];
+
+gammaInverseResidual[a_Association, h_, limit_] := Module[
+  {data, t, q, unit, logarithm, order, correction = 0, polynomial, modelTerms, checkSize},
+  data = inverseCoreResidualSetup[a, h, limit, "Gamma", 0];
+  {t, q, unit, logarithm, order} = Lookup[data,
+    {"PowerVariable", "CoefficientVariable", "Unit", "Logarithm", "Order"}];
+  checkSize[expression_] := inverseCoreResidualSize[expression, limit, "Gamma"];
   modelTerms = Floor[order/2];
   Do[
     correction = checkSize[Expand[correction +
@@ -6335,61 +6386,25 @@ gammaInverseResidual[a_Association, h_, limit_] := Module[
   polynomial = checkSize[Expand[Normal[Series[
     (1 - q) (unit - 1) - t/2 + q (unit - t/2) logarithm +
       q t Log[2 Pi]/2 + q correction, {t, 0, order}]]]];
-  blocks = Reap[Do[
-    coefficient = checkSize[FullSimplify[Coefficient[polynomial, t, n], ass]];
-    If[! TrueQ[coefficient === 0], Sow[{n, coefficient}]], {n, 0, order}]][[2]];
-  blocks = If[blocks === {}, {}, First[blocks]];
-  substitutions = Join[{t -> 1/a["CoreInverse"]}, a["CoefficientSubstitution"]];
-  residual = Total[(t^#[[1]] #[[2]]) & /@ blocks] /. substitutions;
-  {x, y} = a["Variables"];
-  exactResidual = ((a["ExactTransformedFunction"] /. x -> a["Expression"]) -
-      a["TargetCoordinateExpression"])/(a["CoreInverse"] Log[a["CoreInverse"]]);
-  modelPower = 2 modelTerms + 2;
-  <|"ZeroBelowCutoff" -> (blocks === {}), "Residual" -> residual,
-    "NormalizedResidual" -> residual, "ResidualBlocks" -> blocks,
-    "Cutoff" -> cut, "RelativeCutoff" -> cut,
-    "ScaleVariable" -> 1/a["CoreInverse"], "CoefficientVariable" -> q,
-    "CoefficientSubstitution" -> a["CoefficientSubstitution"],
-    "ExactEquationResidualExpression" -> exactResidual,
-    "Normalization" -> "(LogGamma[SourceScale source + SourceOffset] - targetCoordinate)/(CoreInverse Log[CoreInverse]).",
-    "ForwardModelTerms" -> modelTerms, "ModelRemainderPower" -> modelPower,
-    "ModelRemainderScaleExpression" ->
-      1/(a["CoreInverse"]^modelPower Log[a["CoreInverse"]]),
-    "ForwardRemainderContract" -> <|"Type" -> "StirlingPoincareAtFixedOrder",
-      "ConvergentForwardSeries" -> False,
-      "Reference" -> "https://dlmf.nist.gov/5.11.ii"|>,
-    "ExactModel" -> False,
-    "Scope" -> "Formal normalized residual of a finite Stirling model evaluated at the retained source approximation. ZeroBelowCutoff means cancellation only below the stated cutoff; it does not assert that the exact Gamma equation is solved identically. The first omitted Stirling term has the separately reported normalized remainder scale."|>];
+  inverseCoreResidualReport[a, data, polynomial, modelTerms, 2 modelTerms + 2,
+    a["CoreInverse"] Log[a["CoreInverse"]], Log[a["CoreInverse"]],
+    <|"Normalization" -> "(LogGamma[SourceScale source + SourceOffset] - targetCoordinate)/(CoreInverse Log[CoreInverse]).",
+      "ForwardRemainderContract" -> <|"Type" -> "StirlingPoincareAtFixedOrder",
+        "ConvergentForwardSeries" -> False, "Reference" -> "https://dlmf.nist.gov/5.11.ii"|>,
+      "Scope" -> "Formal normalized residual of a finite Stirling model evaluated at the retained source approximation. ZeroBelowCutoff means cancellation only below the stated cutoff; it does not assert that the exact Gamma equation is solved identically. The first omitted Stirling term has the separately reported normalized remainder scale."|>]];
 (* END SOURCE: AsymptoticInverse/Kernel/GammaInverseChecks.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/BarnesInverseChecks.wl
-   Source SHA256 (UTF-8/LF): 89bdf4ac3da37afd7afe58899954a14d2e019b161ef686f94c76a39874b697eb *)
+   Source SHA256 (UTF-8/LF): 70de0268030051fefa1c9c323036488936a84fd309689c22abea51f179b0f6f0 *)
 (* Independently evaluate the retained source in a finite Barnes phase.
    The normalization is X^2(Log[X]-1), so a source error at power P
    first appears at normalized residual power P+1. *)
 barnesInverseResidual[a_Association, h_, limit_] := Module[
-  {cut, order, t = Unique["barnesResidualPower$"], q, ass, rows, source, unit,
-   logarithm, correction = 0, polynomial, coefficient, blocks, residual,
-   substitutions, modelTerms, modelPower, x, y, exactResidual, checkSize},
-  If[Lookup[a, "Power", 1] =!= 1,
-    fail["UnsupportedObservable", "A Barnes-inverse residual requires the source-point observable Power -> 1."]];
-  If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
-  cut = If[h === Automatic, a["RemainderPower"] + 1, h];
-  If[! exactRealQ[cut] || ! less[0, cut],
-    fail["InvalidCutoff", "The normalized Barnes residual cutoff must be a positive exact real number."]];
-  order = Ceiling[cut] - 1;
-  If[order + 2 > limit, fail["ResourceLimit", "The normalized Barnes residual order exceeds MaxTerms."]];
-  q = a["CoefficientVariable"]; ass = a["Assumptions"]; rows = a["Terms"];
-  validateInput[rows, limit];
-  If[! ListQ[rows] || ! And @@ (MatchQ[#, {_Integer, _}] && #[[1]] >= -1 & /@ rows),
-    fail["UnsupportedResidualScale", "The source-point Barnes residual requires integer powers of the reciprocal Lambert core."]];
-  checkSize[expression_] := If[LeafCount[expression] > limit,
-    fail["ResourceLimit", "An intermediate exact Barnes residual expression exceeded MaxTerms."], expression];
-  source = Total[(t^#[[1]] #[[2]]) & /@ rows];
-  unit = checkSize[FullSimplify[Expand[t (a["SourceScale"] source + a["SourceOffset"] - 1)], ass]];
-  If[! PolynomialQ[unit, t] || ! TrueQ[FullSimplify[(unit /. t -> 0) == 1, ass]],
-    fail["InvalidBarnesInverseNormalization", "The Barnes argument minus one must have ratio one to its Lambert core."]];
-  logarithm = checkSize[Normal[Series[Log[unit], {t, 0, order}]]];
+  {data, t, q, unit, logarithm, order, correction = 0, polynomial, modelTerms, checkSize},
+  data = inverseCoreResidualSetup[a, h, limit, "Barnes", 1];
+  {t, q, unit, logarithm, order} = Lookup[data,
+    {"PowerVariable", "CoefficientVariable", "Unit", "Logarithm", "Order"}];
+  checkSize[expression_] := inverseCoreResidualSize[expression, limit, "Barnes"];
   modelTerms = Max[0, Floor[(order - 2)/2]];
   Do[
     correction = checkSize[Expand[correction + BernoulliB[2 k + 2] t^(2 k + 2)/(2 k (2 k + 2))
@@ -6398,38 +6413,21 @@ barnesInverseResidual[a_Association, h_, limit_] := Module[
     (1/2 - q/4) (unit^2 - 1) + q unit^2 logarithm/2 + Log[2 Pi] q t unit/2 -
       t^2 (1 + q)/12 - q t^2 logarithm/12 + (1/12 - Log[Glaisher]) q t^2 + q correction,
     {t, 0, order}]]]];
-  blocks = Reap[Do[
-    coefficient = checkSize[FullSimplify[Coefficient[polynomial, t, n], ass]];
-    If[! TrueQ[coefficient === 0], Sow[{n, coefficient}]], {n, 0, order}]][[2]];
-  blocks = If[blocks === {}, {}, First[blocks]];
-  substitutions = Join[{t -> 1/a["CoreInverse"]}, a["CoefficientSubstitution"]];
-  residual = Total[(t^#[[1]] #[[2]]) & /@ blocks] /. substitutions;
-  {x, y} = a["Variables"];
-  exactResidual = ((a["ExactTransformedFunction"] /. x -> a["Expression"]) -
-    a["TargetCoordinateExpression"])/(a["CoreInverse"]^2 a["CoreLogExpression"]);
-  modelPower = 2 modelTerms + 4;
-  <|"ZeroBelowCutoff" -> (blocks === {}), "Residual" -> residual,
-    "NormalizedResidual" -> residual, "ResidualBlocks" -> blocks,
-    "Cutoff" -> cut, "RelativeCutoff" -> cut,
-    "ScaleVariable" -> 1/a["CoreInverse"], "CoefficientVariable" -> q,
-    "CoefficientSubstitution" -> a["CoefficientSubstitution"],
-    "ExactEquationResidualExpression" -> exactResidual,
-    "Normalization" -> "(LogBarnesG[SourceScale source+SourceOffset]-targetCoordinate)/(CoreInverse^2 CoreLogExpression).",
-    "ForwardModelTerms" -> modelTerms, "ModelRemainderPower" -> modelPower,
-    "ModelRemainderScaleExpression" -> 1/(a["CoreInverse"]^modelPower a["CoreLogExpression"]),
-    "ForwardRemainderContract" -> <|"Type" -> "BarnesPoincareAtFixedOrder",
-      "ConvergentForwardSeries" -> False, "Reference" -> "https://dlmf.nist.gov/5.17.E5"|>,
-    "ExactModel" -> False,
-    "Scope" -> "Formal normalized residual of a finite Barnes model at the retained source approximation. ZeroBelowCutoff asserts cancellation only below the stated cutoff; the omitted Barnes tail is reported separately. This is not an exact identity or an interval certificate."|>];
+  inverseCoreResidualReport[a, data, polynomial, modelTerms, 2 modelTerms + 4,
+    a["CoreInverse"]^2 a["CoreLogExpression"], a["CoreLogExpression"],
+    <|"Normalization" -> "(LogBarnesG[SourceScale source+SourceOffset]-targetCoordinate)/(CoreInverse^2 CoreLogExpression).",
+      "ForwardRemainderContract" -> <|"Type" -> "BarnesPoincareAtFixedOrder",
+        "ConvergentForwardSeries" -> False, "Reference" -> "https://dlmf.nist.gov/5.17.E5"|>,
+      "Scope" -> "Formal normalized residual of a finite Barnes model at the retained source approximation. ZeroBelowCutoff asserts cancellation only below the stated cutoff; the omitted Barnes tail is reported separately. This is not an exact identity or an interval certificate."|>]];
 (* END SOURCE: AsymptoticInverse/Kernel/BarnesInverseChecks.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/GammaInverseOperations.wl
-   Source SHA256 (UTF-8/LF): 050bd8c169098f72eac8ae48fdf92632c4a0121fc19cb4bc05d89120f7c5e713 *)
+   Source SHA256 (UTF-8/LF): c449679dd9b8686a15fb985c5e6304a492ed350bddbcedcd12b66af98e484062 *)
 (* A power of an inverse-Gamma observable is another observable of the
    same source root. Replaying its exact defining equation determines the
    coefficients, while the operand's error still caps output precision. *)
 
-gammaInverseSeriesPower[s : PowerLogSeries[a_Association], k_, cut_, limit_] := Module[
+gammaInverseSeriesPower[s : GeneralizedSeries[a_Association], k_, cut_, limit_] := Module[
   {x, y, ass, oldPower, newPower, alpha, precision, propagated, requested,
    effective, sourceDomain, targetDomain, result, data, inverseLogDegree,
    resultPower, resultDegree, core, bounded, operation, direction, representation, coefficientLog, kind},
@@ -6452,7 +6450,7 @@ gammaInverseSeriesPower[s : PowerLogSeries[a_Association], k_, cut_, limit_] := 
       Direction -> direction, "MaxTerms" -> limit];
     If[FailureQ[result], Return[result, Module]];
     representation = seriesData[result, limit];
-    Return[PowerLogSeries[Join[result[[1]], <|"TargetDomain" -> targetDomain,
+    Return[GeneralizedSeries[Join[result[[1]], <|"TargetDomain" -> targetDomain,
       "Function" -> ConditionalExpression[1, targetDomain],
       "SeriesRepresentation" -> Join[representation, <|"Domain" -> targetDomain && representation["Domain"]|>],
       (kind <> "Operation") -> <|"Operation" -> "Power", "Exponent" -> 0,
@@ -6482,7 +6480,7 @@ gammaInverseSeriesPower[s : PowerLogSeries[a_Association], k_, cut_, limit_] := 
       Assumptions -> assumptions, Direction -> direction, Method -> method,
       "MaxTerms" -> budget]];
   If[FailureQ[result], Return[result, Module]];
-  If[! MatchQ[result, PowerLogSeries[_Association]] || result["Kind"] =!= kind,
+  If[! MatchQ[result, GeneralizedSeries[_Association]] || result["Kind"] =!= kind,
     fail["UnsupportedGammaInverseReplay", "The retained source equation did not reconstruct a Gamma/Barnes inverse observable."]];
   data = result[[1]]; core = data["CoreInverse"]; coefficientLog = data["CoreLogExpression"];
   inverseLogDegree = Lookup[a, "RemainderInverseLogPower", 0];
@@ -6505,13 +6503,13 @@ gammaInverseSeriesPower[s : PowerLogSeries[a_Association], k_, cut_, limit_] := 
     "RequestedCutoff" -> cut, "EffectiveCutoff" -> effective,
     "CoefficientConstruction" -> "Replay of the retained exact source equation with its original source-domain condition.",
     "PrecisionMeaning" -> "For operand valuation alpha and error power P, the output error power is capped by P+alpha(Exponent-1). Source replay supplies coefficients only below the clipped cutoff; it does not improve inherited uncertainty. Later refinement may replay the exact source for additional information."|>;
-  PowerLogSeries[Join[data, bounded, <|
+  GeneralizedSeries[Join[data, bounded, <|
     "TargetDomain" -> targetDomain && data["TargetDomain"],
     (kind <> "Operation") -> operation|>]]];
 (* END SOURCE: AsymptoticInverse/Kernel/GammaInverseOperations.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/ExponentialForward.wl
-   Source SHA256 (UTF-8/LF): af0c90c3ea174c4f933109b309aee1a8e7d270242f713e98206bafe13c134553 *)
+   Source SHA256 (UTF-8/LF): f92c050fc4cd3216a08fd7aafceef4202a8aad070f33402959434053195da345 *)
 (* Normalize multiplicative elementary factors without asking Log to
    rediscover the exponent of Exp. A varying real power uses its positive
    base; ordinary factors retain a separately proved eventual sign. *)
@@ -6542,8 +6540,9 @@ logarithmicRealCondition[condition_, ass_, coord_] := Module[{simple, expression
     simple = domain];
   inverseFunctionEventually[simple, coord["u"], ass]];
 
-logarithmicProductSource[e_, x_, ass_, coord_] := Module[{parts, coefficient, sign, domain, condition, logarithm, simplified},
-  parts = logarithmicProductData[e, x]; coefficient = parts[[1]];
+logarithmicProductSource[e_, x_, ass_, coord_, parsed_: Automatic] := Module[
+  {parts = If[parsed === Automatic, logarithmicProductData[e, x], parsed], coefficient, sign, domain, condition, logarithm, simplified},
+  coefficient = parts[[1]];
   condition = parts[[3]] /. x -> coord["Substitution"];
   (* Resolve[..., Reals] would silently treat free parameters as real.
      Discharge realness from explicit assumptions before that fallback. *)
@@ -6576,14 +6575,14 @@ exponentialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] :
      Require growth beyond Log[u] so regular Laurent/Puiseux germs keep
      their absolute cutoff convention, even when written using Exp. *)
   If[! growing, Return[$Failed, Module]];
-  source = logarithmicProductSource[f, x, ass, coord];
+  source = logarithmicProductSource[f, x, ass, coord, parts];
   logarithmicForwardExpansion[f, source["Logarithm"], source["Sign"], source["Domain"],
     x, x0, cutoff, ass, coord, goal, limit,
     <|"Transformation" -> "The expression equals Sign[coefficient] Exp[LogarithmicFunction] on the proved real domain."|>]];
 (* END SOURCE: AsymptoticInverse/Kernel/ExponentialForward.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl
-   Source SHA256 (UTF-8/LF): 937cd8cf1453a7fce8fa35c08f44cc9f6e79e854171b514a800e94b96b52da44 *)
+   Source SHA256 (UTF-8/LF): 3d39ba88d7cc4a76d6c9725deff39a6ba1518f1e4425f1d6d17cb5268f4f57e5 *)
 (* Conservative arithmetic when no common ordered coefficient algebra applies.
    Each input denotes e + O(R), with R a nonnegative asymptotic envelope.
    Separate error summands are retained; cancellation of finite expressions
@@ -6746,13 +6745,13 @@ seriesEnvelopeErrorNormalize[remainder_, limit_] := Module[{expanded, terms},
   terms = If[Head[expanded] === Plus, List @@ expanded, {expanded}];
   Total[seriesEnvelopeErrorTerm /@ terms]];
 
-seriesEnvelopeData[s : PowerLogSeries[a_Association], limit_] := Module[{expression, remainder, bound, assumptions, domain, approach},
+seriesEnvelopeData[s : GeneralizedSeries[a_Association], limit_] := Module[{expression, remainder, bound, assumptions, domain, approach},
   If[! KeyExistsQ[a, "Expression"] || ! KeyExistsQ[a, "Remainder"],
     fail["InvalidCompositeOperand", "A series operand must retain both its finite expression and its remainder."]];
   expression = a["Expression"]; remainder = a["Remainder"];
   validateInput[{expression, remainder}, limit];
   seriesEnvelopeBudget[{expression, remainder}, limit];
-  If[! FreeQ[{expression, remainder}, _PowerLogSeries],
+  If[! FreeQ[{expression, remainder}, _GeneralizedSeries],
     fail["InvalidCompositeOperand", "Normalize nested series operands before constructing a composite envelope."]];
   remainder = seriesEnvelopeErrorNormalize[remainder, limit];
   bound = remainder /. rr_PowerLogRemainder :> remainderScale[rr];
@@ -6771,7 +6770,7 @@ seriesEnvelopeMake[expression_, remainder0_, data_, recipe_, limit_] := Module[{
   domain = data["Domain"];
   validateInput[{expression, remainder, bound}, limit];
   seriesEnvelopeBudget[{expression, remainder, bound}, limit];
-  PowerLogSeries[<|"Kind" -> "Derived", "Scale" -> "Composite",
+  GeneralizedSeries[<|"Kind" -> "Derived", "Scale" -> "Composite",
     "Expression" -> expression, "Remainder" -> remainder, "RemainderScaleExpression" -> bound,
     "Variable" -> data["Variable"], "Assumptions" -> data["Assumptions"],
     "TargetDomain" -> domain, "SeriesApproach" -> data["Approach"],
@@ -6782,13 +6781,13 @@ seriesEnvelopeMake[expression_, remainder0_, data_, recipe_, limit_] := Module[{
     "TermConvention" -> "The finite expression is retained exactly and the remainder is a sum of envelopes in possibly different positive coordinates; no single exponent cutoff is asserted.",
     "SeriesData" -> Missing["CompositeErrorScales"]|>]];
 
-seriesEnvelopeBinary[op_String, s_PowerLogSeries, t_, cut_, limit_] := Module[
+seriesEnvelopeBinary[op_String, s_GeneralizedSeries, t_, cut_, limit_] := Module[
   {a, b, assumptions, domain, expression, remainder, exact = t, condition = True, compatible},
   seriesEnvelopeOptions[cut, limit];
   If[! MemberQ[{"Add", "Multiply"}, op],
     fail["UnsupportedCompositeOperation", "Composite binary arithmetic supports addition and multiplication."]];
   a = seriesEnvelopeData[s, limit];
-  If[MatchQ[t, _PowerLogSeries],
+  If[MatchQ[t, _GeneralizedSeries],
     b = seriesEnvelopeData[t, limit];
     assumptions = a["Assumptions"] && b["Assumptions"];
     compatible = a["Variable"] === b["Variable"] &&
@@ -6798,7 +6797,7 @@ seriesEnvelopeBinary[op_String, s_PowerLogSeries, t_, cut_, limit_] := Module[
     If[! TrueQ[compatible],
       fail["IncompatibleApproaches", "Composite arithmetic requires the same target variable, endpoint, and real approach side."]];
     domain = a["Domain"] && b["Domain"],
-    If[! FreeQ[t, _PowerLogSeries],
+    If[! FreeQ[t, _GeneralizedSeries],
       fail["UnsupportedCompositeOperand", "Normalize nested series before combining them with another series."]];
     While[Head[exact] === ConditionalExpression, condition = condition && exact[[2]]; exact = exact[[1]]];
     validateInput[exact, limit]; seriesEnvelopeBudget[exact, limit];
@@ -6819,7 +6818,7 @@ seriesEnvelopeBinary[op_String, s_PowerLogSeries, t_, cut_, limit_] := Module[
     Join[a, <|"Assumptions" -> assumptions, "Domain" -> domain|>],
     <|"Operation" -> op, "Operands" -> {s, t}|>, limit]];
 
-seriesEnvelopePower[s_PowerLogSeries, r_, cut_, limit_] := Module[
+seriesEnvelopePower[s_GeneralizedSeries, r_, cut_, limit_] := Module[
   {a, expression, remainder, domain, nonzero, positive, relative, result},
   seriesEnvelopeOptions[cut, limit];
   If[! exactRealQ[r], fail["InvalidPower", "A composite series power must be an exact real number."]];
@@ -6861,7 +6860,7 @@ seriesEnvelopePower[s_PowerLogSeries, r_, cut_, limit_] := Module[
    Taylor expansion of a multiscale remainder. Abs, Sin and Cos are globally
    1-Lipschitz on the real line. Log requires relative smallness, whereas
    Exp requires absolute smallness of the unknown perturbation. *)
-seriesEnvelopeUnary[head_, s_PowerLogSeries, cut_, limit_] := Module[
+seriesEnvelopeUnary[head_, s_GeneralizedSeries, cut_, limit_] := Module[
   {a, expression, domain, remainder, boundLimit, transport, evidence = <||>},
   seriesEnvelopeOptions[cut, limit];
   If[! MemberQ[{Log, Exp, Abs, Sin, Cos}, head],
@@ -6900,23 +6899,23 @@ seriesEnvelopeUnary[head_, s_PowerLogSeries, cut_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SeriesArithmetic.wl
-   Source SHA256 (UTF-8/LF): 40093681c6b3a275acd99a9576ff1f6d5ea823908180f3c9c6be04997f948f91 *)
+   Source SHA256 (UTF-8/LF): a7be6ea15b4bc4532c26db9fd42992d8a7adaa06c990890651f995e169cf035a *)
 (* Ordinary arithmetic is a thin, guarded entry to the precision calculus.
    The explicit normalizer holds the expression tree before evaluation so that
    a reciprocal is checked before Times can cancel its denominator. *)
 
 AsymptoticInverse`SeriesNormalize::usage =
-"SeriesNormalize[expr] merges arithmetic expressions containing PowerLogSeries objects and regular functions, transporting all operand remainders. SeriesNormalize[expr, \"Cutoff\" -> h] truncates the normalized result at h without improving operand precision. The expression is held before automatic arithmetic. Compatible scales use ordered jets; other compatible approaches retain a composite error bound.";
+"SeriesNormalize[expr] merges arithmetic expressions containing GeneralizedSeries objects and regular functions, transporting all operand remainders. SeriesNormalize[expr, \"Cutoff\" -> h] truncates the normalized result at h without improving operand precision. The expression is held before automatic arithmetic. Compatible scales use ordered jets; other compatible approaches retain a composite error bound.";
 Options[AsymptoticInverse`SeriesNormalize] = {"Cutoff" -> Automatic, "MaxTerms" -> 20000};
 SetAttributes[AsymptoticInverse`SeriesNormalize, HoldAllComplete];
 $seriesArithmeticEnabled = True;
 
-seriesArithmeticObjectQ[PowerLogSeries[a_Association]] :=
+seriesArithmeticObjectQ[GeneralizedSeries[a_Association]] :=
   KeyExistsQ[a, "Variable"] && KeyExistsQ[a, "Expression"] && KeyExistsQ[a, "Remainder"];
 seriesArithmeticObjectQ[_] := False;
-seriesArithmeticFlatQ[PowerLogSeries[a_Association]] := Lookup[a, "Scale", ""] === "FiniteFlatSectors";
+seriesArithmeticFlatQ[GeneralizedSeries[a_Association]] := Lookup[a, "Scale", ""] === "FiniteFlatSectors";
 seriesArithmeticFlatQ[_] := False;
-seriesArithmeticCompositeQ[PowerLogSeries[a_Association]] := Lookup[a, "Scale", ""] === "Composite";
+seriesArithmeticCompositeQ[GeneralizedSeries[a_Association]] := Lookup[a, "Scale", ""] === "Composite";
 seriesArithmeticCompositeQ[_] := False;
 
 seriesArithmeticFallbackQ[Failure[tag_, _]] := MemberQ[{
@@ -6925,12 +6924,12 @@ seriesArithmeticFallbackQ[Failure[tag_, _]] := MemberQ[{
 seriesArithmeticFallbackQ[_] := False;
 
 seriesArithmeticCheck[result_] := If[FailureQ[result], Throw[result, $tag], result];
-seriesArithmeticOperationCheck[Failure["UnknownLeadingTerm", data_Association], s_PowerLogSeries] :=
+seriesArithmeticOperationCheck[Failure["UnknownLeadingTerm", data_Association], s_GeneralizedSeries] :=
   Throw[Failure["UnknownLeadingTerm", Join[data, <|"OperandExpression" -> Normal[s],
     "OperandRemainderPower" -> Lookup[s[[1]], "RemainderPower", Missing["CompositePrecision"]]|>]], $tag];
 seriesArithmeticOperationCheck[result_, _] := seriesArithmeticCheck[result];
 seriesArithmeticFinish[result_List, cut_, limit_] := seriesArithmeticFinish[#, cut, limit] & /@ result;
-seriesArithmeticFinish[result_, cut_, limit_] := If[cut === Automatic || ! MatchQ[result, _PowerLogSeries], result,
+seriesArithmeticFinish[result_, cut_, limit_] := If[cut === Automatic || ! MatchQ[result, _GeneralizedSeries], result,
   If[seriesArithmeticCompositeQ[result], fail["UnsupportedCompositeCutoff", "A composite bound has no single exponent cutoff; truncate its operands in their own scales first."]];
   If[seriesArithmeticFlatQ[result], AsymptoticInverse`FlatSeriesTruncate[result, cut, "MaxTerms" -> limit],
     AsymptoticInverse`SeriesTruncate[result, cut, "MaxTerms" -> limit]]];
@@ -6948,7 +6947,7 @@ seriesArithmeticPublicUnary[head_, s_, cut_, limit_] := Block[{$seriesArithmetic
 (* Exact finite coefficients are never truncated before an operation. An
    infinite coefficient expansion is computed to the precision needed after
    multiplication, including the operand's leading valuation. *)
-seriesRegularOperand[e_, s_PowerLogSeries, op_, working_, limit_] := Module[
+seriesRegularOperand[e_, s_GeneralizedSeries, op_, working_, limit_] := Module[
   {d = seriesData[s, limit], j, h, alpha, beta, needed, precision, attempts = 0, ass, ell},
   validateInput[e, limit]; ass = seriesAss[d]; ell = d["LogVariable"];
   j = seriesExpressionJet[e, d, limit];
@@ -6971,29 +6970,29 @@ seriesRegularOperand[e_, s_PowerLogSeries, op_, working_, limit_] := Module[
     "RemainderDerivativeOrder" -> If[j[[2]] === Infinity, Infinity, 0]|>],
     {"RegularOperand", {s}, e, op}]];
 
-seriesArithmeticBinary[op_, s_PowerLogSeries, t_, working_, limit_] := Module[{result, operand = t, data, z},
+seriesArithmeticBinary[op_, s_GeneralizedSeries, t_, working_, limit_] := Module[{result, operand = t, data, z},
   If[FailureQ[t], Throw[t, $tag]];
   If[seriesArithmeticCompositeQ[s] || seriesArithmeticCompositeQ[t],
     Return[seriesEnvelopeBinary[op, s, t, Automatic, limit], Module]];
   If[seriesArithmeticFlatQ[s] || seriesArithmeticFlatQ[t],
-    If[! seriesArithmeticFlatQ[s] && MatchQ[t, _PowerLogSeries],
+    If[! seriesArithmeticFlatQ[s] && MatchQ[t, _GeneralizedSeries],
       Return[seriesArithmeticBinary[op, t, s, working, limit], Module]];
     result = catch[If[op === "Multiply",
       AsymptoticInverse`FlatSeriesMultiply[s, t, "MaxTerms" -> limit],
-      If[! MatchQ[t, _PowerLogSeries],
+      If[! MatchQ[t, _GeneralizedSeries],
         z = Unique["flatOperand$"];
         AsymptoticInverse`FlatSeriesObservable[s, z + t, z, "MaxTerms" -> limit],
         fail["UnsupportedScale", "Addition needs compatible flat-sector data or a composite bound."]]]];
     If[! seriesArithmeticFallbackQ[result], Return[seriesArithmeticCheck[result], Module]];
     Return[seriesEnvelopeBinary[op, s, t, Automatic, limit], Module]];
   result = catch[
-    If[! MatchQ[operand, _PowerLogSeries], operand = seriesRegularOperand[t, s, op, working, limit]];
+    If[! MatchQ[operand, _GeneralizedSeries], operand = seriesRegularOperand[t, s, op, working, limit]];
     seriesBinary[op, s, operand, Automatic, limit]];
   If[seriesArithmeticFallbackQ[result], seriesEnvelopeBinary[op, s, t, Automatic, limit], seriesArithmeticCheck[result]]];
 
-seriesArithmeticPower[s_PowerLogSeries, r_, working_, limit_, truncate_: False] := Module[{result, z, powerCut},
+seriesArithmeticPower[s_GeneralizedSeries, r_, working_, limit_, truncate_: False] := Module[{result, z, powerCut},
   If[! exactRealQ[r],
-    If[! FreeQ[r, _PowerLogSeries] || ! FreeQ[r, s["Variable"]],
+    If[! FreeQ[r, _GeneralizedSeries] || ! FreeQ[r, s["Variable"]],
       result = seriesArithmeticUnary[Log, s, working, limit];
       result = seriesArithmeticNary[Times, {r, result}, working, limit];
       Return[seriesArithmeticUnary[Exp, result, working, limit], Module]];
@@ -7009,7 +7008,7 @@ seriesArithmeticPower[s_PowerLogSeries, r_, working_, limit_, truncate_: False] 
   result = catch[seriesPower[s, r, powerCut, limit, truncate]];
   If[seriesArithmeticFallbackQ[result], seriesEnvelopePower[s, r, working, limit], seriesArithmeticOperationCheck[result, s]]];
 
-seriesArithmeticUnary[head_, s_PowerLogSeries, working_, limit_] := Module[{z = Unique["observable$"], result},
+seriesArithmeticUnary[head_, s_GeneralizedSeries, working_, limit_] := Module[{z = Unique["observable$"], result},
   result = catch[Switch[head,
     Log, seriesLog[s, working, limit],
     Exp, seriesExp[s, working, limit],
@@ -7021,10 +7020,10 @@ seriesArithmeticUnary[head_, s_PowerLogSeries, working_, limit_] := Module[{z = 
 seriesArithmeticNary[head_, args_List, working_, limit_] := Module[{objects, regular, result, op},
   If[Length[args] > limit, fail["ResourceLimit", "The arithmetic expression exceeds MaxTerms operands."]];
   If[AnyTrue[args, FailureQ], Throw[First[Select[args, FailureQ]], $tag]];
-  objects = Select[args, MatchQ[#, _PowerLogSeries] &];
-  regular = Select[args, ! MatchQ[#, _PowerLogSeries] &];
+  objects = Select[args, MatchQ[#, _GeneralizedSeries] &];
+  regular = Select[args, ! MatchQ[#, _GeneralizedSeries] &];
   If[objects === {}, Return[Apply[head, args], Module]];
-  If[! FreeQ[regular, _PowerLogSeries], fail["UnnormalizedSeriesExpression", "An operand contains a series inside an unsupported expression."]];
+  If[! FreeQ[regular, _GeneralizedSeries], fail["UnnormalizedSeriesExpression", "An operand contains a series inside an unsupported expression."]];
   op = If[head === Plus, "Add", "Multiply"];
   result = First[objects];
   Do[result = seriesArithmeticCheck[seriesArithmeticBinary[op, result, t, working, limit]], {t, Rest[objects]}];
@@ -7037,7 +7036,7 @@ seriesHeldNormalize[HoldComplete[s_Symbol], working_, limit_] := Module[{definit
   held = Replace[definitions, {HoldPattern[RuleDelayed[_, value_]]} :> HoldComplete[value]];
   If[! MatchQ[held, _HoldComplete], fail["UnsupportedSeriesAlias", "The symbol does not have one ordinary stored value."]];
   seriesHeldNormalize[held, working, limit]];
-seriesHeldNormalize[HoldComplete[s_PowerLogSeries], working_, limit_] := s;
+seriesHeldNormalize[HoldComplete[s_GeneralizedSeries], working_, limit_] := s;
 seriesHeldNormalize[HoldComplete[Plus[args___]], working_, limit_] :=
   seriesArithmeticNary[Plus, seriesHeldNormalize[#, working, limit] & /@ seriesHeldArguments[HoldComplete[args]], working, limit];
 seriesHeldNormalize[HoldComplete[Times[args___]], working_, limit_] :=
@@ -7046,20 +7045,20 @@ seriesHeldNormalize[HoldComplete[Power[b_, r_]], working_, limit_] := Module[{ba
   base = seriesHeldNormalize[HoldComplete[b], working, limit];
   exponent = seriesHeldNormalize[HoldComplete[r], working, limit];
   If[FailureQ[base] || FailureQ[exponent], Throw[If[FailureQ[base], base, exponent], $tag]];
-  Which[MatchQ[base, _PowerLogSeries], seriesArithmeticPower[base, exponent, working, limit],
-    MatchQ[exponent, _PowerLogSeries],
+  Which[MatchQ[base, _GeneralizedSeries], seriesArithmeticPower[base, exponent, working, limit],
+    MatchQ[exponent, _GeneralizedSeries],
       logarithm = If[base === E, exponent, seriesArithmeticBinary["Multiply", exponent, Log[base], working, limit]];
       seriesArithmeticUnary[Exp, logarithm, working, limit],
     True, base^exponent]];
 seriesHeldNormalize[HoldComplete[(head : Log | Exp | Abs | Sin | Cos | Tan | Sinh | Cosh | Tanh | ArcSin | ArcCos | ArcTan)[arg_]], working_, limit_] :=
   Module[{value = seriesHeldNormalize[HoldComplete[arg], working, limit]},
-    If[MatchQ[value, _PowerLogSeries], seriesArithmeticUnary[head, value, working, limit], head[value]]];
+    If[MatchQ[value, _GeneralizedSeries], seriesArithmeticUnary[head, value, working, limit], head[value]]];
 seriesHeldNormalize[HoldComplete[List[args___]], working_, limit_] :=
   seriesHeldNormalize[#, working, limit] & /@ seriesHeldArguments[HoldComplete[args]];
 seriesHeldNormalize[held_HoldComplete, working_, limit_] := Module[{value, next},
   value = ReleaseHold[held];
   If[FailureQ[value], Throw[value, $tag]];
-  If[MatchQ[value, _PowerLogSeries] || FreeQ[value, _PowerLogSeries], Return[value, Module]];
+  If[MatchQ[value, _GeneralizedSeries] || FreeQ[value, _GeneralizedSeries], Return[value, Module]];
   next = With[{v = value}, HoldComplete[v]];
   If[next === held, fail["UnsupportedSeriesExpression", "Use arithmetic or a supported analytic function around series objects; use Normal to discard their remainders."]];
   seriesHeldNormalize[next, working, limit]];
@@ -7067,20 +7066,20 @@ seriesHeldNormalize[held_HoldComplete, working_, limit_] := Module[{value, next}
 seriesArithmeticAutomatic[held_HoldComplete] := Block[{$seriesArithmeticEnabled = False},
   catch[seriesHeldNormalize[held, Automatic, 20000]]];
 
-PowerLogSeries /: expression : Plus[___, s_PowerLogSeries, ___] /;
+GeneralizedSeries /: expression : Plus[___, s_GeneralizedSeries, ___] /;
     TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
   seriesArithmeticAutomatic[HoldComplete[expression]];
-PowerLogSeries /: expression : Times[___, s_PowerLogSeries, ___] /;
+GeneralizedSeries /: expression : Times[___, s_GeneralizedSeries, ___] /;
     TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
   seriesArithmeticAutomatic[HoldComplete[expression]];
-PowerLogSeries /: expression : Power[s_PowerLogSeries, _] /;
+GeneralizedSeries /: expression : Power[s_GeneralizedSeries, _] /;
     TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
   seriesArithmeticAutomatic[HoldComplete[expression]];
-PowerLogSeries /: expression : Power[_, s_PowerLogSeries] /;
+GeneralizedSeries /: expression : Power[_, s_GeneralizedSeries] /;
     TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
   seriesArithmeticAutomatic[HoldComplete[expression]];
 Scan[Function[head, With[{h = head},
-  PowerLogSeries /: expression : h[s_PowerLogSeries] /;
+  GeneralizedSeries /: expression : h[s_GeneralizedSeries] /;
       TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
     seriesArithmeticAutomatic[HoldComplete[expression]]]],
   {Log, Exp, Abs, Sin, Cos, Tan, Sinh, Cosh, Tanh, ArcSin, ArcCos, ArcTan}];
@@ -7099,13 +7098,13 @@ AsymptoticInverse`SeriesNormalize[expr_, OptionsPattern[]] := Block[{$seriesArit
   (* Recompute only operations on the supplied operands. A larger work order
      can expose coefficients of an exact regular function or a newly formed
      reciprocal, but can never improve an operand's unknown remainder. *)
-  If[cut =!= Automatic && MatchQ[result, _PowerLogSeries] &&
+  If[cut =!= Automatic && MatchQ[result, _GeneralizedSeries] &&
       ! seriesArithmeticCompositeQ[result] && ! seriesArithmeticFlatQ[result],
     precision = Lookup[result[[1]], "RemainderPower", Infinity]; working = Max[working, cut];
     While[precision =!= Infinity && less[precision, cut] && tries < 8,
       tries++; working = working + cut - precision + 1;
       candidate = seriesHeldNormalize[HoldComplete[expr], working, limit];
-      If[! MatchQ[candidate, _PowerLogSeries] || seriesArithmeticCompositeQ[candidate], Break[]];
+      If[! MatchQ[candidate, _GeneralizedSeries] || seriesArithmeticCompositeQ[candidate], Break[]];
       next = Lookup[candidate[[1]], "RemainderPower", Infinity]; result = candidate;
       If[! less[precision, next], Break[]]; precision = next]];
   seriesArithmeticFinish[result, cut, limit]]]];
@@ -7627,7 +7626,7 @@ specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] :
 (* END SOURCE: AsymptoticInverse/Kernel/ParameterizedSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/DirichletSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 050590310209007f41f90ca9bf5ad50987568f3b98bc38a211e609c4dd2f6bf9 *)
+   Source SHA256 (UTF-8/LF): 381e36cab5d980c050fb208236308b0118c8b97be9b2f457f297bfc203ea9a6c *)
 (* Two convergent defining sums supply expansions unavailable from native
    Series. All parameters are fixed on the target approach. Zeta uses the
    exponential coordinate exp(-S); Lerch uses the reciprocal argument 1/a.
@@ -7664,7 +7663,7 @@ dirichletSpecialMake[f_, rows_, rho_, w_, domain_, x_, x0_, coord_, ass_, cut_, 
     "RemainderDerivativeOrder" -> If[rho === Infinity, Infinity, 0]|>;
   result = seriesMake[representation, {"DirichletSpecialExpansion", {}}, Automatic];
   dirichletSpecialBudget[{result["Expression"], result["Remainder"]}, limit];
-  PowerLogSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
+  GeneralizedSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
     "ExpansionPoint" -> x0, "Direction" -> coord["Direction"],
     "SeriesApproach" -> <|"Variable" -> x, "Point" -> x0, "Direction" -> coord["Direction"]|>,
     "Cutoff" -> actualCut, "RequestedCutoff" -> cut, "RequestedTermGoal" -> goal,
@@ -7778,7 +7777,7 @@ dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_]
 (* END SOURCE: AsymptoticInverse/Kernel/DirichletSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/NativeSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 16070d77d08c9189ea6d5faf228df3a3e4de2b602be9ca0903ebbc1a02a39514 *)
+   Source SHA256 (UTF-8/LF): 2d28f46b3d5819fa1f5d40e9006033a2ff6b9ff8aa2be08c5a76b01ca0c45381 *)
 (* Import structured native asymptotic series without discarding their O terms.
    Native special-function expansions may contain several exact exponential
    carriers and oscillatory phases. Every tree operation transports an
@@ -8017,7 +8016,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
   If[! MemberQ[{Infinity, -Infinity}, x0],
     ordinary = Quiet[TimeConstrained[catch[forwardCore[normalized["Expression"], x, x0, cut,
       Assumptions -> ass, Direction -> coord["Direction"], SeriesTermGoal -> goal, "MaxTerms" -> limit]], 30, $Failed]];
-    If[MatchQ[ordinary, _PowerLogSeries], Return[PowerLogSeries[Join[ordinary[[1]],
+    If[MatchQ[ordinary, _GeneralizedSeries], Return[GeneralizedSeries[Join[ordinary[[1]],
       <|"Function" -> f, "TargetDomain" -> domain["Domain"] && normalized["Domain"],
         "RealDomainProof" -> domain, "NormalizedExpression" -> normalized["Expression"]|>]], Module]]];
   localDomain = ass && ((domain["Domain"] && normalized["Domain"]) /. x -> coord["Substitution"]);
@@ -8060,7 +8059,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
     <|"Variable" -> x, "Assumptions" -> ass, "Domain" -> domain["Domain"] && normalized["Domain"],
       "Approach" -> <|"Variable" -> x, "Point" -> x0, "Direction" -> coord["Direction"]|>|>,
     <|"Operation" -> "NativeSpecialFunctionExpansion", "Source" -> f|>, limit]];
-  PowerLogSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
+  GeneralizedSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
     "Expression" -> Refine[result["Expression"], ass && domain["Domain"] && normalized["Domain"]],
     "Remainder" -> Refine[result["Remainder"], ass && domain["Domain"] && normalized["Domain"]],
     "RemainderScaleExpression" -> Refine[result["RemainderScaleExpression"], ass && domain["Domain"] && normalized["Domain"]],

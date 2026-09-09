@@ -14,7 +14,7 @@ Get[FileNameJoin[{refinementBenchmarkRoot, "Kernel", "AsymptoticInverse.wl"}]];
 
 Begin["AsymptoticInverse`Private`"];
 
-refinementBenchmarkEqual[a_, b_] := MatchQ[a, _PowerLogSeries] && MatchQ[b, _PowerLogSeries] &&
+refinementBenchmarkEqual[a_, b_] := MatchQ[a, _GeneralizedSeries] && MatchQ[b, _GeneralizedSeries] &&
   refinementEqualJets[a["Blocks"], b["Blocks"] /. b["LogVariable"] -> a["LogVariable"],
     a["LogVariable"], a["Assumptions"]] && a["Remainder"] === b["Remainder"] &&
   a["ExpansionPoint"] === b["ExpansionPoint"] && a["Direction"] === b["Direction"] && a["Power"] === b["Power"];
@@ -22,7 +22,7 @@ refinementBenchmarkEqual[a_, b_] := MatchQ[a, _PowerLogSeries] && MatchQ[b, _Pow
 refinementBenchmarkText[e_] := ToString[e, InputForm];
 
 refinementBenchmarkStateValid[before_, after_, method_] := Module[{stats, state, previous},
-  If[! MatchQ[after, _PowerLogSeries], Return[False, Module]];
+  If[! MatchQ[after, _GeneralizedSeries], Return[False, Module]];
   stats = after["RefinementStatistics"]; state = after["ComputationState"];
   If[! AssociationQ[stats] || ! AssociationQ[state], Return[False, Module]];
   If[method === "Lagrange",
@@ -46,11 +46,11 @@ refinementBenchmarkRecord[name_, function_, x_, y_, cutoffs_, method_] := Module
   identities = MapThread[refinementBenchmarkEqual, {reference, current}];
   stateChecks = MapThread[refinementBenchmarkStateValid[#1, #2, method] &, {Most[current], Rest[current]}];
   If[name === "deep-one-gap-catalan-oracle",
-    oracleChecks = MapThread[MatchQ[#1, _PowerLogSeries] &&
+    oracleChecks = MapThread[MatchQ[#1, _GeneralizedSeries] &&
       Expand[Normal[#1] - Sum[(-1)^(j - 1) CatalanNumber[j - 1] y^j, {j, 1, #2 - 1}]] === 0 &,
       {current, cutoffs}]];
   valid = And @@ Join[identities, stateChecks, oracleChecks];
-  statistics = Map[If[! MatchQ[#, _PowerLogSeries], <|"Failure" -> refinementBenchmarkText[#]|>,
+  statistics = Map[If[! MatchQ[#, _GeneralizedSeries], <|"Failure" -> refinementBenchmarkText[#]|>,
       With[{a = #["RefinementStatistics"]},
         <|"Strategy" -> a["Strategy"], "StateOrigin" -> a["StateOrigin"],
           "SourceCutoff" -> refinementBenchmarkText[a["SourceCutoff"]],
@@ -71,7 +71,7 @@ refinementBenchmarkRecord[name_, function_, x_, y_, cutoffs_, method_] := Module
     "ReferenceEvaluationPeakBytes" -> referencePeak, "CurrentEvaluationPeakBytes" -> currentPeak,
     "ReferenceFinalResultBytes" -> ByteCount[Last[reference]], "CurrentFinalResultBytes" -> ByteCount[Last[current]],
     "ReferenceRetainedSequenceBytes" -> ByteCount[reference], "CurrentRetainedSequenceBytes" -> ByteCount[current],
-    "CurrentFinalStateBytes" -> If[MatchQ[Last[current], _PowerLogSeries], ByteCount[Last[current]["ComputationState"]], Null],
+    "CurrentFinalStateBytes" -> If[MatchQ[Last[current], _GeneralizedSeries], ByteCount[Last[current]["ComputationState"]], Null],
     "ObservedSpeedup" -> referenceTime/Max[currentTime, $MinMachineNumber],
     "ExactIdentityAtEveryCutoff" -> identities, "RetainedStateChecks" -> stateChecks,
     "IndependentCatalanOracleChecks" -> oracleChecks,

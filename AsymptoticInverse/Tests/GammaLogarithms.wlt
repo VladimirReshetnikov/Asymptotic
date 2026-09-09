@@ -9,7 +9,7 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
 gammaLogarithmsStirling5[x_] := (x - 1/2) Log[x] - x + Log[2 Pi]/2 +
   1/(12 x) - 1/(360 x^3) + 1/(1260 x^5);
 gammaLogarithmsEqual[s_, expected_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expected, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expected, ass]];
 
 VerificationTest[Module[{x, s},
   s = AsymptoticExpansion[Log[Gamma[x]], x -> Infinity, SeriesTermGoal -> 5];

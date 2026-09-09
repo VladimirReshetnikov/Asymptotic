@@ -1,6 +1,62 @@
 # Review and validation record
 
-## Internal simplification and performance
+## GeneralizedSeries and operation simplification (version 1.8.0)
+
+The public result head is now `GeneralizedSeries`. Constructors, arithmetic,
+refinement, residual checks, formatting and examples use the new symbol;
+the old head is not exported as an alias. StandardForm and TraditionalForm
+still hide the head, InputForm retains the full object, and `Normal` drops
+the remainder. The Markdown and generated HTML guides describe the renamed
+interface and the migration of explicit patterns and saved input. Historical
+validation reports and archived development notes retain their original
+names and source hashes.
+
+This milestone also extracts the common outer-condition/parameter-assumption
+split, gives ordinary real coordinates direct inverse rules, shares Fourier
+weight grouping and frequency counting, prunes discarded Fourier product
+pairs, and reuses the parsed elementary exponential product. Gamma and Barnes
+residual checks share validation and reporting while keeping their independently
+written phase formulas. Existing failure order and residual property order
+are retained. Symbolic, nonreal and ambiguous coordinate inverses still use
+the previous real-solver path.
+
+The `Operations` benchmark set compares an immutable copy of commit
+`916481a2745b69334a605cc499d7af6aa4bebb3d` with these sources in fresh Wolfram
+15.0.1 kernels. Each fixture has one warm-up and three measured runs. All four
+outputs agree exactly, including the public inverse's finite expression and
+remainder; the reports preserve individual timings and source hashes.
+
+| Fixture | Before, median seconds | After, median seconds |
+| --- | ---: | ---: |
+| 100 ordinary translated-coordinate inversions | 0.12115 | 0.00418 |
+| Fourier source merge with repeated frequencies | 0.19112 | 0.09396 |
+| 200-by-200 Fourier product below weight 4 | 1.28634 | 0.00776 |
+| Public Fourier inverse through target weight 4 | 0.02514 | 0.02325 |
+
+The first three fixtures show approximately 29, 2 and 166 times improvements.
+These local measurements do not establish a general public speedup. Reproduce
+the selected operation fixtures with:
+
+```powershell
+$env:ASYMPTOTIC_BENCHMARK_SET = 'Operations'
+wolfram.exe -noinit -script validation/BenchmarkRefactoring.wl
+wolfram.exe -noinit -script validation/CheckGeneralizedSeries.wl
+```
+
+`ASYMPTOTIC_BENCHMARK_ROOT` selects an independent baseline checkout or source
+copy; `ASYMPTOTIC_BENCHMARK_OUTPUT` selects the output path. The regression
+runner explicitly selects 18 files, including four head-contract checks and
+32 new coordinate, Fourier and residual checks. `generalized-series-tests.json`
+records **305 passed, zero failed**, with all recorded source hashes unchanged
+throughout the run. The 11 builder tests and the documentation checks also
+passed: all 37 public symbols are documented, generated HTML matches the
+source, and the mathematical article remains free of package syntax.
+An isolated copy of the standalone file passed all seven acceptance checks
+in a fresh kernel, including the renamed head, arithmetic, formatting,
+`Normal`, and an explicit reload; the recorded source hashes stayed unchanged.
+**The full package suite was not run.**
+
+## Shared arithmetic refactor (commit 916481a)
 
 The internal refactor shares Gamma/Barnes product parsing and branch proofs,
 and the cancelled-frontier search used by inverse construction and refinement.

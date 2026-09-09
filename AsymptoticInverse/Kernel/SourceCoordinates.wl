@@ -34,7 +34,7 @@ sourceExponentialChart[f_, x_, x0_, dir_, ass_, limit_] := Module[{coord, u, pha
 sourceExactObservable[base_, expression_, limit_, certificate_] := Module[{d = seriesData[base, limit], s},
   s = seriesMake[Join[d, <|"Offset" -> 0, "Prefactor" -> expression,
     "Jet" -> {{{0, 1}}, Infinity, 0}, "RemainderDerivativeOrder" -> Infinity|>], {"ExactSourceObservable", {base}}];
-  PowerLogSeries[Join[s[[1]], <|"ExactSourceCertificate" -> certificate|>]]];
+  GeneralizedSeries[Join[s[[1]], <|"ExactSourceCertificate" -> certificate|>]]];
 
 sourceBaseDomain[base_] := Module[{a = base[[1]], y = base["Variable"]},
   Lookup[a, "TargetDomain", If[MemberQ[{Infinity, -Infinity}, a["Limit"]], y, y - a["Limit"]]/a["LeadingCoefficient"] > 0]];
@@ -140,7 +140,7 @@ sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymp
   domain = ass && sourceBaseDomain[base];
   positive = If[chart["ChartEndpoint"] === 0, Normal[base] > 0, True];
   exact = If[a["Remainder"] === 0 && r === 1, a["Expression"], Missing["NonexactSourceReconstruction"]];
-  PowerLogSeries[Join[a, <|"Kind" -> "Inverse", "Scale" -> "Transformed", "CoordinateKind" -> chart["Kind"],
+  GeneralizedSeries[Join[a, <|"Kind" -> "Inverse", "Scale" -> "Transformed", "CoordinateKind" -> chart["Kind"],
     "CoordinateSeries" -> base, "CoordinateSubstitution" -> {}, "ReconstructedSeries" -> result,
     "SourceCoordinateVariable" -> chart["ChartVariable"], "SourceCoordinateEndpoint" -> chart["ChartEndpoint"],
     "SourceCoordinateDirection" -> chart["ChartDirection"], "SourceCoordinateExpression" -> chart["SourceCoordinateExpression"],

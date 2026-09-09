@@ -16,7 +16,7 @@ AsymptoticExpansion::usage =
 "AsymptoticExpansion[f, {x, x0, cutoff}] gives the power-log asymptotic expansion of f \
 as x -> x0 (x0 may be a real number, Infinity or -Infinity) with every block of \
 exponent strictly less than cutoff in the local variable (|x - x0| or 1/|x|) retained, \
-as a PowerLogSeries object.
+as a GeneralizedSeries object.
 AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n] retains the first n nonzero blocks.
 AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n] is equivalent. A unary pure Function \
 or unapplied InverseFunction is applied to x before expansion.
@@ -31,7 +31,7 @@ See Documentation/UserGuide.md for the admitted real domains and scales.";
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
 branch of the inverse function of f near x = x0 (x0 may be a real number, Infinity or \
--Infinity) as a PowerLogSeries object in y. Every complete block with exponent strictly \
+-Infinity) as a GeneralizedSeries object in y. Every complete block with exponent strictly \
 less than cutoff in the local variable (y - y0, or 1/y when y0 is infinite) is retained.
 AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n] retains the first n nonzero blocks.
 Recognized leading-logarithmic and exponential cores return Scale -> \"Logarithmic\": \
@@ -43,10 +43,10 @@ BarnesG, LogBarnesG and the positive-real Log[BarnesG] use Scale -> \"BarnesGInv
 The cutoff is exclusive in 1/CoreInverse and the term goal counts complete polynomial inverse-logarithmic blocks. \
 Power specifies a fixed real source observable, with integer powers required on negative source branches.";
 
-PowerLogSeries::usage =
-"PowerLogSeries[assoc] represents a power-log asymptotic expansion together with its \
+GeneralizedSeries::usage =
+"GeneralizedSeries[assoc] represents a generalized asymptotic expansion together with its \
 remainder and provenance. StandardForm and TraditionalForm display the finite expression \
-and remainder without the PowerLogSeries head. Normal[s] drops the remainder and returns \
+and remainder without the GeneralizedSeries head. Normal[s] drops the remainder and returns \
 the ordinary finite expression. InputForm retains the complete object. s[\"Remainder\"], \
 s[\"Terms\"], s[\"SeriesData\"], s[\"Properties\"] and other properties are available; \
 s[value] evaluates the finite expression at a numerical value of the variable.";
@@ -511,6 +511,15 @@ localCoordinate[x_, x0_, direction_] := Module[{dir = direction, u = Unique["u$"
     (* the local variable and its logarithm in terms of x *)
     "LocalVariable" -> Which[x0 === Infinity, 1/x, x0 === -Infinity, -1/x, dir === "FromAbove", x - x0, True, x0 - x]|>];
 
+(* Only peel outer conditions and split top-level assumption conjuncts.
+   Held scopes and nested conditional expressions retain their own meaning. *)
+splitApproachInput[f_, x_, ass_] := Module[{body = f, condition = True, clauses},
+  While[Head[body] === ConditionalExpression,
+    condition = condition && body[[2]]; body = body[[1]]];
+  clauses = If[Head[ass] === And, List @@ ass, {ass}];
+  {body, And @@ Select[clauses, FreeQ[#, x] &],
+    condition && And @@ Select[clauses, ! FreeQ[#, x] &]}];
+
 (* ------------------------------------------------------------------ *)
 (* Forward expansion: public                                            *)
 (* ------------------------------------------------------------------ *)
@@ -595,7 +604,7 @@ forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] :
    jet = If[ex =!= $Failed, ex, forwardJet[fu, u, ell, ass, cutoff, limit, 1]]];
   result = makeForwardObject[jet, cutoff, f, x, x0, coord, u, ell, ass, goal];
   If[! TrueQ[normalized["Changed"]], Return[result, Module]];
-  PowerLogSeries[Join[result[[1]], <|
+  GeneralizedSeries[Join[result[[1]], <|
     "TargetDomain" -> Lookup[result[[1]], "TargetDomain", True] && normalized["Domain"],
     "NormalizedExpression" -> normalized["Expression"],
     "Transformation" -> "Real logarithms of positive Gamma and Barnes G products are normalized before ordinary power-log expansion.",
@@ -617,7 +626,7 @@ makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := 
   terms = {ToRadicals[#[[1]]], ToRadicals[#[[2]]] /. ell -> logw} & /@ kept;
   expr = Total[(Which[x0 === Infinity, x^(-#[[1]]), x0 === -Infinity, (-x)^(-#[[1]]), True, wexpr^#[[1]]] #[[2]]) & /@ terms];
   sd = makeSeriesData[terms, x, x0, coord, remData, logw];
-  PowerLogSeries[<|
+  GeneralizedSeries[<|
     "Kind" -> "Forward",
     "Expression" -> expr,
     "Remainder" -> If[remData === None, 0, PowerLogRemainder[wexpr, ToRadicals[remData[[1]]], remData[[2]]]],
@@ -991,7 +1000,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     "Branch" -> "the inverse tends to the expansion point with " <> ToString[coord["LocalVariable"], InputForm] <> " ~ " <> ToString[z, InputForm],
     "SeriesData" -> makeInverseSeriesData[terms, y, y0, a, coord, remData, r, x0]
     |>;
-  PowerLogSeries[obj]];
+  GeneralizedSeries[obj]];
 
 makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] := Module[{exps, den, nmin, nmax, coeffs},
   If[r =!= 1 || coord["Sign"] =!= 1 || coord["Infinite"] || x0 =!= 0, Return[Missing["NotAvailable"], Module]];
@@ -1007,13 +1016,13 @@ makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] := Module[
   SeriesData[y, y0, coeffs, nmin, nmax, den]];
 
 (* ------------------------------------------------------------------ *)
-(* The PowerLogSeries object                                            *)
+(* The GeneralizedSeries object                                            *)
 (* ------------------------------------------------------------------ *)
 
-PowerLogSeries /: Normal[PowerLogSeries[a_Association]] := a["Expression"];
-PowerLogSeries[a_Association]["Properties"] := Keys[a];
-PowerLogSeries[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
-PowerLogSeries[a_Association][val_?NumericQ] := a["Expression"] /. a["Variable"] -> val;
+GeneralizedSeries /: Normal[GeneralizedSeries[a_Association]] := a["Expression"];
+GeneralizedSeries[a_Association]["Properties"] := Keys[a];
+GeneralizedSeries[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
+GeneralizedSeries[a_Association][val_?NumericQ] := a["Expression"] /. a["Variable"] -> val;
 remainderScale[PowerLogRemainder[w_, b_, k_]] := Module[{base, lg},
   {base, lg} = If[MatchQ[w, Power[_, -1]], {w[[1]]^(-b), Log[w[[1]]]}, {w^b, Log[w]}];
   If[k === 0, base, base (1 + Abs[lg])^k]];
@@ -1028,12 +1037,12 @@ heldSeriesSum[HoldComplete[Plus[e___]], HoldComplete[r_]] := HoldComplete[Plus[e
 heldSeriesSum[HoldComplete[e_], HoldComplete[Plus[r___]]] := HoldComplete[Plus[e, r]];
 heldSeriesSum[HoldComplete[e_], HoldComplete[r_]] := HoldComplete[e + r];
 
-PowerLogSeries /: MakeBoxes[PowerLogSeries[a_Association], fmt : StandardForm | TraditionalForm] :=
-  powerLogSeriesBoxes[HoldComplete[PowerLogSeries[a]], fmt];
-powerLogSeriesBoxes[held : HoldComplete[PowerLogSeries[a_Association]], fmt_] := Module[{rules, fields},
+GeneralizedSeries /: MakeBoxes[GeneralizedSeries[a_Association], fmt : StandardForm | TraditionalForm] :=
+  generalizedSeriesBoxes[HoldComplete[GeneralizedSeries[a]], fmt];
+generalizedSeriesBoxes[held : HoldComplete[GeneralizedSeries[a_Association]], fmt_] := Module[{rules, fields},
   (* Matching the association's rules works for both evaluated associations and
      raw associations inside MakeBoxes; ordinary Lookup would evaluate them. *)
-  rules = Replace[held, HoldComplete[PowerLogSeries[Association[r___]]] :> HoldComplete[r]];
+  rules = Replace[held, HoldComplete[GeneralizedSeries[Association[r___]]] :> HoldComplete[r]];
   fields = (Cases[rules, HoldPattern[(Rule | RuleDelayed)[#, value_]] :> HoldComplete[value], {1}] &) /@
     {"Expression", "Remainder"};
   Replace[fields, {
@@ -1041,8 +1050,8 @@ powerLogSeriesBoxes[held : HoldComplete[PowerLogSeries[a_Association]], fmt_] :=
     {{HoldComplete[0]}, {HoldComplete[r_]}} :> seriesInterpretationBoxes[HoldComplete[r], held, fmt],
     {{HoldComplete[e_]}, {HoldComplete[r_]}} :>
       seriesInterpretationBoxes[heldSeriesSum[HoldComplete[e], HoldComplete[r]], held, fmt],
-    _ :> RowBox[{"PowerLogSeries", "[", MakeBoxes[a, fmt], "]"}]}]];
-Format[PowerLogSeries[a_Association], OutputForm] := PowerLogSeries[a["Expression"], a["Remainder"]];
+    _ :> RowBox[{"GeneralizedSeries", "[", MakeBoxes[a, fmt], "]"}]}]];
+Format[GeneralizedSeries[a_Association], OutputForm] := GeneralizedSeries[a["Expression"], a["Remainder"]];
 
 (* Small syntactic reductions keep scales readable without evaluating symbols
    or arbitrary expressions supplied to a held MakeBoxes call. *)
@@ -1073,8 +1082,8 @@ Format[r_PowerLogRemainder, OutputForm] := With[{sc = remainderScale[r]}, HoldFo
 (* ------------------------------------------------------------------ *)
 
 Options[InverseResidual] = {"MaxTerms" -> 200000};
-InverseResidual[PowerLogSeries[a_Association], opts : OptionsPattern[]] := catch[residual[a, Automatic, OptionValue["MaxTerms"]]];
-InverseResidual[PowerLogSeries[a_Association], h_, opts : OptionsPattern[]] := catch[residual[a, h, OptionValue["MaxTerms"]]];
+InverseResidual[GeneralizedSeries[a_Association], opts : OptionsPattern[]] := catch[residual[a, Automatic, OptionValue["MaxTerms"]]];
+InverseResidual[GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := catch[residual[a, h, OptionValue["MaxTerms"]]];
 InverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseResidual[expansion] or InverseResidual[expansion, relativeCutoff]."|>];
 
 residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["Blocks"], ell = a["LogVariable"], ass = a["Assumptions"],
@@ -1107,7 +1116,7 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
 (* ------------------------------------------------------------------ *)
 
 Options[InverseNumericalCheck] = {WorkingPrecision -> 50};
-InverseNumericalCheck[PowerLogSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
+InverseNumericalCheck[GeneralizedSeries[a_Association], yv_, OptionsPattern[]] := catch[Module[
   {wp = OptionValue[WorkingPrecision], result, root},
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]], Return[gammaInverseNumerical[a, yv, wp], Module]];
   If[Lookup[a, "Kind", ""] === "SpecialInverse" || Lookup[a, "Scale", "PowerLog"] === "Transformed",
@@ -1141,12 +1150,9 @@ SetAttributes[PowerLogModel, HoldAllComplete];
 PowerLogModel[args___] := catch[powerLogModelEntry[args]];
 powerLogModelEntry[f_, {x_Symbol, x0_}, opts : OptionsPattern[PowerLogModel]] := Module[
    {coord, u, ell = Unique["ell$"], jet, ass = OptionValue[PowerLogModel, {opts}, Assumptions],
-    body = f, condition = True, clauses, parameterAss, limit = OptionValue[PowerLogModel, {opts}, "MaxTerms"]},
+    body = f, condition, parameterAss, limit = OptionValue[PowerLogModel, {opts}, "MaxTerms"]},
    validateInput[f, limit];
-   While[Head[body] === ConditionalExpression, condition = condition && body[[2]]; body = body[[1]]];
-   clauses = If[Head[ass] === And, List @@ ass, {ass}];
-   parameterAss = And @@ Select[clauses, FreeQ[#, x] &];
-   condition = condition && And @@ Select[clauses, ! FreeQ[#, x] &];
+   {body, parameterAss, condition} = splitApproachInput[body, x, ass];
    coord = localCoordinate[x, x0, OptionValue[PowerLogModel, {opts}, Direction]]; u = coord["u"];
    If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], u, parameterAss],
      fail["IncompatibleSourceCondition", "The model condition must hold eventually on the requested real source approach."]];
@@ -1165,7 +1171,7 @@ InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catc
      "Coefficient" -> (ToRadicals[c[[2]]] /. model["LogVariable"] -> \[FormalL]),
      "UniformizerExponent" -> ToRadicals[r + c[[1]]],
      "Meaning" -> "(v/a)^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
-InverseExpansionCoefficient[PowerLogSeries[a_Association], k_List, opts : OptionsPattern[]] :=
+InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : OptionsPattern[]] :=
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
    Failure["Unsupported", <|"MessageTemplate" -> "Lambert coefficients are listed in the logarithmic expansion's Terms property; they have no power-gap multi-index."|>],
    InverseExpansionCoefficient[a["Model"], k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];

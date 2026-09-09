@@ -8,7 +8,7 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
 
 gammaVaryingStirlingPrefactor[z_] := Sqrt[2 Pi] Exp[-z] z^(z - 1/2);
 gammaVaryingEqual[s_, expr_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
 
 VerificationTest[Module[{x, s, pref},
   pref = Exp[1/12] gammaVaryingStirlingPrefactor[x]^x;

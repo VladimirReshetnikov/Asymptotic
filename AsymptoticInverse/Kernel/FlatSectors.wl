@@ -99,7 +99,7 @@ flatConstruct[f_, x_, x0_, y_, n_, opts : OptionsPattern[AsymptoticInverse`Asymp
  d = Max[0, Max[polyDegree[#[[2]], ell] & /@ rowBounds]];
  envelope = u0^(-b) (1 + Abs[Log[u0]])^d;
  rem = phase^(n + 1) PowerLogRemainder[u0, canon[rint + p - (n + 1) b], (n + 1) d];
- PowerLogSeries[<|"Kind" -> "FlatInverse", "Scale" -> "FiniteFlatSectors",
+ GeneralizedSeries[<|"Kind" -> "FlatInverse", "Scale" -> "FiniteFlatSectors",
   "Expression" -> expression, "Variable" -> y, "Variables" -> {x, y}, "Function" -> f,
   "ExpansionPoint" -> x0, "Direction" -> coord["Direction"], "Power" -> r,
   "Assumptions" -> ass, "TargetDomain" -> ass && (y - model["Offset"])/a > 0,

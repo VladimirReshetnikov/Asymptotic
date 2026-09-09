@@ -5,12 +5,12 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
 seriesEnvelopeFixture[e_, r_, x_Symbol, point_: 0, direction_: "FromAbove"] :=
-  PowerLogSeries[<|"Kind" -> "Derived", "Scale" -> "Composite",
+  GeneralizedSeries[<|"Kind" -> "Derived", "Scale" -> "Composite",
     "Expression" -> e, "Remainder" -> r, "Variable" -> x, "Assumptions" -> True,
     "TargetDomain" -> If[direction === "FromAbove", x > point, x < point],
     "SeriesApproach" -> <|"Variable" -> x, "Point" -> point, "Direction" -> direction|>|>];
 seriesEnvelopeMatches[s_, expected_, bound_, assumptions_] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[
     Normal[s] == expected && s["RemainderScaleExpression"] == bound, assumptions]];
 
 VerificationTest[Module[{x, a, b, sum},
@@ -53,7 +53,7 @@ VerificationTest[Module[{x, a, b, sum},
 VerificationTest[Module[{x, y, gamma, shifted, core},
   gamma = AsymptoticInverse[LogGamma[x], {x, Infinity}, y, SeriesTermGoal -> 1];
   shifted = gamma + 1; core = y/ProductLog[y/E];
-  {MatchQ[shifted, _PowerLogSeries], shifted["Scale"] === "Composite",
+  {MatchQ[shifted, _GeneralizedSeries], shifted["Scale"] === "Composite",
     TrueQ[FullSimplify[Normal[shifted] == 1 + core, y > E]],
     shifted["Remainder"] === gamma["Remainder"],
     TrueQ[FullSimplify[shifted["TargetDomain"] == gamma["TargetDomain"]]]}],
@@ -123,7 +123,7 @@ VerificationTest[Module[{x, a},
   a = seriesEnvelopeFixture[1 + x, PowerLogRemainder[x, 2, 0], x];
   {MatchQ[SeriesNormalize[a + 1, "Cutoff" -> 3], Failure["UnsupportedCompositeCutoff", _]],
     MatchQ[SeriesPower[a, 2, "Cutoff" -> 3], Failure["UnsupportedCompositeCutoff", _]],
-    MatchQ[SeriesNormalize[a + 1], _PowerLogSeries]}],
+    MatchQ[SeriesNormalize[a + 1], _GeneralizedSeries]}],
   {True, True, True}, TestID -> "envelope-explicit-single-exponent-cutoffs-are-rejected"]
 
 VerificationTest[Module[{x, ordinary, composite, sum},

@@ -2,7 +2,7 @@
    same source root. Replaying its exact defining equation determines the
    coefficients, while the operand's error still caps output precision. *)
 
-gammaInverseSeriesPower[s : PowerLogSeries[a_Association], k_, cut_, limit_] := Module[
+gammaInverseSeriesPower[s : GeneralizedSeries[a_Association], k_, cut_, limit_] := Module[
   {x, y, ass, oldPower, newPower, alpha, precision, propagated, requested,
    effective, sourceDomain, targetDomain, result, data, inverseLogDegree,
    resultPower, resultDegree, core, bounded, operation, direction, representation, coefficientLog, kind},
@@ -25,7 +25,7 @@ gammaInverseSeriesPower[s : PowerLogSeries[a_Association], k_, cut_, limit_] := 
       Direction -> direction, "MaxTerms" -> limit];
     If[FailureQ[result], Return[result, Module]];
     representation = seriesData[result, limit];
-    Return[PowerLogSeries[Join[result[[1]], <|"TargetDomain" -> targetDomain,
+    Return[GeneralizedSeries[Join[result[[1]], <|"TargetDomain" -> targetDomain,
       "Function" -> ConditionalExpression[1, targetDomain],
       "SeriesRepresentation" -> Join[representation, <|"Domain" -> targetDomain && representation["Domain"]|>],
       (kind <> "Operation") -> <|"Operation" -> "Power", "Exponent" -> 0,
@@ -55,7 +55,7 @@ gammaInverseSeriesPower[s : PowerLogSeries[a_Association], k_, cut_, limit_] := 
       Assumptions -> assumptions, Direction -> direction, Method -> method,
       "MaxTerms" -> budget]];
   If[FailureQ[result], Return[result, Module]];
-  If[! MatchQ[result, PowerLogSeries[_Association]] || result["Kind"] =!= kind,
+  If[! MatchQ[result, GeneralizedSeries[_Association]] || result["Kind"] =!= kind,
     fail["UnsupportedGammaInverseReplay", "The retained source equation did not reconstruct a Gamma/Barnes inverse observable."]];
   data = result[[1]]; core = data["CoreInverse"]; coefficientLog = data["CoreLogExpression"];
   inverseLogDegree = Lookup[a, "RemainderInverseLogPower", 0];
@@ -78,6 +78,6 @@ gammaInverseSeriesPower[s : PowerLogSeries[a_Association], k_, cut_, limit_] := 
     "RequestedCutoff" -> cut, "EffectiveCutoff" -> effective,
     "CoefficientConstruction" -> "Replay of the retained exact source equation with its original source-domain condition.",
     "PrecisionMeaning" -> "For operand valuation alpha and error power P, the output error power is capped by P+alpha(Exponent-1). Source replay supplies coefficients only below the clipped cutoff; it does not improve inherited uncertainty. Later refinement may replay the exact source for additional information."|>;
-  PowerLogSeries[Join[data, bounded, <|
+  GeneralizedSeries[Join[data, bounded, <|
     "TargetDomain" -> targetDomain && data["TargetDomain"],
     (kind <> "Operation") -> operation|>]]];

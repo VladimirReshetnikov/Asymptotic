@@ -81,7 +81,7 @@ Outputs below are written in algebraically equivalent factored forms where this 
 | Expand a selected inverse | [AsymptoticInverse](#AsymptoticInverse) |
 | Expand the increasing Gamma or LogGamma inverse | [Inverse Gamma and LogGamma Functions](#inverse-gamma-and-loggamma) |
 | Expand the increasing Barnes G inverse | [Inverse Barnes G Functions](#barnes-inverse-expansions) |
-| Inspect results and models | [PowerLogSeries](#PowerLogSeries), [PowerLogRemainder](#PowerLogRemainder), [PowerLogModel](#PowerLogModel), [InverseExpansionCoefficient](#InverseExpansionCoefficient) |
+| Inspect results and models | [GeneralizedSeries](#GeneralizedSeries), [PowerLogRemainder](#PowerLogRemainder), [PowerLogModel](#PowerLogModel), [InverseExpansionCoefficient](#InverseExpansionCoefficient) |
 | Perform series arithmetic | [Ordinary Arithmetic](#ordinary-series-arithmetic), [SeriesNormalize](#SeriesNormalize), [SeriesAdd](#SeriesAdd), [SeriesMultiply](#SeriesMultiply), [SeriesPower](#SeriesPower), [SeriesLog](#SeriesLog), [SeriesExp](#SeriesExp) |
 | Compose or apply a function | [SeriesCompose](#SeriesCompose), [SeriesObservable](#SeriesObservable) |
 | Change the retained order | [SeriesTruncate](#SeriesTruncate), [SeriesRefine](#SeriesRefine) |
@@ -202,12 +202,19 @@ For `AsymptoticExpansion`, `Direction` describes the approach of the expansion v
 
 Conditions need only hold on a sufficiently small deleted neighborhood or sufficiently distant tail. For example, `0 < x < 1` is compatible with `x -> 0` from above. A condition that fails eventually on the requested approach is rejected.
 
-<a id="PowerLogSeries"></a>
-## PowerLogSeries
+<a id="GeneralizedSeries"></a>
+## GeneralizedSeries
 
 ### Usage
 
-`PowerLogSeries[association]` is the result representation returned by the constructors. Use constructors, supported arithmetic, and series operations to create and transform it.
+`GeneralizedSeries[association]` is the result representation returned by the constructors. Use constructors, supported arithmetic, and series operations to create and transform it.
+
+`GeneralizedSeries` represents all supported scales, including power-log,
+logarithmic, exponential, flat-sector, and Fourier expansions. Use
+`MatchQ[s, _GeneralizedSeries]` to recognize a result.
+
+Since version 1.8.0, `GeneralizedSeries` replaces the former `PowerLogSeries`
+head. Explicit patterns and saved input using the former name must be updated.
 
 | Form | Meaning |
 | --- | --- |
@@ -218,7 +225,7 @@ Conditions need only hold on a sufficiently small deleted neighborhood or suffic
 
 ### Display and Evaluation
 
-In `StandardForm` and `TraditionalForm`, a series displays its finite expression and its `O[...]` remainder. The `PowerLogSeries` head is hidden in these forms. For example:
+In `StandardForm` and `TraditionalForm`, a series displays its finite expression and its `O[...]` remainder. The `GeneralizedSeries` head is hidden in these forms. For example:
 
 **Input**
 
@@ -235,13 +242,13 @@ y - y^2 + 2 y^3 - 5 y^4 + O[y^5]
 
 An exact result displays only its finite expression. A result with zero finite expression and a nonzero remainder displays only the remainder; an exact zero displays `0`.
 
-The underlying object still has head `PowerLogSeries`. Copying the formatted object into Wolfram Language input preserves the full series, including its remainder and metadata. The formatted object is read-only; use constructors, supported arithmetic, or series operations to change it.
+The underlying object still has head `GeneralizedSeries`. Copying the formatted object into Wolfram Language input preserves the full series, including its remainder and metadata. The formatted object is read-only; use constructors, supported arithmetic, or series operations to change it.
 
 | Form | Display or result |
 | --- | --- |
 | `StandardForm[s]`, `TraditionalForm[s]` | Finite expression and asymptotic remainder, without the wrapper head. |
-| `Head[s]` | `PowerLogSeries`. |
-| `InputForm[s]` | Full reconstructible `PowerLogSeries[association]` representation, including metadata. |
+| `Head[s]` | `GeneralizedSeries`. |
+| `InputForm[s]` | Full reconstructible `GeneralizedSeries[association]` representation, including metadata. |
 | `OutputForm[s]` | Compact diagnostic representation. |
 | `Normal[s]` | Ordinary Wolfram Language expression, with the remainder and series metadata dropped. |
 
@@ -1502,7 +1509,7 @@ Addition and multiplication of compatible results are supported through ordinary
 <a id="series-operations"></a>
 ## Series Arithmetic and Normalization
 
-Arithmetic on a `PowerLogSeries` transports its remainder together with its finite expression. Operands must have compatible variables, endpoints, approach sides, and real branch conditions. Requested precision is limited by the available operand precision.
+Arithmetic on a `GeneralizedSeries` transports its remainder together with its finite expression. Operands must have compatible variables, endpoints, approach sides, and real branch conditions. Requested precision is limited by the available operand precision.
 
 | Task | Use |
 | --- | --- |

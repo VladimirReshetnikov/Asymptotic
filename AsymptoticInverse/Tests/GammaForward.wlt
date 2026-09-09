@@ -10,7 +10,7 @@ gammaForwardPrefactor[z_] := Sqrt[2 Pi] Exp[-z] z^(z - 1/2);
 gammaForwardBracket[z_, count_Integer] :=
   Sum[gammaForwardCoefficients[[k + 1]] z^-k, {k, 0, count - 1}];
 gammaForwardEqual[s_, expr_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
 
 VerificationTest[Module[{x, s},
   s = AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 5];

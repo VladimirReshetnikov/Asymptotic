@@ -5,9 +5,9 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
 normalExpressionPlainQ[e_] := FreeQ[e,
-  _PowerLogSeries | _PowerLogRemainder | _SeriesData | _InterpretationBox | _RowBox];
+  _GeneralizedSeries | _PowerLogRemainder | _SeriesData | _InterpretationBox | _RowBox];
 normalExpressionMatches[s_, expected_, assumptions_: True] := Module[{plain},
-  If[! MatchQ[s, _PowerLogSeries], Return[False, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[False, Module]];
   plain = Normal[s];
   normalExpressionPlainQ[plain] && Normal[plain] === plain &&
     TrueQ[FullSimplify[plain == expected, assumptions]]];
@@ -33,15 +33,15 @@ VerificationTest[Module[{x, sine, cosine, product},
   cosine = AsymptoticExpansion[Cos[x], {x, 0, 6}];
   product = sine cosine;
   {normalExpressionMatches[product, x - 2 x^3/3 + 2 x^5/15],
-    MatchQ[product, _PowerLogSeries] && product["Remainder"] =!= 0,
-    ! FreeQ[product[[1]], _PowerLogSeries]}],
+    MatchQ[product, _GeneralizedSeries] && product["Remainder"] =!= 0,
+    ! FreeQ[product[[1]], _GeneralizedSeries]}],
   {True, True, True}, TestID -> "normal-arithmetic-result-does-not-expose-series-in-its-recipe"]
 
 VerificationTest[Module[{x, s, quotient},
   s = AsymptoticExpansion[x, {x, 0, 4}];
   quotient = SeriesNormalize[(1 + s)/(1 - s), "Cutoff" -> 4];
   {normalExpressionMatches[quotient, 1 + 2 x + 2 x^2 + 2 x^3],
-    MatchQ[quotient, _PowerLogSeries] && quotient["Remainder"] =!= 0}],
+    MatchQ[quotient, _GeneralizedSeries] && quotient["Remainder"] =!= 0}],
   {True, True}, TestID -> "normal-explicit-normalization-produces-an-ordinary-polynomial"]
 
 VerificationTest[Module[{t, x, low, refined, shortened},
@@ -57,7 +57,7 @@ VerificationTest[Module[{t, x, flat, ordinary, sum, decorated},
   flat = AsymptoticFlatInverse[t + Exp[-1/t], {t, 0}, {x, 1}];
   ordinary = AsymptoticExpansion[x^2, {x, 0, 3}];
   sum = flat + ordinary;
-  decorated = PowerLogSeries[Append[sum[[1]], "NormalMetadataSentinel" ->
+  decorated = GeneralizedSeries[Append[sum[[1]], "NormalMetadataSentinel" ->
     <|"Operand" -> flat, "NativeJet" -> SeriesData[x, 0, {7, 11}, 0, 2, 1],
       "Error" -> PowerLogRemainder[x, 99, 0]|>]];
   {sum["Scale"] === "Composite",
@@ -70,13 +70,13 @@ VerificationTest[Module[{x, exact, uncertain, zero},
   uncertain = AsymptoticExpansion[-1 - x + x^2, {x, 0, 2}];
   zero = exact + uncertain;
   {normalExpressionMatches[zero, 0], Normal[zero] === 0,
-    MatchQ[zero, _PowerLogSeries] && zero["Remainder"] =!= 0}],
+    MatchQ[zero, _GeneralizedSeries] && zero["Remainder"] =!= 0}],
   {True, True, True}, TestID -> "normal-cancelled-finite-expression-is-zero-while-object-retains-error"]
 
 VerificationTest[Module[{x, s, plain, value},
   s = AsymptoticExpansion[BesselJ[0, x], x -> Infinity, SeriesTermGoal -> 2];
   plain = Normal[s]; value = N[plain /. x -> 20, 30];
-  {MatchQ[s, _PowerLogSeries] && s["Remainder"] =!= 0,
+  {MatchQ[s, _GeneralizedSeries] && s["Remainder"] =!= 0,
     normalExpressionPlainQ[plain] && FreeQ[plain, _BesselJ],
     Normal[plain] === plain,
     NumericQ[value] && TrueQ[Element[value, Reals]]}],

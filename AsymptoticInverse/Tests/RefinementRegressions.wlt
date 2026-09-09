@@ -1,7 +1,7 @@
 If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
-refinementRegressionEqual[a_, b_] := MatchQ[a, _PowerLogSeries] && MatchQ[b, _PowerLogSeries] &&
+refinementRegressionEqual[a_, b_] := MatchQ[a, _GeneralizedSeries] && MatchQ[b, _GeneralizedSeries] &&
   AsymptoticInverse`Private`refinementEqualJets[a["Blocks"], b["Blocks"] /. b["LogVariable"] -> a["LogVariable"],
     a["LogVariable"], a["Assumptions"]] && a["Remainder"] === b["Remainder"];
 
@@ -79,7 +79,7 @@ VerificationTest[Module[{x, y, old, refined}, old = AsymptoticInverse[x + x^2 + 
 VerificationTest[Module[{x, y, old, refined, changed, broken},
   old = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}]; refined = SeriesRefine[old, 5];
   broken = Join[refined["ComputationState"], <|"LeadingPower" -> 2|>];
-  changed = PowerLogSeries[Join[refined[[1]], <|"ComputationState" -> broken|>]];
+  changed = GeneralizedSeries[Join[refined[[1]], <|"ComputationState" -> broken|>]];
   MatchQ[SeriesRefine[changed, 7], Failure["StaleComputationState", _Association]]],
   True, TestID -> "refinement-rejects-incompatible-retained-state"]
 

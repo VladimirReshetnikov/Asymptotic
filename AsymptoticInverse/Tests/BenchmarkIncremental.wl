@@ -80,7 +80,7 @@ Module[{x, y, f, old, new, oldTime, newTime, same},
  f = Sum[x^j, {j, 1, 7}];
  {oldTime, old} = AbsoluteTiming[AsymptoticInverse[f, {x, 0}, {y, 12}, Method -> "Lagrange"]];
  {newTime, new} = AbsoluteTiming[AsymptoticInverse[f, {x, 0}, {y, 12}, Method -> "GroupedLagrange"]];
- same = MatchQ[old, _PowerLogSeries] && MatchQ[new, _PowerLogSeries] &&
+ same = MatchQ[old, _GeneralizedSeries] && MatchQ[new, _GeneralizedSeries] &&
    Expand[Normal[old] - Normal[new]] === 0 && old["Remainder"] === new["Remainder"];
  benchmarkSuccess = benchmarkSuccess && same;
  AppendTo[benchmarkRecords, <|"Case" -> "public-seven-power-forward-model-to-target-cutoff-twelve",

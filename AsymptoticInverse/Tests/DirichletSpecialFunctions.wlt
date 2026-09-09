@@ -11,7 +11,7 @@ dirichletLerchAt[z_, s_, a_, x_, point_: Infinity, cut_: Automatic, goal_: 3, as
   AsymptoticInverse`Private`catch[AsymptoticInverse`Private`dirichletLerchForward[
     LerchPhi[z, s, a], z, s, a, x, point, cut, ass,
     AsymptoticInverse`Private`localCoordinate[x, point, Automatic], goal, limit]];
-dirichletEqual[result_, expected_, ass_: True] := MatchQ[result, _PowerLogSeries] &&
+dirichletEqual[result_, expected_, ass_: True] := MatchQ[result, _GeneralizedSeries] &&
   TrueQ[FullSimplify[Normal[result] == expected, ass]];
 
 VerificationTest[Module[{x, s, refined},

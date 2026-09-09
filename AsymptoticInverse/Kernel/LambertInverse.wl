@@ -206,7 +206,7 @@ lambertConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInve
   If[kind === "PowerLog" && r === 1 && ! coord["Infinite"], expression += x0];
   remainder = If[beta === Infinity, 0, Abs[prefactor] PowerLogRemainder[t, beta, degree]];
   perturbation = Simplify[f - leadingCore, ass];
-  PowerLogSeries[<|
+  GeneralizedSeries[<|
     "Kind" -> "Inverse", "Scale" -> "Logarithmic", "Method" -> "Lambert", "RequestedMethod" -> method,
     "Expression" -> expression, "Prefactor" -> prefactor, "Terms" -> terms, "Blocks" -> blocks,
     "TermConvention" -> "Each {n,C} contributes Prefactor t^n C with t=LogarithmicVariable; a finite source endpoint is added when Power is 1. Cutoff bounds n in the normalized bracket.",

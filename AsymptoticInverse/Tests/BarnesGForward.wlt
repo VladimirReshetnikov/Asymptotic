@@ -18,9 +18,9 @@ barnesForwardCoefficients = {1, -1/12, -1/1440, 157/51840, 65911/87091200};
 barnesForwardPlusCoefficients = {1, -1/240, 269/268800,
   -405607/580608000, 40788235739/42918543360000};
 barnesForwardGammaCoefficients = {1, 1/12, 1/288, -139/51840, -571/2488320};
-barnesForwardCarrierEqual[s_, expected_, ass_] := MatchQ[s, _PowerLogSeries] &&
+barnesForwardCarrierEqual[s_, expected_, ass_] := MatchQ[s, _GeneralizedSeries] &&
   TrueQ[FullSimplify[Log[s["Prefactor"]] - expected, ass] === 0];
-barnesForwardEqual[s_, expected_, ass_: True] := MatchQ[s, _PowerLogSeries] &&
+barnesForwardEqual[s_, expected_, ass_: True] := MatchQ[s, _GeneralizedSeries] &&
   TrueQ[FullSimplify[Normal[s] == expected, ass]];
 
 VerificationTest[Module[{x, s},
@@ -227,7 +227,7 @@ VerificationTest[Module[{x, b, s},
 
 VerificationTest[Module[{x, s},
   s = AsymptoticExpansion[Log[BarnesG[3 - x]], {x, 0, 2}];
-  {MatchQ[s, _PowerLogSeries],
+  {MatchQ[s, _GeneralizedSeries],
     TrueQ[(s["TargetDomain"] /. x -> 1) === False],
     TrueQ[s["TargetDomain"] /. x -> 1/2]}],
   {True, True, True},

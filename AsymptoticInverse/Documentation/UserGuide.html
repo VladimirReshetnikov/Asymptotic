@@ -76,7 +76,7 @@ Overview</a></li>
 <li><a href="#asymptoticinverse" id="toc-asymptoticinverse">AsymptoticInverse</a></li>
 <li><a href="#details-and-options-coordinates-and-cutoffs" id="toc-details-and-options-coordinates-and-cutoffs">Details and
 Options: Coordinates and Cutoffs</a></li>
-<li><a href="#powerlogseries" id="toc-powerlogseries">PowerLogSeries</a></li>
+<li><a href="#generalizedseries" id="toc-generalizedseries">GeneralizedSeries</a></li>
 <li><a href="#powerlogremainder" id="toc-powerlogremainder">PowerLogRemainder</a></li>
 <li><a href="#examples" id="toc-examples">Examples</a></li>
 <li><a href="#inverse-gamma-and-loggamma-functions" id="toc-inverse-gamma-and-loggamma-functions">Inverse Gamma and LogGamma
@@ -200,7 +200,7 @@ Functions</a></td>
 </tr>
 <tr>
 <td>Inspect results and models</td>
-<td><a href="#PowerLogSeries">PowerLogSeries</a>, <a href="#PowerLogRemainder">PowerLogRemainder</a>, <a href="#PowerLogModel">PowerLogModel</a>, <a href="#InverseExpansionCoefficient">InverseExpansionCoefficient</a></td>
+<td><a href="#GeneralizedSeries">GeneralizedSeries</a>, <a href="#PowerLogRemainder">PowerLogRemainder</a>, <a href="#PowerLogModel">PowerLogModel</a>, <a href="#InverseExpansionCoefficient">InverseExpansionCoefficient</a></td>
 </tr>
 <tr>
 <td>Perform series arithmetic</td>
@@ -604,16 +604,23 @@ neighborhood or sufficiently distant tail. For example,
 <code>0 &lt; x &lt; 1</code> is compatible with <code>x -&gt; 0</code>
 from above. A condition that fails eventually on the requested approach
 is rejected.</p>
-<p><a id="PowerLogSeries"></a></p>
+<p><a id="GeneralizedSeries"></a></p>
 </section>
 </section>
-<section id="powerlogseries" class="level2">
-<h2>PowerLogSeries</h2>
+<section id="generalizedseries" class="level2">
+<h2>GeneralizedSeries</h2>
 <section id="usage-2" class="level3">
 <h3>Usage</h3>
-<p><code>PowerLogSeries[association]</code> is the result representation
-returned by the constructors. Use constructors, supported arithmetic,
-and series operations to create and transform it.</p>
+<p><code>GeneralizedSeries[association]</code> is the result
+representation returned by the constructors. Use constructors, supported
+arithmetic, and series operations to create and transform it.</p>
+<p><code>GeneralizedSeries</code> represents all supported scales,
+including power-log, logarithmic, exponential, flat-sector, and Fourier
+expansions. Use <code>MatchQ[s, _GeneralizedSeries]</code> to recognize
+a result.</p>
+<p>Since version 1.8.0, <code>GeneralizedSeries</code> replaces the
+former <code>PowerLogSeries</code> head. Explicit patterns and saved
+input using the former name must be updated.</p>
 <table>
 <thead>
 <tr>
@@ -645,7 +652,7 @@ and series operations to create and transform it.</p>
 <h3>Display and Evaluation</h3>
 <p>In <code>StandardForm</code> and <code>TraditionalForm</code>, a
 series displays its finite expression and its <code>O[...]</code>
-remainder. The <code>PowerLogSeries</code> head is hidden in these
+remainder. The <code>GeneralizedSeries</code> head is hidden in these
 forms. For example:</p>
 <p><strong>Input</strong></p>
 <pre class="wolfram"><code>s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
@@ -655,7 +662,7 @@ s</code></pre>
 <p>An exact result displays only its finite expression. A result with
 zero finite expression and a nonzero remainder displays only the
 remainder; an exact zero displays <code>0</code>.</p>
-<p>The underlying object still has head <code>PowerLogSeries</code>.
+<p>The underlying object still has head <code>GeneralizedSeries</code>.
 Copying the formatted object into Wolfram Language input preserves the
 full series, including its remainder and metadata. The formatted object
 is read-only; use constructors, supported arithmetic, or series
@@ -675,11 +682,11 @@ head.</td>
 </tr>
 <tr>
 <td><code>Head[s]</code></td>
-<td><code>PowerLogSeries</code>.</td>
+<td><code>GeneralizedSeries</code>.</td>
 </tr>
 <tr>
 <td><code>InputForm[s]</code></td>
-<td>Full reconstructible <code>PowerLogSeries[association]</code>
+<td>Full reconstructible <code>GeneralizedSeries[association]</code>
 representation, including metadata.</td>
 </tr>
 <tr>
@@ -2147,10 +2154,11 @@ on <code>Normal[s]</code> drops the remainder.</p>
 </section>
 <section id="series-arithmetic-and-normalization" class="level2">
 <h2>Series Arithmetic and Normalization</h2>
-<p>Arithmetic on a <code>PowerLogSeries</code> transports its remainder
-together with its finite expression. Operands must have compatible
-variables, endpoints, approach sides, and real branch conditions.
-Requested precision is limited by the available operand precision.</p>
+<p>Arithmetic on a <code>GeneralizedSeries</code> transports its
+remainder together with its finite expression. Operands must have
+compatible variables, endpoints, approach sides, and real branch
+conditions. Requested precision is limited by the available operand
+precision.</p>
 <table>
 <thead>
 <tr>

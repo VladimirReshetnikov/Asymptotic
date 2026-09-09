@@ -28,8 +28,9 @@ logarithmicRealCondition[condition_, ass_, coord_] := Module[{simple, expression
     simple = domain];
   inverseFunctionEventually[simple, coord["u"], ass]];
 
-logarithmicProductSource[e_, x_, ass_, coord_] := Module[{parts, coefficient, sign, domain, condition, logarithm, simplified},
-  parts = logarithmicProductData[e, x]; coefficient = parts[[1]];
+logarithmicProductSource[e_, x_, ass_, coord_, parsed_: Automatic] := Module[
+  {parts = If[parsed === Automatic, logarithmicProductData[e, x], parsed], coefficient, sign, domain, condition, logarithm, simplified},
+  coefficient = parts[[1]];
   condition = parts[[3]] /. x -> coord["Substitution"];
   (* Resolve[..., Reals] would silently treat free parameters as real.
      Discharge realness from explicit assumptions before that fallback. *)
@@ -62,7 +63,7 @@ exponentialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] :
      Require growth beyond Log[u] so regular Laurent/Puiseux germs keep
      their absolute cutoff convention, even when written using Exp. *)
   If[! growing, Return[$Failed, Module]];
-  source = logarithmicProductSource[f, x, ass, coord];
+  source = logarithmicProductSource[f, x, ass, coord, parts];
   logarithmicForwardExpansion[f, source["Logarithm"], source["Sign"], source["Domain"],
     x, x0, cutoff, ass, coord, goal, limit,
     <|"Transformation" -> "The expression equals Sign[coefficient] Exp[LogarithmicFunction] on the proved real domain."|>]];

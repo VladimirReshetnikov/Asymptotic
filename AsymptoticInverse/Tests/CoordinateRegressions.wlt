@@ -77,7 +77,7 @@ VerificationTest[
 
 VerificationTest[Module[{x,y,s},
  s=AsymptoticInverse[x Exp[x^2+x], {x, Infinity}, y, SeriesTermGoal -> 3, Assumptions -> x > 0];
- {MatchQ[s,_PowerLogSeries], TrueQ[s["SourceDomain"] /. x -> 2],
+ {MatchQ[s,_GeneralizedSeries], TrueQ[s["SourceDomain"] /. x -> 2],
   TrueQ[Not[s["SourceDomain"] /. x -> -2]]}],
  {True,True,True}, TestID -> "coordinate-source-assumption-is-proved-and-retained"]
 

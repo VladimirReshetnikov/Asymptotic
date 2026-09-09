@@ -172,7 +172,7 @@ corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : Opti
     "LocalObservablePower" -> rint, "MarkerDepth" -> depth,
     "Justification" -> "Joint analytic implicit function theorem in reciprocal logarithm, fixed core parameters and finite higher-power perturbation parameters."|>;
   sourceAssumptions = ass && 0 < u < radius;
-  PowerLogSeries[<|"Kind" -> "CoreInverse", "Scale" -> "ExactCorePerturbation",
+  GeneralizedSeries[<|"Kind" -> "CoreInverse", "Scale" -> "ExactCorePerturbation",
     "Expression" -> expression, "Variable" -> y, "Variables" -> {x, y},
     "Function" -> core + perturbation, "Core" -> core, "Perturbation" -> perturbation,
     "CoreInverse" -> phi, "CoreLocalInverse" -> u0, "CoreCertificate" -> inverse["Certificate"],

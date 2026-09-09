@@ -13,7 +13,7 @@ gammaPowersPrefactor[z_, r_] := (Sqrt[2 Pi] Exp[-z] z^(z - 1/2))^r;
 gammaPowersBracket[z_, coefficients_List] :=
   Sum[coefficients[[k + 1]] z^-k, {k, 0, Length[coefficients] - 1}];
 gammaPowersEqual[s_, expr_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
 
 VerificationTest[Module[{x, s},
   s = AsymptoticExpansion[Gamma[x]^2, x -> Infinity, SeriesTermGoal -> 5];

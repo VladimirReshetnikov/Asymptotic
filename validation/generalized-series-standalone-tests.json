@@ -1,0 +1,51 @@
+{
+  "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+  "Source": "isolated standalone file",
+  "Mode": "Get",
+  "GetMethod": "\"Automatic\"",
+  "Succeeded": 7,
+  "Failed": 0,
+  "Results": [
+    {
+      "TestID": "loading-contexts-and-stream-cleanup",
+      "Outcome": "Success",
+      "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticInverse`\", {}, {}, True}]"
+    },
+    {
+      "TestID": "loading-irrational-inverse",
+      "Outcome": "Success",
+      "ActualOutput": "HoldForm[True]"
+    },
+    {
+      "TestID": "loading-early-exact-termination",
+      "Outcome": "Success",
+      "ActualOutput": "HoldForm[{True, 0, True}]"
+    },
+    {
+      "TestID": "loading-gamma-ratio",
+      "Outcome": "Success",
+      "ActualOutput": "HoldForm[True]"
+    },
+    {
+      "TestID": "loading-late-native-special-functions",
+      "Outcome": "Success",
+      "ActualOutput": "HoldForm[True]"
+    },
+    {
+      "TestID": "loading-arithmetic-normal-and-display",
+      "Outcome": "Success",
+      "ActualOutput": "HoldForm[{True, True, True, True}]"
+    },
+    {
+      "TestID": "loading-explicit-reload-and-dirichlet",
+      "Outcome": "Success",
+      "ActualOutput": "HoldForm[{True, True, True, True}]"
+    }
+  ],
+  "ExitCode": 0,
+  "TestedSourceSHA256": {
+    "AsymptoticInverse.wl": "b2aebac8176649ff53634816f17e92c8f0ccb397f7606a5ac819b6f157b6d7ed",
+    "validation/CheckStandalone.wl": "a01232c5cb1b6ffed8063b2623bd9dfb14af642848e454806e97d200d8825488"
+  },
+  "SourcesUnchangedDuringRun": true
+}

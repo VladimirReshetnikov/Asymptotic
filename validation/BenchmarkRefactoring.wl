@@ -1,6 +1,7 @@
 (* Run the same fixtures in fresh kernels before and after a refactor.
    ASYMPTOTIC_BENCHMARK_ROOT selects an immutable source copy; the default is
    this checkout. ASYMPTOTIC_BENCHMARK_OUTPUT selects the JSON report.
+   ASYMPTOTIC_BENCHMARK_SET selects Core (default) or Operations fixtures.
    One warm-up and three measured samples per fixture; no timing assertions. *)
 benchmarkRoot = Environment["ASYMPTOTIC_BENCHMARK_ROOT"];
 If[! StringQ[benchmarkRoot] || benchmarkRoot === "",
@@ -10,8 +11,10 @@ benchmarkHashes[] := Association[(FileNameTake[#] -> IntegerString[FileHash[#, "
 benchmarkBefore = benchmarkHashes[];
 Get[FileNameJoin[{benchmarkRoot, "AsymptoticInverse", "Kernel", "AsymptoticInverse.wl"}]];
 
-benchmarkSeriesResult[s_PowerLogSeries] := {Normal[s], s["Remainder"]};
-benchmarkSeriesResult[s_] := s;
+(* Accept the association-backed result from both the baseline and current
+   public head, without installing a symbol from an older package version. *)
+benchmarkSeriesResult[s_] := If[Length[s] === 1 && AssociationQ[First[s]],
+  {Normal[s], s["Remainder"]}, Failure["UnexpandedBenchmark", <|"Result" -> s|>]];
 SetAttributes[benchmarkMeasure, HoldRest];
 benchmarkMeasure[name_, expression_] := Module[{warm, samples, values, valid},
   Print["Timing: ", name];
@@ -26,7 +29,9 @@ benchmarkMeasure[name_, expression_] := Module[{warm, samples, values, valid},
 benchmarkRows = Table[{k, 1 + ell^Mod[k, 4]}, {k, 0, 79}];
 benchmarkMergeRows = Flatten[Table[{k Sqrt[2], (1 + ell)^4 - ell^4 + j}, {j, 0, 2}, {k, 0, 49}], 1];
 benchmarkNative = SeriesData[u, 0, Table[(1 + Log[u])^Mod[k, 4], {k, 0, 39}], 0, 40, 1];
-benchmarkResults = {
+benchmarkSet = Environment["ASYMPTOTIC_BENCHMARK_SET"];
+If[! StringQ[benchmarkSet] || benchmarkSet === "", benchmarkSet = "Core"];
+benchmarkResults = Switch[benchmarkSet, "Core", {
   benchmarkMeasure["Sparse product with a finite remainder boundary",
     AsymptoticInverse`Private`pMul[{benchmarkRows, 80, 3}, {benchmarkRows, 80, 3}, ell, True, 20000]],
   benchmarkMeasure["Merge repeated irrational weights and logarithmic polynomials",
@@ -42,13 +47,28 @@ benchmarkResults = {
     benchmarkSeriesResult[AsymptoticExpansion[BarnesG[x], x -> Infinity, SeriesTermGoal -> 5]]],
   benchmarkMeasure["Exact summand plus native Erfc tail",
     benchmarkSeriesResult[AsymptoticExpansion[x + Erfc[x], x -> Infinity, SeriesTermGoal -> 3]]]
-};
+}, "Operations",
+  benchmarkFourierRows = Table[{k, {{0, 1 + ell}, {Sqrt[2], 1 - ell}}}, {k, 0, 39}];
+  benchmarkFourierProduct = Table[{k, {{0, 1}}}, {k, 0, 199}];
+  {
+    benchmarkMeasure["100 inversions of an ordinary translated coordinate",
+      Last[Table[AsymptoticInverse`Private`seriesCoordinateRule[
+        <|"Variable" -> x, "ScaleVariable" -> x - Sqrt[2]|>, u], {100}]]],
+    benchmarkMeasure["Merge Fourier source blocks with repeated frequencies",
+      AsymptoticInverse`Private`fourierJetMerge[
+        Join[benchmarkFourierRows, benchmarkFourierRows], ell, True, 20000, 8]],
+    benchmarkMeasure["200-by-200 Fourier source product below weight 4",
+      AsymptoticInverse`Private`fourierJetMul[
+        benchmarkFourierProduct, benchmarkFourierProduct, 4, ell, True, 20, 8]],
+    benchmarkMeasure["Public Fourier inverse through target weight 4",
+      benchmarkSeriesResult[AsymptoticFourierInverse[x + x^2 Sin[Log[x]], {x, 0}, {y, 4}]]]
+  }, _, Print["Unknown benchmark set: ", benchmarkSet]; Exit[2]];
 benchmarkUnchanged = benchmarkBefore === benchmarkHashes[];
 benchmarkOutput = Environment["ASYMPTOTIC_BENCHMARK_OUTPUT"];
 If[! StringQ[benchmarkOutput] || benchmarkOutput === "",
-  benchmarkOutput = FileNameJoin[{DirectoryName[$InputFileName], "refactoring-benchmark.json"}]];
+  benchmarkOutput = FileNameJoin[{DirectoryName[$InputFileName], ToLowerCase[benchmarkSet] <> "-refactoring-benchmark.json"}]];
 Export[benchmarkOutput, <|"Kernel" -> $Version, "WarmupRuns" -> 1, "MeasuredRuns" -> 3,
-  "Scope" -> "Seven selected fixtures; local timings are not portable performance guarantees.",
+  "Scope" -> "Selected fixtures; local timings are not portable performance guarantees.", "FixtureSet" -> benchmarkSet,
   "SourcesUnchangedDuringRun" -> benchmarkUnchanged, "TestedSourceSHA256" -> benchmarkBefore,
   "BenchmarkSHA256" -> IntegerString[FileHash[$InputFileName, "SHA256"], 16, 64],
   "Results" -> benchmarkResults|>, "RawJSON"];

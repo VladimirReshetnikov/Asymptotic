@@ -7,20 +7,20 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
 
 VerificationTest[Module[{x,y,s,n},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->(1/10<x<3/10)|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->(1/10<x<3/10)|>]];
  n=InverseNumericalCheck[s,6/25,WorkingPrecision->50];
  {n["SourceDomainVerified"],Abs[n["ReferenceRoot"]-1/5]<10^-45}],
  {True,True},TestID->"inverse-domain-numerical-root-satisfies-retained-restriction"]
 
 VerificationTest[Module[{x,y,s},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->(0<x<1/10)|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->(0<x<1/10)|>]];
  MatchQ[InverseNumericalCheck[s,6/25],Failure["OutsideBranch",_Association]]],
  True,TestID->"inverse-domain-numerical-root-on-correct-side-but-outside-condition"]
 
 VerificationTest[Module[{x,y,q,s,n},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceVariable"->q,
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceVariable"->q,
    "SourceDomain"->(Im[q]==0&&Element[q,Reals]&&1/10<q<3/10)|>]];
  n=InverseNumericalCheck[s,6/25];
  {n["SourceDomainVerified"],FreeQ[n["SourceDomainChecked"],q]}],
@@ -28,7 +28,7 @@ VerificationTest[Module[{x,y,q,s,n},
 
 VerificationTest[Module[{x,y,s,n},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5},"Power"->2];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->(x>1/10)|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->(x>1/10)|>]];
  n=InverseNumericalCheck[s,6/25];
  {n["SourceDomainVerified"],Abs[n["ReferenceRoot"]-1/5]<10^-45,
   Abs[n["ReferenceObservable"]-1/25]<10^-45}],
@@ -36,7 +36,7 @@ VerificationTest[Module[{x,y,s,n},
 
 VerificationTest[Module[{x,y,s,n},
  s=AsymptoticInverse[-x+x^2,{x,0},{y,5},Direction->"FromBelow"];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->(-1/4<x<0)|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->(-1/4<x<0)|>]];
  n=InverseNumericalCheck[s,6/25];
  {n["SourceDomainVerified"],Abs[n["ReferenceRoot"]+1/5]<10^-45}],
  {True,True},TestID->"inverse-domain-left-branch-retains-signed-source-predicate"]
@@ -50,13 +50,13 @@ VerificationTest[Module[{x,y,s,n,root=Exp[-10]},
 
 VerificationTest[Module[{x,y,s,predicate},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->predicate[x]|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->predicate[x]|>]];
  MatchQ[InverseNumericalCheck[s,6/25],Failure["OutsideBranch",_Association]]],
  True,TestID->"inverse-domain-unknown-numerical-predicate-fails-closed"]
 
 VerificationTest[Module[{x,y,q,s,c},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceVariable"->q,
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceVariable"->q,
    "SourceDomain"->(Element[q,Reals]&&Im[q]==0&&1/10<=q<=3/10)|>]];
  c=InverseCertificate[s,6/25,"Interval"->{1/10,3/10},"Center"->1/5,
    "TargetError"->10^-20,"MaxRefinements"->0];
@@ -69,42 +69,42 @@ VerificationTest[Module[{x,y,q,s,c},
 
 VerificationTest[Module[{x,y,s,c},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->(0<x<1/4)|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->(0<x<1/4)|>]];
  c=InverseCertificate[s,6/25,"Interval"->{1/10,3/10},"Center"->1/5,"MaxRefinements"->0];
  {MatchQ[c,Failure["OutsideBranch",_Association]],c[[2,"ConditionScope"]]}],
  {True,"EntireClosedVerificationInterval"},TestID->"inverse-domain-valid-root-does-not-excuse-invalid-interval"]
 
 VerificationTest[Module[{x,y,s},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->(1/10<x<1)|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->(1/10<x<1)|>]];
  MatchQ[InverseCertificate[s,6/25,"Interval"->{1/10,3/10},"Center"->1/5,
    "MaxRefinements"->0],Failure["OutsideBranch",_Association]]],
  True,TestID->"inverse-domain-open-condition-excludes-closed-interval-endpoint"]
 
 VerificationTest[Module[{x,y,s,c},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->((x<0||x>1/20)&&x!=1&&Not[x>=1])|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->((x<0||x>1/20)&&x!=1&&Not[x>=1])|>]];
  c=InverseCertificate[s,6/25,"Interval"->{1/10,3/10},"Center"->1/5,"MaxRefinements"->0];
  {c["Certified"],c["SourceDomainVerified"]}],
  {True,True},TestID->"inverse-domain-boolean-and-nonequality-interval-proof"]
 
 VerificationTest[Module[{x,y,s,predicate},
  s=AsymptoticInverse[x+x^2,{x,0},{y,5}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->predicate[x]|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->predicate[x]|>]];
  MatchQ[InverseCertificate[s,6/25,"Interval"->{1/10,3/10},"Center"->1/5,
    "MaxRefinements"->0],Failure["OutsideBranch",_Association]]],
  True,TestID->"inverse-domain-unknown-certificate-predicate-fails-closed"]
 
 VerificationTest[Module[{x,y,s},
  s=AsymptoticInverse[x Exp[x],{x,Infinity},{y,3}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->(x<5/2)|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->(x<5/2)|>]];
  MatchQ[InverseCertificate[s,2 Exp[2],"Interval"->{1,3},"Center"->2,
    "MaxRefinements"->0],Failure["OutsideBranch",_Association]]],
  True,TestID->"inverse-domain-lambert-phase-conversion-preserves-original-condition"]
 
 VerificationTest[Module[{x,y,s,c},
  s=AsymptoticInverse[Exp[x^2+x],{x,Infinity},{y,3}];
- s=PowerLogSeries[Join[s[[1]],<|"SourceDomain"->(1/2<x<4)|>]];
+ s=GeneralizedSeries[Join[s[[1]],<|"SourceDomain"->(1/2<x<4)|>]];
  c=InverseCertificate[s,Exp[6],"Interval"->{1,3},"Center"->2,"MaxRefinements"->0];
  {c["Certified"],c["SourceDomainVerified"],c["RootEnclosure"]}],
  {True,True,{2,2}},TestID->"inverse-domain-target-log-route-retains-certified-condition"]

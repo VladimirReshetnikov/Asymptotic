@@ -83,7 +83,7 @@ VerificationTest[Module[{x, y, s}, s = AsymptoticInverse[Exp[-x] + Exp[-2 x], {x
 VerificationTest[Module[{x, y, s, shorter, changed, result},
   s = AsymptoticInverse[Exp[-x] + Exp[-2 x], {x, Infinity}, {y, 4}];
   shorter = SeriesTruncate[s["ReconstructedSeries"], 1];
-  changed = PowerLogSeries[Join[s[[1]], <|"Expression" -> Normal[shorter], "Blocks" -> shorter["Blocks"],
+  changed = GeneralizedSeries[Join[s[[1]], <|"Expression" -> Normal[shorter], "Blocks" -> shorter["Blocks"],
     "SeriesRepresentation" -> shorter["SeriesRepresentation"], "ReconstructedSeries" -> shorter|>]];
   result = InverseResidual[changed, 3]; {result["ZeroBelowCutoff"], TrueQ[Simplify[result["NormalizedResidual"] == y, y > 0]]}],
   {False, True}, TestID -> "source-residual-composes-returned-reconstruction"]

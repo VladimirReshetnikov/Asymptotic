@@ -60,32 +60,72 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
     If[power === 1, <|"ApproximationSourceRoot" -> N[approximate, wp],
       "PhaseResidual" -> N[(equation /. x -> approximate) - coordinate, wp]|>, <||>]]];
 
-gammaInverseResidual[a_Association, h_, limit_] := Module[
-  {cut, order, t = Unique["gammaResidualPower$"], q, ass, rows, source, unit,
-   logarithm, correction = 0, polynomial, coefficient, blocks, residual,
-   substitutions, modelTerms, modelPower, x, y, exactResidual, checkSize},
+(* The two residuals share their input checks and coefficient bookkeeping.
+   Their finite phase formulas below and in BarnesInverseChecks remain
+   independent of the inverse constructors and their coefficient recurrences. *)
+inverseCoreResidualSize[expression_, limit_, family_] := If[LeafCount[expression] > limit,
+  fail["ResourceLimit", "An intermediate exact " <> family <> " residual expression exceeded MaxTerms."], expression];
+
+inverseCoreResidualSetup[a_Association, h_, limit_, family_, argumentOffset_] := Module[
+  {cut, order, t = Unique[ToLowerCase[family] <> "ResidualPower$"], q, ass, rows, source, unit},
   If[Lookup[a, "Power", 1] =!= 1,
-    fail["UnsupportedObservable", "A Gamma/Barnes inverse residual currently requires the source-point observable Power -> 1; a finite powered approximation is not inverted to recover a source root."]];
-  If[! IntegerQ[limit] || limit < 1,
-    fail["InvalidOption", "MaxTerms must be a positive integer."]];
+    fail["UnsupportedObservable", If[family === "Gamma",
+      "A Gamma/Barnes inverse residual currently requires the source-point observable Power -> 1; a finite powered approximation is not inverted to recover a source root.",
+      "A Barnes-inverse residual requires the source-point observable Power -> 1."]]];
+  If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
   cut = If[h === Automatic, a["RemainderPower"] + 1, h];
   If[! exactRealQ[cut] || ! less[0, cut],
-    fail["InvalidCutoff", "The normalized Gamma residual cutoff must be a positive exact real number."]];
+    fail["InvalidCutoff", "The normalized " <> family <> " residual cutoff must be a positive exact real number."]];
   order = Ceiling[cut] - 1;
   If[order + 2 > limit,
-    fail["ResourceLimit", "The requested normalized Gamma residual order exceeds MaxTerms."]];
+    fail["ResourceLimit", "The " <> If[family === "Gamma", "requested ", ""] <>
+      "normalized " <> family <> " residual order exceeds MaxTerms."]];
   q = a["CoefficientVariable"]; ass = a["Assumptions"]; rows = a["Terms"];
   validateInput[rows, limit];
   If[! ListQ[rows] || ! And @@ (MatchQ[#, {_Integer, _}] && #[[1]] >= -1 & /@ rows),
-    fail["UnsupportedResidualScale", "The source-point Gamma residual requires integer powers of the reciprocal Lambert core."]];
-  checkSize[expression_] := If[LeafCount[expression] > limit,
-    fail["ResourceLimit", "An intermediate exact Gamma residual expression exceeded MaxTerms."], expression];
+    fail["UnsupportedResidualScale", "The source-point " <> family <>
+      " residual requires integer powers of the reciprocal Lambert core."]];
   source = Total[(t^#[[1]] #[[2]]) & /@ rows];
-  unit = checkSize[FullSimplify[Expand[t (a["SourceScale"] source + a["SourceOffset"])], ass]];
-  If[! PolynomialQ[unit, t] ||
-     ! TrueQ[FullSimplify[(unit /. t -> 0) == 1, ass]],
-    fail["InvalidGammaInverseNormalization", "The retained source approximation must give a Gamma argument whose ratio to its Lambert core tends to one."]];
-  logarithm = checkSize[Normal[Series[Log[unit], {t, 0, order}]]];
+  unit = inverseCoreResidualSize[FullSimplify[
+    Expand[t (a["SourceScale"] source + a["SourceOffset"] - argumentOffset)], ass], limit, family];
+  If[! PolynomialQ[unit, t] || ! TrueQ[FullSimplify[(unit /. t -> 0) == 1, ass]],
+    fail["Invalid" <> family <> "InverseNormalization", If[family === "Gamma",
+      "The retained source approximation must give a Gamma argument whose ratio to its Lambert core tends to one.",
+      "The Barnes argument minus one must have ratio one to its Lambert core."]]];
+  <|"Cutoff" -> cut, "Order" -> order, "PowerVariable" -> t, "CoefficientVariable" -> q,
+    "Assumptions" -> ass, "Unit" -> unit, "Family" -> family, "MaxTerms" -> limit,
+    "Logarithm" -> inverseCoreResidualSize[Normal[Series[Log[unit], {t, 0, order}]], limit, family]|>];
+
+inverseCoreResidualReport[a_Association, data_, polynomial_, modelTerms_, modelPower_, normalizer_, tailLog_, metadata_] := Module[
+  {t, q, ass, order, limit, family, coefficient, blocks, residual, x},
+  {t, q, ass, order, limit, family} = Lookup[data,
+    {"PowerVariable", "CoefficientVariable", "Assumptions", "Order", "MaxTerms", "Family"}];
+  blocks = Reap[Do[
+    coefficient = inverseCoreResidualSize[FullSimplify[Coefficient[polynomial, t, n], ass], limit, family];
+    If[! TrueQ[coefficient === 0], Sow[{n, coefficient}]], {n, 0, order}]][[2]];
+  blocks = If[blocks === {}, {}, First[blocks]];
+  residual = Total[(t^#[[1]] #[[2]]) & /@ blocks] /.
+    Join[{t -> 1/a["CoreInverse"]}, a["CoefficientSubstitution"]];
+  x = First[a["Variables"]];
+  <|"ZeroBelowCutoff" -> (blocks === {}), "Residual" -> residual,
+    "NormalizedResidual" -> residual, "ResidualBlocks" -> blocks,
+    "Cutoff" -> data["Cutoff"], "RelativeCutoff" -> data["Cutoff"],
+    "ScaleVariable" -> 1/a["CoreInverse"], "CoefficientVariable" -> q,
+    "CoefficientSubstitution" -> a["CoefficientSubstitution"],
+    "ExactEquationResidualExpression" -> ((a["ExactTransformedFunction"] /. x -> a["Expression"]) -
+      a["TargetCoordinateExpression"])/normalizer,
+    "Normalization" -> metadata["Normalization"],
+    "ForwardModelTerms" -> modelTerms, "ModelRemainderPower" -> modelPower,
+    "ModelRemainderScaleExpression" -> 1/(a["CoreInverse"]^modelPower tailLog),
+    "ForwardRemainderContract" -> metadata["ForwardRemainderContract"],
+    "ExactModel" -> False, "Scope" -> metadata["Scope"]|>];
+
+gammaInverseResidual[a_Association, h_, limit_] := Module[
+  {data, t, q, unit, logarithm, order, correction = 0, polynomial, modelTerms, checkSize},
+  data = inverseCoreResidualSetup[a, h, limit, "Gamma", 0];
+  {t, q, unit, logarithm, order} = Lookup[data,
+    {"PowerVariable", "CoefficientVariable", "Unit", "Logarithm", "Order"}];
+  checkSize[expression_] := inverseCoreResidualSize[expression, limit, "Gamma"];
   modelTerms = Floor[order/2];
   Do[
     correction = checkSize[Expand[correction +
@@ -97,28 +137,9 @@ gammaInverseResidual[a_Association, h_, limit_] := Module[
   polynomial = checkSize[Expand[Normal[Series[
     (1 - q) (unit - 1) - t/2 + q (unit - t/2) logarithm +
       q t Log[2 Pi]/2 + q correction, {t, 0, order}]]]];
-  blocks = Reap[Do[
-    coefficient = checkSize[FullSimplify[Coefficient[polynomial, t, n], ass]];
-    If[! TrueQ[coefficient === 0], Sow[{n, coefficient}]], {n, 0, order}]][[2]];
-  blocks = If[blocks === {}, {}, First[blocks]];
-  substitutions = Join[{t -> 1/a["CoreInverse"]}, a["CoefficientSubstitution"]];
-  residual = Total[(t^#[[1]] #[[2]]) & /@ blocks] /. substitutions;
-  {x, y} = a["Variables"];
-  exactResidual = ((a["ExactTransformedFunction"] /. x -> a["Expression"]) -
-      a["TargetCoordinateExpression"])/(a["CoreInverse"] Log[a["CoreInverse"]]);
-  modelPower = 2 modelTerms + 2;
-  <|"ZeroBelowCutoff" -> (blocks === {}), "Residual" -> residual,
-    "NormalizedResidual" -> residual, "ResidualBlocks" -> blocks,
-    "Cutoff" -> cut, "RelativeCutoff" -> cut,
-    "ScaleVariable" -> 1/a["CoreInverse"], "CoefficientVariable" -> q,
-    "CoefficientSubstitution" -> a["CoefficientSubstitution"],
-    "ExactEquationResidualExpression" -> exactResidual,
-    "Normalization" -> "(LogGamma[SourceScale source + SourceOffset] - targetCoordinate)/(CoreInverse Log[CoreInverse]).",
-    "ForwardModelTerms" -> modelTerms, "ModelRemainderPower" -> modelPower,
-    "ModelRemainderScaleExpression" ->
-      1/(a["CoreInverse"]^modelPower Log[a["CoreInverse"]]),
-    "ForwardRemainderContract" -> <|"Type" -> "StirlingPoincareAtFixedOrder",
-      "ConvergentForwardSeries" -> False,
-      "Reference" -> "https://dlmf.nist.gov/5.11.ii"|>,
-    "ExactModel" -> False,
-    "Scope" -> "Formal normalized residual of a finite Stirling model evaluated at the retained source approximation. ZeroBelowCutoff means cancellation only below the stated cutoff; it does not assert that the exact Gamma equation is solved identically. The first omitted Stirling term has the separately reported normalized remainder scale."|>];
+  inverseCoreResidualReport[a, data, polynomial, modelTerms, 2 modelTerms + 2,
+    a["CoreInverse"] Log[a["CoreInverse"]], Log[a["CoreInverse"]],
+    <|"Normalization" -> "(LogGamma[SourceScale source + SourceOffset] - targetCoordinate)/(CoreInverse Log[CoreInverse]).",
+      "ForwardRemainderContract" -> <|"Type" -> "StirlingPoincareAtFixedOrder",
+        "ConvergentForwardSeries" -> False, "Reference" -> "https://dlmf.nist.gov/5.11.ii"|>,
+      "Scope" -> "Formal normalized residual of a finite Stirling model evaluated at the retained source approximation. ZeroBelowCutoff means cancellation only below the stated cutoff; it does not assert that the exact Gamma equation is solved identically. The first omitted Stirling term has the separately reported normalized remainder scale."|>]];

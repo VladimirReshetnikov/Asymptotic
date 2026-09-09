@@ -10,7 +10,7 @@ documentationGuide = Import[FileNameJoin[{documentationRoot, "AsymptoticInverse"
   "Documentation", "UserGuide.md"}], "Text"];
 
 documentationEqual[s_, expected_, assumptions_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expected, assumptions]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expected, assumptions]];
 (* Independent formulas displayed in the guide.  The additional a4 is
    obtained by equating the X^-4 coefficient in the finite logarithmic
    Stirling equation; it checks refinement one block beyond the display. *)
@@ -31,7 +31,7 @@ documentationGammaApproximation[target_, count_Integer] := Module[{core, coeffic
   coefficients = documentationGammaCoefficients[1/Log[core]];
   core + Sum[coefficients[[j + 1]]/core^j, {j, 0, count - 2}]];
 documentationGammaEqual[s_, expected_] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[Together[Normal[s] - expected] === 0];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[Together[Normal[s] - expected] === 0];
 SetAttributes[documentationTest, HoldAll];
 documentationTest[id_String, expression_, expected_] := VerificationTest[
   TimeConstrained[Print["Checking: ", id]; expression, 60,

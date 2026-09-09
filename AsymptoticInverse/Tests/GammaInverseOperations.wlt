@@ -27,7 +27,7 @@ gammaInverseOpsPowerOracle[z_, r_, count_Integer] := Module[{core, a, b, c, d, e
   Sum[core^(r - j) coefficients[[j + 1]], {j, 0, count - 1}]];
 gammaInverseOpsEqual[a_, b_] := TrueQ[Together[a - b] === 0];
 gammaInverseOpsExpansionEqual[s_, expected_] :=
-  MatchQ[s, _PowerLogSeries] && gammaInverseOpsEqual[Normal[s], expected];
+  MatchQ[s, _GeneralizedSeries] && gammaInverseOpsEqual[Normal[s], expected];
 
 VerificationTest[Module[{x, y, s, below, beyond, q, omitted},
   s = AsymptoticInverse[Gamma[x], {x, Infinity}, y, SeriesTermGoal -> 5];
@@ -123,7 +123,7 @@ VerificationTest[Module[{x, y, s, reciprocal},
 VerificationTest[Module[{x, y, square},
   square = AsymptoticInverse[Gamma[-x], {x, -Infinity}, y,
     SeriesTermGoal -> 3, "Power" -> 2];
-  {MatchQ[square, _PowerLogSeries],
+  {MatchQ[square, _GeneralizedSeries],
     Quiet[FailureQ[SeriesPower[square, 1/2]]],
     Quiet[FailureQ[AsymptoticInverse[Gamma[-x], {x, -Infinity}, y,
       SeriesTermGoal -> 3, "Power" -> 1/2]]]}],

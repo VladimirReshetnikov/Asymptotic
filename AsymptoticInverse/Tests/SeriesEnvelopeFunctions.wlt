@@ -3,12 +3,12 @@
 If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
-envelopeFunctionFixture[e_, r_, x_Symbol] := PowerLogSeries[<|
+envelopeFunctionFixture[e_, r_, x_Symbol] := GeneralizedSeries[<|
   "Kind" -> "Derived", "Scale" -> "Composite", "Expression" -> e, "Remainder" -> r,
   "Variable" -> x, "Assumptions" -> True, "TargetDomain" -> 0 < x < 1,
   "SeriesApproach" -> <|"Variable" -> x, "Point" -> 0, "Direction" -> "FromAbove"|>|>];
 envelopeFunctionMatches[s_, expression_, bound_, assumptions_] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[
     Normal[s] == expression && s["RemainderScaleExpression"] == bound, assumptions]];
 
 VerificationTest[Module[{x, a, result},
@@ -110,7 +110,7 @@ VerificationTest[Module[{x, y, inverse, result, core},
   TestID -> "envelope-logarithm-of-shifted-inverse-Gamma-retains-the-Lambert-core-and-error"]
 
 VerificationTest[Module[{x, inconsistent},
-  inconsistent = PowerLogSeries[<|"Kind" -> "Derived", "Scale" -> "Composite", "Expression" -> 2,
+  inconsistent = GeneralizedSeries[<|"Kind" -> "Derived", "Scale" -> "Composite", "Expression" -> 2,
     "Remainder" -> PowerLogRemainder[x, 2, 0], "Variable" -> x, "Assumptions" -> True,
     "TargetDomain" -> False, "SeriesApproach" -> <|"Variable" -> x, "Point" -> 0, "Direction" -> "FromAbove"|>|>];
   {FailureQ[Log[inconsistent]], FailureQ[inconsistent^(-1)]}],

@@ -216,14 +216,14 @@ certRefinedSeed[a_, yv_, iteration_, wp_] := Module[{s, goal, x, y, options},
        Direction -> a["Direction"], "InputRemainder" -> Lookup[a, "InputRemainder", None],
        "SourceRadius" -> Lookup[a["CoreCertificate"], "SourceRadius", 1/E],
        "CoreCheckTimeConstraint" -> 1]], 5, $Failed]];
-   Return[If[MatchQ[s, _PowerLogSeries], certSeed[s[[1]], yv, wp], $Failed], Module]];
+   Return[If[MatchQ[s, _GeneralizedSeries], certSeed[s[[1]], yv, wp], $Failed], Module]];
   goal = Max[2, Lookup[a, "ReturnedTermCount", 1] + 2 iteration];
   options = {Assumptions -> Lookup[a, "Assumptions", True], Direction -> a["Direction"],
     Method -> If[Lookup[a, "Method", "Lagrange"] === "Lambert", "Lagrange", a["Method"]],
     "Power" -> 1, SeriesTermGoal -> goal};
   s = Quiet[TimeConstrained[catch[AsymptoticInverse[a["Function"], {x, a["ExpansionPoint"]}, y,
       Sequence @@ options]], 5, $Failed]];
-  If[MatchQ[s, _PowerLogSeries], certSeed[s[[1]], yv, wp], $Failed]];
+  If[MatchQ[s, _GeneralizedSeries], certSeed[s[[1]], yv, wp], $Failed]];
 
 certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[
   {forward, derivative, derivativeExpression, residual, epsilon, mu, radius, bracket, correction, sharp, domain,
@@ -290,7 +290,7 @@ Options[AsymptoticInverse`InverseCertificate] = {"Interval" -> Automatic, "Cente
   "TargetError" -> Automatic, "RelativeError" -> Automatic, WorkingPrecision -> 50, "EnclosureOrder" -> Automatic,
   "MaxRefinements" -> 6, "RefineExpansion" -> True, "ExponentMagnitudeLimit" -> 10000};
 
-AsymptoticInverse`InverseCertificate[PowerLogSeries[a_Association], yv_, opts : OptionsPattern[]] := catch[Module[
+AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts : OptionsPattern[]] := catch[Module[
   {interval = OptionValue["Interval"], center = OptionValue["Center"], tolerance = OptionValue["TargetError"],
    relative = OptionValue["RelativeError"], lowerMagnitude, upperMagnitude, goalBound, floorBound, absoluteTolerance,
    wp = OptionValue[WorkingPrecision], order = OptionValue["EnclosureOrder"],

@@ -200,7 +200,7 @@ VerificationTest[
    of a terminating inverse family by AsymptoticLogarithmicInverse. *)
 VerificationTest[
  Module[{x,y,t,s,d,actual},
-  s=PowerLogSeries[<|"Kind"->"LogarithmicInverse","Scale"->"ReciprocalLogUnit",
+  s=GeneralizedSeries[<|"Kind"->"LogarithmicInverse","Scale"->"ReciprocalLogUnit",
     "ExactModel"->True,"LeadingCoreOnly"->False,"ExpansionPoint"->0,"Limit"->0,
     "Offset"->0,"Variable"->y,"Variables"->{x,y},"Assumptions"->True,
     "LeadingPower"->1,"Power"->1,"LeadingCoefficient"->1,
@@ -218,7 +218,7 @@ VerificationTest[
 
 VerificationTest[
  Module[{x,y,t,s,d,actual,expected},
-  s=PowerLogSeries[<|"Kind"->"LogarithmicInverse","Scale"->"ReciprocalLogUnit",
+  s=GeneralizedSeries[<|"Kind"->"LogarithmicInverse","Scale"->"ReciprocalLogUnit",
     "ExactModel"->True,"LeadingCoreOnly"->False,"ExpansionPoint"->0,"Limit"->0,
     "Offset"->0,"Variable"->y,"Variables"->{x,y},"Assumptions"->True,
     "LeadingPower"->1,"Power"->1,"LeadingCoefficient"->E,

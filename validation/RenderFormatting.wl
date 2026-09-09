@@ -8,7 +8,7 @@ formattingRenderExact = AsymptoticExpansion[1 + x, {x, 0, 2}];
 formattingRenderPure = AsymptoticExpansion[x^3, {x, 0, 2}];
 formattingRenderGamma = AsymptoticExpansion[LogGamma[x], x -> Infinity, SeriesTermGoal -> 5];
 formattingRenderRows = {
-  {Style["PowerLogSeries: native notebook display", Bold, 20], SpanFromLeft},
+  {Style["GeneralizedSeries: native notebook display", Bold, 20], SpanFromLeft},
   {"StandardForm[s]", StandardForm[formattingRenderSeries]},
   {"TraditionalForm[s]", TraditionalForm[formattingRenderSeries]},
   {"Normal[s]", StandardForm[Normal[formattingRenderSeries]]},

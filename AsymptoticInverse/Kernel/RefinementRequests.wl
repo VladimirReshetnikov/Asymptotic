@@ -1,7 +1,7 @@
 (* Structured refinement requests keep coefficient goals distinct from
    certified numerical tolerances. Resource failures preserve the last object. *)
 
-refinementRequest[s : PowerLogSeries[a_Association], request_, limit_, maximum_] := Module[
+refinementRequest[s : GeneralizedSeries[a_Association], request_, limit_, maximum_] := Module[
  {unknown, extra, desired, count, current = s, next, step, cutoff, iterations = 0, certificate, options},
  If[! IntegerQ[limit] || limit < 1 || ! IntegerQ[maximum] || maximum < 0,
   fail["InvalidOption", "MaxTerms must be positive and MaxRefinements nonnegative integers."]];
@@ -24,7 +24,7 @@ refinementRequest[s : PowerLogSeries[a_Association], request_, limit_, maximum_]
    If[FailureQ[next], Throw[Failure[next[[1]], Join[next[[2]], <|"BestExpansion" -> current,
      "RequestedBlocks" -> desired, "ReturnedBlocks" -> Length[current["Blocks"]]|>]], $tag]];
    current = next];
-  Return[PowerLogSeries[Join[current[[1]], <|"RefinementRequest" -> <|
+  Return[GeneralizedSeries[Join[current[[1]], <|"RefinementRequest" -> <|
     "AdditionalBlocks" -> extra, "InitialBlocks" -> count, "RequestedBlocks" -> desired,
     "ReturnedBlocks" -> Length[current["Blocks"]], "GoalReached" -> (Length[current["Blocks"]] >= desired),
     "ExactTermination" -> (current["Remainder"] === 0), "RefinementCalls" -> iterations|>|>]], Module]];
@@ -40,5 +40,5 @@ refinementRequest[s : PowerLogSeries[a_Association], request_, limit_, maximum_]
    "RefinementRequest" -> request,
    "RefinementMeaning" -> "Certified accuracy of the returned rational center. This does not change the symbolic expansion remainder."|>]];
 
-AsymptoticInverse`SeriesRefine[s : PowerLogSeries[_Association], request_Association, opts : OptionsPattern[]] :=
+AsymptoticInverse`SeriesRefine[s : GeneralizedSeries[_Association], request_Association, opts : OptionsPattern[]] :=
  catch[refinementRequest[s, request, OptionValue["MaxTerms"], OptionValue["MaxRefinements"]]];

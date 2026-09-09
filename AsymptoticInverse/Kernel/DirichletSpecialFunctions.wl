@@ -34,7 +34,7 @@ dirichletSpecialMake[f_, rows_, rho_, w_, domain_, x_, x0_, coord_, ass_, cut_, 
     "RemainderDerivativeOrder" -> If[rho === Infinity, Infinity, 0]|>;
   result = seriesMake[representation, {"DirichletSpecialExpansion", {}}, Automatic];
   dirichletSpecialBudget[{result["Expression"], result["Remainder"]}, limit];
-  PowerLogSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
+  GeneralizedSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
     "ExpansionPoint" -> x0, "Direction" -> coord["Direction"],
     "SeriesApproach" -> <|"Variable" -> x, "Point" -> x0, "Direction" -> coord["Direction"]|>,
     "Cutoff" -> actualCut, "RequestedCutoff" -> cut, "RequestedTermGoal" -> goal,

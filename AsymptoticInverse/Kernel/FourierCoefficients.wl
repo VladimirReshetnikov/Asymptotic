@@ -18,16 +18,23 @@ fourierPoly[q_, ell_, ass_] := Module[{coefficients, canonical, expanded},
   coefficients = canonical /@ CoefficientList[expanded, ell];
   Expand[coefficients . ell^Range[0, Length[coefficients] - 1]]];
 
+(* The first entry is an exact source weight or frequency. Mathematical
+   equality, rather than structural equality, groups algebraic resonances. *)
+fourierWeightGroups[rows_List] := Split[
+  Sort[MapAt[canon, #, 1] & /@ rows, less[#1[[1]], #2[[1]]] &],
+  equal[#1[[1]], #2[[1]]] &];
+fourierFrequencyBudget[count_, limit_] := If[count > limit,
+  fail["FrequencyLimit", "The exact Fourier coefficient exceeds MaxFrequencies; no modes were silently discarded.",
+    <|"MaxFrequencies" -> limit, "RequiredFrequencies" -> count|>]];
+fourierJetFrequencies[rows_List] := #[[1, 1]] & /@ fourierWeightGroups[
+  List /@ Flatten[(#[[2, All, 1]] &) /@ rows]];
+
 fourierMerge[rows_List, ell_, ass_, frequencyLimit_] := Module[{groups, result},
   If[rows === {}, Return[{}, Module]];
-  groups = Split[Sort[({canon[#[[1]]], #[[2]]} & /@ rows), less[#1[[1]], #2[[1]]] &],
-    equal[#1[[1]], #2[[1]]] &];
-  result = {canon[#[[1, 1]]], fourierPoly[Total[#[[All, 2]]], ell, ass]} & /@ groups;
+  groups = fourierWeightGroups[rows];
+  result = {#[[1, 1]], fourierPoly[Total[#[[All, 2]]], ell, ass]} & /@ groups;
   result = Select[result, ! TrueQ[Simplify[#[[2]] == 0, ass && Element[ell, Reals]]] &];
-  If[Length[result] > frequencyLimit,
-   fail["FrequencyLimit", "The exact Fourier coefficient exceeds MaxFrequencies; no modes were silently discarded.",
-    <|"MaxFrequencies" -> frequencyLimit, "RequiredFrequencies" -> Length[result]|>]];
-  Sort[result, less[#1[[1]], #2[[1]]] &]];
+  fourierFrequencyBudget[Length[result], frequencyLimit]; result];
 fourierScale[a_, scalar_, ell_, ass_, limit_] := fourierMerge[{#[[1]], scalar #[[2]]} & /@ a, ell, ass, limit];
 fourierAdd[a_, b_, ell_, ass_, limit_] := fourierMerge[Join[a, b], ell, ass, limit];
 fourierMul[a_, b_, ell_, ass_, limit_, frequencyLimit_] := Module[{rows},
@@ -68,30 +75,28 @@ fourierReadCoefficient[expression_, ell_, ass_, frequencyLimit_] := Module[
    AppendTo[rows, {frequency, polynomial}], {term, terms}];
   fourierMerge[rows, ell, ass, frequencyLimit]];
 
-fourierJetMerge[rows_, ell_, ass_, limit_, frequencyLimit_] := Module[{groups, result, frequencies},
+fourierJetMerge[rows_, ell_, ass_, limit_, frequencyLimit_] := Module[{groups, result},
   If[rows === {}, Return[{}, Module]];
-  groups = Split[Sort[({canon[#[[1]]], #[[2]]} & /@ rows), less[#1[[1]], #2[[1]]] &],
-    equal[#1[[1]], #2[[1]]] &];
-  result = {canon[#[[1, 1]]], fourierMerge[Flatten[#[[All, 2]], 1], ell, ass, frequencyLimit]} & /@ groups;
+  groups = fourierWeightGroups[rows];
+  result = {#[[1, 1]], fourierMerge[Flatten[#[[All, 2]], 1], ell, ass, frequencyLimit]} & /@ groups;
   result = Select[result, #[[2]] =!= {} &];
   If[Length[result] > limit, fail["ResourceLimit", "The Fourier source-weight jet exceeds MaxTerms."]];
-  frequencies = First /@ fourierMerge[({#, 1} &) /@
-    Flatten[(#[[2, All, 1]] &) /@ result], ell, ass, frequencyLimit];
-  If[Length[frequencies] > frequencyLimit,
-   fail["FrequencyLimit", "The Fourier jet exceeds MaxFrequencies distinct modes across its retained blocks.",
-    <|"MaxFrequencies" -> frequencyLimit, "RequiredFrequencies" -> Length[frequencies]|>]];
-  Sort[result, less[#1[[1]], #2[[1]]] &]];
+  fourierFrequencyBudget[Length[fourierJetFrequencies[result]], frequencyLimit]; result];
 fourierJetTrim[rows_, cutoff_, ell_, ass_, limit_, frequencyLimit_] :=
   fourierJetMerge[Select[rows, less[First[#], cutoff] &], ell, ass, limit, frequencyLimit];
 fourierJetAdd[a_, b_, cutoff_, ell_, ass_, limit_, frequencyLimit_] :=
   fourierJetTrim[Join[a, b], cutoff, ell, ass, limit, frequencyLimit];
 fourierJetScale[a_, c_, ell_, ass_, limit_, frequencyLimit_] :=
   fourierJetMerge[{#[[1]], fourierScale[#[[2]], c, ell, ass, frequencyLimit]} & /@ a, ell, ass, limit, frequencyLimit];
-fourierJetMul[a_, b_, cutoff_, ell_, ass_, limit_, frequencyLimit_] := Module[{rows = {}, count = 0},
-  Do[If[less[aa[[1]] + bb[[1]], cutoff],
-    count++; If[count > limit, fail["ResourceLimit", "Fourier jet multiplication exceeded MaxTerms retained pairs."]];
-    AppendTo[rows, {aa[[1]] + bb[[1]], fourierMul[aa[[2]], bb[[2]], ell, ass, limit, frequencyLimit]}]],
-   {aa, a}, {bb, b}];
+fourierJetMul[a_, b_, cutoff_, ell_, ass_, limit_, frequencyLimit_] := Module[
+  {rows = {}, count = 0, last = Length[b]},
+  (* Source jets are sorted. Retain the original row-major convolution and
+     failure order while skipping columns beyond the exclusive cutoff. *)
+  Do[If[cutoff =!= Infinity,
+    While[last > 0 && ! less[aa[[1]] + b[[last, 1]], cutoff], last--]];
+   Do[count++; If[count > limit, fail["ResourceLimit", "Fourier jet multiplication exceeded MaxTerms retained pairs."]];
+    AppendTo[rows, {aa[[1]] + b[[j, 1]], fourierMul[aa[[2]], b[[j, 2]], ell, ass, limit, frequencyLimit]}],
+    {j, last}], {aa, a}];
   fourierJetMerge[rows, ell, ass, limit, frequencyLimit]];
 
 fourierRead[f_, x_, coord_, ell_, ass_, limit_, frequencyLimit_] := Module[
@@ -199,9 +204,9 @@ fourierConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInver
       coord["Sign"]^r Abs[amplitude]^(-(rint + #[[1]])/p) (fourierExpression[#[[2]], ell, ass] /. ell -> logz)} & /@ blocks;
   expression = If[r === 1 && ! coord["Infinite"], x0, 0] + Total[(w^#[[1]] #[[2]]) & /@ terms];
   rem = If[beta === Infinity, 0, PowerLogRemainder[w, beta, degree]];
-  frequencies = Sort[DeleteDuplicates[Flatten[(#[[2, All, 1]] &) /@ blocks]], less];
+  frequencies = fourierJetFrequencies[blocks];
   domain = ass && target > 0 && 0 < z < 1;
-  PowerLogSeries[<|"Kind" -> "FourierInverse", "Scale" -> "FourierPolynomialCoefficients", "Method" -> "Lagrange",
+  GeneralizedSeries[<|"Kind" -> "FourierInverse", "Scale" -> "FourierPolynomialCoefficients", "Method" -> "Lagrange",
     "Expression" -> expression, "Terms" -> terms, "Blocks" -> blocks,
     "FourierFrequencies" -> frequencies, "MaxFrequencies" -> frequencyLimit,
     "CoefficientEnvelopes" -> ({#[[1]], fourierEnvelope[#[[2]], ell, 1 + Abs[logz], ass]} & /@ blocks),
@@ -245,12 +250,12 @@ fourierResidual[a_, cutoff_, limit_] := Module[
     "NormalizedResidual" -> Total[(a["Uniformizer"]^#[[1]] (fourierExpression[#[[2]], ell, ass] /. ell -> a["LogarithmicValue"])) & /@ answer],
     "RelativeCutoff" -> h, "Scope" -> "Exact formal composition with the stored finite Fourier forward expression; unspecified InputRemainder terms are not composed."|>];
 Options[AsymptoticInverse`FourierInverseResidual] = {"MaxTerms" -> 20000};
-AsymptoticInverse`FourierInverseResidual[PowerLogSeries[a_Association], cutoff_: Automatic, OptionsPattern[]] := catch[
+AsymptoticInverse`FourierInverseResidual[GeneralizedSeries[a_Association], cutoff_: Automatic, OptionsPattern[]] := catch[
   If[Lookup[a, "Kind", None] =!= "FourierInverse", fail["UnsupportedResidual", "A Fourier inverse object is required."]];
   fourierResidual[a, cutoff, OptionValue["MaxTerms"]]];
 AsymptoticInverse`FourierInverseResidual[___] := Failure["InvalidArguments", <|
   "MessageTemplate" -> "Use FourierInverseResidual[FourierInverseResult] or FourierInverseResidual[result,relativeCutoff]."|>];
-AsymptoticInverse`FourierInverseCoefficient[PowerLogSeries[a_Association], k_List] := catch[Module[{r, coefficient},
+AsymptoticInverse`FourierInverseCoefficient[GeneralizedSeries[a_Association], k_List] := catch[Module[{r, coefficient},
   If[Lookup[a, "Kind", None] =!= "FourierInverse" || Length[k] =!= Length[a["PowerGaps"]] ||
     ! And @@ (IntegerQ[#] && NonNegative[#] & /@ k), fail["InvalidMultiIndex", "Supply a nonnegative integer multi-index of the Fourier model's dimension."]];
   r = If[MemberQ[{Infinity, -Infinity}, a["ExpansionPoint"]], -a["Power"], a["Power"]];

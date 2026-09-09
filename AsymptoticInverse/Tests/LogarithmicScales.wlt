@@ -261,7 +261,7 @@ VerificationTest[
     s = AsymptoticLogarithmicInverse[x (1 + 1/Log[x]^100), {x, 0}, y,
       SeriesTermGoal -> 2, "MaxTerms" -> 8];
     {MatchQ[s, Failure["ResourceLimit", _]],
-      MatchQ[s[[2, "BestExpansion"]], PowerLogSeries[_Association]],
+      MatchQ[s[[2, "BestExpansion"]], GeneralizedSeries[_Association]],
       s[[2, "BestExpansion"]]["Remainder"] =!= 0}],
   {True, True, True}, TestID -> "logs-zero-prefix-never-falsely-certifies-termination"]
 
@@ -286,7 +286,7 @@ VerificationTest[
   Module[{x, y, u, result, certificate},
     (* The exact-composition checker must distinguish the source sign from
        the approach direction: +Infinity is approached FromBelow. *)
-    result = PowerLogSeries[<|"ExactModel" -> True, "Function" -> x^2,
+    result = GeneralizedSeries[<|"ExactModel" -> True, "Function" -> x^2,
       "Expression" -> Sqrt[y], "Variables" -> {x, y}, "Power" -> 1,
       "ExpansionPoint" -> Infinity, "Direction" -> "FromBelow",
       "LocalSubstitution" -> (x -> 1/u), "LocalVariable" -> u,

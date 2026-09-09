@@ -125,7 +125,7 @@ gammaInverseConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[Asymptotic
       "LogBarnesRemainderPower" -> 2 modelTerms + 2, "Reference" -> "https://dlmf.nist.gov/5.17.E5"|>,
     <|"Type" -> "FiniteStirlingPoincare", "ConvergentForwardSeries" -> False,
       "LogGammaRemainderPower" -> 2 modelTerms + 1, "Reference" -> "https://dlmf.nist.gov/5.11.ii"|>];
-  PowerLogSeries[Join[<|"Kind" -> scale, "Scale" -> scale,
+  GeneralizedSeries[Join[<|"Kind" -> scale, "Scale" -> scale,
     "Expression" -> expression, "Terms" -> retained, "Blocks" -> retained,
     "CoreInverse" -> core, "CoreLogExpression" -> coefficientLog,
     "CoreArgumentOffset" -> model["CoreArgumentOffset"],
@@ -158,7 +158,7 @@ gammaInverseConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[Asymptotic
     If[barnes, <|"BarnesFamily" -> model["Family"], "BarnesPower" -> model["GammaPower"]|>,
       <|"GammaFamily" -> model["Family"], "GammaPower" -> model["GammaPower"]|>], bound]]];
 
-gammaInverseTruncate[s : PowerLogSeries[a_Association], h_, limit_] := Module[{kept, omitted, frontier, q, core, bound},
+gammaInverseTruncate[s : GeneralizedSeries[a_Association], h_, limit_] := Module[{kept, omitted, frontier, q, core, bound},
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
   validateInput[{a["Terms"], h}, limit];
   If[! exactRealQ[h], fail["InvalidCutoff", "The core-power cutoff must be an exact real number."]];
@@ -167,7 +167,7 @@ gammaInverseTruncate[s : PowerLogSeries[a_Association], h_, limit_] := Module[{k
   If[omitted === {}, Return[s, Module]];
   frontier = First[omitted]; q = a["CoefficientVariable"]; core = a["CoreInverse"];
   bound = gammaInverseBound[frontier, core, q, a["Assumptions"], a["CoreLogExpression"]];
-  PowerLogSeries[Join[a, <|"Terms" -> kept, "Blocks" -> kept, "Cutoff" -> h,
+  GeneralizedSeries[Join[a, <|"Terms" -> kept, "Blocks" -> kept, "Cutoff" -> h,
     "Expression" -> Total[(core^(-#[[1]]) (#[[2]] /. a["CoefficientSubstitution"])) & /@ kept],
     "CoefficientFrontier" -> frontier,
     "FrontierTerm" -> core^(-frontier[[1]]) (frontier[[2]] /. a["CoefficientSubstitution"]),

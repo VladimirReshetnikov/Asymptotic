@@ -160,13 +160,13 @@ seriesEnvelopeErrorNormalize[remainder_, limit_] := Module[{expanded, terms},
   terms = If[Head[expanded] === Plus, List @@ expanded, {expanded}];
   Total[seriesEnvelopeErrorTerm /@ terms]];
 
-seriesEnvelopeData[s : PowerLogSeries[a_Association], limit_] := Module[{expression, remainder, bound, assumptions, domain, approach},
+seriesEnvelopeData[s : GeneralizedSeries[a_Association], limit_] := Module[{expression, remainder, bound, assumptions, domain, approach},
   If[! KeyExistsQ[a, "Expression"] || ! KeyExistsQ[a, "Remainder"],
     fail["InvalidCompositeOperand", "A series operand must retain both its finite expression and its remainder."]];
   expression = a["Expression"]; remainder = a["Remainder"];
   validateInput[{expression, remainder}, limit];
   seriesEnvelopeBudget[{expression, remainder}, limit];
-  If[! FreeQ[{expression, remainder}, _PowerLogSeries],
+  If[! FreeQ[{expression, remainder}, _GeneralizedSeries],
     fail["InvalidCompositeOperand", "Normalize nested series operands before constructing a composite envelope."]];
   remainder = seriesEnvelopeErrorNormalize[remainder, limit];
   bound = remainder /. rr_PowerLogRemainder :> remainderScale[rr];
@@ -185,7 +185,7 @@ seriesEnvelopeMake[expression_, remainder0_, data_, recipe_, limit_] := Module[{
   domain = data["Domain"];
   validateInput[{expression, remainder, bound}, limit];
   seriesEnvelopeBudget[{expression, remainder, bound}, limit];
-  PowerLogSeries[<|"Kind" -> "Derived", "Scale" -> "Composite",
+  GeneralizedSeries[<|"Kind" -> "Derived", "Scale" -> "Composite",
     "Expression" -> expression, "Remainder" -> remainder, "RemainderScaleExpression" -> bound,
     "Variable" -> data["Variable"], "Assumptions" -> data["Assumptions"],
     "TargetDomain" -> domain, "SeriesApproach" -> data["Approach"],
@@ -196,13 +196,13 @@ seriesEnvelopeMake[expression_, remainder0_, data_, recipe_, limit_] := Module[{
     "TermConvention" -> "The finite expression is retained exactly and the remainder is a sum of envelopes in possibly different positive coordinates; no single exponent cutoff is asserted.",
     "SeriesData" -> Missing["CompositeErrorScales"]|>]];
 
-seriesEnvelopeBinary[op_String, s_PowerLogSeries, t_, cut_, limit_] := Module[
+seriesEnvelopeBinary[op_String, s_GeneralizedSeries, t_, cut_, limit_] := Module[
   {a, b, assumptions, domain, expression, remainder, exact = t, condition = True, compatible},
   seriesEnvelopeOptions[cut, limit];
   If[! MemberQ[{"Add", "Multiply"}, op],
     fail["UnsupportedCompositeOperation", "Composite binary arithmetic supports addition and multiplication."]];
   a = seriesEnvelopeData[s, limit];
-  If[MatchQ[t, _PowerLogSeries],
+  If[MatchQ[t, _GeneralizedSeries],
     b = seriesEnvelopeData[t, limit];
     assumptions = a["Assumptions"] && b["Assumptions"];
     compatible = a["Variable"] === b["Variable"] &&
@@ -212,7 +212,7 @@ seriesEnvelopeBinary[op_String, s_PowerLogSeries, t_, cut_, limit_] := Module[
     If[! TrueQ[compatible],
       fail["IncompatibleApproaches", "Composite arithmetic requires the same target variable, endpoint, and real approach side."]];
     domain = a["Domain"] && b["Domain"],
-    If[! FreeQ[t, _PowerLogSeries],
+    If[! FreeQ[t, _GeneralizedSeries],
       fail["UnsupportedCompositeOperand", "Normalize nested series before combining them with another series."]];
     While[Head[exact] === ConditionalExpression, condition = condition && exact[[2]]; exact = exact[[1]]];
     validateInput[exact, limit]; seriesEnvelopeBudget[exact, limit];
@@ -233,7 +233,7 @@ seriesEnvelopeBinary[op_String, s_PowerLogSeries, t_, cut_, limit_] := Module[
     Join[a, <|"Assumptions" -> assumptions, "Domain" -> domain|>],
     <|"Operation" -> op, "Operands" -> {s, t}|>, limit]];
 
-seriesEnvelopePower[s_PowerLogSeries, r_, cut_, limit_] := Module[
+seriesEnvelopePower[s_GeneralizedSeries, r_, cut_, limit_] := Module[
   {a, expression, remainder, domain, nonzero, positive, relative, result},
   seriesEnvelopeOptions[cut, limit];
   If[! exactRealQ[r], fail["InvalidPower", "A composite series power must be an exact real number."]];
@@ -275,7 +275,7 @@ seriesEnvelopePower[s_PowerLogSeries, r_, cut_, limit_] := Module[
    Taylor expansion of a multiscale remainder. Abs, Sin and Cos are globally
    1-Lipschitz on the real line. Log requires relative smallness, whereas
    Exp requires absolute smallness of the unknown perturbation. *)
-seriesEnvelopeUnary[head_, s_PowerLogSeries, cut_, limit_] := Module[
+seriesEnvelopeUnary[head_, s_GeneralizedSeries, cut_, limit_] := Module[
   {a, expression, domain, remainder, boundLimit, transport, evidence = <||>},
   seriesEnvelopeOptions[cut, limit];
   If[! MemberQ[{Log, Exp, Abs, Sin, Cos}, head],

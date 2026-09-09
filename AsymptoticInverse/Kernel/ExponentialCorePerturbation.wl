@@ -136,7 +136,7 @@ exponentialCoreConstruct[core_, perturbation_, x_, endpoint_, y_, depth_, opts :
       "Statement" -> "A declared unknown polynomial-scale forward error induces a first-exponential-sector inverse error. This accuracy ceiling is independent of the retained model's sector depth."|>];
   remainder = sectorRemainder + inputRemainder;
   targetLimit = If[provablyPositive[a, ass], Infinity, -Infinity];
-  PowerLogSeries[<|"Kind" -> "ExponentialCoreInverse", "Scale" -> "ExactExponentialCoreSectors",
+  GeneralizedSeries[<|"Kind" -> "ExponentialCoreInverse", "Scale" -> "ExactExponentialCoreSectors",
     "Expression" -> expression, "Remainder" -> remainder, "RemainderScaleExpression" -> sectorScale + inputScale,
     "Core" -> core, "Perturbation" -> perturbation, "Function" -> core + perturbation,
     "Variable" -> y, "Variables" -> {x, y}, "ExpansionPoint" -> endpoint, "Direction" -> coordinates["Direction"],

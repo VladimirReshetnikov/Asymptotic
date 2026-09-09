@@ -2,7 +2,7 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
 callableExpansionEqual[s_, expected_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expected, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expected, ass]];
 
 (* Independent infinity oracle for t+t^Sqrt[2]=y. Set p=1/Sqrt[2],
    t=y^p z and epsilon=y^(p-1). Then z^Sqrt[2]+epsilon z=1.

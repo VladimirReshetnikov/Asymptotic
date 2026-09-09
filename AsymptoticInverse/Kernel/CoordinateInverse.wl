@@ -55,7 +55,7 @@ coordinateConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticIn
       If[MemberQ[{Infinity, -Infinity}, base["Limit"]], targetExpression, targetExpression - base["Limit"]]/base["LeadingCoefficient"] > 0];
   targetLimit = Which[base["Limit"] === Infinity, data["AmplitudeSign"] Infinity,
     base["Limit"] === -Infinity, data["Offset"], True, data["Offset"] + data["AmplitudeSign"] data["AmplitudeScale"] Exp[base["Limit"]]];
-  PowerLogSeries[Join[a, <|"Scale" -> "Transformed", "CoordinateKind" -> "TargetLog",
+  GeneralizedSeries[Join[a, <|"Scale" -> "Transformed", "CoordinateKind" -> "TargetLog",
     "CoordinateSeries" -> base, "CoordinateSubstitution" -> {sub},
     "TargetCoordinateExpression" -> targetExpression, "TransformedFunction" -> data["Phase"],
     "SourceDomain" -> data["PositiveAmplitude"] > 0,

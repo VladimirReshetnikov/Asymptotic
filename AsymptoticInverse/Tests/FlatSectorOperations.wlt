@@ -108,7 +108,7 @@ VerificationTest[Module[{x, y, s, derivative},
 
 VerificationTest[Module[{x, y, s, withoutContract},
   s = AsymptoticFlatInverse[x + Exp[-1/x], {x, 0}, {y, 2}];
-  withoutContract = PowerLogSeries[KeyDrop[s[[1]], "FlatAnalyticRemainder"]];
+  withoutContract = GeneralizedSeries[KeyDrop[s[[1]], "FlatAnalyticRemainder"]];
   FlatSeriesDifferentiate[withoutContract]], Failure["UnprovedFlatRemainderDerivative", _Association], SameTest -> MatchQ,
   TestID -> "flat-operations-does-not-differentiate-an-unqualified-big-o"]
 

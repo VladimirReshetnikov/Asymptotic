@@ -51,7 +51,7 @@ specialErfc[fam_, x_, endpoint_, y_, cutoff_, ass_, direction_, modelTerms_, off
   representation = seriesData[inner, limit] /. v -> target;
   representation = Join[representation, <|"Variable" -> y, "Domain" -> domain,
     "Prefactor" -> sign representation["Prefactor"], "Offset" -> sign representation["Offset"]|>];
-  PowerLogSeries[Join[innerData, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction",
+  GeneralizedSeries[Join[innerData, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction",
     "Adapter" -> "Erfc", "Expression" -> expression, "Terms" -> terms,
     "SeriesRepresentation" -> representation,
     "Remainder" -> remainder, "RemainderScaleExpression" -> tailScale,
@@ -99,7 +99,7 @@ specialGamma[fam_, x_, endpoint_, y_, depth_, ass_, direction_, modelTerms_, off
   data = inner[[1]] /. v -> target;
   original = offset + scale If[fam === "Gamma", Gamma[x], LogGamma[x]];
   domain = ass && If[fam === "Gamma", (y - offset)/scale > 1, (y - offset)/scale > 0];
-  PowerLogSeries[Join[data, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction", "Adapter" -> fam,
+  GeneralizedSeries[Join[data, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction", "Adapter" -> fam,
     "Function" -> original, "Variable" -> y, "Variables" -> {x, y}, "TargetDomain" -> domain,
     "ExpansionPoint" -> Infinity, "Direction" -> "FromBelow", "Limit" -> If[provablyPositive[scale, ass], Infinity, -Infinity],
     "TargetOffset" -> offset, "TargetScale" -> scale, "TargetCoordinateExpression" -> target,
@@ -144,7 +144,7 @@ specialThreshold[fam_, x_, endpoint_, y_, cutoff_, ass_, direction_, branch_, of
     If[FailureQ[inner], Return[inner, Module]];
     data = inner[[1]]; target = (y - offset)/coefficient;
     domain = ass && target > 0; exactInverse = endpoint + sign Sqrt[target]; chosen = Missing["QuadraticSourceDirection"]];
-  PowerLogSeries[Join[data, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction", "Adapter" -> fam,
+  GeneralizedSeries[Join[data, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction", "Adapter" -> fam,
     "Function" -> original, "Variable" -> y, "Variables" -> {x, y}, "ExpansionPoint" -> endpoint,
     "Direction" -> dir, "TargetDomain" -> domain, "TargetOffset" -> offset, "TargetScale" -> scale,
     "ExactInverseExpression" -> exactInverse, "ThresholdBranch" -> chosen,
@@ -176,7 +176,7 @@ specialConstruct[fam_, x_, endpoint_, y_, cutoff_, opts : OptionsPattern[Asympto
     "LambertThreshold" | "QuadraticThreshold", specialThreshold[fam, x, endpoint, y, cutoff, ass, dir, branch, offset, scale, q, limit],
     _, fail["UnknownSpecialFunctionAdapter", "Available adapters are Erfc, LogGamma, Gamma, LambertThreshold and QuadraticThreshold."]];
   If[FailureQ[result], Return[result, Module]];
-  PowerLogSeries[Join[result[[1]], <|"RequestedCutoff" -> cutoff,
+  GeneralizedSeries[Join[result[[1]], <|"RequestedCutoff" -> cutoff,
     "AdapterOptions" -> {Assumptions -> ass, Direction -> dir, "ModelTerms" -> m,
       "TargetOffset" -> offset, "TargetScale" -> scale, "QuadraticCoefficient" -> q,
       "LambertBranch" -> branch}|>]]];
@@ -210,6 +210,6 @@ specialNumerical[a_, target_, wp_] := Module[{x, y, value, approximate, referenc
     "Evidence" -> "High-precision comparison with the original special-function equation or exact local inverse; no interval certificate.",
     "Adapter" -> a["Adapter"], "Certified" -> False|>];
 
-AsymptoticInverse`SpecialInverseNumericalCheck[PowerLogSeries[a_Association], target_, opts : OptionsPattern[]] :=
+AsymptoticInverse`SpecialInverseNumericalCheck[GeneralizedSeries[a_Association], target_, opts : OptionsPattern[]] :=
   catch[If[Lookup[a, "Kind", None] =!= "SpecialInverse", fail["InvalidAdapterObject", "Supply a special-function adapter result."]]; specialNumerical[a, target, OptionValue[WorkingPrecision]]];
 AsymptoticInverse`SpecialInverseNumericalCheck[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use SpecialInverseNumericalCheck[adapterResult,target]."|>];

@@ -30,7 +30,7 @@ def check() -> dict:
     assert len(labels) == len(set(labels)), "Duplicate mathematical labels"
     assert not set(references) - set(labels), "Missing mathematical references"
     assert not set(citations) - set(bibliography), "Missing bibliography entries"
-    assert not re.search(r"\\wl\{|lstlisting|AsymptoticExpansion|PowerLogSeries|\.wl\b|sec:package|sec:reports", text), "Software content in the mathematical article"
+    assert not re.search(r"\\wl\{|lstlisting|AsymptoticExpansion|PowerLogSeries|GeneralizedSeries|\.wl\b|sec:package|sec:reports", text), "Software content in the mathematical article"
     routes = [ROOT / "README.md", ROOT / "AsymptoticInverse/README.md",
               ROOT / "article/README.md", ROOT / "AsymptoticInverse/Documentation/README.md",
               ROOT / "docs/development/README.md", ROOT / "docs/development/article-notes/README.md"]

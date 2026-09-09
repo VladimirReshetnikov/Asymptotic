@@ -5,7 +5,7 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
 seriesArithmeticMatches[s_, expected_, power_] :=
-  MatchQ[s, _PowerLogSeries] && Expand[Normal[s] - expected] === 0 &&
+  MatchQ[s, _GeneralizedSeries] && Expand[Normal[s] - expected] === 0 &&
     s["RemainderPower"] === power && s["Remainder"] =!= 0;
 
 VerificationTest[Module[{x, a, b},
@@ -137,9 +137,9 @@ VerificationTest[Module[{x, y, gamma, barnes, sum, expected},
   barnes = AsymptoticInverse[LogBarnesG[x], {x, Infinity}, y, SeriesTermGoal -> 1];
   sum = gamma + barnes;
   expected = y/ProductLog[y/E] + Sqrt[4 y/ProductLog[4 y/Exp[3]]];
-  {MatchQ[sum, _PowerLogSeries],
+  {MatchQ[sum, _GeneralizedSeries],
     TrueQ[FullSimplify[Normal[sum] == expected, y > Exp[3]]],
-    sum["Remainder"] =!= 0, FreeQ[Normal[sum], _PowerLogSeries | _PowerLogRemainder]}],
+    sum["Remainder"] =!= 0, FreeQ[Normal[sum], _GeneralizedSeries | _PowerLogRemainder]}],
   {True, True, True, True},
   TestID -> "arithmetic-distinct-Gamma-and-Barnes-cores-keep-a-composite-finite-expression-and-bound"]
 
@@ -152,7 +152,7 @@ VerificationTest[Module[{x, a, refined},
 VerificationTest[Module[{x, growing, reciprocal},
   growing = AsymptoticExpansion[Exp[x + 1/x], x -> Infinity, SeriesTermGoal -> 2];
   reciprocal = 1/growing;
-  {MatchQ[reciprocal, _PowerLogSeries],
+  {MatchQ[reciprocal, _GeneralizedSeries],
     TrueQ[FullSimplify[Normal[reciprocal] == Exp[-x] (1 - 1/x), x > 0]],
     reciprocal["RemainderPower"] === 2, reciprocal["Remainder"] =!= 0}],
   {True, True, True, True}, TestID -> "arithmetic-reciprocal-of-exponential-carrier-keeps-relative-precision"]
@@ -207,7 +207,7 @@ VerificationTest[Module[{x, y, a, b, product, ea, eb, ra, rb},
   {ea, eb} = Normal /@ {a, b};
   {ra, rb} = (# ["Remainder"] /. PowerLogRemainder[w_, p_, k_] :> w^p (1 + Abs[Log[w]])^k) & /@ {a, b};
   product = a b;
-  {MatchQ[product, _PowerLogSeries], product["Scale"] === "Composite",
+  {MatchQ[product, _GeneralizedSeries], product["Scale"] === "Composite",
     TrueQ[FullSimplify[Normal[product] == ea eb && product["RemainderScaleExpression"] == Abs[ea] rb + Abs[eb] ra + ra rb, 0 < y < 1/4]]}],
   {True, True, True}, TestID -> "arithmetic-different-flat-phases-use-a-conservative-composite-product"]
 

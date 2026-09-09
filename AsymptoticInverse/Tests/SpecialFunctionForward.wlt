@@ -6,14 +6,14 @@
    Load the package before evaluating this file, as in the focused runners. *)
 
 specialForwardEqual[s_, expected_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] &&
+  MatchQ[s, _GeneralizedSeries] &&
     TrueQ[FullSimplify[Normal[s] == expected, ass]];
 
-specialForwardBound[s_PowerLogSeries] := s["Remainder"] /.
+specialForwardBound[s_GeneralizedSeries] := s["Remainder"] /.
   PowerLogRemainder[w_, p_, d_] :> w^p (1 + Abs[Log[w]])^d;
 
 specialForwardNonzeroError[s_] :=
-  MatchQ[s, _PowerLogSeries] && ! TrueQ[s["Remainder"] === 0];
+  MatchQ[s, _GeneralizedSeries] && ! TrueQ[s["Remainder"] === 0];
 
 VerificationTest[Module[{x, s},
   s = AsymptoticExpansion[BesselJ[0, x], x -> 0, SeriesTermGoal -> 5];
@@ -139,7 +139,7 @@ VerificationTest[Module[{x, s},
 
 VerificationTest[Module[{x, s},
   s = AsymptoticExpansion[Erf[x], x -> Infinity, SeriesTermGoal -> 3];
-  MatchQ[s, _PowerLogSeries] && FreeQ[Normal[s], _Erf | _Erfc] &&
+  MatchQ[s, _GeneralizedSeries] && FreeQ[Normal[s], _Erf | _Erfc] &&
     !(TrueQ[Normal[s] === 1] && TrueQ[s["Remainder"] === 0])],
   True, TestID -> "special-forward-erf-flat-tail-is-not-exact-limiting-constant"]
 
@@ -184,7 +184,7 @@ VerificationTest[Module[{x, k, i},
   k = AsymptoticExpansion[BesselK[1/2, x], x -> Infinity, SeriesTermGoal -> 3];
   i = AsymptoticExpansion[BesselI[1/2, x], x -> Infinity, SeriesTermGoal -> 3];
   {specialForwardEqual[k, Sqrt[Pi/(2 x)] Exp[-x], x > 0] && k["Remainder"] === 0,
-   MatchQ[i, _PowerLogSeries] &&
+   MatchQ[i, _GeneralizedSeries] &&
      (specialForwardNonzeroError[i] || specialForwardEqual[i, Sqrt[2/(Pi x)] Sinh[x], x > 0])}],
   {True, True}, TestID -> "special-forward-half-integer-exact-versus-subdominant-exponential"]
 
@@ -226,7 +226,7 @@ VerificationTest[Module[{x, y, e, j, p},
 
 VerificationTest[Module[{x, s, ratios, boundRatios, normalized},
   s = AsymptoticExpansion[BesselK[0, x], x -> Infinity, SeriesTermGoal -> 3];
-  If[! MatchQ[s, _PowerLogSeries], Return[False, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[False, Module]];
   normalized = Exp[x] Sqrt[2 x/Pi] BesselK[0, x];
   ratios = Table[N[Abs[normalized - (1 - 1/(8 x) + 9/(128 x^2))]/
       (225/(3072 x^3)) /. x -> a, 70], {a, {10, 20, 40}}];

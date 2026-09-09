@@ -236,7 +236,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
   If[! MemberQ[{Infinity, -Infinity}, x0],
     ordinary = Quiet[TimeConstrained[catch[forwardCore[normalized["Expression"], x, x0, cut,
       Assumptions -> ass, Direction -> coord["Direction"], SeriesTermGoal -> goal, "MaxTerms" -> limit]], 30, $Failed]];
-    If[MatchQ[ordinary, _PowerLogSeries], Return[PowerLogSeries[Join[ordinary[[1]],
+    If[MatchQ[ordinary, _GeneralizedSeries], Return[GeneralizedSeries[Join[ordinary[[1]],
       <|"Function" -> f, "TargetDomain" -> domain["Domain"] && normalized["Domain"],
         "RealDomainProof" -> domain, "NormalizedExpression" -> normalized["Expression"]|>]], Module]]];
   localDomain = ass && ((domain["Domain"] && normalized["Domain"]) /. x -> coord["Substitution"]);
@@ -279,7 +279,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
     <|"Variable" -> x, "Assumptions" -> ass, "Domain" -> domain["Domain"] && normalized["Domain"],
       "Approach" -> <|"Variable" -> x, "Point" -> x0, "Direction" -> coord["Direction"]|>|>,
     <|"Operation" -> "NativeSpecialFunctionExpansion", "Source" -> f|>, limit]];
-  PowerLogSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
+  GeneralizedSeries[Join[result[[1]], <|"Kind" -> "Forward", "Function" -> f,
     "Expression" -> Refine[result["Expression"], ass && domain["Domain"] && normalized["Domain"]],
     "Remainder" -> Refine[result["Remainder"], ass && domain["Domain"] && normalized["Domain"]],
     "RemainderScaleExpression" -> Refine[result["RemainderScaleExpression"], ass && domain["Domain"] && normalized["Domain"]],

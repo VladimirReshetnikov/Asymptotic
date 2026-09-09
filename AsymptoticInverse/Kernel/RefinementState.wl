@@ -107,7 +107,7 @@ refinementAssemble[a_, cutoff_, blocks_, frontier_, state_, statistics_] := Modu
   remainder = If[remData === None, 0, PowerLogRemainder[a["RemainderVariable"], ToRadicals[remData[[1]]], remData[[2]]]];
   frontierTerm = If[frontier === None, 0, coord["Sign"]^r (v/leading)^ToRadicals[canon[(rint + frontier[[1]])/p]]
     (ToRadicals[frontier[[2]]] /. ell -> logw)];
-  PowerLogSeries[Join[a, <|"Expression" -> expression, "Terms" -> terms, "Blocks" -> blocks,
+  GeneralizedSeries[Join[a, <|"Expression" -> expression, "Terms" -> terms, "Blocks" -> blocks,
     "Remainder" -> remainder, "RemainderPower" -> If[remData === None, Infinity, ToRadicals[remData[[1]]]],
     "RemainderLogDegree" -> If[remData === None, 0, remData[[2]]],
     "RemainderScaleExpression" -> If[remainder === 0, 0, remainderScale[remainder]],
@@ -117,7 +117,7 @@ refinementAssemble[a_, cutoff_, blocks_, frontier_, state_, statistics_] := Modu
     "RefinementHistory" -> Append[Lookup[a, "RefinementHistory", {}], statistics],
     "SeriesData" -> makeInverseSeriesData[terms, y, a["Limit"], leading, coord, remData, r, a["ExpansionPoint"]]|>]]];
 
-refineStoredInverse[s : PowerLogSeries[a_Association], cutoff_, limit_] := Module[
+refineStoredInverse[s : GeneralizedSeries[a_Association], cutoff_, limit_] := Module[
   {m, method, p, rint, cut, oldCut, cap, declared, signature, state, origin, before, after, blocks,
    frontier, stats, region, frontierWork = 0, pair, result, exactStats},
   If[Lookup[a, "Kind", ""] =!= "Inverse" || Lookup[a, "Scale", "PowerLog"] =!= "PowerLog" ||
@@ -136,12 +136,12 @@ refineStoredInverse[s : PowerLogSeries[a_Association], cutoff_, limit_] := Modul
   If[a["Cutoff"] =!= Infinity && equal[cutoff, a["Cutoff"]],
     exactStats = <|"Strategy" -> "UnchangedCutoff", "SourceCutoff" -> a["Cutoff"], "RequestedCutoff" -> cutoff,
       "ModelReused" -> True, "NewCoefficientEvaluations" -> 0, "NewNewtonSteps" -> {}, "ReusedBlocks" -> Length[a["Blocks"]]|>;
-    Return[PowerLogSeries[Join[a, <|"RefinementStatistics" -> exactStats,
+    Return[GeneralizedSeries[Join[a, <|"RefinementStatistics" -> exactStats,
       "RefinementHistory" -> Append[Lookup[a, "RefinementHistory", {}], exactStats]|>]], Module]];
   If[a["Remainder"] === 0 && And @@ (less[#[[1]], cut] & /@ a["Blocks"]),
     exactStats = <|"Strategy" -> "ExactFiniteInverse", "SourceCutoff" -> a["Cutoff"], "RequestedCutoff" -> cutoff,
       "ModelReused" -> True, "NewCoefficientEvaluations" -> 0, "NewNewtonSteps" -> {}, "ReusedBlocks" -> Length[a["Blocks"]]|>;
-    Return[PowerLogSeries[Join[a, <|"Cutoff" -> cutoff, "RefinementStatistics" -> exactStats,
+    Return[GeneralizedSeries[Join[a, <|"Cutoff" -> cutoff, "RefinementStatistics" -> exactStats,
       "RefinementHistory" -> Append[Lookup[a, "RefinementHistory", {}], exactStats]|>]], Module]];
   If[a["Cutoff"] === Infinity, Return[$Failed, Module]];
   signature = refinementSignature[a];

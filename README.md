@@ -95,12 +95,15 @@ b^(1/2)
 SeriesNormalize[(1 + a)/(1 - a), "Cutoff" -> 4]
 ```
 
-`Normal` extracts only the finite expression. The
+Constructors return [`GeneralizedSeries`](AsymptoticInverse/Documentation/UserGuide.md#GeneralizedSeries)
+objects. StandardForm and TraditionalForm hide the head; `Normal` extracts
+only the finite expression. Version 1.8.0 renames the former `PowerLogSeries`
+head, so explicit patterns should now use `_GeneralizedSeries`. The
 [arithmetic guide](AsymptoticInverse/Documentation/UserGuide.md#series-operations)
 explains precision propagation, ordinary function operands, held normalization,
 and composite error bounds for compatible expansions in different scales.
 
-Version 1.7.1 declares Wolfram Language 15.0 or later. Native validation
+Version 1.8.0 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)
 for the exact scope of each run.
 

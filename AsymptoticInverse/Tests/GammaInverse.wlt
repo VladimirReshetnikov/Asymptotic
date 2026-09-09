@@ -26,10 +26,10 @@ gammaInverseOracle[z_, count_Integer] := Module[{core, coefficients},
 
 gammaInverseEqual[actual_, expected_] := TrueQ[Together[actual - expected] === 0];
 gammaInverseExpansionEqual[s_, expected_] :=
-  MatchQ[s, _PowerLogSeries] && gammaInverseEqual[Normal[s], expected];
+  MatchQ[s, _GeneralizedSeries] && gammaInverseEqual[Normal[s], expected];
 
 gammaInverseTermsEqual[s_, count_Integer] := Module[{q, expected, actual},
-  If[! MatchQ[s, _PowerLogSeries], Return[False, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[False, Module]];
   q = s["CoefficientVariable"];
   expected = Prepend[MapIndexed[{First[#2] - 1, #1} &,
     Take[gammaInverseOracleCoefficients[1/q], count - 1]], {-1, 1}];
@@ -42,7 +42,7 @@ VerificationTest[Module[{x, s, source, core, coefficients},
   s = AsymptoticExpansion[InverseFunction[
     x |-> ConditionalExpression[Gamma[x], x > 2]],
     x -> Infinity, SeriesTermGoal -> 5];
-  If[! MatchQ[s, _PowerLogSeries], Return[s, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[s, Module]];
   source = s["SourceVariable"]; core = gammaInverseOracleCore[Log[x]];
   coefficients = gammaInverseOracleCoefficients[Log[core]];
   {gammaInverseExpansionEqual[s, gammaInverseOracle[Log[x], 5]],

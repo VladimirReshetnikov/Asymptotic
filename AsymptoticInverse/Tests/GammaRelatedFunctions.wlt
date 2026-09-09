@@ -14,7 +14,7 @@ gammaRelatedBracket[z_, coefficients_List] :=
 gammaRelatedGammaPrefactor[z_] := Sqrt[2 Pi] Exp[-z] z^(z - 1/2);
 gammaRelatedFactorialPrefactor[z_] := Sqrt[2 Pi z] Exp[-z] z^z;
 gammaRelatedEqual[s_, expr_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expr, ass]];
 
 VerificationTest[Module[{x, s, pref},
   pref = gammaRelatedFactorialPrefactor[x];

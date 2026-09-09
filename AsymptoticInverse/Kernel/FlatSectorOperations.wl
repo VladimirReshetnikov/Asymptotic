@@ -33,7 +33,7 @@ flatOpsParse[e_, d_, limit_] := Module[{u = d["LocalVariable"], ell = d["LogVari
     fail["UnsupportedFlatCoefficient", "The exact coefficient must be a finite real power-log expression in the monomial core coordinate."]];
   {jetMerge[rows, ell, d["Assumptions"]], Infinity, 0}];
 
-flatOpsData[s : PowerLogSeries[a_Association], limit_] := Module[
+flatOpsData[s : GeneralizedSeries[a_Association], limit_] := Module[
   {d, model, u = Unique["flatCoordinate$"], ell = Unique["flatLog$"], n, jets, tail, proof},
   If[AssociationQ[Lookup[a, "FlatRepresentation", None]],
     Return[flatOpsBudget[a["FlatRepresentation"], limit], Module]];
@@ -184,7 +184,7 @@ flatOpsMake[d_, recipe_] := Module[
     phase^(d["SectorDepth"] + 1) PowerLogRemainder[u0, tail[[1]], tail[[2]]]];
   remainder = sectorRemainder + Total[(phase^#[[1]] #[[2]]) & /@ inner];
   envelope = remainder /. rr_PowerLogRemainder :> remainderScale[rr];
-  PowerLogSeries[<|"Kind" -> "FlatDerived", "Scale" -> "FiniteFlatSectors", "Variable" -> d["Variable"],
+  GeneralizedSeries[<|"Kind" -> "FlatDerived", "Scale" -> "FiniteFlatSectors", "Variable" -> d["Variable"],
     "Expression" -> expression, "Assumptions" -> d["Assumptions"], "TargetDomain" -> d["TargetDomain"],
     "CoreInverseCoordinate" -> u0, "FlatScale" -> phase, "ZeroSector" -> zero, "Sectors" -> sectors,
     "Terms" -> Join[{{0, zero}}, sectors], "SectorDepth" -> d["SectorDepth"], "InnerCutoff" -> d["InnerCutoff"],
@@ -197,22 +197,22 @@ flatOpsMake[d_, recipe_] := Module[
     "FlatAnalyticRemainder" -> d["DerivativeProvenance"], "RemainderDerivativeOrder" -> If[remainder === 0 || TrueQ[d["DerivativeContract"]], Infinity, 0],
     "FlatRepresentation" -> d, "FlatRecipe" -> recipe, "SeriesData" -> Missing["IndependentFlatSectorTruncations"]|>]];
 
-AsymptoticInverse`FlatSeriesTruncate[s_PowerLogSeries, h_, OptionsPattern[]] :=
+AsymptoticInverse`FlatSeriesTruncate[s_GeneralizedSeries, h_, OptionsPattern[]] :=
   catch[flatOpsMake[flatOpsTruncateData[flatOpsData[s, OptionValue["MaxTerms"]], h, OptionValue["MaxTerms"]], {"Truncate", {s}, h}]];
-AsymptoticInverse`FlatSeriesMultiply[s_PowerLogSeries, t_PowerLogSeries, OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`FlatSeriesMultiply[s_GeneralizedSeries, t_GeneralizedSeries, OptionsPattern[]] := catch[Module[{d},
   d = flatOpsMultiplyData[flatOpsData[s, OptionValue["MaxTerms"]], flatOpsData[t, OptionValue["MaxTerms"]], OptionValue["MaxTerms"]];
   flatOpsMake[flatOpsTruncateData[d, OptionValue["InnerCutoff"], OptionValue["MaxTerms"]], {"Multiply", {s, t}}]]];
-AsymptoticInverse`FlatSeriesMultiply[s_PowerLogSeries, c_ /; FreeQ[c, _PowerLogSeries], OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`FlatSeriesMultiply[s_GeneralizedSeries, c_ /; FreeQ[c, _GeneralizedSeries], OptionsPattern[]] := catch[Module[{d},
   d = flatOpsData[s, OptionValue["MaxTerms"]];
   flatOpsMake[flatOpsTruncateData[flatOpsMultiplyData[d, flatOpsConstantData[c, d, OptionValue["MaxTerms"]], OptionValue["MaxTerms"]],
     OptionValue["InnerCutoff"], OptionValue["MaxTerms"]], {"MultiplyScalar", {s}, c}]]];
-AsymptoticInverse`FlatSeriesMultiply[c_ /; FreeQ[c, _PowerLogSeries], s_PowerLogSeries, opts : OptionsPattern[]] :=
+AsymptoticInverse`FlatSeriesMultiply[c_ /; FreeQ[c, _GeneralizedSeries], s_GeneralizedSeries, opts : OptionsPattern[]] :=
   AsymptoticInverse`FlatSeriesMultiply[s, c, opts];
-AsymptoticInverse`FlatSeriesObservable[s_PowerLogSeries, h_, z_Symbol, OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`FlatSeriesObservable[s_GeneralizedSeries, h_, z_Symbol, OptionsPattern[]] := catch[Module[{d},
   d = flatOpsObservableData[flatOpsData[s, OptionValue["MaxTerms"]], h, z,
     OptionValue["MaxPolynomialDegree"], OptionValue["MaxTerms"]];
   flatOpsMake[flatOpsTruncateData[d, OptionValue["InnerCutoff"], OptionValue["MaxTerms"]], {"PolynomialObservable", {s}, h, z}]]];
-AsymptoticInverse`FlatSeriesDifferentiate[s_PowerLogSeries, n_Integer : 1, OptionsPattern[]] := catch[Module[{d},
+AsymptoticInverse`FlatSeriesDifferentiate[s_GeneralizedSeries, n_Integer : 1, OptionsPattern[]] := catch[Module[{d},
   d = flatOpsDifferentiateData[flatOpsData[s, OptionValue["MaxTerms"]], n, OptionValue["MaxTerms"]];
   flatOpsMake[flatOpsTruncateData[d, OptionValue["InnerCutoff"], OptionValue["MaxTerms"]], {"Differentiate", {s}, n}]]];
 

@@ -19,9 +19,9 @@ logBarnesSquareOracle[y_] := Module[{core, a, b, c},
   {a, b, c} = logBarnesInverseCoefficients[1/(Log[core] - 1)];
   core^2 + 2 a core + a^2 + 2 b];
 logBarnesEqual[actual_, expected_] := TrueQ[Together[actual - expected] === 0];
-logBarnesInverseEqual[s_, expected_] := MatchQ[s, _PowerLogSeries] &&
+logBarnesInverseEqual[s_, expected_] := MatchQ[s, _GeneralizedSeries] &&
   logBarnesEqual[Normal[s], expected];
-logBarnesForwardEqual[s_, expected_, ass_] := MatchQ[s, _PowerLogSeries] &&
+logBarnesForwardEqual[s_, expected_, ass_] := MatchQ[s, _GeneralizedSeries] &&
   TrueQ[FullSimplify[Normal[s] == expected, ass]];
 logBarnesCarrierPlus[x_] := (x^2/2 - 1/12) Log[x] - 3 x^2/4 +
   x Log[2 Pi]/2 + 1/12 - Log[Glaisher];
@@ -32,7 +32,7 @@ VerificationTest[Module[{x, z, s, source, core, q, coefficients},
   s = AsymptoticExpansion[InverseFunction[
     x |-> ConditionalExpression[LogBarnesG[x], x > 3]][z],
     z -> Infinity, SeriesTermGoal -> 3];
-  If[! MatchQ[s, _PowerLogSeries], Return[s, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[s, Module]];
   source = s["SourceVariable"]; core = logBarnesInverseCore[z]; q = s["CoefficientVariable"];
   coefficients = logBarnesInverseCoefficients[q];
   {logBarnesInverseEqual[s, logBarnesInverseOracle[z, 3]],

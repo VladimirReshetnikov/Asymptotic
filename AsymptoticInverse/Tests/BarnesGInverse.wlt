@@ -33,10 +33,10 @@ barnesInversePowerOracle[y_, r_, count_Integer] := Module[{core, a, b, c, d, coe
 barnesInverseEqual[actual_, expected_] := Module[{difference = Together[actual - expected]},
   TrueQ[difference === 0] ||
     TrueQ[TimeConstrained[FullSimplify[difference], 15, $Aborted] === 0]];
-barnesInverseExpansionEqual[s_, expected_] := MatchQ[s, _PowerLogSeries] &&
+barnesInverseExpansionEqual[s_, expected_] := MatchQ[s, _GeneralizedSeries] &&
   barnesInverseEqual[Normal[s], expected];
 barnesInverseTermsEqual[s_, count_Integer] := Module[{q, expected, actual},
-  If[! MatchQ[s, _PowerLogSeries], Return[False, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[False, Module]];
   q = s["CoefficientVariable"];
   expected = Prepend[MapIndexed[{First[#2] - 1, #1} &,
     Take[barnesInverseOracleCoefficients[q], count - 1]], {-1, 1}];
@@ -48,7 +48,7 @@ barnesInverseTermsEqual[s_, count_Integer] := Module[{q, expected, actual},
 VerificationTest[Module[{x, z, s, source, core, q, coefficients},
   s = AsymptoticExpansion[InverseFunction[
     x |-> ConditionalExpression[BarnesG[x], x > 3]][z], z -> Infinity, SeriesTermGoal -> 3];
-  If[! MatchQ[s, _PowerLogSeries], Return[s, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[s, Module]];
   source = s["SourceVariable"]; core = barnesInverseOracleCore[Log[z]];
   q = s["CoefficientVariable"];
   coefficients = barnesInverseOracleCoefficients[1/(Log[core] - 1)];
@@ -241,7 +241,7 @@ VerificationTest[Module[{x, y, negativeSquare},
     FailureQ[AsymptoticInverse[BarnesG[x], {x, Infinity}, {y, -1}]],
     FailureQ[AsymptoticInverse[BarnesG[x], {x, Infinity}, y, SeriesTermGoal -> 3, "MaxTerms" -> 1]],
     FailureQ[AsymptoticInverse[BarnesG[x], {x, Infinity}, y, "Power" -> I, SeriesTermGoal -> 3]],
-    MatchQ[negativeSquare, _PowerLogSeries], FailureQ[SeriesPower[negativeSquare, 1/2]]}]],
+    MatchQ[negativeSquare, _GeneralizedSeries], FailureQ[SeriesPower[negativeSquare, 1/2]]}]],
   {True, True, True, True, True, True},
   TestID -> "barnes-g-inverse-validates-orders-resources-and-negative-source-power-branches"]
 
@@ -250,7 +250,7 @@ VerificationTest[Module[{t, y, operator, s, source, original},
   s = AsymptoticExpansion[operator[y], y -> Infinity, SeriesTermGoal -> 3,
     "InverseFunctionBranches" -> Association[
       operator -> <|"SourcePoint" -> Infinity, "Direction" -> "FromBelow"|>]];
-  If[! MatchQ[s, _PowerLogSeries], Return[s, Module]];
+  If[! MatchQ[s, _GeneralizedSeries], Return[s, Module]];
   source = s["SourceVariable"]; original = s["InverseFunctionBranch"]["OriginalCondition"];
   {barnesInverseExpansionEqual[s, barnesInverseOracle[Log[y], 3]],
     s["InverseFunctionBranch"]["SourcePoint"],
@@ -292,7 +292,7 @@ VerificationTest[Module[{y, s, zeroPower, refined},
 VerificationTest[Module[{x, y, s, doubled, shifted},
   s = AsymptoticInverse[BarnesG[x], {x, Infinity}, y, SeriesTermGoal -> 3];
   doubled = SeriesAdd[s, s]; shifted = SeriesAdd[s, 1];
-  {MatchQ[doubled, _PowerLogSeries], MatchQ[shifted, _PowerLogSeries],
+  {MatchQ[doubled, _GeneralizedSeries], MatchQ[shifted, _GeneralizedSeries],
     Expand[Normal[doubled] - 2 Normal[s]] === 0, Normal[shifted] === 1 + Normal[s],
     doubled["Scale"] === "Composite", shifted["Remainder"] =!= 0}],
   {True, True, True, True, True, True},

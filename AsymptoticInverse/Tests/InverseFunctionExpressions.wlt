@@ -2,7 +2,7 @@ If[! MemberQ[$Packages, "AsymptoticInverse`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticInverse.wl"}]]];
 
 inverseExpressionEqual[s_, expected_, ass_: True] :=
-  MatchQ[s, _PowerLogSeries] && TrueQ[FullSimplify[Normal[s] == expected, ass]];
+  MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] == expected, ass]];
 
 (* Independent coefficients: substitute g=y+A(Log[y]) y^2+B(Log[y]) y^3
    into h(g)=g+g^2(1+Log[g])=y.  The y^2 equation gives A=-(1+L),

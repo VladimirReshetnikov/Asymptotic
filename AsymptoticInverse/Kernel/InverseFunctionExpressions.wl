@@ -42,13 +42,9 @@ inverseFunctionEventually[condition_, u_, ass_] := Module[{simple, delta, proof}
 forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] := Block[
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticExpansion, {opts}, "InverseFunctionBranches"]}, Module[
-  {body = f, condition = True, ass, parameterAss, clauses, coord, result, rules, records, targetDomain},
+  {body = f, condition, ass, parameterAss, coord, result, rules, records, targetDomain},
   ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions];
-  While[Head[body] === ConditionalExpression,
-    condition = condition && body[[2]]; body = body[[1]]];
-  clauses = If[Head[ass] === And, List @@ ass, {ass}];
-  parameterAss = And @@ Select[clauses, FreeQ[#, x] &];
-  condition = condition && And @@ Select[clauses, ! FreeQ[#, x] &];
+  {body, parameterAss, condition} = splitApproachInput[body, x, ass];
   coord = localCoordinate[x, x0, OptionValue[AsymptoticExpansion, {opts}, Direction]];
   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], coord["u"], parameterAss],
     fail["IncompatibleTargetCondition", "The expression's condition must hold eventually on the requested real approach.",
@@ -73,10 +69,10 @@ forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] 
       OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]]];
   If[result === $Failed,
     result = forwardCore[body, x, x0, cutoff, Assumptions -> parameterAss, Sequence @@ rules]];
-  If[! MatchQ[result, _PowerLogSeries], Return[result, Module]];
+  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
   records = DeleteDuplicates[$inverseFunctionProvenance];
   targetDomain = condition && coord["LocalVariable"] > 0 && Lookup[result[[1]], "TargetDomain", True];
-  PowerLogSeries[Join[result[[1]],
+  GeneralizedSeries[Join[result[[1]],
     If[AssociationQ[Lookup[result[[1]], "SeriesRepresentation", None]],
       <|"SeriesRepresentation" -> Join[result["SeriesRepresentation"],
         <|"Domain" -> targetDomain && Lookup[result["SeriesRepresentation"], "Domain", True]|>]|>, <||>],
@@ -142,7 +138,7 @@ inverseFunctionDirectExpansion[e_, x_, x0_, cut_, ass_, coord_, goal_, limit_] :
     Assumptions -> ass, Direction -> branch["Direction"], SeriesTermGoal -> goal,
     "Power" -> power, "MaxTerms" -> limit];
   If[FailureQ[result], Throw[result, $tag]];
-  result = PowerLogSeries[Join[result[[1]], <|"SourceVariable" -> source,
+  result = GeneralizedSeries[Join[result[[1]], <|"SourceVariable" -> source,
     "SourceDomain" -> branch["SourceDomain"] && inverseEvidenceSourceDomain[result[[1]], source], "InverseFunctionSyntax" -> data,
     "InverseFunctionBranch" -> branch, "InverseFunctionExpression" -> e,
     "InverseFunctionExpansionPoint" -> x0, "InverseFunctionExpansionDirection" -> coord["Direction"]|>]];
@@ -168,23 +164,19 @@ inverseFunctionNativeLambertData[e_, x_] := Module[{k, argument, source},
 inverseFunctionPublicInverse[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse]] := Block[
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticInverse, {opts}, "InverseFunctionBranches"]}, Module[
-  {body = f, condition = True, ass, parameterAss, clauses, coord, result, rules},
+  {body = f, condition, ass, parameterAss, coord, result, rules},
   ass = OptionValue[AsymptoticInverse, {opts}, Assumptions];
-  While[Head[body] === ConditionalExpression,
-    condition = condition && body[[2]]; body = body[[1]]];
-  clauses = If[Head[ass] === And, List @@ ass, {ass}];
-  parameterAss = And @@ Select[clauses, FreeQ[#, x] &];
-  condition = condition && And @@ Select[clauses, ! FreeQ[#, x] &];
+  {body, parameterAss, condition} = splitApproachInput[body, x, ass];
   coord = localCoordinate[x, x0, OptionValue[AsymptoticInverse, {opts}, Direction]];
   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], coord["u"], parameterAss],
     fail["IncompatibleSourceCondition", "The forward expression's condition must hold eventually on the requested real source approach.",
       <|"Condition" -> condition, "Variable" -> x, "ExpansionPoint" -> x0, "Direction" -> coord["Direction"]|>]];
   rules = DeleteCases[{opts}, HoldPattern[Assumptions -> _] | HoldPattern["InverseFunctionBranches" -> _]];
   result = inverseDispatch[body, x, x0, y, cutoff, Assumptions -> parameterAss, Sequence @@ rules];
-  If[! MatchQ[result, _PowerLogSeries], Return[result, Module]];
+  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
   If[condition === True && $inverseFunctionProvenance === {} && $inverseFunctionBranchSelections === Automatic,
     Return[result, Module]];
-  PowerLogSeries[Join[result[[1]], <|"OriginalExpression" -> f,
+  GeneralizedSeries[Join[result[[1]], <|"OriginalExpression" -> f,
     "ConditionalSourceReplay" -> ConditionalExpression[body, condition],
     "SourceVariable" -> x, "SourceDomain" -> condition &&
       inverseEvidenceSourceDomain[result[[1]], x],
@@ -247,7 +239,7 @@ inverseFunctionJetApply[e_, x_, input_, d_, cut_, limit_] := Module[
   outer = inverseDispatch[data["Body"], source, branch["SourcePoint"], v, outerCut,
     Assumptions -> ass, Direction -> branch["Direction"], "MaxTerms" -> limit];
   If[FailureQ[outer], Throw[outer, $tag]];
-  outer = PowerLogSeries[Join[outer[[1]], <|"SourceVariable" -> source,
+  outer = GeneralizedSeries[Join[outer[[1]], <|"SourceVariable" -> source,
     "SourceDomain" -> branch["SourceDomain"] && inverseEvidenceSourceDomain[outer[[1]], source], "InverseFunctionSyntax" -> data,
     "InverseFunctionBranch" -> branch|>]];
   inner = seriesMake[Join[d, <|"Jet" -> target, "Prefactor" -> 1, "Offset" -> 0|>], {"InverseTarget", {}, e}];

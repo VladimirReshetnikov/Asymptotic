@@ -8,7 +8,7 @@ AsymptoticInverse`ReciprocalLogDifferentiate::usage =
 Options[AsymptoticInverse`ReciprocalLogCompose] = {"Cutoff" -> Automatic, "MaxTerms" -> 20000};
 Options[AsymptoticInverse`ReciprocalLogDifferentiate] = {"Cutoff" -> Automatic, "MaxTerms" -> 20000};
 
-reciprocalLogData[s : PowerLogSeries[a_Association], limit_] := Module[
+reciprocalLogData[s : GeneralizedSeries[a_Association], limit_] := Module[
   {stored, y, p, power, endpoint, rint, alpha, coefficient, epsilon, t, scale,
    beta, polynomial, rows, ass, side, expected, exactRechart = False, originalCutoff},
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
@@ -73,7 +73,7 @@ reciprocalLogMake[d0_, recipe_, cut_, limit_] := Module[
     "Assumptions" -> d["Assumptions"], "Domain" -> d["Domain"], "Cutoff" -> h,
     "RemainderDerivativeOrder" -> Infinity|>;
   result = seriesMake[representation, recipe, h];
-  PowerLogSeries[Join[result[[1]], <|"Scale" -> "ReciprocalLogCalculus",
+  GeneralizedSeries[Join[result[[1]], <|"Scale" -> "ReciprocalLogCalculus",
     "ReciprocalLogRepresentation" -> d,
     "AnalyticRemainderContract" -> <|"Type" -> "HolomorphicReciprocalLogarithmicUnit",
       "AllFixedDerivativeOrders" -> True, "NumericCertificate" -> False,
@@ -144,9 +144,9 @@ reciprocalLogDifferentiate[s_, n_, declared_, cut_, limit_] := Module[
     "Origin" -> "Exact carrier differentiation with a holomorphic Taylor remainder"|>],
     {"Differentiate", {s}, n, Automatic}, h, limit]];
 
-AsymptoticInverse`ReciprocalLogCompose[outer_PowerLogSeries, inner_PowerLogSeries, opts : OptionsPattern[]] := catch[
+AsymptoticInverse`ReciprocalLogCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[
   Module[{result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},
     If[result === $Failed, fail["UnsupportedReciprocalLogComposition", "Use exact reciprocal-log-unit inverse carriers with zero offsets and positive monomial prefactors."], result]]];
-AsymptoticInverse`ReciprocalLogDifferentiate[s_PowerLogSeries, n_Integer : 1, opts : OptionsPattern[]] := catch[
+AsymptoticInverse`ReciprocalLogDifferentiate[s_GeneralizedSeries, n_Integer : 1, opts : OptionsPattern[]] := catch[
   Module[{result = reciprocalLogDifferentiate[s, n, Automatic, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},
     If[result === $Failed, fail["UnsupportedReciprocalLogDerivative", "A retained exact reciprocal-log implicit model or its supported calculus result is required; unknown and omitted higher-power input sectors are excluded."], result]]];
