@@ -7,7 +7,7 @@ AsymptoticInverse`SpecialInverseNumericalCheck::usage =
 "SpecialInverseNumericalCheck[result,target] compares an adapter with the original special-function equation at high precision, using logarithmic equations for gamma and erfc tails. This is numerical evidence, not an interval certificate.";
 
 Options[AsymptoticInverse`AsymptoticSpecialInverse] = {
-  Assumptions -> True, Direction -> Automatic, "ModelTerms" -> Automatic,
+  Assumptions :> $Assumptions, Direction -> Automatic, "ModelTerms" -> Automatic,
   "TargetOffset" -> 0, "TargetScale" -> 1, "QuadraticCoefficient" -> 1,
   "LambertBranch" -> Automatic, "MaxTerms" -> 20000};
 Options[AsymptoticInverse`SpecialInverseNumericalCheck] = {WorkingPrecision -> 60};
@@ -158,7 +158,7 @@ specialThreshold[fam_, x_, endpoint_, y_, cutoff_, ass_, direction_, branch_, of
     "SwitchingContract" -> "Explicit real local branch. Neighboring representations can be compared at a user-selected overlap point; no unproved automatic switching threshold is used."|>]]];
 
 specialConstruct[fam_, x_, endpoint_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse`AsymptoticSpecialInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticSpecialInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticSpecialInverse, {opts}],
    dir = OptionValue[AsymptoticInverse`AsymptoticSpecialInverse, {opts}, Direction],
    m = OptionValue[AsymptoticInverse`AsymptoticSpecialInverse, {opts}, "ModelTerms"],
    offset = OptionValue[AsymptoticInverse`AsymptoticSpecialInverse, {opts}, "TargetOffset"],

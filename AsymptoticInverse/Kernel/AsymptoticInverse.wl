@@ -107,7 +107,29 @@ $tag = "AsymptoticInverseFailure";
 fail[tag_String, msg_String, extra_Association : <||>] :=
   Throw[Failure[tag, Join[<|"MessageTemplate" -> msg|>, extra]], $tag];
 SetAttributes[catch, HoldAll];
-catch[body_] := Catch[body, $tag];
+(* Capture the caller context once per public request. Internal proofs use
+   explicit retained hypotheses; later Assuming scopes must not specialize
+   an existing result without recording the new restrictions. Nested soft
+   probes and constructor replay share the original request boundary. *)
+$assumptionScopeActive = False;
+$entryAssumptions = True;
+catch[body_] := If[TrueQ[$assumptionScopeActive],
+  Block[{$Assumptions = True}, Catch[body, $tag]],
+  Block[{$assumptionScopeActive = True, $entryAssumptions = $Assumptions,
+    $Assumptions = True}, Catch[body, $tag]]];
+
+(* Resolve delayed constructor defaults in the captured caller context.
+   Explicit options replace that default. Only option resolution sees the
+   ambient context; simplifying stored predicates under themselves loses it. *)
+optionAssumptions[public_, rules_List] :=
+  Block[{$Assumptions = If[TrueQ[$assumptionScopeActive], $entryAssumptions, $Assumptions]},
+    OptionValue[public, rules, Assumptions]];
+
+(* OptionsPattern admits nested lists and both immediate and delayed rules.
+   Once resolved, never forward a delayed assumption into another engine. *)
+withoutAssumptions[rules_List] := DeleteCases[Flatten[rules],
+  HoldPattern[(Assumptions -> _) | (Assumptions :> _)]];
+withAssumptions[rules_List, ass_] := Prepend[withoutAssumptions[rules], Assumptions -> ass];
 
 (* ------------------------------------------------------------------ *)
 (* Exact numbers: canonical forms, comparison, zero tests               *)
@@ -527,7 +549,7 @@ splitApproachInput[f_, x_, ass_] := Module[{body = f, condition = True, clauses}
 (* Forward expansion: public                                            *)
 (* ------------------------------------------------------------------ *)
 
-Options[AsymptoticExpansion] = {Assumptions -> True, Direction -> Automatic, SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
+Options[AsymptoticExpansion] = {Assumptions :> $Assumptions, Direction -> Automatic, SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 SetAttributes[AsymptoticExpansion, HoldAllComplete];
 AsymptoticExpansion[args___] := catch[forwardHeldEntry[args]];
 (* Preserve explicit callable syntax before native evaluation can turn, for
@@ -577,7 +599,7 @@ exactJet[fu_, u_, ell_, ass_, limit_] := Module[{r = Catch[fwd[fu, u, ell, ass, 
    True, r]];
 
 forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] := Module[
-  {ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions], dir = OptionValue[AsymptoticExpansion, {opts}, Direction],
+  {ass = optionAssumptions[AsymptoticExpansion, {opts}], dir = OptionValue[AsymptoticExpansion, {opts}, Direction],
    goal = OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"],
    coord, u, ell = Unique["ell$"], fu, jet, cutoff = cutoff0, T, tries = 0, K, ex, normalized, result},
   validateInput[f, limit];
@@ -704,7 +726,8 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
   If[symbolic,
    Do[If[! TrueQ[Simplify[d > 0, ass]], fail["UnprovedPositiveGap", "A power gap could not be proved positive.", <|"Gap" -> d|>]], {d, deltas}]];
   <|"Limit" -> y0, "LeadingCoefficient" -> a, "LeadingPower" -> p, "Gaps" -> deltas,
-    "Polynomials" -> polys, "LogVariable" -> ell, "Variable" -> u, "Rows" -> rows, "Symbolic" -> symbolic|>];
+    "Polynomials" -> polys, "LogVariable" -> ell, "Variable" -> u, "Rows" -> rows,
+    "Symbolic" -> symbolic, "Assumptions" -> ass|>];
 
 (* ------------------------------------------------------------------ *)
 (* Multi-index enumeration                                              *)
@@ -783,7 +806,7 @@ newtonSolve[d_List, polys_List, p_, cut_, ell_, ass_, limit_] :=
 (* Inverse expansion: public                                            *)
 (* ------------------------------------------------------------------ *)
 
-Options[AsymptoticInverse] = {Assumptions -> True, Direction -> Automatic, Method -> "Lagrange",
+Options[AsymptoticInverse] = {Assumptions :> $Assumptions, Direction -> Automatic, Method -> "Lagrange",
   "Power" -> 1, "InputRemainder" -> Automatic, "Truncation" -> "Exponent",
   SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 
@@ -855,7 +878,7 @@ parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, 
 Get[FileNameJoin[{$kernelDirectory, "ExactTermination.wl"}]];
 
 construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    method = OptionValue[AsymptoticInverse, {opts}, Method], r = OptionValue[AsymptoticInverse, {opts}, "Power"],
    inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"], trunc = OptionValue[AsymptoticInverse, {opts}, "Truncation"],
    goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],
@@ -1149,11 +1172,11 @@ PerturbativeInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "
 (* Model access and single coefficients                                 *)
 (* ------------------------------------------------------------------ *)
 
-Options[PowerLogModel] = {Assumptions -> True, Direction -> Automatic, "MaxTerms" -> 20000};
+Options[PowerLogModel] = {Assumptions :> $Assumptions, Direction -> Automatic, "MaxTerms" -> 20000};
 SetAttributes[PowerLogModel, HoldAllComplete];
 PowerLogModel[args___] := catch[powerLogModelEntry[args]];
 powerLogModelEntry[f_, {x_Symbol, x0_}, opts : OptionsPattern[PowerLogModel]] := Module[
-   {coord, u, ell = Unique["ell$"], jet, ass = OptionValue[PowerLogModel, {opts}, Assumptions],
+   {coord, u, ell = Unique["ell$"], jet, ass = optionAssumptions[PowerLogModel, {opts}],
     body = f, condition, parameterAss, limit = OptionValue[PowerLogModel, {opts}, "MaxTerms"]},
    validateInput[f, limit];
    {body, parameterAss, condition} = splitApproachInput[body, x, ass];
@@ -1167,18 +1190,20 @@ powerLogModelEntry[f_, x_Symbol, opts : OptionsPattern[PowerLogModel]] := powerL
 powerLogModelEntry[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use PowerLogModel[f,{x,x0}] or PowerLogModel[f,x]."|>];
 
 Options[InverseExpansionCoefficient] = {"Power" -> 1};
-InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catch[Module[{r = OptionValue["Power"], c},
+InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catch[Module[
+   {r = OptionValue["Power"], c, ass = Lookup[model, "Assumptions", True]},
    If[Length[k] =!= Length[model["Gaps"]] || ! (And @@ (IntegerQ[#] && # >= 0 & /@ k)),
     fail["InvalidMultiIndex", "Give one nonnegative integer per correction block of the model."]];
-   c = lagrangeCoefficient[k, model["Gaps"], model["Polynomials"], model["LeadingPower"], r, model["LogVariable"], True, model["Symbolic"]];
+   c = lagrangeCoefficient[k, model["Gaps"], model["Polynomials"], model["LeadingPower"], r, model["LogVariable"], ass, model["Symbolic"]];
    <|"Weight" -> ToRadicals[c[[1]]], "Exponent" -> ToRadicals[canon[(r + c[[1]])/model["LeadingPower"]]],
      "Coefficient" -> (ToRadicals[c[[2]]] /. model["LogVariable"] -> \[FormalL]),
-     "UniformizerExponent" -> ToRadicals[r + c[[1]]],
+     "UniformizerExponent" -> ToRadicals[r + c[[1]]], "Assumptions" -> ass,
      "Meaning" -> "(v/a)^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
 InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : OptionsPattern[]] :=
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
    Failure["Unsupported", <|"MessageTemplate" -> "Lambert coefficients are listed in the logarithmic expansion's Terms property; they have no power-gap multi-index."|>],
-   InverseExpansionCoefficient[a["Model"], k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
+   InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
+    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)

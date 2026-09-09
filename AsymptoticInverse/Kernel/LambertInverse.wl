@@ -110,7 +110,7 @@ lambertCorrection[sign_, cut_, ell_, ass_, limit_, coefficients_: {1}, scale_: 1
   v];
 
 lambertConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],
    r = OptionValue[AsymptoticInverse, {opts}, "Power"], method = OptionValue[AsymptoticInverse, {opts}, Method],
    trunc = OptionValue[AsymptoticInverse, {opts}, "Truncation"], inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"],

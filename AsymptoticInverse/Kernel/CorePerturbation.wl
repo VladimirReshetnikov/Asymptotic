@@ -5,7 +5,7 @@ AsymptoticInverse`AsymptoticCoreInverse::usage =
 "AsymptoticCoreInverse[core, perturbation, {x,x0}, {y,n}, \"CoreInverse\"->phi] expands the selected real inverse of core+perturbation through marker degree n while retaining the exact core inverse phi. Supported finite power-log data have a nonzero leading source power and perturbation exponents strictly larger than that leading power. The nonzero exact real option Power returns x for r=1, (x-x0)^r at finite endpoints for r!=1, and x^r at infinity; a negative source side requires integer r. Marker terms are not an exponent-sorted power-log jet; the result records a proved asymptotic remainder and a separate first omitted marker term. CoreInverse->Automatic recognizes monomial, affine-log-power, and divergent power-plus-log cores.";
 
 Options[AsymptoticInverse`AsymptoticCoreInverse] = {
-  Assumptions -> True, Direction -> Automatic, "Power" -> 1, "CoreInverse" -> Automatic,
+  Assumptions :> $Assumptions, Direction -> Automatic, "Power" -> 1, "CoreInverse" -> Automatic,
   "InputRemainder" -> None, "MaxTerms" -> 20000,
   "CoreCheckTimeConstraint" -> 3, "SourceRadius" -> 1/E};
 
@@ -112,7 +112,7 @@ corePerturbationTerm[n_, rlocal_, hprime_, fprime_, u_, limit_] := Module[{term,
   term];
 
 corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : OptionsPattern[AsymptoticInverse`AsymptoticCoreInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticCoreInverse, {opts}],
    dir = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, Direction],
    r = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, "Power"],
    requested = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, "CoreInverse"],

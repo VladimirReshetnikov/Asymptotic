@@ -330,7 +330,7 @@ logarithmicGoalConstruct[make_, unitQ_, rows_, p_, rint_, goal_, limit_] := Modu
     "TermSelection" -> "CompleteNonzeroBlocks", "TermGoalConstructionCalls" -> tries|>]]];
 
 logarithmicConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse`AsymptoticLogarithmicInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}],
    dir = OptionValue[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}, Direction],
    limit = OptionValue[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}, "MaxTerms"],
    depth = OptionValue[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}, "LogarithmicLevels"],
@@ -383,13 +383,13 @@ logarithmicPublic[f_, x_, x0_, y_, cutoff_, opts___] := Module[{result = logarit
    The automatic hook handles only expressions that need the larger algebra. *)
 logarithmicDispatch[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse]] := Module[
   {coord, u, ell = Unique["ell$"], ordinary,
-   ass = OptionValue[AsymptoticInverse, {opts}, Assumptions],
+   ass = optionAssumptions[AsymptoticInverse, {opts}],
    dir = OptionValue[AsymptoticInverse, {opts}, Direction]},
   If[FreeQ[f, Log], Return[$Failed, Module]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"];
   ordinary = parseFinite[Simplify[f /. x -> coord["Substitution"], ass && u > 0], u, ell, ass];
   If[ordinary =!= $Failed, Return[$Failed, Module]];
-  logarithmicConstruct[f, x, x0, y, cutoff, opts]];
+  logarithmicConstruct[f, x, x0, y, cutoff, Sequence @@ withAssumptions[{opts}, ass]]];
 
 AsymptoticInverse`AsymptoticLogarithmicInverse[f_, {x_Symbol, x0_}, {y_Symbol, cutoff_}, opts : OptionsPattern[]] :=
   catch[logarithmicPublic[f, x, x0, y, cutoff, opts]];

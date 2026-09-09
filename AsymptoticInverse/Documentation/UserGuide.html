@@ -76,6 +76,8 @@ Overview</a></li>
 <li><a href="#asymptoticinverse" id="toc-asymptoticinverse">AsymptoticInverse</a></li>
 <li><a href="#details-and-options-coordinates-and-cutoffs" id="toc-details-and-options-coordinates-and-cutoffs">Details and
 Options: Coordinates and Cutoffs</a></li>
+<li><a href="#assumptions-and-parameter-domains" id="toc-assumptions-and-parameter-domains">Assumptions and Parameter
+Domains</a></li>
 <li><a href="#generalizedseries" id="toc-generalizedseries">GeneralizedSeries</a></li>
 <li><a href="#powerlogremainder" id="toc-powerlogremainder">PowerLogRemainder</a></li>
 <li><a href="#examples" id="toc-examples">Examples</a></li>
@@ -292,11 +294,11 @@ Functions</a>.</p>
 <section id="details-and-options" class="level3">
 <h3>Details and Options</h3>
 <p><code>AsymptoticExpansion</code> accepts
-<code>Assumptions -&gt; True</code>,
+<code>Assumptions :&gt; $Assumptions</code>,
 <code>Direction -&gt; Automatic</code>,
 <code>SeriesTermGoal -&gt; Automatic</code>,
 <code>&quot;MaxTerms&quot; -&gt; 20000</code>, and
-<code>&quot;InverseFunctionBranches&quot; -&gt; Automatic</code>.</p>
+<code>&quot;InverseFunctionBranches&quot; -&gt; Automatic</code>. See <a href="#assumption-context">Assumptions and Parameter Domains</a>.</p>
 <p>Ordinary expansions use an absolute cutoff in the positive local
 coordinate. Gamma and Barnes G products and admitted exponential
 products use a cutoff inside an exact prefactor. Structured forward
@@ -356,9 +358,10 @@ must be distinct. The forward expression <code>f</code> must not contain
 <tbody>
 <tr>
 <td><code>Assumptions</code></td>
-<td><code>True</code></td>
+<td><code>$Assumptions</code> (delayed)</td>
 <td>Parameter assumptions and source conditions valid eventually on the
-selected approach.</td>
+selected approach. An explicit option replaces the ambient
+assumptions.</td>
 </tr>
 <tr>
 <td><code>Direction</code></td>
@@ -604,6 +607,109 @@ neighborhood or sufficiently distant tail. For example,
 <code>0 &lt; x &lt; 1</code> is compatible with <code>x -&gt; 0</code>
 from above. A condition that fails eventually on the requested approach
 is rejected.</p>
+<p><a id="assumption-context"></a></p>
+</section>
+</section>
+<section id="assumptions-and-parameter-domains" class="level2">
+<h2>Assumptions and Parameter Domains</h2>
+<section id="details" class="level3">
+<h3>Details</h3>
+<p>The nine constructors <code>AsymptoticExpansion</code>,
+<code>AsymptoticInverse</code>, <code>PowerLogModel</code>,
+<code>AsymptoticCoreInverse</code>,
+<code>AsymptoticExponentialCoreInverse</code>,
+<code>AsymptoticFlatInverse</code>,
+<code>AsymptoticFourierInverse</code>,
+<code>AsymptoticLogarithmicInverse</code>, and
+<code>AsymptoticSpecialInverse</code> use the default
+<code>Assumptions :&gt; $Assumptions</code>. The default is resolved
+when a construction begins, so enclosing <code>Assuming</code>
+expressions supply its assumptions. An explicit <code>Assumptions</code>
+option replaces the ambient value. Use
+<code>Assumptions -&gt; True</code> to construct without ambient
+assumptions.</p>
+<p>The effective hypotheses are retained with the result and its models
+and internal representations. A delayed assumption option is resolved
+once for that construction. Subsequent calculations use the retained
+hypotheses rather than reevaluating the option.</p>
+<p><code>AsymptoticExpansion</code>, <code>AsymptoticInverse</code>, and
+<code>PowerLogModel</code> separate parameter-only clauses from clauses
+involving the source or expansion variable. The latter must hold
+eventually on the selected approach and are retained as domain
+conditions. Assumptions on an inverse&#39;s target variable are not
+parameter assumptions.</p>
+<p>The other six constructors require parameter-only assumptions. They
+conservatively reject an assumption containing the source or target
+variable, including one inherited from <code>Assuming</code>. Specify
+the source approach with the constructor&#39;s endpoint, direction, and
+supported branch options; use an explicit parameter-only
+<code>Assumptions</code> option when the surrounding context also
+contains variable conditions.</p>
+</section>
+<section id="basic-examples" class="level3">
+<h3>Basic Examples</h3>
+<p>Construct an inverse using the surrounding assumptions:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>Clear[x, y, a];
+s = Assuming[a &gt; 0,
+  AsymptoticInverse[a x + x^2, {x, 0}, {y, 3}]];
+{Normal[s], s[&quot;Assumptions&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{y/a - y^2/a^3, a &gt; 0}</code></pre>
+<p>An explicit option takes precedence over a conflicting ambient
+assumption:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>Normal[Assuming[a &lt; 0,
+  AsymptoticExpansion[Abs[a] + x, {x, 0, 2},
+    Assumptions -&gt; a &gt; 0]]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>a + x</code></pre>
+<p>Explicitly disable ambient assumptions:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>Normal[Assuming[a &gt; 0,
+  AsymptoticExpansion[Abs[a] + x, {x, 0, 2},
+    Assumptions -&gt; True]]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>Abs[a] + x</code></pre>
+</section>
+<section id="operations-on-existing-results" class="level3">
+<h3>Operations on Existing Results</h3>
+<p>Arithmetic, observables, composition, refinement, coefficient
+queries, residual checks, and numerical checks use the assumptions
+retained by their operands. Combining two results combines their
+retained hypotheses. A later <code>Assuming</code> expression does not
+specialize an existing result or supply an additional sign or realness
+proof. These operations do not have a new <code>Assumptions</code>
+option.</p>
+<p>Refine the saved inverse above in a different ambient context:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>t = Assuming[a &lt; 0, SeriesRefine[s, 5]];
+{Normal[t], t[&quot;Assumptions&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{y/a - y^2/a^3 + 2 y^3/a^5 - 5 y^4/a^7, a &gt; 0}</code></pre>
+<p>To use additional parameter hypotheses, supply them when constructing
+a new result. This also applies to symbols that occur only in a later
+regular operand. For example, multiplying a series by <code>b</code>
+requires <code>b</code> to be proved real under the series&#39; retained
+assumptions; enclosing that multiplication in
+<code>Assuming[Element[b, Reals], ...]</code> does not add the missing
+hypothesis.</p>
+</section>
+<section id="scope" class="level3">
+<h3>Scope</h3>
+<p>Parameters remain fixed in the limiting process. An expansion valid
+for each fixed <code>a &gt; 0</code> does not assert a bound uniform as
+<code>a</code> tends to zero. Branch conditions, error constants, and
+the neighborhood where the estimate holds may depend on the
+parameters.</p>
+<p>Ordinary Wolfram Language evaluation and symbol definitions remain in
+effect. Retaining assumptions does not freeze parameter values, function
+definitions, or explicit evaluation performed before a constructor is
+called. Keep source, target, and symbolic parameter names unassigned
+while using symbolic results. <code>Normal[s]</code> returns an ordinary
+expression; subsequent simplification of that expression follows the
+caller&#39;s evaluation context and does not update <code>s</code> or its
+remainder.</p>
 <p><a id="GeneralizedSeries"></a></p>
 </section>
 </section>
@@ -841,7 +947,7 @@ expression within the constructor&#39;s stated model and branch.</p>
 </section>
 <section id="examples" class="level2">
 <h2>Examples</h2>
-<section id="basic-examples" class="level3">
+<section id="basic-examples-1" class="level3">
 <h3>Basic Examples</h3>
 <p><a id="example-forward-irrational"></a></p>
 <section id="forward-expansion-with-an-irrational-exponent" class="level4">
@@ -882,7 +988,7 @@ Normal[s]</code></pre>
 <pre class="wolfram"><code>PowerLogRemainder[1/x, 5 - 3 Sqrt[2], 0]</code></pre>
 </section>
 </section>
-<section id="scope" class="level3">
+<section id="scope-1" class="level3">
 <h3>Scope</h3>
 <p><a id="gamma-and-exponential-growth"></a></p>
 <section id="gamma-products-ratios-and-powers" class="level4">
@@ -1669,8 +1775,10 @@ the supported forms and precision rules.</p>
 AsymptoticExpansion[Gamma[x]^r, x -&gt; Infinity,
   Assumptions -&gt; Element[r, Reals], SeriesTermGoal -&gt; 3]</code></pre>
 <p>Assumptions must justify the relevant signs, real branches, and
-exponent comparisons. Approximate data are not made exact by adding
-assumptions.</p>
+exponent comparisons. Constructor defaults capture the surrounding
+<code>Assuming</code> context; explicit options replace it. Later
+operations use the hypotheses retained in the result. See <a href="#assumption-context">Assumptions and Parameter Domains</a>.
+Approximate data are not made exact by adding assumptions.</p>
 </section>
 <section id="symbolic-perturbation-depth" class="level4">
 <h4>Symbolic Perturbation Depth</h4>
@@ -1702,7 +1810,7 @@ justified input information.</p>
 </section>
 <section id="inverse-gamma-and-loggamma-functions" class="level2">
 <h2>Inverse Gamma and LogGamma Functions</h2>
-<section id="basic-examples-1" class="level3">
+<section id="basic-examples-2" class="level3">
 <h3>Basic Examples</h3>
 <p>Expand the real inverse of <code>Gamma</code> on the increasing
 source branch above two:</p>
@@ -1819,7 +1927,7 @@ LogGamma forms of <a href="#AsymptoticSpecialInverse">AsymptoticSpecialInverse</
 separate constructors with inclusive perturbation-marker depth. Their
 integer order does not count the complete blocks displayed here.</p>
 </section>
-<section id="scope-1" class="level3">
+<section id="scope-2" class="level3">
 <h3>Scope</h3>
 <p>Affine source arguments and fixed real nonzero powers of Gamma are
 supported, together with affine target transformations:</p>
@@ -1951,7 +2059,7 @@ inverse-Gamma result family.</p>
 </section>
 <section id="inverse-barnes-g-functions" class="level2">
 <h2>Inverse Barnes G Functions</h2>
-<section id="basic-examples-2" class="level3">
+<section id="basic-examples-3" class="level3">
 <h3>Basic Examples</h3>
 <p>Expand the inverse of Barnes G on its increasing real source branch
 above three:</p>
@@ -2069,7 +2177,7 @@ cancellation. The inverse expansion is justified at each fixed order by
 a finite Barnes logarithmic model; it does not assert convergence or a
 pointwise error constant.</p>
 </section>
-<section id="scope-2" class="level3">
+<section id="scope-3" class="level3">
 <h3>Scope</h3>
 <p>Affine source arguments, fixed real nonzero Barnes powers, and affine
 target changes use the same constructor:</p>
@@ -2618,10 +2726,13 @@ hi}</td>
 accepts the options of <a href="#InverseCertificate">InverseCertificate</a> as association keys.
 Do not mix <code>&quot;AdditionalBlocks&quot;</code> with a numerical request.</p>
 <p>Refinement preserves the original function, assumptions, selected
-branch, and declared input precision. Exact terminating results can stop
-before an additional-block goal. A numerical request returns a
-certificate for the source root; it does not replace the symbolic
-remainder with a numerical tolerance.</p>
+branch, and declared input precision. It ignores later ambient
+<code>$Assumptions</code>, including when replaying a constructor or an
+operation recipe; see <a href="#assumption-context">Assumptions and
+Parameter Domains</a>. Exact terminating results can stop before an
+additional-block goal. A numerical request returns a certificate for the
+source root; it does not replace the symbolic remainder with a numerical
+tolerance.</p>
 <p>Special-function adapters replay their own order convention. For
 standalone exact-core, exponential-core, flat, and Fourier constructors,
 request additional terms by calling the corresponding constructor again;
@@ -2789,10 +2900,12 @@ endpoints.</p>
 <p><code>PowerLogModel[f, {x, x0}]</code> returns an association
 describing a finite normalized forward model.
 <code>PowerLogModel[f, x]</code> uses <code>x0 = 0</code>. Options are
-<code>Assumptions -&gt; True</code>,
+<code>Assumptions :&gt; $Assumptions</code>,
 <code>Direction -&gt; Automatic</code>, and
-<code>&quot;MaxTerms&quot; -&gt; 20000</code>. An input requiring an infinite
-forward expansion is outside this model constructor&#39;s scope.</p>
+<code>&quot;MaxTerms&quot; -&gt; 20000</code>. The model retains its effective
+parameter assumptions in <code>&quot;Assumptions&quot;</code> and its source
+conditions separately. An input requiring an infinite forward expansion
+is outside this model constructor&#39;s scope.</p>
 <p>Inspect <code>&quot;LeadingPower&quot;</code>,
 <code>&quot;LeadingCoefficient&quot;</code>, <code>&quot;Gaps&quot;</code>,
 <code>&quot;Polynomials&quot;</code>, and <code>&quot;LogVariable&quot;</code> to identify
@@ -2805,12 +2918,22 @@ the correction variables used by a coefficient request.</p>
 the exact block associated with an ordinary inverse multi-index. A
 <code>PowerLogModel</code> association may replace <code>s</code>; for
 that form, <code>&quot;Power&quot; -&gt; 1</code> selects the observable.</p>
+<p>The coefficient query inherits the model&#39;s assumptions and ignores
+later ambient assumptions:</p>
+<pre class="wolfram"><code>Clear[x, a];
+model = Assuming[Element[a, Reals],
+  PowerLogModel[x + Abs[a] x^2, {x, 0}]];
+coefficient = Assuming[a &gt; 0,
+  InverseExpansionCoefficient[model, {1}]];
+coefficient[&quot;Coefficient&quot;]
+(* -Abs[a] *)</code></pre>
 <p>Give one nonnegative integer per model gap. Returned fields include
 <code>&quot;Weight&quot;</code>, <code>&quot;Exponent&quot;</code>,
-<code>&quot;Coefficient&quot;</code>, and <code>&quot;UniformizerExponent&quot;</code>. A
-multi-index contribution is not necessarily a complete displayed block:
-several contributions can have the same weight. Lambert expansions
-expose their coefficients through <code>&quot;Terms&quot;</code> instead.</p>
+<code>&quot;Coefficient&quot;</code>, <code>&quot;UniformizerExponent&quot;</code>, and the
+inherited <code>&quot;Assumptions&quot;</code>. A multi-index contribution is not
+necessarily a complete displayed block: several contributions can have
+the same weight. Lambert expansions expose their coefficients through
+<code>&quot;Terms&quot;</code> instead.</p>
 <p><a id="PerturbativeInverse"></a></p>
 </section>
 <section id="perturbativeinverse" class="level3">
@@ -2845,7 +2968,7 @@ power-plus-log expressions.</p>
 <tbody>
 <tr>
 <td><code>Assumptions</code></td>
-<td><code>True</code></td>
+<td><code>$Assumptions</code> (delayed)</td>
 </tr>
 <tr>
 <td><code>Direction</code></td>
@@ -2911,7 +3034,7 @@ complete corrections through inclusive exponential degree
 <code>p</code>, and <code>v -&gt; Infinity</code>. The perturbation is a
 finite power-log expression. Source infinity, translations, and finite
 reciprocal source coordinates are admitted.</p>
-<p>Options are <code>Assumptions -&gt; True</code>,
+<p>Options are <code>Assumptions :&gt; $Assumptions</code>,
 <code>Direction -&gt; Automatic</code>,
 <code>&quot;SourceShift&quot; -&gt; Automatic</code>,
 <code>&quot;CoreInverse&quot; -&gt; Automatic</code>,
@@ -3010,7 +3133,7 @@ retains complete exponential sectors through inclusive integer degree
 <p>The exponential phases must be positive and commensurable within the
 supported phase family. Their amplitudes are finite power-log
 expressions. The zero sector remains exact.</p>
-<p>Options are <code>Assumptions -&gt; True</code>,
+<p>Options are <code>Assumptions :&gt; $Assumptions</code>,
 <code>Direction -&gt; Automatic</code>, <code>&quot;Power&quot; -&gt; 1</code>,
 and <code>&quot;MaxTerms&quot; -&gt; 20000</code>.</p>
 <p><strong>Input</strong></p>
@@ -3180,8 +3303,9 @@ order convention.</p>
 <tbody>
 <tr>
 <td><code>Assumptions</code></td>
-<td><code>True</code></td>
-<td>Parameter assumptions.</td>
+<td><code>$Assumptions</code> (delayed)</td>
+<td>Parameter assumptions; an explicit option replaces the ambient
+value.</td>
 </tr>
 <tr>
 <td><code>Direction</code></td>
@@ -3354,6 +3478,23 @@ read in the coordinate of the returned operation.</p>
 <td>Unproved parameter sign or realness</td>
 <td>Supply sufficient <code>Assumptions</code>; do not assume that a
 parameter is implicitly real.</td>
+</tr>
+<tr>
+<td>A later <code>Assuming</code> does not enable an operation</td>
+<td>Construct the operand with the required hypotheses. Operations on
+existing results use retained assumptions only.</td>
+</tr>
+<tr>
+<td>An explicit assumption option appears to ignore
+<code>Assuming</code></td>
+<td>The explicit option replaces the ambient value. Include every
+required hypothesis in that option.</td>
+</tr>
+<tr>
+<td>A specialized constructor rejects ambient assumptions</td>
+<td>Its assumptions must concern parameters only. Supply an explicit
+parameter-only option and select the source approach with endpoint and
+branch options.</td>
 </tr>
 <tr>
 <td>Ambiguous inverse branch</td>

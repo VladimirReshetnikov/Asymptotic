@@ -114,14 +114,28 @@ unchanged sources during the run. Finding: [R2 F01][R2].
 
 ### C05 — Retain every assumption used to establish a reusable result
 
-**Pending — source inspected.** Public options default to `Assumptions -> True`,
-`splitApproachInput` separates the supplied expression, and internal symbolic
-operations can consult ambient assumptions. Choose a consistent effective
-assumption policy, retain it in the result, and isolate internal proofs from
-later changes to ambient state. Include specialized constructors, observables,
-refinement, and cache keys. Test construction inside `Assuming` followed by use
-outside it, and explicit/ambient conflicts. Review 8 reproduced the historical
-metadata defect natively; current acceptance is still pending.
+**Focused verified.** All nine constructors now capture the
+ambient default through `Assumptions :> $Assumptions`; explicit options replace
+it. A shared request boundary isolates internal proofs from later ambient
+assumptions, including arithmetic, observables, coefficient queries and replay.
+Models retain their parameter assumptions, and coefficient queries inherit them.
+Delayed options are resolved before dispatch and forwarded as immediate rules;
+nested option lists and specialized constructor paths are covered.
+
+The original 17 [assumption regressions](../../AsymptoticInverse/Tests/ReviewAssumptions.wlt)
+all fail against pinned kernel `e9c9eb9` in the
+[baseline record](../../validation/review-assumptions-baseline.json). The
+[acceptance record](../../validation/review-assumptions-tests.json) identifies
+**200 passed, zero failed** across eight selected files. The
+[supplemental replay record](../../validation/review-assumption-replay-tests.json)
+adds **12 passed, zero failed** for delayed options, all remaining specialized
+constructors, nested callbacks, representations and retained state. Both records
+match the current source hashes and report unchanged sources during execution.
+The [implementation notes](ASSUMPTION_CONTEXT.md) explain the policy, nested-state
+requirements and evaluation limits. The mathematical article and user guide
+now discuss retained parameter domains and distinguish pointwise from uniform
+asymptotic claims. The six specialized constructors retain their existing
+parameter-only assumption restriction.
 
 Sources: [core assumption splitting](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl),
 [public expression adapters](../../AsymptoticInverse/Kernel/InverseFunctionExpressions.wl).

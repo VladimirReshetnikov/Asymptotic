@@ -68,7 +68,7 @@ gammaInverseBound[frontier_, core_, q_, ass_, coefficientLog_: Automatic] := Mod
     "RemainderScaleExpression" -> core^(-frontier[[1]])/log^degree|>];
 
 gammaInverseConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}],
    dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal],
    limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],

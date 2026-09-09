@@ -144,7 +144,7 @@ fourierComposeBlock[u_, power_, modes_, cutoff_, ell_, ass_, limit_, frequencyLi
   answer];
 
 fourierConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse`AsymptoticFourierInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticFourierInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticFourierInverse, {opts}],
    direction = OptionValue[AsymptoticInverse`AsymptoticFourierInverse, {opts}, Direction],
    r = OptionValue[AsymptoticInverse`AsymptoticFourierInverse, {opts}, "Power"],
    limit = OptionValue[AsymptoticInverse`AsymptoticFourierInverse, {opts}, "MaxTerms"],

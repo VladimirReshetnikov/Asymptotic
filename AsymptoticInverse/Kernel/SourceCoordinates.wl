@@ -89,7 +89,7 @@ sourceReconstruct[base_, chart_, r_, cutoff_, ass_, limit_] := Module[
   answer];
 
 sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    r = OptionValue[AsymptoticInverse, {opts}, "Power"], trunc = OptionValue[AsymptoticInverse, {opts}, "Truncation"],
    inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"], goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal],
    limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"], method = OptionValue[AsymptoticInverse, {opts}, Method],
@@ -112,7 +112,7 @@ sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymp
   If[cutoff0 === Automatic && chart["Kind"] === "SourceLog" && !(IntegerQ[r] && r > 0),
     fail["UnsupportedTermGoal", "A non-polynomial power of a logarithmic source reconstruction retains its finite approximation as a carrier; request an explicit cutoff instead of a unit term count."]];
   If[! exactRealQ[q] || ! less[0, q], fail["InvalidCutoff", "A source-chart reconstruction cutoff must be a positive exact real number."]];
-  originalOptions = {opts};
+  originalOptions = withAssumptions[{opts}, ass];
   underlyingOptions = Select[originalOptions, ! MemberQ[{"Power", Direction, SeriesTermGoal, "Truncation"}, First[#]] &];
   If[method === "Lambert", underlyingOptions = DeleteCases[underlyingOptions, Rule[Method, _]]; AppendTo[underlyingOptions, Method -> "Lagrange"]];
   underlyingOptions = Join[underlyingOptions, {"Power" -> 1, Direction -> chart["ChartDirection"], "Truncation" -> "Exponent"}];

@@ -8,6 +8,10 @@ The maintained [code review status](CODE_REVIEW_STATUS.md) consolidates findings
 from all nine review packages, links current implementation evidence, and keeps
 pending repairs separate from deferred API and research proposals.
 
+The [assumption-context notes](ASSUMPTION_CONTEXT.md) explain how constructor
+hypotheses survive coefficient queries, arithmetic and refinement, including
+delayed options, nested representations and Wolfram evaluation subtleties.
+
 This directory preserves engineering material that previously appeared in
 or alongside the combined article:
 

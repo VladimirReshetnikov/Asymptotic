@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/AsymptoticInverse.wl
-   Source SHA256 (UTF-8/LF): b9f9c51022ea826ade12cc51fafc6896a3fb8f5bd52be49e69457cb7a0f0dd7d *)
+   Source SHA256 (UTF-8/LF): a66b77a0fed139a76e41b74fef323623b7ec45984314e7095d37e74db643c9a0 *)
 (* ::Package:: *)
 (* AsymptoticInverse -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -116,7 +116,29 @@ $tag = "AsymptoticInverseFailure";
 fail[tag_String, msg_String, extra_Association : <||>] :=
   Throw[Failure[tag, Join[<|"MessageTemplate" -> msg|>, extra]], $tag];
 SetAttributes[catch, HoldAll];
-catch[body_] := Catch[body, $tag];
+(* Capture the caller context once per public request. Internal proofs use
+   explicit retained hypotheses; later Assuming scopes must not specialize
+   an existing result without recording the new restrictions. Nested soft
+   probes and constructor replay share the original request boundary. *)
+$assumptionScopeActive = False;
+$entryAssumptions = True;
+catch[body_] := If[TrueQ[$assumptionScopeActive],
+  Block[{$Assumptions = True}, Catch[body, $tag]],
+  Block[{$assumptionScopeActive = True, $entryAssumptions = $Assumptions,
+    $Assumptions = True}, Catch[body, $tag]]];
+
+(* Resolve delayed constructor defaults in the captured caller context.
+   Explicit options replace that default. Only option resolution sees the
+   ambient context; simplifying stored predicates under themselves loses it. *)
+optionAssumptions[public_, rules_List] :=
+  Block[{$Assumptions = If[TrueQ[$assumptionScopeActive], $entryAssumptions, $Assumptions]},
+    OptionValue[public, rules, Assumptions]];
+
+(* OptionsPattern admits nested lists and both immediate and delayed rules.
+   Once resolved, never forward a delayed assumption into another engine. *)
+withoutAssumptions[rules_List] := DeleteCases[Flatten[rules],
+  HoldPattern[(Assumptions -> _) | (Assumptions :> _)]];
+withAssumptions[rules_List, ass_] := Prepend[withoutAssumptions[rules], Assumptions -> ass];
 
 (* ------------------------------------------------------------------ *)
 (* Exact numbers: canonical forms, comparison, zero tests               *)
@@ -536,7 +558,7 @@ splitApproachInput[f_, x_, ass_] := Module[{body = f, condition = True, clauses}
 (* Forward expansion: public                                            *)
 (* ------------------------------------------------------------------ *)
 
-Options[AsymptoticExpansion] = {Assumptions -> True, Direction -> Automatic, SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
+Options[AsymptoticExpansion] = {Assumptions :> $Assumptions, Direction -> Automatic, SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 SetAttributes[AsymptoticExpansion, HoldAllComplete];
 AsymptoticExpansion[args___] := catch[forwardHeldEntry[args]];
 (* Preserve explicit callable syntax before native evaluation can turn, for
@@ -586,7 +608,7 @@ exactJet[fu_, u_, ell_, ass_, limit_] := Module[{r = Catch[fwd[fu, u, ell, ass, 
    True, r]];
 
 forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] := Module[
-  {ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions], dir = OptionValue[AsymptoticExpansion, {opts}, Direction],
+  {ass = optionAssumptions[AsymptoticExpansion, {opts}], dir = OptionValue[AsymptoticExpansion, {opts}, Direction],
    goal = OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"],
    coord, u, ell = Unique["ell$"], fu, jet, cutoff = cutoff0, T, tries = 0, K, ex, normalized, result},
   validateInput[f, limit];
@@ -713,7 +735,8 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
   If[symbolic,
    Do[If[! TrueQ[Simplify[d > 0, ass]], fail["UnprovedPositiveGap", "A power gap could not be proved positive.", <|"Gap" -> d|>]], {d, deltas}]];
   <|"Limit" -> y0, "LeadingCoefficient" -> a, "LeadingPower" -> p, "Gaps" -> deltas,
-    "Polynomials" -> polys, "LogVariable" -> ell, "Variable" -> u, "Rows" -> rows, "Symbolic" -> symbolic|>];
+    "Polynomials" -> polys, "LogVariable" -> ell, "Variable" -> u, "Rows" -> rows,
+    "Symbolic" -> symbolic, "Assumptions" -> ass|>];
 
 (* ------------------------------------------------------------------ *)
 (* Multi-index enumeration                                              *)
@@ -792,7 +815,7 @@ newtonSolve[d_List, polys_List, p_, cut_, ell_, ass_, limit_] :=
 (* Inverse expansion: public                                            *)
 (* ------------------------------------------------------------------ *)
 
-Options[AsymptoticInverse] = {Assumptions -> True, Direction -> Automatic, Method -> "Lagrange",
+Options[AsymptoticInverse] = {Assumptions :> $Assumptions, Direction -> Automatic, Method -> "Lagrange",
   "Power" -> 1, "InputRemainder" -> Automatic, "Truncation" -> "Exponent",
   SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 
@@ -897,7 +920,7 @@ exactInverseTermination[f_, x_, x0_, coord_Association, model_Association,
 
 
 construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    method = OptionValue[AsymptoticInverse, {opts}, Method], r = OptionValue[AsymptoticInverse, {opts}, "Power"],
    inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"], trunc = OptionValue[AsymptoticInverse, {opts}, "Truncation"],
    goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],
@@ -1191,11 +1214,11 @@ PerturbativeInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "
 (* Model access and single coefficients                                 *)
 (* ------------------------------------------------------------------ *)
 
-Options[PowerLogModel] = {Assumptions -> True, Direction -> Automatic, "MaxTerms" -> 20000};
+Options[PowerLogModel] = {Assumptions :> $Assumptions, Direction -> Automatic, "MaxTerms" -> 20000};
 SetAttributes[PowerLogModel, HoldAllComplete];
 PowerLogModel[args___] := catch[powerLogModelEntry[args]];
 powerLogModelEntry[f_, {x_Symbol, x0_}, opts : OptionsPattern[PowerLogModel]] := Module[
-   {coord, u, ell = Unique["ell$"], jet, ass = OptionValue[PowerLogModel, {opts}, Assumptions],
+   {coord, u, ell = Unique["ell$"], jet, ass = optionAssumptions[PowerLogModel, {opts}],
     body = f, condition, parameterAss, limit = OptionValue[PowerLogModel, {opts}, "MaxTerms"]},
    validateInput[f, limit];
    {body, parameterAss, condition} = splitApproachInput[body, x, ass];
@@ -1209,23 +1232,25 @@ powerLogModelEntry[f_, x_Symbol, opts : OptionsPattern[PowerLogModel]] := powerL
 powerLogModelEntry[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use PowerLogModel[f,{x,x0}] or PowerLogModel[f,x]."|>];
 
 Options[InverseExpansionCoefficient] = {"Power" -> 1};
-InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catch[Module[{r = OptionValue["Power"], c},
+InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catch[Module[
+   {r = OptionValue["Power"], c, ass = Lookup[model, "Assumptions", True]},
    If[Length[k] =!= Length[model["Gaps"]] || ! (And @@ (IntegerQ[#] && # >= 0 & /@ k)),
     fail["InvalidMultiIndex", "Give one nonnegative integer per correction block of the model."]];
-   c = lagrangeCoefficient[k, model["Gaps"], model["Polynomials"], model["LeadingPower"], r, model["LogVariable"], True, model["Symbolic"]];
+   c = lagrangeCoefficient[k, model["Gaps"], model["Polynomials"], model["LeadingPower"], r, model["LogVariable"], ass, model["Symbolic"]];
    <|"Weight" -> ToRadicals[c[[1]]], "Exponent" -> ToRadicals[canon[(r + c[[1]])/model["LeadingPower"]]],
      "Coefficient" -> (ToRadicals[c[[2]]] /. model["LogVariable"] -> \[FormalL]),
-     "UniformizerExponent" -> ToRadicals[r + c[[1]]],
+     "UniformizerExponent" -> ToRadicals[r + c[[1]]], "Assumptions" -> ass,
      "Meaning" -> "(v/a)^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
 InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : OptionsPattern[]] :=
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
    Failure["Unsupported", <|"MessageTemplate" -> "Lambert coefficients are listed in the logarithmic expansion's Terms property; they have no power-gap multi-index."|>],
-   InverseExpansionCoefficient[a["Model"], k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
+   InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
+    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/LambertInverse.wl
-   Source SHA256 (UTF-8/LF): 1fa1025554dd41ebebc96dd1075cd42872e5d9548f50f00d630017acd4c9a529 *)
+   Source SHA256 (UTF-8/LF): 6d292c2ac9666dbed21d224f15ea6fff692816596a37e376786f695b6d19420a *)
 (* Loaded in AsymptoticInverse`Private`.  Inverse-logarithmic expansions of
    real Lambert-W cores.  The finite bracket is an actual power-log jet in
    t = 1/A, with an exact, separately recorded leading prefactor. *)
@@ -1338,7 +1363,7 @@ lambertCorrection[sign_, cut_, ell_, ass_, limit_, coefficients_: {1}, scale_: 1
   v];
 
 lambertConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal], limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],
    r = OptionValue[AsymptoticInverse, {opts}, "Power"], method = OptionValue[AsymptoticInverse, {opts}, Method],
    trunc = OptionValue[AsymptoticInverse, {opts}, "Truncation"], inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"],
@@ -1505,7 +1530,7 @@ lambertResidual[a_Association, h_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/LambertInverse.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/CoordinateInverse.wl
-   Source SHA256 (UTF-8/LF): 8fe06e9207db54e1757919367c01e995032627a1eb3027fba5ad42a4f7d6d06d *)
+   Source SHA256 (UTF-8/LF): 2608eab75bae14ecdce32587cc78c188f34c56d16709394254a6a1066c314a69 *)
 (* Exact changes of coordinates around the existing inverse engines.
    Loaded inside AsymptoticInverse`Private`. *)
 
@@ -1540,7 +1565,7 @@ coordinateExponentialPhase[f_, x_, x0_, dir_, ass_, limit_] := Module[
     "Coordinate" -> coord, "PositiveAmplitude" -> sign amplitude|>];
 
 coordinateConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}],
    dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],
    inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"],
@@ -1553,7 +1578,7 @@ coordinateConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticIn
   If[! MemberQ[{Automatic, None}, inputRem],
     fail["UnsupportedOption", "An additive input remainder must be transported through the logarithmic target coordinate before inversion."]];
   targetExpression = Log[data["AmplitudeSign"] (y - data["Offset"])/data["AmplitudeScale"]];
-  base = inverseDispatch[data["Phase"], x, x0, target, cutoff, opts];
+  base = inverseDispatch[data["Phase"], x, x0, target, cutoff, Sequence @@ withAssumptions[{opts}, ass]];
   If[FailureQ[base], Return[base, Module]];
   sub = target -> targetExpression;
   a = base[[1]] /. sub;
@@ -2406,7 +2431,7 @@ refineStoredInverse[s : GeneralizedSeries[a_Association], cutoff_, limit_] := Mo
 (* END SOURCE: AsymptoticInverse/Kernel/RefinementState.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SourceCoordinates.wl
-   Source SHA256 (UTF-8/LF): f1b179acb05192f67aa8013660f1c1584a53384717f8744da4ef52d296e688db *)
+   Source SHA256 (UTF-8/LF): 918a4580dc80f66e2d4a1e53e3b483101887f23894401c2dcd22f94e42c0d617 *)
 (* Exact source charts, loaded in AsymptoticInverse`Private` after the series
    calculus. Each underlying inverse is for the chart variable itself; the
    requested original observable is reconstructed with transported precision. *)
@@ -2498,7 +2523,7 @@ sourceReconstruct[base_, chart_, r_, cutoff_, ass_, limit_] := Module[
   answer];
 
 sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    r = OptionValue[AsymptoticInverse, {opts}, "Power"], trunc = OptionValue[AsymptoticInverse, {opts}, "Truncation"],
    inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"], goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal],
    limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"], method = OptionValue[AsymptoticInverse, {opts}, Method],
@@ -2521,7 +2546,7 @@ sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymp
   If[cutoff0 === Automatic && chart["Kind"] === "SourceLog" && !(IntegerQ[r] && r > 0),
     fail["UnsupportedTermGoal", "A non-polynomial power of a logarithmic source reconstruction retains its finite approximation as a carrier; request an explicit cutoff instead of a unit term count."]];
   If[! exactRealQ[q] || ! less[0, q], fail["InvalidCutoff", "A source-chart reconstruction cutoff must be a positive exact real number."]];
-  originalOptions = {opts};
+  originalOptions = withAssumptions[{opts}, ass];
   underlyingOptions = Select[originalOptions, ! MemberQ[{"Power", Direction, SeriesTermGoal, "Truncation"}, First[#]] &];
   If[method === "Lambert", underlyingOptions = DeleteCases[underlyingOptions, Rule[Method, _]]; AppendTo[underlyingOptions, Method -> "Lagrange"]];
   underlyingOptions = Join[underlyingOptions, {"Power" -> 1, Direction -> chart["ChartDirection"], "Truncation" -> "Exponent"}];
@@ -2662,7 +2687,7 @@ sourceCoordinateNumericalCheck[a_, yv_, wp_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/SourceCoordinates.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/CorePerturbation.wl
-   Source SHA256 (UTF-8/LF): a52953710f5bec0708df2adb1784d6d10c32a38a3ba0e71dcdde381a822538bd *)
+   Source SHA256 (UTF-8/LF): c5deb9fc5bfbc2b696de1c81adf686f15966b45fd7b43d66a1bbb568c803ce0b *)
 (* Exact-core marker expansions with a proved asymptotic contract for finite
    power-log cores and higher-power perturbations. Loaded in Private`. *)
 
@@ -2670,7 +2695,7 @@ AsymptoticInverse`AsymptoticCoreInverse::usage =
 "AsymptoticCoreInverse[core, perturbation, {x,x0}, {y,n}, \"CoreInverse\"->phi] expands the selected real inverse of core+perturbation through marker degree n while retaining the exact core inverse phi. Supported finite power-log data have a nonzero leading source power and perturbation exponents strictly larger than that leading power. The nonzero exact real option Power returns x for r=1, (x-x0)^r at finite endpoints for r!=1, and x^r at infinity; a negative source side requires integer r. Marker terms are not an exponent-sorted power-log jet; the result records a proved asymptotic remainder and a separate first omitted marker term. CoreInverse->Automatic recognizes monomial, affine-log-power, and divergent power-plus-log cores.";
 
 Options[AsymptoticInverse`AsymptoticCoreInverse] = {
-  Assumptions -> True, Direction -> Automatic, "Power" -> 1, "CoreInverse" -> Automatic,
+  Assumptions :> $Assumptions, Direction -> Automatic, "Power" -> 1, "CoreInverse" -> Automatic,
   "InputRemainder" -> None, "MaxTerms" -> 20000,
   "CoreCheckTimeConstraint" -> 3, "SourceRadius" -> 1/E};
 
@@ -2777,7 +2802,7 @@ corePerturbationTerm[n_, rlocal_, hprime_, fprime_, u_, limit_] := Module[{term,
   term];
 
 corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : OptionsPattern[AsymptoticInverse`AsymptoticCoreInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticCoreInverse, {opts}],
    dir = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, Direction],
    r = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, "Power"],
    requested = OptionValue[AsymptoticInverse`AsymptoticCoreInverse, {opts}, "CoreInverse"],
@@ -3264,7 +3289,7 @@ AsymptoticInverse`InverseCertificate[___] := Failure["InvalidArguments", <|"Cert
 (* END SOURCE: AsymptoticInverse/Kernel/InverseCertificates.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/LogarithmicScales.wl
-   Source SHA256 (UTF-8/LF): 7e855710fd1783861fbe93d6e2ba67568ce2e685fb1bda99818fc9d8c262c206 *)
+   Source SHA256 (UTF-8/LF): 75e74ca5b173436d4540aa34aefd47a043d7fe628440d1a1a31622f2a94ec66e *)
 (* Finite logarithmic hierarchies. Loaded in AsymptoticInverse`Private`.
    Exact source-coordinate charts live separately in SourceCoordinates.wl. *)
 
@@ -3597,7 +3622,7 @@ logarithmicGoalConstruct[make_, unitQ_, rows_, p_, rint_, goal_, limit_] := Modu
     "TermSelection" -> "CompleteNonzeroBlocks", "TermGoalConstructionCalls" -> tries|>]]];
 
 logarithmicConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse`AsymptoticLogarithmicInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}],
    dir = OptionValue[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}, Direction],
    limit = OptionValue[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}, "MaxTerms"],
    depth = OptionValue[AsymptoticInverse`AsymptoticLogarithmicInverse, {opts}, "LogarithmicLevels"],
@@ -3650,13 +3675,13 @@ logarithmicPublic[f_, x_, x0_, y_, cutoff_, opts___] := Module[{result = logarit
    The automatic hook handles only expressions that need the larger algebra. *)
 logarithmicDispatch[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse]] := Module[
   {coord, u, ell = Unique["ell$"], ordinary,
-   ass = OptionValue[AsymptoticInverse, {opts}, Assumptions],
+   ass = optionAssumptions[AsymptoticInverse, {opts}],
    dir = OptionValue[AsymptoticInverse, {opts}, Direction]},
   If[FreeQ[f, Log], Return[$Failed, Module]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"];
   ordinary = parseFinite[Simplify[f /. x -> coord["Substitution"], ass && u > 0], u, ell, ass];
   If[ordinary =!= $Failed, Return[$Failed, Module]];
-  logarithmicConstruct[f, x, x0, y, cutoff, opts]];
+  logarithmicConstruct[f, x, x0, y, cutoff, Sequence @@ withAssumptions[{opts}, ass]]];
 
 AsymptoticInverse`AsymptoticLogarithmicInverse[f_, {x_Symbol, x0_}, {y_Symbol, cutoff_}, opts : OptionsPattern[]] :=
   catch[logarithmicPublic[f, x, x0, y, cutoff, opts]];
@@ -3686,7 +3711,7 @@ AsymptoticInverse`LogarithmicInverseResidual[___] := Failure["InvalidArguments",
 (* END SOURCE: AsymptoticInverse/Kernel/LogarithmicScales.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/FlatSectors.wl
-   Source SHA256 (UTF-8/LF): 521bf6d99591b0f4b6afeb39a8d1338e1e9cbe7798d171893925185fce32ee71 *)
+   Source SHA256 (UTF-8/LF): bc338359361a8f4629e418ceac45f2ca5c6d2a70368b19a32f7e2f191ccf0df1 *)
 (* Finite commensurate flat sectors around an exact monomial core.
    This module is loaded in Private` and uses a separate exponential degree.
    It never represents a finite power-log truncation as an exact zero sector. *)
@@ -3694,7 +3719,7 @@ AsymptoticInverse`LogarithmicInverseResidual[___] := Failure["InvalidArguments",
 AsymptoticInverse`AsymptoticFlatInverse::usage =
 "AsymptoticFlatInverse[f,{x,x0},{y,n}] inverts an exact monomial core plus finite commensurate flat exponentials, retaining complete exponential sectors through degree n. Coefficients remain finite exact power-log expressions in the monomial core inverse; the full omitted tail has a separate asymptotic contract.";
 Options[AsymptoticInverse`AsymptoticFlatInverse] = {
- Assumptions -> True, Direction -> Automatic, "Power" -> 1, "MaxTerms" -> 20000};
+ Assumptions :> $Assumptions, Direction -> Automatic, "Power" -> 1, "MaxTerms" -> 20000};
 
 flatTrim[expression_, z_, n_, limit_] := Module[{v = Expand[expression], result},
  If[! PolynomialQ[v, z], fail["FlatSectorInvariant", "An exponential-sector coefficient ceased to be polynomial in its marker."]];
@@ -3750,7 +3775,7 @@ flatModel[f_, x_, coord_, ell_, ass_, limit_] := Module[
    "Marker" -> z, "PerturbationPolynomial" -> flatTrim[rr, z, Max[degrees], limit]|>];
 
 flatConstruct[f_, x_, x0_, y_, n_, opts : OptionsPattern[AsymptoticInverse`AsymptoticFlatInverse]] := Module[
- {ass = OptionValue[AsymptoticInverse`AsymptoticFlatInverse, {opts}, Assumptions],
+ {ass = optionAssumptions[AsymptoticInverse`AsymptoticFlatInverse, {opts}],
   dir = OptionValue[AsymptoticInverse`AsymptoticFlatInverse, {opts}, Direction],
   r = OptionValue[AsymptoticInverse`AsymptoticFlatInverse, {opts}, "Power"],
   limit = OptionValue[AsymptoticInverse`AsymptoticFlatInverse, {opts}, "MaxTerms"],
@@ -4038,7 +4063,7 @@ AsymptoticInverse`FlatSeriesDifferentiate[___] := Failure["InvalidArguments", <|
 (* END SOURCE: AsymptoticInverse/Kernel/FlatSectorOperations.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/FourierCoefficients.wl
-   Source SHA256 (UTF-8/LF): ca81678b82b77af000dfa5984fafd1f2c6ccfa4e412c62c38a755a430f57aa1b *)
+   Source SHA256 (UTF-8/LF): 1e19f4c8ce0271f96566558a9d757eb87fc91be9b39b12faa8f1ae4b14df3fff *)
 (* Finite Fourier-polynomial coefficient algebra in L = Log[u].
    A coefficient is {{omega,P_omega(L)},...}, representing
    Sum[P_omega(L) Exp[I omega L]]. Source weights remain separate. *)
@@ -4185,7 +4210,7 @@ fourierComposeBlock[u_, power_, modes_, cutoff_, ell_, ass_, limit_, frequencyLi
   answer];
 
 fourierConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse`AsymptoticFourierInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticFourierInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticFourierInverse, {opts}],
    direction = OptionValue[AsymptoticInverse`AsymptoticFourierInverse, {opts}, Direction],
    r = OptionValue[AsymptoticInverse`AsymptoticFourierInverse, {opts}, "Power"],
    limit = OptionValue[AsymptoticInverse`AsymptoticFourierInverse, {opts}, "MaxTerms"],
@@ -4310,7 +4335,7 @@ AsymptoticInverse`FourierInverseCoefficient[___] := Failure["InvalidArguments", 
 (* END SOURCE: AsymptoticInverse/Kernel/FourierCoefficients.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl
-   Source SHA256 (UTF-8/LF): 70680b2fb1990f7564dc5a40658ee6d82d2e2ee7bd90e6e1b607e849620cb3de *)
+   Source SHA256 (UTF-8/LF): 258f4873bbc8045164dcd7646a08997c5e134adc6c5c3e7f4e683657cb0360fb *)
 (* Real special-function adapters with explicit forward-model provenance.
    Finite Poincare models are never labelled convergent exact forward data. *)
 
@@ -4320,7 +4345,7 @@ AsymptoticInverse`SpecialInverseNumericalCheck::usage =
 "SpecialInverseNumericalCheck[result,target] compares an adapter with the original special-function equation at high precision, using logarithmic equations for gamma and erfc tails. This is numerical evidence, not an interval certificate.";
 
 Options[AsymptoticInverse`AsymptoticSpecialInverse] = {
-  Assumptions -> True, Direction -> Automatic, "ModelTerms" -> Automatic,
+  Assumptions :> $Assumptions, Direction -> Automatic, "ModelTerms" -> Automatic,
   "TargetOffset" -> 0, "TargetScale" -> 1, "QuadraticCoefficient" -> 1,
   "LambertBranch" -> Automatic, "MaxTerms" -> 20000};
 Options[AsymptoticInverse`SpecialInverseNumericalCheck] = {WorkingPrecision -> 60};
@@ -4471,7 +4496,7 @@ specialThreshold[fam_, x_, endpoint_, y_, cutoff_, ass_, direction_, branch_, of
     "SwitchingContract" -> "Explicit real local branch. Neighboring representations can be compared at a user-selected overlap point; no unproved automatic switching threshold is used."|>]]];
 
 specialConstruct[fam_, x_, endpoint_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse`AsymptoticSpecialInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticSpecialInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticSpecialInverse, {opts}],
    dir = OptionValue[AsymptoticInverse`AsymptoticSpecialInverse, {opts}, Direction],
    m = OptionValue[AsymptoticInverse`AsymptoticSpecialInverse, {opts}, "ModelTerms"],
    offset = OptionValue[AsymptoticInverse`AsymptoticSpecialInverse, {opts}, "TargetOffset"],
@@ -4529,14 +4554,14 @@ AsymptoticInverse`SpecialInverseNumericalCheck[___] := Failure["InvalidArguments
 (* END SOURCE: AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/ExponentialCorePerturbation.wl
-   Source SHA256 (UTF-8/LF): b984a12dffddf6518d8faa5617f8b6f47fcc38cc5369a4f12c8bf8779652fb4f *)
+   Source SHA256 (UTF-8/LF): 354040ded44b8f90272fefca2685394b4074e9a189b18ad2ace8ea679af57b42 *)
 (* Exact growing exponential cores with finite power-log perturbations.
    Loaded in Private`.  Exact Lambert/elementary cores remain unexpanded. *)
 
 AsymptoticInverse`AsymptoticExponentialCoreInverse::usage =
 "AsymptoticExponentialCoreInverse[core,perturbation,{x,x0},{y,n}] retains the exact inverse of a growing exponential core a v^b Exp[c v^p]+offset, c,p>0, and computes complete corrections through exponential degree n for a finite power-log perturbation. The positive v tends to Infinity. At source infinities SourceShift may translate v; finite endpoints use reciprocal source distance. InputRemainder->{rho,k} declares O(v^-rho (1+Log[v])^k) with matching derivative control and is transported as a separate first-sector error.";
 Options[AsymptoticInverse`AsymptoticExponentialCoreInverse] = {
-  Assumptions -> True, Direction -> Automatic, "SourceShift" -> Automatic,
+  Assumptions :> $Assumptions, Direction -> Automatic, "SourceShift" -> Automatic,
   "CoreInverse" -> Automatic, "CoreCheckTimeConstraint" -> 3,
   "InputRemainder" -> None, "MaxTerms" -> 20000};
 
@@ -4612,7 +4637,7 @@ exponentialCoreCoefficient[n_, perturbation_, hprime_, denominator_, v_, c_, p_,
   If[LeafCount[q] > limit, fail["ResourceLimit", "An exponential-core coefficient exceeded MaxTerms leaves."]]; q];
 
 exponentialCoreConstruct[core_, perturbation_, x_, endpoint_, y_, depth_, opts : OptionsPattern[AsymptoticInverse`AsymptoticExponentialCoreInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}],
    direction = OptionValue[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}, Direction],
    shift = OptionValue[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}, "SourceShift"],
    requested = OptionValue[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}, "CoreInverse"],
@@ -5449,7 +5474,7 @@ inverseFunctionSeparateFamily[___] :=
 (* END SOURCE: AsymptoticInverse/Kernel/InverseFunctionFamilies.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/InverseFunctionExpressions.wl
-   Source SHA256 (UTF-8/LF): 5381c66b49ade9619938fff640fdd0d8a62d9d6237d22b730adc483876864e8f *)
+   Source SHA256 (UTF-8/LF): cc4a7bb047f677dd1b37b151508415563d53feb17155f52c6caf803946fcd471 *)
 (* Applied inverse functions are implicit scalar germs.  Parse their callable,
    establish its real source branch, then compose the existing inverse with
    the precision-tracked target argument.  Never use native Series on an
@@ -5495,13 +5520,13 @@ forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] 
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticExpansion, {opts}, "InverseFunctionBranches"]}, Module[
   {body = f, condition, ass, parameterAss, coord, result, rules, records, targetDomain},
-  ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions];
+  ass = optionAssumptions[AsymptoticExpansion, {opts}];
   {body, parameterAss, condition} = splitApproachInput[body, x, ass];
   coord = localCoordinate[x, x0, OptionValue[AsymptoticExpansion, {opts}, Direction]];
   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], coord["u"], parameterAss],
     fail["IncompatibleTargetCondition", "The expression's condition must hold eventually on the requested real approach.",
       <|"Condition" -> condition, "Variable" -> x, "ExpansionPoint" -> x0, "Direction" -> coord["Direction"]|>]];
-  rules = DeleteCases[{opts}, HoldPattern[Assumptions -> _] | HoldPattern["InverseFunctionBranches" -> _]];
+  rules = DeleteCases[withoutAssumptions[{opts}], HoldPattern[("InverseFunctionBranches" -> _) | ("InverseFunctionBranches" :> _)]];
   result = inverseFunctionDirectExpansion[body, x, x0, cutoff, parameterAss, coord,
     OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]];
   If[result === $Failed,
@@ -5617,13 +5642,13 @@ inverseFunctionPublicInverse[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[Asy
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticInverse, {opts}, "InverseFunctionBranches"]}, Module[
   {body = f, condition, ass, parameterAss, coord, result, rules},
-  ass = OptionValue[AsymptoticInverse, {opts}, Assumptions];
+  ass = optionAssumptions[AsymptoticInverse, {opts}];
   {body, parameterAss, condition} = splitApproachInput[body, x, ass];
   coord = localCoordinate[x, x0, OptionValue[AsymptoticInverse, {opts}, Direction]];
   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], coord["u"], parameterAss],
     fail["IncompatibleSourceCondition", "The forward expression's condition must hold eventually on the requested real source approach.",
       <|"Condition" -> condition, "Variable" -> x, "ExpansionPoint" -> x0, "Direction" -> coord["Direction"]|>]];
-  rules = DeleteCases[{opts}, HoldPattern[Assumptions -> _] | HoldPattern["InverseFunctionBranches" -> _]];
+  rules = DeleteCases[withoutAssumptions[{opts}], HoldPattern[("InverseFunctionBranches" -> _) | ("InverseFunctionBranches" :> _)]];
   result = inverseDispatch[body, x, x0, y, cutoff, Assumptions -> parameterAss, Sequence @@ rules];
   If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
   If[condition === True && $inverseFunctionProvenance === {} && $inverseFunctionBranchSelections === Automatic,
@@ -5992,7 +6017,7 @@ barnesLogJet[arg_, u_, ell_, ass_, Kw_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/BarnesForward.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/GammaInverse.wl
-   Source SHA256 (UTF-8/LF): ef031c957b0fccadc44f97a76653f9cbf624d9a6578d1b4052872d4c7a1fba33 *)
+   Source SHA256 (UTF-8/LF): 646aa421554e971c09a4c51ad47b3e873e94aecf26042796937c74921b26a729 *)
 (* Ordered inverse-Gamma corrections around an exact Lambert core.
    The coefficients are polynomials in q=1/Log[X], retained whole at each
    power of t=1/X. Stirling is used only to a finite, justified order. *)
@@ -6063,7 +6088,7 @@ gammaInverseBound[frontier_, core_, q_, ass_, coefficientLog_: Automatic] := Mod
     "RemainderScaleExpression" -> core^(-frontier[[1]])/log^degree|>];
 
 gammaInverseConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}],
    dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    goal = OptionValue[AsymptoticInverse, {opts}, SeriesTermGoal],
    limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],

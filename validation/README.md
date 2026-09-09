@@ -1,5 +1,48 @@
 # Review and validation record
 
+## Captured assumptions and reusable proof contexts
+
+All nine constructors now default to `Assumptions :> $Assumptions`, with explicit
+options replacing the ambient value. The shared request boundary captures the
+caller context before neutralizing ambient assumptions for internal proofs.
+Arithmetic, observables, queries, refinement and certificate replay continue
+using retained hypotheses. Models and coefficient-query results now preserve
+assumptions too. Delayed options are resolved once, including nested option
+lists and coordinate dispatch. Every nested boundary also neutralizes ambient
+assumptions, covering constructors invoked from delayed-option callbacks.
+
+`review-assumptions-baseline.json` records **zero passed and 17 failed** against
+immutable kernel `e9c9eb9b9fb785bf02bbf2e89fd187380575a171`. The unchanged original
+17-test file passes after the fix. `CheckReviewAssumptions.wl` records
+**200 passed, zero failed** in eight selected files.
+`CheckReviewAssumptionReplay.wl` adds **12 passed, zero failed** in one explicit
+supplemental file. Both acceptance manifests record unchanged sources, and every
+recorded source hash was compared with the final worktree. These are focused
+native checks on Wolfram 15.0.1; **the full package suite was not run**.
+
+Reproduce the selected checks with one kernel at a time:
+
+```powershell
+wolfram.exe -noinit -script validation/CheckReviewAssumptions.wl
+wolfram.exe -noinit -script validation/CheckReviewAssumptionReplay.wl
+```
+
+The [user guide](../AsymptoticInverse/Documentation/UserGuide.html#assumption-context)
+and [implementation notes](../docs/development/ASSUMPTION_CONTEXT.md) describe
+explicit-option replacement, retained contexts, specialized domain restrictions,
+and ordinary evaluation limits. The article now explains retained parameter
+hypotheses and pointwise versus uniform estimates. It also includes the nonlinear
+boundary-degree lemma and homogeneous recurrence termination proof for the
+preceding C04/P03 milestone.
+
+The 96-page article PDF was rebuilt in three serial strict LaTeX passes. The final
+pass reported no warnings or overfull/underfull boxes. Pages 10, 13, 14, 42 and 43
+were rendered and visually inspected for the changed material. Standalone
+freshness, all 11 Python builder tests, and documentation consistency checks
+passed. `review-assumptions-artifacts.json` records the source/PDF/distribution
+hashes and the exact visual-review scope; this was not a fresh full-document
+render inspection.
+
 ## Nonlinear input frontiers and coefficient termination
 
 An input-limited nonlinear expansion now includes both the inherited error and

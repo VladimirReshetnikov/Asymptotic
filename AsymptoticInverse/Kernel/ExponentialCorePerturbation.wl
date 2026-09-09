@@ -4,7 +4,7 @@
 AsymptoticInverse`AsymptoticExponentialCoreInverse::usage =
 "AsymptoticExponentialCoreInverse[core,perturbation,{x,x0},{y,n}] retains the exact inverse of a growing exponential core a v^b Exp[c v^p]+offset, c,p>0, and computes complete corrections through exponential degree n for a finite power-log perturbation. The positive v tends to Infinity. At source infinities SourceShift may translate v; finite endpoints use reciprocal source distance. InputRemainder->{rho,k} declares O(v^-rho (1+Log[v])^k) with matching derivative control and is transported as a separate first-sector error.";
 Options[AsymptoticInverse`AsymptoticExponentialCoreInverse] = {
-  Assumptions -> True, Direction -> Automatic, "SourceShift" -> Automatic,
+  Assumptions :> $Assumptions, Direction -> Automatic, "SourceShift" -> Automatic,
   "CoreInverse" -> Automatic, "CoreCheckTimeConstraint" -> 3,
   "InputRemainder" -> None, "MaxTerms" -> 20000};
 
@@ -80,7 +80,7 @@ exponentialCoreCoefficient[n_, perturbation_, hprime_, denominator_, v_, c_, p_,
   If[LeafCount[q] > limit, fail["ResourceLimit", "An exponential-core coefficient exceeded MaxTerms leaves."]]; q];
 
 exponentialCoreConstruct[core_, perturbation_, x_, endpoint_, y_, depth_, opts : OptionsPattern[AsymptoticInverse`AsymptoticExponentialCoreInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}],
    direction = OptionValue[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}, Direction],
    shift = OptionValue[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}, "SourceShift"],
    requested = OptionValue[AsymptoticInverse`AsymptoticExponentialCoreInverse, {opts}, "CoreInverse"],

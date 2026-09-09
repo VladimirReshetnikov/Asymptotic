@@ -43,13 +43,13 @@ forwardPublic[f_, x_, x0_, cutoff_, opts : OptionsPattern[AsymptoticExpansion]] 
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticExpansion, {opts}, "InverseFunctionBranches"]}, Module[
   {body = f, condition, ass, parameterAss, coord, result, rules, records, targetDomain},
-  ass = OptionValue[AsymptoticExpansion, {opts}, Assumptions];
+  ass = optionAssumptions[AsymptoticExpansion, {opts}];
   {body, parameterAss, condition} = splitApproachInput[body, x, ass];
   coord = localCoordinate[x, x0, OptionValue[AsymptoticExpansion, {opts}, Direction]];
   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], coord["u"], parameterAss],
     fail["IncompatibleTargetCondition", "The expression's condition must hold eventually on the requested real approach.",
       <|"Condition" -> condition, "Variable" -> x, "ExpansionPoint" -> x0, "Direction" -> coord["Direction"]|>]];
-  rules = DeleteCases[{opts}, HoldPattern[Assumptions -> _] | HoldPattern["InverseFunctionBranches" -> _]];
+  rules = DeleteCases[withoutAssumptions[{opts}], HoldPattern[("InverseFunctionBranches" -> _) | ("InverseFunctionBranches" :> _)]];
   result = inverseFunctionDirectExpansion[body, x, x0, cutoff, parameterAss, coord,
     OptionValue[AsymptoticExpansion, {opts}, SeriesTermGoal], OptionValue[AsymptoticExpansion, {opts}, "MaxTerms"]];
   If[result === $Failed,
@@ -165,13 +165,13 @@ inverseFunctionPublicInverse[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[Asy
   {$inverseFunctionProvenance = {}, $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>, $inverseFunctionBranchSelections =
     OptionValue[AsymptoticInverse, {opts}, "InverseFunctionBranches"]}, Module[
   {body = f, condition, ass, parameterAss, coord, result, rules},
-  ass = OptionValue[AsymptoticInverse, {opts}, Assumptions];
+  ass = optionAssumptions[AsymptoticInverse, {opts}];
   {body, parameterAss, condition} = splitApproachInput[body, x, ass];
   coord = localCoordinate[x, x0, OptionValue[AsymptoticInverse, {opts}, Direction]];
   If[! inverseFunctionEventually[condition /. x -> coord["Substitution"], coord["u"], parameterAss],
     fail["IncompatibleSourceCondition", "The forward expression's condition must hold eventually on the requested real source approach.",
       <|"Condition" -> condition, "Variable" -> x, "ExpansionPoint" -> x0, "Direction" -> coord["Direction"]|>]];
-  rules = DeleteCases[{opts}, HoldPattern[Assumptions -> _] | HoldPattern["InverseFunctionBranches" -> _]];
+  rules = DeleteCases[withoutAssumptions[{opts}], HoldPattern[("InverseFunctionBranches" -> _) | ("InverseFunctionBranches" :> _)]];
   result = inverseDispatch[body, x, x0, y, cutoff, Assumptions -> parameterAss, Sequence @@ rules];
   If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
   If[condition === True && $inverseFunctionProvenance === {} && $inverseFunctionBranchSelections === Automatic,

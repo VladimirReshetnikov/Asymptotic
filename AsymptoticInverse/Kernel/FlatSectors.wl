@@ -5,7 +5,7 @@
 AsymptoticInverse`AsymptoticFlatInverse::usage =
 "AsymptoticFlatInverse[f,{x,x0},{y,n}] inverts an exact monomial core plus finite commensurate flat exponentials, retaining complete exponential sectors through degree n. Coefficients remain finite exact power-log expressions in the monomial core inverse; the full omitted tail has a separate asymptotic contract.";
 Options[AsymptoticInverse`AsymptoticFlatInverse] = {
- Assumptions -> True, Direction -> Automatic, "Power" -> 1, "MaxTerms" -> 20000};
+ Assumptions :> $Assumptions, Direction -> Automatic, "Power" -> 1, "MaxTerms" -> 20000};
 
 flatTrim[expression_, z_, n_, limit_] := Module[{v = Expand[expression], result},
  If[! PolynomialQ[v, z], fail["FlatSectorInvariant", "An exponential-sector coefficient ceased to be polynomial in its marker."]];
@@ -61,7 +61,7 @@ flatModel[f_, x_, coord_, ell_, ass_, limit_] := Module[
    "Marker" -> z, "PerturbationPolynomial" -> flatTrim[rr, z, Max[degrees], limit]|>];
 
 flatConstruct[f_, x_, x0_, y_, n_, opts : OptionsPattern[AsymptoticInverse`AsymptoticFlatInverse]] := Module[
- {ass = OptionValue[AsymptoticInverse`AsymptoticFlatInverse, {opts}, Assumptions],
+ {ass = optionAssumptions[AsymptoticInverse`AsymptoticFlatInverse, {opts}],
   dir = OptionValue[AsymptoticInverse`AsymptoticFlatInverse, {opts}, Direction],
   r = OptionValue[AsymptoticInverse`AsymptoticFlatInverse, {opts}, "Power"],
   limit = OptionValue[AsymptoticInverse`AsymptoticFlatInverse, {opts}, "MaxTerms"],

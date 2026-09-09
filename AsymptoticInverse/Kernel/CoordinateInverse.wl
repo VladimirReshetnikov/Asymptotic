@@ -32,7 +32,7 @@ coordinateExponentialPhase[f_, x_, x0_, dir_, ass_, limit_] := Module[
     "Coordinate" -> coord, "PositiveAmplitude" -> sign amplitude|>];
 
 coordinateConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticInverse]] := Module[
-  {ass = OptionValue[AsymptoticInverse, {opts}, Assumptions],
+  {ass = optionAssumptions[AsymptoticInverse, {opts}],
    dir = OptionValue[AsymptoticInverse, {opts}, Direction],
    limit = OptionValue[AsymptoticInverse, {opts}, "MaxTerms"],
    inputRem = OptionValue[AsymptoticInverse, {opts}, "InputRemainder"],
@@ -45,7 +45,7 @@ coordinateConstruct[f_, x_, x0_, y_, cutoff_, opts : OptionsPattern[AsymptoticIn
   If[! MemberQ[{Automatic, None}, inputRem],
     fail["UnsupportedOption", "An additive input remainder must be transported through the logarithmic target coordinate before inversion."]];
   targetExpression = Log[data["AmplitudeSign"] (y - data["Offset"])/data["AmplitudeScale"]];
-  base = inverseDispatch[data["Phase"], x, x0, target, cutoff, opts];
+  base = inverseDispatch[data["Phase"], x, x0, target, cutoff, Sequence @@ withAssumptions[{opts}, ass]];
   If[FailureQ[base], Return[base, Module]];
   sub = target -> targetExpression;
   a = base[[1]] /. sub;
