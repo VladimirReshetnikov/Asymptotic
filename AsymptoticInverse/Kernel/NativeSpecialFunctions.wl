@@ -97,7 +97,7 @@ specialNativeTree[e_, u_, ass_, limit_] := Module[
          tail. A half-lattice-step loss absorbs every fixed logarithmic
          polynomial. A sharper returned boundary comes from an explicitly
          computed omitted block, never a degree guessed from kept terms. *)
-      result + {0, PowerLogRemainder[u, (e[[5]] - 1/2)/e[[6]], 0]},
+      result + {0, PowerLogRemainder[u, Sequence @@ nativeSeriesTailPrecision[e]]},
     Plus,
       Total[specialNativeTree[#, u, ass, limit] & /@ List @@ e],
     Times,

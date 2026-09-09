@@ -1,5 +1,63 @@
 # Review and validation record
 
+## Native series remainder preservation
+
+C03/C06 now preserve the distinction between a native formal power cutoff and
+the package's analytic power-log remainder. The optional native exporter returns
+`Missing["LogarithmicRemainder", metadata]` for nonzero remainder degree,
+while retaining ordinary native views with logarithms among kept coefficients
+and a degree-zero tail. Its existing coordinate, exactness and irrational-power
+guards remain in the same order; dense allocation follows the new tail guard.
+
+The public input
+
+```wolfram
+AsymptoticExpansion[EllipticK[1 - x^2]/x^3, {x, 0, 3}]
+```
+
+previously returned `PowerLogRemainder[x, 3, 0]`. Its independently derived
+next block is `25 x^3 (Log[4/x] - 37/30)/256`, so that bound is false. It now
+returns `PowerLogRemainder[x, 3, 1]` with unchanged finite coefficients.
+The elliptic oracle follows [DLMF 19.12.1](https://dlmf.nist.gov/19.12.E1);
+the companion Bessel Laurent oracle follows
+[DLMF 10.8.1](https://dlmf.nist.gov/10.8.E1).
+
+The shared incoming-tail helper uses a half-lattice power allowance, conditional
+on the admitted complete tail having some fixed finite logarithmic degree.
+The ordinary importer reconciles complete normalized probes, including regular
+summands and coefficient power shifts. It sharpens only on consistent stronger
+evidence. Empty, unresolved or mismatched probes cannot manufacture exactness or
+a degree-zero bound at an unresolved native endpoint. Laurent/Puiseux composition
+transports the same bound, and the Taylor coefficient path checks its endpoint.
+
+Against pinned kernel `a2c05e1b3b264736f52ceed98153f81f88b02406`,
+`review-native-tail-export-baseline.json` records **four passed, eight failed**
+in 12 new export cases. `review-native-tail-import-baseline.json` records
+**four passed, five failed** in the nine import tests that call pre-existing
+paths. For that baseline subset, use the first seven tests and the final two
+Taylor/algebraic controls of `ReviewNativeTailImport.wlt`; the seven new-helper
+contract cases have no baseline helper to call and are excluded. The exported
+baseline manifest records those selected test IDs and the exact subset hash.
+
+`CheckReviewNativeTails.wl` records **197 passed, zero failed** across nine
+selected files, including all 28 new cases. All 49 source/harness hashes match
+the final worktree, and sources were unchanged during execution. Supplemental
+native probes confirmed both displayed guide examples and preservation of the
+first conservative bound when a custom native provider returns an unresolved
+or mismatched second probe. **The full package suite was not run.**
+
+```powershell
+wolfram.exe -noinit -script validation/CheckReviewNativeTails.wl
+```
+
+The standalone build and 11 Python builder tests passed. The guide and purely
+mathematical article are current, with detailed
+[implementation notes](../docs/development/NATIVE_SERIES_REMAINDERS.md).
+The 96-page article was rebuilt in three serial strict LaTeX passes; the final
+pass had no warnings or overfull/underfull boxes. Pages 8, 9, 65 and 66 were
+rendered and visually inspected. `review-native-tail-artifacts.json` records
+source/artifact hashes and this selected visual-review scope.
+
 ## Captured assumptions and reusable proof contexts
 
 All nine constructors now default to `Assumptions :> $Assumptions`, with explicit

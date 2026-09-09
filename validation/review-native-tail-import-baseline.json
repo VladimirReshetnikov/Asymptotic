@@ -1,0 +1,124 @@
+{
+	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+	"Scope":"Nine existing public\/private incoming native-tail paths against immutable a2c05e1 kernel sources; new shared-helper contracts are excluded because those helpers do not exist in this baseline. Expected failures before the fix.",
+	"PerSuiteTimeConstraintSeconds":600,
+	"Suites":[
+		"ReviewNativeTailImport.wlt"
+	],
+	"SuiteResults":[
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"Succeeded":4,
+			"Failed":5,
+			"Seconds":1.5082383
+		}
+	],
+	"Succeeded":4,
+	"Failed":5,
+	"Results":[
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-shifted-elliptic-retains-correct-finite-blocks",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-shifted-elliptic-does-not-claim-log-free-boundary",
+			"Outcome":"Failure",
+			"ExpectedOutput":"HoldForm[True]",
+			"ActualOutput":"HoldForm[False]",
+			"ActualMessages":"{}"
+		},
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-lacunary-elliptic-order-two-keeps-power-margin",
+			"Outcome":"Failure",
+			"ExpectedOutput":"HoldForm[{{7\/2, 0}, True}]",
+			"ActualOutput":"HoldForm[{{4, 0}, False}]",
+			"ActualMessages":"{}"
+		},
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-lacunary-elliptic-order-four-keeps-power-margin",
+			"Outcome":"Failure",
+			"ExpectedOutput":"HoldForm[{{11\/2, 0}, True}]",
+			"ActualOutput":"HoldForm[{{6, 0}, False}]",
+			"ActualMessages":"{}"
+		},
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-visible-elliptic-boundary-retains-log-degree",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-log-free-bessel-prefix-does-not-prove-log-free-laurent-tail",
+			"Outcome":"Failure",
+			"ExpectedOutput":"HoldForm[{{7\/2, 0}, True}]",
+			"ActualOutput":"HoldForm[{{4, 0}, False}]",
+			"ActualMessages":"{}"
+		},
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-laurent-composition-transports-native-margin",
+			"Outcome":"Failure",
+			"ExpectedOutput":"HoldForm[{True, 0, True}]",
+			"ActualOutput":"HoldForm[{False, 0, False}]",
+			"ActualMessages":"{}"
+		},
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-regular-taylor-composition-remains-supported",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewNativeTailImport.wlt",
+			"TestID":"review-native-tail-visible-ordinary-boundary-can-remain-sharp",
+			"Outcome":"Success"
+		}
+	],
+	"SourcesUnchangedDuringRun":true,
+	"TestedSourceSHA256":{
+		"AsymptoticInverse\/Kernel\/AsymptoticInverse.wl":"a66b77a0fed139a76e41b74fef323623b7ec45984314e7095d37e74db643c9a0",
+		"AsymptoticInverse\/Kernel\/BarnesForward.wl":"036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479",
+		"AsymptoticInverse\/Kernel\/BarnesInverseChecks.wl":"70de0268030051fefa1c9c323036488936a84fd309689c22abea51f179b0f6f0",
+		"AsymptoticInverse\/Kernel\/BarnesInverse.wl":"56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
+		"AsymptoticInverse\/Kernel\/CoordinateInverse.wl":"2608eab75bae14ecdce32587cc78c188f34c56d16709394254a6a1066c314a69",
+		"AsymptoticInverse\/Kernel\/CorePerturbation.wl":"c5deb9fc5bfbc2b696de1c81adf686f15966b45fd7b43d66a1bbb568c803ce0b",
+		"AsymptoticInverse\/Kernel\/DirichletSpecialFunctions.wl":"381e36cab5d980c050fb208236308b0118c8b97be9b2f457f297bfc203ea9a6c",
+		"AsymptoticInverse\/Kernel\/ExactTermination.wl":"269151674e4af3be5012a161d39f2981094a16ddb06ef2559cda5cbf50ed2c48",
+		"AsymptoticInverse\/Kernel\/ExponentialCorePerturbation.wl":"354040ded44b8f90272fefca2685394b4074e9a189b18ad2ace8ea679af57b42",
+		"AsymptoticInverse\/Kernel\/ExponentialForward.wl":"f92c050fc4cd3216a08fd7aafceef4202a8aad070f33402959434053195da345",
+		"AsymptoticInverse\/Kernel\/FlatSectorOperations.wl":"74e5c150b1cd42f4d62edafce31cf42c8fbce5e34110b11d8ae878cc8e82cd05",
+		"AsymptoticInverse\/Kernel\/FlatSectors.wl":"bc338359361a8f4629e418ceac45f2ca5c6d2a70368b19a32f7e2f191ccf0df1",
+		"AsymptoticInverse\/Kernel\/FourierCoefficients.wl":"1e19f4c8ce0271f96566558a9d757eb87fc91be9b39b12faa8f1ae4b14df3fff",
+		"AsymptoticInverse\/Kernel\/GammaForward.wl":"f9fb80f55892521f0150bca280d448e53c1aa3c3dcb5b1d542a45642a61e5d40",
+		"AsymptoticInverse\/Kernel\/GammaInverseChecks.wl":"4a51a03be40b24a6d454d24ae5b717aacdc58a249bdf54974ab32c03a9050a8e",
+		"AsymptoticInverse\/Kernel\/GammaInverseOperations.wl":"c449679dd9b8686a15fb985c5e6304a492ed350bddbcedcd12b66af98e484062",
+		"AsymptoticInverse\/Kernel\/GammaInverse.wl":"646aa421554e971c09a4c51ad47b3e873e94aecf26042796937c74921b26a729",
+		"AsymptoticInverse\/Kernel\/IncrementalInverse.wl":"a410833cc04cfb857eeafe07072e39846e9df4bbb68089c870810b4e973c6e00",
+		"AsymptoticInverse\/Kernel\/InverseCertificates.wl":"ef67eb2fc10bf65c476c70b1ebfe58ca9965c54a369b619d19c73ab75e496121",
+		"AsymptoticInverse\/Kernel\/InverseFunctionBranches.wl":"727c43fd3e873a3853caa82ddbbd83be18d1923353e8be62f154e904e804eafe",
+		"AsymptoticInverse\/Kernel\/InverseFunctionExpressions.wl":"cc4a7bb047f677dd1b37b151508415563d53feb17155f52c6caf803946fcd471",
+		"AsymptoticInverse\/Kernel\/InverseFunctionFamilies.wl":"c6ce61a378b7b367d9c7839479d3999c404b8576a93bfdb742448de688f0e090",
+		"AsymptoticInverse\/Kernel\/InverseFunctionSyntax.wl":"94bf63f456ead299aaac357858ac53c22d781871b386405c31a5880eea66bfb9",
+		"AsymptoticInverse\/Kernel\/LambertInverse.wl":"6d292c2ac9666dbed21d224f15ea6fff692816596a37e376786f695b6d19420a",
+		"AsymptoticInverse\/Kernel\/LogarithmicScales.wl":"75e74ca5b173436d4540aa34aefd47a043d7fe628440d1a1a31622f2a94ec66e",
+		"AsymptoticInverse\/Kernel\/NativeSpecialFunctions.wl":"2d28f46b3d5819fa1f5d40e9006033a2ff6b9ff8aa2be08c5a76b01ca0c45381",
+		"AsymptoticInverse\/Kernel\/NumericalInverseChecks.wl":"a3f1fd51ff3232b01025ed59eff3628cf1e693533f0a8627f439f32768f656d5",
+		"AsymptoticInverse\/Kernel\/ParameterizedSpecialFunctions.wl":"19370b301debf8107b96e356b00bc06a6c4bf04ee7aa9bab3060fff822afa204",
+		"AsymptoticInverse\/Kernel\/ReciprocalLogOperations.wl":"40fa57ed1c5b86314939eaa0f509732989661eecfaa2c36530aa44cb759f1336",
+		"AsymptoticInverse\/Kernel\/RefinementRequests.wl":"35888af4c3c2b9f4f78da69a8c074ec6cbebd117c069f8e58c70870249cbb461",
+		"AsymptoticInverse\/Kernel\/RefinementState.wl":"57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
+		"AsymptoticInverse\/Kernel\/SeriesArithmetic.wl":"a7be6ea15b4bc4532c26db9fd42992d8a7adaa06c990890651f995e169cf035a",
+		"AsymptoticInverse\/Kernel\/SeriesEnvelopeArithmetic.wl":"723ed21d423764159c31d153cc4086cd382ca6b90ae514caa1a744f2d0825039",
+		"AsymptoticInverse\/Kernel\/SeriesOperations.wl":"5b4e484e7e0f430ad47d03633c3882b0395a0342fe43777081ee419d4b5019e2",
+		"AsymptoticInverse\/Kernel\/SourceCoordinates.wl":"918a4580dc80f66e2d4a1e53e3b483101887f23894401c2dcd22f94e42c0d617",
+		"AsymptoticInverse\/Kernel\/SpecialFunctionAdapters.wl":"258f4873bbc8045164dcd7646a08997c5e134adc6c5c3e7f4e683657cb0360fb",
+		"AsymptoticInverse\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
+		"AsymptoticInverse\/Kernel\/SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c",
+		"AsymptoticInverse\/Tests\/ReviewNativeTailImport.wlt":"668d72e58ac3eb05128eaf2c97819963f1d75d937833e0b8382669749fb3cc0c",
+		"validation\/CheckNativeTailImportBaseline.wl":"3b4a64bc856180111b2ecc13c0fe98b2f22912536e0acfd9658df2a6e55e95e2",
+		"validation\/FocusedTests.wl":"4af0d63978ba81c65b2e7fe165531863ac2639f607e736d94ee64f72d37b098e"
+	}
+}

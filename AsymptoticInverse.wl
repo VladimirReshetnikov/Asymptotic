@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/AsymptoticInverse.wl
-   Source SHA256 (UTF-8/LF): a66b77a0fed139a76e41b74fef323623b7ec45984314e7095d37e74db643c9a0 *)
+   Source SHA256 (UTF-8/LF): ddab1258edfe7a5630935602bfdb6b327a3c9938b060138515ec3c3f302e89a9 *)
 (* ::Package:: *)
 (* AsymptoticInverse -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -463,7 +463,7 @@ fwdAnalytic[h_, {T_, P_, D_}, e_, u_, ell_, ass_, Kw_, limit_] := Module[{neg, q
    lc = (-1)^polyDegree[lc, ell] Coefficient[lc, ell, polyDegree[lc, ell]];
    If[provablyNegative[lc, ass], sign = -1]];
   s = Quiet[Series[h[c0 + sign t], {t, 0, N0}, Assumptions -> ass && t > 0]];
-  If[! MatchQ[s, _SeriesData] || ! FreeQ[s[[3]], t],
+  If[! MatchQ[s, _SeriesData] || ! FreeQ[s[[3]], t] || ! less[N0, s[[5]]/s[[6]]],
    Return[fwdSeries[e, u, ell, ass, Kw, limit], Module]];
   (* Compose Laurent and Puiseux expansions in a positive local increment.
      In particular this handles poles and algebraic branch points even when
@@ -476,7 +476,7 @@ fwdAnalytic[h_, {T_, P_, D_}, e_, u_, ell_, ass_, Kw_, limit_] := Module[{neg, q
      power = (s[[4]] + k - 1)/s[[6]];
      res = pAdd[res, pScale[fwdPower[V, power, u, ell, ass, Kw, limit], s[[3, k]], ell, ass], ell, ass]],
      {k, Length[s[[3]]]}];
-   rho = s[[5]]/s[[6]];
+   rho = nativeSeriesTailPrecision[s][[1]];
    pd = {canon[rho jetValuation[U]], Max[0, Ceiling[rho jetLeadingDegree[U, ell]]]};
    Return[pAdd[res, {{}, pd[[1]], pd[[2]]}, ell, ass], Module]];
   If[sign === -1, U = jetScale[U, -1, ell, ass]];
@@ -487,39 +487,55 @@ fwdAnalytic[h_, {T_, P_, D_}, e_, u_, ell_, ass_, Kw_, limit_] := Module[{neg, q
   res = pUnitSeries[U, P, D, cf, Kw, ell, ass, limit];
   {jetAdd[jetMerge[{{0, c0}}, ell, ass], res[[1]], res[[2]], ell, ass], res[[2]], res[[3]]}];
 
-(* fallback: Series in u; the remainder degree is read from the first omitted block *)
-fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, parts, sd, rest, rows = {}, rho, kdeg, s2, sd2, cand, extra},
-  If[Kw === Infinity, fail["InfiniteSeries", "The expression is not a finite power-log sum and no finite working order was given.", <|"Expression" -> e|>]];
-  order = Max[1, Ceiling[canon[Kw]]];
-  s = Quiet[Series[e, {u, 0, order}, Assumptions -> ass && u > 0]];
+(* Native formal order alone does not specify an analytic logarithmic degree.
+   Under the admitted finite-logarithmic tail contract, a half lattice step
+   absorbs any fixed degree. Retained coefficient degrees do not prove that
+   contract or determine the unknown degree. Shared by both native importers. *)
+nativeSeriesTailPrecision[sd_SeriesData] := {(sd[[5]] - 1/2)/sd[[6]], 0};
+
+nativePowerLogSeries[s_, u_, ell_, ass_, Kw_, limit_] := Module[
+  {parts, sd, rest, rows = {}, extra, pd},
   If[Head[s] === Series || (Head[s] =!= SeriesData && FreeQ[s, SeriesData]),
-   fail["UnsupportedInput", "The function could not be expanded in a power-log scale at the expansion point.", <|"Expression" -> e|>]];
+   fail["UnsupportedInput", "The native result is not a resolved power-log series."]];
   parts = If[Head[s] === Plus, List @@ s, {s}];
   sd = Select[parts, Head[#] === SeriesData &];
   rest = Select[parts, Head[#] =!= SeriesData &];
-  If[Length[sd] =!= 1 || ! (sd[[1, 1]] === u && sd[[1, 2]] === 0), fail["UnsupportedInput", "The function could not be expanded in a power-log scale at the expansion point (oscillatory, exponential or nested-logarithmic behaviour).", <|"Expression" -> e|>]];
+  If[Length[sd] =!= 1 || ! (sd[[1, 1]] === u && sd[[1, 2]] === 0) ||
+      ! IntegerQ[sd[[1, 6]]] || sd[[1, 6]] < 1 || ! FreeQ[rest, _SeriesData | _Series],
+    fail["UnsupportedInput", "The native series must use the recorded positive local variable at zero and a supported power-log form."]];
   sd = First[sd];
   Do[If[! zeroQ[sd[[3, i]], ass],
     Module[{cj = fwd[sd[[3, i]] /. Log[u] -> ell, u, ell, ass, Infinity, limit]},
      If[cj[[2]] =!= Infinity, fail["UnsupportedInput", "A Series coefficient is not a finite power-log expression.", <|"Coefficient" -> sd[[3, i]]|>]];
-     rows = Join[rows, jetShift[cj[[1]] /. ell -> ell, (sd[[4]] + i - 1)/sd[[6]]]]]],
+     rows = Join[rows, jetShift[cj[[1]], (sd[[4]] + i - 1)/sd[[6]]]]]],
    {i, Length[sd[[3]]]}];
-  rho = sd[[5]]/sd[[6]];
+  pd = nativeSeriesTailPrecision[sd];
   extra = If[rest === {}, pConst[0, ell, ass], fwd[Total[rest], u, ell, ass, Kw, limit]];
-  (* first omitted block degree *)
-  kdeg = 0;
+  pAdd[{jetMerge[rows, ell, ass], pd[[1]], pd[[2]]}, extra, ell, ass]];
+
+(* Reconcile whole normalized probes, including their regular summands and
+   coefficient power shifts. Only a strictly better, compatible second probe
+   may sharpen the first error. No observed coefficient means an unknown tail,
+   not exactness or a log-free bound at the second native endpoint. *)
+nativeRefineSeriesTail[first_, second_, ell_, ass_] := Module[{delta, pd},
+  If[! less[first[[2]], second[[2]]], Return[first, Module]];
+  delta = jetAdd[second[[1]], jetScale[first[[1]], -1, ell, ass], second[[2]], ell, ass];
+  If[delta =!= {} && less[delta[[1, 1]], first[[2]]], Return[first, Module]];
+  pd = If[delta === {}, Rest[second],
+    combinePrecision[{delta[[1, 1]], polyDegree[delta[[1, 2]], ell]}, Rest[second]]];
+  If[less[pd[[1]], first[[2]]] ||
+      (equal[pd[[1]], first[[2]]] && pd[[2]] > first[[3]]), Return[first, Module]];
+  {first[[1]], pd[[1]], pd[[2]]}];
+
+(* The optional extra native probe supplies evidence, never a guessed degree. *)
+fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, first, s2, second},
+  If[Kw === Infinity, fail["InfiniteSeries", "The expression is not a finite power-log sum and no finite working order was given.", <|"Expression" -> e|>]];
+  order = Max[1, Ceiling[canon[Kw]]];
+  s = Quiet[Series[e, {u, 0, order}, Assumptions -> ass && u > 0]];
+  first = nativePowerLogSeries[s, u, ell, ass, Kw, limit];
   s2 = Quiet[Series[e, {u, 0, order + 1}, Assumptions -> ass && u > 0]];
-  If[Head[s2] =!= Series,
-   Module[{p2 = If[Head[s2] === Plus, List @@ s2, {s2}]},
-    sd2 = Select[p2, Head[#] === SeriesData &];
-    If[Length[sd2] == 1,
-     sd2 = First[sd2];
-     cand = Select[Transpose[{Range[Length[sd2[[3]]]], sd2[[3]]}], (sd2[[4]] + #[[1]] - 1)/sd2[[6]] >= rho && ! zeroQ[#[[2]], ass] &];
-     If[cand =!= {},
-      kdeg = polyDegree[Expand[cand[[1, 2]] /. Log[u] -> ell], ell];
-      rho = (sd2[[4]] + cand[[1, 1]] - 1)/sd2[[6]],
-      rho = sd2[[5]]/sd2[[6]]]]]];
-  pAdd[{jetMerge[rows, ell, ass], rho, kdeg}, extra, ell, ass]];
+  second = catch[nativePowerLogSeries[s2, u, ell, ass, Kw, limit]];
+  If[FailureQ[second], first, nativeRefineSeriesTail[first, second, ell, ass]]];
 
 (* ------------------------------------------------------------------ *)
 (* Endpoint normalization                                               *)
@@ -691,6 +707,8 @@ makeRationalSeriesData[terms_, x_, x0_, remData_, scale_: 1] := Module[
   If[! (And @@ (IntegerQ[#] || Head[#] === Rational & /@ exps)), Return[Missing["IrrationalExponents"], Module]];
   If[remData === None, Return[Missing["Exact"], Module]];
   If[! (IntegerQ[remData[[1]]] || Head[remData[[1]]] === Rational), Return[Missing["IrrationalExponents"], Module]];
+  If[remData[[2]] =!= 0, Return[Missing["LogarithmicRemainder",
+    <|"RemainderPower" -> remData[[1]], "RemainderLogDegree" -> remData[[2]]|>], Module]];
   den = LCM @@ (Denominator /@ Append[exps, remData[[1]]]);
   nmin = If[exps === {}, remData[[1]] den, Min[exps] den]; nmax = remData[[1]] den;
   count = If[exps === {}, 0, Max[exps] den - nmin + 1];
@@ -7821,7 +7839,7 @@ dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_]
 (* END SOURCE: AsymptoticInverse/Kernel/DirichletSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/NativeSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 2d28f46b3d5819fa1f5d40e9006033a2ff6b9ff8aa2be08c5a76b01ca0c45381 *)
+   Source SHA256 (UTF-8/LF): 75d91565e8ad96d0e498bf41c055b3012aa07e45905c9010736100478d3382ed *)
 (* Import structured native asymptotic series without discarding their O terms.
    Native special-function expansions may contain several exact exponential
    carriers and oscillatory phases. Every tree operation transports an
@@ -7921,7 +7939,7 @@ specialNativeTree[e_, u_, ass_, limit_] := Module[
          tail. A half-lattice-step loss absorbs every fixed logarithmic
          polynomial. A sharper returned boundary comes from an explicitly
          computed omitted block, never a degree guessed from kept terms. *)
-      result + {0, PowerLogRemainder[u, (e[[5]] - 1/2)/e[[6]], 0]},
+      result + {0, PowerLogRemainder[u, Sequence @@ nativeSeriesTailPrecision[e]]},
     Plus,
       Total[specialNativeTree[#, u, ass, limit] & /@ List @@ e],
     Times,

@@ -372,13 +372,51 @@ Ordinary arithmetic on `Normal[s]` uses only the finite expression. Keep the ser
 | `"Assumptions"`, `"TargetDomain"`, `"SourceDomain"` | Retained assumptions and branch conditions. Available domains depend on the result family. |
 | `"Exact"` | Exact finite expansion status, when supplied. Zero remainder is the operative exactness test. |
 | `"ExactModel"` | Exactness of a stored model; it does not by itself say that the displayed inverse terminates. |
-| `"SeriesData"` | A native `SeriesData` object when the coordinate, exponents, and retained coefficient span permit it; otherwise `Missing[...]`. |
+| `"SeriesData"` | A native `SeriesData` object when the coordinate, exponents, remainder degree, and retained coefficient span permit it; otherwise `Missing[...]`. |
 
 Property availability varies by family. Inspect `s["Properties"]` before relying on specialized metadata. Do not edit the underlying association to change a branch or precision claim.
 
 An arithmetic result with `"Scale" -> "Composite"` retains a finite expression and separate error scales. It has no single remainder exponent or cutoff. See [Composite Results](#composite-series-results).
 
-Native `SeriesData` uses rational exponents and may hide the logarithmic degree inside its `O` term. Keep `s["Remainder"]` when the logarithmic envelope matters.
+<a id="native-series-remainder-view"></a>
+#### Native SeriesData View
+
+Native `SeriesData` records a rational power cutoff. The package's analytic remainder also records a logarithmic degree. For an otherwise eligible view, a positive remainder degree returns
+
+```wolfram
+Missing["LogarithmicRemainder",
+  <|"RemainderPower" -> rho, "RemainderLogDegree" -> degree|>]
+```
+
+This prevents `O[w^rho (1 + Abs[Log[w]])^degree]` from being represented as an analytic `O[w^rho]` bound. Use the complete `s["Remainder"]` descriptor when continuing calculations.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[x + x^2 Log[x], {x, 0, 2}];
+{s["Remainder"], s["SeriesData"]}
+```
+
+**Output**
+
+```wolfram
+{PowerLogRemainder[x, 2, 1],
+ Missing["LogarithmicRemainder",
+   <|"RemainderPower" -> 2, "RemainderLogDegree" -> 1|>]}
+```
+
+Logarithms are still permitted in retained coefficients when the remainder degree is zero:
+
+```wolfram
+t = AsymptoticExpansion[x Log[x] + x^3, {x, 0, 2}];
+Head[t["SeriesData"]]
+```
+
+```wolfram
+SeriesData
+```
+
+Here the retained expression is `x Log[x]` and the remainder is `PowerLogRemainder[x, 3, 0]`. Native logarithmic coefficients and the package's stricter remainder export policy serve different purposes. See the Wolfram Language documentation for [SeriesData](https://reference.wolfram.com/language/ref/SeriesData.html).
 
 The optional native view stores coefficients only through the last retained
 exponent. Its remainder index can be much larger without allocating trailing
@@ -1017,6 +1055,17 @@ A structured special-function expansion can contain several exact factors, calle
 The limiting constant in `Erf[x]` and its Gaussian tail have different carriers. A request for three blocks can therefore retain the constant and three Gaussian correction blocks. In `SinIntegral[x]`, the constant and the algebraic oscillatory tail share a carrier; three blocks retain the constant and the first two oscillatory corrections.
 
 An explicit cutoff is exclusive in each recorded amplitude coordinate. With an exponential or oscillatory carrier, the leading algebraic power may be included in that carrier. An ordinary expansion with no such factor uses the absolute power of the local coordinate. Inspect `s["NativeSectors"]` for the carriers, amplitude blocks, and cutoffs of a structured special-function result. Arithmetic that subsequently produces a composite result follows the separate [composite error rules](#composite-series-results).
+
+A native power cutoff does not specify the logarithmic degree of an unresolved tail. For an admitted expansion whose asymptotic theorem gives a finite logarithmic degree, the package can use a conservative power bound. If the native cutoff is `rho` and its exponent spacing is `1/q`, the bound uses power `rho - 1/(2 q)` and logarithmic degree zero. A computed complete omitted block can give a sharper bound only when the remaining unresolved tail has a strictly higher power. Retained coefficient degrees alone do not establish a tail bound.
+
+The cutoff selects retained blocks; the resulting analytic error can have a smaller power. Inspect the returned remainder rather than interpreting the requested cutoff as a log-free error bound:
+
+```wolfram
+s = AsymptoticExpansion[EllipticK[1 - x^2]/x^3, {x, 0, 3}];
+{Normal[s], s["RemainderPower"], s["RemainderLogDegree"]}
+```
+
+The logarithmic tail in this example cannot be assigned `PowerLogRemainder[x, 3, 0]`. Additional computed terms may sharpen a conservative bound. An unevaluated native tail, without an applicable asymptotic theorem, does not establish a finite logarithmic degree or a zero error.
 
 ##### Fixed Parameters and Irrational Arguments
 
@@ -2332,7 +2381,7 @@ For positive Gamma prefactors, `SeriesLog` returns the additive logarithmic expa
 | Refinement stops at an input error | Supply stronger justified input information in a new construction. |
 | Derivative operation fails | Establish the necessary derivative remainder contract; a value Big-O is insufficient. |
 | Certificate fails near an interval boundary | Check poles, endpoint signs, strict source conditions, and the interval's containment in the selected branch. |
-| `"SeriesData"` is missing | Use supported series arithmetic and the recorded remainder; the result may have irrational exponents or separate error scales. |
+| `"SeriesData"` is missing | Inspect the reason. A positive logarithmic remainder degree, irrational exponents, separate error scales, or an excessive retained coefficient span can prevent the optional native view. Use the sparse result and its complete remainder. |
 | A composite result rejects `"Cutoff"` | Truncate or refine supported operands in their own scales, then combine them again. |
 | A quotient loses precision or fails | Check the denominator's leading term and relative remainder; normalization cannot infer a nonzero function from a pure remainder. |
 | Resource limit | Reduce the order or expression complexity, or raise the relevant budget. A partial result does not establish omitted coefficients. |

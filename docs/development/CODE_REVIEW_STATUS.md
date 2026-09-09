@@ -81,13 +81,20 @@ Findings: [R1 A01][R1], [R2 F02][R2], [R3 F01][R3], [R4 A01][R4],
 
 ### C03 — Make logarithmic information loss on native export explicit
 
-**Pending — source inspected.** The native view uses the remainder power without
-representing its logarithmic degree. Decide between refusing non-preserving
-conversion, returning a separate error descriptor, or an explicitly requested
-weaker bound. For example, `O(x Log[x])` cannot become the magnitude claim
-`O(x)`. Native formal series-order conventions are a different contract; the
-issue is the undocumented loss at conversion, not a claim that `SeriesData`
-itself cannot express useful logarithmic series.
+**Focused verified.** An otherwise eligible optional native view now returns
+`Missing["LogarithmicRemainder", metadata]` when the recorded remainder degree
+is nonzero. The metadata retains its power and logarithmic degree. Retained
+logarithmic coefficients still export when the remainder degree is zero;
+coordinate, exactness and irrational-exponent guard precedence is preserved.
+The new guard runs before dense allocation. No exponent is silently weakened.
+
+The [export baseline](../../validation/review-native-tail-export-baseline.json)
+records four passes and eight failures in 12 new cases against `a2c05e1`.
+The [nine-file acceptance](../../validation/review-native-tail-tests.json)
+records **197 passed, zero failed**, including all 12 export and 16 import
+regressions, with unchanged sources and all final source hashes verified.
+See the [native-remainder notes](NATIVE_SERIES_REMAINDERS.md) for the formal
+versus analytic distinction and the separate incoming-tail contract.
 
 Source: [core exporters](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
 Require forward/inverse tests with positive logarithmic degree and unchanged
@@ -143,17 +150,36 @@ Findings: [R1 A04][R1], [R3 F04][R3], [R6 A12][R6], [R8 F01][R8].
 
 ### C06 — Reconcile unresolved logarithmic tails in native import paths
 
-**Audit candidate.** Inspect the ordinary `fwdSeries` fallback against the
-structured special-function importer before assigning degree zero to an
-unresolved native tail. Establish a public witness, identify what the native
-remainder actually licenses, and refuse or conservatively retain uncertainty
-when no bound is established. This is incoming-tail interpretation, separate
-from outgoing conversion in C03.
+**Focused verified under the admitted native tail contract.** Native execution
+confirmed a public wrong bound for
+`AsymptoticExpansion[EllipticK[1-x^2]/x^3, {x,0,3}]`: the old result reported
+power three and degree zero even though the next block contains `x^3 Log[x]`.
+The corrected result retains the same finite expression and reports `{3,1}`.
+Private elliptic and Bessel Laurent witnesses reproduce the same lost degree.
+
+Both incoming paths now share a half-lattice power allowance for an unknown
+fixed finite logarithmic degree. The ordinary fallback normalizes both complete
+probes and sharpens only from a compatible, more precise second expansion.
+An empty second difference retains a conservative unknown tail; invalid or
+unresolved second probes leave the first bound in place. Laurent/Puiseux
+composition transports the same allowance. The Taylor path checks that its
+native endpoint exceeds the coefficient order it needs.
+
+The [import baseline](../../validation/review-native-tail-import-baseline.json)
+records **four passes and five failures** for the nine tests exercising
+pre-existing paths on `a2c05e1`; seven new-helper contract tests are excluded
+from that baseline. All 16 import tests pass in the
+[197-test acceptance](../../validation/review-native-tail-tests.json).
+This closes the identified unsafe inference; it does not infer a tail theorem
+for an arbitrary function from a finite native coefficient list. The required
+finite-logarithmic tail premise is stated in the article and
+[native-remainder notes](NATIVE_SERIES_REMAINDERS.md).
 
 Sources: [ordinary fallback](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl),
 [structured importer](../../AsymptoticInverse/Kernel/NativeSpecialFunctions.wl).
-Regression location: [NativeSpecialIngress](../../AsymptoticInverse/Tests/NativeSpecialIngress.wlt).
-Findings: [R4 R03][R4], [R7 F03][R7]. No current public failure is asserted.
+Regressions: [ReviewNativeTailImport](../../AsymptoticInverse/Tests/ReviewNativeTailImport.wlt),
+[NativeSpecialIngress](../../AsymptoticInverse/Tests/NativeSpecialIngress.wlt).
+Findings: [R4 R03][R4], [R7 F03][R7].
 
 ### C07 — Apply the advertised real-coefficient contract consistently
 

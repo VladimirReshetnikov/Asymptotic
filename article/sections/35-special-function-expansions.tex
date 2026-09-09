@@ -121,6 +121,25 @@ not prove it. These assertions concern values, and provide no derivative
 bounds without the additional hypotheses in
 Section~\ref{sec:series-calculus}; see also \cite[\S2.1(iii)]{dlmf}.
 
+More precisely, suppose a complete omitted block has been determined in
+an approximation
+\[
+ F(w)=T(w)+w^\beta C(\log w)+E(w),\qquad
+ E(w)=\OO(w^\rho\M(w)^D),\qquad \rho>\beta,
+\]
+where $C$ is a nonzero polynomial and $D$ is fixed and finite.
+Choosing $0<\varepsilon<\rho-\beta$ gives $E=\oo(w^\beta)$, and hence
+$F-T=w^\beta C(\log w)+\oo(w^\beta)
+=\OO(w^\beta\M^{\deg C})$. The strict gap is essential to this
+argument: at $\rho=\beta$, the unknown degree $D$ cannot be replaced by
+$\deg C$. Vanishing computed coefficients do not establish a zero
+tail. The exponent allowance and any sharpening of it concern the
+proved analytic bound, independently of the formal cutoff used to
+select retained blocks. The constants and thresholds may depend on
+fixed parameters; uniform estimates require corresponding uniform tail
+hypotheses. No assertion here permits a logarithmic degree that varies
+with $w$.
+
 \subsection{Exact identities preserve smaller exponential terms}
 
 On $x>0$, define the finite polynomials

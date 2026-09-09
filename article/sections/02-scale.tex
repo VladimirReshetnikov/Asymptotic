@@ -51,6 +51,14 @@ Fix gaps as above and $\beta_0\in\R$. A \emph{jet} (of cutoff $H$) is a finite s
 
 In that nonnegative-exponent ring, blocks of exponent $\ge H$ form an ideal and $\PL_{<H}$ is the corresponding quotient. This quotient description does not apply to arbitrary real exponents: multiplication by a negative power can move a discarded term below the cutoff. General shifted jets therefore require precision tracking; a factor of valuation $\gamma<0$ lowers an unknown exponent cutoff by $|\gamma|$ (Section~\ref{sec:evaluator}). Equal exponents must be identified before their coefficient polynomials are added. In particular, exact identities among algebraic exponents determine which terms belong to the same block.
 
+This formal exponent filtration must be distinguished from an analytic
+remainder class. For example, $w^H\log w$ is discarded at cutoff $H$,
+but is not $\OO(w^H)$: its ratio to $w^H$ is unbounded. Thus a formal
+cutoff alone cannot replace the pair $(H,k)$ in an analytic error bound.
+The logarithmic degrees of retained blocks likewise do not determine
+those of the tail. A complete-tail estimate requires the hypotheses of
+Section~\ref{sec:evaluator} or another applicable asymptotic theorem.
+
 \subsubsection*{Differentiation}
 
 \begin{lemma}[Euler identity]

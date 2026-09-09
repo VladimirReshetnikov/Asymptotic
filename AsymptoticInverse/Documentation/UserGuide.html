@@ -904,8 +904,8 @@ displayed inverse terminates.</td>
 <tr>
 <td><code>&quot;SeriesData&quot;</code></td>
 <td>A native <code>SeriesData</code> object when the coordinate,
-exponents, and retained coefficient span permit it; otherwise
-<code>Missing[...]</code>.</td>
+exponents, remainder degree, and retained coefficient span permit it;
+otherwise <code>Missing[...]</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -916,9 +916,34 @@ claim.</p>
 <p>An arithmetic result with <code>&quot;Scale&quot; -&gt; &quot;Composite&quot;</code>
 retains a finite expression and separate error scales. It has no single
 remainder exponent or cutoff. See <a href="#composite-series-results">Composite Results</a>.</p>
-<p>Native <code>SeriesData</code> uses rational exponents and may hide
-the logarithmic degree inside its <code>O</code> term. Keep
-<code>s[&quot;Remainder&quot;]</code> when the logarithmic envelope matters.</p>
+<p><a id="native-series-remainder-view"></a></p>
+<section id="native-seriesdata-view" class="level4">
+<h4>Native SeriesData View</h4>
+<p>Native <code>SeriesData</code> records a rational power cutoff. The
+package&#39;s analytic remainder also records a logarithmic degree. For an
+otherwise eligible view, a positive remainder degree returns</p>
+<pre class="wolfram"><code>Missing[&quot;LogarithmicRemainder&quot;,
+  &lt;|&quot;RemainderPower&quot; -&gt; rho, &quot;RemainderLogDegree&quot; -&gt; degree|&gt;]</code></pre>
+<p>This prevents <code>O[w^rho (1 + Abs[Log[w]])^degree]</code> from
+being represented as an analytic <code>O[w^rho]</code> bound. Use the
+complete <code>s[&quot;Remainder&quot;]</code> descriptor when continuing
+calculations.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[x + x^2 Log[x], {x, 0, 2}];
+{s[&quot;Remainder&quot;], s[&quot;SeriesData&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{PowerLogRemainder[x, 2, 1],
+ Missing[&quot;LogarithmicRemainder&quot;,
+   &lt;|&quot;RemainderPower&quot; -&gt; 2, &quot;RemainderLogDegree&quot; -&gt; 1|&gt;]}</code></pre>
+<p>Logarithms are still permitted in retained coefficients when the
+remainder degree is zero:</p>
+<pre class="wolfram"><code>t = AsymptoticExpansion[x Log[x] + x^3, {x, 0, 2}];
+Head[t[&quot;SeriesData&quot;]]</code></pre>
+<pre class="wolfram"><code>SeriesData</code></pre>
+<p>Here the retained expression is <code>x Log[x]</code> and the
+remainder is <code>PowerLogRemainder[x, 3, 0]</code>. Native logarithmic
+coefficients and the package&#39;s stricter remainder export policy serve
+different purposes. See the Wolfram Language documentation for <a href="https://reference.wolfram.com/language/ref/SeriesData.html">SeriesData</a>.</p>
 <p>The optional native view stores coefficients only through the last
 retained exponent. Its remainder index can be much larger without
 allocating trailing zeros. If gaps between retained rational exponents
@@ -930,6 +955,7 @@ series operations remain available. This bound applies to the optional
 native view and is independent of the <code>&quot;MaxTerms&quot;</code>
 construction option.</p>
 <p><a id="PowerLogRemainder"></a></p>
+</section>
 </section>
 </section>
 <section id="powerlogremainder" class="level2">
@@ -1542,6 +1568,25 @@ with no such factor uses the absolute power of the local coordinate.
 Inspect <code>s[&quot;NativeSectors&quot;]</code> for the carriers, amplitude
 blocks, and cutoffs of a structured special-function result. Arithmetic
 that subsequently produces a composite result follows the separate <a href="#composite-series-results">composite error rules</a>.</p>
+<p>A native power cutoff does not specify the logarithmic degree of an
+unresolved tail. For an admitted expansion whose asymptotic theorem
+gives a finite logarithmic degree, the package can use a conservative
+power bound. If the native cutoff is <code>rho</code> and its exponent
+spacing is <code>1/q</code>, the bound uses power
+<code>rho - 1/(2 q)</code> and logarithmic degree zero. A computed
+complete omitted block can give a sharper bound only when the remaining
+unresolved tail has a strictly higher power. Retained coefficient
+degrees alone do not establish a tail bound.</p>
+<p>The cutoff selects retained blocks; the resulting analytic error can
+have a smaller power. Inspect the returned remainder rather than
+interpreting the requested cutoff as a log-free error bound:</p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[EllipticK[1 - x^2]/x^3, {x, 0, 3}];
+{Normal[s], s[&quot;RemainderPower&quot;], s[&quot;RemainderLogDegree&quot;]}</code></pre>
+<p>The logarithmic tail in this example cannot be assigned
+<code>PowerLogRemainder[x, 3, 0]</code>. Additional computed terms may
+sharpen a conservative bound. An unevaluated native tail, without an
+applicable asymptotic theorem, does not establish a finite logarithmic
+degree or a zero error.</p>
 </section>
 <section id="fixed-parameters-and-irrational-arguments" class="level5">
 <h5>Fixed Parameters and Irrational Arguments</h5>
@@ -3534,8 +3579,10 @@ interval&#39;s containment in the selected branch.</td>
 </tr>
 <tr>
 <td><code>&quot;SeriesData&quot;</code> is missing</td>
-<td>Use supported series arithmetic and the recorded remainder; the
-result may have irrational exponents or separate error scales.</td>
+<td>Inspect the reason. A positive logarithmic remainder degree,
+irrational exponents, separate error scales, or an excessive retained
+coefficient span can prevent the optional native view. Use the sparse
+result and its complete remainder.</td>
 </tr>
 <tr>
 <td>A composite result rejects <code>&quot;Cutoff&quot;</code></td>

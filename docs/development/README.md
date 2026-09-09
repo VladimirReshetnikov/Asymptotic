@@ -11,6 +11,9 @@ pending repairs separate from deferred API and research proposals.
 The [assumption-context notes](ASSUMPTION_CONTEXT.md) explain how constructor
 hypotheses survive coefficient queries, arithmetic and refinement, including
 delayed options, nested representations and Wolfram evaluation subtleties.
+The [native-series remainder notes](NATIVE_SERIES_REMAINDERS.md) distinguish
+formal native order from analytic bounds and explain incoming and outgoing
+logarithmic-tail policies.
 
 This directory preserves engineering material that previously appeared in
 or alongside the combined article:
