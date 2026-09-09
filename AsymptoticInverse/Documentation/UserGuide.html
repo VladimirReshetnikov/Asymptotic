@@ -114,28 +114,25 @@ definitions, results, and proofs.</p>
 <h2>Getting Started</h2>
 <p>The package requires Wolfram Language 15.0 or later. Load the current
 <code>main</code> version directly from GitHub:</p>
-<pre class="wolfram"><code>Get[&quot;https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl&quot;];</code></pre>
+<pre class="wolfram"><code>Get[URLDownload[
+  &quot;https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl&quot;]];</code></pre>
 <p>This loads the package into the current kernel without installation
-or a local checkout. It retrieves the small loader and then the complete
-standalone package. Evaluate the command again in each new kernel
+or a local checkout. Evaluate the command again in each new kernel
 session.</p>
-<p>Direct <code>Get</code> of the larger, compressed standalone response
-was intermittently truncated on Wolfram 15.0.1. The loader uses
-<code>URLRead</code> to finish retrieving the package, then
-<code>Get[..., Method -&gt; &quot;String&quot;]</code> to evaluate the complete
-source. This avoids the affected reading path.</p>
+<p><code>URLDownload</code> saves the complete source to a temporary
+file, then normal <code>Get</code> loads that file. Downloading first
+avoids an observed Wolfram 15.0.1 issue that intermittently truncated
+direct <code>Get</code> of the compressed package response.</p>
 <p><a id="loading-fixed-versions"></a></p>
 <section id="fixed-versions-and-offline-loading" class="level3">
 <h3>Fixed Versions and Offline Loading</h3>
-<p><code>Load.wl</code> always retrieves the current <code>main</code>
-package, including when the loader itself is addressed by a commit hash.
-To select a fixed version, set <code>commit</code> to the full hash of a
-commit containing the <strong>repository-root</strong>
-<code>AsymptoticInverse.wl</code> and use buffered loading:</p>
+<p>To select a fixed version, set <code>commit</code> to the full hash
+of a commit containing the <strong>repository-root</strong>
+<code>AsymptoticInverse.wl</code>:</p>
 <pre class="wolfram"><code>commit = &quot;FULL_COMMIT_HASH&quot;;
 url = &quot;https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/&quot; &lt;&gt;
   commit &lt;&gt; &quot;/AsymptoticInverse.wl&quot;;
-Get[URLRead[url, &quot;Body&quot;], Method -&gt; &quot;String&quot;];</code></pre>
+Get[URLDownload[url]];</code></pre>
 <p>The repository-root file contains every package module. Download it
 once for offline use:</p>
 <pre class="wolfram"><code>Get[&quot;/absolute/path/to/AsymptoticInverse.wl&quot;];</code></pre>

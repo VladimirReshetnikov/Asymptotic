@@ -3,7 +3,8 @@
 Version 1.7.1 adds a standalone distribution at the repository root:
 
 ```wolfram
-Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl"]
+Get[URLDownload[
+  "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"]]
 ```
 
 The generated file contains all 38 canonical kernel sources, in their
@@ -20,18 +21,20 @@ seven fresh Wolfram 15.0.1 kernels**. It covers isolated local, plain HTTP,
 and gzip HTTP loads,
 the modular kernel entry and `init.m`, `Needs`, explicit reloads, and a
 missing HTTP file. The served directory contains only the standalone file;
-the request log contains exactly one request per buffered remote load, plus the expected
+the request log contains exactly one request per downloaded remote load, plus the expected
 missing-file request. Kernels run with `-noinit`, startup-argument environment
 variables cleared, and a pre-load check for existing package definitions.
-Input hashes are recorded and verified unchanged throughout the run.
+Input hashes are recorded and verified unchanged throughout the run,
+including all 38 canonical kernel sources and `init.m` used by the modular
+loading cases, as well as the standalone file and validation harness.
 
 Acceptance examples check irrational inversion, certified exact termination,
 Gamma ratios, Bessel asymptotics, automatic arithmetic, `Normal`, StandardForm
 formatting, and Zeta expansion after an explicit reload. This is focused
 loading validation; **the full package suite is skipped**.
 
-The small `Load.wl` entry retrieves the complete distribution with `URLRead`
-and evaluates its body with `Get[..., Method -> "String"]`. This addresses
+The supported command retrieves the complete distribution with `URLDownload`
+and loads the resulting temporary file with ordinary `Get`. This addresses
 intermittent premature-EOF errors observed with direct cold HTTPS `Get` of
 the large file, also reproduced by the local gzip fixture. Both explicit
 HTTP stream selection and a literal wrapper in the large file still failed.
@@ -39,19 +42,19 @@ The checks verify context placement and string-stream cleanup after both
 initial loading and reloading.
 
 `github-loading-tests.json` records **21 successful checks in three fresh
-kernels** against the real `main` standalone URL using buffered loading.
+kernels** against the real `main` standalone URL using `Get[URLDownload[...]]`.
 `github-pinned-loading-tests.json` records **seven successful checks** against
 the immutable standalone at `fd357dd2e022bfd8deceae5537fcd2a594c41938`.
 Both records verify the published bytes against the local artifact before
 and after native loading. No full package suite was run.
 
-`github-convenience-loading-tests.json` records **21 successful checks in
-three fresh kernels** using the exact recommended direct `Get` of the
-published `Load.wl`, including explicit reloads. Both published files match
-their local bytes before and after the run. Across the four recorded runs,
-**all 94 native checks passed in 14 fresh kernels**, with zero failures.
-The [GitHub freshness workflow](https://github.com/VladimirReshetnikov/Asymptotic/actions/runs/34314410752)
-also passed for implementation commit `62e7ec5`.
+Across the three current records, **all 73 native checks passed in 11 fresh
+kernels**, with zero failures and normal process exit. An earlier nested
+HTTP convenience loader was withdrawn after two later native runs ended
+abnormally, despite their seven mathematical checks passing. Its earlier
+successful record and the subsequent failure observations are preserved
+in the [validation archive](archive/README.md); they are not evidence for
+a currently supported loading route.
 
 To reproduce these checks:
 
@@ -62,20 +65,16 @@ python validation/check_standalone_loading.py
 python validation/check_documentation.py
 ```
 
-After publishing, check the simple convenience entry and the buffered
-standalone form with:
+After publishing, check the downloaded standalone form with:
 
 ```powershell
-python validation/check_standalone_loading.py --loader --url https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl --repeat 3 --output validation/github-convenience-loading-tests.json
 python validation/check_standalone_loading.py --url https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl --repeat 3 --output validation/github-loading-tests.json
 ```
 
 The published-URL runner compares the remote file byte for byte with the
-local build before and after native loading. In convenience-loader mode,
-both the loader and its current `main` standalone target are compared.
-Replacing `main` in the standalone URL with a full commit hash selects an
-immutable revision for the same buffered check; `Load.wl` always follows
-the current `main`, regardless of the revision of its own URL.
+local build before and after native loading. Replacing `main` in the
+standalone URL with a full commit hash selects an immutable revision for
+the same downloaded-file check.
 
 The special-function extension in version 1.7.0 is recorded in
 `special-functions-tests.json` and `special-functions-validation.json`.

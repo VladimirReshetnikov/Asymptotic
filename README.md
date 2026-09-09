@@ -22,17 +22,17 @@ package's supported interfaces.
 Load the current `main` version directly from GitHub in a Wolfram kernel:
 
 ```wolfram
-Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl"];
+Get[URLDownload[
+  "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"]];
 ```
 
-The small loader retrieves the complete standalone package before evaluating
-it. No installation or local checkout is required. Direct `Get` of the larger,
-compressed package response was intermittently truncated on Wolfram 15.0.1;
-buffered retrieval avoids that reading path.
+This downloads the complete standalone package to a temporary file, then
+loads it with normal `Get`. No installation or local checkout is required.
+Downloading first avoids an observed Wolfram 15.0.1 issue that intermittently
+truncated direct `Get` of the compressed package response.
 
-`Load.wl` always follows `main`, even when its own URL contains a commit hash.
 For a fixed version, use the guide's
-[buffered, commit-pinned loading form](AsymptoticInverse/Documentation/UserGuide.md#loading-fixed-versions).
+[commit-pinned loading form](AsymptoticInverse/Documentation/UserGuide.md#loading-fixed-versions).
 The repository-root `AsymptoticInverse.wl` is also a complete single-file
 package that you can download and load with local `Get` offline.
 
@@ -108,8 +108,7 @@ for the exact scope of each run.
 
 | Location | Content |
 | --- | --- |
-| [Load.wl](Load.wl) | Small GitHub entry point that retrieves and loads the current `main` package. |
-| [AsymptoticInverse.wl](AsymptoticInverse.wl) | Generated standalone package for buffered URL loading or single-file offline use. |
+| [AsymptoticInverse.wl](AsymptoticInverse.wl) | Generated standalone package for loading from a URL download or single-file offline use. |
 | [AsymptoticInverse/](AsymptoticInverse/) | Package, paclet metadata, examples, and focused test files. |
 | [article/](article/) | Mathematical article and its build instructions. |
 | [docs/development/](docs/development/) | Engineering roadmap and preserved operational chapters from the former combined article. |

@@ -23,14 +23,14 @@ from urllib.request import urlopen
 from build_standalone import ROOT, TARGET, build
 
 
-def check(url: str | None, output: Path, repeat: int = 1, loader: bool = False) -> dict:
+def check(url: str | None, output: Path, repeat: int = 1) -> dict:
     if repeat < 1 or (repeat != 1 and not url):
         raise ValueError("--repeat must be positive and is supported only with --url")
-    if loader and not url:
-        raise ValueError("--loader requires the published Load.wl --url")
     artifact = build(check=True)
     tracked = [TARGET, ROOT / "validation/build_standalone.py",
-               ROOT / "validation/CheckStandalone.wl", Path(__file__).resolve(), ROOT / "Load.wl"]
+               ROOT / "validation/CheckStandalone.wl", Path(__file__).resolve()]
+    tracked += sorted((ROOT / "AsymptoticInverse/Kernel").glob("*.wl"))
+    tracked.append(ROOT / "AsymptoticInverse/Kernel/init.m")
 
     def fingerprints():
         return {str(p.relative_to(ROOT)).replace("\\", "/"):
@@ -41,18 +41,12 @@ def check(url: str | None, output: Path, repeat: int = 1, loader: bool = False) 
     def remote_fingerprint():
         if not url:
             return None
-        remote_files = [(url, ROOT / "Load.wl" if loader else TARGET)]
-        if loader:
-            remote_files.append(("https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl", TARGET))
-        digests = {}
-        for source_url, expected in remote_files:
-            with urlopen(source_url, timeout=60) as response:
-                data = response.read()
-            digest = hashlib.sha256(data).hexdigest()
-            if data != expected.read_bytes():
-                raise RuntimeError(f"Published artifact differs from {expected.name}: {digest}")
-            digests[source_url] = digest
-        return digests
+        with urlopen(url, timeout=60) as response:
+            data = response.read()
+        digest = hashlib.sha256(data).hexdigest()
+        if data != TARGET.read_bytes():
+            raise RuntimeError(f"Published artifact differs from the standalone build: {digest}")
+        return {url: digest}
 
     remote_before = remote_fingerprint()
     results: list[dict] = []
@@ -102,16 +96,16 @@ def check(url: str | None, output: Path, repeat: int = 1, loader: bool = False) 
                 report = work / f"{name}.json"
                 env = dict(os.environ, ASYMPTOTIC_LOAD_SOURCE=source,
                            ASYMPTOTIC_LOAD_MODE=mode, ASYMPTOTIC_LOAD_RESULT=str(report),
-                           ASYMPTOTIC_LOAD_PATH=search_path, ASYMPTOTIC_LOAD_DIRECT_URL="1" if loader else "0")
+                           ASYMPTOTIC_LOAD_PATH=search_path)
                 for key in list(env):
                     if key.upper() in {"WOLFRAMINIT", "MATHKERNELINIT"}:
                         del env[key]
+                # Let the native CLI inherit its normal diagnostic streams;
+                # the machine-readable report is written separately.
                 run = subprocess.run(["wolfram.exe", "-noinit", "-script", str(ROOT / "validation/CheckStandalone.wl")],
-                                     cwd=work, env=env, capture_output=True, text=True,
-                                     encoding="utf-8", errors="replace", timeout=180)
-                print(run.stdout.strip(), flush=True)
+                                     cwd=work, env=env, timeout=180)
                 if not report.exists():
-                    raise RuntimeError(f"{name} did not produce a report: {run.stdout}\n{run.stderr}")
+                    raise RuntimeError(f"{name} did not produce a report; see native diagnostics above")
                 result = json.loads(report.read_text(encoding="utf-8"))
                 result.update(Case=name, ExitCode=run.returncode)
                 # Replace ephemeral fixture paths in the durable evidence.
@@ -135,7 +129,6 @@ def check(url: str | None, output: Path, repeat: int = 1, loader: bool = False) 
     if fingerprints() != tested_sources:
         raise RuntimeError("Tested source files changed during validation")
     result = {"Artifact": artifact, "FullPackageSuiteRun": False,
-              "DirectConvenienceLoader": loader,
               "KernelInitializationDisabled": True, "InitializationEnvironmentCleared": True,
               "PackageAbsentBeforeEachLoad": True, "TestedSourcesSHA256": tested_sources,
               "SourcesUnchangedDuringRun": True,
@@ -155,7 +148,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url")
     parser.add_argument("--repeat", type=int, default=1, help="Repeat published loading in fresh kernels")
-    parser.add_argument("--loader", action="store_true", help="Test direct Get of the convenience Load.wl URL")
     parser.add_argument("--output", type=Path, default=ROOT / "validation/standalone-loading-tests.json")
     args = parser.parse_args()
-    check(args.url, args.output, args.repeat, args.loader)
+    check(args.url, args.output, args.repeat)

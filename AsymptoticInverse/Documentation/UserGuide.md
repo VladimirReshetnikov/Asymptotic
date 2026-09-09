@@ -9,23 +9,24 @@ This guide describes the Wolfram Language interface. See the [mathematical artic
 The package requires Wolfram Language 15.0 or later. Load the current `main` version directly from GitHub:
 
 ```wolfram
-Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/Load.wl"];
+Get[URLDownload[
+  "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"]];
 ```
 
-This loads the package into the current kernel without installation or a local checkout. It retrieves the small loader and then the complete standalone package. Evaluate the command again in each new kernel session.
+This loads the package into the current kernel without installation or a local checkout. Evaluate the command again in each new kernel session.
 
-Direct `Get` of the larger, compressed standalone response was intermittently truncated on Wolfram 15.0.1. The loader uses `URLRead` to finish retrieving the package, then `Get[..., Method -> "String"]` to evaluate the complete source. This avoids the affected reading path.
+`URLDownload` saves the complete source to a temporary file, then normal `Get` loads that file. Downloading first avoids an observed Wolfram 15.0.1 issue that intermittently truncated direct `Get` of the compressed package response.
 
 <a id="loading-fixed-versions"></a>
 ### Fixed Versions and Offline Loading
 
-`Load.wl` always retrieves the current `main` package, including when the loader itself is addressed by a commit hash. To select a fixed version, set `commit` to the full hash of a commit containing the **repository-root** `AsymptoticInverse.wl` and use buffered loading:
+To select a fixed version, set `commit` to the full hash of a commit containing the **repository-root** `AsymptoticInverse.wl`:
 
 ```wolfram
 commit = "FULL_COMMIT_HASH";
 url = "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/" <>
   commit <> "/AsymptoticInverse.wl";
-Get[URLRead[url, "Body"], Method -> "String"];
+Get[URLDownload[url]];
 ```
 
 The repository-root file contains every package module. Download it once for offline use:

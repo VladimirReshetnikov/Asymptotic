@@ -4,13 +4,11 @@ loadingSource = Environment["ASYMPTOTIC_LOAD_SOURCE"];
 loadingMode = Environment["ASYMPTOTIC_LOAD_MODE"];
 loadingOutput = Environment["ASYMPTOTIC_LOAD_RESULT"];
 loadingPath = Environment["ASYMPTOTIC_LOAD_PATH"];
-loadingDirectURL = Environment["ASYMPTOTIC_LOAD_DIRECT_URL"] === "1";
-loadingRemote = ! loadingDirectURL && StringQ[loadingSource] &&
+loadingRemote = StringQ[loadingSource] &&
   StringStartsQ[loadingSource, "http://" | "https://"];
-loadingMethod = Which[loadingRemote, "URLRead Body followed by Get Method String",
-  loadingDirectURL, "Direct URL Get", True, "Automatic"];
+loadingMethod = If[loadingRemote, "URLDownload followed by local Get", "Automatic"];
 loadingGet[] := If[loadingRemote,
-  Get[URLRead[loadingSource, "Body"], Method -> "String"], Get[loadingSource]];
+  Get[URLDownload[loadingSource]], Get[loadingSource]];
 If[! StringQ[loadingSource] || ! StringQ[loadingOutput], Exit[2]];
 If[MemberQ[$Packages, "AsymptoticInverse`"] ||
     Names["AsymptoticInverse`*"] =!= {} ||

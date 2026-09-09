@@ -31,17 +31,16 @@ It preserves the original module order and top-level context transitions.
 Each included source carries its path and SHA-256 hash, calculated after
 normalizing line endings to LF.
 
-The small repository-root `Load.wl` is the direct-URL convenience entry.
-It always selects the current `main` distribution, retrieves it completely
-with `URLRead`, checks HTTP status, and evaluates the body using
-`Get[..., Method -> "String"]`. Cold direct HTTP loading of the large
+For remote loading, retrieve the standalone source completely with
+`URLDownload` and load the resulting temporary file with ordinary `Get`.
+Cold direct HTTP loading of the large
 distribution intermittently produced premature end-of-file errors in
-Wolfram 15.0.1, including a local gzip fixture. Buffering the response before
-`Get` avoids that reader path and preserves sequential context changes.
-The convenience loader takes two HTTP fetches: the small entry and the
-standalone source. A commit-pinned standalone URL can instead be passed
-directly to the buffered form, using one fetch. Pinning `Load.wl` does not
-pin its target, which deliberately follows `main`.
+Wolfram 15.0.1, including a local gzip fixture. Downloading before `Get`
+avoids that reader path and preserves sequential context changes.
+The downloaded-file form uses one HTTP fetch and accepts either the current `main`
+URL or a commit-pinned standalone URL. A nested HTTP convenience loader was
+withdrawn after abnormal kernel exits; its earlier evidence and the reason
+for withdrawal are preserved in the [validation archive](../../validation/archive/README.md).
 
 After editing kernel sources, rebuild and commit the standalone file with
 the source changes:

@@ -18,10 +18,21 @@ algebraic-number code, asymptotic computation, and Wolfram evaluation semantics.
   reproduced the failure, also with `Method -> "HTTP"`. Holding the source
   in a literal inside the downloaded file did not fix its outer reader.
   The precise internal cause was not established.
-- Retrieve the complete body first and evaluate it with
-  `Get[URLRead[url, "Body"], Method -> "String"]`. The small `Load.wl`
-  convenience entry uses this public buffered path and checks HTTP status
-  before parsing the response body. It always targets the current `main`.
+- Download the complete file first and evaluate it with
+  `Get[URLDownload[url]]`. This uses a single fetch and preserves ordinary
+  file parsing of package context changes. The returned file is temporary.
+- `Get[URLRead[url, "Body"], Method -> "String"]` passed initial tests but
+  later had connection failures under the native harness even while direct
+  `URLRead` probes succeeded. Redirecting the native process's diagnostics
+  did not consistently resolve the discrepancy. No specific HTTP or reader
+  implementation bug is asserted from that observation. The downloaded-file
+  form is the supported route and passed the final repeated native runs.
+- An experimental small HTTP loader that itself fetched the complete source
+  passed its initial three-kernel run. On two later runs, all seven checks
+  passed but the kernel then exited with status `3221225477` (`0xC0000005`).
+  Those runs were rejected and that entry point was withdrawn. The exact
+  native failure mechanism was not established. The
+  downloaded-file command completed repeated runs with normal kernel exit.
 - Keep package source as a sequence of top-level expressions. Wrapping the
   source expressions in `Module` or another holding expression can parse symbols before
   `BeginPackage` and `Begin` establish their intended contexts. Inline
