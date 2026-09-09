@@ -7,6 +7,37 @@ coefficients of the same inverse germ while respecting the precision of
 the forward data. The positive source gaps provide a natural filtration
 for this process.
 
+\subsection{The parameter domain belongs to the germ}
+\label{sec:refinement-parameter-domain}
+
+Let $\theta$ denote the fixed parameters and let $A$ be the domain on
+which the chosen real branch and an estimate
+$F_\theta=T_\theta+\OO(w^P\M^D)$ have been established. This means
+that for each $\theta\in A$ there are constants $C_\theta,w_\theta>0$
+such that
+\[
+ |F_\theta(w)-T_\theta(w)|\le C_\theta w^P\M(w)^D,
+ \qquad 0<w<w_\theta.
+\]
+The domain $A$ remains a hypothesis when coefficients are reused,
+recombined, or refined. Combining conclusions proved on $A$ and $B$
+is justified on $A\cap B$, further restricted by the domain conditions
+of the operation. A simplification proved only on a subset $A'\subset A$
+likewise gives a conclusion on $A'$. Neither an algebraic cancellation
+nor the determination of additional coefficients extends a theorem to
+parameters outside its original hypotheses; such an extension needs a
+separate proof. These assertions follow by applying the corresponding
+identities and error estimates at each fixed admissible $\theta$.
+
+For example, the positive inverse of $a x+x^2$ for $a>0$ starts with
+$y/a-y^2/a^3$. Those coefficients cannot be reused at $a=0$, where
+the positive inverse is $\sqrt y$. Nor does validity for every fixed
+$a>0$ give a bound uniform as $a\downarrow0$. Uniformity on a parameter
+set requires common constants and a common deleted neighborhood, as well
+as the branch and nondegeneracy hypotheses used by the relevant theorem.
+Source and target restrictions retain their separate roles described in
+Section~\ref{sec:inverse-function-expressions}.
+
 \subsection{Complete Lagrange prefixes}
 
 Write the normalized inverse observable as
