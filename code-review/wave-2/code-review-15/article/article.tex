@@ -1,0 +1,78 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.9in,headheight=15pt]{geometry}
+\usepackage{microtype,amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{xcolor,listings,enumitem,xurl}
+\usepackage[pdfencoding=auto,psdextra,hidelinks]{hyperref}
+\usepackage{fancyhdr,needspace,etoolbox}
+\definecolor{ink}{gray}{0.15}
+\definecolor{muted}{gray}{0.40}
+\definecolor{rulegray}{gray}{0.75}
+\definecolor{codebg}{gray}{0.965}
+\hypersetup{pdftitle={Asymptotic: a delta audit of target geometry, certificates, and flat-sector precision},pdfauthor={OpenAI},pdfsubject={Technical audit for Vladimir Reshetnikov, snapshot 921387e}}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\textcolor{muted}{Asymptotic \; / \; additional source audit}}
+\fancyhead[R]{\small\textcolor{muted}{921387e}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\parindent}{0pt}\setlength{\parskip}{0.48em}
+\setlength{\emergencystretch}{2.8em}
+\widowpenalty=10000\clubpenalty=10000\displaywidowpenalty=10000
+\BeforeBeginEnvironment{lstlisting}{\Needspace{8\baselineskip}}
+\setcounter{tocdepth}{2}
+\setlist{nosep,leftmargin=1.6em}
+\lstdefinestyle{audit}{basicstyle=\ttfamily\footnotesize,columns=fullflexible,keepspaces=true,breaklines=true,breakatwhitespace=false,showstringspaces=false,backgroundcolor=\color{codebg},frame=single,rulecolor=\color{rulegray},framesep=5pt,aboveskip=0.7em,belowskip=0.7em,tabsize=2}
+\lstset{style=audit}
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\newcommand{\OO}{\mathcal{O}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\EE}{\mathcal{E}}
+\newcommand{\sha}{\nolinkurl{921387e5ba1239bfda96e63e64e89bf63d9c41e6}}
+\newcommand{\source}[2]{\par\textbf{Source locus.} \code{#1}: #2.\par}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}[proposition]{Lemma}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{R}[1]{>{\raggedright\arraybackslash}p{#1}}
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\vspace*{0.6in}
+{\small\textcolor{muted}{SOURCE AUDIT \quad 9 SEPTEMBER 2026}}\par
+\vspace{0.4in}
+{\Huge\bfseries Asymptotic}\par
+\vspace{0.18in}
+{\LARGE Target geometry, certificate refinement,\newline and flat-sector precision}\par
+\vspace{0.3in}
+{\large Additional findings beyond the existing code reviews}\par
+\vspace{0.7in}
+\begin{tabular}{@{}ll}
+Prepared for & Vladimir Reshetnikov\\[0.5em]
+Repository & \code{VladimirReshetnikov/Asymptotic}\\[0.5em]
+Snapshot & \sha\\[0.5em]
+Declared package & AsymptoticInverse 1.8.0; Wolfram Language 15.0+\\[0.5em]
+Evidence & Source inspection and independent exact-arithmetic models
+\end{tabular}
+\vfill
+\begin{minipage}{0.94\textwidth}
+\textbf{Principal result.} Three concrete implementation issues remain outside the existing consolidated review register: incorrect target approaches inferred by composite arithmetic, a certificate-refinement controller that can freeze arithmetic precision after success, and premature loss of exponential grading in flat products. A fourth finding identifies a conservative but unnecessarily restrictive sign test for powers of Gamma/Barnes inverse observables.
+
+\textbf{Execution boundary.} Twenty independent Python model tests passed. The native Wolfram service returned connection errors; the upstream package, its native suite, and the supplied Wolfram proposals were not executed in this audit. No native benchmark or fully validated patch release is claimed.
+\end{minipage}
+\end{titlepage}
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+\input{01-scope-and-comparison.tex}
+\input{02-target-geometry.tex}
+\input{03-certificates.tex}
+\input{04-flat-grading.tex}
+\input{05-observables-and-plan.tex}
+\input{06-evidence.tex}
+\clearpage
+\input{references.tex}
+\end{document}

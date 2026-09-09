@@ -1,0 +1,144 @@
+\section{Scope, snapshot, and the non-duplication baseline}
+
+This report is a \emph{delta audit}: it examines additional failure modes rather than recasting the repository's existing reviews as new discoveries. The inspected snapshot is \sha. The repository identifies the package as AsymptoticInverse 1.8.0 with a Wolfram Language 15.0 minimum. The modular kernel is the maintained implementation; the root standalone file is a generated distribution. These are snapshot statements, not assertions about a subsequently updated branch.\cite{repo,readme,status}
+
+The anti-duplication baseline is the consolidated \code{CODE_REVIEW_STATUS.md}, the code-review index, and the detailed accompanying summaries for reviews 6--9. The consolidated register accounts for 87 numbered findings as 32 grouped work items, followed by 12 extension directions. I did not independently read every page of all nine review articles. Consequently, the claim here is that the new findings do not occur in the \emph{consolidated register or the reviewed summaries}; that is a more precise claim than an exhaustive textual non-overlap guarantee.\cite{status,reviews,review6,review7,review8,review9}
+
+Two prominent earlier findings are already addressed in this snapshot: bounded optional dense \code{SeriesData} construction, and a shared rejection of unsupported real fractional powers of pure remainders. They are not new findings below. Similarly, this report does not re-recommend general assumption capture, fixed-margin recipe refinement, global resource budgets, a common scale protocol, logarithmic-tail export repair, generic native CI, or a broad multiscale-transseries redesign. Those subjects already have entries in the register.\cite{status}
+
+\subsection{What was inspected and what was executed}
+
+Seventeen implementation files were inspected directly, with focused coverage of ordinary construction, precision arithmetic, certificates, source/target transformations, Gamma/Barnes operations, Fourier coefficients, native special-function import, flat sectors, and arithmetic fallback. The precise file/range ledger is supplied in \code{evidence/source_manifest.json}. Two native test files were read in full where they directly bear on the new findings. This is not a claim of exhaustive line-by-line verification of every module.\cite{core,cert,seriesops,flatops,flattests,certtests}
+
+The investigation used pinned GitHub connector reads. A complete local checkout was not obtained. The Wolfram connector returned HTTP 502 errors, including for a version-only probe; no native package execution succeeded. The delivered Wolfram runners therefore record \emph{prospective} experiments, not completed ones. The article distinguishes three evidence classes:
+
+\begin{description}[style=nextline]
+\item[Source deduction.] A consequence of inspected definitions and dispatch, with the relevant constructors checked for the metadata on which the deduction depends.
+\item[Independent mathematical/model verification.] A derivation or a restricted Python implementation using exact rational arithmetic. It can validate a theorem, counterexample mechanism, or control policy without establishing native Wolfram evaluation behavior.
+\item[Native characterization required.] A supplied call whose result should be recorded in a fresh compatible kernel. No result from such a call is invented here.
+\end{description}
+
+The twenty executed tests include exact target-orientation cases, 500 deterministic randomized outward-rounding checks within one test, rational interval containment checks, flat inverse coefficients, and graded error-envelope comparisons. They are not twenty upstream package tests. Their complete log and generated evidence are included.
+
+\subsection{Findings register}
+
+\begin{longtable}{@{}R{0.07\textwidth}R{0.13\textwidth}R{0.48\textwidth}R{0.24\textwidth}@{}}
+\toprule
+ID & Priority & Finding & Evidence / consequence\\\midrule\endhead
+F01 & High & Composite fallback can infer the wrong endpoint or approach side for flat pole targets, negative Erfc tails, and downward quadratic thresholds. & Source deduction; exact geometry; wrong germ metadata or false incompatibility.\\[0.6em]
+F02 & Medium & Successful-but-insufficient certificates can keep a fixed enclosure order; the reported error also ignores a sharper bound already implied by the retained root interval. & Source deduction; exact rational controller model; failure to reach attainable accuracy.\\[0.6em]
+F03 & Medium & Flat multiplication forgets exponential grades before combining tail bounds and computes discarded coefficient products unnecessarily. & Source deduction; exact flat-coefficient and envelope models; avoidably weak bounds and extra algebra.\\[0.6em]
+F04 & Low / feature & Gamma/Barnes power replay tests the source sign rather than the sign of the already represented observable. & Source deduction; valid positive even-power observables are conservatively rejected.\\
+\bottomrule
+\end{longtable}
+
+F02 and F03 are not accusations of false mathematical certificates or understated remainders. In the examined cases, they are respectively a precision-controller defect and an unnecessarily pessimistic, potentially expensive error transport. F04 is an explicit scope restriction that can be generalized safely; it is not a wrong-result bug.
+
+\section{What the package adds to Wolfram Language}
+
+\subsection{The useful abstraction is a mathematical contract, not just a formula}
+
+The package's main abstraction is a finite expression together with a branch, a scale, and a remainder. Ordinary power--log jets have the form
+\begin{equation}\label{eq:jet}
+  \sum_{\alpha\in S,\,\alpha<P}u^\alpha P_\alpha(\log u)
+  +\OO\!\left(u^P(1+|\log u|)^D\right),\qquad u\to0^+,
+\end{equation}
+where $S$ is a finite retained support and the coefficients are polynomials in the logarithm. The implementation separates exact weight comparison, coefficient canonicalization, sparse convolution, inverse-coefficient construction, and precision propagation. The same public object can also represent other scales, but its metadata conventions vary by family.\cite{core,seriesops}
+
+An expression alone cannot encode whether a source tends to $0^+$ or $+\infty$, whether an inverse is the lower or upper real branch, whether a flat zero sector is exact, or whether differentiation of the unknown remainder is justified. Those distinctions are the reason a specialized package can remain useful even when the native system can obtain many of its finite expressions. They are also the source of the cross-family defects in this audit. The distinction between an asymptotic relation and a differentiable asymptotic relation is standard and important.\cite{dlmf21}
+
+\subsection{Native functionality should not be understated}
+
+\code{Asymptotic} is not confined to Taylor polynomials. Its documented interface covers finite and infinite expansion points, generalized asymptotic scales, and branch/parameter options. Its order and term-goal conventions must be distinguished from the package's exclusive exponent cutoff. The native default for \code{Assumptions} is \code{$Assumptions}; generating all relevant conditions can require an explicit option. A comparison that uses identical integer arguments without inspecting the achieved expansion is not an equal-work comparison.\cite{wl-asymptotic}
+
+\code{AsymptoticSolve} is the native counterpart to \emph{implicit} asymptotic inversion, rather than \code{InverseSeries} alone. It accepts equations or systems, can specify a limiting solution point, and supports a real-domain argument. This makes it the appropriate baseline for $f(x)=y$ with branch conditions. A failed bounded invocation would establish only the behavior of that particular invocation and kernel, not a universal native limitation.\cite{wl-asolve}
+
+\code{InverseSeries} handles ramified examples as well as ordinary locally linear reversion; its documentation includes inversion of series whose first nonzero term is quadratic. It would be incorrect to advertise all Puiseux inversion as a feature absent from Wolfram Language. \code{ComposeSeries} supplies the related native composition operation.\cite{wl-inverse,wl-compose}
+
+A single \code{SeriesData} uses a rational exponent lattice described by integer indices and a denominator. That is not the same as a restriction on every expression produced by Wolfram Language: logarithmic coefficients and external special-function or exponential factors may surround a native series. The package's direct sparse representation of exact irrational supports is therefore a representation advantage, not proof that the entire native language cannot manipulate the same mathematical functions.\cite{wl-seriesdata,wl-series}
+
+\subsection{Capability comparison}
+
+\begin{longtable}{@{}R{0.22\textwidth}R{0.34\textwidth}R{0.36\textwidth}@{}}
+\toprule
+Task & Native baseline & Package distinction at the snapshot\\\midrule\endhead
+Ordinary and ramified reversion & \code{Series}, \code{InverseSeries}, \code{AsymptoticSolve}. & Explicit real source approach, transported input precision, residual metadata, and multiple coefficient-construction routes.\\[0.6em]
+Irrational power--log support & Generalized native asymptotics and implicit solving; one \code{SeriesData} remains rational-lattice based. & Sparse exact weights and weight-based exclusive cutoffs are first-class rather than incidental expression structure.\\[0.6em]
+Lambert-normalized inverses & \code{ProductLog} already supplies Lambert branches and numerical evaluation. & Retains an exact Lambert core and expands corrections around it with an explicit inverse-family contract.\\[0.6em]
+Special functions & Broad native \code{Series}/\code{Asymptotic} coverage. & Specialized adapters and a native-series importer attach real-domain and absolute-remainder information.\\[0.6em]
+Flat exponentials & Native expressions can retain exponentials outside algebraic series; task-specific transformations are possible. & An exact zero sector, inclusive exponential depth, exclusive inner-power cutoff, and separate inner/tail errors.\\[0.6em]
+Logarithmic oscillations & Native trigonometric/exponential algebra and asymptotics. & Finite Fourier-polynomial coefficient algebra with exact frequencies, conjugacy checks, and explicit mode budgets.\\[0.6em]
+Quantitative inverse validation & \code{Interval} and general symbolic/numeric tools are available. & A specialized certificate object for a root of a stored explicit equation using rational intervals and derivative/residual bounds.\\[0.6em]
+Integration and summation & Native \code{AsymptoticIntegrate} and \code{AsymptoticSum}. & Not a broad replacement for these native tasks; the existing extension register already covers related future work.\\
+\bottomrule
+\end{longtable}
+
+The comparison above combines the documented native interfaces with the inspected package modules; it is not a completed benchmark.\cite{wl-asymptotic,wl-asolve,wl-inverse,wl-seriesdata,wl-productlog,wl-interval,wl-integrate,wl-sum,readme,flat,fourier,native,cert,status}
+
+\subsection{The package already builds on the native system}
+
+\code{NativeSpecialFunctions.wl} calls native \code{Series} with \code{Analytic -> False}, then walks the structured result while transporting absolute errors. It keeps distinct exponential carriers or oscillatory components in separate envelopes when a single ordered coefficient algebra is unsuitable. Its \code{SeriesData} tree case deliberately sacrifices half a lattice step rather than assuming an unknown logarithmic tail has degree zero. That is materially different from the older ordinary native-tail concern in the consolidated register. A blanket statement that every native import path discards logarithmic tail information would miss this distinction.\cite{native,status,wl-series}
+
+This layered design is appropriate: let native special-function knowledge supply structured local data, then apply a narrower, inspectable remainder calculus. The key obligation is to transport the \emph{entire germ}, including its target approach, across that layer. F01 shows what happens when the expression and bound survive but the approach is guessed incorrectly.
+
+\subsection{Concrete paired experiments to run}
+
+The archive contains \code{code/CompareBuiltins.wls}, with paired calls for polynomial reversion, ramified reversion, irrational implicit inversion, an Erfc tail, large-order zeta, and a Gamma inverse. Representative calls are:
+\begin{lstlisting}
+InverseSeries[Series[x + x^2, {x, 0, 5}], y]
+AsymptoticInverse[x + x^2, {x, 0}, {y, 6}]
+
+AsymptoticSolve[x + x^Sqrt[2] == y,
+  {x, 0}, {y, 0, 4}, Reals]
+AsymptoticInverse[x + x^Sqrt[2], {x, 0}, {y, 3}]
+\end{lstlisting}
+The first pair is an ordinary sanity check. The second is a characterization pair, not an assertion that its two order specifications are equivalent. Normalize the source branch, finite expression, first omitted scale, and parameter assumptions before evaluating relative performance. The supplied runner records results and messages, not a fabricated success/failure matrix.
+
+\section{Mathematical checks on specialized designs}
+
+These checks provide context for the new findings without claiming a proof of every implementation path.
+
+\subsection{Why exact Lambert cores are useful}
+
+For the inverse of a large positive logarithmic Gamma value $T$, the leading equation is
+\[
+ X(\log X-1)=T,\qquad X=\frac{T}{W(T/e)}.
+\]
+The standard Stirling terms give
+\[
+ \log\Gamma(X)=T-\frac12\log X+\frac12\log(2\pi)+\OO(X^{-1}).
+\]
+Since the derivative of the core is $\log X$, the first source correction is
+\[
+ x-X=\frac12-\frac{\log(2\pi)}{2\log X}
+       +\text{smaller terms}.
+\]
+The inspected Gamma recurrence uses precisely the useful separation between powers of $1/X$ and a reciprocal logarithmic coefficient variable. The core is an exact \code{ProductLog} expression; the Stirling expansion is still Poincar\'e data, not a convergent exact forward series.\cite{gamma,wl-productlog,dlmf511}
+
+For Barnes $G(1+X)$, the leading equation is
+\[
+ \frac{X^2}{2}\left(\log X-\frac32\right)=T,
+ \qquad X=\sqrt{\frac{4T}{W(4T/e^3)}}.
+\]
+Its derivative is $X(\log X-1)$. This explains the different reciprocal-log variable used by the Barnes recurrence and the necessary argument shift. These identities follow directly by substitution; they are not native numerical observations.\cite{barnes,dlmf517}
+
+\subsection{An independently checkable Dirichlet tail}
+
+For real $S>1$, the tail after retaining $1,2^{-S},\ldots,(m-1)^{-S}$ in $\zeta(S)$ obeys
+\begin{equation}
+ m^{-S}\leq\sum_{n=m}^{\infty}n^{-S}
+ \leq m^{-S}+\int_m^\infty t^{-S}\,dt
+ =m^{-S}\left(1+\frac{m}{S-1}\right).
+\end{equation}
+Thus $w=e^{-S}$ makes the terms $w^{\log n}$, with an explicit first-neglected-term comparison. This is a good example of a scale choice whose value lies in an auditable support and tail, rather than in claiming that native zeta asymptotics are absent. The inspected Dirichlet adapter follows this structure.\cite{dirichlet}
+
+\subsection{Fourier coefficients and differentiation}
+
+A coefficient mode $P(\ell)e^{i\omega\ell}$, with $\ell=\log u$, is acted on by the Euler operator as
+\[
+ u\frac{d}{du}\bigl(P(\ell)e^{i\omega\ell}\bigr)
+ =\bigl(P'(\ell)+i\omega P(\ell)\bigr)e^{i\omega\ell}.
+\]
+The Fourier module uses this operator and verifies the conjugacy relation between opposite frequencies to establish real-valued coefficients. Oscillatory zeros are not used as nonvanishing error scales; polynomial envelopes bound amplitudes instead. These are important distinctions from a naive algebra of trigonometric leading coefficients.\cite{fourier}
+
+The remainder-differentiation restrictions in the ordinary and flat calculi are also deliberate. A bare $\OO(R)$ is not automatically differentiable with the derivative of $R$ as an error scale. The flat module records a specific analytic contract and uses its phase-dependent derivative loss. F03 preserves that distinction; its proposed product is not permission to differentiate arbitrary unknown errors.\cite{seriesops,flat,flatops,dlmf21}

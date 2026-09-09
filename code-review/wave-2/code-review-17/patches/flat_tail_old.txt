@@ -1,0 +1,6 @@
+  (* E^(k-N-1)<=1 for k>N. Keeping the coefficient's algebraic bound is
+     conservative; it does not move an inner error to a later sector. *)
+  Do[tail = flatOpsTailAdd[tail, flatOpsJetBound[convolution[[k + 1]], ell]], {k, n + 1, na + nb}];
+  Do[tail = flatOpsTailAdd[tail, flatOpsBoundProduct[a["SectorTail"], flatOpsJetBound[j, ell]]], {j, bj}];
+  Do[tail = flatOpsTailAdd[tail, flatOpsBoundProduct[b["SectorTail"], flatOpsJetBound[j, ell]]], {j, aj}];
+  tail = flatOpsTailAdd[tail, flatOpsBoundProduct[a["SectorTail"], b["SectorTail"]]];

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "certificate-isolation-open",
+    "file": "AsymptoticInverse/Kernel/InverseCertificates.wl",
+    "old": "AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts : OptionsPattern[]] := catch[Module[",
+    "new": "AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts : OptionsPattern[]] := catch[Block[{$Assumptions = True}, Module["
+  },
+  {
+    "id": "certificate-isolation-close",
+    "file": "AsymptoticInverse/Kernel/InverseCertificates.wl",
+    "old": "   certFail[\"CertificateFailure\", \"No residual certificate was established.\"]]]];",
+    "new": "   certFail[\"CertificateFailure\", \"No residual certificate was established.\"]]]]];"
+  },
+  {
+    "id": "real-coefficient-admission",
+    "file": "AsymptoticInverse/Kernel/AsymptoticInverse.wl",
+    "old": "pConst[c_, ell_, ass_] := (\n  If[! PolynomialQ[c, ell], fail[\"UnsupportedCoefficient\", \"Logarithmic coefficients must be polynomials.\", <|\"Coefficient\" -> c|>]];\n  If[zeroQ[c, ass], {{}, Infinity, 0}, {{{0, c}}, Infinity, 0}]);",
+    "new": "pConst[c_, ell_, ass_] := (\n  If[! PolynomialQ[c, ell], fail[\"UnsupportedCoefficient\", \"Logarithmic coefficients must be polynomials.\", <|\"Coefficient\" -> c|>]];\n  If[! And @@ (TrueQ[Refine[Element[#, Reals], ass, Assumptions -> True]] & /@ CoefficientList[c, ell]),\n    fail[\"UnprovedRealCoefficient\", \"Every admitted coefficient must be real under the explicit assumptions.\", <|\"Coefficient\" -> c|>]];\n  If[zeroQ[c, ass], {{}, Infinity, 0}, {{{0, c}}, Infinity, 0}]);"
+  },
+  {
+    "id": "native-index-range",
+    "file": "AsymptoticInverse/Kernel/AsymptoticInverse.wl",
+    "old": "  If[count > limit, Return[Missing[\"DenseSeriesDataLimit\",",
+    "new": "  If[! And @@ (IntegerQ[#] && -2^($SystemWordLength - 1) <= # < 2^($SystemWordLength - 1) & /@ {nmin, nmax, den}) || den <= 0,\n    Return[Missing[\"NativeSeriesDataIndexRange\",\n      <|\"Indices\" -> {nmin, nmax, den}, \"SystemWordLength\" -> $SystemWordLength|>], Module]];\n  If[count > limit, Return[Missing[\"DenseSeriesDataLimit\","
+  }
+]

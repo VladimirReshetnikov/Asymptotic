@@ -1,0 +1,153 @@
+{
+  "provenance": "Faithful transcription of successful Wolfram connector responses in this session; not a raw kernel log or full-suite report.",
+  "date": "2026-09-09",
+  "commit": "921387e5ba1239bfda96e63e64e89bf63d9c41e6",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "standalone_bytes": 574894,
+  "standalone_source_count": 38,
+  "observations": {
+    "N1-ambient-semantics": {
+      "Refine": "True",
+      "FullSimplify": "True",
+      "Simplify": "True",
+      "condition": "x > 10",
+      "ambient": "x > 10",
+      "explicit": "Element[x, Reals]"
+    },
+    "N1-baseline-hostile": {
+      "Certified": true,
+      "RootEnclosure": [
+        2,
+        2
+      ],
+      "VerificationInterval": [
+        1,
+        3
+      ],
+      "CertifiedSourceDomain": "x > 10",
+      "SourceDomainVerified": true,
+      "CertifiedFunction": "x",
+      "CertifiedTarget": 2,
+      "CertifiedErrorBound": 0
+    },
+    "N1-baseline-clean": {
+      "FailureTag": "OutsideBranch",
+      "Certified": false
+    },
+    "N1-patched-hostile": {
+      "FailureTag": "OutsideBranch",
+      "Certified": false,
+      "patch_anchor_count": 1
+    },
+    "N1-patched-valid": {
+      "Certified": true,
+      "RootEnclosure": [
+        12,
+        12
+      ],
+      "SourceDomainVerified": true
+    },
+    "N2-baseline": {
+      "operand_depths": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "common_expression": "y^2 - 2 y Exp[-1/y]",
+      "sector_tail_pairs": [
+        [
+          -4,
+          0
+        ],
+        [
+          -6,
+          0
+        ],
+        [
+          -8,
+          0
+        ]
+      ],
+      "common_tail_carrier": "Exp[-2/y]"
+    },
+    "N2-patched": {
+      "operand_depths": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "common_expression": "y^2 - 2 y Exp[-1/y]",
+      "sector_tail_pairs": [
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          -1,
+          0
+        ]
+      ],
+      "common_tail_carrier": "Exp[-2/y]",
+      "patch_scope": "Same executable replacement as supplied; remote formatting/comments differ. No full-suite run."
+    },
+    "N3-numerical-resolution": {
+      "target": "1/1000",
+      "WorkingPrecision": 50,
+      "Error_InputForm": "0``62.69897000433602",
+      "Ratio_InputForm": "0``-799.8899938021677",
+      "RootResidual_InputForm": "0``63.",
+      "RemainderScale": "2.57653587296114965219015049950735291272213057376063220211794589`50.*^-863",
+      "Approximation": "0.001`50.",
+      "ReferenceRoot": "0.001`50.",
+      "interpretation": "Inexact zero with finite accuracy, NOT an exact zero or an accurate zero ratio."
+    },
+    "forward-smoke": {
+      "input": "AsymptoticExpansion[Sin[x], {x,0,4}]",
+      "expression": "x - x^3/6"
+    },
+    "N4-native-comparison": {
+      "Series[x^x,{x,0,3}]": "SeriesData[x,0,{1,Log[x],Log[x]^2/2,Log[x]^3/6},0,4,1]",
+      "InverseSeries[Series[x+x^2,{x,0,5}],y]": "SeriesData[y,0,{1,-1,2,-5,14},1,6,1]",
+      "Asymptotic[Zeta[x],x->Infinity,SeriesTermGoal->3]": "1 + 2^(-x) + 3^(-x)",
+      "Series[Zeta[x],{x,Infinity,3}]": "1 + 2^SeriesData[x,Infinity,{-1},-1,4,1] + 3^SeriesData[x,Infinity,{-1},-1,4,1]",
+      "Normal[Series[Zeta[x],{x,Infinity,3}]]": "1 + 2^(-x) + 3^(-x)",
+      "PackageZetaFinitePart": "1 + 2^(-x) + 3^(-x)",
+      "PackageZetaUpperBound": "4^(-x) (1 + 4/(x-1))",
+      "PackageZetaLowerBound": "4^(-x)",
+      "PackageZetaCoordinate": "Exp[-x]",
+      "NativeIrrationalInverse": "AsymptoticSolve[x+x^Sqrt[2]==y,{x,0},{y,0,3},Reals] remained unevaluated, not timed out",
+      "NativeFlatInverse": "AsymptoticSolve[x+Exp[-1/x]==y,{x,0},{y,0,3},Reals] remained unevaluated, not timed out",
+      "PackageIrrationalInverse": "y-y^Sqrt[2]+Sqrt[2] y^(-1+2 Sqrt[2])+(-3+1/Sqrt[2]) y^(-2+3 Sqrt[2])+(-4+17 Sqrt[2]/3) y^(-3+4 Sqrt[2])",
+      "Interpretation": "Results are version- and request-specific. Unevaluated calls do not prove that no native reformulation can solve the problem."
+    }
+  },
+  "limitations": [
+    "Several connector attempts failed with HTTP 502/network errors; failed attempts supply no mathematical evidence.",
+    "No full package test suite was run.",
+    "No native runtime or memory benchmark is claimed.",
+    "The certificate patch has only the stated focused native checks.",
+    "The flat-tail patch has focused native checks and an independent bound-model test; broader scale regressions remain necessary."
+  ]
+}

@@ -1,0 +1,95 @@
+\section{F04: a positive observable can have a negative source}\label{sec:f04}
+
+\textbf{Classification: conservative capability restriction and API inconsistency.} This finding identifies a useful safe generalization, not an unsafe existing result.
+
+\source{AsymptoticInverse/Kernel/GammaInverseOperations.wl}{\code{gammaInverseSeriesPower}, especially the early endpoint/noninteger-exponent guard and the later source-equation replay.\cite{gammaops}}
+
+The Gamma/Barnes power operation rejects every noninteger outer exponent when the recorded source endpoint is not $+\infty$. The diagnostic describes this as requiring a positive source branch. However, the input object can already represent a \emph{power observable} of the source, and positivity of that observable is the relevant requirement for a real noninteger outer power.
+
+For example, let $x<0$ be the selected source and let the input object represent $s=x^2$. Then
+\[
+ s>0,\qquad s^{1/2}=\sqrt{x^2}=|x|=-x.
+\]
+The source is negative but the square-root input is positive. A characterization case is
+\begin{lstlisting}
+s = AsymptoticInverse[
+  Gamma[-x], {x, -Infinity}, {y, 2}, "Power" -> 2];
+SeriesPower[s, 1/2]
+\end{lstlisting}
+The runner first exposes the resulting object's power and endpoint, then calls the power operation. The inspected guard rejects the noninteger outer exponent for a Gamma/Barnes inverse object with that negative endpoint. Exact public constructor behavior is left to the native characterization; the guard's policy is explicit in source.\cite{gamma,gammaops}
+
+The public arithmetic wrapper does not rescue this rejection through its composite fallback: \code{UnsupportedPowerBranch} is absent from \code{seriesArithmeticFallbackQ}. Consequently, once the input is the specified Gamma/Barnes inverse object, the specialized guard is propagated as a failure rather than replaced by a positive-observable envelope calculation.\cite{arithmetic,seriesops,gammaops}
+
+\subsection{Do not repair this by multiplying exponents blindly}
+
+The tempting rewrite $(x^r)^k\mapsto x^{rk}$ is incorrect on a negative source branch. The example $r=2,k=1/2$ would yield $x$ instead of $-x$. A safe extension uses a positive source coordinate $u=-x>0$:
+\[
+ f(x)=y\quad\Longleftrightarrow\quad f(-u)=y,
+ \qquad (x^{2m})^k=u^{2mk}.
+\]
+The source condition must be reflected as well. The desired result can be reconstructed from an inverse problem at $u\to+\infty$, with an explicit observable map back to the original source.
+
+This reflection also makes the distinction between the original source and the represented observable visible in metadata. A result cannot claim to represent the original $x^{rk}$ on a negative branch when it actually represents $|x|^{rk}$. Either record the observable expression explicitly or retain a sign-correct reconstruction recipe. Merely bypassing the guard is not a repair.
+
+\subsection{Inherited precision remains a constraint on source replay}
+
+If $s=A+\OO(R)$ has leading power $\alpha$ in its positive small coordinate, a fixed real power $k$ on an established branch transports the absolute error at first order as
+\[
+ \delta(s^k)=\OO(A^{k-1}R),
+ \qquad P_{\rm out}\le P_{\rm in}+\alpha(k-1).
+\]
+The existing Gamma/Barnes replay operation already caps output precision using this relation and carries a reciprocal-log correction to the tail. That cap must survive a sign-aware extension. Replaying the exact source equation to obtain coefficients does not justify pretending the input object was supplied with greater accuracy.\cite{gammaops}
+
+A minimal development target is therefore narrow: accept positive even source-power observables on negative affine Gamma/Barnes branches, reflect to a positive source coordinate, and preserve the existing precision cap. General noninteger powers of negative observables remain a different branch-analysis problem and should not be smuggled into this change.
+
+\section{A focused development plan, without duplicating the old roadmap}
+
+The earlier register already contains broad initiatives for scale protocols, more certified functions, general transseries, parameter regions, release gates, and documentation. The plan below is deliberately limited to the concrete new invariants and algorithms established in this report.\cite{status}
+
+\subsection{Change set A: establish target geometry before arithmetic}
+
+Patch the flat constructor and derived-flat constructor to record the exact approach of their monomial target chart. Patch Erfc-tail and quadratic-threshold adapters to compute direction from the actual oriented target map. Update legacy fallback so that a guessed offset or affine scale cannot bypass the positive-coordinate limit check.
+
+The acceptance criterion is not merely that a metadata key exists. Original and derived objects must agree on endpoint and side, their positive coordinates must tend to zero there, and mixed-scale public arithmetic must either preserve that approach or reject genuinely incompatible approaches. The sixteen exact model cases provide a small orientation matrix; add producer/fallback parity tests for each applicable public family.
+
+This change should come first because incorrect independent-variable geometry can undermine the interpretation of every later error calculation. It is localized enough to avoid a broad object-schema redesign.
+
+\subsection{Change set B: separate certification from accuracy completion}
+
+Use the existing root intersection to tighten the reported center-error bound. Retain the best successful certificate by an explicit bound criterion. Then repair the automatic-center transition so that insufficient arithmetic precision can increase after successful certification. Add relative-only demand to the precision planner once a root-magnitude bound is available.
+
+Test the low-order $x^2=2$ case with source refinement disabled so that no expensive symbolic seed replay masks the controller behavior. Require the final certificate to establish the tolerance, and require its arithmetic history to show an appropriate response when low precision is the bottleneck. Also test a fixed center whose actual error exceeds the requested tolerance: the controller must still report an accuracy floor rather than silently moving it.
+
+The source of every returned bound remains unchanged: a root of the stored explicit equation on a verified interval. This change does not certify an unspecified \code{InputRemainder} family, and it should not alter that existing scope statement.\cite{cert}
+
+\subsection{Change set C: retain grades in flat product error scheduling}
+
+Introduce a small internal error-grade triple and use it only for the complete omitted-sector tail. Keep retained inner errors in their own sectors. Replace discarded coefficient products by envelope products, with optional dominant-frontier cancellation work when its cost is justified. Preserve current aggregate resource guards initially; separate changes to budget policy are already tracked elsewhere.
+
+The decisive precision acceptance tests are the depth-one and depth-three squares in F03, whose complete tail powers should be $-1$ and $-5$, not $-4$ and $-12$. The decisive safety tests are exact-zero annihilation, pure unknown inner coefficients, unequal sector depths, and derivative-contract preservation. The decisive performance instrumentation counts retained polynomial multiplications separately from envelope comparisons; wall-clock figures alone would not explain the benefit.
+
+\subsection{Change set D: support reflected positive observables}
+
+After geometry and precision transport are stable, extend Gamma/Barnes observable replay to the positive-even-power case described in F04. Keep source reflection and observable reconstruction separate. Test $\sqrt{x^2}=-x$ for $x<0$, not just the equality of formal exponent products. Compare a directly requested positive-source observable with the reflected-source operation under the same cutoff and inherited remainder.
+
+This is a feature-sized change, not a prerequisite for correcting F01--F03. A deliberate continued rejection is mathematically safer than a branch-blind implementation.
+
+\subsection{New cross-family invariants worth institutionalizing}
+
+The new defects share a theme: locally sensible metadata shortcuts become wrong when an object enters a different algebraic path. Three targeted metamorphic properties expose these errors better than another large list of unrelated examples.
+
+\textbf{Chart naturality.} Construct an expansion, apply an exact affine target change, and compare the inferred target approach with the transformed original approach. Source reflection must be handled independently of target scaling.
+
+\textbf{Precision monotonicity under informative post-processing.} A certificate which retains a smaller root enclosure must not report an error upper bound larger than the maximum distance from its center to that enclosure. This is a theorem about already retained evidence, not a heuristic request for tighter numerics.
+
+\textbf{Graded dominance.} Replacing a tail contribution by a later exponential sector cannot worsen the leading exponential/algebraic order of an earlier tail merely because its coefficient has a larger fixed pole. Test the grade comparison directly, as well as through public multiplication.
+
+These invariants are concrete additions to existing tests, not a restatement of the general need for more tests. They each correspond to a derived equation in this report and can be implemented with small exact oracles.
+
+\section{Overall assessment}
+
+The repository's strongest contribution is the connection between structured asymptotic expressions and explicit operational contracts: source charts, real branches, tracked power--log errors, qualified differentiation, exact-core inversion, and quantitative residual certificates. Its special-function work correctly leans on native Wolfram facilities rather than trying to reproduce their entire domain knowledge.\cite{readme,core,native,cert}
+
+The additional issues found here concentrate at the boundaries between those contracts. A target offset is substituted for a target limit; success of one proof obligation suppresses progress on another; an exponentially graded uncertainty is flattened before dominance is decided; the sign of a source is substituted for the sign of an observable. Each shortcut has a small local justification, but the larger mathematical object requires a stronger invariant.
+
+The recommended response is correspondingly focused: preserve exact target geometry, let certificate precision respond to the actual bottleneck, preserve exponential grades until error dominance is resolved, and distinguish source orientation from observable positivity. These changes are more valuable at this stage than expanding the feature list while leaving the existing cross-family semantics implicit.

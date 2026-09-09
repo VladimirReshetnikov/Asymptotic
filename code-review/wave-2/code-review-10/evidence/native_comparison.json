@@ -1,0 +1,40 @@
+{
+  "snapshot": "921387e5ba1239bfda96e63e64e89bf63d9c41e6",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "polynomial": {
+    "package_input": "AsymptoticInverse[x+x^2,{x,0},{y,6}]",
+    "native_input": "InverseSeries[Series[x+x^2,{x,0,5}],y]",
+    "both_finite_expressions": "y-y^2+2*y^3-5*y^4+14*y^5",
+    "simplified_difference": "0",
+    "package_remainder": "PowerLogRemainder[y,6,0]"
+  },
+  "logarithmic": {
+    "package_input": "AsymptoticExpansion[x^x,{x,0,3}]",
+    "native_input": "Series[x^x,{x,0,2}]",
+    "both_finite_expressions": "1+x*Log[x]+x^2*Log[x]^2/2",
+    "simplified_difference": "0",
+    "package_remainder": "PowerLogRemainder[x,3,3]"
+  },
+  "irrational": {
+    "package_input": "AsymptoticInverse[x+x^Sqrt[2],{x,0},{y,2}]",
+    "package_finite_expression": "y-y^Sqrt[2]+Sqrt[2]*y^(-1+2*Sqrt[2])",
+    "package_remainder": "PowerLogRemainder[y,-2+3*Sqrt[2],0]",
+    "native_input": "AsymptoticSolve[x+x^Sqrt[2]==y,x->0,y->0,Reals,SeriesTermGoal->3]",
+    "native_result": "Unevaluated input expression",
+    "outer_time_constraint_seconds": 8,
+    "timeout_marker_returned": false,
+    "scope": "One tested formulation/version; not a universal native impossibility claim."
+  },
+  "exponential_core_positive_control": {
+    "input": "AsymptoticExponentialCoreInverse[Exp[x],x,{x,Infinity},{y,2}]",
+    "power_key_present": true,
+    "numerical_check_target": "Exp[10]+10",
+    "working_precision": 30,
+    "reference_root_approximately": "10",
+    "error_approximately": "1.807385675017152642913059587444725e-11",
+    "remainder_scale_approximately": "9.346162010726574464083354884333259e-11",
+    "ratio_approximately": "0.1933826604913138821",
+    "evidence": "Numerical comparison, not interval proof"
+  },
+  "controlled_head_to_head_timings_measured": false
+}

@@ -1,0 +1,2 @@
+c = Block[{$Assumptions = True},
+    TimeConstrained[Quiet[Refine[condition, Element[x, Reals]]], 1, condition]];

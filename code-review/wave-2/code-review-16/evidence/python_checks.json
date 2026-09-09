@@ -1,0 +1,581 @@
+{
+  "scope": "Independent rational arithmetic and polynomial identities; no native Wolfram execution.",
+  "passed": 107,
+  "failed": 0,
+  "polynomial_boundary_trials": 24,
+  "certificate_precision_table": [
+    {
+      "enclosure_order": 60,
+      "bits": 280,
+      "log10_residual_bound": -84.8904587772427,
+      "meets_relative_1e_minus_1000_at_midpoint": false
+    },
+    {
+      "enclosure_order": 120,
+      "bits": 520,
+      "log10_residual_bound": -157.1376577365982,
+      "meets_relative_1e_minus_1000_at_midpoint": false
+    },
+    {
+      "enclosure_order": 240,
+      "bits": 1000,
+      "log10_residual_bound": -301.63205565530916,
+      "meets_relative_1e_minus_1000_at_midpoint": false
+    },
+    {
+      "enclosure_order": 480,
+      "bits": 1960,
+      "log10_residual_bound": -590.6208514927312,
+      "meets_relative_1e_minus_1000_at_midpoint": false
+    },
+    {
+      "enclosure_order": 960,
+      "bits": 3880,
+      "log10_residual_bound": -1168.598443167575,
+      "meets_relative_1e_minus_1000_at_midpoint": true
+    },
+    {
+      "enclosure_order": 1920,
+      "bits": 7720,
+      "log10_residual_bound": -2324.5536265172627,
+      "meets_relative_1e_minus_1000_at_midpoint": true
+    }
+  ],
+  "tests": [
+    {
+      "name": "exponential boundary has logarithmic degree two",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "callback sequence is single-pass",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "logarithm boundary has logarithmic degree two",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "cancelled boundary gives degree zero",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "input logarithmic uncertainty retained",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "nonattained rational boundary needs no logarithmic degree",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 7",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 7",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 8",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 8",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 9",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 9",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 11",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 11",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 12",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 12",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 13",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 13",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 14",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 14",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 15",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 15",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 16",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 16",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 17",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 17",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 18",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 18",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 19",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 19",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 20",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 20",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 21",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 21",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 22",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 22",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 23",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 23",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "closed boundary polynomial oracle 24",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "stateful callback ordering 24",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "unrestricted identity equation has root one half",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "one-half violates retained source domain x>1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "entire proposed interval violates x>1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 1/3 at 8 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 1/3 at 24 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 1/3 at 280 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding -1/3 at 8 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding -1/3 at 24 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding -1/3 at 280 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 0 at 8 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 0 at 24 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 0 at 280 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 23/7 at 8 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 23/7 at 24 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 23/7 at 280 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 1/10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 at 8 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 1/10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 at 24 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding 1/10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 at 280 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding -17/13 at 8 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding -17/13 at 24 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "outward rounding -17/13 at 280 bits",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "non-dyadic constant width at order 60",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual inherits non-dyadic width at order 60",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual radius has lower floor at order 60",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "non-dyadic constant width at order 120",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual inherits non-dyadic width at order 120",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual radius has lower floor at order 120",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "non-dyadic constant width at order 240",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual inherits non-dyadic width at order 240",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual radius has lower floor at order 240",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "non-dyadic constant width at order 480",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual inherits non-dyadic width at order 480",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual radius has lower floor at order 480",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "non-dyadic constant width at order 960",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual inherits non-dyadic width at order 960",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual radius has lower floor at order 960",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "non-dyadic constant width at order 1920",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual inherits non-dyadic width at order 1920",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "residual radius has lower floor at order 1920",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "default order cannot meet very tight pure relative request",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "larger enclosure order resolves arithmetic floor",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=2,m=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=2,m=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=2,m=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=3,m=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=3,m=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=3,m=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=5,m=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=5,m=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=5,m=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=10,m=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=10,m=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "zeta partial-tail comparison s=10,m=5",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

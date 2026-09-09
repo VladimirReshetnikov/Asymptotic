@@ -1,0 +1,993 @@
+{
+  "snapshot": "921387e5ba1239bfda96e63e64e89bf63d9c41e6",
+  "evidence_type": "Independent restricted models; not Wolfram package execution",
+  "python": "3.13.5",
+  "geometry": [
+    {
+      "family": "FlatMonomial",
+      "q": "-3",
+      "a": "-3",
+      "baseline": [
+        "0",
+        "FromBelow"
+      ],
+      "expected": [
+        "-Infinity",
+        "FromAbove"
+      ]
+    },
+    {
+      "family": "FlatMonomial",
+      "q": "-3",
+      "a": "2",
+      "baseline": [
+        "0",
+        "FromAbove"
+      ],
+      "expected": [
+        "Infinity",
+        "FromBelow"
+      ]
+    },
+    {
+      "family": "FlatMonomial",
+      "q": "-1/2",
+      "a": "-3",
+      "baseline": [
+        "0",
+        "FromBelow"
+      ],
+      "expected": [
+        "-Infinity",
+        "FromAbove"
+      ]
+    },
+    {
+      "family": "FlatMonomial",
+      "q": "-1/2",
+      "a": "2",
+      "baseline": [
+        "0",
+        "FromAbove"
+      ],
+      "expected": [
+        "Infinity",
+        "FromBelow"
+      ]
+    },
+    {
+      "family": "FlatMonomial",
+      "q": "1/2",
+      "a": "-3",
+      "baseline": [
+        "0",
+        "FromBelow"
+      ],
+      "expected": [
+        "0",
+        "FromBelow"
+      ]
+    },
+    {
+      "family": "FlatMonomial",
+      "q": "1/2",
+      "a": "2",
+      "baseline": [
+        "0",
+        "FromAbove"
+      ],
+      "expected": [
+        "0",
+        "FromAbove"
+      ]
+    },
+    {
+      "family": "FlatMonomial",
+      "q": "2",
+      "a": "-3",
+      "baseline": [
+        "0",
+        "FromBelow"
+      ],
+      "expected": [
+        "0",
+        "FromBelow"
+      ]
+    },
+    {
+      "family": "FlatMonomial",
+      "q": "2",
+      "a": "2",
+      "baseline": [
+        "0",
+        "FromAbove"
+      ],
+      "expected": [
+        "0",
+        "FromAbove"
+      ]
+    },
+    {
+      "family": "Erfc",
+      "source_sign": -1,
+      "scale": "-2",
+      "baseline": [
+        "-4",
+        "FromBelow"
+      ],
+      "expected": [
+        "-4",
+        "FromAbove"
+      ]
+    },
+    {
+      "family": "Erfc",
+      "source_sign": -1,
+      "scale": "3",
+      "baseline": [
+        "6",
+        "FromAbove"
+      ],
+      "expected": [
+        "6",
+        "FromBelow"
+      ]
+    },
+    {
+      "family": "Erfc",
+      "source_sign": 1,
+      "scale": "-2",
+      "baseline": [
+        "0",
+        "FromBelow"
+      ],
+      "expected": [
+        "0",
+        "FromBelow"
+      ]
+    },
+    {
+      "family": "Erfc",
+      "source_sign": 1,
+      "scale": "3",
+      "baseline": [
+        "0",
+        "FromAbove"
+      ],
+      "expected": [
+        "0",
+        "FromAbove"
+      ]
+    },
+    {
+      "family": "Quadratic",
+      "a": "-3",
+      "scale": "-2",
+      "baseline": [
+        "0",
+        "FromBelow"
+      ],
+      "expected": [
+        "0",
+        "FromAbove"
+      ]
+    },
+    {
+      "family": "Quadratic",
+      "a": "-3",
+      "scale": "3",
+      "baseline": [
+        "0",
+        "FromAbove"
+      ],
+      "expected": [
+        "0",
+        "FromBelow"
+      ]
+    },
+    {
+      "family": "Quadratic",
+      "a": "2",
+      "scale": "-2",
+      "baseline": [
+        "0",
+        "FromBelow"
+      ],
+      "expected": [
+        "0",
+        "FromBelow"
+      ]
+    },
+    {
+      "family": "Quadratic",
+      "a": "2",
+      "scale": "3",
+      "baseline": [
+        "0",
+        "FromAbove"
+      ],
+      "expected": [
+        "0",
+        "FromAbove"
+      ]
+    }
+  ],
+  "geometry_mismatches": 8,
+  "certificate_baseline": {
+    "reached": false,
+    "history": [
+      {
+        "iteration": 0,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/281474976710656",
+        "radius": 3.552713678800501e-15,
+        "sharp_bound_exact": "1/281474976710656",
+        "sharp_bound": 3.552713678800501e-15,
+        "interval_width": 3.552713678800501e-15
+      },
+      {
+        "iteration": 1,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/562949953421312",
+        "sharp_bound": 1.7763568394002505e-15,
+        "interval_width": 1.7763568394002505e-15
+      },
+      {
+        "iteration": 2,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/1125899906842624",
+        "sharp_bound": 8.881784197001252e-16,
+        "interval_width": 8.881784197001252e-16
+      },
+      {
+        "iteration": 3,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/2251799813685248",
+        "sharp_bound": 4.440892098500626e-16,
+        "interval_width": 4.440892098500626e-16
+      },
+      {
+        "iteration": 4,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/4503599627370496",
+        "sharp_bound": 2.220446049250313e-16,
+        "interval_width": 2.220446049250313e-16
+      },
+      {
+        "iteration": 5,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/9007199254740992",
+        "sharp_bound": 1.1102230246251565e-16,
+        "interval_width": 1.1102230246251565e-16
+      },
+      {
+        "iteration": 6,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/18014398509481984",
+        "sharp_bound": 5.551115123125783e-17,
+        "interval_width": 5.551115123125783e-17
+      },
+      {
+        "iteration": 7,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/36028797018963968",
+        "sharp_bound": 2.7755575615628914e-17,
+        "interval_width": 2.7755575615628914e-17
+      },
+      {
+        "iteration": 8,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/72057594037927936",
+        "sharp_bound": 1.3877787807814457e-17,
+        "interval_width": 1.3877787807814457e-17
+      },
+      {
+        "iteration": 9,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/144115188075855872",
+        "sharp_bound": 6.938893903907228e-18,
+        "interval_width": 6.938893903907228e-18
+      },
+      {
+        "iteration": 10,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/288230376151711744",
+        "sharp_bound": 3.469446951953614e-18,
+        "interval_width": 3.469446951953614e-18
+      },
+      {
+        "iteration": 11,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/576460752303423488",
+        "sharp_bound": 1.734723475976807e-18,
+        "interval_width": 1.734723475976807e-18
+      },
+      {
+        "iteration": 12,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/1152921504606846976",
+        "sharp_bound": 8.673617379884035e-19,
+        "interval_width": 8.673617379884035e-19
+      },
+      {
+        "iteration": 13,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/2305843009213693952",
+        "sharp_bound": 4.336808689942018e-19,
+        "interval_width": 4.336808689942018e-19
+      },
+      {
+        "iteration": 14,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/4611686018427387904",
+        "sharp_bound": 2.168404344971009e-19,
+        "interval_width": 2.168404344971009e-19
+      },
+      {
+        "iteration": 15,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/9223372036854775808",
+        "sharp_bound": 1.0842021724855044e-19,
+        "interval_width": 1.0842021724855044e-19
+      },
+      {
+        "iteration": 16,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/18446744073709551616",
+        "sharp_bound": 5.421010862427522e-20,
+        "interval_width": 5.421010862427522e-20
+      },
+      {
+        "iteration": 17,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/36893488147419103232",
+        "sharp_bound": 2.710505431213761e-20,
+        "interval_width": 2.710505431213761e-20
+      },
+      {
+        "iteration": 18,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/73786976294838206464",
+        "sharp_bound": 1.3552527156068805e-20,
+        "interval_width": 1.3552527156068805e-20
+      },
+      {
+        "iteration": 19,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/147573952589676412928",
+        "sharp_bound": 6.776263578034403e-21,
+        "interval_width": 6.776263578034403e-21
+      },
+      {
+        "iteration": 20,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/295147905179352825856",
+        "sharp_bound": 3.3881317890172014e-21,
+        "interval_width": 3.3881317890172014e-21
+      },
+      {
+        "iteration": 21,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/590295810358705651712",
+        "sharp_bound": 1.6940658945086007e-21,
+        "interval_width": 1.6940658945086007e-21
+      },
+      {
+        "iteration": 22,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/1180591620717411303424",
+        "sharp_bound": 8.470329472543003e-22,
+        "interval_width": 8.470329472543003e-22
+      },
+      {
+        "iteration": 23,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/2361183241434822606848",
+        "sharp_bound": 4.235164736271502e-22,
+        "interval_width": 4.235164736271502e-22
+      },
+      {
+        "iteration": 24,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/4722366482869645213696",
+        "sharp_bound": 2.117582368135751e-22,
+        "interval_width": 2.117582368135751e-22
+      },
+      {
+        "iteration": 25,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/9444732965739290427392",
+        "sharp_bound": 1.0587911840678754e-22,
+        "interval_width": 1.0587911840678754e-22
+      },
+      {
+        "iteration": 26,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/18889465931478580854784",
+        "sharp_bound": 5.293955920339377e-23,
+        "interval_width": 5.293955920339377e-23
+      },
+      {
+        "iteration": 27,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/37778931862957161709568",
+        "sharp_bound": 2.6469779601696886e-23,
+        "interval_width": 2.6469779601696886e-23
+      },
+      {
+        "iteration": 28,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/75557863725914323419136",
+        "sharp_bound": 1.3234889800848443e-23,
+        "interval_width": 1.3234889800848443e-23
+      },
+      {
+        "iteration": 29,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/151115727451828646838272",
+        "sharp_bound": 6.617444900424222e-24,
+        "interval_width": 6.617444900424222e-24
+      },
+      {
+        "iteration": 30,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/302231454903657293676544",
+        "sharp_bound": 3.308722450212111e-24,
+        "interval_width": 3.308722450212111e-24
+      },
+      {
+        "iteration": 31,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/604462909807314587353088",
+        "sharp_bound": 1.6543612251060553e-24,
+        "interval_width": 1.6543612251060553e-24
+      },
+      {
+        "iteration": 32,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/1208925819614629174706176",
+        "sharp_bound": 8.271806125530277e-25,
+        "interval_width": 8.271806125530277e-25
+      },
+      {
+        "iteration": 33,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/2417851639229258349412352",
+        "sharp_bound": 4.1359030627651384e-25,
+        "interval_width": 4.1359030627651384e-25
+      },
+      {
+        "iteration": 34,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/4835703278458516698824704",
+        "sharp_bound": 2.0679515313825692e-25,
+        "interval_width": 2.0679515313825692e-25
+      },
+      {
+        "iteration": 35,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/9671406556917033397649408",
+        "sharp_bound": 1.0339757656912846e-25,
+        "interval_width": 1.0339757656912846e-25
+      },
+      {
+        "iteration": 36,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/19342813113834066795298816",
+        "sharp_bound": 5.169878828456423e-26,
+        "interval_width": 5.169878828456423e-26
+      },
+      {
+        "iteration": 37,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/38685626227668133590597632",
+        "sharp_bound": 2.5849394142282115e-26,
+        "interval_width": 2.5849394142282115e-26
+      },
+      {
+        "iteration": 38,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/77371252455336267181195264",
+        "sharp_bound": 1.2924697071141057e-26,
+        "interval_width": 1.2924697071141057e-26
+      },
+      {
+        "iteration": 39,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/154742504910672534362390528",
+        "sharp_bound": 6.462348535570529e-27,
+        "interval_width": 6.462348535570529e-27
+      },
+      {
+        "iteration": 40,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/309485009821345068724781056",
+        "sharp_bound": 3.2311742677852644e-27,
+        "interval_width": 3.2311742677852644e-27
+      },
+      {
+        "iteration": 41,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/618970019642690137449562112",
+        "sharp_bound": 1.6155871338926322e-27,
+        "interval_width": 1.6155871338926322e-27
+      },
+      {
+        "iteration": 42,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/1237940039285380274899124224",
+        "sharp_bound": 8.077935669463161e-28,
+        "interval_width": 8.077935669463161e-28
+      },
+      {
+        "iteration": 43,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/2475880078570760549798248448",
+        "sharp_bound": 4.0389678347315804e-28,
+        "interval_width": 4.0389678347315804e-28
+      },
+      {
+        "iteration": 44,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/4951760157141521099596496896",
+        "sharp_bound": 2.0194839173657902e-28,
+        "interval_width": 2.0194839173657902e-28
+      },
+      {
+        "iteration": 45,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/9903520314283042199192993792",
+        "sharp_bound": 1.0097419586828951e-28,
+        "interval_width": 1.0097419586828951e-28
+      },
+      {
+        "iteration": 46,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/19807040628566084398385987584",
+        "sharp_bound": 5.048709793414476e-29,
+        "interval_width": 5.048709793414476e-29
+      },
+      {
+        "iteration": 47,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/39614081257132168796771975168",
+        "sharp_bound": 2.524354896707238e-29,
+        "interval_width": 2.524354896707238e-29
+      },
+      {
+        "iteration": 48,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/79228162514264337593543950336",
+        "sharp_bound": 1.262177448353619e-29,
+        "interval_width": 1.262177448353619e-29
+      },
+      {
+        "iteration": 49,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/158456325028528675187087900672",
+        "sharp_bound": 6.310887241768095e-30,
+        "interval_width": 6.310887241768095e-30
+      },
+      {
+        "iteration": 50,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/316912650057057350374175801344",
+        "sharp_bound": 3.1554436208840472e-30,
+        "interval_width": 3.1554436208840472e-30
+      },
+      {
+        "iteration": 51,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/633825300114114700748351602688",
+        "sharp_bound": 1.5777218104420236e-30,
+        "interval_width": 1.5777218104420236e-30
+      },
+      {
+        "iteration": 52,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/1267650600228229401496703205376",
+        "sharp_bound": 7.888609052210118e-31,
+        "interval_width": 7.888609052210118e-31
+      },
+      {
+        "iteration": 53,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/2535301200456458802993406410752",
+        "sharp_bound": 3.944304526105059e-31,
+        "interval_width": 3.944304526105059e-31
+      },
+      {
+        "iteration": 54,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/5070602400912917605986812821504",
+        "sharp_bound": 1.9721522630525295e-31,
+        "interval_width": 1.9721522630525295e-31
+      },
+      {
+        "iteration": 55,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/10141204801825835211973625643008",
+        "sharp_bound": 9.860761315262648e-32,
+        "interval_width": 9.860761315262648e-32
+      },
+      {
+        "iteration": 56,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/20282409603651670423947251286016",
+        "sharp_bound": 4.930380657631324e-32,
+        "interval_width": 4.930380657631324e-32
+      },
+      {
+        "iteration": 57,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/40564819207303340847894502572032",
+        "sharp_bound": 2.465190328815662e-32,
+        "interval_width": 2.465190328815662e-32
+      },
+      {
+        "iteration": 58,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/81129638414606681695789005144064",
+        "sharp_bound": 1.232595164407831e-32,
+        "interval_width": 1.232595164407831e-32
+      },
+      {
+        "iteration": 59,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/162259276829213363391578010288128",
+        "sharp_bound": 6.162975822039155e-33,
+        "interval_width": 6.162975822039155e-33
+      },
+      {
+        "iteration": 60,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/324518553658426726783156020576256",
+        "sharp_bound": 3.0814879110195774e-33,
+        "interval_width": 3.0814879110195774e-33
+      },
+      {
+        "iteration": 61,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/649037107316853453566312041152512",
+        "sharp_bound": 1.5407439555097887e-33,
+        "interval_width": 1.5407439555097887e-33
+      },
+      {
+        "iteration": 62,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/1298074214633706907132624082305024",
+        "sharp_bound": 7.703719777548943e-34,
+        "interval_width": 7.703719777548943e-34
+      },
+      {
+        "iteration": 63,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/2596148429267413814265248164610048",
+        "sharp_bound": 3.851859888774472e-34,
+        "interval_width": 3.851859888774472e-34
+      },
+      {
+        "iteration": 64,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/199032864766430",
+        "radius": 5.02429586778809e-15,
+        "sharp_bound_exact": "1/5192296858534827628530496329220096",
+        "sharp_bound": 1.925929944387236e-34,
+        "interval_width": 1.925929944387236e-34
+      }
+    ]
+  },
+  "certificate_escalated": {
+    "reached": true,
+    "history": [
+      {
+        "iteration": 0,
+        "order": 2,
+        "bits": 48,
+        "radius_exact": "1/281474976710656",
+        "radius": 3.552713678800501e-15,
+        "sharp_bound_exact": "1/281474976710656",
+        "sharp_bound": 3.552713678800501e-15,
+        "interval_width": 3.552713678800501e-15
+      },
+      {
+        "iteration": 1,
+        "order": 4,
+        "bits": 56,
+        "radius_exact": "91/50952413380206180",
+        "radius": 1.785980171752794e-15,
+        "sharp_bound_exact": "1/562949953421312",
+        "sharp_bound": 1.7763568394002505e-15,
+        "interval_width": 1.0002823381007994e-17
+      },
+      {
+        "iteration": 2,
+        "order": 8,
+        "bits": 72,
+        "radius_exact": "16701/3339217363285192246361",
+        "radius": 5.00147135781817e-18,
+        "sharp_bound_exact": "50720340251647/10141204801825835211973625643008",
+        "sharp_bound": 5.001411690503997e-18,
+        "interval_width": 2.39804056272747e-22
+      },
+      {
+        "iteration": 3,
+        "order": 16,
+        "bits": 104,
+        "radius_exact": "1719614429/14341829369545251819195376186229",
+        "radius": 1.199020281646626e-22,
+        "sharp_bound_exact": "163202183731464549/1361129467683753853853498429727072845824",
+        "sharp_bound": 1.199020281363735e-22,
+        "interval_width": 4.1437022186063197e-32
+      },
+      {
+        "iteration": 4,
+        "order": 32,
+        "bits": 168,
+        "radius_exact": "5481290453534161334/264560055928812468906591867905767554880536857066121",
+        "radius": 2.0718511093031598e-32,
+        "sharp_bound_exact": "1984439116465711133959/95780971304118053647396689196894323976171195136475136",
+        "sharp_bound": 2.0718511093031598e-32,
+        "interval_width": 9.226040625870371e-52
+      },
+      {
+        "iteration": 5,
+        "order": 64,
+        "bits": 296,
+        "radius_exact": "20764385828603360574362110438960274347/45012561012096082945350759197773086972797472478837524946137598898348813138158838614163997",
+        "radius": 4.613020312935186e-52,
+        "sharp_bound_exact": "7001227391519205471777646697069/15177100720513508366558296147058741458143803430094840009779784451085189728165691392",
+        "sharp_bound": 4.613020312935186e-52,
+        "interval_width": 6.662416726322005e-90
+      },
+      {
+        "iteration": 6,
+        "order": 128,
+        "bits": 552,
+        "radius_exact": "10387016037099198736153852829069387318768525087113543466817189672225659511161/10424196963025538877242886859796689503704746236354909430880429735929784869607854564705010718289852786614695510592472554848309403811054176034419158459626431667850704629",
+        "radius": 9.964332095740114e-91,
+        "sharp_bound_exact": "10387016037099198736153852829069387318768525087113543466817189672225659511161/10424196963025538877242886859796689503704746236354909430880429735929784869607854564705010718289852786614695510592472554848309403811054176034419158459626431667850704629",
+        "sharp_bound": 9.964332095740114e-91,
+        "interval_width": 4.7965325460900346e-167
+      }
+    ]
+  },
+  "flat_square": [
+    {
+      "depth": 1,
+      "baseline_power": "-4",
+      "graded_sector": 2,
+      "graded_power": "-1",
+      "algebraic_orders_saved": "3",
+      "full_coefficient_pairs": 4,
+      "retained_coefficient_pairs": 3
+    },
+    {
+      "depth": 2,
+      "baseline_power": "-8",
+      "graded_sector": 3,
+      "graded_power": "-3",
+      "algebraic_orders_saved": "5",
+      "full_coefficient_pairs": 9,
+      "retained_coefficient_pairs": 6
+    },
+    {
+      "depth": 3,
+      "baseline_power": "-12",
+      "graded_sector": 4,
+      "graded_power": "-5",
+      "algebraic_orders_saved": "7",
+      "full_coefficient_pairs": 16,
+      "retained_coefficient_pairs": 10
+    },
+    {
+      "depth": 5,
+      "baseline_power": "-20",
+      "graded_sector": 6,
+      "graded_power": "-9",
+      "algebraic_orders_saved": "11",
+      "full_coefficient_pairs": 36,
+      "retained_coefficient_pairs": 21
+    },
+    {
+      "depth": 8,
+      "baseline_power": "-32",
+      "graded_sector": 9,
+      "graded_power": "-15",
+      "algebraic_orders_saved": "17",
+      "full_coefficient_pairs": 81,
+      "retained_coefficient_pairs": 45
+    }
+  ]
+}
