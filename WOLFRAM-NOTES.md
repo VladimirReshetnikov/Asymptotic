@@ -4,6 +4,22 @@ Findings collected while developing `RootDecomposition.wl` and
 `AsymptoticInverse` (Wolfram 15.0.1, Windows). Kept as a checklist for exact
 algebraic-number code, asymptotic computation, and Wolfram evaluation semantics.
 
+## Loading from HTTP
+
+- In a native Wolfram 15.0.1 probe, both `$InputFileName` and `$Input` were
+  empty inside a file loaded by `Get["http://127.0.0.1:.../probe.wl"]`.
+  Do not assume that a remotely loaded entry point can locate sibling
+  modules through these variables. The repository-root `AsymptoticInverse.wl`
+  includes all modules and needs only one HTTP fetch.
+- Keep generated package text at the top level. Wrapping the entire file
+  in `Module` or another holding expression can parse symbols before
+  `BeginPackage` and `Begin` establish their intended contexts. Inline
+  companion files at their original load positions, including the early
+  exact-termination helper.
+- Parse acceptance expressions after `Get` has returned. A test expression
+  parsed alongside `Get` can resolve an exported symbol in the global context before
+  the package context is on `$ContextPath`.
+
 ## Control flow
 
 - `Return[expr]` inside `Do`, `While`, `Table`, ... returns from the *loop*, not

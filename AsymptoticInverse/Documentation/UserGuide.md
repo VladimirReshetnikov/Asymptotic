@@ -6,13 +6,23 @@ This guide describes the Wolfram Language interface. See the [mathematical artic
 
 ## Getting Started
 
-The package requires Wolfram Language 15.0 or later. From the repository directory, load the kernel file:
+The package requires Wolfram Language 15.0 or later. Load it directly from GitHub:
+
+```wolfram
+Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"];
+```
+
+This loads the package into the current kernel without installation. The file contains all package modules, so loading it requires only one file download. Evaluate the command again in each new kernel session.
+
+The URL above selects the current `main` revision. To select a fixed version, replace `main` with the full hash of a commit containing `AsymptoticInverse.wl`. You can also download that file once and use `Get["/absolute/path/to/AsymptoticInverse.wl"]` offline.
+
+Use the **repository-root** `AsymptoticInverse.wl` for URL loading. The file under `AsymptoticInverse/Kernel/` loads companion files from a local checkout. From that checkout's repository directory, load it with:
 
 ```wolfram
 Get["AsymptoticInverse/Kernel/AsymptoticInverse.wl"];
 ```
 
-Alternatively, register the package directory and load its context:
+Alternatively, register the local package directory and load its context:
 
 ```wolfram
 PacletDirectoryLoad["AsymptoticInverse"];

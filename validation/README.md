@@ -1,5 +1,53 @@
 # Review and validation record
 
+Version 1.7.1 adds a standalone distribution at the repository root:
+
+```wolfram
+Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"]
+```
+
+The generated file contains all 38 canonical kernel sources, in their
+original load order. The builder records per-source hashes, produces
+deterministic UTF-8/LF output, and checks freshness without writes.
+Eleven focused Python tests passed, covering ordering, dependencies,
+lexical masking, deterministic output, stale artifacts, and failed builds.
+The user guide HTML was rebuilt; documentation consistency and local-link
+checks passed. This packaging change does not change the mathematical
+article or require a new PDF build.
+
+`standalone-loading-tests.json` records **38 successful native checks in
+six fresh Wolfram 15.0.1 kernels**. It covers isolated local and HTTP loads,
+the modular kernel entry and `init.m`, `Needs`, explicit reloads, and a
+missing HTTP file. The served directory contains only the standalone file;
+the request log contains exactly one request per `Get`, plus the expected
+missing-file request. Kernels run with `-noinit`, startup-argument environment
+variables cleared, and a pre-load check for existing package definitions.
+Input hashes are recorded and verified unchanged throughout the run.
+
+Acceptance examples check irrational inversion, certified exact termination,
+Gamma ratios, Bessel asymptotics, automatic arithmetic, `Normal`, StandardForm
+formatting, and Zeta expansion after an explicit reload. This is focused
+loading validation; **the full package suite is skipped**.
+
+To reproduce these checks:
+
+```powershell
+python validation/build_standalone.py --check
+python -m unittest discover -s validation -p test_standalone.py -v
+python validation/check_standalone_loading.py
+python validation/check_documentation.py
+```
+
+After publishing the generated file, check the real GitHub URL with:
+
+```powershell
+python validation/check_standalone_loading.py --url https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl --output validation/github-loading-tests.json
+```
+
+The published-URL runner compares the remote file byte for byte with the
+local build before and after native loading. Replacing `main` with a full
+commit hash selects an immutable revision for the same check.
+
 The special-function extension in version 1.7.0 is recorded in
 `special-functions-tests.json` and `special-functions-validation.json`.
 **All 220 focused tests passed**, with zero failures on Wolfram 15.0.1

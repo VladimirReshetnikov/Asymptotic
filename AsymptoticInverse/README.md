@@ -11,7 +11,17 @@ Real asymptotic expansions of functions and their inverses in Wolfram Language.
 
 ## Loading
 
-From the repository root:
+Load the complete package directly from GitHub:
+
+```wolfram
+Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"];
+```
+
+The repository-root file is self-contained. Replace `main` with a full
+commit hash containing this file to select a fixed version. Downloading
+that file also gives you a single-file package for offline `Get`.
+
+From the repository root of a local checkout, use the modular entry point:
 
 ```wolfram
 Get["AsymptoticInverse/Kernel/AsymptoticInverse.wl"];
@@ -24,7 +34,7 @@ PacletDirectoryLoad["/absolute/path/to/AsymptoticInverse"];
 Needs["AsymptoticInverse`"];
 ```
 
-Version 1.7.0 requires Wolfram Language 15.0 or later. The recorded native
+Version 1.7.1 requires Wolfram Language 15.0 or later. The recorded native
 checks used version 15.0.1 for Windows.
 
 ## First expansion

@@ -21,3 +21,41 @@ manifests retain their original artifact paths and hashes.
 The [original report comparison](../../reports/COMPARISON.md) and
 [Wolfram development notes](../../WOLFRAM-NOTES.md) remain separate sources
 of engineering history.
+
+## Standalone package
+
+The canonical implementation is the modular package under
+`AsymptoticInverse/Kernel/`. The repository-root `AsymptoticInverse.wl` is a
+generated distribution for HTTP `Get` and single-file offline loading.
+It preserves the original module order and top-level context transitions.
+Each included source carries its path and SHA-256 hash, calculated after
+normalizing line endings to LF.
+
+After editing kernel sources, rebuild and commit the standalone file with
+the source changes:
+
+```powershell
+python validation/build_standalone.py
+python validation/build_standalone.py --check
+python -m unittest discover -s validation -p test_standalone.py -v
+```
+
+The builder validates all dependencies before replacing the output. Unknown
+file loads, dependencies outside the kernel directory, repeated or cyclic
+loads, and runtime file-location dependencies require explicit review.
+Strings and nested comments are ignored when checking executable loads.
+The `--check` command verifies byte-for-byte freshness without modifying the
+artifact. A GitHub Actions workflow runs this check and the builder tests
+when relevant files change.
+
+For focused native acceptance checks, run:
+
+```powershell
+python validation/check_standalone_loading.py
+```
+
+This checks isolated local and HTTP loading, both modular entry points,
+`Needs`, explicit reloads, and a missing HTTP file in separate Wolfram
+kernels. The HTTP fixture contains only the standalone file and records
+every request. It does not run the full package suite. See the
+[validation record](../../validation/README.md) for published-URL checks.

@@ -19,11 +19,26 @@ package's supported interfaces.
 
 ## Get started
 
-From a Wolfram kernel whose working directory is the repository root:
+Load directly from GitHub in a Wolfram kernel:
+
+```wolfram
+Get["https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"];
+```
+
+This standalone file includes the complete package; no installation or local
+checkout is required. For a reproducible version, replace `main` in the URL
+with a full commit hash containing this file. You can also download the file
+and load it with `Get` offline.
+
+From a local checkout, load the modular entry point instead:
 
 ```wolfram
 Get["AsymptoticInverse/Kernel/AsymptoticInverse.wl"];
+```
 
+Then compute an expansion:
+
+```wolfram
 s = AsymptoticExpansion[
   InverseFunction[x |-> ConditionalExpression[x + x^Sqrt[2], x > 0]],
   x -> Infinity, SeriesTermGoal -> 5];
@@ -79,7 +94,7 @@ SeriesNormalize[(1 + a)/(1 - a), "Cutoff" -> 4]
 explains precision propagation, ordinary function operands, held normalization,
 and composite error bounds for compatible expansions in different scales.
 
-Version 1.7.0 declares Wolfram Language 15.0 or later. Native validation
+Version 1.7.1 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)
 for the exact scope of each run.
 
@@ -87,6 +102,7 @@ for the exact scope of each run.
 
 | Location | Content |
 | --- | --- |
+| [AsymptoticInverse.wl](AsymptoticInverse.wl) | Generated standalone package for direct URL loading or single-file offline use. |
 | [AsymptoticInverse/](AsymptoticInverse/) | Package, paclet metadata, examples, and focused test files. |
 | [article/](article/) | Mathematical article and its build instructions. |
 | [docs/development/](docs/development/) | Engineering roadmap and preserved operational chapters from the former combined article. |
@@ -94,6 +110,11 @@ for the exact scope of each run.
 | [reports/COMPARISON.md](reports/COMPARISON.md) | Analysis of the nine original research and implementation reports; their submitted artifacts remain in `reports/`. |
 | [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/) | The two motivating questions and source snapshots. |
 | [WOLFRAM-NOTES.md](WOLFRAM-NOTES.md) | Development notes on Wolfram Language behavior. |
+
+When changing the kernel sources, regenerate the standalone file with
+`python validation/build_standalone.py`. The
+[development notes](docs/development/README.md#standalone-package) describe
+the freshness check and focused loading validation.
 
 Documentation build and review commands are in [article/README.md](article/README.md)
 and [Documentation/README.md](AsymptoticInverse/Documentation/README.md).

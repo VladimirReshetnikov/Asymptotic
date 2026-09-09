@@ -112,10 +112,25 @@ special functions.</p>
 definitions, results, and proofs.</p>
 <section id="getting-started" class="level2">
 <h2>Getting Started</h2>
-<p>The package requires Wolfram Language 15.0 or later. From the
-repository directory, load the kernel file:</p>
+<p>The package requires Wolfram Language 15.0 or later. Load it directly
+from GitHub:</p>
+<pre class="wolfram"><code>Get[&quot;https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl&quot;];</code></pre>
+<p>This loads the package into the current kernel without installation.
+The file contains all package modules, so loading it requires only one
+file download. Evaluate the command again in each new kernel
+session.</p>
+<p>The URL above selects the current <code>main</code> revision. To
+select a fixed version, replace <code>main</code> with the full hash of
+a commit containing <code>AsymptoticInverse.wl</code>. You can also
+download that file once and use
+<code>Get[&quot;/absolute/path/to/AsymptoticInverse.wl&quot;]</code> offline.</p>
+<p>Use the <strong>repository-root</strong>
+<code>AsymptoticInverse.wl</code> for URL loading. The file under
+<code>AsymptoticInverse/Kernel/</code> loads companion files from a
+local checkout. From that checkout&#39;s repository directory, load it
+with:</p>
 <pre class="wolfram"><code>Get[&quot;AsymptoticInverse/Kernel/AsymptoticInverse.wl&quot;];</code></pre>
-<p>Alternatively, register the package directory and load its
+<p>Alternatively, register the local package directory and load its
 context:</p>
 <pre class="wolfram"><code>PacletDirectoryLoad[&quot;AsymptoticInverse&quot;];
 Needs[&quot;AsymptoticInverse`&quot;];</code></pre>
