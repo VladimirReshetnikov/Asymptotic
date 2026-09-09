@@ -1,5 +1,36 @@
 # Review and validation record
 
+## Nonlinear input frontiers and coefficient termination
+
+An input-limited nonlinear expansion now includes both the inherited error and
+discarded Taylor products in its logarithmic remainder degree. The shared unit
+precision helper uses the maximum degree of all retained argument blocks and
+keeps its existing conservative bound when the requested cutoff lies below the
+input frontier. It no longer drops generated logarithmic powers merely because
+the caller requested more precision than the operand supplies. The unused
+duplicate cutoff calculation in `pUnitSeries` was removed.
+
+The homogeneous composition recurrence now stops as soon as its coefficient
+polynomial is proved zero, before multiplying another power. This avoids false
+resource failures for constant or terminating polynomial compositions. Required
+products and existing input-validation order remain checked. An unrelated
+generic coefficient generator may still resume after an isolated zero.
+
+Against pinned kernel sources from `73aabf2`, the 31 new assertions record
+**19 passed and 12 failed**: eight nonlinear-bound witnesses and four futile
+product failures. After the changes, `CheckReviewUnitArithmetic.wl` records
+**196 passed, zero failed**, across nine selected files, with unchanged source
+hashes. Explicit Taylor/binomial oracles cover logarithmic frontiers, a genuine
+irrational boundary collision, pure and inherited errors, symbolic coefficient
+annihilation, required work budgets, Newton coefficients and residual checks.
+The independent log-degree majorant remains conservative, rather than claiming
+the sharp degree after cancellation.
+
+The baseline and acceptance records are `review-unit-arithmetic-baseline.json`
+and `review-unit-arithmetic-tests.json`. Standalone generation, 11 Python builder
+tests, and documentation consistency checks passed. **The full package suite
+was not run.**
+
 ## Shared fractional-power branch checks
 
 The shared `fwdPower` primitive now rejects noninteger powers of a finite pure

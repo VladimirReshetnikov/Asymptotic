@@ -257,9 +257,10 @@ jetComposeBlock[u_List, a_, P_, cut_, ell_, ass_, limit_] := Module[{ans, pw = {
   While[True,
    Q = Expand[((a - k) Q + D[Q, ell])/(k + 1)];
    k++;
+   (* The recurrence is homogeneous: a zero coefficient stays zero. *)
+   If[polyZeroQ[Q, ell, ass], Break[]];
    pw = jetMul[pw, u, cut, ell, ass, limit];
    If[pw === {}, Break[]];
-   If[polyZeroQ[Q, ell, ass], Continue[]];
    ans = jetAdd[ans, jetMul[pw, {{0, Q}}, cut, ell, ass, limit], cut, ell, ass]];
   ans];
 
@@ -315,11 +316,11 @@ unitSeriesPrecision[U_List, PU_, DU_, cut_, ell_] := Module[{c = minOf[PU, cut],
   If[c === Infinity, Return[{Infinity, 0}, Module]];
   Nn = Ceiling[canon[c/jetValuation[U]]];
   d = jetMaxDegree[U, ell];
-  If[equal[c, cut] && less[cut, PU], {cut, Nn d},
-   If[equal[c, PU] && less[PU, cut], {PU, DU}, {c, Max[Nn d, DU]}]]];
+  (* Discarded Taylor products still contribute at an input-limited frontier. *)
+  If[less[cut, PU], {c, Nn d}, {c, Max[Nn d, DU]}]];
 
 (* generic unit-series application: f(1+U) or f(c0+U) via coefficient generator *)
-pUnitSeries[U_List, PU_, DU_, cf_, cut_, ell_, ass_, limit_] := Module[{c = minOf[PU, cut], pd, T},
+pUnitSeries[U_List, PU_, DU_, cf_, cut_, ell_, ass_, limit_] := Module[{pd, T},
   pd = unitSeriesPrecision[U, PU, DU, cut, ell];
   T = jetPowerSeries[U, cf, pd[[1]], ell, ass, limit];
   {T, pd[[1]], pd[[2]]}];

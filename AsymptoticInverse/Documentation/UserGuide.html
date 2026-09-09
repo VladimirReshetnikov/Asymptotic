@@ -2170,6 +2170,17 @@ remainder together with its finite expression. Operands must have
 compatible variables, endpoints, approach sides, and real branch
 conditions. Requested precision is limited by the available operand
 precision.</p>
+<p>A nonlinear operation can increase the logarithmic degree of the
+remainder even when its power is limited by the operand:</p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[x Log[x] + x^3, {x, 0, 2}];
+r = SeriesLog[1 + s, 4];
+{Normal[r], r[&quot;Remainder&quot;]}</code></pre>
+<p>The finite expression is <code>x Log[x] - x^2 Log[x]^2/2</code>, with
+remainder <code>PowerLogRemainder[x, 3, 3]</code>. The discarded cubic
+logarithmic term contributes to the error at power <code>3</code>,
+alongside the operand&#39;s original remainder. Logarithmic degrees are
+conservative bounds and need not be the smallest possible degree after
+cancellation.</p>
 <table>
 <thead>
 <tr>

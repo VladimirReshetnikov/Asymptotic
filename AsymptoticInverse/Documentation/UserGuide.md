@@ -1520,6 +1520,21 @@ Addition and multiplication of compatible results are supported through ordinary
 
 Arithmetic on a `GeneralizedSeries` transports its remainder together with its finite expression. Operands must have compatible variables, endpoints, approach sides, and real branch conditions. Requested precision is limited by the available operand precision.
 
+A nonlinear operation can increase the logarithmic degree of the remainder
+even when its power is limited by the operand:
+
+```wolfram
+s = AsymptoticExpansion[x Log[x] + x^3, {x, 0, 2}];
+r = SeriesLog[1 + s, 4];
+{Normal[r], r["Remainder"]}
+```
+
+The finite expression is `x Log[x] - x^2 Log[x]^2/2`, with remainder
+`PowerLogRemainder[x, 3, 3]`. The discarded cubic logarithmic term contributes
+to the error at power `3`, alongside the operand's original remainder.
+Logarithmic degrees are conservative bounds and need not be the smallest
+possible degree after cancellation.
+
 | Task | Use |
 | --- | --- |
 | Combine expansions with the available precision | Ordinary `+`, `-`, `*`, `/`, and supported real powers. |

@@ -69,8 +69,8 @@ reports 10 successes and six branch-case failures on `73aabf2`; the
 **148 successes, 0 failures** across six selected files, with unchanged sources
 during the run. Its 16 new
 [branch regressions](../../AsymptoticInverse/Tests/ReviewPowerBranches.wlt)
-cover recursive and direct routes and valid controls. This implementation,
-the regressions, and the register are committed together.
+cover recursive and direct routes and valid controls. Published implementation:
+`921387e`.
 
 Sources: [core `fwdPower`](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl),
 [operation dispatch](../../AsymptoticInverse/Kernel/SeriesOperations.wl).
@@ -96,17 +96,21 @@ ordinary algebraic exports. Findings: [R1 A03][R1], [R2 F03][R2], [R3 F03][R3],
 
 ### C04 — Preserve nonlinear logarithmic degree at an input precision ceiling
 
-**Pending — source inspected.** `unitSeriesPrecision` returns the input degree
-when its power frontier is below the requested cutoff. Nonlinear combinations
-of retained terms can contribute a larger logarithmic degree at that same
-frontier. Account for both sources of error; fixing export or requesting more
-output order does not repair this internal bound. Use independent finite
-polynomial coefficient oracles, including the report's randomized cases and
-the equal-frontier case.
+**Focused verified.** `unitSeriesPrecision` now combines the input logarithmic
+degree with the Taylor-product majorant whenever the input sets the active
+frontier, including a request beyond that frontier. It retains the maximum
+degree of every input block, so a later logarithmic block cannot disappear
+from the bound. The estimate is conservative and need not detect cancellations
+among complete boundary polynomials.
 
 Source: [core `unitSeriesPrecision` / `pUnitSeries`](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
-Existing boundary tests: [ReviewRegressions](../../AsymptoticInverse/Tests/ReviewRegressions.wlt).
-Finding: [R2 F01][R2]. Its executed Python evidence is not current native acceptance.
+The 15 new [precision tests](../../AsymptoticInverse/Tests/ReviewUnitPrecision.wlt)
+cover explicit logarithm, exponential, radical, reciprocal and sine witnesses,
+an irrational frontier, later-block degrees, inherited errors and exact cases.
+The [baseline record](../../validation/review-unit-arithmetic-baseline.json)
+has eight precision failures; the [nine-file acceptance](../../validation/review-unit-arithmetic-tests.json)
+has **196 successes, 0 failures**, including the recurrence tests below, with
+unchanged sources during the run. Finding: [R2 F01][R2].
 
 ### C05 — Retain every assumption used to establish a reusable result
 
@@ -223,7 +227,7 @@ neither report establishes a current counterexample.
 | --- | --- | --- |
 | P01 | **Pending — source inspected.** Nonnegative integer powers use binary powering, but exact operands can still be fully expanded before a tiny requested cutoff. Propagate the cutoff through intermediate products with correct negative-valuation shifts. Compare with an independent truncated Cartesian oracle and preserve failure ordering. | [R9 F02][R9]; core `fwdPower`, `pIntegerPower`, `pMul` in [AsymptoticInverse.wl](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl). |
 | P02 | **Pending — source inspected.** Generic unit-series loops check product limits but do not consistently bound accumulated support or depth. Define the units and check each stage without charging an irrelevant continuation after exact termination. Historical native reproduction is in review 8. | [R8 F04][R8]; core `jetPowerSeries` / `jetComposeBlock`. |
-| P03 | **Pending — source inspected.** The homogeneous Euler recurrence continues after its coefficient polynomial becomes identically zero. Stop before the next power multiplication once permanent annihilation is proved; distinguish this recurrence from unrelated coefficient generators with isolated zeros. | [R4 A03][R4], [R8 F05][R8]; core `jetComposeBlock`. |
+| P03 | **Focused verified.** The homogeneous Euler recurrence stops before multiplying another power once its coefficient polynomial is proved zero. Its 16 [regressions](../../AsymptoticInverse/Tests/ReviewRecurrenceTermination.wlt) cover finite products, logarithmic coefficients, valid assumption-dependent termination, validation order and required-versus-futile resource use. Four baseline resource failures now pass in the [196-test acceptance](../../validation/review-unit-arithmetic-tests.json). Generic coefficient generators still permit isolated zeros. | [R4 A03][R4], [R8 F05][R8]; core `jetComposeBlock`. |
 | P04 | **Pending — source inspected.** Grouped and Newton routes still construct the direct multi-index region/frontier. Separate method-specific coefficient scheduling from complete-weight/frontier certification. Test collisions, irrational gaps, cancellation, term goals, and exact termination before considering a priority queue or automatic strategy selection. | [R2 F06][R2], [R3 F05][R3], [R5 F03][R5], [R9 F03][R9]; [core constructor](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl), [refinement state](../../AsymptoticInverse/Kernel/RefinementState.wl). |
 | P05 | **Pending — source inspected.** `logCanon` unconditionally factors exact integer/rational logarithm arguments. Bound optional canonicalization and retain opaque exact logarithms when that budget is exhausted. Test equality/zero detection and reproducibility as well as runtime. | [R5 F06][R5], [R6 A05][R6]; core `logCanon`, `coefCanon`, `polyCanon`. |
 | P06 | **Decision / pending.** Separate output support, candidate products, recursion/depth, frequencies, dense positions, coefficient size, and symbolic proof work. Preflight expensive expansion/allocation and preserve local failure ordering. A shared request budget should report the exhausted resource; replacing every limit with one counter is not the proposal. | [R1 A06][R1], [R4 A06][R4], [R6 A06][R6], [R8 F06][R8]; [kernel modules](../../AsymptoticInverse/Kernel/). |
@@ -296,11 +300,11 @@ number of required fixes. Unnumbered roadmap proposals are covered above.
 
 ## Next priorities and acceptance records
 
-1. Publish the focused-verified C02 milestone with its baseline and acceptance
-   evidence. Keep C01's exact scope and benchmark evidence attached to its
-   published implementation.
-2. Reproduce and repair C04, then address C05 with a public-entry inventory.
-   These affect the mathematical meaning of otherwise plausible results.
+1. Retain the focused acceptance boundaries for C01, C02, C04 and P03.
+   Keep C01's exact scope and benchmark evidence attached to its published
+   implementation; none of these changes closes the other native-tail items.
+2. Address C05 with a public-entry inventory. Assumptions used to prove a result
+   must survive reuse after the ambient symbolic context changes.
 3. Settle C03's export policy and C06's incoming-tail proof obligation. Add
    independent logarithmic-envelope witnesses, not only printed-form comparisons.
 4. Establish C08's achieved-precision postcondition; then replace the fixed
