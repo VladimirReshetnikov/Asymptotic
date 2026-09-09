@@ -14,6 +14,9 @@ delayed options, nested representations and Wolfram evaluation subtleties.
 The [native-series remainder notes](NATIVE_SERIES_REMAINDERS.md) distinguish
 formal native order from analytic bounds and explain incoming and outgoing
 logarithmic-tail policies.
+The [real-coefficient notes](REAL_COEFFICIENTS.md) explain why complete
+coefficients are checked after collection, including target offsets and
+observables, and distinguish this check from a proof that the source is real.
 
 This directory preserves engineering material that previously appeared in
 or alongside the combined article:

@@ -311,6 +311,9 @@ constructor&#39;s cutoff convention. See <a href="#coordinates-and-cutoffs">Coor
 powers, logarithms, exponentials of bounded arguments, and supported
 Taylor, Laurent, or Puiseux function expansions. A branch or exponent
 ordering that cannot be established produces a <code>Failure</code>.</p>
+<p>Coefficients must be provably real under the retained assumptions.
+Contributions at the same power are combined and simplified before this
+check. Constants and target offsets obey the same requirement. See <a href="#real-coefficients">Real Coefficients</a>.</p>
 <p><a id="AsymptoticInverse"></a></p>
 </section>
 </section>
@@ -694,6 +697,50 @@ requires <code>b</code> to be proved real under the series&#39; retained
 assumptions; enclosing that multiplication in
 <code>Assuming[Element[b, Reals], ...]</code> does not add the missing
 hypothesis.</p>
+</section>
+<section id="real-coefficients" class="level3">
+<h3>Real Coefficients</h3>
+<p>Ordinary power-log expansions require real coefficients, including
+constant terms and inverse target limits. Symbolic coefficients need
+assumptions that establish their realness:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>Clear[a, x];
+s = AsymptoticExpansion[a + Sin[a] x, {x, 0, 2},
+  Assumptions -&gt; Element[a, Reals]];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{a + Sin[a] x, 0}</code></pre>
+<p>Without the realness assumption, a coefficient <code>a</code>
+produces <code>Failure[&quot;UnprovedRealCoefficient&quot;, ...]</code>. A real
+argument alone does not make every function value real:
+<code>ArcSin[a]</code> needs a suitable interval assumption, such as
+<code>-1 &lt; a &lt; 1</code>.</p>
+<p>Contributions at equal powers are combined and simplified before
+their coefficients are checked. For example:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>Clear[a, b, x];
+Normal[AsymptoticExpansion[x Log[-a] - x Log[-b] + x^2,
+  {x, 0, 3}, Assumptions -&gt; a &gt; 0 &amp;&amp; b &gt; 0]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>x (Log[a] - Log[b]) + x^2</code></pre>
+<p>The individual logarithms have imaginary parts that cancel. A
+surviving complex coefficient, as in <code>Log[-a] + x</code> under
+<code>a &gt; 0</code> or <code>ArcSin[2 + x]</code> at zero, is
+rejected. The failure data distinguish
+<code>&quot;Realness&quot; -&gt; &quot;Nonreal&quot;</code> from
+<code>&quot;Realness&quot; -&gt; &quot;Unproved&quot;</code>; the latter means that the
+retained assumptions did not prove the required condition.</p>
+<p><code>SeriesObservable</code> applies the same check to the completed
+observable, using its operand&#39;s retained assumptions. Complex
+intermediate Taylor coefficients may cancel across an expression, as in
+<code>ArcSin[2 + z] + ArcCos[2 + z]</code>. General coefficient checking
+does not discard imaginary parts. The structured special-function method
+can project a native approximation to its real part only after
+independently proving the source real and transporting its absolute
+error bound.</p>
+<p>Real finite coefficients alone do not prove that an arbitrary source
+function is real. Coefficient checks supplement the supported source and
+branch conditions.</p>
 </section>
 <section id="scope" class="level3">
 <h3>Scope</h3>

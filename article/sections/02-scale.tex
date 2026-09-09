@@ -59,6 +59,34 @@ The logarithmic degrees of retained blocks likewise do not determine
 those of the tail. A complete-tail estimate requires the hypotheses of
 Section~\ref{sec:evaluator} or another applicable asymptotic theorem.
 
+\begin{lemma}[Reality of resolved coefficients]
+\label{lem:real-resolved-coefficients}
+Suppose $F$ is real-valued for all sufficiently small positive $w$, and
+\[
+ F(w)=\sum_{\beta\in B}w^\beta C_\beta(\log w)
+       +\OO(w^P\M(w)^D),
+\]
+where $P\in\R$, $B$ is a finite set of distinct real exponents less than $P$,
+$C_\beta\in\mathbb C[L]$, and $D\ge0$ is fixed and finite.
+Then every $C_\beta$ has real coefficients.
+\end{lemma}
+\begin{proof}
+Taking imaginary parts gives
+$\sum_{\beta\in B}w^\beta\operatorname{Im}C_\beta(\log w)
+=\OO(w^P\M^D)$, with imaginary parts taken coefficientwise.
+If one of these real polynomials is nonzero, choose its least exponent
+$\beta_0$. By Lemma~\ref{lem:dominance}, every higher block and the
+remainder are of smaller order than
+$w^{\beta_0}\operatorname{Im}C_{\beta_0}(\log w)$, a contradiction.
+\end{proof}
+
+The coefficients in this lemma are the complete polynomials after
+equal-exponent collection; individual complex contributions may cancel.
+The strict bound $\beta<P$ is needed: an imaginary term of order $w^P$
+can be hidden in the error. Conversely, real coefficients in a finite
+approximation do not prove that the original function is real-valued;
+$1+i w^N=1+\OO(w^N)$ illustrates this for $N>0$.
+
 \subsubsection*{Differentiation}
 
 \begin{lemma}[Euler identity]

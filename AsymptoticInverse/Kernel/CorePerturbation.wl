@@ -9,8 +9,7 @@ Options[AsymptoticInverse`AsymptoticCoreInverse] = {
   "InputRemainder" -> None, "MaxTerms" -> 20000,
   "CoreCheckTimeConstraint" -> 3, "SourceRadius" -> 1/E};
 
-corePerturbationRealPolynomialQ[p_, ell_, ass_] := PolynomialQ[p, ell] &&
-  And @@ (TrueQ[Simplify[Element[#, Reals], ass]] & /@ CoefficientList[p, ell]);
+corePerturbationRealPolynomialQ[p_, ell_, ass_] := realPolynomialQ[p, ell, ass];
 
 corePerturbationModel[core_, perturbation_, x_, coord_, ell_, ass_] := Module[
   {u = coord["u"], f0, rr, rows, remainderRows, offset, nonconstant,

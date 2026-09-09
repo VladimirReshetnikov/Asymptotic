@@ -98,6 +98,7 @@ seriesFlat[d_, limit_] := Module[{p, b, j, ass = seriesAss[d], ell = d["LogVaria
 
 seriesMake[d0_, recipe_, cutoff_: Automatic] := Module[{d = d0, j, w, ell, p, off, expr, rem, terms},
   {j, w, ell, p, off} = Lookup[d, {"Jet", "ScaleVariable", "LogVariable", "Prefactor", "Offset"}];
+  j = {realCoefficientRows[j[[1]], ell, seriesAss[d]], j[[2]], j[[3]]};
   If[cutoff =!= Automatic, j = seriesTrim[j, cutoff, ell, seriesAss[d]]];
   If[j[[1]] === {} && j[[2]] === Infinity, p = 1];
   d = Join[d, <|"Jet" -> j, "Prefactor" -> p, "Cutoff" -> cutoff,
@@ -235,7 +236,7 @@ seriesIndependentJet[e_, d_, cut_, limit_] := Module[{u, rule},
   If[cut === Infinity, fwd[e /. rule, u, d["LogVariable"], seriesAss[d] /. rule, cut, limit],
     forwardJet[e /. rule, u, d["LogVariable"], seriesAss[d] /. rule, cut, limit]]];
 
-seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d["LogVariable"], ass = seriesAss[d], j, parts, c, u, native, n, cf, res},
+seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d["LogVariable"], ass = seriesAss[d], j, parts, c, u, native, n, cf, res, sign, lc},
   Which[inverseFunctionApplicationQ[e], inverseFunctionJetApply[e, x, input, d, cut, limit],
     FreeQ[e, x], seriesIndependentJet[e, d, cut, limit], e === x, input,
     h === Plus, Fold[pAdd[#1, seriesJetApply[#2, x, input, d, cut, limit], ell, ass] &, pConst[0, ell, ass], List @@ e],
@@ -251,13 +252,19 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
       c = parts[[2]]; u = Unique["v$"];
       n = If[parts[[3]] === {}, 1, Max[1, Ceiling[minOf[cut, j[[2]]]/jetValuation[parts[[3]]]]]];
       If[n > limit, fail["ResourceLimit", "Observable Taylor expansion exceeded MaxTerms."]];
-      native = Quiet[Series[h[c + u], {u, 0, n}, Assumptions -> ass]];
+      sign = 1;
+      If[parts[[3]] =!= {},
+        lc = parts[[3, 1, 2]];
+        lc = (-1)^polyDegree[lc, ell] Coefficient[lc, ell, polyDegree[lc, ell]];
+        If[provablyNegative[lc, ass], sign = -1]];
+      native = Quiet[Series[h[c + sign u], {u, 0, n}, Assumptions -> ass && u > 0]];
       If[! MatchQ[native, _SeriesData] || native[[4]] < 0 || native[[6]] =!= 1 || ! FreeQ[native[[3]], u],
         fail["UnsupportedObservable", "The observable must have a regular Taylor expansion at the limiting argument."]];
-      If[! And @@ (TrueQ[Simplify[Element[#, Reals], ass]] & /@ native[[3]]),
-        fail["UnprovedRealCoefficient", "The observable's Taylor coefficients must be provably real on the selected branch."]];
+      (* The completed observable is checked by seriesMake after collection;
+         separate analytic summands can have cancelling imaginary parts. *)
       cf = Function[k, If[k >= native[[4]] && k - native[[4]] + 1 <= Length[native[[3]]], native[[3, k - native[[4]] + 1]], 0]];
       If[parts[[3]] === {}, Return[{jetMerge[{{0, h[c]}}, ell, ass], j[[2]], j[[3]]}, Module]];
+      If[sign === -1, parts[[3]] = jetScale[parts[[3]], -1, ell, ass]];
       res = pUnitSeries[parts[[3]], j[[2]], j[[3]], cf, cut, ell, ass, limit];
       pAdd[pConst[h[c], ell, ass], res, ell, ass],
     True, fail["UnsupportedObservable", "This observable is not in the supported algebra of regular unary analytic functions, powers, logarithms and exponentials."]]];

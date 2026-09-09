@@ -208,6 +208,29 @@ polyCanonicalZeroQ[p_, ell_, ass_] :=
 polyZeroQ[q_, ell_, ass_] := polyCanonicalZeroQ[polyCanon[q, ell, ass], ell, ass];
 polyDegree[q_, ell_] := If[q === 0, 0, Exponent[q, ell]];
 
+realPolynomialCondition[p_, ell_, ass_] := Module[{condition},
+  condition = Simplify[And @@ (Element[#, Reals] & /@ CoefficientList[p, ell]), ass];
+  If[condition === True || condition === False, condition,
+    TimeConstrained[FullSimplify[condition, ass], 1, condition]]];
+realPolynomialQ[p_, ell_, ass_] := PolynomialQ[p, ell] &&
+  TrueQ[realPolynomialCondition[p, ell, ass]];
+
+(* Validate complete coefficients at representation boundaries. Internal
+   summands, Taylor coefficients and native phases may be complex and cancel;
+   checking them before collection would reject real final expressions. *)
+realCoefficientRows[rows0_List, ell_, ass_, symbolic_: False] := Module[{rows, condition},
+  rows = jetMerge[rows0, ell, ass, symbolic];
+  Do[
+   If[! PolynomialQ[row[[2]], ell],
+    fail["UnsupportedCoefficient", "Logarithmic coefficients must be polynomials.", <|"Coefficient" -> row[[2]]|>]];
+   condition = realPolynomialCondition[row[[2]], ell, ass];
+   If[! TrueQ[condition],
+    fail["UnprovedRealCoefficient", "Every collected coefficient must be provably real under the recorded assumptions.",
+     <|"Polynomial" -> row[[2]], "Weight" -> row[[1]], "Condition" -> condition,
+       "Realness" -> If[condition === False, "Nonreal", "Unproved"], "Assumptions" -> ass|>]],
+   {row, rows}];
+  rows];
+
 (* ------------------------------------------------------------------ *)
 (* Sparse power-log jets: lists of {weight, polynomial in ell}          *)
 (* ------------------------------------------------------------------ *)
@@ -654,6 +677,7 @@ forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] :
 makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := Module[
   {T, P, D, kept, omitted, remData, wexpr, logw, expr, terms, frontier, sd},
   {T, P, D} = jet;
+  T = realCoefficientRows[T, ell, ass];
   kept = Select[T, less[#[[1]], cutoff] &];
   omitted = Select[T, ! less[#[[1]], cutoff] &];
   If[IntegerQ[goal] && Length[kept] > goal, omitted = Join[Drop[kept, goal], omitted]; kept = Take[kept, goal]];
@@ -714,7 +738,7 @@ makeRationalSeriesData[terms_, x_, x0_, remData_, scale_: 1] := Module[
 (* ------------------------------------------------------------------ *)
 
 rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, y0 = 0, rest, deltas, polys},
-  rows = jetMerge[rows0, ell, ass, symbolic];
+  rows = realCoefficientRows[rows0, ell, ass, symbolic];
   If[rows === {}, fail["ZeroFunction", "The function is constant or zero near the expansion point; no inverse branch."]];
   If[symbolic,
    Module[{cands = Select[rows, Function[r, And @@ (TrueQ[Simplify[r[[1]] <= #[[1]], ass]] & /@ rows)]]},
@@ -739,7 +763,7 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
   rest = Rest[rows];
   deltas = If[symbolic, Simplify[#[[1]] - p, ass], canon[#[[1]] - p]] & /@ rest;
   polys = polyCanon[#[[2]]/a, ell, ass] & /@ rest;
-  Do[If[! (And @@ (TrueQ[Simplify[Element[#, Reals], ass]] & /@ CoefficientList[q, ell])),
+  Do[If[! realPolynomialQ[q, ell, ass],
      fail["UnprovedRealCoefficient", "All coefficients must be provably real under the assumptions.", <|"Polynomial" -> q|>]], {q, polys}];
   If[symbolic,
    Do[If[! TrueQ[Simplify[d > 0, ass]], fail["UnprovedPositiveGap", "A power gap could not be proved positive.", <|"Gap" -> d|>]], {d, deltas}]];

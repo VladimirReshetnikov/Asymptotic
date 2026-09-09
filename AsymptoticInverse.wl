@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/AsymptoticInverse.wl
-   Source SHA256 (UTF-8/LF): ddab1258edfe7a5630935602bfdb6b327a3c9938b060138515ec3c3f302e89a9 *)
+   Source SHA256 (UTF-8/LF): b116043957756e74634164b29126690a9813c4bbd636f38a03696f121043a66f *)
 (* ::Package:: *)
 (* AsymptoticInverse -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -216,6 +216,29 @@ polyCanonicalZeroQ[p_, ell_, ass_] :=
   p === 0 || (PolynomialQ[p, ell] && And @@ (zeroQ[#, ass] & /@ CoefficientList[p, ell]));
 polyZeroQ[q_, ell_, ass_] := polyCanonicalZeroQ[polyCanon[q, ell, ass], ell, ass];
 polyDegree[q_, ell_] := If[q === 0, 0, Exponent[q, ell]];
+
+realPolynomialCondition[p_, ell_, ass_] := Module[{condition},
+  condition = Simplify[And @@ (Element[#, Reals] & /@ CoefficientList[p, ell]), ass];
+  If[condition === True || condition === False, condition,
+    TimeConstrained[FullSimplify[condition, ass], 1, condition]]];
+realPolynomialQ[p_, ell_, ass_] := PolynomialQ[p, ell] &&
+  TrueQ[realPolynomialCondition[p, ell, ass]];
+
+(* Validate complete coefficients at representation boundaries. Internal
+   summands, Taylor coefficients and native phases may be complex and cancel;
+   checking them before collection would reject real final expressions. *)
+realCoefficientRows[rows0_List, ell_, ass_, symbolic_: False] := Module[{rows, condition},
+  rows = jetMerge[rows0, ell, ass, symbolic];
+  Do[
+   If[! PolynomialQ[row[[2]], ell],
+    fail["UnsupportedCoefficient", "Logarithmic coefficients must be polynomials.", <|"Coefficient" -> row[[2]]|>]];
+   condition = realPolynomialCondition[row[[2]], ell, ass];
+   If[! TrueQ[condition],
+    fail["UnprovedRealCoefficient", "Every collected coefficient must be provably real under the recorded assumptions.",
+     <|"Polynomial" -> row[[2]], "Weight" -> row[[1]], "Condition" -> condition,
+       "Realness" -> If[condition === False, "Nonreal", "Unproved"], "Assumptions" -> ass|>]],
+   {row, rows}];
+  rows];
 
 (* ------------------------------------------------------------------ *)
 (* Sparse power-log jets: lists of {weight, polynomial in ell}          *)
@@ -663,6 +686,7 @@ forwardCore[f_, x_, x0_, cutoff0_, opts : OptionsPattern[AsymptoticExpansion]] :
 makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := Module[
   {T, P, D, kept, omitted, remData, wexpr, logw, expr, terms, frontier, sd},
   {T, P, D} = jet;
+  T = realCoefficientRows[T, ell, ass];
   kept = Select[T, less[#[[1]], cutoff] &];
   omitted = Select[T, ! less[#[[1]], cutoff] &];
   If[IntegerQ[goal] && Length[kept] > goal, omitted = Join[Drop[kept, goal], omitted]; kept = Take[kept, goal]];
@@ -723,7 +747,7 @@ makeRationalSeriesData[terms_, x_, x0_, remData_, scale_: 1] := Module[
 (* ------------------------------------------------------------------ *)
 
 rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, y0 = 0, rest, deltas, polys},
-  rows = jetMerge[rows0, ell, ass, symbolic];
+  rows = realCoefficientRows[rows0, ell, ass, symbolic];
   If[rows === {}, fail["ZeroFunction", "The function is constant or zero near the expansion point; no inverse branch."]];
   If[symbolic,
    Module[{cands = Select[rows, Function[r, And @@ (TrueQ[Simplify[r[[1]] <= #[[1]], ass]] & /@ rows)]]},
@@ -748,7 +772,7 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
   rest = Rest[rows];
   deltas = If[symbolic, Simplify[#[[1]] - p, ass], canon[#[[1]] - p]] & /@ rest;
   polys = polyCanon[#[[2]]/a, ell, ass] & /@ rest;
-  Do[If[! (And @@ (TrueQ[Simplify[Element[#, Reals], ass]] & /@ CoefficientList[q, ell])),
+  Do[If[! realPolynomialQ[q, ell, ass],
      fail["UnprovedRealCoefficient", "All coefficients must be provably real under the assumptions.", <|"Polynomial" -> q|>]], {q, polys}];
   If[symbolic,
    Do[If[! TrueQ[Simplify[d > 0, ass]], fail["UnprovedPositiveGap", "A power gap could not be proved positive.", <|"Gap" -> d|>]], {d, deltas}]];
@@ -1838,7 +1862,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: AsymptoticInverse/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 5b4e484e7e0f430ad47d03633c3882b0395a0342fe43777081ee419d4b5019e2 *)
+   Source SHA256 (UTF-8/LF): 82d7e7eb7d8d3ef5c3b22bbaa9101e4121960018c596159f774c6f809e6713ba *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -1939,6 +1963,7 @@ seriesFlat[d_, limit_] := Module[{p, b, j, ass = seriesAss[d], ell = d["LogVaria
 
 seriesMake[d0_, recipe_, cutoff_: Automatic] := Module[{d = d0, j, w, ell, p, off, expr, rem, terms},
   {j, w, ell, p, off} = Lookup[d, {"Jet", "ScaleVariable", "LogVariable", "Prefactor", "Offset"}];
+  j = {realCoefficientRows[j[[1]], ell, seriesAss[d]], j[[2]], j[[3]]};
   If[cutoff =!= Automatic, j = seriesTrim[j, cutoff, ell, seriesAss[d]]];
   If[j[[1]] === {} && j[[2]] === Infinity, p = 1];
   d = Join[d, <|"Jet" -> j, "Prefactor" -> p, "Cutoff" -> cutoff,
@@ -2076,7 +2101,7 @@ seriesIndependentJet[e_, d_, cut_, limit_] := Module[{u, rule},
   If[cut === Infinity, fwd[e /. rule, u, d["LogVariable"], seriesAss[d] /. rule, cut, limit],
     forwardJet[e /. rule, u, d["LogVariable"], seriesAss[d] /. rule, cut, limit]]];
 
-seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d["LogVariable"], ass = seriesAss[d], j, parts, c, u, native, n, cf, res},
+seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d["LogVariable"], ass = seriesAss[d], j, parts, c, u, native, n, cf, res, sign, lc},
   Which[inverseFunctionApplicationQ[e], inverseFunctionJetApply[e, x, input, d, cut, limit],
     FreeQ[e, x], seriesIndependentJet[e, d, cut, limit], e === x, input,
     h === Plus, Fold[pAdd[#1, seriesJetApply[#2, x, input, d, cut, limit], ell, ass] &, pConst[0, ell, ass], List @@ e],
@@ -2092,13 +2117,19 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
       c = parts[[2]]; u = Unique["v$"];
       n = If[parts[[3]] === {}, 1, Max[1, Ceiling[minOf[cut, j[[2]]]/jetValuation[parts[[3]]]]]];
       If[n > limit, fail["ResourceLimit", "Observable Taylor expansion exceeded MaxTerms."]];
-      native = Quiet[Series[h[c + u], {u, 0, n}, Assumptions -> ass]];
+      sign = 1;
+      If[parts[[3]] =!= {},
+        lc = parts[[3, 1, 2]];
+        lc = (-1)^polyDegree[lc, ell] Coefficient[lc, ell, polyDegree[lc, ell]];
+        If[provablyNegative[lc, ass], sign = -1]];
+      native = Quiet[Series[h[c + sign u], {u, 0, n}, Assumptions -> ass && u > 0]];
       If[! MatchQ[native, _SeriesData] || native[[4]] < 0 || native[[6]] =!= 1 || ! FreeQ[native[[3]], u],
         fail["UnsupportedObservable", "The observable must have a regular Taylor expansion at the limiting argument."]];
-      If[! And @@ (TrueQ[Simplify[Element[#, Reals], ass]] & /@ native[[3]]),
-        fail["UnprovedRealCoefficient", "The observable's Taylor coefficients must be provably real on the selected branch."]];
+      (* The completed observable is checked by seriesMake after collection;
+         separate analytic summands can have cancelling imaginary parts. *)
       cf = Function[k, If[k >= native[[4]] && k - native[[4]] + 1 <= Length[native[[3]]], native[[3, k - native[[4]] + 1]], 0]];
       If[parts[[3]] === {}, Return[{jetMerge[{{0, h[c]}}, ell, ass], j[[2]], j[[3]]}, Module]];
+      If[sign === -1, parts[[3]] = jetScale[parts[[3]], -1, ell, ass]];
       res = pUnitSeries[parts[[3]], j[[2]], j[[3]], cf, cut, ell, ass, limit];
       pAdd[pConst[h[c], ell, ass], res, ell, ass],
     True, fail["UnsupportedObservable", "This observable is not in the supported algebra of regular unary analytic functions, powers, logarithms and exponentials."]]];
@@ -2705,7 +2736,7 @@ sourceCoordinateNumericalCheck[a_, yv_, wp_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/SourceCoordinates.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/CorePerturbation.wl
-   Source SHA256 (UTF-8/LF): c5deb9fc5bfbc2b696de1c81adf686f15966b45fd7b43d66a1bbb568c803ce0b *)
+   Source SHA256 (UTF-8/LF): 93ccf4d2dc5194bfb2badf7f80bfa2afc82692efb01b6650b8b6d6a87de4480e *)
 (* Exact-core marker expansions with a proved asymptotic contract for finite
    power-log cores and higher-power perturbations. Loaded in Private`. *)
 
@@ -2717,8 +2748,7 @@ Options[AsymptoticInverse`AsymptoticCoreInverse] = {
   "InputRemainder" -> None, "MaxTerms" -> 20000,
   "CoreCheckTimeConstraint" -> 3, "SourceRadius" -> 1/E};
 
-corePerturbationRealPolynomialQ[p_, ell_, ass_] := PolynomialQ[p, ell] &&
-  And @@ (TrueQ[Simplify[Element[#, Reals], ass]] & /@ CoefficientList[p, ell]);
+corePerturbationRealPolynomialQ[p_, ell_, ass_] := realPolynomialQ[p, ell, ass];
 
 corePerturbationModel[core_, perturbation_, x_, coord_, ell_, ass_] := Module[
   {u = coord["u"], f0, rr, rows, remainderRows, offset, nonconstant,
