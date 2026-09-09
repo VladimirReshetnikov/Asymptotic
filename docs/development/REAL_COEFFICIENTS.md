@@ -2,16 +2,19 @@
 
 This note specifies the C07 contract in the
 [code review register](CODE_REVIEW_STATUS.md#c07--apply-the-advertised-real-coefficient-contract-consistently).
-It records implementation obligations, not a claim that the implementation
-or native regression checks are complete. Acceptance reports belong in the
-[validation record](../../validation/README.md).
+The shared result-boundary checks are implemented and covered by the
+[280-test focused record](../../validation/review-real-coefficients-tests.json).
+This is the contract of the ordinary **real** representation. The updated
+native-coverage objective requires a separate path for native-supported
+complex and formal results; see B01–B03 in the register. A real-model refusal
+must not become a permanent exclusion from that broader expansion API.
 
 ## Validate complete coefficients
 
 The ordinary power-log representation uses real exponents and polynomials
 in the logarithm with real coefficients on the retained parameter domain.
-Each public construction or operation must validate the complete coefficients
-of its result. This includes constants, analytic forward coefficients,
+Constructions and operations selecting this representation validate the
+complete coefficients of their result. This includes constants, analytic forward coefficients,
 regular scalar operands and composed observables; checking only the leading
 coefficient of an inverse model leaves other entry paths uncovered.
 
@@ -30,6 +33,19 @@ removing imaginary coefficients or applying `Re` to an unproved result would
 change the represented function. A genuinely complex surviving coefficient
 is outside this representation; undecidable realness also cannot establish
 admission, but must not be described as a proof of nonrealness.
+
+The literal-complex examples above illustrate the mathematics; current input
+validation still rejects explicit `Complex` atoms. Public regression examples
+use principal logarithms and inverse trigonometric functions to exercise
+complex intermediate values without that syntactic rejection.
+
+`realCoefficientRows` calls `jetMerge` before checking all scalar polynomial
+coefficients. The realness predicate uses `Simplify`, then a one-second
+`FullSimplify` fallback for unresolved conditions. `UnprovedRealCoefficient`
+records the polynomial, weight, assumptions, condition and either
+`"Realness" -> "Nonreal"` or `"Realness" -> "Unproved"`. A proof timeout is
+inconclusive. The semantic-weight grouping defect C14 remains a separate
+obligation; these checks do not repair the exponent comparator or grouping.
 
 ## Retain the proof domain and every translation
 
@@ -89,8 +105,15 @@ and [structured native ingress](../../AsymptoticInverse/Kernel/NativeSpecialFunc
 
 ## Focused acceptance obligations
 
-The C07 reports should cover these independent cases without treating this
-list as evidence that they already pass:
+The [23 public regressions](../../AsymptoticInverse/Tests/ReviewRealCoefficients.wlt)
+cover rejection, acceptance, cancellation, diagnostic states and signed
+observable increments. Together with ten selected existing files, they pass
+280 checks on Wolfram 15.0.1 for Windows. The immutable `7d98eca` baseline
+passes 12 of the 23 new cases and fails 11. The preserved first-pass report
+had two cancellation failures before the bounded stronger proof and signed
+native increment were added; it is not the final acceptance report.
+
+The acceptance scope includes:
 
 - Reject nonreal constants and surviving imaginary coefficients, including
   those introduced by analytic expansion or a nested observable.
@@ -101,9 +124,13 @@ list as evidence that they already pass:
   cover corresponding translations in operation results.
 - Preserve the justified structured special-function projection path and
   its recorded source-domain proof.
-- Check high-order explicit imaginary source terms and reuse under changed
-  ambient assumptions, so truncation and later context cannot bypass the
-  source or coefficient contract.
+- Check a known exact nonreal block before it is discarded at a requested
+  cutoff, and use retained assumptions in later operations. This is not a
+  proof that every unknown source tail is real or analytic (C13/C16).
+
+When native compatibility is implemented, the public failure regressions must
+become representation-specific: a native/formal result is permitted, while
+an invalid object claiming the ordinary real analytic contract is not.
 
 Primary implementation sites are the
 [ordinary forward/model core](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl)

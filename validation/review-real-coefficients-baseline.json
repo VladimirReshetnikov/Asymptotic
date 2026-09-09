@@ -1,6 +1,6 @@
 {
 	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-	"Scope":"Twenty public coefficient-reality regressions against immutable 7d98eca kernel sources; expected failures before the fix.",
+	"Scope":"Twenty-three public coefficient-reality regressions against immutable 7d98eca kernel sources; expected failures before the fix.",
 	"PerSuiteTimeConstraintSeconds":600,
 	"Suites":[
 		"ReviewRealCoefficients.wlt"
@@ -8,13 +8,13 @@
 	"SuiteResults":[
 		{
 			"Suite":"ReviewRealCoefficients.wlt",
-			"Succeeded":11,
-			"Failed":9,
-			"Seconds":4.1439991
+			"Succeeded":12,
+			"Failed":11,
+			"Seconds":3.0219202
 		}
 	],
-	"Succeeded":11,
-	"Failed":9,
+	"Succeeded":12,
+	"Failed":11,
 	"Results":[
 		{
 			"Suite":"ReviewRealCoefficients.wlt",
@@ -142,6 +142,27 @@
 			"ExpectedOutput":"HoldForm[True]",
 			"ActualOutput":"HoldForm[False]",
 			"ActualMessages":"{}"
+		},
+		{
+			"Suite":"ReviewRealCoefficients.wlt",
+			"TestID":"review-real-coefficients-diagnostics-distinguish-false-and-unproved-realness",
+			"Outcome":"Failure",
+			"ExpectedOutput":"HoldForm[True]",
+			"ActualOutput":"HoldForm[False]",
+			"ActualMessages":"{}"
+		},
+		{
+			"Suite":"ReviewRealCoefficients.wlt",
+			"TestID":"review-real-coefficients-known-exact-nonreal-block-is-checked-before-cutoff",
+			"Outcome":"Failure",
+			"ExpectedOutput":"HoldForm[True]",
+			"ActualOutput":"HoldForm[False]",
+			"ActualMessages":"{}"
+		},
+		{
+			"Suite":"ReviewRealCoefficients.wlt",
+			"TestID":"review-real-coefficients-observable-transports-negative-local-increment",
+			"Outcome":"Success"
 		}
 	],
 	"SourcesUnchangedDuringRun":true,
@@ -184,8 +205,8 @@
 		"AsymptoticInverse\/Kernel\/SpecialFunctionAdapters.wl":"258f4873bbc8045164dcd7646a08997c5e134adc6c5c3e7f4e683657cb0360fb",
 		"AsymptoticInverse\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
 		"AsymptoticInverse\/Kernel\/SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c",
-		"AsymptoticInverse\/Tests\/ReviewRealCoefficients.wlt":"74cb9a24e72541ddb2339314a604a79ad4facdd00f1d486fa2626b5ab2fcc025",
-		"validation\/CheckBaseline.wl":"6c4d80fb6a9940b5e4549817848e5a395e3e96f1eeb9bd246bed895fbd09adad",
+		"AsymptoticInverse\/Tests\/ReviewRealCoefficients.wlt":"a2bef9f1a3de7de671c74adb230554cabda07b74283872c01a69310d1e1571b0",
+		"validation\/CheckBaseline.wl":"8e31e6f87e1af3016f89d280a09da032e13fe8a0c27230745c3cf015dde2c8bb",
 		"validation\/FocusedTests.wl":"4af0d63978ba81c65b2e7fe165531863ac2639f607e736d94ee64f72d37b098e"
 	}
 }

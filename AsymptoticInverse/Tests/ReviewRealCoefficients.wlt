@@ -151,3 +151,27 @@ VerificationTest[
     result = SeriesObservable[s, ArcSin[2 + z] + ArcCos[2 + z], z];
     reviewRealCoefficientEqual[result, Pi/2, x > 0]],
   True, TestID -> "review-real-coefficients-observable-checks-complete-inverse-trigonometric-cancellation"]
+
+VerificationTest[
+  Module[{x, a, nonreal, unknown},
+    nonreal = AsymptoticExpansion[Log[-a] + x, {x, 0, 2}, Assumptions -> a > 0];
+    unknown = AsymptoticExpansion[a + x, {x, 0, 2}, Assumptions -> True];
+    reviewRealCoefficientFailureQ[nonreal] && reviewRealCoefficientFailureQ[unknown] &&
+      nonreal[[2]]["Realness"] === "Nonreal" && nonreal[[2]]["Condition"] === False &&
+      unknown[[2]]["Realness"] === "Unproved" &&
+      unknown[[2]]["Condition"] === Element[a, Reals]],
+  True, TestID -> "review-real-coefficients-diagnostics-distinguish-false-and-unproved-realness"]
+
+VerificationTest[
+  Module[{x, a},
+    reviewRealCoefficientFailureQ[
+      AsymptoticExpansion[1 + x^100 Log[-a], {x, 0, 2}, Assumptions -> a > 0]]],
+  True, TestID -> "review-real-coefficients-known-exact-nonreal-block-is-checked-before-cutoff"]
+
+VerificationTest[
+  Module[{x, z, s, result},
+    s = AsymptoticExpansion[Sin[x], {x, 0, 3}];
+    result = SeriesObservable[s, Sin[1 - z], z];
+    reviewRealCoefficientEqual[result, Sin[1] - Cos[1] x - Sin[1] x^2/2, x > 0] &&
+      result["RemainderPower"] === 3],
+  True, TestID -> "review-real-coefficients-observable-transports-negative-local-increment"]
