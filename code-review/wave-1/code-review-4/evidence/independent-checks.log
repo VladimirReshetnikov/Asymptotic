@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "scope": "Independent exact Python/SymPy mathematics; NOT a package test",
+  "python": "3.13.5",
+  "sympy": "1.14.0",
+  "dense_large": {
+    "denominator": 100160063,
+    "nmin": 10007,
+    "nmax": 100160063,
+    "required_slots": 100150056,
+    "stored_blocks": 2,
+    "slot_limit": 20000,
+    "admissible": false,
+    "eight_bytes_per_slot_model": 801200448
+  },
+  "dense_small": {
+    "denominator": 10403,
+    "nmin": 101,
+    "nmax": 10403,
+    "required_slots": 10302,
+    "stored_blocks": 2,
+    "slot_limit": 20000,
+    "admissible": true,
+    "eight_bytes_per_slot_model": 82416
+  },
+  "inverse_coefficients": [
+    "1",
+    "-1",
+    "d + 1",
+    "-(d + 1)*(3*d + 2)/2",
+    "(d + 1)*(2*d + 1)*(4*d + 3)/3",
+    "-(d + 1)*(5*d + 2)*(5*d + 3)*(5*d + 4)/24"
+  ],
+  "inverse_residual_coefficients_zero_through_order_5": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "pure_remainder_branch_witness": "sqrt(-x^2)=I*x for real x>0",
+  "zero_coefficient_recurrence": [
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+  ],
+  "weight_2_collisions_for_gaps_1_2": [
+    [
+      0,
+      1
+    ],
+    [
+      2,
+      0
+    ]
+  ],
+  "derivative_witness": "2*x*sin(x**(-4)) - 4*cos(x**(-4))/x**3",
+  "provenance_binary_tree_nodes": {
+    "5": 63,
+    "10": 2047,
+    "20": 2097151,
+    "30": 2147483647
+  },
+  "large_dense_array_allocated": false,
+  "wolfram_kernel_executed": false
+}
+
