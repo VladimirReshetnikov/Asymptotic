@@ -44,6 +44,7 @@ Outputs below are written in algebraically equivalent factored forms where this 
 | Task | Functions |
 | --- | --- |
 | Expand a function | [AsymptoticExpansion](#AsymptoticExpansion) |
+| Expand Bessel, Airy, elliptic, and other special functions | [Other Special Functions](#special-function-expansions) |
 | Expand a selected inverse | [AsymptoticInverse](#AsymptoticInverse) |
 | Expand the increasing Gamma or LogGamma inverse | [Inverse Gamma and LogGamma Functions](#inverse-gamma-and-loggamma) |
 | Expand the increasing Barnes G inverse | [Inverse Barnes G Functions](#barnes-inverse-expansions) |
@@ -68,7 +69,7 @@ Outputs below are written in algebraically equivalent factored forms where this 
 | Form | Result |
 | --- | --- |
 | `AsymptoticExpansion[f, {x, x0, h}]` | Expansion at `x0` with exclusive cutoff `h`. |
-| `AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]` | First `n` complete nonzero blocks. |
+| `AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]` | First `n` complete nonzero blocks; separate carriers use the convention below. |
 | `AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n]` | Equivalent rule form. |
 
 `f` can be an expression, a unary pure function, or an unapplied unary `InverseFunction`. A callable is applied to `x`. A bare symbol is treated as an expression: use `Log[x]` or `Log[#] &` to expand the logarithm.
@@ -79,7 +80,7 @@ An applied inverse can also occur inside a supported expression. See [Callable a
 
 `AsymptoticExpansion` accepts `Assumptions -> True`, `Direction -> Automatic`, `SeriesTermGoal -> Automatic`, `"MaxTerms" -> 20000`, and `"InverseFunctionBranches" -> Automatic`.
 
-Ordinary expansions use an absolute cutoff in the positive local coordinate. Gamma and Barnes G products and admitted exponential products use a cutoff inside an exact prefactor. A direct inverse-function result retains its inverse constructor's cutoff convention. See [Coordinates and Cutoffs](#coordinates-and-cutoffs).
+Ordinary expansions use an absolute cutoff in the positive local coordinate. Gamma and Barnes G products and admitted exponential products use a cutoff inside an exact prefactor. Structured forward special-function expansions apply cutoffs and term goals separately to their recorded carriers. The defining-sum expansions of `Zeta` and `LerchPhi` use the special coordinates described below. A direct inverse-function result retains its inverse constructor's cutoff convention. See [Coordinates and Cutoffs](#coordinates-and-cutoffs) and [Other Special Functions](#special-function-expansions).
 
 The ordinary input class includes sums, products, exact real constant powers, logarithms, exponentials of bounded arguments, and supported Taylor, Laurent, or Puiseux function expansions. A branch or exponent ordering that cannot be established produces a `Failure`.
 
@@ -149,11 +150,14 @@ For an inverse, the target coordinate also includes the limiting value and selec
 | Exact-core perturbation | Inclusive marker degree. |
 | Flat inverse | Inclusive exponential-sector degree. Inner coefficient cutoffs are separate and exclusive. |
 | Fourier inverse | Exclusive target-power cutoff; frequencies have a separate resource budget. |
-| Special-function adapter | Adapter-specific convention; see [AsymptoticSpecialInverse](#AsymptoticSpecialInverse). |
+| `Zeta[S]`, with a growing real affine argument `S` at a real infinity | Exclusive bound on `Log[n]` in the coordinate `Exp[-S]`; `SeriesTermGoal` includes the constant term `n == 1`. See [Zeta at Large Real Argument](#zeta-dirichlet-expansions). |
+| `LerchPhi[z, s, a]`, with fixed admitted `z`, `s` and `a` tending to positive infinity | Exclusive absolute exponent bound in `1/a`; blocks have exponents `s + k`. See [LerchPhi at Large Third Argument](#lerch-large-argument-expansions). |
+| Structured forward special-function expansion | Exclusive amplitude cutoff for each recorded exact carrier; term goals count its complete nonzero blocks separately. See [Other Special Functions](#special-function-expansions). |
+| Special-function inverse adapter | Adapter-specific convention; see [AsymptoticSpecialInverse](#AsymptoticSpecialInverse). |
 
-A cutoff is not a term count. For example, a sparse expansion can have its first omitted term strictly beyond the requested cutoff. `SeriesTermGoal -> n` counts complete nonzero blocks; an exact finite expansion can return fewer than `n` with zero remainder.
+A cutoff is not a term count. For example, a sparse expansion can have its first omitted term strictly beyond the requested cutoff. `SeriesTermGoal -> n` counts complete nonzero blocks; an exact finite expansion can return fewer than `n` with zero remainder. A structured forward special-function result can contain several carriers, each with its own block count; its total number of returned blocks can therefore exceed `n`.
 
-For a normalized product, the cutoff remains relative after cancellations between factors. This includes a balanced Gamma ratio and a product whose growing and decaying factors cancel. Ordinary elementary sources that are all bounded or merely logarithmically divergent retain the ordinary absolute convention.
+For Gamma, Barnes G, and elementary exponential products expanded through logarithmic normalization, the cutoff remains relative after cancellations between factors. This includes a balanced Gamma ratio. A structured special-function product whose exponential factors cancel can instead use ordinary absolute weights, as in `BesselI[0, x] BesselK[0, x]`. Ordinary elementary sources that are all bounded or merely logarithmically divergent also retain the ordinary absolute convention.
 
 ### Directions and Branches
 
@@ -227,6 +231,7 @@ Ordinary arithmetic on `Normal[s]` uses only the finite expression. Keep the ser
 | `"RemainderVariable"` | Positive small coordinate. |
 | `"RemainderPower"`, `"RemainderLogDegree"` | Recorded order and logarithmic degree. |
 | `"RemainderScaleExpression"` | Explicit scale used for numerical comparison, when supplied by the result family. |
+| `"AbsoluteRemainderBound"`, `"RemainderBoundConditions"` | Explicit forward error bound and its conditions, when supplied by a defining-sum constructor such as the large-argument `Zeta` or `LerchPhi` expansion. |
 | `"FrontierTerm"` | Computed first omitted term, or an indication that it is unknown. |
 | `"Terms"` | Displayed coefficient data. Read `"TermConvention"` for their interpretation. |
 | `"Scale"` | Result scale, when explicitly recorded. |
@@ -606,6 +611,345 @@ s = AsymptoticExpansion[BarnesG[x + 1]/(Gamma[x] BarnesG[x]),
 `SeriesRefine` retains the original source expression and obtains additional correction blocks at the requested cutoff. Its cutoff is relative to the prefactor for a Barnes product and absolute in the local coordinate for its logarithm. The displayed asymptotic series does not assert convergence or provide a pointwise numerical error certificate.
 
 For expansion of the increasing inverse on the source branch above three, see [Inverse Barnes G Functions](#barnes-inverse-expansions).
+
+<a id="special-function-expansions"></a>
+#### Other Special Functions
+
+`AsymptoticExpansion` expands additional Wolfram Language special functions at finite endpoints and real infinities. The result can contain ordinary powers and logarithms, an exact exponential factor, or bounded sine and cosine coefficients.
+
+Expand a Bessel function at zero:
+
+```wolfram
+s = AsymptoticExpansion[BesselJ[0, x], x -> 0,
+  SeriesTermGoal -> 5];
+Normal[s]
+```
+
+```wolfram
+1 - x^2/4 + x^4/64 - x^6/2304 + x^8/147456
+```
+
+The five nonzero blocks have exponents `0`, `2`, `4`, `6`, and `8`. The remainder is of order `x^10`.
+
+The following table gives representative supported cases. Parameters are fixed during the limiting process unless they are explicitly part of the expansion argument. Admission depends on the parameter values, branch, and endpoint; a function name alone does not establish support for every limit.
+
+| Family | Finite endpoints | Large arguments |
+| --- | --- | --- |
+| `BesselJ`, `BesselI`, `BesselK` | Taylor series, leading real powers, and logarithmic singularities | Growing and decaying modified Bessel factors; oscillatory `BesselJ` expansions |
+| `AiryAi`, `AiryBi` | Regular expansions, including translated arguments | Exponential factors on the positive axis; oscillatory `AiryAi[-x]` as `x` tends to infinity |
+| `Erf`, `Erfc`, `Erfi`, `DawsonF` | Regular expansions | Gaussian tails of `Erfc` and `Erfi`; the exponentially small correction to `Erf` |
+| `FresnelC`, `FresnelS`, `SinIntegral`, `CosIntegral` | Regular or logarithmic expansions | Oscillatory algebraic tails, with their limiting constants retained |
+| `ExpIntegralEi`, `ExpIntegralE` | Logarithmic and regular expansions on admitted real branches | Growing or decaying exponential factors |
+| Incomplete `Gamma`, `GammaRegularized`, `PolyGamma` | Positive-argument expansions and admitted endpoint powers | Incomplete Gamma expansions with fixed shape and large positive argument |
+| `Zeta`, `PolyLog` | The pole of `Zeta` and regular or logarithmic polylogarithm endpoints | A Dirichlet expansion of `Zeta[S]` for growing real affine `S`; the distinct Hurwitz-zeta expansion of `Zeta[2, x]`; the real branch of `PolyLog[2, -x]` |
+| `LerchPhi` | Admitted regular argument expansions; a growing third argument can also occur at a finite endpoint | Reciprocal-third-argument expansion for fixed exact real numeric `z`, `s` with `-1 < z < 1` |
+| Hypergeometric functions | Fixed-parameter expansions and supported terminating parameter cases | For example, the algebraic expansion of `HypergeometricU[3/2, 1/2, x]` |
+| `EllipticK`, `EllipticE` | Expansions at parameter zero and the logarithmic threshold of `EllipticK[1 - x]` | Use an admitted change of argument to reach a finite parameter endpoint |
+
+For complete Gamma and Barnes G products, use the interfaces described in the preceding subsections. The table does not assert uniform expansions when an order, shape, and argument grow together. In particular, fixed-order Bessel expansions do not establish a formula for `BesselJ[x, x]`. Similarly, `Zeta[2, x]` and `Zeta[x]` have different limiting variables and asymptotic scales.
+
+##### Logarithmic and Algebraic Singularities
+
+Expand a lower incomplete Gamma function from the positive side:
+
+```wolfram
+s = AsymptoticExpansion[Gamma[3/2, 0, x], x -> 0,
+  SeriesTermGoal -> 3];
+Normal[s]
+```
+
+```wolfram
+2 x^(3/2)/3 - 2 x^(5/2)/5 + x^(7/2)/7
+```
+
+A complete polynomial in the logarithm counts as one block. For example:
+
+```wolfram
+s = AsymptoticExpansion[EllipticK[1 - x], x -> 0,
+  SeriesTermGoal -> 3];
+ell = Log[4] - Log[x]/2;
+```
+
+The finite part is equivalent to:
+
+```wolfram
+ell + x (ell - 1)/4 + 9 x^2 (ell - 7/6)/64
+```
+
+Its three blocks have powers `0`, `1`, and `2`; each logarithmic coefficient is retained in full. Wolfram Language uses the elliptic parameter `m`, whereas formulas expressed in terms of a modulus use `m == k^2`. Here the complementary modulus is `Sqrt[x]`. [DLMF 19.12](https://dlmf.nist.gov/19.12).
+
+<a id="zeta-dirichlet-expansions"></a>
+##### Zeta at Large Real Argument
+
+Expand the Riemann zeta function as its real argument tends to positive infinity:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Zeta[x], x -> Infinity, SeriesTermGoal -> 3];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+1 + 2^-x + 3^-x
+```
+
+This expansion uses the positive coordinate `w = Exp[-x]`. Its terms are `w^Log[n]`, beginning with the constant `n == 1`. Thus three blocks have exponents `0`, `Log[2]`, and `Log[3]`; the first omitted block is `4^-x`. These terms come from the convergent defining Dirichlet series for `Zeta`, rather than a series in `1/x`. [DLMF 25.2.1](https://dlmf.nist.gov/25.2.E1).
+
+An explicit cutoff is exclusive in this exponential coordinate:
+
+```wolfram
+s = AsymptoticExpansion[Zeta[x], {x, Infinity, Log[4]}];
+{Normal[s], s["RemainderVariable"], s["RemainderPower"]}
+```
+
+```wolfram
+{1 + 2^-x + 3^-x, Exp[-x], Log[4]}
+```
+
+A cutoff `h` retains precisely the integers with `Log[n] < h`. A cutoff of zero therefore retains no finite terms and has a nonzero order-one remainder. The number of terms grows exponentially with `h`; `SeriesTermGoal` gives direct control over the count, subject to `"MaxTerms"`.
+
+The argument may be a real affine expression `S = a x + b` tending to positive infinity as `x` tends to either real infinity:
+
+```wolfram
+AsymptoticExpansion[Zeta[2 x + 3], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[Zeta[-3 x + 2], x -> -Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[Zeta[a x + b], x -> Infinity,
+  SeriesTermGoal -> 3, Assumptions -> a > 0 && Element[b, Reals]]
+```
+
+The coordinate remains `Exp[-S]`, so the finite expression is `1 + 2^-S + 3^-S`. This defining-sum method requires an affine argument and a real infinite endpoint. Its domain includes `S > 1`; it does not admit an argument tending to negative infinity.
+
+The result supplies explicit forward tail bounds. If `m = s["FirstOmittedInteger"]` and `S = s["SourceArgument"]`, the positive omitted tail satisfies
+
+```wolfram
+m^-S <= Zeta[S] - Normal[s] <= m^-S (1 + m/(S - 1))
+```
+
+under `s["RemainderBoundConditions"]`, including `S > 1`. The corresponding properties are `"RemainderLowerBound"` and `"AbsoluteRemainderBound"`. For three blocks of `Zeta[x]`, the upper bound is `4^-x (1 + 4/(x - 1))`. These are analytic bounds for the forward defining sum; they do not constitute a numerical interval certificate or an inverse-error certificate.
+
+<a id="lerch-large-argument-expansions"></a>
+##### LerchPhi at Large Third Argument
+
+Expand Lerch's transcendent with its first two parameters fixed:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[LerchPhi[1/2, 2, x], x -> Infinity,
+  SeriesTermGoal -> 3];
+Normal[s]
+```
+
+**Output**
+
+```wolfram
+2/x^2 - 4/x^3 + 18/x^4
+```
+
+For `LerchPhi[z, s, a]`, this method requires fixed exact real numeric values of `z` and `s`, with `-1 < z < 1`, and a third argument proved to tend to positive infinity. The parameter `s` may be negative or noninteger. Symbolic `z`, symbolic `s`, the endpoints `z == -1` and `z == 1`, and varying first or second parameters are outside this method's scope. No uniformity as these parameters vary is asserted.
+
+The coordinate is `w = 1/a`. Its absolute block exponents are `s + k`, and the coefficients are
+
+```wolfram
+(-1)^k Pochhammer[s, k] M[k]/k!
+```
+
+where `M[0] = 1/(1 - z)` and `M[k] = PolyLog[-k, z]` for positive integers `k`. These moments arise from the convergent geometric-weight defining sum. The resulting expansion in `1/a` is generally a Poincare expansion; its convergence is not asserted. [DLMF 25.14.1](https://dlmf.nist.gov/25.14.E1).
+
+An exclusive cutoff of four retains only the blocks at exponents two and three:
+
+```wolfram
+s = AsymptoticExpansion[LerchPhi[1/2, 2, x], {x, Infinity, 4}];
+Normal[s]
+```
+
+```wolfram
+2/x^2 - 4/x^3
+```
+
+The argument and its coordinate are preserved under scaling or translation. A large third argument can also occur at a finite endpoint:
+
+```wolfram
+AsymptoticExpansion[LerchPhi[1/2, 2, 2 x + 1], x -> Infinity,
+  SeriesTermGoal -> 3]
+AsymptoticExpansion[LerchPhi[1/2, 2, 1/x], x -> 0,
+  SeriesTermGoal -> 3]
+```
+
+The first call uses `1/(2 x + 1)` and has finite part `2/(2 x + 1)^2 - 4/(2 x + 1)^3 + 18/(2 x + 1)^4`. The second uses `x` and has finite part `2 x^2 - 4 x^3 + 18 x^4`.
+
+For an omitted moment, `"RemainderBoundConstant"` gives an explicit constant `C`, and `"AbsoluteRemainderBound"` is `C a^-rho`, where `rho` is the first omitted absolute exponent. The bound is valid under `"RemainderBoundConditions"`, which includes `a >= 1`. Negative `z` uses moments of `Abs[z]` in the bound, even though its expansion coefficients use the signed value of `z`.
+
+```wolfram
+s = AsymptoticExpansion[LerchPhi[1/2, 2, x], x -> Infinity,
+  SeriesTermGoal -> 3];
+{s["FrontierTerm"], s["AbsoluteRemainderBound"],
+  s["RemainderBoundConditions"]}
+```
+
+The first omitted term is `-104/x^5`; the absolute error bound is `104/x^5` for `x >= 1`. The expansion itself is on the domain `x > 0`. The explicit bound does not establish bounds for derivatives or inverse expansions.
+
+When `z == 0`, the source is exactly `a^-s`. When `s` is a nonpositive integer, its expansion in `a` is a finite polynomial. For example:
+
+```wolfram
+s = AsymptoticExpansion[LerchPhi[1/2, -2, x], x -> Infinity,
+  SeriesTermGoal -> 5];
+{Normal[s], s["Remainder"]}
+```
+
+```wolfram
+{2 x^2 + 4 x + 6, 0}
+```
+
+An exact finite source has zero remainder only when all its nonzero blocks are retained. A smaller term goal or cutoff still records the omitted polynomial terms as an error. Some exact parameter cases simplify to elementary expressions before expansion and consequently have the ordinary result properties.
+
+##### Exponential Factors and Products
+
+Expand a decaying modified Bessel function:
+
+```wolfram
+s = AsymptoticExpansion[BesselK[0, x], x -> Infinity,
+  SeriesTermGoal -> 3];
+```
+
+The finite part is equivalent to:
+
+```wolfram
+Sqrt[Pi/(2 x)] Exp[-x] (1 - 1/(8 x) + 9/(128 x^2))
+```
+
+The exact factor carries the exponential and leading algebraic dependence. The requested blocks describe the remaining amplitude. Positive scaling and translation are supported when the resulting branch and expansion can be established:
+
+```wolfram
+AsymptoticExpansion[Erfc[2 x], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[AiryAi[1 + x], {x, 0, 3}]
+```
+
+Expand a product after cancellation of its exponential factors:
+
+```wolfram
+s = AsymptoticExpansion[BesselI[0, x] BesselK[0, x],
+  x -> Infinity, SeriesTermGoal -> 3];
+```
+
+The finite part is equivalent to:
+
+```wolfram
+(1 + 1/(8 x^2) + 27/(128 x^4))/(2 x)
+```
+
+The three nonzero terms have absolute powers `x^-1`, `x^-3`, and `x^-5`. Odd powers inside the displayed bracket cancel. [DLMF 10.40.6](https://dlmf.nist.gov/10.40.E6).
+
+##### Oscillatory Expansions
+
+Expand an oscillatory Bessel function on the positive axis:
+
+```wolfram
+s = AsymptoticExpansion[BesselJ[0, x], x -> Infinity,
+  SeriesTermGoal -> 3];
+theta = x - Pi/4;
+```
+
+The finite part is equivalent to:
+
+```wolfram
+Sqrt[2/(Pi x)] (Cos[theta] + Sin[theta]/(8 x) -
+  9 Cos[theta]/(128 x^2))
+```
+
+The remainder describes an absolute error. Zeros of the sine or cosine coefficient do not provide a nonzero leading term for division or a relative-error estimate.
+
+```wolfram
+AsymptoticExpansion[AiryAi[-x], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[FresnelC[x], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[SinIntegral[x], x -> Infinity, SeriesTermGoal -> 3]
+```
+
+##### Block Counts and Cutoffs
+
+A structured special-function expansion can contain several exact factors, called carriers. A carrier has an amplitude in powers of the positive local coordinate, with complete logarithmic polynomials and bounded oscillations in its coefficients.
+
+`SeriesTermGoal -> n` applies separately to the nonzero amplitude blocks associated with each distinct carrier. It does not impose one global ordering on different exponentials. An exact finite contribution can have fewer than `n` blocks.
+
+The limiting constant in `Erf[x]` and its Gaussian tail have different carriers. A request for three blocks can therefore retain the constant and three Gaussian correction blocks. In `SinIntegral[x]`, the constant and the algebraic oscillatory tail share a carrier; three blocks retain the constant and the first two oscillatory corrections.
+
+An explicit cutoff is exclusive in each recorded amplitude coordinate. With an exponential or oscillatory carrier, the leading algebraic power may be included in that carrier. An ordinary expansion with no such factor uses the absolute power of the local coordinate. Inspect `s["NativeSectors"]` for the carriers, amplitude blocks, and cutoffs of a structured special-function result. Arithmetic that subsequently produces a composite result follows the separate [composite error rules](#composite-series-results).
+
+##### Fixed Parameters and Irrational Arguments
+
+At finite argument endpoints, supported functions with fixed parameters can be composed with real powers and other admitted small arguments:
+
+```wolfram
+AsymptoticExpansion[BesselJ[Sqrt[2], x^Sqrt[2]], {x, 0, 5}]
+AsymptoticExpansion[PolyGamma[1, 1 + x^Sqrt[2]], {x, 0, 5}]
+AsymptoticExpansion[Gamma[3/2, 0, x^Sqrt[2]], {x, 0, 5}]
+AsymptoticExpansion[Hypergeometric0F1[b, x^Sqrt[2]],
+  {x, 0, 5}, Assumptions -> b > 0]
+```
+
+The finite-argument composition method requires one varying function argument; the other parameters remain fixed. Supply assumptions that establish the real branch and exclude parameter poles. A symbolic parameter assumption does not by itself make a varying exponent orderable in every series class.
+
+The same finite-argument expansions can supply the forward coefficients needed by an admitted inverse constructor:
+
+```wolfram
+AsymptoticInverse[Erf[x], {x, 0}, y, SeriesTermGoal -> 3]
+AsymptoticInverse[BesselJ[1, x], {x, 0}, y, SeriesTermGoal -> 3]
+AsymptoticInverse[x + BesselJ[0, x^Sqrt[2]] - 1,
+  {x, 0}, {y, 4}]
+```
+
+The inverse still requires its own endpoint, leading-term, and branch conditions. Forward expansion support does not define an inverse branch automatically.
+
+##### Exact Identities, Refinement, and Numerical Evaluation
+
+Exact special-function identities are preserved before truncation. For example, `BesselK[1/2, x]` has one exact exponential factor, while `BesselI[1/2, x]` contains both positive and negative exponentials. A terminating dominant expansion alone does not justify dropping the second exponential or declaring zero error.
+
+```wolfram
+k = AsymptoticExpansion[BesselK[1/2, x], x -> Infinity,
+  SeriesTermGoal -> 3];
+k["Remainder"]
+```
+
+```wolfram
+0
+```
+
+Use `Normal` to obtain the ordinary finite expression. `SeriesRefine` reconstructs a forward expansion from its original source at a new cutoff:
+
+```wolfram
+s = AsymptoticExpansion[BesselJ[0, x], {x, 0, 4}];
+Normal[s]
+SeriesRefine[s, 8]
+s + s
+```
+
+Arithmetic retains the operand errors. When no common ordered coefficient scale is available, compatible results can use separate composite error envelopes. A result with oscillatory coefficients does not acquire a valid reciprocal merely because its displayed leading coefficient is sometimes nonzero.
+
+Evaluate a finite approximation and compare its error to the recorded remainder scale:
+
+```wolfram
+s = AsymptoticExpansion[Erfc[x], x -> Infinity, SeriesTermGoal -> 3];
+With[{xx = 20},
+  N[Abs[Erfc[xx] - (Normal[s] /. x -> xx)]/
+    (s["RemainderScaleExpression"] /. x -> xx), 40]]
+```
+
+This is a numerical sample. A Poincare remainder specifies an asymptotic error class with an unspecified constant; it is not a pointwise numerical certificate. The [Zeta](#zeta-dirichlet-expansions) and [LerchPhi](#lerch-large-argument-expansions) defining-sum methods additionally supply explicit forward bounds under their recorded conditions. Convergence, derivative bounds, and certified inverse-error bounds require their own stated hypotheses.
+
+##### Branches and Unsupported Cases
+
+The requested real branch must be established on the chosen approach. For example, noninteger-order `BesselJ` at a negative argument, `BesselK` on its negative-axis cut, and `EllipticK[1 + x]` for small positive `x` are not admitted as real expansions:
+
+```wolfram
+AsymptoticExpansion[BesselJ[Sqrt[2], -x], x -> 0, SeriesTermGoal -> 3]
+AsymptoticExpansion[BesselK[0, -x], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[EllipticK[1 + x], x -> 0, SeriesTermGoal -> 3]
+```
+
+An unevaluated native expansion, a parameter pole, or a coefficient outside the supported real power-log and bounded-oscillation classes can return `Failure`. The fact that a function has numerical values does not establish an admissible asymptotic expansion at every endpoint.
 
 #### Elementary Exponential Products
 

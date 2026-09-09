@@ -45,6 +45,23 @@ complete polynomial reciprocal-logarithmic blocks at successive inverse
 powers of that core. The guide covers its
 [LogGamma, affine, powered, and reciprocal-target extensions](AsymptoticInverse/Documentation/UserGuide.md#inverse-gamma-and-loggamma).
 
+The forward interface also covers admitted Bessel, Airy, error-integral,
+fixed-parameter incomplete Gamma, zeta/polylogarithm, hypergeometric, and
+elliptic expansions. Supported cases include finite singularities,
+exponential factors, and oscillatory tails:
+
+```wolfram
+AsymptoticExpansion[BesselJ[0, x], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[Erfc[x], x -> Infinity, SeriesTermGoal -> 3]
+AsymptoticExpansion[EllipticK[1 - x], x -> 0, SeriesTermGoal -> 3]
+```
+
+The [special-function guide](AsymptoticInverse/Documentation/UserGuide.md#special-function-expansions)
+explains real branches, fixed parameter assumptions, complete block counts
+for separate carriers, and the distinction between exact identities and
+exponentially small tails. These are endpoint-specific capabilities, not a
+claim that every special function or simultaneous parameter limit is supported.
+
 Series objects normalize ordinary arithmetic and retain their remainders:
 
 ```wolfram
@@ -62,7 +79,7 @@ SeriesNormalize[(1 + a)/(1 - a), "Cutoff" -> 4]
 explains precision propagation, ordinary function operands, held normalization,
 and composite error bounds for compatible expansions in different scales.
 
-Version 1.6.0 declares Wolfram Language 15.0 or later. Native validation
+Version 1.7.0 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)
 for the exact scope of each run.
 

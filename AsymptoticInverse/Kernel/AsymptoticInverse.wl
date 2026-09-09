@@ -327,7 +327,10 @@ splitJet[T_List] := {Select[T, less[#[[1]], 0] &], Total[Select[T, #[[1]] === 0 
 provablyPositive[c_, ass_] := TrueQ[Simplify[c > 0, ass]];
 provablyNegative[c_, ass_] := TrueQ[Simplify[c < 0, ass]];
 
-fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e]},
+fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e], parameterized},
+  If[Length[e] > 1 && ! MemberQ[{Plus, Times, Power}, h] && ! FreeQ[e, u],
+    parameterized = specialParameterizedForwardJet[e, u, ell, ass, Kw, limit];
+    If[MatchQ[parameterized, {_List, _, _}], Return[parameterized, Module]]];
   Which[
    inverseFunctionApplicationQ[e], inverseFunctionForwardJet[e, u, ell, ass, Kw, limit],
    FreeQ[e, u], pConst[e, ell, ass],
@@ -1192,6 +1195,11 @@ Get[FileNameJoin[{$kernelDirectory, "GammaInverseOperations.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "ExponentialForward.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "SeriesEnvelopeArithmetic.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "SeriesArithmetic.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "SpecialFunctionRealDomain.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "SpecialFunctionIdentities.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "ParameterizedSpecialFunctions.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "DirichletSpecialFunctions.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "NativeSpecialFunctions.wl"}]];
 
 End[];
 EndPackage[];

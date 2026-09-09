@@ -1,0 +1,530 @@
+\section{Special-function expansions and absolute error envelopes}
+\label{sec:special-function-expansions}
+
+The preceding calculus does not depend on an elementary description of
+the function being expanded. Its analytic input is a finite approximation
+on a specified branch, together with a bound for the omitted part.
+Special functions supply such input through differential equations,
+integral representations, and convergent defining sums. These sources
+must be distinguished from exact identities: a finite asymptotic
+expansion need not determine contributions smaller than every power in
+its stated scale.
+
+All parameters in this section are fixed while the argument approaches
+its endpoint. Unless an explicit bound is given, constants and
+thresholds in $\OO$ may depend on those parameters and on the fixed
+truncation order. No uniformity in a growing order, a coalescing
+singularity, or a parameter approaching the boundary of its domain is
+inferred. We use the real positive axis for fractional powers and
+logarithms. Reflection or continuation to another ray requires an exact
+identity or a separate asymptotic theorem on that ray.
+
+\subsection{Finite composition, oscillation, and real projection}
+
+Let $w\to0^+$, and suppose finitely many functions have representations
+\begin{equation}
+ F_j(w)=A_j(w)+\OO(R_j(w)),\qquad R_j(w)\ge0.
+ \label{eq:special-function-input-envelope}
+\end{equation}
+The approximations may contain exact exponential factors and bounded
+oscillations. For example, a finite expression of the form
+\begin{equation}
+ A(w)=A_0(w)+\sum_{j=1}^m P_j(w)T_j(w)
+ \label{eq:special-function-finite-carriers}
+\end{equation}
+can keep the factors $P_j$ exact while each $T_j$ is a finite
+power--logarithmic sum with trigonometric coefficients. An error
+$\OO(R_j)$ inside the $j$th bracket gives the absolute error
+$\OO(|P_j|R_j)$ outside it. Several independent errors give their sum
+as a valid envelope, even when no common leading term is available.
+
+Proposition~\ref{prop:separate-error-envelopes} propagates these errors
+through finite arithmetic expressions. At a regular finite limiting
+argument, Taylor's theorem supplies composition with an analytic
+function. More generally, a derivative bound on a neighborhood containing
+the true and approximate arguments supplies the corresponding
+mean-value bound. Division requires separation from zero; a real
+noninteger power requires the appropriate positive branch; exponentiation
+of an uncertain phase requires its absolute error to tend to zero.
+Finitely many successive applications are justified by induction, with
+every earlier error included at the next step.
+
+An oscillatory coefficient changes the interpretation of the result.
+For instance,
+\[
+ F(x)=x^{-1/2}\cos x+\OO(x^{-3/2})
+\]
+is a useful absolute approximation on the positive axis. It does not
+assert $F(x)/(x^{-1/2}\cos x)\to1$, since the denominator vanishes
+arbitrarily far along that axis. Nor does it justify taking a reciprocal
+on a whole positive half-line. The boundedness of sine and cosine
+supports absolute error transport through their zeros.
+
+\begin{proposition}[Projection of a real-valued function]
+\label{prop:special-function-real-projection}
+Suppose $F$ is real-valued on the specified approach, $A$ may be complex,
+and $F-A=\OO(R)$ for a nonnegative real envelope $R$. Then
+\[
+ F-\operatorname{Re}A=\OO(R),
+ \qquad \operatorname{Im}A=\OO(R).
+\]
+In particular, projecting the finite approximation to its real part
+does not increase an available pointwise absolute error bound.
+\end{proposition}
+\begin{proof}
+Since $\operatorname{Re}F=F$ and $\operatorname{Im}F=0$, both assertions
+follow from $|\operatorname{Re}z|\le|z|$ and
+$|\operatorname{Im}z|\le|z|$. The same inequalities hold before an
+explicit bound is replaced by asymptotic notation.
+\end{proof}
+
+The real-valuedness assumption refers to the exact function on its
+chosen branch. It cannot be deduced merely by discarding an imaginary
+part of an approximation. Likewise, algebraic cancellation of finite
+terms need not cancel their unknown errors. If
+$F=A+B+\OO(R)$, $B=\OO(S)$ and $R=\oo(S)$, then one may conclude
+$F=A+\OO(S)$; the smaller independent error has been absorbed into a
+proved bound for the omitted expression.
+
+\subsection{An exponent allowance for logarithmic tails}
+
+A remainder exponent without a logarithmic degree is incomplete
+information in the scale of Section~\ref{sec:scale}. If it is known
+independently that the degree is finite, a strict loss in exponent gives
+a bound that does not need that degree explicitly.
+
+\begin{lemma}[Absorbing an unspecified finite logarithmic degree]
+\label{lem:special-function-logarithmic-margin}
+Suppose, for some fixed real $p$ and finite $D\ge0$,
+\[
+ R(w)=\OO\bigl(w^p\M(w)^D\bigr).
+\]
+For every fixed $\varepsilon>0$,
+\[
+ R(w)=\oo\bigl(w^{p-\varepsilon}\bigr).
+\]
+In particular, $R(w)=\OO(w^{p-\varepsilon})$.
+\end{lemma}
+\begin{proof}
+Divide the assumed bound by $w^{p-\varepsilon}$ and apply
+Lemma~\ref{lem:dominance} to $w^\varepsilon\M(w)^D$.
+\end{proof}
+
+For a lattice of exponent spacing $1/q$, choosing
+$\varepsilon=1/(2q)$ leaves an intermediate exponent between adjacent
+lattice positions. This choice is only a conservative bound; it does not
+specify the actual first omitted coefficient. A subsequently established
+omitted block may give a sharper boundary by the absorption argument
+above. The finite-degree hypothesis is essential: a purely formal
+remainder symbol or the logarithmic degrees of retained coefficients do
+not prove it. These assertions concern values, and provide no derivative
+bounds without the additional hypotheses in
+Section~\ref{sec:series-calculus}; see also \cite[\S2.1(iii)]{dlmf}.
+
+\subsection{Exact identities preserve smaller exponential terms}
+
+On $x>0$, define the finite polynomials
+\[
+ P_n(t)=\sum_{k=0}^n
+       \frac{(n+k)!}{k!(n-k)!2^k}\,t^k,
+ \qquad n=0,1,2,\ldots.
+\]
+The half-integer modified Bessel functions satisfy
+\begin{equation}
+\begin{aligned}
+ K_{n+1/2}(x)
+   &=\sqrt{\frac{\pi}{2x}}e^{-x}P_n(1/x),\\
+ I_{n+1/2}(x)
+   &=\frac{e^xP_n(-1/x)+(-1)^{n+1}e^{-x}P_n(1/x)}
+           {\sqrt{2\pi x}}.
+\end{aligned}
+\label{eq:special-function-half-integer-bessel}
+\end{equation}
+They follow from the half-order identities in
+\cite[\S10.39]{dlmf} and the order recurrences. Here both equations
+are exact. In particular,
+\[
+ e^{-x}I_{1/2}(x)
+   =\frac{1-e^{-2x}}{\sqrt{2\pi x}}.
+\]
+Its inverse-power expansion contains only the first displayed algebraic
+term, although the difference from that term is nonzero. The vanishing
+of every subsequent algebraic coefficient therefore cannot establish
+an exact finite identity.
+
+The same distinction occurs for confluent hypergeometric functions:
+\begin{equation}
+ {}_1F_1(1;2;x)=\int_0^1e^{xt}\,\dd t
+               =\frac{e^x-1}{x}\qquad(x\ne0).
+ \label{eq:special-function-hypergeometric-endpoint}
+\end{equation}
+The value at zero is obtained by continuity. The integral is the
+specialization of the Euler representation in
+\cite[(13.4.1)]{dlmf}. Both endpoints contribute to the exact answer.
+Keeping the term $-1/x$ matters after cancellation or rescaling, even
+though it is exponentially small relative to $e^x/x$.
+
+Terminating defining sums give a different route to exactness. If
+$m\ge0$ is an integer and $b\notin\{0,-1,-2,\ldots\}$, then
+\[
+ {}_1F_1(-m;b;x)
+   =\sum_{k=0}^{m}\frac{(-m)_k}{(b)_k\,k!}x^k.
+\]
+This conclusion comes from the zero numerator Pochhammer symbols and
+the nonvanishing denominators in the defining series, rather than from
+observing several zero coefficients in an asymptotic expansion.
+
+\subsection{Exponential and oscillatory differential-equation families}
+
+For fixed $\nu\in\R$, set
+\[
+ a_0(\nu)=1,\qquad
+ a_k(\nu)=\frac{\prod_{j=1}^k(4\nu^2-(2j-1)^2)}{8^k k!},
+ \qquad \omega=x-\frac{\nu\pi}{2}-\frac{\pi}{4}.
+\]
+The positive-axis modified Bessel expansions are, for fixed $N\ge1$,
+\begin{equation}
+\begin{aligned}
+ I_\nu(x)
+ &=\frac{e^x}{\sqrt{2\pi x}}
+   \left(\sum_{k=0}^{N-1}\frac{(-1)^ka_k(\nu)}{x^k}
+         +\OO(x^{-N})\right),\\
+ K_\nu(x)
+ &=\sqrt{\frac{\pi}{2x}}e^{-x}
+   \left(\sum_{k=0}^{N-1}\frac{a_k(\nu)}{x^k}
+         +\OO(x^{-N})\right).
+\end{aligned}
+\label{eq:special-function-modified-bessel}
+\end{equation}
+The corresponding oscillatory examples begin
+\begin{equation}
+\begin{aligned}
+ J_\nu(x)&=\sqrt{\frac{2}{\pi x}}
+   \left(\cos\omega-\frac{a_1(\nu)}x\sin\omega
+       -\frac{a_2(\nu)}{x^2}\cos\omega+\OO(x^{-3})\right),\\
+ Y_\nu(x)&=\sqrt{\frac{2}{\pi x}}
+   \left(\sin\omega+\frac{a_1(\nu)}x\cos\omega
+       -\frac{a_2(\nu)}{x^2}\sin\omega+\OO(x^{-3})\right).
+\end{aligned}
+\label{eq:special-function-oscillatory-bessel}
+\end{equation}
+These formulas and their finite-order bounds are given in
+\cite[\S\S10.17, 10.40]{dlmf}. Each outer factor multiplies the
+absolute error as well as the finite bracket. The oscillatory formulas
+have this meaning throughout the positive axis, including zeros of
+their leading trigonometric terms.
+
+The Airy functions illustrate a fractional power in the exponential
+phase. With $\xi=2x^{3/2}/3$ and $x\to+\infty$,
+\begin{equation}
+\begin{aligned}
+ \operatorname{Ai}(x)
+ &=\frac{e^{-\xi}}{2\sqrt{\pi}\,x^{1/4}}
+   \left(1-\frac5{48x^{3/2}}+\frac{385}{4608x^3}
+              +\OO(x^{-9/2})\right),\\
+ \operatorname{Bi}(x)
+ &=\frac{e^\xi}{\sqrt{\pi}\,x^{1/4}}
+   \left(1+\frac5{48x^{3/2}}+\frac{385}{4608x^3}
+              +\OO(x^{-9/2})\right).
+\end{aligned}
+\label{eq:special-function-airy-positive}
+\end{equation}
+On the reflected real ray they instead satisfy
+\begin{equation}
+\begin{aligned}
+ \operatorname{Ai}(-x)&=\frac1{\sqrt{\pi}\,x^{1/4}}
+        \left(\sin(\xi+\pi/4)+\OO(x^{-3/2})\right),\\
+ \operatorname{Bi}(-x)&=\frac1{\sqrt{\pi}\,x^{1/4}}
+        \left(\cos(\xi+\pi/4)+\OO(x^{-3/2})\right).
+\end{aligned}
+\label{eq:special-function-airy-negative}
+\end{equation}
+See \cite[\S9.7]{dlmf}. Thus a change of ray can replace real
+exponential growth by oscillation. The derivative expansions in that
+reference are separate analytic assertions; the displayed value
+remainders alone would not justify differentiating them.
+
+Exact substitutions such as $x=c/w^\alpha+d$, with $c,\alpha>0$ and
+fixed real $d$, preserve a positive-axis asymptotic theorem once the
+argument is eventually positive. The remainder is first substituted
+in its full absolute form. Further expansion of the exact phase or
+prefactor then uses the finite-composition rules, with enough accuracy
+in a phase to control its exponential.
+
+\subsection{A finite-moment theorem for integral and sum representations}
+
+A single Taylor estimate treats several integral tails and discrete
+defining sums. Write $|\mu|$ for the total variation of a real signed
+measure $\mu$ on $[0,\infty)$, and
+$M_k(\mu)=\int t^k\,\dd\mu(t)$ for its moments.
+
+\begin{theorem}[Expansion against a fixed measure]
+\label{thm:special-function-moment-expansion}
+Fix $s\in\R$ and an integer $N\ge0$, and set
+$D=\max(0,\lceil-s-N\rceil)$. Suppose
+\[
+ \int_0^\infty(1+t)^{N+D}\,\dd|\mu|(t)<\infty.
+\]
+For $a\ge1$, define
+\[
+ F_\mu(s,a)=\int_0^\infty(a+t)^{-s}\,\dd\mu(t).
+\]
+Then
+\begin{equation}
+ F_\mu(s,a)=
+ \sum_{k=0}^{N-1}\frac{(-1)^k(s)_kM_k(\mu)}{k!}\,a^{-s-k}
+       +R_N(a),
+ \label{eq:special-function-moment-expansion}
+\end{equation}
+with the empty sum understood as zero, and
+\begin{equation}
+\begin{aligned}
+ |R_N(a)|&\le C_N(\mu,s)\,a^{-s-N},\\
+ C_N(\mu,s)&=
+  \frac{|(s)_N|}{N!}
+       \int_0^\infty t^N(1+t)^D\,\dd|\mu|(t).
+\end{aligned}
+\label{eq:special-function-moment-bound}
+\end{equation}
+\end{theorem}
+\begin{proof}
+For $h(v)=(1+v)^{-s}$ on $v\ge0$,
+$h^{(N)}(v)=(-1)^N(s)_N(1+v)^{-s-N}$. If $N\ge1$,
+Taylor's remainder on $[0,v]$ is therefore bounded by
+\[
+ \left|h(v)-\sum_{k=0}^{N-1}
+                \frac{(-1)^k(s)_k}{k!}v^k\right|
+       \le \frac{|(s)_N|}{N!}\,v^N(1+v)^D.
+\]
+For $N=0$ the same inequality is simply
+$(1+v)^{-s}\le(1+v)^D$.
+Substitute $v=t/a$, multiply by $a^{-s}$, and use
+$(1+t/a)^D\le(1+t)^D$ for $a\ge1$. Integrating the absolute
+bound against $|\mu|$ proves both formulas. The moment hypothesis
+ensures that the original integral, every retained term, and the
+remainder bound are finite.
+\end{proof}
+
+If all moments of $|\mu|$ are finite, the theorem gives every fixed
+order of a Poincar\'e expansion. It does not assert convergence as
+$N\to\infty$. If $s=-m$ for an integer $m\ge0$, the binomial expression
+is a polynomial and the expansion is exact after degree $m$.
+
+\paragraph{Exponential integrals and incomplete Gamma functions.}
+For fixed real $p$ and $a>0$, the positive-axis integral
+\[
+ E_p(a)=\int_1^\infty e^{-at}t^{-p}\,\dd t
+       =\frac{e^{-a}}a\int_0^\infty
+                  e^{-v}(1+v/a)^{-p}\,\dd v
+\]
+has moments $\int_0^\infty e^{-v}v^k\,\dd v=k!$.
+Theorem~\ref{thm:special-function-moment-expansion} gives
+\begin{equation}
+ E_p(a)=\frac{e^{-a}}a
+       \left(\sum_{k=0}^{N-1}\frac{(-1)^k(p)_k}{a^k}
+                   +\OO(a^{-N})\right).
+ \label{eq:special-function-exponential-integral}
+\end{equation}
+When $p+N\ge0$, the absolute remainder inside the bracket is at most
+$|(p)_N|a^{-N}$ for $a\ge1$.
+The identities
+\[
+ \Gamma(\alpha,a)=a^\alpha E_{1-\alpha}(a),\qquad
+ \operatorname{erfc}x=\frac{\Gamma(1/2,x^2)}{\sqrt{\pi}}
+       \quad(x>0)
+\]
+give incomplete-Gamma and complementary-error-function tails by the
+same argument. Their standard forms and sharper domains for bounds
+are recorded in \cite[\S\S8.11(i), 7.12(i)]{dlmf}.
+Section~\ref{sec:special-function-adapters} establishes the additional
+derivative bounds needed for complementary-error-function inversion.
+
+The growing exponential integral has a different positive-axis form,
+\begin{equation}
+ \operatorname{Ei}(x)=\frac{e^x}{x}
+       \left(\sum_{k=0}^{N-1}\frac{k!}{x^k}+\OO(x^{-N})\right).
+ \label{eq:special-function-growing-exponential-integral}
+\end{equation}
+The real reflection identity
+$\operatorname{Ei}(-x)=-E_1(x)$ for $x>0$ selects its negative-axis
+tail. The sine and cosine integrals instead begin
+\begin{equation}
+\begin{aligned}
+ \operatorname{Si}(x)&=\frac{\pi}{2}-\frac{\cos x}{x}
+                              -\frac{\sin x}{x^2}+\OO(x^{-3}),\\
+ \operatorname{Ci}(x)&=\frac{\sin x}{x}
+                              -\frac{\cos x}{x^2}+\OO(x^{-3}).
+\end{aligned}
+\label{eq:special-function-oscillatory-integrals}
+\end{equation}
+These positive-axis formulas are in \cite[\S6.12]{dlmf}.
+They again give absolute approximations through oscillatory zeros.
+
+\paragraph{A confluent hypergeometric example.}
+For fixed $b\in\R$, $\alpha>0$ and $x>0$, the integral representation
+\cite[(13.4.4)]{dlmf}, after rescaling its integration variable, gives
+\[
+ U(\alpha,b,x)=\frac{x^{-\alpha}}{\Gamma(\alpha)}
+     \int_0^\infty e^{-t}t^{\alpha-1}
+                      (1+t/x)^{-(1+\alpha-b)}\,\dd t.
+\]
+The positive measure here has moments
+$M_k=(\alpha)_k$. Taking $s=1+\alpha-b$ in the moment theorem yields
+\begin{equation}
+ U(\alpha,b,x)=x^{-\alpha}
+   \left(\sum_{k=0}^{N-1}
+        \frac{(-1)^k(\alpha)_k(1+\alpha-b)_k}{k!\,x^k}
+          +\OO(x^{-N})\right).
+ \label{eq:special-function-tricomi-moments}
+\end{equation}
+The moment bound supplies an explicit constant at each fixed order.
+Extending this proof to other values of $\alpha$ requires a
+continuation or recurrence argument with its own domain conditions.
+
+\subsection{Lerch's transcendent with a large third argument}
+
+For fixed real $z,s$ with $|z|<1$ and $a>0$, the defining sum is
+\begin{equation}
+ \Phi(z,s,a)=\sum_{n=0}^\infty z^n(a+n)^{-s}.
+ \label{eq:special-function-lerch-definition}
+\end{equation}
+It converges absolutely for every real $s$; all powers use positive
+bases. See \cite[(25.14.1)]{dlmf}. The signed discrete measure
+$\mu_z=\sum_{n\ge0}z^n\delta_n$ has finite absolute moments of every
+order. Define
+\begin{equation}
+ M_0(z)=\frac1{1-z},\qquad
+ M_k(z)=\sum_{n=1}^\infty n^kz^n
+       =\operatorname{Li}_{-k}(z)\quad(k\ge1).
+ \label{eq:special-function-lerch-moments}
+\end{equation}
+The last equality is the polylogarithm defining sum
+\cite[(25.12.10)]{dlmf}; the separate zeroth moment includes the
+mass at $n=0$.
+
+\begin{corollary}[Lerch expansion and a computable tail constant]
+\label{cor:special-function-lerch}
+For every fixed integer $N\ge0$,
+\begin{equation}
+ \Phi(z,s,a)=\sum_{k=0}^{N-1}
+       \frac{(-1)^k(s)_k M_k(z)}{k!}\,a^{-s-k}
+              +R_N(z,s,a),
+ \label{eq:special-function-lerch-expansion}
+\end{equation}
+and, for $a\ge1$,
+\begin{equation}
+\begin{aligned}
+ |R_N(z,s,a)|&\le C_N(z,s)\,a^{-s-N},\\
+ C_N(z,s)&=\frac{|(s)_N|}{N!}
+       \sum_{j=0}^{D}\binom Dj M_{N+j}(|z|),
+ \qquad D=\max(0,\lceil-s-N\rceil).
+\end{aligned}
+\label{eq:special-function-lerch-bound}
+\end{equation}
+\end{corollary}
+\begin{proof}
+Apply Theorem~\ref{thm:special-function-moment-expansion} to $\mu_z$.
+Its total variation is $\mu_{|z|}$. Expanding the finite polynomial
+$(1+n)^D$ gives the stated constant.
+\end{proof}
+
+Negative values of $z$ change the coefficients through cancellation;
+the bound uses $|z|$ and remains valid. Negative noninteger values of
+$s$ give growing initial powers and are covered by the factor
+$(1+t)^D$ in the proof. For example,
+\begin{equation}
+\begin{aligned}
+ \Phi(1/2,2,a)
+   &=\frac2{a^2}-\frac4{a^3}+\frac{18}{a^4}
+                   +\OO(a^{-5}),\\
+ \Phi(1/2,-1/2,a)
+   &=2\sqrt a+\frac1{\sqrt a}+\OO(a^{-3/2}).
+\end{aligned}
+\label{eq:special-function-lerch-examples}
+\end{equation}
+The respective absolute remainder constants from
+\eqref{eq:special-function-lerch-bound} are $104$ and $3/4$ for
+$a\ge1$. If $z=0$, the exact answer is $a^{-s}$. If $s=-m$ with
+$m\ge0$ an integer, the expansion terminates:
+\[
+ \Phi(z,-m,a)=\sum_{k=0}^m\binom mk a^{m-k}M_k(z).
+\]
+For example $\Phi(1/2,-2,a)=2a^2+4a+6$.
+
+The positive coordinate is $w=1/a$, with absolute block exponents
+$s+k$. Zero moments or zero Pochhammer factors remove entire blocks;
+they do not authorize changing the scale of the remaining uncertainty.
+A strict cutoff $H$ retains only nonzero blocks with $s+k<H$.
+The constants above need not stay bounded as $|z|\to1$, and the
+finite-measure proof does not apply at $z=\pm1$. At $z=1$, for example,
+the function becomes the Hurwitz zeta function when $s>1$, and integral
+comparison gives leading behavior $a^{1-s}/(s-1)$, a different power
+from the fixed-$|z|<1$ leading term $a^{-s}/(1-z)$.
+
+\subsection{The zeta function in an exponential coordinate}
+
+Large positive values of the argument of the Riemann zeta function
+lead to a different scale. Its convergent defining sum is
+\cite[(25.2.1)]{dlmf}
+\[
+ \zeta(S)=\sum_{n=1}^\infty n^{-S},\qquad S>1.
+\]
+With $w=e^{-S}\to0^+$ this becomes
+\begin{equation}
+ \zeta(-\log w)=\sum_{n=1}^\infty w^{\log n},
+       \qquad 0<w<e^{-1}.
+ \label{eq:special-function-zeta-coordinate}
+\end{equation}
+The exponents $\{\log n:n\ge1\}$ are left-finite, since
+$\log n<H$ implies $n<e^H$. They form an additive semigroup under
+$\log m+\log n=\log(mn)$, and are not finitely generated: a finite
+set of integers involves only finitely many prime factors.
+Every finite cutoff still has finitely many
+terms, and multiplication has finite coefficient sums indexed by
+factorizations of an integer. Thus the finite arithmetic extends
+beyond a globally finitely generated exponent semigroup.
+
+\begin{proposition}[A two-sided zeta tail bound]
+\label{prop:special-function-zeta-tail}
+For every integer $m\ge1$ and every real $S>1$,
+\begin{equation}
+\begin{aligned}
+ \zeta(S)&=\sum_{n=1}^{m-1}n^{-S}+R_m(S),\\
+ m^{-S}&\le R_m(S)
+       \le m^{-S}\left(1+\frac{m}{S-1}\right).
+\end{aligned}
+\label{eq:special-function-zeta-tail}
+\end{equation}
+Consequently, for fixed $m$, $R_m(S)\sim m^{-S}$ as $S\to+\infty$.
+\end{proposition}
+\begin{proof}
+Every summand of $R_m$ is positive, giving the lower bound. Since
+$t^{-S}$ decreases on $t>0$,
+\[
+ \sum_{n=m+1}^\infty n^{-S}
+       \le\int_m^\infty t^{-S}\,\dd t
+       =\frac{m^{1-S}}{S-1}.
+\]
+Add $m^{-S}$ and divide both bounds by it. The quotient of the
+remainder and its first term is squeezed to $1$.
+\end{proof}
+
+For example, retaining five terms gives
+\begin{equation}
+ \zeta(S)=1+2^{-S}+3^{-S}+4^{-S}+5^{-S}+\OO(6^{-S}).
+ \label{eq:special-function-zeta-five-terms}
+\end{equation}
+Here the first term is the constant corresponding to exponent
+$\log1=0$. A strict cutoff in the coordinate $w=e^{-S}$ retains
+$\log n<H$ and has first omitted exponent $\log m$ as in
+\eqref{eq:special-function-zeta-tail}. Substituting
+$S=ax+b\to+\infty$ preserves both bounds on $ax+b>1$.
+In contrast, all corrections to $1$ are flat in $1/S$; an
+inverse-power expansion in that coordinate cannot distinguish them.
+
+The zeta representation is a convergent generalized power series on
+its stated interval. The Lerch expansion follows from a convergent
+defining sum but is asserted only at each fixed asymptotic order.
+This distinction persists under finite composition, together with the
+absolute envelopes, branch conditions, and fixed-parameter hypotheses
+used at each step.

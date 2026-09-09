@@ -336,3 +336,37 @@ algebraic-number code, asymptotic computation, and Wolfram evaluation semantics.
   branch facts, and pass independent parameter conditions to the limit.
   Lambert-core limits are often much easier in the original target variable
   than after replacing it by the reciprocal of a fresh small coordinate.
+- Native `Series[..., Analytic -> False]` can return an expression tree
+  containing several `SeriesData` objects, including truncated exponential
+  phases. Import that structure before applying `Normal`; each operation
+  must transport the unknown remainder. An unchanged special function is
+  not an exact finite expansion. Require exact equality before accepting a
+  native expression that has no remainder.
+- On a proved real ray, native Bessel, Airy, and integral expansions can
+  contain complex connection terms. Real projection preserves an absolute
+  error bound only after the original source is proved real. It must not
+  silently declare unconstrained symbolic parameters real. Exact half-integer
+  Bessel identities must retain both exponentials when both are present.
+- `SeriesData` does not record the logarithmic degree of its unknown tail.
+  Within the admitted power-log class, a strict loss in the remainder power
+  absorbs any fixed logarithmic degree. Compute an explicit omitted block
+  and prove the native tail smaller before reporting a sharper boundary.
+  The maximum degree among retained coefficients is not a tail-degree bound.
+- Absolute majorants should be computed structurally. The bounds
+  `Abs[Sin[a + I b]] <= Exp[Abs[b]]` and the analogous cosine bound expose
+  cancellation of opposite exponential carriers without costly simplification
+  inside `Abs`. Real oscillatory coefficients must be polynomial in bounded
+  modes; a reciprocal such as `1/(1 + Sin[x])` is not bounded merely because
+  `Sin[x]` is bounded.
+- Parameterized finite-argument functions can be curried into the existing
+  analytic composition calculus. Extract a proved positive Frobenius power
+  first when an irrational order lies outside native Puiseux exponents.
+  Only one argument varies in this adapter; parameter and branch conditions
+  remain part of admission.
+- `Context` holds its argument. To inspect a computed head, pass it to a
+  helper matching `h_Symbol`; `Context[Head[node]]` does not inspect the
+  evaluated head as ordinary argument evaluation would suggest.
+- Keep the `Normal` contract separate from StandardForm display. The finite
+  `"Expression"` field is already an ordinary expression. Returning that
+  field drops every remainder and metadata field, including nested series
+  retained solely in operation recipes. A pure remainder returns `0`.

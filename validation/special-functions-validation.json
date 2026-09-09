@@ -1,0 +1,239 @@
+{
+  "Purpose": "Structured real special-function expansions with absolute remainder transport, fixed-parameter composition, exact identities, and Dirichlet defining-sum bounds",
+  "BaselineCommit": "83c0e25182f096230948f2446eabff5eb6010cc5",
+  "PackageVersion": "1.7.0",
+  "FullPackageSuiteRun": false,
+  "NativeRegression": {
+    "ResultFile": "validation/special-functions-tests.json",
+    "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "Succeeded": 220,
+    "Failed": 0,
+    "Suites": [
+      "SpecialFunctionForward.wlt",
+      "SpecialFunctionIdentities.wlt",
+      "ParameterizedSpecialFunctions.wlt",
+      "NativeSpecialIngress.wlt",
+      "DirichletSpecialFunctions.wlt",
+      "NormalExpressions.wlt",
+      "GammaForward.wlt",
+      "BarnesGForward.wlt",
+      "ExponentialForward.wlt",
+      "SeriesArithmetic.wlt",
+      "SeriesEnvelopeArithmetic.wlt",
+      "Formatting.wlt"
+    ],
+    "SuiteResults": [
+      {
+        "Suite": "SpecialFunctionForward.wlt",
+        "Succeeded": 35,
+        "Failed": 0,
+        "Seconds": 157.9324925
+      },
+      {
+        "Suite": "SpecialFunctionIdentities.wlt",
+        "Succeeded": 15,
+        "Failed": 0,
+        "Seconds": 2.5898469
+      },
+      {
+        "Suite": "ParameterizedSpecialFunctions.wlt",
+        "Succeeded": 14,
+        "Failed": 0,
+        "Seconds": 5.8192695
+      },
+      {
+        "Suite": "NativeSpecialIngress.wlt",
+        "Succeeded": 9,
+        "Failed": 0,
+        "Seconds": 18.3668512
+      },
+      {
+        "Suite": "DirichletSpecialFunctions.wlt",
+        "Succeeded": 24,
+        "Failed": 0,
+        "Seconds": 0.7270026
+      },
+      {
+        "Suite": "NormalExpressions.wlt",
+        "Succeeded": 8,
+        "Failed": 0,
+        "Seconds": 5.4083516
+      },
+      {
+        "Suite": "GammaForward.wlt",
+        "Succeeded": 18,
+        "Failed": 0,
+        "Seconds": 40.4052688
+      },
+      {
+        "Suite": "BarnesGForward.wlt",
+        "Succeeded": 22,
+        "Failed": 0,
+        "Seconds": 32.7664914
+      },
+      {
+        "Suite": "ExponentialForward.wlt",
+        "Succeeded": 17,
+        "Failed": 0,
+        "Seconds": 4.6869221
+      },
+      {
+        "Suite": "SeriesArithmetic.wlt",
+        "Succeeded": 28,
+        "Failed": 0,
+        "Seconds": 1.5585852
+      },
+      {
+        "Suite": "SeriesEnvelopeArithmetic.wlt",
+        "Succeeded": 17,
+        "Failed": 0,
+        "Seconds": 0.3365341
+      },
+      {
+        "Suite": "Formatting.wlt",
+        "Succeeded": 13,
+        "Failed": 0,
+        "Seconds": 0.4299537
+      }
+    ],
+    "SourcesUnchangedDuringRun": true,
+    "TestedKernelTestAndRunnerByteHashesVerified": true
+  },
+  "NormalContract": {
+    "Behavior": "Normal returns the ordinary finite expression, dropping the PowerLogSeries wrapper, every remainder, and metadata. Pure remainders return zero.",
+    "FocusedTests": 8,
+    "Representations": [
+      "Ordered logarithmic",
+      "Factored",
+      "Automatic arithmetic",
+      "Held normalization",
+      "Refinement and truncation",
+      "Composite",
+      "Pure remainder",
+      "Native oscillatory"
+    ],
+    "Implementation": "Existing constructor Expression invariants and Normal upvalue are preserved; additional regressions protect the contract."
+  },
+  "Implementation": {
+    "SharedIngress": "Native Series with Analytic -> False; structured SeriesData errors transported before extracting finite expressions.",
+    "RealBranches": "Original-source realness is established before real projection; fixed parameters require their recorded assumptions.",
+    "Precision": "Explicit omitted blocks determine frontiers only after the weakened native tail is proved smaller. Complete logarithmic polynomials are retained together.",
+    "Exactness": "No-remainder native expressions require exact equality with the original normalized source; half-integer Bessel identities retain both exponentials.",
+    "Oscillation": "Polynomial combinations of bounded real sine/cosine modes receive absolute error bounds, without a nonvanishing-leading-term claim.",
+    "Composition": "One varying finite argument with fixed parameters; normalized Frobenius factors support irrational powers and orders.",
+    "Dirichlet": "Zeta at an affine argument tending to positive infinity uses Exp[-S] with Log[n] weights; Lerch with fixed exact numeric real |z|<1 and s uses 1/a with s+k weights and a finite moment tail bound.",
+    "Scope": "Admission remains dependent on the endpoint, real branch, fixed parameters, available structured expansion, and resource limits. This is not universal coverage of every Wolfram special-function limit, a uniform growing-order expansion, or a generic derivative certificate."
+  },
+  "IndependentReview": "Bounded source and mathematical reviews checked real-domain gates, bounded-mode admission, exact contributions, Normal constructor invariants, exclusive cutoffs, moment bounds including N=0 and negative orders, zeta support, and derivative limitations.",
+  "RunnableExample": {
+    "Command": "wolfram.exe -script AsymptoticInverse/Examples/SpecialFunctions.wl",
+    "ExitCode": 0,
+    "CheckedExamples": 5,
+    "Families": [
+      "Bessel product",
+      "Airy decay",
+      "Oscillatory Bessel",
+      "Zeta Dirichlet scale",
+      "Lerch reciprocal scale"
+    ]
+  },
+  "NativeVisualReview": {
+    "Renderer": "validation/RenderSpecialFunctions.wl",
+    "Image": "validation/special-functions-preview.png",
+    "Dimensions": [
+      943,
+      721
+    ],
+    "Inspected": true,
+    "Checks": [
+      "Invisible StandardForm head and retained remainder",
+      "Ordinary remainder-free Normal outputs",
+      "Exponential and oscillatory grouping",
+      "Zeta and Lerch scale display",
+      "No clipping"
+    ],
+    "EnvironmentMessage": "RegisterFormat::interr reported ImageMetadataTools could not be installed; Rasterize returned an Image and PNG export succeeded."
+  },
+  "StaticDocumentationChecks": {
+    "PublicSymbols": 37,
+    "Anchors": 180,
+    "Links": 111,
+    "BrokenLocalLinks": 0,
+    "DuplicateAnchors": 0,
+    "GeneratedHTMLMatchesSources": true,
+    "MathematicalChapters": 31,
+    "MathematicalLabels": 323,
+    "MathematicalReferences": 278,
+    "MissingReferences": 0,
+    "MissingCitations": 0,
+    "PreservedEngineeringFiles": 6
+  },
+  "MathematicalArticle": {
+    "PDF": "article/asymptotic-inverse.pdf",
+    "NewSource": "article/sections/35-special-function-expansions.tex",
+    "StrictSerialLaTeXPasses": 3,
+    "PageCount": 95,
+    "RenderedPages": 95,
+    "TextOutsidePage": 0,
+    "OverfullBoxes": 0,
+    "UnderfullBoxes": 0,
+    "MissingReferences": 0,
+    "VisualReview": {
+      "AllContactSheetsInspected": 16,
+      "SelectedFullPagesInspected": [
+        65,
+        66,
+        67,
+        68
+      ],
+      "Result": "Consistent margins, readable formulas, no clipping or overlap on inspected pages."
+    },
+    "Theory": "Absolute error propagation and real projection; conditional logarithmic exponent margin; exact small exponential contributions; fixed-parameter Bessel/Airy/integral formulas; signed-measure moment theorem; Lerch moment bounds; convergent generalized zeta series and two-sided tail estimate."
+  },
+  "ArtifactSHA256": {
+    "AsymptoticInverse/PacletInfo.wl": "05132875159a71a5cb6aa3f0173f3a73d1db342db91b440480e80ec1f73664c2",
+    "AsymptoticInverse/Documentation/UserGuide.md": "3e7f7eb5cacb676abf267f995804f33c8109c41a9acfe15bfadd0bd2061393bf",
+    "AsymptoticInverse/Documentation/UserGuide.html": "2af975fb0d83f47bf5a8649f28fdc05bf8edd00990c0c916851ef6c2f30f032c",
+    "AsymptoticInverse/Documentation/UserGuide.css": "69853132fec2f492c02fcdea11bc1c351cf5a2babc962b2dbbd8b9bd253e90d8",
+    "AsymptoticInverse/Examples/SpecialFunctions.wl": "a18f090201d8bd5f130181a2b4e13ed3fe4ff56dc35bda2878c6725431f835e1",
+    "validation/RenderSpecialFunctions.wl": "2fbb77d0901661b088a618d4214818b73b74c77de48ed32b85851491b2efca54",
+    "validation/special-functions-preview.png": "5a01fa0a3ea60f198045b2fe87a025f47a8e72cebe65487215e4cb9cf74bcb9d",
+    "validation/special-functions-tests.json": "442ba15c526e8035d736e36126834eb915f6953b618b07d71ac0c3774ef8b118",
+    "validation/build_user_guide.py": "057fa8ff6352679d0ac532bda8f6b274e118439765cac317d02471c1ce2a264b",
+    "validation/check_documentation.py": "f65557eef4e3624cf53f4208c3dec6fabf55060d44ef44c7a2ed613390c35179",
+    "validation/inspect_pdf.py": "d07a5c17c73a3dd12ccb82c9631eb793f6920ffa219e8a4182596be80da55b79",
+    "article/asymptotic-inverse.pdf": "9739d2a6a0d4d3ae238007843077525e2c0f7727d9a07459f17c126317b83c2e",
+    "article/asymptotic-inverse.tex": "099f13875cbf070f18e8823c50ff9ab765f368da40df0ac3d422b86cbcfb9869",
+    "article/sections/01-introduction.tex": "817b308632a56c247de9cbeb0b8b6dc3ae29563905789184af39c13cbb68ef4e",
+    "article/sections/02-scale.tex": "8bd3bc8323d46280cc59b05f17ec8ba894e1bcd62d1f35b4f959362b474ec248",
+    "article/sections/03-forward.tex": "a44908a4b7c35fe869d8770322939d895a2f4273eac744891881a9a546ccc243",
+    "article/sections/04-branch.tex": "97cb8bbfb95b8846a7941c2f1f1c16d2d62da79e5c15108e3b619a9033c9aeb6",
+    "article/sections/05-lagrange.tex": "a5c6c892f16c5b3218ad4e2bc8fec196d87afbe1fe8ca899c0a74fb7a5cf8b9e",
+    "article/sections/06-coefficients.tex": "9b3162adeade047da981868cf1cf5a68535aa3d475382d560e4565263a65fb54",
+    "article/sections/07-convergence.tex": "84a60624d5c28ed692c1ab20a271bbdb67e69788db0a9d0db30b6e4efdcf0cfa",
+    "article/sections/08-remainders.tex": "263e1e25f3bfd7725c698e9a366cee2aa9d69208cc0a0330bdf15325ca3fbe18",
+    "article/sections/09-transport.tex": "a24ab3caa62974d7291149b7a25e98ad4627fab3f33d6d9e49a15ae85bc49611",
+    "article/sections/10-endpoints.tex": "0f0e918c0ad96709e90c1e98fe1de88407bff7ff0b04407a41184dd653c9f342",
+    "article/sections/11-examples.tex": "e7e8285439ef6ffbac203c7ef393ee98e0b7bc5b950b64e21ef5d9f70df9c39f",
+    "article/sections/12-boundaries.tex": "f3f46444458a78b77176d3fed6ae39418311e37e35df06d809221162716d7ffb",
+    "article/sections/15-coordinates.tex": "f5a7fed3fd8ab28e0911c52040df8d1c330fee5a9fde14790fc105457a216719",
+    "article/sections/16-incremental.tex": "5c57017f16b61bf4231c5bac90b5e2cd4d95252fa989ca05cc11b96f3875e0f1",
+    "article/sections/25-refinement-state.tex": "bb592e3002915d0a0d3579ce479c71f31f3b5f8c0f52e3c2b94f90c76baf7433",
+    "article/sections/17-calculus.tex": "4d145427d9b893417da0c7a581cace34d4014a0827c65fb77d9b154f8e03c24d",
+    "article/sections/18-core-perturbations.tex": "65f08c22e52f6c7a5be1045fc7b97823b1e9568eec448e58bd747bbc7100fc6d",
+    "article/sections/19-certificates.tex": "43df0476367ab0b72f1f201e69d9616bb5e56cee5ab3011a899bf51f9ebb1be7",
+    "article/sections/23-source-coordinates.tex": "d269eff6f56a550972c3e6630e30f9659c112d2bc02c884fc55471efdf36dc52",
+    "article/sections/20-logarithmic-scales.tex": "e4a98602fdaafd5625be88222f3c6fea0aec0d2a1ad72a4a69df68600aa07271",
+    "article/sections/21-flat-sectors.tex": "bbf12e8f156dc108e6ae6c0ec15ebfeb89cbebd803aa0fe8994a3f1194f5dea1",
+    "article/sections/22-fourier.tex": "651327654ce686e0fb4b3ec8424dcce78ca32ad4d73cfb7fae20757f0eac50b5",
+    "article/sections/35-special-function-expansions.tex": "029f652dc838da45837ef88d9c2885be0d4874d16303b800caa9121b2a48a011",
+    "article/sections/24-special-functions.tex": "d2a84e39d48b52788f90065f6c0946e558cdd256e0828bc71a7df3cba5500ef2",
+    "article/sections/27-exponential-core.tex": "768c4df1ccb2c70d87e68e4455bf32000246dc92883641805c4df057d9a992ff",
+    "article/sections/28-flat-sector-operations.tex": "a38db9c32048c7a166080c63e02a474bd572efc320ef2d006365ac0566ea275f",
+    "article/sections/30-reciprocal-log-operations.tex": "dd3e87f274f5e363cf5c041586a86376a642513ba9f79e2f15f5e8269030c5ca",
+    "article/sections/31-inverse-function-expressions.tex": "78674eb27cf7553c0ace41f4ddfb3cdc98c2a816166c1746768024301e40b7ec",
+    "article/sections/32-exponential-normalization.tex": "c3a8b1dd14a1b0f229415e903bf73d4fd162f2ce8706fb2e3a4a2c9c11b7ee83",
+    "article/sections/33-gamma-inverse.tex": "73f096ed6c770b2501d2b04fd79691b4a667de68f4ef51b6f5af6e92e02dae06",
+    "article/sections/34-barnes-inverse.tex": "7fd7324c7cfaaf51b193fa37a080c687126de4c677997162720dae80a13f8fa0"
+  }
+}

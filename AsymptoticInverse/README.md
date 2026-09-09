@@ -24,7 +24,7 @@ PacletDirectoryLoad["/absolute/path/to/AsymptoticInverse"];
 Needs["AsymptoticInverse`"];
 ```
 
-Version 1.6.0 requires Wolfram Language 15.0 or later. The recorded native
+Version 1.7.0 requires Wolfram Language 15.0 or later. The recorded native
 checks used version 15.0.1 for Windows.
 
 ## First expansion
@@ -48,6 +48,25 @@ SeriesNormalize[(s + y^2)/(1 + y), "Cutoff" -> 3]
 
 See [Series Arithmetic and Normalization](Documentation/UserGuide.md#series-operations)
 for regular function operands, available precision, and composite error bounds.
+
+## Special-function expansions
+
+The same forward interface handles admitted finite-point and large-argument
+expansions of Bessel, Airy, error-integral, incomplete Gamma, zeta/polylogarithm,
+hypergeometric, and elliptic functions:
+
+```wolfram
+s = AsymptoticExpansion[BesselK[0, x], x -> Infinity,
+  SeriesTermGoal -> 3];
+Normal[s]
+s["Remainder"]
+```
+
+`Normal[s]` returns an ordinary finite expression. The series object retains
+its error, including separate error scales when oscillations or distinct
+exponential factors occur. See [Other Special Functions](Documentation/UserGuide.md#special-function-expansions)
+for supported endpoint examples, real-branch and fixed-parameter conditions,
+carrier-specific cutoffs, and exact versus exponentially small contributions.
 
 Use the guide's [function overview](Documentation/UserGuide.md#function-overview)
 for the public API and its [possible issues](Documentation/UserGuide.md#possible-issues)
