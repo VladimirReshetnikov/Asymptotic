@@ -1,0 +1,64 @@
+{
+  "Purpose": "Invisible StandardForm and TraditionalForm PowerLogSeries display with complete interpretation, reconstructible InputForm, and ordinary remainder-free Normal results",
+  "BaselineCommit": "bf507f8e254b3e658c978a2143f119fb970f35b2",
+  "FullPackageSuiteRun": false,
+  "NativeRegression": {
+    "ResultFile": "validation/formatting-tests.json",
+    "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+    "Succeeded": 13,
+    "Failed": 0,
+    "Suites": [
+      "Formatting.wlt"
+    ],
+    "TestedKernelTestAndRunnerByteHashesVerified": true
+  },
+  "ValidationScope": "Thirteen explicitly selected formatting tests cover full-object roundtrips in two presentation forms, complete InputForm text and box serialization, visible precedence independent of hidden interpretation, Normal, multiple remainder scales, and held-input non-evaluation. No full package suite was run.",
+  "NormalContract": "Normal[PowerLogSeries[a]] returns a[\"Expression\"]. It contains neither the PowerLogSeries wrapper nor the displayed remainder; a pure-remainder result returns zero. The existing Normal implementation was preserved and verified.",
+  "ImplementationReview": "Independent static review checked held association-rule extraction, literal-only remainder-scale simplifications, preservation of hidden interpretation payloads, readonly boxes, and InputForm scope. Native tests and rendering checked contextual precedence. Held outer Plus terms are flattened syntactically without evaluating coefficients.",
+  "NativeVisualReview": {
+    "Renderer": "validation/RenderFormatting.wl",
+    "Image": "validation/formatting-preview.png",
+    "Dimensions": [
+      1474,
+      826
+    ],
+    "Inspected": true,
+    "Checks": [
+      "No visible wrapper in series outputs",
+      "Remainder retained; Normal omits it",
+      "No redundant grouping around finite sums",
+      "Correct grouping under powers, products, and reciprocals",
+      "Pure remainder and exact zero",
+      "Logarithmic remainder scale at infinity",
+      "No visible clipping"
+    ],
+    "EnvironmentMessage": "RegisterFormat::interr reported ImageMetadataTools could not be installed. Rasterize returned an Image and PNG export succeeded; the exported image was visually inspected."
+  },
+  "StaticDocumentationChecks": {
+    "Guide": {
+      "PublicSymbols": 36,
+      "Anchors": 160,
+      "Links": 89,
+      "BrokenLocalLinks": 0,
+      "DuplicateAnchors": 0,
+      "GeneratedHTMLMatchesSources": true
+    },
+    "MissingReferences": 0,
+    "MissingCitations": 0
+  },
+  "MathematicalArticle": {
+    "SourceChanged": false,
+    "PDFChanged": false,
+    "PDFSHA256": "ec00351eb23fea0220ab03220854b80c9e541cda45c81586fef987c73961b69a",
+    "Scope": "Display behavior does not change the mathematics. No new article build or render was required."
+  },
+  "ArtifactSHA256": {
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "bdd1edc62dc74b31c8508f062da8a05e02334fb50bca96e1ac3f69cf3a9195ea",
+    "AsymptoticInverse/Tests/Formatting.wlt": "811090dc8827fa9cdad7c955d0df1c4b5409efd7f8059b54a79de2e406aa90f1",
+    "AsymptoticInverse/Documentation/UserGuide.md": "8dce8d59434557bae63445a28cdb6e2c219337653500820213e5402d931c759b",
+    "AsymptoticInverse/Documentation/UserGuide.html": "3b73617e974f8fba90ab7bba0e484cd3605152388c4b6d5a45e308fcba9ecc0d",
+    "validation/CheckFormatting.wl": "0be58d21a7245292192b2d4a7cc836ead457de665ea4fd95b951c816a1e86735",
+    "validation/RenderFormatting.wl": "f2214e9d388c01b04b4a71c6fee2b4710b16a6cf7791922fd9a9220eb463f633",
+    "validation/formatting-preview.png": "ec750d9c486b0511a5a25bc85f8e187db6a0043214c14ea0634882b9726649cd"
+  }
+}

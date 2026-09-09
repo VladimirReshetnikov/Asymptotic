@@ -45,7 +45,9 @@ Power specifies a fixed real source observable, with integer powers required on 
 
 PowerLogSeries::usage =
 "PowerLogSeries[assoc] represents a power-log asymptotic expansion together with its \
-remainder and provenance. Normal[s] gives the finite expression; s[\"Remainder\"], \
+remainder and provenance. StandardForm and TraditionalForm display the finite expression \
+and remainder without the PowerLogSeries head. Normal[s] drops the remainder and returns \
+the ordinary finite expression. InputForm retains the complete object. s[\"Remainder\"], \
 s[\"Terms\"], s[\"SeriesData\"], s[\"Properties\"] and other properties are available; \
 s[value] evaluates the finite expression at a numerical value of the variable.";
 
@@ -1004,15 +1006,55 @@ PowerLogSeries[a_Association][val_?NumericQ] := a["Expression"] /. a["Variable"]
 remainderScale[PowerLogRemainder[w_, b_, k_]] := Module[{base, lg},
   {base, lg} = If[MatchQ[w, Power[_, -1]], {w[[1]]^(-b), Log[w[[1]]]}, {w^b, Log[w]}];
   If[k === 0, base, base (1 + Abs[lg])^k]];
-PowerLogSeries /: MakeBoxes[PowerLogSeries[a_Association], fmt_] :=
-  With[{e = a["Expression"], rm = a["Remainder"]},
-   If[rm === 0, RowBox[{"PowerLogSeries", "[", MakeBoxes[e, fmt], "]"}],
-    RowBox[{"PowerLogSeries", "[", RowBox[{MakeBoxes[e, fmt], "+", MakeBoxes[rm, fmt]}], "]"}]]];
-Format[PowerLogSeries[a_Association], OutputForm] := PowerLogSeries[a["Expression"], a["Remainder"]];
-Format[PowerLogSeries[a_Association], InputForm] := PowerLogSeries[a["Expression"], a["Remainder"]];
+(* Interpretation supplies the displayed expression's precedence as well as
+   the original object. Keep both held: formatting must not evaluate payloads.
+   Read-only boxes prevent edited coefficients from retaining stale metadata. *)
+seriesInterpretationBoxes[HoldComplete[display_], HoldComplete[original_], fmt_] :=
+  MakeBoxes[Interpretation[display, original], fmt] /.
+    box_InterpretationBox :> Append[box, Editable -> False];
+heldSeriesSum[HoldComplete[Plus[e___]], HoldComplete[Plus[r___]]] := HoldComplete[Plus[e, r]];
+heldSeriesSum[HoldComplete[Plus[e___]], HoldComplete[r_]] := HoldComplete[Plus[e, r]];
+heldSeriesSum[HoldComplete[e_], HoldComplete[Plus[r___]]] := HoldComplete[Plus[e, r]];
+heldSeriesSum[HoldComplete[e_], HoldComplete[r_]] := HoldComplete[e + r];
 
-PowerLogRemainder /: MakeBoxes[r_PowerLogRemainder, fmt_] :=
-  With[{sc = remainderScale[r]}, RowBox[{"O", "[", MakeBoxes[sc, fmt], "]"}]];
+PowerLogSeries /: MakeBoxes[PowerLogSeries[a_Association], fmt : StandardForm | TraditionalForm] :=
+  powerLogSeriesBoxes[HoldComplete[PowerLogSeries[a]], fmt];
+powerLogSeriesBoxes[held : HoldComplete[PowerLogSeries[a_Association]], fmt_] := Module[{rules, fields},
+  (* Matching the association's rules works for both evaluated associations and
+     raw associations inside MakeBoxes; ordinary Lookup would evaluate them. *)
+  rules = Replace[held, HoldComplete[PowerLogSeries[Association[r___]]] :> HoldComplete[r]];
+  fields = (Cases[rules, HoldPattern[(Rule | RuleDelayed)[#, value_]] :> HoldComplete[value], {1}] &) /@
+    {"Expression", "Remainder"};
+  Replace[fields, {
+    {{HoldComplete[e_]}, {HoldComplete[0]}} :> seriesInterpretationBoxes[HoldComplete[e], held, fmt],
+    {{HoldComplete[0]}, {HoldComplete[r_]}} :> seriesInterpretationBoxes[HoldComplete[r], held, fmt],
+    {{HoldComplete[e_]}, {HoldComplete[r_]}} :>
+      seriesInterpretationBoxes[heldSeriesSum[HoldComplete[e], HoldComplete[r]], held, fmt],
+    _ :> RowBox[{"PowerLogSeries", "[", MakeBoxes[a, fmt], "]"}]}]];
+Format[PowerLogSeries[a_Association], OutputForm] := PowerLogSeries[a["Expression"], a["Remainder"]];
+
+(* Small syntactic reductions keep scales readable without evaluating symbols
+   or arbitrary expressions supplied to a held MakeBoxes call. *)
+heldScaleNegate[HoldComplete[n_Integer]] := With[{negative = -n}, HoldComplete[negative]];
+heldScaleNegate[HoldComplete[Rational[n_Integer, d_Integer]]] :=
+  With[{negative = -Rational[n, d]}, HoldComplete[negative]];
+heldScaleNegate[HoldComplete[Times[-1, e_]]] := HoldComplete[e];
+heldScaleNegate[HoldComplete[e_]] := HoldComplete[-e];
+heldScalePower[_, HoldComplete[0]] := HoldComplete[1];
+heldScalePower[HoldComplete[w_], HoldComplete[1]] := HoldComplete[w];
+heldScalePower[HoldComplete[w_], HoldComplete[b_]] := HoldComplete[w^b];
+heldScaleTimes[HoldComplete[1], factor_] := factor;
+heldScaleTimes[base_, HoldComplete[1]] := base;
+heldScaleTimes[HoldComplete[b_], HoldComplete[f_]] := HoldComplete[b f];
+heldRemainderScale[HoldComplete[PowerLogRemainder[w_, b_, k_]]] := Module[{base, log, factor},
+  {base, log} = Replace[HoldComplete[w], {
+    HoldComplete[Power[z_, -1]] :> {heldScalePower[HoldComplete[z], heldScaleNegate[HoldComplete[b]]], HoldComplete[Log[z]]},
+    _ :> {heldScalePower[HoldComplete[w], HoldComplete[b]], HoldComplete[Log[w]]}}];
+  factor = Replace[log, HoldComplete[l_] :> heldScalePower[HoldComplete[1 + Abs[l]], HoldComplete[k]]];
+  heldScaleTimes[base, factor]];
+PowerLogRemainder /: MakeBoxes[r : PowerLogRemainder[_, _, _], fmt : StandardForm | TraditionalForm] :=
+  Replace[heldRemainderScale[HoldComplete[r]],
+    HoldComplete[scale_] :> seriesInterpretationBoxes[HoldComplete[O[scale]], HoldComplete[r], fmt]];
 Format[r_PowerLogRemainder, OutputForm] := With[{sc = remainderScale[r]}, HoldForm[O[sc]]];
 
 (* ------------------------------------------------------------------ *)

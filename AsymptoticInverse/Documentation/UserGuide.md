@@ -179,6 +179,44 @@ Conditions need only hold on a sufficiently small deleted neighborhood or suffic
 | `s["Properties"]` | Available property names. |
 | `s[value]` | Evaluation of the finite expression at a numerical value. |
 
+### Display and Evaluation
+
+In `StandardForm` and `TraditionalForm`, a series displays its finite expression and its `O[...]` remainder. The `PowerLogSeries` head is hidden in these forms. For example:
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
+s
+```
+
+**Formatted Output**
+
+```wolfram
+y - y^2 + 2 y^3 - 5 y^4 + O[y^5]
+```
+
+An exact result displays only its finite expression. A result with zero finite expression and a nonzero remainder displays only the remainder; an exact zero displays `0`.
+
+The underlying object still has head `PowerLogSeries`. Copying the formatted object into Wolfram Language input preserves the full series, including its remainder and metadata. The formatted object is read-only; use constructors or explicit series operations to change it.
+
+| Form | Display or result |
+| --- | --- |
+| `StandardForm[s]`, `TraditionalForm[s]` | Finite expression and asymptotic remainder, without the wrapper head. |
+| `Head[s]` | `PowerLogSeries`. |
+| `InputForm[s]` | Full reconstructible `PowerLogSeries[association]` representation, including metadata. |
+| `OutputForm[s]` | Compact diagnostic representation. |
+| `Normal[s]` | Ordinary Wolfram Language expression, with the remainder and series metadata dropped. |
+
+For the example above, `Normal[s]` returns `y - y^2 + 2 y^3 - 5 y^4`. To propagate remainder information, use the explicit series operations:
+
+```wolfram
+SeriesAdd[s, s]
+SeriesPower[s, 2]
+```
+
+Formatting does not give ordinary `Plus`, `Times`, or `Power` automatic series arithmetic. See [Explicit Series Operations](#series-operations) for supported operations and precision rules.
+
 ### Common Properties
 
 | Property | Meaning |

@@ -575,6 +575,68 @@ operations to create and transform it.</p>
 </tbody>
 </table>
 </section>
+<section id="display-and-evaluation" class="level3">
+<h3>Display and Evaluation</h3>
+<p>In <code>StandardForm</code> and <code>TraditionalForm</code>, a
+series displays its finite expression and its <code>O[...]</code>
+remainder. The <code>PowerLogSeries</code> head is hidden in these
+forms. For example:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
+s</code></pre>
+<p><strong>Formatted Output</strong></p>
+<pre class="wolfram"><code>y - y^2 + 2 y^3 - 5 y^4 + O[y^5]</code></pre>
+<p>An exact result displays only its finite expression. A result with
+zero finite expression and a nonzero remainder displays only the
+remainder; an exact zero displays <code>0</code>.</p>
+<p>The underlying object still has head <code>PowerLogSeries</code>.
+Copying the formatted object into Wolfram Language input preserves the
+full series, including its remainder and metadata. The formatted object
+is read-only; use constructors or explicit series operations to change
+it.</p>
+<table>
+<thead>
+<tr>
+<th>Form</th>
+<th>Display or result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>StandardForm[s]</code>, <code>TraditionalForm[s]</code></td>
+<td>Finite expression and asymptotic remainder, without the wrapper
+head.</td>
+</tr>
+<tr>
+<td><code>Head[s]</code></td>
+<td><code>PowerLogSeries</code>.</td>
+</tr>
+<tr>
+<td><code>InputForm[s]</code></td>
+<td>Full reconstructible <code>PowerLogSeries[association]</code>
+representation, including metadata.</td>
+</tr>
+<tr>
+<td><code>OutputForm[s]</code></td>
+<td>Compact diagnostic representation.</td>
+</tr>
+<tr>
+<td><code>Normal[s]</code></td>
+<td>Ordinary Wolfram Language expression, with the remainder and series
+metadata dropped.</td>
+</tr>
+</tbody>
+</table>
+<p>For the example above, <code>Normal[s]</code> returns
+<code>y - y^2 + 2 y^3 - 5 y^4</code>. To propagate remainder
+information, use the explicit series operations:</p>
+<pre class="wolfram"><code>SeriesAdd[s, s]
+SeriesPower[s, 2]</code></pre>
+<p>Formatting does not give ordinary <code>Plus</code>,
+<code>Times</code>, or <code>Power</code> automatic series arithmetic.
+See <a href="#series-operations">Explicit Series Operations</a> for
+supported operations and precision rules.</p>
+</section>
 <section id="common-properties" class="level3">
 <h3>Common Properties</h3>
 <table>
