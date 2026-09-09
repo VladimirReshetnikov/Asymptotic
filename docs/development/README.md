@@ -4,6 +4,10 @@ The maintained reader-facing documentation consists of the
 [mathematical article](../../article/asymptotic-inverse.pdf) and the
 [package user guide](../../AsymptoticInverse/Documentation/UserGuide.html).
 
+The maintained [code review status](CODE_REVIEW_STATUS.md) consolidates findings
+from all nine review packages, links current implementation evidence, and keeps
+pending repairs separate from deferred API and research proposals.
+
 This directory preserves engineering material that previously appeared in
 or alongside the combined article:
 

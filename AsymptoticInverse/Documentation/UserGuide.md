@@ -1673,6 +1673,13 @@ Most explicit operations below accept `"Cutoff" -> Automatic` and `"MaxTerms" ->
 
 `SeriesPower[s, r]` takes a power using the same dispatch and remainder rules as `s^r`. A fixed exponent must be an exact real numeric value. Supported varying exponents use the real logarithm and exponential calculus. `SeriesPower[s, r, h]` supplies an explicit cutoff. Noninteger and varying powers require the appropriate positive-base branch. Reciprocal powers can reduce absolute precision.
 
+A pure remainder does not establish the sign needed for a noninteger power.
+This also applies to powers nested inside an observable: for example,
+`SeriesObservable[s, 1 + Sqrt[z], z]` returns `Failure["UnknownLeadingTerm", ...]`
+when `s` retains only an unknown remainder. Refine the operand to retain its
+leading term before applying the observable. An exact zero and a pure remainder
+are different inputs; positive fractional powers of an exact zero remain exact.
+
 An admissible power of a composite result retains a composite error bound. Such a result does not support an explicit cutoff.
 
 The constructor's specialized Gamma power normalization has its own symbolic-parameter and varying-power admission rules; success there does not guarantee that the same form follows from an existing series at its available precision.

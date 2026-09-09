@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/AsymptoticInverse.wl
-   Source SHA256 (UTF-8/LF): f04b2dc46619e4c8f7114038934ee84855987a39ae88b914c6567ec6e7e404e3 *)
+   Source SHA256 (UTF-8/LF): 807ccea015c6b6d0e7c981984dfd87ebba58d3962935894b82f493b3b232255a *)
 (* ::Package:: *)
 (* AsymptoticInverse -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -382,6 +382,8 @@ fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, 
   rr = If[algebraicRealQ[r], RootReduce[r], r];
   If[IntegerQ[rr] && rr >= 0, Return[pIntegerPower[{T, P, D}, rr, ell, ass, limit], Module]];
   If[T === {},
+   If[P =!= Infinity && ! IntegerQ[rr],
+    fail["UnknownLeadingTerm", "A pure remainder does not establish the real branch required by a noninteger power."]];
    If[less[0, rr], Return[{{}, If[P === Infinity, Infinity, rr P], Ceiling[rr D]}, Module],
     fail["UnknownLeadingTerm", "Cannot raise a quantity known only as a remainder to a nonpositive power; increase the working order."]]];
   {alpha, Q} = T[[1]];

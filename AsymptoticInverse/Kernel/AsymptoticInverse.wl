@@ -373,6 +373,8 @@ fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, 
   rr = If[algebraicRealQ[r], RootReduce[r], r];
   If[IntegerQ[rr] && rr >= 0, Return[pIntegerPower[{T, P, D}, rr, ell, ass, limit], Module]];
   If[T === {},
+   If[P =!= Infinity && ! IntegerQ[rr],
+    fail["UnknownLeadingTerm", "A pure remainder does not establish the real branch required by a noninteger power."]];
    If[less[0, rr], Return[{{}, If[P === Infinity, Infinity, rr P], Ceiling[rr D]}, Module],
     fail["UnknownLeadingTerm", "Cannot raise a quantity known only as a remainder to a nonpositive power; increase the working order."]]];
   {alpha, Q} = T[[1]];

@@ -2486,6 +2486,14 @@ logarithm and exponential calculus. <code>SeriesPower[s, r, h]</code>
 supplies an explicit cutoff. Noninteger and varying powers require the
 appropriate positive-base branch. Reciprocal powers can reduce absolute
 precision.</p>
+<p>A pure remainder does not establish the sign needed for a noninteger
+power. This also applies to powers nested inside an observable: for
+example, <code>SeriesObservable[s, 1 + Sqrt[z], z]</code> returns
+<code>Failure[&quot;UnknownLeadingTerm&quot;, ...]</code> when <code>s</code>
+retains only an unknown remainder. Refine the operand to retain its
+leading term before applying the observable. An exact zero and a pure
+remainder are different inputs; positive fractional powers of an exact
+zero remain exact.</p>
 <p>An admissible power of a composite result retains a composite error
 bound. Such a result does not support an explicit cutoff.</p>
 <p>The constructor&#39;s specialized Gamma power normalization has its own

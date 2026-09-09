@@ -1,5 +1,29 @@
 # Review and validation record
 
+## Shared fractional-power branch checks
+
+The shared `fwdPower` primitive now rejects noninteger powers of a finite pure
+remainder. This closes the bypass through nested sums, products, analytic
+observables, and forward expansions after cancellation. The public
+`SeriesPower` check and existing exponent-validation order remain in place.
+Positive integer powers still propagate pure remainder bounds, and positive
+fractional powers of an exact zero remain exact. Forward construction can retry
+with more terms to establish a positive leading coefficient.
+
+`review-power-branches-baseline.json` records **10 passed and six failed** for
+the 16 new assertions against pinned kernel sources from
+`73aabf26dfa6258253ed45f31603cb2731b474c7`; those six failures reproduce the branch
+defect. `CheckReviewPowerBranches.wl` records **148 passed, zero failed** in six
+selected files after the fix, with unchanged source hashes. It covers wrapped
+fractional powers, cancellation, unknown symbolic signs, valid integer powers,
+exact zero, and rejection of the nonreal square root of `Sin[x]-x`.
+
+The positive control `Sqrt[x-Sin[x]]` checks the independently known leading
+term and accepts a valid weaker remainder bound. Its next nonzero term has
+power `7/2`; requesting cutoff `2` does not require a constructor to discover
+that sharp frontier. The standalone build, 11 Python builder tests, and generated
+guide/documentation checks passed. **The full package suite was not run.**
+
 ## Bounded native series export
 
 Forward and inverse construction now share one native `SeriesData` exporter.
