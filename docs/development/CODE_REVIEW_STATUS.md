@@ -48,16 +48,23 @@ the separately identified wave-2 characterization probes.
 The updated user objective requires the package's expansion functionality to
 handle every input successfully handled by built-in `Series` or `Asymptotic`,
 with a different result form permitted. This is an accepted requirement, not
-an optional extension or a claim about current coverage. The existing public
-name is `AsymptoticExpansion`; the user refers to the target functionality as
-`AsymptoticExpand`.
+an optional extension or a claim about complete current coverage. The public
+function `AsymptoticExpansion` now also has the held alias `AsymptoticExpand`.
 
 | ID | Required work and acceptance boundary |
 | --- | --- |
-| B01 | **Pending — accepted scope.** Preserve access to the native engines for all their successful input families, including complex, approximate, symbolic, opaque-function and multivariable expansions. Current real power-log admission is a representation contract, not grounds for permanently excluding a native-supported input from the expansion API. |
-| B02 | **Pending.** Define and implement compatible call forms, option forwarding, order conventions, native method selection and held evaluation. Existing exclusive power cutoffs and complete-block goals must remain explicit when adapting native order specifications. |
-| B03 | **Pending.** Represent native formal series and native asymptotic results without inventing analytic remainder proofs. Preserve conditions, coordinates, nested orders and branch information. `Normal` must give the finite native expression; operations must retain each result's actual uncertainty contract. Coordinate with C06, C07, C13 and C16. |
-| B04 | **Pending.** Record differential native comparisons across the documented input/option families, including R17 N4's Zeta comparison, and correct claims of native unavailability. A finite passing corpus supports particular cases; full coverage needs an implementation argument that the native-supported path remains available. Keep focused runs under the user's no-full-suite instruction. |
+| B01 | **Partial — explicit modes focused verified.** Native `Series` and `Asymptotic` delegation is available before real-coordinate admission, with no special-function whitelist. The accepted full input-superset scope remains open: `Automatic` still uses the existing package path, and automatic native fallback is required. |
+| B02 | **Explicit interface focused verified; automatic policy pending.** Held alias, explicit backend selection, native options and native order conventions are implemented. `"Package"` keeps strict real-engine behavior; explicit native modes reject package-only branch and budget options instead of dropping them. Further automatic routing must preserve these constraints. |
+| B03 | **Native representation focused verified.** `Kind`/`Scale` `"Native"` preserves the complete native result, held request and syntactic specifications, ambient context and runtime provenance. Analytic remainder and exactness remain missing; `Normal` applies native normalization and can retain infinite expressions. Analytic operations refuse to infer a remainder theorem. Further analytic promotion and native operations remain separate work; coordinate with C06, C07, C13 and C16. |
+| B04 | **Partial — focused comparisons recorded.** Eight selected files pass 130 tests on Wolfram 15.0.1 Windows with unchanged sources, including native differential, contract and presentation cases plus adjacent regressions. This evidence supports those cases only. Broader matrix coverage, R17 N4's specific comparison, and the structural argument for full Automatic coverage remain required. |
+
+Implementation: [NativeCompatibility.wl](../../AsymptoticInverse/Kernel/NativeCompatibility.wl).
+Evidence: [entry script](../../validation/CheckNativeCompatibility.wl),
+[final 130/0 record](../../validation/native-compatibility-tests.json), and
+[earlier 120/2 fixture-diagnostic record](../../validation/native-compatibility-first-pass.json).
+See [result contracts](NATIVE_RESULT_CONTRACTS.md) and the
+[remaining compatibility plan](NATIVE_COMPATIBILITY.md). No full-suite or
+complete-superset claim follows from this milestone.
 
 Native-supported complex and formal cases in B01–B03 are required even where
 the broader custom complex-sector research proposal X09 remains separate.

@@ -4,12 +4,18 @@ The accepted goal is for the package's expansion functionality to completely
 subsume the input coverage of ``System`Series`` and ``System`Asymptotic``, while
 allowing a different result representation. This includes their less familiar
 inputs and options, not only the examples in the current user guide.
-**The compatibility layer described here is pending. This plan does not claim
-that the goal has been achieved or that its proposed tests have run.**
+**Explicit native delegation and the held alias are implemented, with
+focused acceptance recorded. Automatic native fallback remains required work.
+This plan does not claim that the complete goal has been achieved.**
 
 ## Current boundary
 
-The public function is currently `AsymptoticExpansion`. Its
+The public function `AsymptoticExpansion` and its held alias `AsymptoticExpand`
+share `"Backend" -> Automatic`. In
+[NativeCompatibility.wl](../../AsymptoticInverse/Kernel/NativeCompatibility.wl),
+explicit `"Series"` and `"Asymptotic"` modes delegate before real-coordinate
+admission and return a distinct native result. Both `Automatic` and `"Package"`
+currently select the existing package path. That path's
 [held entry and ordinary engine](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl)
 accept one expansion variable and use an exclusive power cutoff. The
 [forward dispatcher](../../AsymptoticInverse/Kernel/InverseFunctionExpressions.wl)
@@ -18,7 +24,8 @@ Exact real input, admissible real coefficients and supported coefficient
 scales are required by these paths. The
 [structured special-function importer](../../AsymptoticInverse/Kernel/NativeSpecialFunctions.wl)
 also requires a real-domain proof and a supported finite error representation.
-Those contracts are useful, but cannot represent all native inputs or outputs.
+Those analytic contracts remain in force for package results; the explicit
+native result kind preserves outputs outside those representations.
 
 The official references are [Series](https://reference.wolfram.com/language/ref/Series.html),
 [Asymptotic](https://reference.wolfram.com/language/ref/Asymptotic.html), and
@@ -27,16 +34,16 @@ The matrix below follows those interfaces and examples. Runtime option lists
 and evaluation attributes must also be checked on the installed kernel;
 compatibility evidence must name that kernel version.
 
-## Proposed naming and order decision
+## Naming and order decision
 
-Retain `AsymptoticExpansion` as the implementation entry point. Support the
-requested spelling `AsymptoticExpand` through a held alias, without renaming
-the existing API or its stored recipes. This alias remains to be implemented.
+`AsymptoticExpansion` remains the implementation entry point. The requested
+spelling `AsymptoticExpand` is a held alias with the same defaults, without
+renaming the existing API or its stored recipes.
 
 The existing `{x, x0, n}` means retain powers strictly below `n`; native
 `Series` requests terms through its order `n`. An alias cannot reconcile
-that semantic collision. The proposed decision is an explicit backend
-selector, separate from native `Method`, whose native modes preserve the
+that semantic collision. The implemented explicit backend
+selector is separate from native `Method`; its native modes preserve the
 selected backend's order convention:
 
 ```wolfram
@@ -44,14 +51,16 @@ AsymptoticExpansion[expr, specs, "Backend" -> "Series", nativeOptions]
 AsymptoticExpansion[expr, spec, "Backend" -> "Asymptotic", nativeOptions]
 ```
 
-These are proposed interfaces, not current syntax. Automatic mode should
-preserve existing package conventions and add native coverage where the
-proved real representation is unavailable. Store the backend and order
-convention so that cutoff, term count and native order cannot be confused.
+These explicit interfaces are implemented. Automatic mode currently preserves
+the existing package path; adding native coverage there remains required work.
+`NativeBackend` identifies the selected native convention. The alias alone
+does not turn an exclusive cutoff into native order.
 
 ## Required coverage matrix
 
-Every row is a pending compatibility requirement; it is not a support claim.
+Every row describes the full acceptance target. Structural explicit delegation
+is implemented; the matrix is not a claim that every row has passed testing
+or is reachable through Automatic mode.
 
 | Area | Required behavior |
 | --- | --- |
@@ -72,10 +81,12 @@ the roles of fixed parameters and bound variables, and all returned conditions.
 
 ## Native result semantics
 
-Introduce a distinct native result kind before attempting conversion to a
-real power-log representation. Preserve the complete `NativeResult`, original
-held request, ordered specifications, resolved options and assumptions,
-backend, kernel version and evaluation status. A native result can contain
+The implemented native result kind preserves the complete `NativeResult`,
+`OriginalArguments`, and selected `NativeRequest` inside held forms. It records
+recognized syntactic `ExpansionSpecifications`, `AmbientAssumptions`, backend,
+kernel version and evaluation status. Native option expressions are not
+reevaluated to build an effective-option snapshot; `Assumptions` is
+`Missing["NativeContract"]`. A native result can contain
 nested `SeriesData`, ordinary expressions, lists, `ConditionalExpression`,
 `Piecewise` or infinite sums; these shapes must not themselves cause rejection.
 
@@ -86,29 +97,30 @@ control. A finite expression returned by `Asymptotic` must not receive
 Record the backend's contract separately from an independently established
 analytic envelope. See [native remainder contracts](NATIVE_SERIES_REMAINDERS.md).
 
-Display the native result without adding an unavailable remainder to it.
-Copying must retain the full object; `Normal` should use the corresponding
-native normalization. Preserve an unresolved native call as unresolved,
-rather than claiming that an expansion was computed. Only a justified
-conversion may attach the existing real-series arithmetic, refinement or
-certificate contracts. Single-variable numerical substitution must not be
-applied blindly to a multivariable native object.
+The result displays its native expression without an invented remainder, and
+`Normal` applies native normalization; infinite expressions can remain.
+`NativeEvaluationStatus` distinguishes remaining native calls from computed
+expressions without claiming analytic validity. Analytic operations decline
+native results with `NativeSeriesContract`. Numerical application requires one
+identified variable; other cases return `NativeVariables`. See the detailed
+[native result contracts](NATIVE_RESULT_CONTRACTS.md).
 
 ## Evaluation and real-branch safeguards
 
-Place native request handling before `localCoordinate`, `validateInput` and
-the real coefficient checks. Let the selected native head receive the original
-expression with its own evaluation semantics; do not eagerly evaluate an
-integral or solver expression once to probe it and again during fallback.
-Preserve inactive heads, scoped variables, nested option lists and delayed
-options. Capture effective assumptions and retain the
-[stored-context policy](ASSUMPTION_CONTEXT.md) without adding positivity
-conditions or silently changing the parameter domain.
+Explicit native handling precedes `localCoordinate`, `validateInput` and real
+coefficient checks. Literal requests remain held until release to the native
+head. Computed option containers can require ordinary argument evaluation to
+discover the selector; original arguments remain held in metadata. The native
+call runs under captured ambient assumptions, while explicit native options
+are left to the backend. Held specifications are syntactic records, not
+evaluated snapshots or independently retained analytic proof predicates.
 
-Fallback must distinguish representation limits from malformed requests,
-explicit resource limits and incompatible user-selected inverse branches.
-It must not silently drop options or choose a different inverse branch.
-Record native diagnostics without treating every warning as a failed result.
+Explicit native modes reject package-only `"MaxTerms"` and
+`"InverseFunctionBranches"` options with `NativeOptionConflict`. They do not
+silently discard those contracts. Automatic fallback still needs to
+distinguish representation limits from malformed requests, explicit resource
+limits and incompatible inverse branches. Native diagnostics must not be
+confused with a proof that a returned expression is invalid.
 
 C07 tests become representation-specific: the ordinary real engine must still
 reject nonreal coefficients, while a native formal or complex result may be
@@ -119,22 +131,28 @@ special-function real projection remains governed by
 
 ## Implementation stages and evidence
 
-1. Add the held native request parser, explicit backend selection and union
-   of supported request forms before real-coordinate admission. Validate
-   order conventions and native option forwarding independently.
-2. Add the lossless native result kind, display and `Normal` behavior. Do not
-   rebuild a returned native series through the bounded sparse-to-dense exporter.
-3. Add automatic routing and fallback, with explicit branch and diagnostic
-   handling. Keep analytic promotion conditional on its own proof obligations.
-4. Test a focused differential matrix covering every row above, including
+1. **Implemented; focused verified:** held native request parser,
+   explicit backend selection and delegation before real-coordinate admission.
+   Validate native order, options, computed containers and evaluation effects.
+2. **Implemented; focused verified:** preserved native result, display,
+   `Normal`, metadata and analytic-operation guards, without sparse-to-dense export.
+3. **Required and pending:** automatic routing and fallback with branch,
+   option and diagnostic preservation. Analytic promotion needs its own proof.
+4. **Partial evidence recorded:** focused differential tests across the matrix, including
    unknown-function options, mixed complex/approximate data, multiple variables,
    conditions, infinite order, inactive transforms and existing package examples.
-5. Document the resulting public interfaces and evidence. Extend operations
-   on native results only where their formal or analytic semantics are defined.
+5. **Source documentation updated; artifact builds pending:** public interfaces
+   and contracts. Record generated artifacts separately from native acceptance.
+   Extend native operations only where their semantics are defined.
 
 The target invariant is structural: on the same kernel, with corresponding
 effective arguments, options and evaluation context, every successfully
 computed native result has a lossless package representation. Finite tests
 provide evidence for routing and preservation; they cannot establish universal
 coverage. Record the exact native requests, versions, outputs and evidence
-limits in the [validation record](../../validation/README.md). These stages remain pending until implementation and acceptance evidence are recorded.
+limits in the [validation record](../../validation/README.md). The
+[explicit-mode acceptance record](../../validation/native-compatibility-tests.json)
+reports 130 passed and zero failed across eight files, with unchanged sources
+on Wolfram 15.0.1 Windows. Existing analytic ingress/export tests alone do not
+establish acceptance of the new native result kind, and this focused matrix
+does not prove complete input-superset coverage.

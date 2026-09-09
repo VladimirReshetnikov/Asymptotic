@@ -17,10 +17,14 @@ Wolfram reference page.
 
 The [native compatibility plan](development/NATIVE_COMPATIBILITY.md) records
 the accepted requirement to cover every input successfully handled by built-in
-`Series` or `Asymptotic`. This is planned work, not a shipped compatibility
-claim. The current guide and implementation status distinguish supported
-behavior from pending changes. Mathematical existence results and successful
-examples alone do not establish complete API coverage.
+`Series` or `Asymptotic`. Explicit native delegation and the held alias are
+implemented, with a [130 passed, zero failed focused record](../validation/native-compatibility-tests.json).
+Automatic native fallback
+remains required work. The [native result contracts](development/NATIVE_RESULT_CONTRACTS.md)
+distinguish preserved formal output from analytic remainder proofs. The current
+guide and implementation status distinguish supported behavior from pending
+changes; mathematical existence results and successful examples alone do not
+establish complete API coverage.
 
 ## Source and output maintenance
 

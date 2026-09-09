@@ -87,6 +87,38 @@ can be hidden in the error. Conversely, real coefficients in a finite
 approximation do not prove that the original function is real-valued;
 $1+i w^N=1+\OO(w^N)$ illustrates this for $N>0$.
 
+\subsubsection*{Complex formal jets and successive expansions}
+\label{sec:formal-successive-jets}
+
+The same finite jet arithmetic can be defined with coefficient ring
+$\mathbb C[L]$ in place of $\R[L]$, keeping the exponent support and
+filtration unchanged. Here $L$ may be treated as an independent formal
+symbol. Identities modulo higher powers assert algebraic consistency;
+they do not select an analytic function, prove convergence, or supply an
+analytic remainder bound. To interpret such coefficients on a complex
+approach, a domain and the required branches of powers and logarithms
+must be specified separately.
+
+In a successive expansion in two variables, coefficients for the first
+expansion may themselves be expanded in the second. The variable order
+and the coefficient domains are part of this construction. Such an
+iterated expansion does not by itself give a uniform bound as both
+variables vary, nor justify substitution of a diagonal.
+
+For example, for each fixed $a>0$,
+\[
+ F(w,a)=\frac{a}{a+w}=1+\OO_a(w)\qquad(w\to0^+),
+ \qquad F(w,a)-1=-\frac{w}{a+w}.
+\]
+The subscript permits the bound constant to depend on $a$; indeed
+$|F(w,a)-1|\le w/a$. On the diagonal $a=w$, however,
+$F(w,w)=1/2$, so the conclusion $F(w,w)=1+\OO(w)$ is false.
+Expanding instead in $a$ at fixed $w>0$ starts with $a/w$.
+A simultaneous expansion or substitution along a varying parameter path
+therefore needs a new argument or a uniform estimate on a domain
+containing that path. This is the parameter-domain distinction used in
+Section~\ref{sec:refinement-parameter-domain}.
+
 \subsubsection*{Differentiation}
 
 \begin{lemma}[Euler identity]

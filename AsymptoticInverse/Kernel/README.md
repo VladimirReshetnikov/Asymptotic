@@ -21,6 +21,7 @@ syntax, options, and result properties are documented in the
 | Entry points | Responsibility |
 | --- | --- |
 | [AsymptoticInverse.wl](AsymptoticInverse.wl) | Public declarations, real power-log models, coefficient calculus, result construction, and module loading. |
+| [NativeCompatibility.wl](NativeCompatibility.wl) | Held backend selection, the `AsymptoticExpand` alias, lossless native results, request metadata, and analytic-operation guards. |
 | [InverseFunctionExpressions.wl](InverseFunctionExpressions.wl), [InverseFunctionSyntax.wl](InverseFunctionSyntax.wl), [InverseFunctionBranches.wl](InverseFunctionBranches.wl) | Held forward requests, inverse-function syntax, and real branch admission. |
 | [SourceCoordinates.wl](SourceCoordinates.wl), [CoordinateInverse.wl](CoordinateInverse.wl) | Source charts and coordinate transport. |
 | [CorePerturbation.wl](CorePerturbation.wl), [LambertInverse.wl](LambertInverse.wl), [GammaInverse.wl](GammaInverse.wl), [BarnesInverse.wl](BarnesInverse.wl) | Perturbative inverse construction and specialized cores. |
@@ -33,9 +34,14 @@ This map identifies starting points, not an exhaustive list of dependencies.
 The entry point is authoritative for load order. The
 [development index](../../docs/development/README.md) links the implementation
 register and notes on assumptions, coefficient reality, and native remainders.
-Complete native `Series`/`Asymptotic` compatibility is
-[required work in progress](../../docs/development/NATIVE_COMPATIBILITY.md);
-the current special-function importer is not that general compatibility layer.
+Explicit native delegation is implemented, with
+[130 passed, zero failed focused checks](../../validation/native-compatibility-tests.json)
+across eight selected files.
+`Automatic` and `"Package"` still select the existing real engines; automatic
+native fallback is [required work in progress](../../docs/development/NATIVE_COMPATIBILITY.md).
+The [native result contract](../../docs/development/NATIVE_RESULT_CONTRACTS.md)
+distinguishes formal orders from analytic remainders and explains held metadata.
+The special-function importer remains a separate analytic conversion path.
 
 ## Editing and validation
 

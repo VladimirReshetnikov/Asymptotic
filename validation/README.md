@@ -53,20 +53,45 @@ suite. It deliberately exercises failure paths, so its printed fixture
 failures must be interpreted through its final self-check result. It writes
 `focused-runner-tests.json` directly, independently of the output override.
 
-## Pending native compatibility
+## Explicit native expansion backends
 
-Compatibility checks for explicit native `Series` and `Asymptotic` backends
-are **prospective and unexecuted**. Those backends are not implemented in the
-current kernel. The focused entry scripts above do not establish that the
-proposed options or native result kind work. The
-[native compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md)
-records the proposed implementation and its contract boundaries.
+[CheckNativeCompatibility.wl](CheckNativeCompatibility.wl) records
+**130 passed, zero failed** on Wolfram 15.0.1 for Windows in
+[native-compatibility-tests.json](native-compatibility-tests.json).
+The eight selected files cover 33 native compatibility cases, 15 native
+contract cases, seven native presentation cases, four result-head checks,
+eight `Normal` checks, 28 arithmetic checks, twelve assumption-replay checks,
+and 23 real-coefficient checks. The report records source hashes and confirms
+that the sources stayed unchanged during execution. **The full suite was not run.**
+
+The explicit `"Series"` and `"Asymptotic"` backends and held `AsymptoticExpand`
+alias preserve native requests and results with a distinct contract. Tests
+cover held arguments, native options and order conventions, complex and nested
+results, metadata, normalization, display, and refusal to invent analytic
+remainders. Recognized option rules are excluded from expansion-specification
+metadata. Native options are not reevaluated merely to produce metadata.
+
+[native-compatibility-first-pass.json](native-compatibility-first-pass.json)
+preserves the earlier **120 passed, two failed** run. Both failures were test
+fixture errors: an evaluated `SeriesData` pattern emitted a message, and a
+term-goal expectation incorrectly counted native zero coefficients. Those
+fixtures were corrected; metadata option/specification classification was
+also corrected and additional cases were added before final acceptance.
+
+The [native compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md)
+keeps automatic native fallback as required work: `Automatic` and `"Package"`
+currently use the existing real engines. This focused result establishes the
+recorded explicit-mode cases, not complete input-superset coverage. The
+[native result notes](../docs/development/NATIVE_RESULT_CONTRACTS.md) describe
+held metadata and the distinct formal or native asymptotic contract. Document
+build and artifact acceptance must be recorded separately.
 
 [RunTests.wl](../AsymptoticInverse/Tests/RunTests.wl) discovers every `.wlt`
 file. A historical all-passing run therefore does not establish acceptance
 of a later test set. Existing native ingress
 and export tests concern the package's current analytic representation;
-their results do not establish the pending native-backend compatibility.
+their results do not establish native-backend compatibility beyond the focused
+explicit-mode record above.
 
 ## Read the evidence by scope
 

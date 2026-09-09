@@ -23,9 +23,12 @@ contains definitions, theorems, and proofs; its
 | Check an inverse | [InverseResidual](UserGuide.md#InverseResidual), [InverseNumericalCheck](UserGuide.md#InverseNumericalCheck), [InverseCertificate](UserGuide.md#InverseCertificate) |
 | Understand a refusal or precision limit | [Possible Issues](UserGuide.md#possible-issues) |
 
-Expansion constructors return `GeneralizedSeries` objects. `Normal[s]` extracts
-the ordinary finite expression; `s["Remainder"]` retains the omitted-order
-information. The available operations and cutoff meaning depend on the result's
+Expansion constructors return `GeneralizedSeries` objects. For analytic
+representations, `Normal[s]` extracts the finite expression and `s["Remainder"]`
+retains the omitted-order information. For [native results](UserGuide.md#native-backend-expansions),
+`Normal` follows the stored native result's normalization and can retain an
+infinite sum; native order alone does not establish an analytic remainder.
+The available operations and cutoff meaning depend on the result's
 scale. Numerical comparisons and supported interval certificates are separate
 from its symbolic asymptotic remainder.
 

@@ -2,6 +2,8 @@
 
 Real asymptotic expansions of functions and selected inverse branches in Wolfram
 Language, with exact exponents, logarithmic coefficients, and retained remainders.
+Explicit native backends also preserve built-in `Series` and `Asymptotic`
+results under a distinct formal or native asymptotic contract.
 
 - **[User guide](Documentation/UserGuide.html)** — syntax, options, worked
   examples, result properties, supported scales, and possible issues.
@@ -50,7 +52,8 @@ tested distribution paths and native runtime versions.
 
 | Task | Entry point and guide |
 | --- | --- |
-| Expand a function or a supported callable inverse | [`AsymptoticExpansion`](Documentation/UserGuide.md#AsymptoticExpansion) |
+| Expand a function or a supported callable inverse | [`AsymptoticExpansion`](Documentation/UserGuide.md#AsymptoticExpansion), held alias [`AsymptoticExpand`](Documentation/UserGuide.md#AsymptoticExpand) |
+| Preserve a built-in expansion result | [Explicit native backends](Documentation/UserGuide.md#native-backend-expansions) |
 | Select an inverse by its source endpoint and side | [`AsymptoticInverse`](Documentation/UserGuide.md#AsymptoticInverse) |
 | Add, multiply, compose, or apply an observable | [Series arithmetic](Documentation/UserGuide.md#series-operations) |
 | Change the retained order | [`SeriesTruncate`](Documentation/UserGuide.md#SeriesTruncate), [`SeriesRefine`](Documentation/UserGuide.md#SeriesRefine) |
@@ -88,8 +91,8 @@ for regular function operands, available precision, and composite error bounds.
 
 Successful expansion constructors return a
 [`GeneralizedSeries`](Documentation/UserGuide.md#GeneralizedSeries). `Normal[s]`
-returns its ordinary finite expression and drops the remainder. Keep `s` for
-further series operations. Use `s["Properties"]` to list its metadata, then
+returns its ordinary finite expression for an analytic result and drops the
+remainder. Keep an analytic `s` for further series operations. Use `s["Properties"]` to list its metadata, then
 inspect `s["Remainder"]` and the coordinate properties supplied for its scale,
 such as `s["RemainderVariable"]`.
 Standard and Traditional forms display the expression and remainder without the
@@ -103,6 +106,12 @@ The optional `s["SeriesData"]` view can be `Missing` when a native representatio
 would lose remainder information or require excessive allocation. The sparse
 result and its remainder remain available.
 
+An explicit native result instead stores `"Kind" -> "Native"`, its complete
+`"NativeResult"`, and `"Remainder" -> Missing["NativeContract"]`. `Normal`
+normalizes that native expression and may retain infinite sums. Native formal
+operations use `s["NativeResult"]`; package analytic operations cannot infer a
+remainder theorem from the native result.
+
 Residual algebra, numerical comparison, and interval certification provide
 different evidence. An asymptotic remainder has an unspecified constant and is
 not itself a numerical error enclosure; consult the individual checking APIs
@@ -110,8 +119,8 @@ in the table above.
 
 ## Current scope
 
-Use exact input such as `Sqrt[2]` and `1/10`, and leave expansion variables
-unassigned. The package selects real branches at finite endpoints and real
+For package analytic representations, use exact input such as `Sqrt[2]` and
+`1/10`, and leave expansion variables unassigned. The package selects real branches at finite endpoints and real
 infinities. Parameter signs and coefficient realness must follow from the
 retained assumptions. Constructor defaults capture the enclosing `Assuming`
 context; an explicit `Assumptions` option replaces it. See
@@ -158,3 +167,20 @@ The [kernel module guide](Kernel/README.md) and [test guide](Tests/README.md)
 describe the implementation and focused tests; the
 [validation record](../validation/README.md) distinguishes recorded test and
 artifact evidence.
+
+## Explicit native backends
+
+```wolfram
+s = AsymptoticExpand[Exp[I x], {x, 0, 3}, "Backend" -> "Series"];
+{s["NativeResult"], Normal[s], s["RemainderContract"]}
+AsymptoticExpansion[Gamma[x], {x, Infinity, 3}, "Backend" -> "Asymptotic"]
+```
+
+These explicit modes use their native input forms and order conventions;
+native `Series` includes the requested order. The
+[focused acceptance record](../validation/native-compatibility-tests.json)
+reports 130 passed, zero failed across eight selected files. Both `Automatic` and `"Package"` currently
+use the existing package engines. Automatic native fallback remains required
+work in the [compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md).
+See the [native result contract](../docs/development/NATIVE_RESULT_CONTRACTS.md)
+for held request metadata, option conflicts, and analytic-operation boundaries.

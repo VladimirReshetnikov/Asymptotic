@@ -26,7 +26,13 @@ Increasing Gamma and LogGamma inverses, their admitted affine forms and fixed po
 each block is a complete polynomial in 1/Log[CoreInverse] at one power of 1/CoreInverse. \
 Increasing BarnesG and LogBarnesG inverses use Scale -> \"BarnesGInverse\", with coefficients polynomial in 1/(Log[CoreInverse]-1). \
 Real logarithms of supported positive Gamma products are normalized to LogGamma before ordinary absolute power-log expansion. \
-See Documentation/UserGuide.md for the admitted real domains and scales.";
+The explicit option \"Backend\" -> \"Series\" or \"Asymptotic\" delegates the original native argument forms and options, \
+using the native order convention and preserving the complete native result without asserting a package analytic remainder. \
+\"Backend\" -> \"Package\" selects the existing real expansion engines. See Documentation/UserGuide.md for the domains and contracts.";
+
+AsymptoticExpand::usage =
+"AsymptoticExpand[args] is a held alias for AsymptoticExpansion[args], with identical options and order conventions. \
+Use \"Backend\" -> \"Series\" or \"Asymptotic\" for explicit native delegation.";
 
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
@@ -49,7 +55,9 @@ remainder and provenance. StandardForm and TraditionalForm display the finite ex
 and remainder without the GeneralizedSeries head. Normal[s] drops the remainder and returns \
 the ordinary finite expression. InputForm retains the complete object. s[\"Remainder\"], \
 s[\"Terms\"], s[\"SeriesData\"], s[\"Properties\"] and other properties are available; \
-s[value] evaluates the finite expression at a numerical value of the variable.";
+s[value] evaluates the finite expression at a numerical value of the variable. \
+Native results preserve NativeResult and display its own notation; Normal follows the native Normal operation, \
+which can retain an infinite sum. A native formal order or asymptotic output does not establish an analytic remainder or exactness.";
 
 PowerLogRemainder::usage =
 "PowerLogRemainder[w, beta, k] is an inert descriptor of the remainder class \
@@ -590,7 +598,7 @@ splitApproachInput[f_, x_, ass_] := Module[{body = f, condition = True, clauses}
 
 Options[AsymptoticExpansion] = {Assumptions :> $Assumptions, Direction -> Automatic, SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 SetAttributes[AsymptoticExpansion, HoldAllComplete];
-AsymptoticExpansion[args___] := catch[forwardHeldEntry[args]];
+AsymptoticExpansion[args___] := expansionHeldEntry[args];
 (* Preserve explicit callable syntax before native evaluation can turn, for
    example, InverseFunction[Exp] into the symbol Log. All other arguments still
    receive the ordinary evaluation of forwardEntry, including option Sequences. *)
@@ -1091,7 +1099,8 @@ makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] :=
 GeneralizedSeries /: Normal[GeneralizedSeries[a_Association]] := a["Expression"];
 GeneralizedSeries[a_Association]["Properties"] := Keys[a];
 GeneralizedSeries[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
-GeneralizedSeries[a_Association][val_?NumericQ] := a["Expression"] /. a["Variable"] -> val;
+GeneralizedSeries[a_Association][val_?NumericQ] :=
+  If[Lookup[a, "Kind", None] === "Native", nativeSeriesValue[a, val], a["Expression"] /. a["Variable"] -> val];
 remainderScale[PowerLogRemainder[w_, b_, k_]] := Module[{base, lg},
   {base, lg} = If[MatchQ[w, Power[_, -1]], {w[[1]]^(-b), Log[w[[1]]]}, {w^b, Log[w]}];
   If[k === 0, base, base (1 + Abs[lg])^k]];
@@ -1108,10 +1117,14 @@ heldSeriesSum[HoldComplete[e_], HoldComplete[r_]] := HoldComplete[e + r];
 
 GeneralizedSeries /: MakeBoxes[GeneralizedSeries[a_Association], fmt : StandardForm | TraditionalForm] :=
   generalizedSeriesBoxes[HoldComplete[GeneralizedSeries[a]], fmt];
-generalizedSeriesBoxes[held : HoldComplete[GeneralizedSeries[a_Association]], fmt_] := Module[{rules, fields},
+generalizedSeriesBoxes[held : HoldComplete[GeneralizedSeries[a_Association]], fmt_] := Module[{rules, fields, native},
   (* Matching the association's rules works for both evaluated associations and
      raw associations inside MakeBoxes; ordinary Lookup would evaluate them. *)
   rules = Replace[held, HoldComplete[GeneralizedSeries[Association[r___]]] :> HoldComplete[r]];
+  native = Cases[rules, HoldPattern[(Rule | RuleDelayed)["Kind", "Native"]], {1}];
+  If[native =!= {},
+    native = Cases[rules, HoldPattern[(Rule | RuleDelayed)["NativeResult", value_]] :> HoldComplete[value], {1}];
+    If[Length[native] === 1, Return[seriesInterpretationBoxes[First[native], held, fmt], Module]]];
   fields = (Cases[rules, HoldPattern[(Rule | RuleDelayed)[#, value_]] :> HoldComplete[value], {1}] &) /@
     {"Expression", "Remainder"};
   Replace[fields, {
@@ -1120,7 +1133,8 @@ generalizedSeriesBoxes[held : HoldComplete[GeneralizedSeries[a_Association]], fm
     {{HoldComplete[e_]}, {HoldComplete[r_]}} :>
       seriesInterpretationBoxes[heldSeriesSum[HoldComplete[e], HoldComplete[r]], held, fmt],
     _ :> RowBox[{"GeneralizedSeries", "[", MakeBoxes[a, fmt], "]"}]}]];
-Format[GeneralizedSeries[a_Association], OutputForm] := GeneralizedSeries[a["Expression"], a["Remainder"]];
+Format[GeneralizedSeries[a_Association], OutputForm] :=
+  If[Lookup[a, "Kind", None] === "Native", a["NativeResult"], GeneralizedSeries[a["Expression"], a["Remainder"]]];
 
 (* Small syntactic reductions keep scales readable without evaluating symbols
    or arbitrary expressions supplied to a held MakeBoxes call. *)
@@ -1242,10 +1256,12 @@ InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catc
      "UniformizerExponent" -> ToRadicals[r + c[[1]]], "Assumptions" -> ass,
      "Meaning" -> "(v/a)^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
 InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : OptionsPattern[]] :=
+  If[Lookup[a, "Kind", None] === "Native",
+   Failure["NativeSeriesContract", <|"MessageTemplate" -> "Native results do not supply an inverse coefficient model."|>],
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
    Failure["Unsupported", <|"MessageTemplate" -> "Lambert coefficients are listed in the logarithmic expansion's Terms property; they have no power-gap multi-index."|>],
    InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
-    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
+    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
@@ -1285,6 +1301,7 @@ Get[FileNameJoin[{$kernelDirectory, "SpecialFunctionIdentities.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "ParameterizedSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "DirichletSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NativeSpecialFunctions.wl"}]];
+Get[FileNameJoin[{$kernelDirectory, "NativeCompatibility.wl"}]];
 
 End[];
 EndPackage[];

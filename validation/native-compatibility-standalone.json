@@ -1,0 +1,55 @@
+{
+	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+	"Source":"C:\\Users\\vresh\\.codex\\worktrees\\b3da\\Asymptotic\\AsymptoticInverse.wl",
+	"Mode":"Get",
+	"GetMethod":"\"Automatic\"",
+	"Succeeded":9,
+	"Failed":0,
+	"Results":[
+		{
+			"TestID":"loading-native-series-and-held-alias",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[{\"AsymptoticInverse`\", \"Native\", True, True}]"
+		},
+		{
+			"TestID":"loading-native-asymptotic-contract-guard",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[{True, True}]"
+		},
+		{
+			"TestID":"loading-contexts-and-stream-cleanup",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[{\"Global`\", \"AsymptoticInverse`\", {}, {}, True}]"
+		},
+		{
+			"TestID":"loading-irrational-inverse",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[True]"
+		},
+		{
+			"TestID":"loading-early-exact-termination",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[{True, 0, True}]"
+		},
+		{
+			"TestID":"loading-gamma-ratio",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[True]"
+		},
+		{
+			"TestID":"loading-late-native-special-functions",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[True]"
+		},
+		{
+			"TestID":"loading-arithmetic-normal-and-display",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[{True, True, True, True}]"
+		},
+		{
+			"TestID":"loading-explicit-reload-and-dirichlet",
+			"Outcome":"Success",
+			"ActualOutput":"HoldForm[{True, True, True, True, True}]"
+		}
+	]
+}

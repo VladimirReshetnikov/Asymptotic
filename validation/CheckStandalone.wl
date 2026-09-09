@@ -33,6 +33,17 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticInverse`"],
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[Module[{x, s},
+    s = AsymptoticExpand[Exp[I x], {x, 0, 3}, "Backend" -> "Series"];
+    {Context[AsymptoticExpand], s["Kind"],
+      s["NativeResult"] === Series[Exp[I x], {x, 0, 3}],
+      s["Exact"] === Missing["NotEstablished"]}],
+    {"AsymptoticInverse`", "Native", True, True}, TestID -> "loading-native-series-and-held-alias"],
+  VerificationTest[Module[{x, s},
+    s = AsymptoticExpansion[Sin[x], x -> 0, "Backend" -> "Asymptotic"];
+    {Normal[s] === Asymptotic[Sin[x], x -> 0],
+      MatchQ[SeriesRefine[s, 4], Failure["NativeSeriesContract", _Association]]}],
+    {True, True}, TestID -> "loading-native-asymptotic-contract-guard"],
   VerificationTest[{$Context, Context[AsymptoticExpansion],
     Names["Global`AsymptoticExpansion"], Names["Global`GeneralizedSeries"],
     Count[Streams[], InputStream["String", _]] === loadingStringStreamsBefore},
@@ -71,8 +82,9 @@ loadingReport = TestReport[{
     s = AsymptoticExpansion[Zeta[x], x -> Infinity, SeriesTermGoal -> 3];
     {result =!= $Failed, Length[UpValues[GeneralizedSeries]] === before,
       Normal[s] === 1 + 2^-x + 3^-x,
-      Count[Streams[], InputStream["String", _]] === loadingStringStreamsBefore}],
-    {True, True, True, True}, TestID -> "loading-explicit-reload-and-dirichlet" ]
+      Count[Streams[], InputStream["String", _]] === loadingStringStreamsBefore,
+      AsymptoticExpand[Sin[x], x -> 0, "Backend" -> "Asymptotic"]["NativeBackend"] === "Asymptotic"}],
+    {True, True, True, True, True}, TestID -> "loading-explicit-reload-and-dirichlet" ]
 }, ProgressReporting -> False];
 loadingResults = (<|"TestID" -> #["TestID"], "Outcome" -> #["Outcome"],
   "ActualOutput" -> ToString[#["ActualOutput"], InputForm]|> &) /@ Values[loadingReport["TestResults"]];

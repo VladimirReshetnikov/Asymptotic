@@ -3,12 +3,15 @@
 A Wolfram Language package for real asymptotic expansions of functions and
 their inverses. It handles real exponents, logarithmic coefficients, finite
 and infinite endpoints, and selected logarithmic, exponential, flat, and
-oscillatory scales. Results carry an explicit remainder and real branch
-information.
+oscillatory scales. Analytic results carry an explicit remainder and real branch
+information. Explicit native backends preserve built-in formal and asymptotic
+results with their own contracts.
 
 The current development target is complete input coverage of the built-in
 Wolfram `Series` and `Asymptotic` functions, including native-supported cases
-outside the existing real expansion models. This is ongoing work; the
+outside the existing real expansion models. Explicit native delegation and
+the `AsymptoticExpand` alias are implemented, with focused acceptance recorded.
+Automatic fallback remains required work. The
 [native compatibility plan](docs/development/NATIVE_COMPATIBILITY.md) records
 the required interfaces, result semantics, and validation boundaries.
 
@@ -92,7 +95,7 @@ for separate carriers, and the distinction between exact identities and
 exponentially small tails. These are endpoint-specific capabilities, not a
 claim that every special function or simultaneous parameter limit is supported.
 
-Series objects normalize ordinary arithmetic and retain their remainders:
+Analytic series objects normalize ordinary arithmetic and retain their remainders:
 
 ```wolfram
 a = AsymptoticExpansion[Sin[x], {x, 0, 5}];
@@ -105,9 +108,9 @@ SeriesNormalize[(1 + a)/(1 - a), "Cutoff" -> 4]
 ```
 
 Constructors return [`GeneralizedSeries`](AsymptoticInverse/Documentation/UserGuide.md#GeneralizedSeries)
-objects. StandardForm and TraditionalForm hide the head; `Normal` extracts
-only the finite expression. Keep the series object when doing further
-arithmetic that needs its remainder. A specification such as `{x, 0, 5}`
+objects. StandardForm and TraditionalForm hide the head. For analytic results,
+`Normal` extracts the finite expression. Keep the series object when doing further
+arithmetic that needs its remainder. In the package path, `{x, 0, 5}`
 uses an **exclusive power cutoff**; `SeriesTermGoal` requests complete
 nonzero blocks. These are distinct from the native `Series` order convention.
 Version 1.8.0 renames the former `PowerLogSeries`
@@ -115,6 +118,22 @@ head, so explicit patterns should now use `_GeneralizedSeries`. The
 [arithmetic guide](AsymptoticInverse/Documentation/UserGuide.md#series-operations)
 explains precision propagation, ordinary function operands, held normalization,
 and composite error bounds for compatible expansions in different scales.
+
+Select a built-in expansion engine explicitly when its input forms and order
+semantics are wanted:
+
+```wolfram
+n = AsymptoticExpand[Exp[I x], {x, 0, 3}, "Backend" -> "Series"];
+n["NativeResult"]
+Normal[n]
+AsymptoticExpansion[Gamma[x], {x, Infinity, 3}, "Backend" -> "Asymptotic"]
+```
+
+Native results preserve the backend output with `"Kind" -> "Native"`.
+Their package remainder is `Missing["NativeContract"]`; a formal native order
+does not establish an analytic error bound. `Normal` follows the stored native
+result and need not be finite. Continue native operations on `"NativeResult"`.
+See [Native Expansion Backends](AsymptoticInverse/Documentation/UserGuide.md#native-backend-expansions).
 
 Version 1.8.0 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)
@@ -151,11 +170,14 @@ findings from both review waves to completed fixes, focused evidence, and
 outstanding work. Begin there when choosing a repair; a supplied report or
 patch describes its pinned snapshot, not necessarily today's behavior.
 
-The public forward function is currently `AsymptoticExpansion`. The proposed
-`AsymptoticExpand` alias and general native backend selector belong to the
-[compatibility plan](docs/development/NATIVE_COMPATIBILITY.md) and are not yet
-implemented. Existing native-assisted special-function support does not
-establish complete `Series` or `Asymptotic` coverage.
+`AsymptoticExpand` is a held alias of `AsymptoticExpansion`. Both currently use
+the package engines under `"Backend" -> Automatic`; `"Package"` explicitly
+selects that same path. Explicit `"Series"` and `"Asymptotic"` modes are
+implemented with [130 passing focused checks](validation/native-compatibility-tests.json)
+across eight selected files, with no failures. The
+[compatibility plan](docs/development/NATIVE_COMPATIBILITY.md) tracks required
+automatic fallback and remaining coverage evidence. Existing analytic
+special-function tests do not validate this new native result contract.
 
 For a change, update the applicable source, guide, mathematical hypotheses,
 and [development notes](docs/development/README.md). Run the relevant focused

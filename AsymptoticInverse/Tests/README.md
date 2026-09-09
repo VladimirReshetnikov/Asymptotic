@@ -76,24 +76,29 @@ can isolate a defect, but their passing results do not replace public-path
 checks. Use stable, descriptive `TestID` values so a failed assertion can be
 located without relying on the file's current test count.
 
-## Prospective native-backend specification
+## Focused native-backend acceptance
 
 Compatibility checks for explicit `"Backend" -> "Series"` and
-`"Backend" -> "Asymptotic"` delegation are **prospective and unexecuted**.
-Their intended scope includes native result metadata and native
-argument/order/option behavior. Those backends are not implemented in the
-current kernel. The focused harnesses listed above do not establish acceptance
-of these pending APIs.
+`"Backend" -> "Asymptotic"` delegation run through
+[CheckNativeCompatibility.wl](../../validation/CheckNativeCompatibility.wl).
+The implemented backends have a
+[130 passed, zero failed record](../../validation/native-compatibility-tests.json)
+across eight selected files on Wolfram 15.0.1 for Windows, with sources unchanged.
+The selected files cover native result metadata, argument/order/option behavior,
+operation guards, and adjacent existing behavior. The earlier focused
+harnesses listed above do not establish acceptance of this native result kind.
 
 The [native compatibility plan](../../docs/development/NATIVE_COMPATIBILITY.md)
-describes the intended implementation and contract boundaries. These proposed
-tests are pending work, separate from the committed acceptance evidence.
+describes the implementation and contract boundaries. Automatic fallback
+remains required work: `Automatic` currently selects the package engines.
+This focused acceptance is separate from historical analytic-import evidence
+and does not establish the complete input-superset objective.
 
 The existing [NativeSpecialIngress.wlt](NativeSpecialIngress.wlt),
 [ReviewNativeTailImport.wlt](ReviewNativeTailImport.wlt), and
 [ReviewNativeTailExport.wlt](ReviewNativeTailExport.wlt) concern the current
 analytic representation and its native import/export boundaries. Their saved
-passing reports do not validate the pending native backend. A formal native
+passing reports do not validate the new native result kind. A formal native
 order must not silently become a proved analytic remainder or exactness claim.
 
 ## Full runner, generated campaigns, and benchmarks

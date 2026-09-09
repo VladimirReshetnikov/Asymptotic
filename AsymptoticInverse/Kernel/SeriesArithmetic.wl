@@ -28,6 +28,7 @@ seriesArithmeticOperationCheck[Failure["UnknownLeadingTerm", data_Association], 
 seriesArithmeticOperationCheck[result_, _] := seriesArithmeticCheck[result];
 seriesArithmeticFinish[result_List, cut_, limit_] := seriesArithmeticFinish[#, cut, limit] & /@ result;
 seriesArithmeticFinish[result_, cut_, limit_] := If[cut === Automatic || ! MatchQ[result, _GeneralizedSeries], result,
+  requireAnalyticSeries[result];
   If[seriesArithmeticCompositeQ[result], fail["UnsupportedCompositeCutoff", "A composite bound has no single exponent cutoff; truncate its operands in their own scales first."]];
   If[seriesArithmeticFlatQ[result], AsymptoticInverse`FlatSeriesTruncate[result, cut, "MaxTerms" -> limit],
     AsymptoticInverse`SeriesTruncate[result, cut, "MaxTerms" -> limit]]];
@@ -70,6 +71,8 @@ seriesRegularOperand[e_, s_GeneralizedSeries, op_, working_, limit_] := Module[
 
 seriesArithmeticBinary[op_, s_GeneralizedSeries, t_, working_, limit_] := Module[{result, operand = t, data, z},
   If[FailureQ[t], Throw[t, $tag]];
+  requireAnalyticSeries[s];
+  If[MatchQ[t, _GeneralizedSeries], requireAnalyticSeries[t]];
   If[seriesArithmeticCompositeQ[s] || seriesArithmeticCompositeQ[t],
     Return[seriesEnvelopeBinary[op, s, t, Automatic, limit], Module]];
   If[seriesArithmeticFlatQ[s] || seriesArithmeticFlatQ[t],
@@ -89,6 +92,7 @@ seriesArithmeticBinary[op_, s_GeneralizedSeries, t_, working_, limit_] := Module
   If[seriesArithmeticFallbackQ[result], seriesEnvelopeBinary[op, s, t, Automatic, limit], seriesArithmeticCheck[result]]];
 
 seriesArithmeticPower[s_GeneralizedSeries, r_, working_, limit_, truncate_: False] := Module[{result, z, powerCut},
+  requireAnalyticSeries[s];
   If[! exactRealQ[r],
     If[! FreeQ[r, _GeneralizedSeries] || ! FreeQ[r, s["Variable"]],
       result = seriesArithmeticUnary[Log, s, working, limit];
@@ -107,6 +111,7 @@ seriesArithmeticPower[s_GeneralizedSeries, r_, working_, limit_, truncate_: Fals
   If[seriesArithmeticFallbackQ[result], seriesEnvelopePower[s, r, working, limit], seriesArithmeticOperationCheck[result, s]]];
 
 seriesArithmeticUnary[head_, s_GeneralizedSeries, working_, limit_] := Module[{z = Unique["observable$"], result},
+  requireAnalyticSeries[s];
   result = catch[Switch[head,
     Log, seriesLog[s, working, limit],
     Exp, seriesExp[s, working, limit],
@@ -198,6 +203,7 @@ AsymptoticInverse`SeriesNormalize[expr_, OptionsPattern[]] := Block[{$seriesArit
      reciprocal, but can never improve an operand's unknown remainder. *)
   If[cut =!= Automatic && MatchQ[result, _GeneralizedSeries] &&
       ! seriesArithmeticCompositeQ[result] && ! seriesArithmeticFlatQ[result],
+    requireAnalyticSeries[result];
     precision = Lookup[result[[1]], "RemainderPower", Infinity]; working = Max[working, cut];
     While[precision =!= Infinity && less[precision, cut] && tries < 8,
       tries++; working = working + cut - precision + 1;

@@ -33,6 +33,8 @@ seriesWorkingCut[d_, requested_] := Module[{h = requested, p = d["Jet"][[2]], ro
 seriesData[s : GeneralizedSeries[a_Association], limit_] := Module[
   {d, base, rules, ell, w, j, var, off = 0, pref = 1, u, rows, coord},
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
+  (* Missing native order metadata must not become an infinite-precision jet. *)
+  requireAnalyticSeries[s];
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]],
     fail["UnsupportedScale", "This operation requires polynomial logarithmic coefficients. The Gamma/Barnes inverse scales support SeriesTruncate, SeriesRefine, SeriesPower, inverse checks, and the constructor's Power observable."]];
   If[AssociationQ[Lookup[a, "SeriesRepresentation", None]], Return[a["SeriesRepresentation"], Module]];
@@ -273,6 +275,7 @@ AsymptoticInverse`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : Opt
   {$inverseFunctionBranchSelections = OptionValue["InverseFunctionBranches"], $inverseFunctionProvenance = {},
     $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>},
   Module[{d, h, j, body = e, condition = True, result, limit = OptionValue["MaxTerms"]},
+  requireAnalyticSeries[s];
   validateInput[e, limit];
   If[e === Log[x], Return[seriesLog[s, OptionValue["Cutoff"], limit], Module]];
   If[e === Exp[x], Return[seriesExp[s, OptionValue["Cutoff"], limit], Module]];
@@ -290,6 +293,7 @@ AsymptoticInverse`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : Opt
 
 AsymptoticInverse`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[Module[
   {a, b, input, wj, term, result, p, deg, alpha, lc, ell, ass, h, limit = OptionValue["MaxTerms"]},
+  requireAnalyticSeries[outer]; requireAnalyticSeries[inner];
   result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], limit];
   If[result =!= $Failed, Return[result, Module]];
   a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
@@ -313,6 +317,7 @@ AsymptoticInverse`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries
     "RemainderDerivativeOrder" -> Min[Lookup[a, "RemainderDerivativeOrder", 0], Lookup[b, "RemainderDerivativeOrder", 0]]|>], {"Compose", {outer, inner}}, h]]];
 
 AsymptoticInverse`SeriesTruncate[s_GeneralizedSeries, h_, opts : OptionsPattern[]] := catch[Module[{d},
+  requireAnalyticSeries[s];
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[s[[1]], "Kind", ""]], Return[gammaInverseTruncate[s, h, OptionValue["MaxTerms"]], Module]];
   d = seriesData[s, OptionValue["MaxTerms"]];
   If[! exactRealQ[h], fail["InvalidCutoff", "The truncation cutoff must be an exact real number."]];
@@ -320,6 +325,7 @@ AsymptoticInverse`SeriesTruncate[s_GeneralizedSeries, h_, opts : OptionsPattern[
 
 seriesDerivative[s_, n_, declared_, cut_, limit_] := Module[{d, contract, ell, ass, j, q, wprime, pprime, first, second, result, k},
   If[! IntegerQ[n] || n < 0, fail["InvalidDerivativeOrder", "The derivative order must be a nonnegative integer."]];
+  If[n =!= 0 || cut =!= Automatic, requireAnalyticSeries[s]];
   result = reciprocalLogDifferentiate[s, n, declared, cut, limit];
   If[result =!= $Failed, Return[result, Module]];
   If[n === 0, Return[s, Module]];
@@ -361,6 +367,7 @@ seriesRefinementResult[result_, original_, cutoff_] := Module[{data, stats},
 
 AsymptoticInverse`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := catch[seriesRefinementResult[Module[
   {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared},
+  requireAnalyticSeries[s];
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
   If[KeyExistsQ[a, "InverseFunctionExpression"],
     Return[AsymptoticExpansion[a["InverseFunctionExpression"], {a["Variable"], a["InverseFunctionExpansionPoint"], h},

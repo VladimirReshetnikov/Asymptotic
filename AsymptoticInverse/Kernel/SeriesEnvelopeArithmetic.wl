@@ -161,6 +161,7 @@ seriesEnvelopeErrorNormalize[remainder_, limit_] := Module[{expanded, terms},
   Total[seriesEnvelopeErrorTerm /@ terms]];
 
 seriesEnvelopeData[s : GeneralizedSeries[a_Association], limit_] := Module[{expression, remainder, bound, assumptions, domain, approach},
+  requireAnalyticSeries[s];
   If[! KeyExistsQ[a, "Expression"] || ! KeyExistsQ[a, "Remainder"],
     fail["InvalidCompositeOperand", "A series operand must retain both its finite expression and its remainder."]];
   expression = a["Expression"]; remainder = a["Remainder"];

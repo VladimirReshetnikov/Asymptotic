@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/AsymptoticInverse.wl
-   Source SHA256 (UTF-8/LF): b116043957756e74634164b29126690a9813c4bbd636f38a03696f121043a66f *)
+   Source SHA256 (UTF-8/LF): 5516b779b4b199000c59cd8c063683245db40f0c235b94fef2a4714861b4ff34 *)
 (* ::Package:: *)
 (* AsymptoticInverse -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -35,7 +35,13 @@ Increasing Gamma and LogGamma inverses, their admitted affine forms and fixed po
 each block is a complete polynomial in 1/Log[CoreInverse] at one power of 1/CoreInverse. \
 Increasing BarnesG and LogBarnesG inverses use Scale -> \"BarnesGInverse\", with coefficients polynomial in 1/(Log[CoreInverse]-1). \
 Real logarithms of supported positive Gamma products are normalized to LogGamma before ordinary absolute power-log expansion. \
-See Documentation/UserGuide.md for the admitted real domains and scales.";
+The explicit option \"Backend\" -> \"Series\" or \"Asymptotic\" delegates the original native argument forms and options, \
+using the native order convention and preserving the complete native result without asserting a package analytic remainder. \
+\"Backend\" -> \"Package\" selects the existing real expansion engines. See Documentation/UserGuide.md for the domains and contracts.";
+
+AsymptoticExpand::usage =
+"AsymptoticExpand[args] is a held alias for AsymptoticExpansion[args], with identical options and order conventions. \
+Use \"Backend\" -> \"Series\" or \"Asymptotic\" for explicit native delegation.";
 
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
@@ -58,7 +64,9 @@ remainder and provenance. StandardForm and TraditionalForm display the finite ex
 and remainder without the GeneralizedSeries head. Normal[s] drops the remainder and returns \
 the ordinary finite expression. InputForm retains the complete object. s[\"Remainder\"], \
 s[\"Terms\"], s[\"SeriesData\"], s[\"Properties\"] and other properties are available; \
-s[value] evaluates the finite expression at a numerical value of the variable.";
+s[value] evaluates the finite expression at a numerical value of the variable. \
+Native results preserve NativeResult and display its own notation; Normal follows the native Normal operation, \
+which can retain an infinite sum. A native formal order or asymptotic output does not establish an analytic remainder or exactness.";
 
 PowerLogRemainder::usage =
 "PowerLogRemainder[w, beta, k] is an inert descriptor of the remainder class \
@@ -599,7 +607,7 @@ splitApproachInput[f_, x_, ass_] := Module[{body = f, condition = True, clauses}
 
 Options[AsymptoticExpansion] = {Assumptions :> $Assumptions, Direction -> Automatic, SeriesTermGoal -> Automatic, "MaxTerms" -> 20000};
 SetAttributes[AsymptoticExpansion, HoldAllComplete];
-AsymptoticExpansion[args___] := catch[forwardHeldEntry[args]];
+AsymptoticExpansion[args___] := expansionHeldEntry[args];
 (* Preserve explicit callable syntax before native evaluation can turn, for
    example, InverseFunction[Exp] into the symbol Log. All other arguments still
    receive the ordinary evaluation of forwardEntry, including option Sequences. *)
@@ -1133,7 +1141,8 @@ makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] :=
 GeneralizedSeries /: Normal[GeneralizedSeries[a_Association]] := a["Expression"];
 GeneralizedSeries[a_Association]["Properties"] := Keys[a];
 GeneralizedSeries[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
-GeneralizedSeries[a_Association][val_?NumericQ] := a["Expression"] /. a["Variable"] -> val;
+GeneralizedSeries[a_Association][val_?NumericQ] :=
+  If[Lookup[a, "Kind", None] === "Native", nativeSeriesValue[a, val], a["Expression"] /. a["Variable"] -> val];
 remainderScale[PowerLogRemainder[w_, b_, k_]] := Module[{base, lg},
   {base, lg} = If[MatchQ[w, Power[_, -1]], {w[[1]]^(-b), Log[w[[1]]]}, {w^b, Log[w]}];
   If[k === 0, base, base (1 + Abs[lg])^k]];
@@ -1150,10 +1159,14 @@ heldSeriesSum[HoldComplete[e_], HoldComplete[r_]] := HoldComplete[e + r];
 
 GeneralizedSeries /: MakeBoxes[GeneralizedSeries[a_Association], fmt : StandardForm | TraditionalForm] :=
   generalizedSeriesBoxes[HoldComplete[GeneralizedSeries[a]], fmt];
-generalizedSeriesBoxes[held : HoldComplete[GeneralizedSeries[a_Association]], fmt_] := Module[{rules, fields},
+generalizedSeriesBoxes[held : HoldComplete[GeneralizedSeries[a_Association]], fmt_] := Module[{rules, fields, native},
   (* Matching the association's rules works for both evaluated associations and
      raw associations inside MakeBoxes; ordinary Lookup would evaluate them. *)
   rules = Replace[held, HoldComplete[GeneralizedSeries[Association[r___]]] :> HoldComplete[r]];
+  native = Cases[rules, HoldPattern[(Rule | RuleDelayed)["Kind", "Native"]], {1}];
+  If[native =!= {},
+    native = Cases[rules, HoldPattern[(Rule | RuleDelayed)["NativeResult", value_]] :> HoldComplete[value], {1}];
+    If[Length[native] === 1, Return[seriesInterpretationBoxes[First[native], held, fmt], Module]]];
   fields = (Cases[rules, HoldPattern[(Rule | RuleDelayed)[#, value_]] :> HoldComplete[value], {1}] &) /@
     {"Expression", "Remainder"};
   Replace[fields, {
@@ -1162,7 +1175,8 @@ generalizedSeriesBoxes[held : HoldComplete[GeneralizedSeries[a_Association]], fm
     {{HoldComplete[e_]}, {HoldComplete[r_]}} :>
       seriesInterpretationBoxes[heldSeriesSum[HoldComplete[e], HoldComplete[r]], held, fmt],
     _ :> RowBox[{"GeneralizedSeries", "[", MakeBoxes[a, fmt], "]"}]}]];
-Format[GeneralizedSeries[a_Association], OutputForm] := GeneralizedSeries[a["Expression"], a["Remainder"]];
+Format[GeneralizedSeries[a_Association], OutputForm] :=
+  If[Lookup[a, "Kind", None] === "Native", a["NativeResult"], GeneralizedSeries[a["Expression"], a["Remainder"]]];
 
 (* Small syntactic reductions keep scales readable without evaluating symbols
    or arbitrary expressions supplied to a held MakeBoxes call. *)
@@ -1284,10 +1298,12 @@ InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catc
      "UniformizerExponent" -> ToRadicals[r + c[[1]]], "Assumptions" -> ass,
      "Meaning" -> "(v/a)^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
 InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : OptionsPattern[]] :=
+  If[Lookup[a, "Kind", None] === "Native",
+   Failure["NativeSeriesContract", <|"MessageTemplate" -> "Native results do not supply an inverse coefficient model."|>],
   If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
    Failure["Unsupported", <|"MessageTemplate" -> "Lambert coefficients are listed in the logarithmic expansion's Terms property; they have no power-gap multi-index."|>],
    InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
-    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
+    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
@@ -1862,7 +1878,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: AsymptoticInverse/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 82d7e7eb7d8d3ef5c3b22bbaa9101e4121960018c596159f774c6f809e6713ba *)
+   Source SHA256 (UTF-8/LF): 643e8a5b91dd520a522b38461d68a8425d6af055c8ccbe48d0d93dec1d850c12 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -1898,6 +1914,8 @@ seriesWorkingCut[d_, requested_] := Module[{h = requested, p = d["Jet"][[2]], ro
 seriesData[s : GeneralizedSeries[a_Association], limit_] := Module[
   {d, base, rules, ell, w, j, var, off = 0, pref = 1, u, rows, coord},
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
+  (* Missing native order metadata must not become an infinite-precision jet. *)
+  requireAnalyticSeries[s];
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]],
     fail["UnsupportedScale", "This operation requires polynomial logarithmic coefficients. The Gamma/Barnes inverse scales support SeriesTruncate, SeriesRefine, SeriesPower, inverse checks, and the constructor's Power observable."]];
   If[AssociationQ[Lookup[a, "SeriesRepresentation", None]], Return[a["SeriesRepresentation"], Module]];
@@ -2138,6 +2156,7 @@ AsymptoticInverse`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : Opt
   {$inverseFunctionBranchSelections = OptionValue["InverseFunctionBranches"], $inverseFunctionProvenance = {},
     $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>},
   Module[{d, h, j, body = e, condition = True, result, limit = OptionValue["MaxTerms"]},
+  requireAnalyticSeries[s];
   validateInput[e, limit];
   If[e === Log[x], Return[seriesLog[s, OptionValue["Cutoff"], limit], Module]];
   If[e === Exp[x], Return[seriesExp[s, OptionValue["Cutoff"], limit], Module]];
@@ -2155,6 +2174,7 @@ AsymptoticInverse`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : Opt
 
 AsymptoticInverse`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[Module[
   {a, b, input, wj, term, result, p, deg, alpha, lc, ell, ass, h, limit = OptionValue["MaxTerms"]},
+  requireAnalyticSeries[outer]; requireAnalyticSeries[inner];
   result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], limit];
   If[result =!= $Failed, Return[result, Module]];
   a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
@@ -2178,6 +2198,7 @@ AsymptoticInverse`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries
     "RemainderDerivativeOrder" -> Min[Lookup[a, "RemainderDerivativeOrder", 0], Lookup[b, "RemainderDerivativeOrder", 0]]|>], {"Compose", {outer, inner}}, h]]];
 
 AsymptoticInverse`SeriesTruncate[s_GeneralizedSeries, h_, opts : OptionsPattern[]] := catch[Module[{d},
+  requireAnalyticSeries[s];
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[s[[1]], "Kind", ""]], Return[gammaInverseTruncate[s, h, OptionValue["MaxTerms"]], Module]];
   d = seriesData[s, OptionValue["MaxTerms"]];
   If[! exactRealQ[h], fail["InvalidCutoff", "The truncation cutoff must be an exact real number."]];
@@ -2185,6 +2206,7 @@ AsymptoticInverse`SeriesTruncate[s_GeneralizedSeries, h_, opts : OptionsPattern[
 
 seriesDerivative[s_, n_, declared_, cut_, limit_] := Module[{d, contract, ell, ass, j, q, wprime, pprime, first, second, result, k},
   If[! IntegerQ[n] || n < 0, fail["InvalidDerivativeOrder", "The derivative order must be a nonnegative integer."]];
+  If[n =!= 0 || cut =!= Automatic, requireAnalyticSeries[s]];
   result = reciprocalLogDifferentiate[s, n, declared, cut, limit];
   If[result =!= $Failed, Return[result, Module]];
   If[n === 0, Return[s, Module]];
@@ -2226,6 +2248,7 @@ seriesRefinementResult[result_, original_, cutoff_] := Module[{data, stats},
 
 AsymptoticInverse`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := catch[seriesRefinementResult[Module[
   {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared},
+  requireAnalyticSeries[s];
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
   If[KeyExistsQ[a, "InverseFunctionExpression"],
     Return[AsymptoticExpansion[a["InverseFunctionExpression"], {a["Variable"], a["InverseFunctionExpansionPoint"], h},
@@ -6667,7 +6690,7 @@ exponentialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] :
 (* END SOURCE: AsymptoticInverse/Kernel/ExponentialForward.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl
-   Source SHA256 (UTF-8/LF): 723ed21d423764159c31d153cc4086cd382ca6b90ae514caa1a744f2d0825039 *)
+   Source SHA256 (UTF-8/LF): 2cde86032fe867c7c59049e3f36c72f06ea25beb4f22aeb971f660651885a86a *)
 (* Conservative arithmetic when no common ordered coefficient algebra applies.
    Each input denotes e + O(R), with R a nonnegative asymptotic envelope.
    Separate error summands are retained; cancellation of finite expressions
@@ -6831,6 +6854,7 @@ seriesEnvelopeErrorNormalize[remainder_, limit_] := Module[{expanded, terms},
   Total[seriesEnvelopeErrorTerm /@ terms]];
 
 seriesEnvelopeData[s : GeneralizedSeries[a_Association], limit_] := Module[{expression, remainder, bound, assumptions, domain, approach},
+  requireAnalyticSeries[s];
   If[! KeyExistsQ[a, "Expression"] || ! KeyExistsQ[a, "Remainder"],
     fail["InvalidCompositeOperand", "A series operand must retain both its finite expression and its remainder."]];
   expression = a["Expression"]; remainder = a["Remainder"];
@@ -6987,7 +7011,7 @@ seriesEnvelopeUnary[head_, s_GeneralizedSeries, cut_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SeriesArithmetic.wl
-   Source SHA256 (UTF-8/LF): a7be6ea15b4bc4532c26db9fd42992d8a7adaa06c990890651f995e169cf035a *)
+   Source SHA256 (UTF-8/LF): 573e7e47ff26aecdc35af6e376128f690f2c4940caeb1c15c6ec47235be1c100 *)
 (* Ordinary arithmetic is a thin, guarded entry to the precision calculus.
    The explicit normalizer holds the expression tree before evaluation so that
    a reciprocal is checked before Times can cancel its denominator. *)
@@ -7018,6 +7042,7 @@ seriesArithmeticOperationCheck[Failure["UnknownLeadingTerm", data_Association], 
 seriesArithmeticOperationCheck[result_, _] := seriesArithmeticCheck[result];
 seriesArithmeticFinish[result_List, cut_, limit_] := seriesArithmeticFinish[#, cut, limit] & /@ result;
 seriesArithmeticFinish[result_, cut_, limit_] := If[cut === Automatic || ! MatchQ[result, _GeneralizedSeries], result,
+  requireAnalyticSeries[result];
   If[seriesArithmeticCompositeQ[result], fail["UnsupportedCompositeCutoff", "A composite bound has no single exponent cutoff; truncate its operands in their own scales first."]];
   If[seriesArithmeticFlatQ[result], AsymptoticInverse`FlatSeriesTruncate[result, cut, "MaxTerms" -> limit],
     AsymptoticInverse`SeriesTruncate[result, cut, "MaxTerms" -> limit]]];
@@ -7060,6 +7085,8 @@ seriesRegularOperand[e_, s_GeneralizedSeries, op_, working_, limit_] := Module[
 
 seriesArithmeticBinary[op_, s_GeneralizedSeries, t_, working_, limit_] := Module[{result, operand = t, data, z},
   If[FailureQ[t], Throw[t, $tag]];
+  requireAnalyticSeries[s];
+  If[MatchQ[t, _GeneralizedSeries], requireAnalyticSeries[t]];
   If[seriesArithmeticCompositeQ[s] || seriesArithmeticCompositeQ[t],
     Return[seriesEnvelopeBinary[op, s, t, Automatic, limit], Module]];
   If[seriesArithmeticFlatQ[s] || seriesArithmeticFlatQ[t],
@@ -7079,6 +7106,7 @@ seriesArithmeticBinary[op_, s_GeneralizedSeries, t_, working_, limit_] := Module
   If[seriesArithmeticFallbackQ[result], seriesEnvelopeBinary[op, s, t, Automatic, limit], seriesArithmeticCheck[result]]];
 
 seriesArithmeticPower[s_GeneralizedSeries, r_, working_, limit_, truncate_: False] := Module[{result, z, powerCut},
+  requireAnalyticSeries[s];
   If[! exactRealQ[r],
     If[! FreeQ[r, _GeneralizedSeries] || ! FreeQ[r, s["Variable"]],
       result = seriesArithmeticUnary[Log, s, working, limit];
@@ -7097,6 +7125,7 @@ seriesArithmeticPower[s_GeneralizedSeries, r_, working_, limit_, truncate_: Fals
   If[seriesArithmeticFallbackQ[result], seriesEnvelopePower[s, r, working, limit], seriesArithmeticOperationCheck[result, s]]];
 
 seriesArithmeticUnary[head_, s_GeneralizedSeries, working_, limit_] := Module[{z = Unique["observable$"], result},
+  requireAnalyticSeries[s];
   result = catch[Switch[head,
     Log, seriesLog[s, working, limit],
     Exp, seriesExp[s, working, limit],
@@ -7188,6 +7217,7 @@ AsymptoticInverse`SeriesNormalize[expr_, OptionsPattern[]] := Block[{$seriesArit
      reciprocal, but can never improve an operand's unknown remainder. *)
   If[cut =!= Automatic && MatchQ[result, _GeneralizedSeries] &&
       ! seriesArithmeticCompositeQ[result] && ! seriesArithmeticFlatQ[result],
+    requireAnalyticSeries[result];
     precision = Lookup[result[[1]], "RemainderPower", Infinity]; working = Max[working, cut];
     While[precision =!= Infinity && less[precision, cut] && tries < 8,
       tries++; working = working + cut - precision + 1;
@@ -8165,6 +8195,116 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
     "AsymptoticReferences" -> Join[Lookup[domain, "References", {}], normalized["References"],
       {"https://reference.wolfram.com/language/ref/Series.html", "https://dlmf.nist.gov/2.1.iii"}]|>]]];
 (* END SOURCE: AsymptoticInverse/Kernel/NativeSpecialFunctions.wl *)
+
+(* BEGIN SOURCE: AsymptoticInverse/Kernel/NativeCompatibility.wl
+   Source SHA256 (UTF-8/LF): b68a929fa064ef46dc6ad66d36fc437cf3582f1f51b19cfaf9673d5a7169a039 *)
+(* Native delegation is a distinct result contract. Keep the complete native
+   call held until it is released to the selected built-in. In particular,
+   do not resolve native delayed options for a second metadata lookup. *)
+
+Options[AsymptoticExpansion] = DeleteDuplicatesBy[Join[
+  Options[AsymptoticExpansion], {"Backend" -> Automatic},
+  Options[System`Series], Options[System`Asymptotic]], First];
+Options[AsymptoticExpand] = Options[AsymptoticExpansion];
+SetAttributes[AsymptoticExpand, HoldAllComplete];
+AsymptoticExpand[args___] := AsymptoticExpansion[args];
+
+nativeSeriesQ[GeneralizedSeries[a_Association]] := Lookup[a, "Kind", None] === "Native";
+nativeSeriesQ[_] := False;
+requireAnalyticSeries[s_] := If[nativeSeriesQ[s],
+  fail["NativeSeriesContract", "This operation requires a package analytic remainder contract. Use NativeResult for native formal operations."]];
+nativeSeriesValue[a_Association, value_] := catch[Module[{variable = Lookup[a, "Variable", None]},
+  If[! MatchQ[variable, _Symbol], fail["NativeVariables",
+    "Numerical application requires one identified expansion variable. Substitute into Normal[result] explicitly for other native specifications."]];
+  a["Expression"] /. variable -> value]];
+
+nativeHeldArguments[held_HoldComplete] := Cases[held, item_ :> HoldComplete[item], {1}];
+nativeHeldJoin[items_List] := Fold[
+  Function[{left, right}, Replace[{left, right},
+    {HoldComplete[a___], HoldComplete[b___]} :> HoldComplete[a, b]]], HoldComplete[], items];
+
+(* Only option containers are traversed. A rule inside the source or inside
+   another option's value is data, not a selector for this wrapper. *)
+nativeOptionTreeQ[HoldComplete[_Rule | _RuleDelayed]] := True;
+nativeOptionTreeQ[HoldComplete[(List | Sequence)[args___]]] :=
+  And @@ (nativeOptionTreeQ /@ nativeHeldArguments[HoldComplete[args]]);
+nativeOptionTreeQ[_] := False;
+nativeSelectorValues[HoldComplete[(Rule | RuleDelayed)["Backend", value_]]] := {HoldComplete[value]};
+nativeSelectorValues[HoldComplete[Sequence[args___]]] :=
+  Flatten[nativeSelectorValues /@ nativeHeldArguments[HoldComplete[args]], 1];
+nativeSelectorValues[held : HoldComplete[List[args___]]] /; nativeOptionTreeQ[held] :=
+  Flatten[nativeSelectorValues /@ nativeHeldArguments[HoldComplete[args]], 1];
+nativeSelectorValues[_] := {};
+nativeStripSelector[HoldComplete[(Rule | RuleDelayed)["Backend", _]]] := HoldComplete[Sequence[]];
+nativeStripSelector[HoldComplete[Sequence[args___]]] :=
+  Replace[nativeHeldJoin[nativeStripSelector /@ nativeHeldArguments[HoldComplete[args]]],
+    HoldComplete[items___] :> HoldComplete[Sequence[items]]];
+nativeStripSelector[held : HoldComplete[List[args___]]] /; nativeOptionTreeQ[held] :=
+  Replace[nativeHeldJoin[nativeStripSelector /@ nativeHeldArguments[HoldComplete[args]]],
+    HoldComplete[items___] :> HoldComplete[List[items]]];
+nativeStripSelector[held_] := held;
+
+(* A computed option container needs ordinary argument evaluation once before
+   selection. Literal native requests bypass this preparation altogether. *)
+nativeComputedArgumentQ[HoldComplete[_Rule | _RuleDelayed | _List]] := False;
+nativeComputedArgumentQ[HoldComplete[Sequence[args___]]] :=
+  Or @@ (nativeComputedArgumentQ /@ nativeHeldArguments[HoldComplete[args]]);
+nativeComputedArgumentQ[_] := True;
+SetAttributes[expansionHeldEntry, HoldAllComplete];
+expansionHeldEntry[args___] := expansionDispatch[HoldComplete[args], False];
+expansionPreparedEntry[original_HoldComplete, args___] := expansionDispatch[HoldComplete[args], True, original];
+expansionDispatch[request_HoldComplete, prepared_, original_: Automatic] := Module[
+  {parts = nativeHeldArguments[request], values, backend, clean, sourceRequest},
+  If[parts === {}, Return[catch[forwardEntry[]], Module]];
+  sourceRequest = If[original === Automatic, request, original];
+  values = Flatten[nativeSelectorValues /@ Rest[parts], 1];
+  If[values === {} && ! TrueQ[prepared] && Or @@ (nativeComputedArgumentQ /@ Rest[parts]),
+    Return[Replace[request, HoldComplete[args___] :> expansionPreparedEntry[sourceRequest, args]], Module]];
+  backend = If[values === {}, Automatic, ReleaseHold[First[values]]];
+  clean = nativeHeldJoin[Prepend[nativeStripSelector /@ Rest[parts], First[parts]]];
+  Switch[backend,
+    "Series" | "Asymptotic", nativeExpansion[clean, backend, sourceRequest],
+    Automatic | "Package", Replace[clean, HoldComplete[args___] :> catch[forwardHeldEntry[args]]],
+    _, Failure["InvalidBackend", <|"MessageTemplate" -> "Backend must be Automatic, Package, Series, or Asymptotic.", "Backend" -> backend|>]]];
+
+nativeSpecificationVariable[HoldComplete[{x_Symbol, _, ___}]] := HoldComplete[x];
+nativeSpecificationVariable[HoldComplete[(Rule | RuleDelayed)[x_Symbol, _]]] := HoldComplete[x];
+nativeSpecificationVariable[_] := Missing["NotLiteralSpecification"];
+nativeSpecificationQ[HoldComplete[{_Symbol, _, ___}]] := True;
+nativeSpecificationQ[HoldComplete[(Rule | RuleDelayed)[key_Symbol, _]]] :=
+  ! MemberQ[First /@ Options[AsymptoticExpansion], Unevaluated[key]];
+nativeSpecificationQ[_] := False;
+nativePackageOption[HoldComplete[(Rule | RuleDelayed)[key : ("MaxTerms" | "InverseFunctionBranches"), _]]] := {key};
+nativePackageOption[held : HoldComplete[(List | Sequence)[args___]]] /; nativeOptionTreeQ[held] :=
+  Flatten[nativePackageOption /@ nativeHeldArguments[HoldComplete[args]]];
+nativePackageOption[_] := {};
+
+nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module[
+  {call, result, normal, parts, specifications, variables, variable, conflicts, ambient},
+  parts = Rest[nativeHeldArguments[request]];
+  conflicts = Flatten[nativePackageOption /@ parts];
+  If[conflicts =!= {}, Return[Failure["NativeOptionConflict", <|
+    "MessageTemplate" -> "Package resource budgets and inverse branch selectors require Backend -> Package; native delegation does not implement these options.",
+    "Options" -> DeleteDuplicates[conflicts]|>], Module]];
+  call = If[backend === "Series",
+    Replace[request, HoldComplete[args___] :> HoldComplete[System`Series[args]]],
+    Replace[request, HoldComplete[args___] :> HoldComplete[System`Asymptotic[args]]]];
+  ambient = If[TrueQ[$assumptionScopeActive], $entryAssumptions, $Assumptions];
+  result = Block[{$Assumptions = ambient}, ReleaseHold[call]];
+  normal = Normal[result];
+  specifications = Select[parts, nativeSpecificationQ];
+  variables = DeleteDuplicates[Cases[nativeSpecificationVariable /@ specifications, _HoldComplete]];
+  variable = If[Length[variables] === 1, ReleaseHold[First[variables]], Missing["MultipleOrUnresolvedVariables"]];
+  GeneralizedSeries[<|"Kind" -> "Native", "Scale" -> "Native", "NativeBackend" -> backend,
+    "NativeResult" -> result, "Expression" -> normal,
+    "Remainder" -> Missing["NativeContract"], "Exact" -> Missing["NotEstablished"],
+    "RemainderContract" -> If[backend === "Series", "NativeFormalOrder", "NativeAsymptotic"],
+    "NativeEvaluationStatus" -> If[FreeQ[result, _System`Series | _System`Asymptotic], "Computed", "Unresolved"],
+    "NativeRequest" -> call, "OriginalArguments" -> original,
+    "ExpansionSpecifications" -> specifications, "Variable" -> variable,
+    "AmbientAssumptions" -> ambient, "Assumptions" -> Missing["NativeContract"],
+    "NativeKernelVersion" -> $Version, "NativeSystemID" -> $SystemID|>]];
+(* END SOURCE: AsymptoticInverse/Kernel/NativeCompatibility.wl *)
 
 
 End[];

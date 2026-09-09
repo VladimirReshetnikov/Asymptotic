@@ -19,8 +19,15 @@ unrun regression specifications.
 
 The [native compatibility plan](NATIVE_COMPATIBILITY.md) records the required
 expansion-API coverage of built-in `Series` and `Asymptotic`, including formal,
-complex and multivariable results. This accepted scope extends beyond the
-current real representations and is tracked as required work in the register.
+complex and multivariable results. Explicit native backends and the held
+`AsymptoticExpand` alias are implemented, with
+[130 passed, zero failed focused checks](../../validation/native-compatibility-tests.json)
+across eight selected files and unchanged sources.
+`Automatic` currently uses the existing real engines. Automatic native fallback
+and remaining coverage evidence are required work in the register.
+The [native result contracts](NATIVE_RESULT_CONTRACTS.md) explain preserved
+native output, held request metadata, option conflicts, and the absence of
+an independently proved analytic remainder.
 
 The [assumption-context notes](ASSUMPTION_CONTEXT.md) explain how constructor
 hypotheses survive coefficient queries, arithmetic and refinement, including

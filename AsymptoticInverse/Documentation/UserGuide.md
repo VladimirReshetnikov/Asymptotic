@@ -2,6 +2,8 @@
 
 AsymptoticInverse computes asymptotic expansions of functions and selected real inverse functions. It supports exact real exponents, logarithmic coefficients, finite and infinite endpoints, and explicit remainder classes. Additional constructors handle logarithmic hierarchies, exponential sectors, oscillatory coefficients, and selected special functions.
 
+Explicit native backends preserve Wolfram Language `Series` and `Asymptotic` results in the same result head, with a separate formal or native asymptotic contract. See [Native Expansion Backends](#native-backend-expansions).
+
 This guide describes the Wolfram Language interface. See the [mathematical article](../../article/asymptotic-inverse.pdf) for definitions, results, and proofs.
 
 ## Getting Started
@@ -76,7 +78,8 @@ Outputs below are written in algebraically equivalent factored forms where this 
 
 | Task | Functions |
 | --- | --- |
-| Expand a function | [AsymptoticExpansion](#AsymptoticExpansion) |
+| Expand a function | [AsymptoticExpansion](#AsymptoticExpansion), [AsymptoticExpand](#AsymptoticExpand) |
+| Preserve a built-in expansion result | [Native Expansion Backends](#native-backend-expansions) |
 | Expand Bessel, Airy, elliptic, and other special functions | [Other Special Functions](#special-function-expansions) |
 | Expand a selected inverse | [AsymptoticInverse](#AsymptoticInverse) |
 | Expand the increasing Gamma or LogGamma inverse | [Inverse Gamma and LogGamma Functions](#inverse-gamma-and-loggamma) |
@@ -104,20 +107,138 @@ Outputs below are written in algebraically equivalent factored forms where this 
 | `AsymptoticExpansion[f, {x, x0, h}]` | Expansion at `x0` with exclusive cutoff `h`. |
 | `AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]` | First `n` complete nonzero blocks; separate carriers use the convention below. |
 | `AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n]` | Equivalent rule form. |
+| `AsymptoticExpansion[f, {x, x0, n}, "Backend" -> "Series"]` | Native `Series` result through native order `n`. |
+| `AsymptoticExpansion[f, {x, x0, n}, "Backend" -> "Asymptotic"]` | Native `Asymptotic` result at its requested order. |
+| `AsymptoticExpansion[f, {x, x0, nx}, {y, y0, ny}, "Backend" -> "Series"]` | Successive native expansions in the specified variable order. |
 
-`f` can be an expression, a unary pure function, or an unapplied unary `InverseFunction`. A callable is applied to `x`. A bare symbol is treated as an expression: use `Log[x]` or `Log[#] &` to expand the logarithm.
+In the package expansion path, `f` can be an expression, a unary pure function, or an unapplied unary `InverseFunction`. A callable is applied to `x`. A bare symbol is treated as an expression: use `Log[x]` or `Log[#] &` to expand the logarithm. Explicit native modes use their selected built-in function's input forms.
 
 An applied inverse can also occur inside a supported expression. See [Callable and Applied Inverse Functions](#inverse-function-expressions).
 
 ### Details and Options
 
-`AsymptoticExpansion` accepts `Assumptions :> $Assumptions`, `Direction -> Automatic`, `SeriesTermGoal -> Automatic`, `"MaxTerms" -> 20000`, and `"InverseFunctionBranches" -> Automatic`. See [Assumptions and Parameter Domains](#assumption-context).
+`AsymptoticExpansion` accepts `Assumptions :> $Assumptions`, `Direction -> Automatic`, `SeriesTermGoal -> Automatic`, `"MaxTerms" -> 20000`, `"InverseFunctionBranches" -> Automatic`, and `"Backend" -> Automatic`. Explicit native modes accept their selected backend's options. See [Assumptions and Parameter Domains](#assumption-context).
+
+| `"Backend"` setting | Meaning |
+| --- | --- |
+| `Automatic` | Default shared by `AsymptoticExpansion` and `AsymptoticExpand`; currently uses the package engines, without automatic native fallback. |
+| `"Package"` | Use the package expansion engines and their analytic remainder contracts; do not fall back to a native result. |
+| `"Series"` | Delegate to built-in `Series` and retain its native result. |
+| `"Asymptotic"` | Delegate to built-in `Asymptotic` and retain its native result. |
 
 Ordinary expansions use an absolute cutoff in the positive local coordinate. Gamma and Barnes G products and admitted exponential products use a cutoff inside an exact prefactor. Structured forward special-function expansions apply cutoffs and term goals separately to their recorded carriers. The defining-sum expansions of `Zeta` and `LerchPhi` use the special coordinates described below. A direct inverse-function result retains its inverse constructor's cutoff convention. See [Coordinates and Cutoffs](#coordinates-and-cutoffs) and [Other Special Functions](#special-function-expansions).
 
 The ordinary input class includes sums, products, exact real constant powers, logarithms, exponentials of bounded arguments, and supported Taylor, Laurent, or Puiseux function expansions. A branch or exponent ordering that cannot be established produces a `Failure`.
 
-Coefficients must be provably real under the retained assumptions. Contributions at the same power are combined and simplified before this check. Constants and target offsets obey the same requirement. See [Real Coefficients](#real-coefficients).
+The package's real representations require coefficients provably real under the retained assumptions. Contributions at the same power are combined and simplified before this check. Constants and target offsets obey the same requirement. A native formal or complex result has a different contract. See [Real Coefficients](#real-coefficients) and [Native Expansion Backends](#native-backend-expansions).
+
+<a id="AsymptoticExpand"></a>
+## AsymptoticExpand
+
+### Usage
+
+`AsymptoticExpand[args]` is a held alias of `AsymptoticExpansion[args]`. It accepts the same call forms and options, including the same `"Backend" -> Automatic` default. The alias does not select native order semantics by itself.
+
+```wolfram
+AsymptoticExpand[Exp[x], {x, 0, 3}, "Backend" -> "Package"]
+AsymptoticExpand[Exp[x], {x, 0, 3}, "Backend" -> "Series"]
+```
+
+The first request has exclusive package cutoff `3`; the second requests native `Series` order `3`. See [AsymptoticExpansion](#AsymptoticExpansion) for details and options.
+
+<a id="native-backend-expansions"></a>
+## Native Expansion Backends
+
+### Details and Options
+
+Use `"Backend" -> "Series"` or `"Backend" -> "Asymptotic"` to send a request to the corresponding built-in engine. The native path preserves supported input structures and backend options without a package special-function whitelist or a preliminary positive-real coordinate requirement. Native behavior depends on the installed Wolfram Language version. A returned result does not add an independent branch proof or analytic error estimate.
+
+An order specification retains the selected built-in function's meaning. In particular, native `Series[f, {x, x0, n}]` expands through order `n`, whereas the package's ordinary cutoff excludes exponent `n`. Native `SeriesTermGoal` also has the selected backend's meaning. See [Series](https://reference.wolfram.com/language/ref/Series.html) and [Asymptotic](https://reference.wolfram.com/language/ref/Asymptotic.html).
+
+Select native options appropriate to that engine, such as `Analytic` for `Series`, or `GenerateConditions` and `WorkingPrecision` for `Asymptotic`. Preserve any domain conditions needed by the problem; suppressing generated conditions does not prove that the result holds for every parameter value.
+
+Native modes reject explicitly supplied `"MaxTerms"` and `"InverseFunctionBranches"` with `Failure["NativeOptionConflict", ...]`. These are package-specific contracts; use `"Backend" -> "Package"` when they are needed. Automatic native fallback remains pending; select a native backend explicitly for native input coverage.
+
+### Basic Examples
+
+Preserve a series with complex coefficients and inspect both its native and normalized forms:
+
+```wolfram
+Clear[x];
+s = AsymptoticExpansion[Exp[I x], {x, 0, 3}, "Backend" -> "Series"];
+{s["NativeResult"], Normal[s], s["RemainderContract"]}
+```
+
+Request an asymptotic approximation directly from the native engine:
+
+```wolfram
+t = AsymptoticExpand[Gamma[x], {x, Infinity, 3},
+  "Backend" -> "Asymptotic"];
+{t["NativeResult"], t["Remainder"], t["Exact"]}
+```
+
+### Scope
+
+Successive series preserve the order of the variable specifications. Native-supported symbolic centers, approximate coefficients, lists, inactive expressions, and generated conditions retain their backend semantics.
+
+```wolfram
+Clear[x, y, a, f];
+AsymptoticExpansion[Exp[x + y], {x, 0, 2}, {y, 0, 1},
+  "Backend" -> "Series"]
+AsymptoticExpansion[Exp[x], {x, a, 2}, "Backend" -> "Series"]
+AsymptoticExpansion[f[x], {x, 0, 2}, "Backend" -> "Series",
+  Analytic -> False]
+```
+
+An assumption of analyticity used by a native calculation is not a separate proof of an analytic tail bound. Successive expansions do not imply uniform asymptotics on arbitrary simultaneous paths.
+
+For example, for each fixed `a > 0`, `a/(a + x) == 1 + O[x]` as `x -> 0` with a bound constant allowed to depend on `a`. Its exact error is `-x/(a + x)`. Substituting `a -> x` into the original function gives `1/2`, so the fixed-parameter expansion cannot justify the conclusion `1 + O[x]` on that diagonal.
+
+```wolfram
+AsymptoticExpansion[a/(a + x), {x, 0, 0},
+  "Backend" -> "Series", Assumptions -> a > 0]
+```
+
+### Properties & Relations
+
+Native results have the following contract:
+
+| Property | Meaning |
+| --- | --- |
+| `"Kind"`, `"Scale"` | `"Native"`. |
+| `"NativeResult"` | Complete result returned by the selected built-in engine, including nested orders, conditions, or infinite expressions. |
+| `"Expression"` | `Normal` applied to the native result; also returned by `Normal[s]`. |
+| `"Remainder"` | `Missing["NativeContract"]`; no package analytic remainder is asserted. |
+| `"Exact"` | `Missing["NotEstablished"]`; absence of a native `O` term is not an exactness proof. |
+| `"RemainderContract"` | `"NativeFormalOrder"` for `Series`, or `"NativeAsymptotic"` for `Asymptotic`. |
+| `"NativeBackend"` | `"Series"` or `"Asymptotic"`. |
+| `"NativeRequest"` | Held call to the selected built-in function, with the wrapper's backend selector removed. |
+| `"OriginalArguments"` | Original arguments retained inside `HoldComplete`. |
+| `"ExpansionSpecifications"` | Recognized specification forms retained individually inside `HoldComplete`, in their supplied order. These are syntactic records, not evaluated snapshots. |
+| `"AmbientAssumptions"` | Ambient assumption value captured at native entry. |
+| `"Assumptions"` | `Missing["NativeContract"]`; the wrapper does not independently reconstruct the backend's effective proof context. |
+| `"NativeEvaluationStatus"` | `"Computed"` when no unevaluated native `Series` or `Asymptotic` call remains; otherwise `"Unresolved"`. This is an evaluation status, not a correctness certificate. |
+| `"NativeKernelVersion"`, `"NativeSystemID"` | Runtime that produced the native result. |
+
+Native option expressions remain in the held request. The wrapper does not evaluate delayed native options again to fill metadata. `"AmbientAssumptions"` does not include an explicitly supplied `Assumptions` option; inspect the held request as well when reproducing a calculation.
+
+`Normal` does not guarantee a finite polynomial or finite sum. An infinite sum or another ordinary expression returned by a native calculation can remain in `Normal[s]`. For example, a native `Asymptotic` request can use order `Infinity`. See [Normal](https://reference.wolfram.com/language/ref/Normal.html).
+
+```wolfram
+u = AsymptoticExpansion[Exp[x], {x, 0, Infinity},
+  "Backend" -> "Asymptotic"];
+{u["NativeResult"], Normal[u]}
+```
+
+### Possible Issues
+
+Package analytic arithmetic, truncation, and refinement do not infer error bounds from a native result; these operations return `Failure["NativeSeriesContract", ...]`. To continue using native formal-series operations, work with `s["NativeResult"]`:
+
+```wolfram
+SeriesCoefficient[s["NativeResult"], 3]
+```
+
+Use `Normal[s]` only when discarding the native series structure is intended. For a single identified variable, `s[value]` substitutes into the normalized expression; with several or unresolved variables it returns `Failure["NativeVariables", ...]`. Explicit substitution into `Normal[s]` is available in those cases and does not establish an error bound. Native results do not acquire the package's real-branch certification or uniform-parameter guarantees. An unevaluated native request is not evidence that an expansion was computed.
 
 <a id="AsymptoticInverse"></a>
 ## AsymptoticInverse
@@ -153,6 +274,8 @@ The source symbol `x` and target symbol `y` must be distinct. The forward expres
 <a id="coordinates-and-cutoffs"></a>
 ## Details and Options: Coordinates and Cutoffs
 
+This section describes the package's analytic representations. Explicit native backends retain their own coordinates, domains, and order conventions; see [Native Expansion Backends](#native-backend-expansions).
+
 ### Positive Local Coordinates
 
 Every ordinary expansion uses a positive coordinate tending to zero.
@@ -172,6 +295,7 @@ For an inverse, the target coordinate also includes the limiting value and selec
 
 | Result family | Meaning of the requested order |
 | --- | --- |
+| Native `Series` or `Asymptotic` result | Selected backend's native order convention; `Series` includes the requested order. No package analytic cutoff is inferred. |
 | Ordinary power-log expansion | Exclusive exponent bound in the recorded positive local coordinate. |
 | Factored Gamma, Barnes G, or elementary exponential expansion | Exclusive exponent bound inside the correction bracket multiplying `s["Prefactor"]`. |
 | `LogGamma`, `LogBarnesG`, or a supported real logarithm of a Gamma or Barnes G product | Ordinary exclusive exponent bound in the positive local coordinate; complete logarithmic polynomials count as blocks. |
@@ -209,7 +333,9 @@ Conditions need only hold on a sufficiently small deleted neighborhood or suffic
 
 ### Details
 
-The nine constructors `AsymptoticExpansion`, `AsymptoticInverse`, `PowerLogModel`, `AsymptoticCoreInverse`, `AsymptoticExponentialCoreInverse`, `AsymptoticFlatInverse`, `AsymptoticFourierInverse`, `AsymptoticLogarithmicInverse`, and `AsymptoticSpecialInverse` use the default `Assumptions :> $Assumptions`. The default is resolved when a construction begins, so enclosing `Assuming` expressions supply its assumptions. An explicit `Assumptions` option replaces the ambient value. Use `Assumptions -> True` to construct without ambient assumptions.
+For package analytic representations, the nine constructors `AsymptoticExpansion`, `AsymptoticInverse`, `PowerLogModel`, `AsymptoticCoreInverse`, `AsymptoticExponentialCoreInverse`, `AsymptoticFlatInverse`, `AsymptoticFourierInverse`, `AsymptoticLogarithmicInverse`, and `AsymptoticSpecialInverse` use the default `Assumptions :> $Assumptions`. The default is resolved when a construction begins, so enclosing `Assuming` expressions supply its assumptions. An explicit `Assumptions` option replaces the ambient value. Use `Assumptions -> True` to construct without ambient assumptions.
+
+`AsymptoticExpand` inherits this policy as an alias of `AsymptoticExpansion`. The approach-admission and saved-context rules below concern package analytic representations. Explicit native modes evaluate their held request under the captured ambient assumptions, leaving explicit native options to the backend. They retain the ambient value and held request without separately reevaluating options or adding a real-domain proof. See [Native Expansion Backends](#native-backend-expansions) for their distinct metadata.
 
 The effective hypotheses are retained with the result and its models and internal representations. A delayed assumption option is resolved once for that construction. Subsequent calculations use the retained hypotheses rather than reevaluating the option.
 
@@ -346,7 +472,7 @@ Ordinary Wolfram Language evaluation and symbol definitions remain in effect. Re
 `GeneralizedSeries[association]` is the result representation returned by the constructors. Use constructors, supported arithmetic, and series operations to create and transform it.
 
 `GeneralizedSeries` represents all supported scales, including power-log,
-logarithmic, exponential, flat-sector, and Fourier expansions. Use
+logarithmic, exponential, flat-sector, Fourier, and native results. Use
 `MatchQ[s, _GeneralizedSeries]` to recognize a result.
 
 Since version 1.8.0, `GeneralizedSeries` replaces the former `PowerLogSeries`
@@ -354,14 +480,14 @@ head. Explicit patterns and saved input using the former name must be updated.
 
 | Form | Meaning |
 | --- | --- |
-| `Normal[s]` | Finite expression, without its remainder. |
+| `Normal[s]` | Approximation without the package wrapper; for a native result, `Normal[s["NativeResult"]]`, which need not be finite. |
 | `s["property"]` | A stored property. |
 | `s["Properties"]` | Available property names. |
-| `s[value]` | Evaluation of the finite expression at a numerical value. |
+| `s[value]` | Evaluation of the approximation at a numerical value when a single expansion variable is identified; native multivariable results require explicit substitution. |
 
 ### Display and Evaluation
 
-In `StandardForm` and `TraditionalForm`, a series displays its finite expression and its `O[...]` remainder. The `GeneralizedSeries` head is hidden in these forms. For example:
+In `StandardForm` and `TraditionalForm`, an analytic series displays its finite expression and its `O[...]` remainder. A native result displays its stored native form without adding a package remainder. The `GeneralizedSeries` head is hidden in these forms. For example:
 
 **Input**
 
@@ -382,7 +508,7 @@ The underlying object still has head `GeneralizedSeries`. Copying the formatted 
 
 | Form | Display or result |
 | --- | --- |
-| `StandardForm[s]`, `TraditionalForm[s]` | Finite expression and asymptotic remainder, without the wrapper head. |
+| `StandardForm[s]`, `TraditionalForm[s]` | Analytic expression and remainder, or the preserved native result, without the wrapper head. |
 | `Head[s]` | `GeneralizedSeries`. |
 | `InputForm[s]` | Full reconstructible `GeneralizedSeries[association]` representation, including metadata. |
 | `OutputForm[s]` | Compact diagnostic representation. |
@@ -396,14 +522,14 @@ s^2
 SeriesNormalize[(1 + s)/(1 - s), "Cutoff" -> 4]
 ```
 
-Ordinary arithmetic on `Normal[s]` uses only the finite expression. Keep the series object when further operations must include its uncertainty. See [Series Arithmetic and Normalization](#series-operations) for supported functions, branch requirements, and precision rules.
+Ordinary arithmetic on `Normal[s]` uses only the normalized expression. Keep an analytic series object when further operations must include its uncertainty. Native formal calculations instead use `s["NativeResult"]`; package analytic operations do not infer an error theorem for that representation. See [Series Arithmetic and Normalization](#series-operations) for supported functions, branch requirements, and precision rules.
 
 ### Common Properties
 
 | Property | Meaning |
 | --- | --- |
-| `"Expression"` | The same finite expression returned by `Normal`. |
-| `"Remainder"` | Complete remainder descriptor, including any absolute prefactor. |
+| `"Expression"` | The same expression returned by `Normal`; native results need not be finite. |
+| `"Remainder"` | Complete analytic remainder descriptor, including any absolute prefactor, or `Missing["NativeContract"]` for a native result. |
 | `"RemainderVariable"` | Positive small coordinate. |
 | `"RemainderPower"`, `"RemainderLogDegree"` | Recorded order and logarithmic degree. |
 | `"RemainderScaleExpression"` | Explicit scale used for numerical comparison, when supplied by the result family. |
@@ -415,9 +541,10 @@ Ordinary arithmetic on `Normal[s]` uses only the finite expression. Keep the ser
 | `"Cutoff"` | Requested or selected truncation boundary. |
 | `"Function"`, `"Variable"`, `"ExpansionPoint"`, `"Direction"` | Retained expression and approach data, when supplied. |
 | `"Assumptions"`, `"TargetDomain"`, `"SourceDomain"` | Retained assumptions and branch conditions. Available domains depend on the result family. |
-| `"Exact"` | Exact finite expansion status, when supplied. Zero remainder is the operative exactness test. |
+| `"Exact"` | Exact finite expansion status for analytic results, when supplied; `Missing["NotEstablished"]` for native results. Zero analytic remainder is the operative exactness test. |
 | `"ExactModel"` | Exactness of a stored model; it does not by itself say that the displayed inverse terminates. |
 | `"SeriesData"` | A native `SeriesData` object when the coordinate, exponents, remainder degree, and retained coefficient span permit it; otherwise `Missing[...]`. |
+| `"NativeResult"`, `"RemainderContract"` | Original backend result and its distinct contract for a result with `"Kind" -> "Native"`; see [Native Expansion Backends](#native-backend-expansions). |
 
 Property availability varies by family. Inspect `s["Properties"]` before relying on specialized metadata. Do not edit the underlying association to change a branch or precision claim.
 
@@ -425,6 +552,8 @@ An arithmetic result with `"Scale" -> "Composite"` retains a finite expression a
 
 <a id="native-series-remainder-view"></a>
 #### Native SeriesData View
+
+This optional view exports an existing analytic representation. It is separate from preserving a complete result obtained with `"Backend" -> "Series"`.
 
 Native `SeriesData` records a rational power cutoff. The package's analytic remainder also records a logarithmic degree. For an otherwise eligible view, a positive remainder degree returns
 
@@ -1705,6 +1834,8 @@ Addition and multiplication of compatible results are supported through ordinary
 
 Arithmetic on a `GeneralizedSeries` transports its remainder together with its finite expression. Operands must have compatible variables, endpoints, approach sides, and real branch conditions. Requested precision is limited by the available operand precision.
 
+These operations apply to the package's analytic representations. Native results return `Failure["NativeSeriesContract", ...]` for analytic arithmetic, truncation, or refinement; use their `"NativeResult"` property for native formal operations.
+
 A nonlinear operation can increase the logarithmic degree of the remainder
 even when its power is limited by the operand:
 
@@ -2388,8 +2519,9 @@ This is a numerical comparison, not an interval certificate. Supply an exact tar
 
 | Item | What it establishes |
 | --- | --- |
-| `Normal[s]` | The finite expression being used as the approximation. |
-| `s["Remainder"]` | An asymptotic remainder class, with its recorded coordinate and prefactor. |
+| `Normal[s]` | The approximation expression; native normalization can preserve infinite expressions. |
+| `s["Remainder"]` | An analytic remainder class with its coordinate and prefactor, or `Missing["NativeContract"]`. |
+| `s["NativeResult"]` | The full native result, when present; it does not establish a package analytic bound. |
 | `s["Remainder"] === 0` | An established exact finite result for the admitted equation and branch. |
 | `s["ExactModel"]` | Exactness of the retained forward model; the displayed inverse can still have a nonzero tail. |
 | `InverseResidual[s]` | Composition at a stated order for the equation named by its scope. |
@@ -2397,6 +2529,8 @@ This is a numerical comparison, not an interval certificate. Supply an exact tar
 | `InverseCertificate[s, y1, ...]` | A proved local root enclosure when `"Certified" -> True` is returned. |
 
 `SeriesTruncate` changes the displayed cutoff using existing information. `SeriesRefine` obtains more justified information from the retained source or operation. A higher cutoff alone does not improve an unknown input remainder.
+
+These precision operations require a supported analytic representation; they do not upgrade a native formal order to an analytic estimate.
 
 ### Inverse Expressions and Inverting an Inverse
 
@@ -2414,7 +2548,7 @@ For positive Gamma prefactors, `SeriesLog` returns the additive logarithmic expa
 
 | Issue | Action |
 | --- | --- |
-| Approximate exponent or coefficient | Replace decimals by the intended exact value, such as `Sqrt[2]` or `5/2`. |
+| Approximate exponent or coefficient in a package analytic path | Use the intended exact value, such as `Sqrt[2]` or `5/2`, or select an explicit native backend when native approximate semantics are intended. |
 | Unproved parameter sign or realness | Supply sufficient `Assumptions`; do not assume that a parameter is implicitly real. |
 | A later `Assuming` does not enable an operation | Construct the operand with the required hypotheses. Operations on existing results use retained assumptions only. |
 | An explicit assumption option appears to ignore `Assuming` | The explicit option replaces the ambient value. Include every required hypothesis in that option. |
@@ -2422,6 +2556,9 @@ For positive Gamma prefactors, `SeriesLog` returns the additive logarithmic expa
 | Ambiguous inverse branch | Restrict the source domain or supply `"InverseFunctionBranches"` for an unevaluated inverse operator. |
 | Incompatible source or target condition | Select an approach on which the condition holds eventually. |
 | Unexpected number of terms | Check whether the request is a cutoff, block goal, or marker/sector depth. Exact cancellations can remove blocks. |
+| Native and package requests retain different orders | Native `Series` includes its requested order; ordinary package cutoff excludes it. Inspect the selected `"Backend"`. |
+| A native result has a missing remainder or exactness status | Inspect `"NativeResult"` and `"RemainderContract"`; missing analytic evidence is not a zero remainder. |
+| A native result rejects package arithmetic or refinement | Use native operations on `"NativeResult"`, retaining their native semantics. |
 | Unexpected power of the remainder | Inspect `"RemainderVariable"`, `"Prefactor"`, and `"TermConvention"`. Sparse support or transported input errors can change the first omitted power. |
 | Refinement stops at an input error | Supply stronger justified input information in a new construction. |
 | Derivative operation fails | Establish the necessary derivative remainder contract; a value Big-O is insufficient. |
