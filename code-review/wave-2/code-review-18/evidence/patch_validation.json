@@ -1,0 +1,16 @@
+{
+  "certificate_source_patch": "authored; native patch evaluation attempts did not return a usable result",
+  "accuracy_adapter": "authored; not executed as a complete package",
+  "desired_behavior_wlt": "authored; individual underlying witnesses executed, complete TestReport not run",
+  "closed_frontier_python": "executed: 13 test methods, including 40 independent-oracle subcases, passed",
+  "no_production_readiness_claim": true,
+  "local_static_checks": {
+    "python_AST": "passed",
+    "Wolfram_lexical_brackets": {
+      "code/AccuracyAwareCertificate.wl": true,
+      "code/reproduce.wl": true,
+      "tests/DesiredBehavior.wlt": true
+    },
+    "scope": "Lexical checks are not native parsing or semantic validation."
+  }
+}

@@ -1,0 +1,787 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newpxtext}
+\usepackage[margin=0.93in,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amsthm,mathtools}
+\usepackage{newpxmath}
+\usepackage{booktabs,longtable,array,tabularx}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage{xurl}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,citecolor=MidnightBlue,urlcolor=MidnightBlue,
+ pdftitle={AsymptoticInverse after nine reviews: a delta audit},
+ pdfauthor={OpenAI},pdfsubject={Source audit, native Wolfram Language experiments, and targeted improvements}}
+\definecolor{ink}{HTML}{24363A}
+\definecolor{papergray}{HTML}{F4F5F2}
+\definecolor{rulegray}{HTML}{C8CECA}
+\lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,keepspaces=true,
+ breaklines=true,breakatwhitespace=false,showstringspaces=false,
+ frame=single,rulecolor=\color{rulegray},backgroundcolor=\color{papergray},
+ xleftmargin=4pt,xrightmargin=4pt,aboveskip=10pt,belowskip=10pt,
+ tabsize=2,upquote=true}
+\tcbset{colback=papergray,colframe=rulegray,boxrule=0.5pt,arc=1mm,
+ left=10pt,right=10pt,top=8pt,bottom=8pt,breakable}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textsc{AsymptoticInverse: delta audit}}
+\fancyhead[R]{\small 9 September 2026}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1pt minus 1pt}
+\linespread{1.055}
+\setlist{nosep,leftmargin=1.5em}
+\setcounter{tocdepth}{2}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\OO}{\mathcal{O}}
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\val}{\operatorname{val}}
+\newcommand{\snapshot}{921387e5ba1239bfda96e63e64e89bf63d9c41e6}
+\newcommand{\repolink}[2]{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/#1}{\nolinkurl{#2}}}
+\newcommand{\finding}[3]{\subsection{#1: #2}\begin{tcolorbox}\textbf{Classification.} #3\end{tcolorbox}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\begin{document}
+\begin{titlepage}
+\vspace*{0.35in}
+{\Large\color{ink}\textsc{Repository analysis}}\par
+\vspace{0.2in}
+{\Huge\bfseries\color{ink}AsymptoticInverse\\after nine reviews}\par
+\vspace{0.2in}
+{\Large A delta audit with native Wolfram Language experiments}\par
+\vspace{0.3in}
+{\large Prepared for Vladimir Reshetnikov}\par
+9 September 2026
+\vspace{0.28in}
+\begin{tcolorbox}
+\textbf{Audited repository:} \href{https://github.com/VladimirReshetnikov/Asymptotic}{VladimirReshetnikov/Asymptotic}\\
+\textbf{Pinned commit:} {\small\texttt{\snapshot}}\\
+\textbf{Native execution environment:} Wolfram Language 15.0.0, Linux x86-64\\
+\textbf{Standalone loaded:} 574,894 bytes
+\end{tcolorbox}
+\vspace{0.13in}
+\textbf{Abstract.}
+This report examines the current implementation against the repository's existing review register, rather than presenting its accumulated backlog as a new audit. Two additional observations survive that comparison: a relative-accuracy certificate request can stagnate because successful but insufficient attempts can repeat without increasing arithmetic precision, and \code{SeriesRefine} can coarsen its returned approximation. The first is a reproducible adaptation defect; the second is a concrete API-policy issue, not an invalid asymptotic formula.
+
+Two previously recorded concerns receive materially stronger evidence. Native executions confirm that several public entry points accept provably nonreal constants while another rejects the same constant. Native executions also confirm the previously diagnosed nonlinear logarithmic-frontier defect in the current snapshot. For the latter, the archive supplies an independently tested closed-frontier implementation that computes the complete omitted boundary polynomial instead of relying only on a worst-case degree estimate.
+
+Four paired experiments establish both overlap with built-ins and a narrower practical distinction. Polynomial reversion and a three-term Stirling expansion agree with native results; two particular generalized inverse calls remain unevaluated in \code{AsymptoticSolve} while the package returns explicit expansions. These are versioned observations, not claims of universal limitations in Wolfram Language.
+
+The accompanying archive contains the article sources, evidence records, reproductions, desired-behavior tests, a Python prototype, and explicitly experimental certificate fixes. The repository-wide native test suite and the complete patch candidates were not validated in this audit.
+\end{titlepage}
+\tableofcontents
+\newpage
+
+\section{Results and scope}
+\label{sec:results}
+The repository is not simply a replacement spelling for \code{Series}. Its most distinctive component is an explicit computational representation of inverse asymptotics: exact weights, polynomial logarithmic coefficients, selected real approaches, transported uncertainty, retained source equations, and operations on the resulting objects. It also contains specialized coordinate systems and forward adapters that reuse native special-function machinery. The audit therefore treats the mathematical contracts of the objects as seriously as the displayed coefficients.\cite{repo-readme,repo-core,repo-ops,repo-native}
+
+The principal results are summarized below. The identifiers beginning with $\Delta$ refer to the existing consolidated review register; they are not new issue numbers.
+
+\begin{longtable}{@{}p{0.10\textwidth}p{0.36\textwidth}p{0.20\textwidth}p{0.26\textwidth}@{}}
+\toprule
+ID & Result & Status relative to prior reviews & Evidence added here\\
+\midrule\endfirsthead
+\toprule ID & Result & Status & Evidence added here\\\midrule\endhead
+N01 & Relative-only certificate accuracy stalls at a fixed enclosure precision. & Additional defect; medium priority. & Native failure, two successful controls, and a source-level causal explanation.\\[6pt]
+N02 & A lower-cutoff \code{SeriesRefine} call coarsens the returned finite approximation. & Additional API/UX observation; policy decision. & Native forward and inverse examples; both replay and retained-state paths inspected.\\[6pt]
+$\Delta$C07 & Realness validation differs between public entry points. & Existing concern, strengthened. & Four explicit nonreal constants and an acceptance/rejection matrix in a native kernel.\\[6pt]
+$\Delta$C04 & Nonlinear pushforward drops a generated logarithmic boundary degree when the requested cutoff exceeds input precision. & Existing defect, confirmed; high correctness priority. & Native current-snapshot confirmation and an executed sharp-frontier prototype.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Snapshot and reproducibility boundary}
+All source claims in this report concern commit \texttt{\snapshot}. A successful native load used the public standalone file from that commit. The evaluator reported:
+\begin{lstlisting}
+15.0.0 for Linux x86 (64-bit) (May 6, 2026)
+\end{lstlisting}
+This identifies the execution environment; it is not a statement that 15.0.0 is the newest available Wolfram release. The repository's release and stored validation information must be distinguished from this independently observed environment.\cite{repo-readme,repo-status}
+
+The audit used the connected repository reader for source inspection and a native Wolfram evaluator for focused experiments. Remote service failures occurred on some attempted calls. A service error was not counted as a package failure, a timeout, or an unevaluated mathematical result. Only successful evaluator responses enter the observation tables. The archive's \code{native_observations.json} is a structured manual transcription of those responses, not an automatically captured complete kernel session.
+
+The full repository test suite was not run. The new \code{DesiredBehavior.wlt} file was authored from the individual witnesses but was not executed as a complete \code{TestReport}. The Python frontier prototype was executed independently: 13 test methods, including 40 randomized oracle comparisons, passed. The certificate adapter and source patch remain experimental candidates; no successful native execution of their complete artifacts is claimed.
+
+\subsection{What the existing reviews remove from this report}
+The baseline was the repository's consolidated review-status document, the review index, selected original finding sections, and targeted searches of the original review texts. The archive records the paths and successful retrieval sizes. The prior reports mostly analyze an earlier snapshot; the current source and status register already contain focused fixes for the dense native-export allocation problem and the fractional-power-of-pure-uncertainty problem. Those are not presented here as current discoveries.\cite{repo-reviews,repo-status}
+
+Likewise, this report does not reissue the existing lists of generic resource-budget inconsistencies, native-export limitations, aggregate test-runner concerns, missing integration or multivariate interfaces, complex/Stokes extensions, generalized transseries plans, and documentation redesigns. Some of those subjects appear briefly in the feature comparison because they define the product boundary; they are not counted as new recommendations.
+
+For N01 and N02, searches across the reviewed article texts for the certificate options and lower-cutoff/coarsening terminology found no corresponding discussion, and neither issue appeared in the consolidated register. Search absence alone is not a proof that no semantically similar sentence exists anywhere in nine long reports. The novelty claim here is narrower: these are additional concrete issues not identified in the inspected register or matched original discussions. By contrast, C04 and C07 are deliberately attributed to the existing review effort. In particular, Review 2 already states the nonlinear-frontier problem, supplies the essential mathematical witness, and proposes a conservative correction.\cite{repo-status,review2}
+
+\subsection{Severity is about the contract, not just the output type}
+A false big-$O$ claim is a correctness failure even when the displayed leading terms are right. Accepting a nonreal expression through a real-only entry point is a domain-contract failure, even if the displayed expression is a perfectly valid complex-valued formula. Returning a conservative failure instead of reaching an attainable accuracy is a different class of defect. Returning a coarser but valid series under an ambiguously named operation is different again.
+
+These distinctions matter for prioritization. C04 should block reliance on affected nonlinear error bounds. C07 needs a consistent realness policy and gate. N01 needs a better accuracy controller, but the failing example does not produce a dishonest certificate. N02 should be resolved as an explicit API policy, without describing its valid output as a mathematical error.
+
+\section{The implementation's mathematical and architectural contract}
+\label{sec:architecture}
+\subsection{A positive local coordinate and a sparse coefficient algebra}
+For a finite source endpoint, the ordinary engine uses a selected positive distance $u$ from that endpoint. At positive or negative infinity it uses a positive reciprocal coordinate. An ordinary precision-tracked jet has the form
+\begin{equation}
+ J(u)=\sum_{\beta\in B}u^\beta P_\beta(\log u)
+       +\OO\!\left(u^P\LL(u)^D\right),
+ \qquad \LL(u)=1+|\log u|,\quad u\to0^+,
+ \label{eq:jet}
+\end{equation}
+where $B$ is finite, the weights are exact, and each $P_\beta$ is a polynomial. The internal triple is essentially \code{{terms, P, D}}. Equal weights must be combined before a boundary coefficient can be declared zero. An exclusive cutoff retains complete blocks below the cutoff, not individual monomials in the logarithm.\cite{repo-core}
+
+The higher-level series calculus uses the more general representation
+\begin{equation}
+ S=\mathrm{Offset}+\mathrm{Prefactor}\,J(u),
+ \label{eq:carrier}
+\end{equation}
+with an exact prefactor. The error in \eqref{eq:jet} is relative to that prefactor. Thus $\exp(x)x^{-1/2}\OO(x^{-3})$ and $\OO(x^{-3})$ are not interchangeable. \code{seriesData}, \code{seriesFlat}, \code{seriesMake}, and the arithmetic dispatch maintain this distinction. If no common ordered coefficient algebra can represent compatible operands, the composite path retains an absolute error envelope rather than pretending that a single power cutoff applies.\cite{repo-ops,repo-envelope,repo-arithmetic}
+
+For two ordinary errors, the coarser error is the one with smaller power $P$; at equal power it is the one with larger logarithmic degree $D$. This is the precision order embodied in \code{combinePrecision}. The distinction between the power and logarithmic coordinates is central to C04: preserving $P$ while accidentally lowering $D$ can create an unjustified improvement.
+
+\subsection{Inverse construction and the role of retained evidence}
+The ordinary inverse machinery normalizes a forward model to a monomial core with higher-weight corrections. The Lagrange route generates multi-index contributions; the Newton route constructs a unit correction and checks formal residual invariants. The representation retains enough information to inspect blocks, compute selected coefficients, replay an operation, or reuse inverse state. This is more than a finite symbolic formula.\cite{repo-core,repo-refinement}
+
+A retained finite forward model is not the same object as the exact original function, and neither is automatically a quantitative error bound at a chosen numerical argument. The package has separate interfaces for a formal inverse residual, a numerical comparison, and an interval certificate. In the inspected numerical checker, \code{FindRoot} produces a reference root and the result explicitly identifies itself as numerical evidence. The certificate engine instead uses exact rational interval operations and elementary-function tail enclosures over a supplied interval.\cite{repo-core,repo-numerical,repo-certificates}
+
+A potentially serious objection was examined and rejected during this audit: a magnitude-only declared input remainder would not by itself establish eventual invertibility. However, the user guide's \code{"InputRemainder" -> {rho,k}} declaration includes both the value order and the matching first-derivative order in the positive source coordinate. Treating that option as if it declared only a value bound would mischaracterize the current documented contract.\cite{repo-guide}
+
+\subsection{The specialized engines are not one universal series ring}
+The inspected modules implement several distinct representations. Gamma and Barnes forward products are normalized logarithmically, with positivity checks and an extracted carrier. Their inverse engines use an exact Lambert-based core and inverse-core blocks with reciprocal-logarithmic coefficients. Those blocks are not ordinary Taylor terms in the original target.\cite{repo-gamma,repo-gammaops,repo-readme}
+
+Finite flat sectors use a separate exponential-sector degree and inner power cutoff. Their operations transport inner errors and the omitted-sector tail separately. Fourier-log inverse coefficients are finite sums of polynomial amplitudes times exact logarithmic-frequency modes. Their internal amplitudes may be complex, but conjugate symmetry is checked to establish the realness of the whole coefficient. These facts constrain the realness repair discussed later: a blanket ban on every internal complex coefficient would break a legitimate representation.\cite{repo-flat,repo-fourier}
+
+The native special-function adapter is also significant. It obtains structured native expansions, traverses their \code{SeriesData} trees, separates carriers and bounded oscillatory modes, and tracks absolute errors. When a native result has no \code{SeriesData}, the inspected path requires exact equality with the source before accepting it as an exact finite result. Real projection is preceded by a source-realness check. The adapter therefore should not be described as inventing the Bessel, Airy, or related asymptotics independently of Wolfram's built-ins. Its additional work lies in interpretation, domain checks, representation, and subsequent calculus.\cite{repo-native,repo-parameterized}
+
+\subsection{Boundaries checked without inventing additional bugs}
+Several inspected guardrails are worth retaining. Differentiation of a nonzero big-$O$ remainder requires an appropriate derivative contract; a magnitude statement alone is not silently differentiated. The certificate domain checker verifies retained source conditions on the whole closed interval, not merely at the seed. The native importer distinguishes unsupported operations from exact finite results. Exact source-coordinate reconstruction uses explicit exactness evidence or a symbolic composition check before retaining an exact inverse carrier.\cite{repo-ops,repo-certificates,repo-native,repo-sourcecoords}
+
+These observations are not a proof of the entire package. They explain why this report does not promote every suspicious-looking fallback or metadata field into a new finding. They also identify behavior that a targeted fix should preserve.
+
+\section{Comparison with Wolfram Language built-ins}
+\label{sec:comparison}
+\subsection{The documented boundary}
+Native \code{Series} handles much more than integer Taylor polynomials: its documented scope includes negative and fractional powers and logarithmic behavior. \code{SeriesData} uses a rational exponent lattice, permits slowly varying functions in coefficients, and can appear inside expressions with external symbolic powers, rapid carriers, or oscillatory factors. Consequently, ``not a single ordinary SeriesData'' does not imply ``not expressible by native series machinery.''\cite{wl-series,wl-seriesdata}
+
+\code{InverseSeries} and \code{ComposeSeries} are the direct native tools for formal reversion and composition of suitable series. \code{AsymptoticSolve} operates at the equation level: its documented scope includes systems and real or complex solutions with automatically inferred scales. \code{Asymptotic} likewise is not restricted to ordinary Taylor scales. This package instead concentrates on selected scalar real inverse families and on preserving explicit generalized-series data.\cite{wl-inverse,wl-compose,wl-asymptoticsolve,wl-asymptotic}
+
+\begin{longtable}{@{}p{0.22\textwidth}p{0.32\textwidth}p{0.39\textwidth}@{}}
+\toprule
+Capability & Native point of comparison & Package distinction at the audited snapshot\\
+\midrule\endfirsthead
+\toprule Capability & Native point of comparison & Package distinction\\\midrule\endhead
+Ordinary local expansion & \code{Series}, \code{SeriesCoefficient}. & Explicit complete-block cutoff and a retained power/log error pair. Considerable mathematical overlap.\\[5pt]
+Formal inverse & \code{InverseSeries}; local \code{AsymptoticSolve}. & Exact generalized weights, logarithmic-polynomial blocks, a source-side choice, and inverse provenance.\\[5pt]
+Implicit systems & \code{AsymptoticSolve}. & Not a general systems solver; its scalar inverse specialization is a deliberate boundary.\\[5pt]
+Composition & \code{ComposeSeries}; native series substitution. & Explicit transported uncertainty in admitted generalized coordinates; other compatible arithmetic can use composite envelopes.\\[5pt]
+Elementary logarithmic/exponential inversion & Native algebra and \code{ProductLog}, with equation-level asymptotic tools. & Specialized coordinate and exact-core reconstruction plus retained correction data.\\[5pt]
+Gamma/Barnes forward & Native special-function asymptotics. & Logarithmic product normalization and exact prefactors, with cutoff semantics in a correction bracket.\\[5pt]
+Gamma/Barnes inverse & Equation-level asymptotics and exact Lambert cores are relevant native ingredients. & Dedicated inverse-core scales and family-specific checks. No comprehensive native inverse comparison was executed here.\\[5pt]
+General special-function forward expansion & Native \code{Series}/\code{Asymptotic}. & Structured importer and real-domain/error-envelope interpretation; not an independent catalogue of all formulas.\\[5pt]
+Flat and Fourier-log corrections & Native exponential/trigonometric expressions and asymptotic machinery. & Separate finite-sector or exact-frequency coefficient data, with explicit budgets and remainder conventions.\\[5pt]
+Certified inverse value & Numerical root finding is not by itself a proof. & A narrow explicit rational enclosure algorithm for admitted elementary expressions, separate from formal asymptotic accuracy.\\
+\bottomrule
+\end{longtable}
+The package column follows the cited source and guide; the native column describes interfaces, not universal success on a family. Integration and differential-equation extensions already belong to the existing backlog and are not new recommendations here.\cite{repo-guide,repo-core,repo-certificates,repo-status}
+
+\subsection{Executed comparison B01: ordinary polynomial reversion}
+The native calls
+\begin{lstlisting}
+InverseSeries[Series[x + x^2, {x, 0, 4}], y]
+AsymptoticSolve[x + x^2 == y, {x, 0}, {y, 0, 4}, Reals]
+\end{lstlisting}
+returned, respectively, a native series and a solution rule with finite part
+\begin{equation}
+ y-y^2+2y^3-5y^4.
+\end{equation}
+The \code{InverseSeries} result was
+\begin{lstlisting}
+SeriesData[y, 0, {1, -1, 2, -5}, 1, 5, 1]
+\end{lstlisting}
+The package call with exclusive cutoff $5$ produced the same finite part and remainder power $5$. This is a clean overlap case. There is no reason to attribute the coefficients themselves to a capability missing from the native system. A caller may nevertheless prefer the package's retained source, branch, and refinement data.
+
+The translation from package cutoff $5$ to native order $4$ in this example is specific to its integer grid. It should not be applied mechanically to irrational weights, factored corrections, or marker-depth APIs.
+
+\subsection{Executed comparison B02: a logarithmic inverse}
+For the positive germ of $f(x)=x+x^2\log x$ near zero, the package call
+\begin{lstlisting}
+AsymptoticInverse[x + x^2 Log[x], {x, 0}, {y, 4}]
+\end{lstlisting}
+returned the finite part
+\begin{equation}
+ y-y^2\log y+y^3\bigl(\log y+2\log^2 y\bigr).
+ \label{eq:loginverse}
+\end{equation}
+The tested native call
+\begin{lstlisting}
+AsymptoticSolve[x + x^2 Log[x] == y,
+  {x, 0}, {y, 0, 3}, Reals]
+\end{lstlisting}
+returned unevaluated in the successful evaluation response. It was not reported as a timeout.
+
+This observation supports a practical statement about the tested interface and kernel: the package directly supplies the requested generalized inverse blocks where that particular native equation-level call did not. It does not establish that no combination of native transformations, formal coefficient calculations, alternative options, or future kernels can obtain \eqref{eq:loginverse}. The package itself makes extensive use of native symbolic operations.
+
+\subsection{Executed comparison B03: an irrational correction weight}
+For $f(x)=x+x^{\sqrt2}$ on the positive side, the package's exclusive cutoff $2$ returned
+\begin{equation}
+ y-y^{\sqrt2}+\sqrt2\,y^{2\sqrt2-1}.
+ \label{eq:irrationalinverse}
+\end{equation}
+The tested native call
+\begin{lstlisting}
+AsymptoticSolve[x + x^Sqrt[2] == y,
+  {x, 0}, {y, 0, 3}, Reals]
+\end{lstlisting}
+again returned unevaluated. The observation is bounded by that exact invocation.
+
+The package output is independently consistent with first-order reversion algebra. Set $q=\sqrt2$ and $x=y+A y^q+B y^{2q-1}+\cdots$. Expanding $x^q$ about $y$ gives $A=-1$ and $B=q$. The exponents $1,q,2q-1$ are all below $2$, while the next simple iterated weight $3q-2$ exceeds $2$. This checks the displayed terms without relying on the package's own inverse residual routine.
+
+\subsection{Executed comparison B04: the Stirling carrier}
+The package call
+\begin{lstlisting}
+AsymptoticExpansion[Gamma[x], {x, Infinity, 3}]
+\end{lstlisting}
+returned
+\begin{equation}
+ \frac{\sqrt{2\pi}}{\sqrt{x}}e^{x(\log x-1)}
+ \left(1+\frac{1}{12x}+\frac{1}{288x^2}\right).
+ \label{eq:stirling}
+\end{equation}
+The native call
+\begin{lstlisting}
+Asymptotic[Gamma[x], x -> Infinity, SeriesTermGoal -> 3]
+\end{lstlisting}
+returned the same three terms distributed across separate summands. For $x>0$, their equivalence follows immediately from $e^{x\log x}=x^x$. Here the package's useful distinction is the explicit retained carrier and its correction-bracket contract, not a previously unavailable asymptotic formula.
+
+\subsection{What these experiments do not establish}
+No speed ranking follows from these calls. Network latency, remote service behavior, source download, kernel setup, and symbolic caches were not controlled as a benchmark environment. The archive's reproduction runner records elapsed time for future local investigation, but this report makes no runtime claim from those unexecuted aggregate records.
+
+Nor should a successful native finite expression be silently assigned the package's richer error metadata. Equality of finite parts, equality of branch conditions, equality of retained scales, and equality of error claims are separate comparisons. The four cases above explicitly distinguish a native series object, native solution rules, an unevaluated call, and an expanded carrier expression. That distinction is more informative than a binary ``supported/unsupported'' checklist.
+
+\section{N01: certificate accuracy can stagnate at fixed arithmetic precision}
+\label{sec:n01}
+\begin{tcolorbox}
+\textbf{Additional finding.} Reproducible accuracy-adaptation failure, not an unsound certificate.\\
+\textbf{Location.} \code{InverseCertificates.wl}: automatic order selection in \code{InverseCertificate}, followed by its successful-but-insufficient refinement branch.\\
+\textbf{Priority.} Medium for correctness-preserving usability; potentially high for workflows that depend on requested relative accuracy.
+\end{tcolorbox}
+
+\subsection{A small exact problem separates the failure modes}
+Use the inverse of $x^2$ on the positive infinite source branch. The resulting inverse expression is simply $\sqrt y$, so this experiment does not need a difficult asymptotic reversion:
+\begin{lstlisting}
+s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
+r = InverseCertificate[s, 2,
+  "Interval" -> {1, 2},
+  "RelativeError" -> 10^-120,
+  "MaxRefinements" -> 3,
+  "RefineExpansion" -> False];
+\end{lstlisting}
+The successful native evaluation returned \code{Failure["AccuracyNotReached", ...]}. Its history contained four entries---the initial attempt and three refinements---with enclosure orders
+\begin{equation}
+ 60,\ 60,\ 60,\ 60.
+\end{equation}
+The best certificate's absolute error bound was approximately
+\begin{equation}
+ 7.2797457561222431\times10^{-85}.
+ \label{eq:floor}
+\end{equation}
+The object still contained a valid interval certificate; the requested relative accuracy had not been reached. This is exactly the distinction conveyed by the failure tag.\cite{evidence-native}
+
+Two controls are decisive. Keeping the relative tolerance but setting \code{"EnclosureOrder" -> 150} succeeded. Replacing the relative tolerance with \code{"TargetError" -> 10^-120}, while leaving the enclosure order automatic, also succeeded.
+
+\begin{longtable}{@{}p{0.28\textwidth}p{0.17\textwidth}p{0.18\textwidth}p{0.28\textwidth}@{}}
+\toprule
+Request & Order history & Accuracy reached & Best/final absolute error bound\\
+\midrule
+Relative $10^{-120}$, automatic order & $60,60,60,60$ & No & $7.27975\times10^{-85}$\\[5pt]
+Relative $10^{-120}$, explicit order $150$ & $150,150,150,150$ & Yes & $3.09969\times10^{-193}$\\[5pt]
+Absolute $10^{-120}$, automatic order & $135,135,135,135$ & Yes & $3.57370\times10^{-175}$\\
+\bottomrule
+\end{longtable}
+All three use the same function, target, verification interval, refinement budget, and disabled expansion refinement. At a root of magnitude $\sqrt2$, absolute and relative goals of this size differ only by a factor of order one. A roughly $10^{90}$ discrepancy in the resulting error floor is not explained by that distinction. It is explained by the different arithmetic precision selected internally.\cite{evidence-native}
+
+The absolute request is a control, not a claim that the public options have identical semantics. The relative-only request needs an error of order $\sqrt2\,10^{-120}$; the absolute control asks for $10^{-120}$ and is slightly more demanding here.
+
+\subsection{The first cause: relative tolerance does not size the arithmetic}
+When \code{"EnclosureOrder"} is automatic, the constructor computes a digit estimate from \code{"TargetError"} only. If no absolute tolerance was supplied, that estimate is zero. It then chooses
+\begin{equation}
+ n=\max(\mathrm{WorkingPrecision}+10,\ \mathrm{digits}+15).
+ \label{eq:order}
+\end{equation}
+With the default working precision $50$, the relative-only experiment starts at $n=60$. With absolute tolerance $10^{-120}$, the source's integer-length calculation selects $n=135$. The exact observed order histories agree with this source path.\cite{repo-certificates}
+
+The interval context uses $4(n+10)$ significant binary bits for directed dyadic rounding. At $n=60$, this is $280$ bits. A unit-scale rounding quantum of order $2^{-280}$ is of order $10^{-84}$, consistent with the observed stagnation near \eqref{eq:floor}. This is an explanatory scale estimate, not a universal theorem that every computation at $280$ bits must have exactly that error floor. Exact cancellations, exponent sizes, and enclosure dependency affect the actual result.
+
+\subsection{The second cause: a successful proof is mistaken for sufficient arithmetic progress}
+The adaptive loop has two different paths after a certificate attempt. When an association is returned and the center is not fixed, it records that a root is known, shrinks the verification interval to the root enclosure when possible, and updates the center. It can also seek a better asymptotic seed. However, this path does not increase the enclosure order. The order is doubled on the other path.\cite{repo-certificates}
+
+This asymmetry matters because a successful certificate can be too wide. Once interval arithmetic is the limiting factor, shrinking a verification interval at the same rounded precision may no longer improve the proof to the requested accuracy. The history continues to report successful certification attempts, while the accuracy test continues to fail. A smaller geometric interval is not a substitute for more accurate endpoint arithmetic.
+
+There are therefore two cooperating defects in the adaptation policy: the relative tolerance is absent from initial planning, and the successful-but-insufficient path cannot escape the arithmetic precision it chose. Either can remain hidden in ordinary tests. The successful absolute control exercises a different initial-order path and does not test the relative-only behavior.
+
+\subsection{Why this does not undermine the interval proof itself}
+For an admitted explicit function, the certificate attempt encloses the derivative and obtains a positive lower bound $\mu$ on its absolute value. It encloses the residual at an exact rational center $c$, obtaining a bound $\varepsilon$. A mean-value estimate then gives a candidate root radius
+\begin{equation}
+ r=\varepsilon/\mu.
+\end{equation}
+The implementation checks the branch and domain on the interval and uses containment or exact endpoint sign information to establish existence; a signed derivative enclosure provides a sharper root enclosure. Subsequent attempts can reuse already established root existence.\cite{repo-certificates}
+
+N01 does not identify a wrong derivative interval, a wrong residual interval, or a false existence claim. It identifies a controller that keeps proving something weaker than the user requested. The current failure result is conservative. A repair should preserve that conservatism: no heuristic precision estimate, numerical seed, or favorable decimal comparison should be allowed to manufacture \code{"AccuracyGoalReached" -> True}.
+
+\subsection{A targeted repair and the supplied candidates}
+A minimal source change has two parts. First, let the automatic initial order depend on a digit estimate for both positive exact tolerances. Second, permit enclosure-order growth when a successful certificate still misses the accuracy goal. The supplied \code{patch_certificate.py} generates precisely this experimental change in copies of both the kernel module and the standalone file.
+
+The patcher is intentionally restrictive. It checks the pinned Git blob identities, allowing CRLF-to-LF normalization, requires exactly one occurrence of each source anchor, refuses a nonempty destination, and writes outside the checkout. It does not edit the user's repository or update Git state. In an integration checkout, the standalone should ultimately be rebuilt through the repository's normal generator rather than maintained as an independent hand-edited implementation.
+
+The archive also supplies \code{AccuracyAwareCertificate.wl}, an opt-in adapter that leaves the original definitions unchanged. It chooses a tolerance-aware starting order. Only failures tagged \code{AccuracyNotReached} are retried with a higher initial order. The original \code{InverseCertificate} remains the sole producer of any mathematical certificate. Domain failures, unsupported expressions, and fixed-center accuracy-floor failures are not converted into success or indiscriminately retried.
+
+These two artifacts have different roles. The source patch repairs the internal successful-attempt path and can reuse its interval progress. The adapter is an isolated workaround candidate; restarting an entire certificate call can redo work. Neither complete artifact was validated natively in this audit. The original package's explicit-order workaround, in contrast, was actually executed and succeeded.
+
+\subsection{A better precision controller than unconditional doubling}
+Unconditional doubling is a useful minimal candidate, not the final performance design. A more discriminating controller should distinguish three quantities:
+\begin{equation}
+ \text{seed error},\qquad
+ \text{geometric verification width},\qquad
+ \text{arithmetic enclosure width}.
+\end{equation}
+This separation can remain private to the certificate implementation; it does not require a new general series architecture. After a successful but inaccurate attempt, record the residual-enclosure width and the root-enclosure width. If geometric contraction stalls while the residual width changes little, raise the arithmetic order. If the residual enclosure is already narrow and the center remains far from the root, improve the center or use the interval midpoint. A proved fixed-center accuracy floor should still terminate immediately.
+
+The initial decimal digit estimate is only a starting heuristic. For a very large or very small root, a relative tolerance maps to a different absolute target. Once a certified positive lower bound on $|x_*|$ is available, use the existing sufficient absolute tolerance derived from it. The result must continue to be accepted only by the exact certificate inequality, not by the planning estimate.
+
+The current source caps the enclosure order at $2000$. The proposed controller should report which limit was active when stopping: maximum order, maximum refinements, unsupported enclosure, fixed-center error floor, or no certified interval. This is a targeted explanation of N01's failure state, not a restatement of the prior repository-wide resource-budget redesign.
+
+\subsection{Acceptance criteria}
+The original relative-only witness must reach its goal under an appropriately documented adaptive budget, and the absolute and explicit-order controls must remain successful. Additional tests should include a fixed center with a genuine accuracy floor, a root close to zero with an explicit absolute fallback, a relative tolerance at several root magnitudes, and a request that intentionally exhausts the enclosure-order budget. The success predicate must remain an exact statement about the returned certificate.
+
+For performance, count certificate attempts, enclosure orders, and reused verification intervals before measuring wall time. An implementation that fixes N01 by restarting many expensive enclosure calculations may be correct but unnecessarily costly. The archive records the observed order histories because they identify the controller defect without requiring a noisy remote timing benchmark.
+
+\section{N02: refinement can coarsen the returned approximation}
+\label{sec:n02}
+\begin{tcolorbox}
+\textbf{Additional observation.} A concrete naming and policy ambiguity; no invalid asymptotic formula is alleged.\\
+\textbf{Locations.} \code{SeriesOperations.wl}, the forward-source replay path of \code{SeriesRefine}; \code{RefinementState.wl}, \code{refineStoredInverse}.\\
+\textbf{Decision needed.} Does ``refine to $h$'' mean ``at least $h$'' or ``retarget to exactly the truncation policy $h$''?
+\end{tcolorbox}
+
+\subsection{Both execution paths exhibit the behavior}
+The forward example is direct:
+\begin{lstlisting}
+s = AsymptoticExpansion[Sin[x], {x, 0, 7}];
+t = SeriesRefine[s, 3];
+{Normal[s], s["RemainderPower"], Normal[t], t["RemainderPower"]}
+(* {x - x^3/6 + x^5/120, 7, x, 3} *)
+\end{lstlisting}
+The inverse example reaches the retained-state implementation rather than merely replaying a forward source:
+\begin{lstlisting}
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
+t = SeriesRefine[s, 3];
+{Normal[s], s["RemainderPower"], Normal[t], t["RemainderPower"],
+ t["RefinementStatistics"]["Strategy"]}
+(* {y - y^2 + 2 y^3 - 5 y^4, 5,
+     y - y^2, 3, "IncrementalLagrange"} *)
+\end{lstlisting}
+Both outputs were observed in successful native evaluations.\cite{evidence-native}
+
+The original source is still retained, and an inverse computation state may retain additional blocks. Therefore this is not a claim that all information in the object has been irreversibly destroyed. It is a claim that the returned finite approximation and its advertised remainder become coarser under an operation named \code{SeriesRefine}.
+
+\subsection{The implementation is consistent with retargeting, not monotone refinement}
+The forward path calls the constructor again using the requested cutoff. The ordinary inverse path has an unchanged-cutoff fast path, but no general lower-cutoff refusal or no-op. It trims available state blocks at the requested cutoff and assembles the result accordingly. That explains why both examples coarsen and why the inverse result can truthfully report incremental reuse while displaying fewer terms.\cite{repo-ops,repo-refinement}
+
+This is algebraically legitimate. The sine approximation $x+\OO(x^3)$ remains true, as does the coarser inverse approximation. The issue is the observable contract for callers. A client accumulating precision requests may reasonably regard refinement as monotone, especially because the package also exposes \code{SeriesTruncate}. A stale lower request can then unexpectedly replace a better displayed approximation with a worse one.
+
+For a forward source, the current behavior can additionally do work to produce a coarser answer even when the original object already meets the requested lower accuracy. No timing claim is necessary to identify that avoidable replay path. The existing retained-state path is better positioned to avoid recomputation, but it still chooses a coarser presentation.
+
+\subsection{Recommended policy and compatibility boundary}
+The recommended policy is: \emph{within a comparable representation, a refinement request is a minimum information request}. A lower or equal requested cutoff should return the current approximation, optionally with no-op statistics. An explicit \code{SeriesTruncate} call should be the operation that discards displayed blocks. An alternative, equally coherent policy is to reject lower cutoffs with a dedicated failure. The archive's desired-behavior test permits either no coarsening or an explicit failure.
+
+This change should not be implemented by taking a numeric maximum of arbitrary \code{"Cutoff"} fields across different scale families. A logarithmic depth, an inverse-core exponent, and an exponential-sector depth need not be comparable. The simple guard applies only when the constructor or retained representation establishes the same coordinate and cutoff convention. Other cases need their own local policy, or a documented retargeting operation.
+
+A compact implementation outline for the ordinary comparable path is:
+\begin{lstlisting}
+validateRequestAndRepresentation[s, h];
+If[sameCutoffConventionQ[s, h] && requestAlreadySatisfiedQ[s, h],
+  Return[withNoOpRefinementStatistics[s, h]]];
+(* Continue through the existing state/replay implementation. *)
+\end{lstlisting}
+This is a design sketch, not a drop-in replacement. The implementation must distinguish an already satisfied request from an invalid one, preserve the retained domain, and not falsely assert comparability. It should also preserve exact finite termination: an exact result needs no additional coefficient work merely to satisfy a nominal larger cutoff.
+
+The compatibility cost is explicit. A caller using \code{SeriesRefine[s, smallerH]} as an implicit truncation operation would need to use \code{SeriesTruncate}. Before changing behavior, the maintainers should decide whether such usage is intentionally supported. Documentation alone can resolve the ambiguity by declaring retargeting semantics, but that would retain the stale-request hazard and the distinction from ordinary meanings of refinement.
+
+\section{A stronger result for C07: realness is entry-point dependent}
+\label{sec:c07}
+\begin{tcolorbox}
+\textbf{Existing concern, materially stronger evidence.} C07 in the consolidated register already identifies inconsistent real-coefficient validation. This section adds concrete native witnesses and a cross-entry-point test matrix. It does not claim discovery of the general concern.\\
+\textbf{Contract at risk.} A real-asymptotic interface admits exact but nonreal constants on some paths while rejecting them on another.
+\end{tcolorbox}
+
+\subsection{Exact is not synonymous with real}
+The current exactness predicate is syntactic: it excludes inexact real atoms and explicit complex-number atoms. A symbolic exact expression can nevertheless have a nonreal value. For example, with a real $a>0$,
+\begin{equation}
+ \sqrt{-a}=i\sqrt a,\qquad \log(-a)=\log a+i\pi
+\end{equation}
+on principal branches. Likewise, $\arcsin 2$ and $\arccos 2$ are nonreal. None of these statements depends on numerical roundoff.
+
+The following forward calls all returned \code{GeneralizedSeries} in the native evaluator:
+\begin{lstlisting}
+AsymptoticExpansion[Sqrt[-a] + x, {x, 0, 2},
+  Assumptions -> a > 0]
+AsymptoticExpansion[Log[-a] + x, {x, 0, 2},
+  Assumptions -> a > 0]
+AsymptoticExpansion[ArcSin[2] + x, {x, 0, 2}]
+AsymptoticExpansion[ArcCos[2] + x, {x, 0, 2}]
+\end{lstlisting}
+Their finite parts were the expressions supplied, and the reported \code{"TargetDomain"} in each observation was \code{x > 0}. The parameter assumptions are separate metadata; the displayed approach condition does not turn a complex constant into a real one.\cite{evidence-native}
+
+The returned expressions are not wrong as complex formulas. The defect is accepting them through a workflow whose other operations enforce a real-coefficient contract, without making a corresponding change of result kind or domain policy.
+
+\subsection{A small acceptance matrix isolates the bypass}
+Let
+\begin{lstlisting}
+s = AsymptoticExpansion[x, {x, 0, 3}];
+\end{lstlisting}
+The following outcomes were observed:
+\begin{longtable}{@{}p{0.53\textwidth}p{0.40\textwidth}@{}}
+\toprule
+Public call & Native outcome\\
+\midrule
+\code{SeriesAdd[s, ArcSin[2]]} & Failure with tag \code{UnprovedRealCoefficient}\\[5pt]
+\code{SeriesObservable[s, z + ArcSin[2], z]} & Accepted; finite part $x+\arcsin 2$.\\[5pt]
+\code{SeriesObservable[s, ArcSin[z + 2], z]} & Failure with tag \code{UnsupportedObservable}\\
+\bottomrule
+\end{longtable}
+This is stronger than merely observing that an exactness predicate is syntactic. The same constant is rejected as a regular arithmetic operand but accepted when embedded in an observable. It supplies a concrete regression target for the actual public dispatch paths.\cite{evidence-native}
+
+\subsection{The source-level explanation}
+In the forward dispatcher, a subexpression independent of the local variable is sent to \code{pConst}. That helper checks polynomial dependence on the logarithmic coefficient variable and whether the coefficient is zero; it does not establish realness of an arbitrary exact constant. The ordinary observable walker has a corresponding independent-expression route.\cite{repo-core,repo-ops}
+
+By contrast, \code{seriesRegularOperand} checks that the resulting coefficient polynomials are provably real under the relevant assumptions. This is the gate reached by \code{SeriesAdd[s, ArcSin[2]]}. The mismatch is thus not explained by different mathematical branches of the same function. It is explained by different validation paths for constants that enter the same intended real series calculus.\cite{repo-arithmetic}
+
+The parameterized special-function path provides an instructive existing pattern: it checks source realness independently and verifies the realness of the resulting coefficient polynomials. The native importer similarly proves realness before taking a real projection. These are useful local precedents for a repair, not evidence that every forward path already has the same protection.\cite{repo-parameterized,repo-native}
+
+\subsection{Repair the public contract without breaking legitimate internal complex algebra}
+A repair should separate three questions: is the original function real on the selected approach; are the retained coefficients in the admitted coefficient algebra; and has the chosen normalization preserved that function and domain? A successful native Taylor calculation answers none of those questions automatically for every possible source expression.
+
+For ordinary real power-log results, validate the canonicalized coefficient blocks under explicit assumptions and a real logarithmic coordinate. For variable-independent regular operands, apply the same realness gate consistently whether they arrive through arithmetic or an observable. For a forward source with special-function or branch-sensitive structure, retain the source-domain check rather than treating a real finite truncation as a proof that the original source is real.
+
+The distinction matters even beyond the concrete witnesses. As a general mathematical example, a real formal power series can be the power-series part of a function with an exponentially small imaginary component. Real retained coefficients alone do not prove realness of the source germ. This is a conceptual requirement for the validator, not an additional observed package failure.
+
+There should be three outcomes for a proof attempt: proved real, proved nonreal, and unresolved under the supplied assumptions. A known nonreal source should receive a direct domain failure. An unresolved coefficient should receive a failure or a documented conditional result, not silent admission because it contains no explicit complex-number atom. The existing real arithmetic path already makes a conservative choice for an unproved coefficient; the objective is consistency across entry points.
+
+The validator should operate after appropriate exact simplification and complete-block merging. Rejecting every syntactically nonreal subexpression before allowing exact cancellation can be overly restrictive. For example, real combinations can be represented using complex intermediate terms. More importantly, the Fourier coefficient engine deliberately uses complex modes with a checked conjugacy relation. A patch to \code{pConst} that indiscriminately bans all internal complex coefficients would confuse the ordinary real coefficient algebra with that distinct Fourier algebra.\cite{repo-fourier}
+
+The appropriate implementation boundary is therefore not ``all constants everywhere must be individually real.'' It is ``each public real result must carry a valid real-source/real-representation justification appropriate to its algebra.'' The immediate ordinary-path fix can be small, but it should explicitly exclude the internal Fourier representation from a scalar-only test.
+
+\subsection{Performance and regression details specific to this repair}
+Repeated symbolic realness checks can be expensive. Within one operation, canonicalize equal constant expressions and reuse a result keyed by the coefficient expression and the assumptions/domain used in that check. A global cache that ignores the proof context would be unsafe. This is a targeted optimization for the additional gate, not a general recommendation to memoize every simplification in the package.
+
+The minimum regression matrix should cover the four witnessed nonreal constants, the same constants in direct scalar arithmetic and observables, a positive real algebraic constant, a parameter declared real, a parameter whose realness is unresolved, and a Fourier coefficient represented by conjugate complex modes. Tests should distinguish a conservative unresolved failure from acceptance of a known nonreal value. A broad real-projection fix that makes the complex part disappear would be incorrect even if it made the test output look real.
+
+No source patch for this policy is supplied as production-ready code. The desired-behavior tests record the unambiguous known-nonreal cases. The treatment of general unresolved coefficients and valid complex cancellations needs an explicit maintainer decision before a broader patch is integrated.
+
+\section{A stronger result for C04: native confirmation and a closed-frontier implementation}
+\label{sec:c04}
+\begin{tcolorbox}
+\textbf{Previously diagnosed defect.} Review 2 already identifies this nonlinear error-bound problem and supplies its essential proof and conservative correction. The additions here are current-snapshot native confirmation and a tested implementation of complete-boundary accounting. The boundary idea itself was already suggested as an optimization in that review.\cite{review2}
+\end{tcolorbox}
+
+\subsection{Current native behavior depends on the requested cutoff}
+Construct an input whose retained part is $x\log x$ and whose omitted explicit term has order $x^2$:
+\begin{lstlisting}
+s = AsymptoticExpansion[x Log[x] + x^2, {x, 0, 2}];
+\end{lstlisting}
+Its stored information is $x\log x+\OO(x^2)$. The default exponential operation returned
+\begin{equation}
+ 1+x\log x+\OO\!\left(x^2\LL(x)^2\right).
+\end{equation}
+Requesting a larger cutoff changed the error degree:
+\begin{lstlisting}
+t = SeriesExp[s, 3];
+{Normal[t], t["Remainder"]}
+(* {1 + x Log[x], PowerLogRemainder[x, 2, 0]} *)
+\end{lstlisting}
+The same larger-cutoff behavior was observed for the logarithm of \code{SeriesAdd[s,1]} and for its square root.\cite{evidence-native}
+
+\begin{longtable}{@{}p{0.43\textwidth}p{0.25\textwidth}p{0.24\textwidth}@{}}
+\toprule
+Operation at cutoff $3$ & Observed finite part & Observed error descriptor\\
+\midrule
+\code{SeriesExp[s,3]} & $1+x\log x$ & $\OO(x^2)$\\[4pt]
+\code{SeriesLog[SeriesAdd[s,1],3]} & $x\log x$ & $\OO(x^2)$\\[4pt]
+\code{SeriesPower[SeriesAdd[s,1],1/2,3]} & $1+\tfrac12x\log x$ & $\OO(x^2)$\\
+\bottomrule
+\end{longtable}
+The essential contradiction is already in Review 2. For the exponential witness,
+\begin{equation}
+ e^{x\log x+x^2}-(1+x\log x)
+ =x^2\left(1+\tfrac12\log^2x\right)+o(x^2),
+ \label{eq:expwitness}
+\end{equation}
+so division by $x^2$ is unbounded as $x\to0^+$. A native \code{Series} control independently returned the displayed second-order coefficient $(2+\log^2x)/2$. The point of repeating this small formula is to identify exactly what the native package confirmation tests; it is not a new proof of the known defect.\cite{review2,evidence-native}
+
+\subsection{The old diagnosis and the new implementation objective}
+The source helper \code{unitSeriesPrecision} sets the active boundary $c=\min(P_U,h)$. When $P_U<h$, it can return the input error degree $D_U$ alone. The finite Taylor calculation discards powers at the exclusive boundary, so a known nonlinear term landing exactly at $P_U$ can disappear without its logarithmic degree entering the error.\cite{repo-core}
+
+Review 2's conservative correction includes both the transported input degree and a generated Taylor degree bound. That is an appropriate immediate correctness repair. The implementation supplied here explores the sharper version: compute the complete polynomial at the active boundary, use its actual degree, and only then remove it from the finite output.
+
+This avoids a particular overestimate. For
+\begin{equation}
+ U(u)=uL+u^{3/2}L^{10},\qquad L=\log u,
+ \qquad R=\OO(u^2),
+ \label{eq:sharpinput}
+\end{equation}
+the boundary at $u^2$ in $e^U$ is $\tfrac12L^2$. A global estimate based on two Taylor powers times the maximum input logarithmic degree gives $20$, whereas the complete boundary degree is $2$. The $L^{10}$ term occurs at a higher weight and cannot contribute to the weight-$2$ boundary through a quadratic product. This is a useful accuracy improvement without claiming additional known powers of $u$.
+
+\subsection{A precise closed-frontier rule}
+Let
+\begin{equation}
+ U(u)=\sum_{\alpha\in A}u^\alpha P_\alpha(L),
+ \qquad a=\min A>0,
+\end{equation}
+and let the unknown input error satisfy
+\begin{equation}
+ R(u)=\OO\!\left(u^P\LL(u)^D\right),\qquad P>\max A.
+\end{equation}
+The exact-input case is represented by $P=+\infty$. Let $\Phi$ be analytic near zero with fixed Taylor coefficients $c_k$, and let $h>0$ be the requested exclusive cutoff. Set $c=\min(P,h)$, assumed finite in the prototype, and form
+\begin{equation}
+ T_{\le c}(u)=
+ \left[\sum_{k=1}^{\lfloor c/a\rfloor}c_k U(u)^k\right]_{\le c}.
+ \label{eq:closed}
+\end{equation}
+Write $\Psi_c(L)$ for the complete coefficient of $u^c$ in this expression, or zero if no such weight occurs. Return the terms strictly below $c$, but assign logarithmic degree
+\begin{equation}
+ D_{\mathrm{out}}=
+ \max\left(\deg_+\Psi_c,\ D\,\mathbf{1}_{P=c}\right),
+ \label{eq:degree}
+\end{equation}
+where $\deg_+0=0$. The constant $\Phi(0)$ is handled separately.
+
+\begin{proposition}
+Under the stated assumptions, the returned finite part $T_{<c}$ satisfies
+\begin{equation}
+ \Phi(U+R)=\Phi(0)+T_{<c}
+       +\OO\!\left(u^c\LL(u)^{D_{\mathrm{out}}}\right).
+ \label{eq:closedbound}
+\end{equation}
+\end{proposition}
+\begin{proof}
+For fixed parameters, $U\to0$ and $R\to0$. Analyticity gives
+$\Phi(U+R)-\Phi(U)=\OO(R)$ in a sufficiently small neighborhood. If $P=c$, this contributes degree $D$ at the active boundary. If $P>c$, its additional positive power absorbs every fixed logarithmic factor and it is $\OO(u^c)$.
+
+The Taylor remainder after degree $m=\lfloor c/a\rfloor$ is $\OO(U^{m+1})$. Since $(m+1)a>c$, it too is $\OO(u^c)$ after absorbing fixed logarithmic powers. Among the finitely many terms in the retained Taylor polynomial, every weight strictly greater than $c$ has the same property. The only discarded known term that can require a nonzero logarithmic degree at weight $c$ is $u^c\Psi_c(L)$. Combining its degree with the active input error gives \eqref{eq:degree}.
+\end{proof}
+
+The rule deliberately does not infer exact termination from a zero boundary polynomial. The true next term can occur at a later weight, and an active input error remains unknown even if all known boundary contributions cancel. The prototype therefore returns a conservative power-$c$ error unless a separate stronger contract is provided. Nor does the proposition assert a uniform parameter-dependent constant: analyticity and its neighborhood are pointwise assumptions here.
+
+\subsection{Sparse implementation and coefficient-generator discipline}
+The file \code{closed_frontier.py} implements \eqref{eq:closed} using exact rational weights and symbolic polynomial coefficients. It multiplies sparse powers while retaining weights \emph{at or below} the boundary. Products exceeding the boundary are pruned before coefficient multiplication. Equal weights are merged before the boundary polynomial is inspected. The returned finite part is then selected with the original strict inequality.
+
+The distinction between closed and open truncation is an internal calculation convention, not a public cutoff change. The public result still excludes the boundary. The extra coefficient exists only to justify the error assigned to the terms that were removed.
+
+There is an important implementation detail when porting this approach into the Wolfram code. Some coefficient generators maintain recurrence state. A repair must not calculate the finite series using one sequence of calls and then call the same stateful generator again from $k=1$ to obtain a boundary coefficient. That can advance the recurrence twice or reuse stale state. The prototype requests each $c_k$ once, in increasing order, including a possible final power whose only retained term lies on the boundary. A \code{None} return denotes permanent termination, analogous to the existing generator convention's termination marker.
+
+For example, when $U=uL$ and $c=4$, the prototype calls the generator with $1,2,3,4$ exactly once each. The original exclusive finite part needs only the first three powers, but the fourth must be available for boundary accounting. The corresponding test verifies the call sequence as well as the coefficient result.
+
+\subsection{Budget semantics and what has actually been tested}
+The prototype uses a single counter for admitted sparse pair products across the pushforward operation. Exceeding that counter raises a controlled \code{BudgetExceeded} exception. It rejects floating-point weights, nonpositive input weights, and known input terms at or beyond a finite declared error frontier. Coefficients must be polynomials in the designated logarithm symbol, and Taylor coefficients must not depend on that symbol.
+
+The code is intentionally not a reimplementation of the whole package. It supports rational weights, not the repository's complete exact-real comparison machinery; it does not infer analyticity, source realness, parameter uniformity, or derivative contracts. Its role is to make the proposed boundary calculation executable and independently testable.
+
+The executed tests include the exponential, logarithm, and square-root witnesses; the sharp degree-$2$ example \eqref{eq:sharpinput}; a nonresonant frontier; preservation of an unknown input error after known coefficient cancellation; ordered single-use coefficient calls; permanent termination; budget failure; and invalid-input cases. A further test uses 40 deterministic randomized cases with seed $20260909$. It substitutes $u=t^2$ and compares the sparse result with a separately constructed ordinary polynomial in $t$. The oracle checks both the strict finite part and the complete boundary polynomial. All 13 test methods passed.\cite{evidence-python}
+
+This is independent validation of the rational-weight prototype, not a passing Wolfram package regression suite and not a formal proof of an integrated source patch. The proposition above supplies the mathematical justification; the tests exercise the concrete implementation within its stated scope.
+
+\subsection{Integration recommendation}
+The conservative degree correction already proposed in Review 2 is the lower-risk immediate repair. The closed-frontier calculation can then be introduced as an optional sharper path with a hard budget. If that sharper path cannot complete, it must fall back to the proved conservative degree bound or return a controlled resource failure, never to the known unsound input-degree-only branch.
+
+The integration tests should compare both paths on the same inputs. The sharp result may have a lower logarithmic error degree, but its retained finite part below the common boundary must agree, and its bound must remain valid when unknown input errors are present. A zero known boundary polynomial must not erase an independent input remainder. These are concrete acceptance conditions for the supplied implementation delta, not a reissued general request for more tests.
+
+\section{Targeted engineering and development recommendations}
+\label{sec:development}
+\subsection{Prioritize by the claim that can become false}
+The existing C04 error-bound defect and the now-explicit C07 realness inconsistency should be addressed before adding more nonlinear operations that reuse the same low-level paths. This does not make them new backlog entries. The contribution here is that they now have native current-snapshot witnesses and a specific cross-entry or frontier test corpus.
+
+N01 should be addressed with a separate certificate-controller change. It is valuable to keep that change isolated from the interval arithmetic itself: the same exact proof engine can continue to establish every successful bound, while the planner becomes better at choosing enough precision. N02 should be resolved as an API decision rather than smuggled into an arithmetic bug fix. The choice between minimum-precision refinement and retargeting has compatibility implications that deserve an explicit release note.
+
+\subsection{A small implementation sequence with objective exit conditions}
+\begin{longtable}{@{}p{0.08\textwidth}p{0.40\textwidth}p{0.43\textwidth}@{}}
+\toprule
+Step & Change & Exit condition\\
+\midrule\endfirsthead
+\toprule Step & Change & Exit condition\\\midrule\endhead
+1 & Integrate a sound nonlinear frontier degree rule; retain the existing conservative option. & The three native C04 witnesses never report degree $0$ at power $2$; the frontier is computed or conservatively bounded before it is discarded.\\[6pt]
+2 & Make ordinary realness validation consistent across forward constants, scalar operands, and observables. & The witnessed nonreal constants are rejected consistently, while proved-real inputs and conjugate-symmetric Fourier data retain their intended behavior.\\[6pt]
+3 & Add relative-aware certificate precision planning and escalation after insufficient successful proofs. & N01 succeeds under the chosen documented budget; domain and fixed-center failures remain conservative; order histories explain progress.\\[6pt]
+4 & Decide and implement lower-cutoff refinement semantics. & The forward and inverse N02 examples either preserve the current approximation, reject the lower request, or are explicitly documented as intentional retargeting.\\[6pt]
+5 & Port the sharp closed-frontier calculation behind a bounded fallback. & It matches the conservative path below the cutoff and reproduces the degree-$2$ versus degree-$20$ example without losing unknown input errors.\\
+\bottomrule
+\end{longtable}
+
+These steps are deliberately narrow. The existing reviews already contain extensive proposals for new scales, complex sectors, integration, uniform asymptotics, and general capability metadata. Repeating those would not add useful development guidance here. The immediate opportunity is to make the existing shared primitives and their user-visible policies more dependable before extending their reach.
+
+\subsection{Performance measurements that answer these particular questions}
+For N01, measure the number of enclosure evaluations, the sequence of enclosure orders, and the amount of interval progress reused. Compare a state-preserving internal controller with the external adapter, which may redo earlier work. Include relative requests at several root magnitudes; a unit-scale example alone is not enough to choose a universal digit heuristic.
+
+For C07, measure distinct realness proof obligations and cache hits within an operation, using the expression together with its proof context as the key. The measurement should reveal whether adding a gate causes repeated expensive proofs for identical coefficients, rather than merely reporting total time for a large expansion.
+
+For the closed-frontier implementation, measure strict-interior pair products, additional boundary pair products, boundary polynomial size, and the difference between the actual degree and the conservative bound. The extra boundary work may be tiny for sparse low-dimensional supports and substantial for a resonant layer with many contributions. A controlled fallback is part of the design, not an afterthought.
+
+For N02, measure whether an already satisfied lower request causes source replay. The desired monotone-policy fast path should need no new coefficient generation. The existing inverse statistics already make the distinction between reused blocks and new work inspectable; use that evidence instead of treating a smaller printed expression as a faster computation by default.\cite{repo-refinement}
+
+\subsection{Kernel-specific behavior and regression ownership}
+The native comparison results should be retained with the exact kernel version and invocation. An unevaluated \code{AsymptoticSolve} result is a fact about a particular call, not a permanent property of a mathematical family. Conversely, the package's own error-bound and realness tests should not rely on native \code{AsymptoticSolve} failing. Their correctness obligations follow from their represented function and remainder, independently of competing solver behavior.
+
+For C04, the independent polynomial oracle is useful because it does not call the package's own coefficient or residual helpers. For N01, the absolute and explicit-order controls isolate the precision planner. For C07, the acceptance matrix crosses public entry points. For N02, the tests express a deliberately chosen policy. Each regression has a different owner and a different success criterion; combining them into a single vague ``asymptotic correctness'' score would conceal those distinctions.
+
+\section{Conclusions}
+The package's strongest role is a specialized generalized inverse calculus with retained structure and evidence, not a universal replacement for native asymptotics. The executed comparisons show ordinary overlap, a useful factored special-function representation, and two concrete generalized inverse invocations where the package returned explicit blocks while the tested native equation solver remained unevaluated. That is a more defensible comparison than claiming that Wolfram Language lacks logarithmic, fractional, or non-Taylor asymptotics.
+
+The additional certificate finding is narrow but important: exact proof arithmetic and adaptive proof planning are separate responsibilities. The observed relative-accuracy failure does not invalidate the interval proof; it shows that a successful proof can remain too weak indefinitely unless the controller is allowed to increase arithmetic precision on that path. The lower-cutoff refinement behavior likewise deserves an explicit policy, not an exaggerated mathematical diagnosis.
+
+The strengthened existing findings are more directly about the mathematical contract. A real interface should not accept a nonreal constant merely because it arrives through a different entry point. A nonlinear operation must not discard a known boundary logarithm and then claim the smaller input error class. Native witnesses now demonstrate both behaviors in the pinned snapshot, and the independent closed-frontier prototype makes one sharper correction executable.
+
+The practical next step is therefore not another broad feature wishlist. It is a set of small, separately testable changes: repair the shared nonlinear boundary rule, align realness checks, make certificate precision adaptation accuracy-aware, and decide what refinement promises. The attached artifacts provide reproductions and implementation starting points while keeping their validation status explicit.
+
+\appendix
+\section{Archive contents and reproduction}
+\label{sec:archive}
+The archive is self-contained for reading the article and running the Python prototype tests. Native reproductions require a Wolfram installation or evaluator and the audited package. No font files and no complete copy of the repository are included.
+
+\begin{longtable}{@{}p{0.41\textwidth}p{0.51\textwidth}@{}}
+\toprule
+File or directory & Purpose and validation status\\
+\midrule\endfirsthead
+\toprule File or directory & Purpose and validation status\\\midrule\endhead
+\nolinkurl{article/audit.tex}, \nolinkurl{article/audit.pdf} & This article and its compiled PDF.\\[5pt]
+\nolinkurl{evidence/native_observations.json} & Structured transcriptions of successful individual native evaluations; not a raw complete session log.\\[5pt]
+\nolinkurl{evidence/novelty_ledger.json} & Baseline sources, search terms, exclusions, and new-versus-strengthened classification.\\[5pt]
+\nolinkurl{evidence/python_test_log.txt} & Actual stdout/stderr from the independent Python test run.\\[5pt]
+\nolinkurl{evidence/python_validation.json} & Python/SymPy versions, test counts, and oracle seed.\\[5pt]
+\nolinkurl{evidence/patch_validation.json} & Explicit validation limits for candidate fixes.\\[5pt]
+\nolinkurl{code/closed_frontier.py} & Executed rational-weight sparse boundary prototype.\\[5pt]
+\nolinkurl{tests/test_closed_frontier.py} & Executed tests, including 40 independent-oracle subcases.\\[5pt]
+\nolinkurl{code/reproduce.wl} & Aggregate native reproduction runner, authored but not executed as one complete run.\\[5pt]
+\nolinkurl{tests/DesiredBehavior.wlt} & Proposed regression expectations; intentionally not all satisfied by the audited snapshot. Complete \code{TestReport} not run.\\[5pt]
+\nolinkurl{code/AccuracyAwareCertificate.wl} & Opt-in certificate adapter candidate; complete artifact not natively validated.\\[5pt]
+\nolinkurl{code/patch_certificate.py} & Hash-checked generator of experimental patched copies; does not overwrite a checkout.\\
+\bottomrule
+\end{longtable}
+
+From the archive root, run the independent tests with:
+\begin{lstlisting}
+python -m pip install -r requirements.txt
+python -m unittest discover -s tests -p 'test_*.py' -v
+\end{lstlisting}
+The observed environment was Python 3.13.5 and SymPy 1.14.0. The supplied dependency file pins the tested SymPy version.
+
+A native local reproduction can use an already downloaded audited standalone:
+\begin{lstlisting}
+wolframscript -file code/reproduce.wl /path/to/AsymptoticInverse.wl
+\end{lstlisting}
+Without a package argument, the runner downloads the pinned public standalone. It writes a new \code{audit-native-results.json} in the working directory, recording the actual kernel, package hash, inputs, outputs, messages, and elapsed times. Those new results should not be confused with the already supplied observation transcriptions.
+
+To generate experimental certificate copies from an exact checkout:
+\begin{lstlisting}
+python code/patch_certificate.py /path/to/Asymptotic \
+  --output /path/outside/checkout/certificate-candidate
+\end{lstlisting}
+The generator rejects unexpected source identities. Applying such copies to a development checkout, rebuilding the standalone, and running the repository's full native suite remain integration work, not completed validation reported by this article.
+
+To rebuild the article:
+\begin{lstlisting}
+cd article
+latexmk -pdf -interaction=nonstopmode -halt-on-error audit.tex
+\end{lstlisting}
+A PowerShell caller can run the same final command after changing directory. The TeX source uses installed TeX packages and does not need downloaded proprietary fonts.
+
+\section{Source-inspection map}
+\label{sec:coverage}
+This map identifies the main inspected implementation paths, not an assertion that every repository line or every test was reviewed. All links in the bibliography resolve to the pinned commit.
+
+\begin{longtable}{@{}p{0.44\textwidth}p{0.48\textwidth}@{}}
+\toprule
+Source module(s) & Inspected responsibilities\\
+\midrule\endfirsthead
+\toprule Source module(s) & Inspected responsibilities\\\midrule\endhead
+\nolinkurl{AsymptoticInverse.wl} in \nolinkurl{Kernel/} & Public declarations; exactness and sparse jets; precision propagation; analytic forward helpers; endpoint normalization; residual/numerical dispatch and module loading.\\[5pt]
+\nolinkurl{SeriesOperations.wl}, \nolinkurl{SeriesArithmetic.wl} & Ordered representation, observable and nonlinear operations, scalar realness gate, arithmetic and refinement dispatch.\\[5pt]
+\nolinkurl{InverseCertificates.wl} & Exact interval arithmetic, elementary enclosures, domain proof, residual certificate, precision planning, and adaptive loop.\\[5pt]
+\nolinkurl{RefinementState.wl} & State signatures, prefix reuse, boundary calculation, inverse assembly, and lower-cutoff behavior.\\[5pt]
+\nolinkurl{NumericalInverseChecks.wl} & Reference-root recovery, source-domain check, observable recovery, and numerical evidence labels.\\[5pt]
+\nolinkurl{GammaForward.wl}, \nolinkurl{GammaInverseOperations.wl} & Positive product normalization, logarithmic carriers, and inverse-observable precision clipping.\\[5pt]
+\nolinkurl{NativeSpecialFunctions.wl}, \nolinkurl{ParameterizedSpecialFunctions.wl} & Structured native import, source realness, projection, fixed-parameter analytic/Frobenius composition.\\[5pt]
+\nolinkurl{FlatSectorOperations.wl}, \nolinkurl{FourierCoefficients.wl} & Separate sector errors, convolution, exact frequencies, conjugacy, inverse coefficients, and formal residuals.\\[5pt]
+\nolinkurl{ReciprocalLogOperations.wl}, \nolinkurl{SourceCoordinates.wl} & Specialized composition/differentiation and exact/nonexact source-chart reconstruction.\\[5pt]
+\nolinkurl{SeriesEnvelopeArithmetic.wl}, \nolinkurl{InverseFunctionSyntax.wl} & Composite approach recovery and envelopes; scoped inverse-call and condition parsing.\\
+\bottomrule
+\end{longtable}
+The review register, public guide, README, review index, original Review 2 finding, and selected original review sections were also examined. Repository-wide native success, exhaustive branch coverage, and general proof of all supported remainder contracts are not claimed.
+
+\section{Evidence interpretation}
+The main text uses ``observed'' only for a successful native evaluator result or an actual local Python execution. Source-traced explanations are identified by the relevant implementation module. Proposed changes are not relabeled as validated fixes merely because their anchors match inspected code or their mathematical intent is clear.
+
+The attached native record preserves useful numerical summaries of rational certificates rather than printing every enormous rational endpoint in the article. Its decimal error values are display approximations to the recorded certificate bounds, not the arithmetic used to establish them. The complete reproduction runner can produce fresh results in a local kernel for exact inspection.
+
+A final distinction is important for the two strengthened old findings. This audit does not add a new proof of Review 2's already correct nonlinear counterexample, nor does it claim that the closed-boundary idea first appears here. It adds execution against the current standalone and an independently tested implementation. For C07, it replaces an abstract validation concern with exact public inputs and divergent native outcomes. Those are the specific reasons the two subjects remain in a report that otherwise excludes the existing backlog.
+
+\begin{thebibliography}{99}
+\small
+\setlength{\itemsep}{1.5pt}
+\setlength{\parskip}{0pt}
+\bibitem{repo-readme}
+Vladimir Reshetnikov, \emph{Asymptotic repository README}, audited commit \texttt{921387e5ba12}. \repolink{README.md}{README.md}.
+\bibitem{repo-reviews}
+\emph{Review index}. \repolink{code-review/README.md}{code-review/README.md}. All repository references below use the same pinned commit.
+\bibitem{repo-status}
+\emph{Consolidated code-review status}. \repolink{docs/development/CODE_REVIEW_STATUS.md}{docs/development/CODE_REVIEW_STATUS.md}.
+\bibitem{repo-guide}
+\emph{AsymptoticInverse user guide}. \repolink{AsymptoticInverse/Documentation/UserGuide.md}{AsymptoticInverse/Documentation/UserGuide.md}. In particular the input-remainder declaration and public operation contracts.
+\bibitem{repo-core}
+\emph{Core package}. \repolink{AsymptoticInverse/Kernel/AsymptoticInverse.wl}{AsymptoticInverse/Kernel/AsymptoticInverse.wl}. In particular \code{pConst}, \code{pMul}, \code{unitSeriesPrecision}, \code{pUnitSeries}, \code{fwd}, and \code{fwdAnalytic}; inspected precision/forward region approximately lines 258--500.
+\bibitem{repo-ops}
+\emph{Ordered series calculus}. \repolink{AsymptoticInverse/Kernel/SeriesOperations.wl}{AsymptoticInverse/Kernel/SeriesOperations.wl}. Representation, observable, nonlinear, and refinement paths.
+\bibitem{repo-arithmetic}
+\emph{Arithmetic dispatch}. \repolink{AsymptoticInverse/Kernel/SeriesArithmetic.wl}{AsymptoticInverse/Kernel/SeriesArithmetic.wl}. In particular \code{seriesRegularOperand} and public operation dispatch.
+\bibitem{repo-certificates}
+\emph{Exact inverse certificates}. \repolink{AsymptoticInverse/Kernel/InverseCertificates.wl}{AsymptoticInverse/Kernel/InverseCertificates.wl}. \code{certAttempt} and \code{InverseCertificate}; automatic order selection and adaptive loop in the constructor beginning near line 293.
+\bibitem{repo-refinement}
+\emph{Retained inverse state}. \repolink{AsymptoticInverse/Kernel/RefinementState.wl}{AsymptoticInverse/Kernel/RefinementState.wl}. \code{refineStoredInverse}, beginning near line 120.
+\bibitem{repo-numerical}
+\emph{Numerical inverse evidence}. \repolink{AsymptoticInverse/Kernel/NumericalInverseChecks.wl}{AsymptoticInverse/Kernel/NumericalInverseChecks.wl}.
+\bibitem{repo-gamma}
+\emph{Gamma forward normalization}. \repolink{AsymptoticInverse/Kernel/GammaForward.wl}{AsymptoticInverse/Kernel/GammaForward.wl}.
+\bibitem{repo-gammaops}
+\emph{Gamma/Barnes inverse observable operations}. \repolink{AsymptoticInverse/Kernel/GammaInverseOperations.wl}{AsymptoticInverse/Kernel/GammaInverseOperations.wl}.
+\bibitem{repo-native}
+\emph{Native special-function adapter}. \repolink{AsymptoticInverse/Kernel/NativeSpecialFunctions.wl}{AsymptoticInverse/Kernel/NativeSpecialFunctions.wl}. In particular structured tree import, real projection, carrier separation, and exactness checks.
+\bibitem{repo-parameterized}
+\emph{Fixed-parameter special-function composition}. \repolink{AsymptoticInverse/Kernel/ParameterizedSpecialFunctions.wl}{AsymptoticInverse/Kernel/ParameterizedSpecialFunctions.wl}.
+\bibitem{repo-flat}
+\emph{Finite flat-sector operations}. \repolink{AsymptoticInverse/Kernel/FlatSectorOperations.wl}{AsymptoticInverse/Kernel/FlatSectorOperations.wl}.
+\bibitem{repo-fourier}
+\emph{Fourier-polynomial coefficient algebra}. \repolink{AsymptoticInverse/Kernel/FourierCoefficients.wl}{AsymptoticInverse/Kernel/FourierCoefficients.wl}.
+\bibitem{repo-envelope}
+\emph{Composite error envelopes}. \repolink{AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl}{AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl}.
+\bibitem{repo-sourcecoords}
+\emph{Exact source coordinates}. \repolink{AsymptoticInverse/Kernel/SourceCoordinates.wl}{AsymptoticInverse/Kernel/SourceCoordinates.wl}.
+\bibitem{review2}
+\emph{Existing code review 2}, especially finding F01 and its proposed conservative repair. \repolink{code-review/code-review-2/article/asymptotic-review.tex}{code-review/code-review-2/article/asymptotic-review.tex}, approximately lines 256--324.
+\bibitem{wl-series}
+Wolfram Research, \emph{Series}, Wolfram Language documentation, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/Series.html}.
+\bibitem{wl-seriesdata}
+Wolfram Research, \emph{SeriesData}, documentation, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/SeriesData.html}.
+\bibitem{wl-inverse}
+Wolfram Research, \emph{InverseSeries}, documentation, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/InverseSeries.html}.
+\bibitem{wl-compose}
+Wolfram Research, \emph{ComposeSeries}, documentation, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/ComposeSeries.html}.
+\bibitem{wl-asymptoticsolve}
+Wolfram Research, \emph{AsymptoticSolve}, documentation, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/AsymptoticSolve.html}.
+\bibitem{wl-asymptotic}
+Wolfram Research, \emph{Asymptotic}, documentation, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/Asymptotic.html}.
+\bibitem{evidence-native}
+\emph{Native observation record accompanying this audit}. Archive file \nolinkurl{evidence/native_observations.json}. Structured manual transcriptions of successful Wolfram 15.0.0 evaluator responses; inputs, controls, and provenance included.
+\bibitem{evidence-python}
+\emph{Executed independent prototype tests}. Archive files \nolinkurl{evidence/python_test_log.txt}, \nolinkurl{evidence/python_validation.json}, and \nolinkurl{tests/test_closed_frontier.py}. Thirteen test methods, including forty deterministic randomized oracle subcases.
+\end{thebibliography}
+\end{document}

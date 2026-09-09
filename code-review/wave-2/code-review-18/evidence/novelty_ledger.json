@@ -1,0 +1,101 @@
+{
+  "snapshot": "921387e5ba1239bfda96e63e64e89bf63d9c41e6",
+  "baseline_register": "docs/development/CODE_REVIEW_STATUS.md",
+  "method": "Consolidated register and selected original finding sections, supplemented by literal searches of the listed original review texts. Search absence is supporting evidence, not a proof of semantic novelty.",
+  "verified_review_texts": [
+    {
+      "review": "1",
+      "path": "code-review/code-review-1/article/article-standalone.tex",
+      "downloaded_text_characters": 112738
+    },
+    {
+      "review": "2",
+      "path": "code-review/code-review-2/article/asymptotic-review.tex",
+      "downloaded_text_characters": 95641
+    },
+    {
+      "review": "3",
+      "path": "code-review/code-review-3/article/asymptotic-audit.tex",
+      "downloaded_text_characters": 79420
+    },
+    {
+      "review": "4",
+      "path": "code-review/code-review-4/article.tex",
+      "downloaded_text_characters": 87885
+    },
+    {
+      "review": "5",
+      "path": "code-review/code-review-5/article/asymptotic-audit.tex",
+      "downloaded_text_characters": 124499
+    },
+    {
+      "review": "6",
+      "path": "code-review/code-review-6/article/article.tex",
+      "downloaded_text_characters": 105898
+    },
+    {
+      "review": "7",
+      "path": "code-review/code-review-7/article/03-findings.tex",
+      "downloaded_text_characters": 22266
+    },
+    {
+      "review": "8",
+      "path": "code-review/code-review-8/article/asymptotic_repository_audit.tex",
+      "downloaded_text_characters": 88412
+    },
+    {
+      "review": "9",
+      "path": "code-review/code-review-9/article.tex",
+      "downloaded_text_characters": 87449
+    }
+  ],
+  "searched_phrases": [
+    "RelativeError",
+    "EnclosureOrder",
+    "coarsen",
+    "downgrad",
+    "lower cutoff",
+    "monotone refinement",
+    "monotonic refinement"
+  ],
+  "search_result": "Only an unrelated downgrade reference in review 9 was returned; no matching certificate precision-stall or lower-cutoff-refinement discussion.",
+  "findings": [
+    {
+      "id": "N01",
+      "status": "new",
+      "topic": "Relative-only certificate accuracy stagnates at an unraised arithmetic precision floor"
+    },
+    {
+      "id": "N02",
+      "status": "new API/UX observation",
+      "topic": "SeriesRefine accepts a lower cutoff and drops terms from the returned finite approximation; original source and retained state can still preserve additional information. The resulting asymptotic formula remains valid."
+    },
+    {
+      "id": "D-C07",
+      "status": "existing concern, materially stronger evidence",
+      "topic": "Native public entry-point acceptance/rejection matrix, explicit complex constants, and a staged realness-gate proposal"
+    },
+    {
+      "id": "D-C04",
+      "status": "existing defect, native confirmation and implementation delta",
+      "topic": "Native current-snapshot confirmation; executable closed-frontier prototype rather than repeating the prior conservative patch"
+    }
+  ],
+  "excluded": [
+    "C01 dense export allocation: a current focused fix exists",
+    "C02 fractional pure uncertainty: a current focused fix exists",
+    "C03 native remainder export",
+    "C05 ambient assumptions",
+    "C06 unconfirmed fallback tail candidate",
+    "C08 derived demand planning",
+    "C09 option precedence",
+    "C10 residual label",
+    "C11 raw association validation",
+    "C12 comparison equality candidate",
+    "C13 composition-domain candidate",
+    "P01-P08 generic performance findings",
+    "D01-D09 pre-existing design/documentation recommendations",
+    "V01-V02 native CI and runner issues",
+    "X01-X12 pre-existing feature roadmap"
+  ]
+}
