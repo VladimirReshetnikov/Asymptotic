@@ -644,17 +644,26 @@ makeForwardObject[jet_, cutoff_, f_, x_, x0_, coord_, u_, ell_, ass_, goal_] := 
     "Function" -> f, "Assumptions" -> ass,
     "SeriesData" -> sd|>]];
 
-makeSeriesData[terms_, x_, x0_, coord_, remData_, logw_] := Module[{exps, den, nmin, nmax, coeffs, ptx, dirSign},
-  If[coord["Direction"] === "FromBelow" && ! coord["Infinite"], Return[Missing["NotAvailable"], Module]];
-  If[x0 === -Infinity, Return[Missing["NotAvailable"], Module]];
+makeSeriesData[terms_, x_, x0_, coord_, remData_, logw_] :=
+  If[(coord["Direction"] === "FromBelow" && ! coord["Infinite"]) || x0 === -Infinity,
+    Missing["NotAvailable"], makeRationalSeriesData[terms, x, x0, remData]];
+
+(* Native SeriesData is an optional dense view of the sparse result. Its
+   remainder index does not require trailing zero coefficients. Bound the
+   retained lattice span before allocating or scaling any coefficients. *)
+makeRationalSeriesData[terms_, x_, x0_, remData_, scale_: 1] := Module[
+  {exps, den, nmin, nmax, count, coeffs, limit = 100000},
   exps = terms[[All, 1]];
   If[! (And @@ (IntegerQ[#] || Head[#] === Rational & /@ exps)), Return[Missing["IrrationalExponents"], Module]];
   If[remData === None, Return[Missing["Exact"], Module]];
   If[! (IntegerQ[remData[[1]]] || Head[remData[[1]]] === Rational), Return[Missing["IrrationalExponents"], Module]];
   den = LCM @@ (Denominator /@ Append[exps, remData[[1]]]);
   nmin = If[exps === {}, remData[[1]] den, Min[exps] den]; nmax = remData[[1]] den;
-  coeffs = Table[0, {nmax - nmin}];
-  Do[coeffs[[t[[1]] den - nmin + 1]] = t[[2]], {t, terms}];
+  count = If[exps === {}, 0, Max[exps] den - nmin + 1];
+  If[count > limit, Return[Missing["DenseSeriesDataLimit",
+    <|"RequiredCoefficients" -> count, "Limit" -> limit|>], Module]];
+  coeffs = ConstantArray[0, count];
+  Do[coeffs[[t[[1]] den - nmin + 1]] = scale^(-t[[1]]) t[[2]], {t, terms}];
   SeriesData[x, x0, coeffs, nmin, nmax, den]];
 
 (* ------------------------------------------------------------------ *)
@@ -1002,18 +1011,10 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     |>;
   GeneralizedSeries[obj]];
 
-makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] := Module[{exps, den, nmin, nmax, coeffs},
-  If[r =!= 1 || coord["Sign"] =!= 1 || coord["Infinite"] || x0 =!= 0, Return[Missing["NotAvailable"], Module]];
-  If[y0 === Infinity || y0 === -Infinity, Return[Missing["NotAvailable"], Module]];
-  exps = terms[[All, 1]];
-  If[! (And @@ (IntegerQ[#] || Head[#] === Rational & /@ exps)), Return[Missing["IrrationalExponents"], Module]];
-  If[remData === None, Return[Missing["Exact"], Module]];
-  If[! (IntegerQ[remData[[1]]] || Head[remData[[1]]] === Rational), Return[Missing["IrrationalExponents"], Module]];
-  den = LCM @@ (Denominator /@ Append[exps, remData[[1]]]);
-  nmin = Min[exps] den; nmax = remData[[1]] den;
-  coeffs = Table[0, {nmax - nmin}];
-  Do[coeffs[[t[[1]] den - nmin + 1]] = a^(-t[[1]]) t[[2]], {t, terms}];
-  SeriesData[y, y0, coeffs, nmin, nmax, den]];
+makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] :=
+  If[r =!= 1 || coord["Sign"] =!= 1 || coord["Infinite"] || x0 =!= 0 ||
+      y0 === Infinity || y0 === -Infinity, Missing["NotAvailable"],
+    makeRationalSeriesData[terms, y, y0, remData, a]];
 
 (* ------------------------------------------------------------------ *)
 (* The GeneralizedSeries object                                            *)

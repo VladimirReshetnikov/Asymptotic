@@ -1,5 +1,45 @@
 # Review and validation record
 
+## Bounded native series export
+
+Forward and inverse construction now share one native `SeriesData` exporter.
+It retains the original rational denominator and remainder index while storing
+coefficients only through the final retained exponent. More than 100,000 dense
+slots between retained exponents produce `Missing["DenseSeriesDataLimit", ...]`
+for the optional native view; sparse terms, the finite expression, and remainder
+remain available. Empty inverse jets also retain their pure remainder correctly.
+The existing coordinate, irrational-exponent, and exact-result guard order is
+preserved. Logarithmic native-tail semantics are a separate review finding.
+
+`CheckReviewNativeExport.wl` records **115 passed, zero failed**, in five selected
+files, with unchanged source hashes. Its 13 new cases cover a billion-slot tail
+under a 64 MB evaluation constraint, an excessive interior gap, both sides of
+the dense limit, Laurent and rational lattices, empty jets, symbolic inverse
+scaling, target translations, refinement, and guard precedence. The standalone
+build, 11 Python builder tests, and documentation consistency checks passed.
+**The full package suite was not run.**
+
+`BenchmarkNativeExport.wl` compares pinned baseline
+`73aabf26dfa6258253ed45f31603cb2731b474c7` with the changed sources in fresh Wolfram
+15.0.1 kernels, with one warm-up and three measured runs. All five finite/native
+results and remainders agree exactly. Reports retain source/harness hashes and
+individual samples. Peaks are `MaxMemoryUsed` evaluation observations, not total
+process memory or portable bounds.
+
+| Fixture | Before / after median seconds | Before / after median peak bytes |
+| --- | --- | --- |
+| Forward native view, million-slot trailing gap | 0.01402 / 0.000114 | 24,010,048 / 10,520 |
+| Inverse native view, million-slot trailing gap | 0.01465 / 0.000062 | 16,009,224 / 10,624 |
+| Public fractional power with distant remainder | 0.01569 / 0.00237 | 24,054,088 / 73,336 |
+| Public series with a wide retained gap | 0.00722 / 0.00308 | 5,654,608 / 87,512 |
+| Ordinary polynomial inverse control | 0.00348 / 0.00438 | 131,240 / 131,248 |
+
+The unchanged control was slower in this sample; these selected measurements
+establish an allocation improvement for sparse native views, not a general
+speedup. Reproduce with `wolfram.exe -noinit -script
+validation/BenchmarkNativeExport.wl`; the usual `ASYMPTOTIC_BENCHMARK_ROOT` and
+`ASYMPTOTIC_BENCHMARK_OUTPUT` environment variables select the baseline and report.
+
 ## Vendored ProveIt articles
 
 The [article catalog](../vendor/proveit/README.md) contains 46 articles and two

@@ -281,13 +281,22 @@ Ordinary arithmetic on `Normal[s]` uses only the finite expression. Keep the ser
 | `"Assumptions"`, `"TargetDomain"`, `"SourceDomain"` | Retained assumptions and branch conditions. Available domains depend on the result family. |
 | `"Exact"` | Exact finite expansion status, when supplied. Zero remainder is the operative exactness test. |
 | `"ExactModel"` | Exactness of a stored model; it does not by itself say that the displayed inverse terminates. |
-| `"SeriesData"` | A native `SeriesData` object when the coordinate and exponents permit it; otherwise `Missing[...]`. |
+| `"SeriesData"` | A native `SeriesData` object when the coordinate, exponents, and retained coefficient span permit it; otherwise `Missing[...]`. |
 
 Property availability varies by family. Inspect `s["Properties"]` before relying on specialized metadata. Do not edit the underlying association to change a branch or precision claim.
 
 An arithmetic result with `"Scale" -> "Composite"` retains a finite expression and separate error scales. It has no single remainder exponent or cutoff. See [Composite Results](#composite-series-results).
 
 Native `SeriesData` uses rational exponents and may hide the logarithmic degree inside its `O` term. Keep `s["Remainder"]` when the logarithmic envelope matters.
+
+The optional native view stores coefficients only through the last retained
+exponent. Its remainder index can be much larger without allocating trailing
+zeros. If gaps between retained rational exponents would require more than
+100,000 dense coefficient slots, `s["SeriesData"]` returns
+`Missing["DenseSeriesDataLimit", <|"RequiredCoefficients" -> count, "Limit" -> 100000|>]`.
+The sparse terms, `Normal[s]`, remainder, and supported series operations remain
+available. This bound applies to the optional native view and is independent
+of the `"MaxTerms"` construction option.
 
 <a id="PowerLogRemainder"></a>
 ## PowerLogRemainder

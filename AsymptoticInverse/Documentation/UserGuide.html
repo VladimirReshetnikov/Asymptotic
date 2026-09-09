@@ -797,8 +797,9 @@ displayed inverse terminates.</td>
 </tr>
 <tr>
 <td><code>&quot;SeriesData&quot;</code></td>
-<td>A native <code>SeriesData</code> object when the coordinate and
-exponents permit it; otherwise <code>Missing[...]</code>.</td>
+<td>A native <code>SeriesData</code> object when the coordinate,
+exponents, and retained coefficient span permit it; otherwise
+<code>Missing[...]</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -812,6 +813,16 @@ remainder exponent or cutoff. See <a href="#composite-series-results">Composite 
 <p>Native <code>SeriesData</code> uses rational exponents and may hide
 the logarithmic degree inside its <code>O</code> term. Keep
 <code>s[&quot;Remainder&quot;]</code> when the logarithmic envelope matters.</p>
+<p>The optional native view stores coefficients only through the last
+retained exponent. Its remainder index can be much larger without
+allocating trailing zeros. If gaps between retained rational exponents
+would require more than 100,000 dense coefficient slots,
+<code>s[&quot;SeriesData&quot;]</code> returns
+<code>Missing[&quot;DenseSeriesDataLimit&quot;, &lt;|&quot;RequiredCoefficients&quot; -&gt; count, &quot;Limit&quot; -&gt; 100000|&gt;]</code>.
+The sparse terms, <code>Normal[s]</code>, remainder, and supported
+series operations remain available. This bound applies to the optional
+native view and is independent of the <code>&quot;MaxTerms&quot;</code>
+construction option.</p>
 <p><a id="PowerLogRemainder"></a></p>
 </section>
 </section>

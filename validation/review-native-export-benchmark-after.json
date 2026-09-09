@@ -1,0 +1,135 @@
+{
+	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+	"WarmupRuns":1,
+	"MeasuredRuns":3,
+	"Scope":"Native-view allocation and selected public controls; optional cache refusal is checked by regressions, while public benchmark equality compares finite expressions and remainders.",
+	"SourcesUnchangedDuringRun":true,
+	"TestedSourceSHA256":{
+		"AsymptoticInverse.wl":"f04b2dc46619e4c8f7114038934ee84855987a39ae88b914c6567ec6e7e404e3",
+		"BarnesForward.wl":"036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479",
+		"BarnesInverseChecks.wl":"70de0268030051fefa1c9c323036488936a84fd309689c22abea51f179b0f6f0",
+		"BarnesInverse.wl":"56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
+		"CoordinateInverse.wl":"8fe06e9207db54e1757919367c01e995032627a1eb3027fba5ad42a4f7d6d06d",
+		"CorePerturbation.wl":"a52953710f5bec0708df2adb1784d6d10c32a38a3ba0e71dcdde381a822538bd",
+		"DirichletSpecialFunctions.wl":"381e36cab5d980c050fb208236308b0118c8b97be9b2f457f297bfc203ea9a6c",
+		"ExactTermination.wl":"269151674e4af3be5012a161d39f2981094a16ddb06ef2559cda5cbf50ed2c48",
+		"ExponentialCorePerturbation.wl":"b984a12dffddf6518d8faa5617f8b6f47fcc38cc5369a4f12c8bf8779652fb4f",
+		"ExponentialForward.wl":"f92c050fc4cd3216a08fd7aafceef4202a8aad070f33402959434053195da345",
+		"FlatSectorOperations.wl":"74e5c150b1cd42f4d62edafce31cf42c8fbce5e34110b11d8ae878cc8e82cd05",
+		"FlatSectors.wl":"521bf6d99591b0f4b6afeb39a8d1338e1e9cbe7798d171893925185fce32ee71",
+		"FourierCoefficients.wl":"ca81678b82b77af000dfa5984fafd1f2c6ccfa4e412c62c38a755a430f57aa1b",
+		"GammaForward.wl":"f9fb80f55892521f0150bca280d448e53c1aa3c3dcb5b1d542a45642a61e5d40",
+		"GammaInverseChecks.wl":"4a51a03be40b24a6d454d24ae5b717aacdc58a249bdf54974ab32c03a9050a8e",
+		"GammaInverseOperations.wl":"c449679dd9b8686a15fb985c5e6304a492ed350bddbcedcd12b66af98e484062",
+		"GammaInverse.wl":"ef031c957b0fccadc44f97a76653f9cbf624d9a6578d1b4052872d4c7a1fba33",
+		"IncrementalInverse.wl":"a410833cc04cfb857eeafe07072e39846e9df4bbb68089c870810b4e973c6e00",
+		"InverseCertificates.wl":"ef67eb2fc10bf65c476c70b1ebfe58ca9965c54a369b619d19c73ab75e496121",
+		"InverseFunctionBranches.wl":"727c43fd3e873a3853caa82ddbbd83be18d1923353e8be62f154e904e804eafe",
+		"InverseFunctionExpressions.wl":"5381c66b49ade9619938fff640fdd0d8a62d9d6237d22b730adc483876864e8f",
+		"InverseFunctionFamilies.wl":"c6ce61a378b7b367d9c7839479d3999c404b8576a93bfdb742448de688f0e090",
+		"InverseFunctionSyntax.wl":"94bf63f456ead299aaac357858ac53c22d781871b386405c31a5880eea66bfb9",
+		"LambertInverse.wl":"1fa1025554dd41ebebc96dd1075cd42872e5d9548f50f00d630017acd4c9a529",
+		"LogarithmicScales.wl":"7e855710fd1783861fbe93d6e2ba67568ce2e685fb1bda99818fc9d8c262c206",
+		"NativeSpecialFunctions.wl":"2d28f46b3d5819fa1f5d40e9006033a2ff6b9ff8aa2be08c5a76b01ca0c45381",
+		"NumericalInverseChecks.wl":"a3f1fd51ff3232b01025ed59eff3628cf1e693533f0a8627f439f32768f656d5",
+		"ParameterizedSpecialFunctions.wl":"19370b301debf8107b96e356b00bc06a6c4bf04ee7aa9bab3060fff822afa204",
+		"ReciprocalLogOperations.wl":"40fa57ed1c5b86314939eaa0f509732989661eecfaa2c36530aa44cb759f1336",
+		"RefinementRequests.wl":"35888af4c3c2b9f4f78da69a8c074ec6cbebd117c069f8e58c70870249cbb461",
+		"RefinementState.wl":"57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
+		"SeriesArithmetic.wl":"a7be6ea15b4bc4532c26db9fd42992d8a7adaa06c990890651f995e169cf035a",
+		"SeriesEnvelopeArithmetic.wl":"723ed21d423764159c31d153cc4086cd382ca6b90ae514caa1a744f2d0825039",
+		"SeriesOperations.wl":"5b4e484e7e0f430ad47d03633c3882b0395a0342fe43777081ee419d4b5019e2",
+		"SourceCoordinates.wl":"f1b179acb05192f67aa8013660f1c1584a53384717f8744da4ef52d296e688db",
+		"SpecialFunctionAdapters.wl":"70680b2fb1990f7564dc5a40658ee6d82d2e2ee7bd90e6e1b607e849620cb3de",
+		"SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
+		"SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c"
+	},
+	"BenchmarkSHA256":"fd134269c46420c8df357201746c2249834f7ec7ba268dbbcadc7d083415f9d6",
+	"Results":[
+		{
+			"Fixture":"Forward native view with a million-slot trailing gap",
+			"Seconds":[
+				2.563e-4,
+				1.137e-4,
+				1.007e-4
+			],
+			"MedianSeconds":1.137e-4,
+			"EvaluationPeakBytes":[
+				10688,
+				10520,
+				10520
+			],
+			"MedianEvaluationPeakBytes":10520,
+			"StableResult":true,
+			"Result":"SeriesData[x, 0, {1}, 1, 1000003, 1000003]"
+		},
+		{
+			"Fixture":"Inverse native view with a million-slot trailing gap",
+			"Seconds":[
+				9.66e-5,
+				6.19e-5,
+				5.44e-5
+			],
+			"MedianSeconds":6.19e-5,
+			"EvaluationPeakBytes":[
+				10624,
+				10624,
+				10624
+			],
+			"MedianEvaluationPeakBytes":10624,
+			"StableResult":true,
+			"Result":"SeriesData[y, 0, {2^(-1\/1000003)}, 1, 1000003, 1000003]"
+		},
+		{
+			"Fixture":"Public sparse fractional power with a distant remainder",
+			"Seconds":[
+				2.2694e-3,
+				3.0698e-3,
+				2.3656e-3
+			],
+			"MedianSeconds":2.3656e-3,
+			"EvaluationPeakBytes":[
+				74392,
+				73336,
+				73336
+			],
+			"MedianEvaluationPeakBytes":73336,
+			"StableResult":true,
+			"Result":"{x^(1\/1000003), PowerLogRemainder[x, 1, 0]}"
+		},
+		{
+			"Fixture":"Public sparse series with a wide retained gap",
+			"Seconds":[
+				3.0818e-3,
+				3.0563e-3,
+				3.4735e-3
+			],
+			"MedianSeconds":3.0818e-3,
+			"EvaluationPeakBytes":[
+				87512,
+				87312,
+				87568
+			],
+			"MedianEvaluationPeakBytes":87512,
+			"StableResult":true,
+			"Result":"{x^(1\/100003) + x, PowerLogRemainder[x, 2, 0]}"
+		},
+		{
+			"Fixture":"Ordinary polynomial inverse control",
+			"Seconds":[
+				4.3797e-3,
+				4.3803e-3,
+				4.8662e-3
+			],
+			"MedianSeconds":4.3803e-3,
+			"EvaluationPeakBytes":[
+				131816,
+				131176,
+				131248
+			],
+			"MedianEvaluationPeakBytes":131248,
+			"StableResult":true,
+			"Result":"{y - y^2 + 2*y^3 - 5*y^4, PowerLogRemainder[y, 5, 0]}"
+		}
+	]
+}
