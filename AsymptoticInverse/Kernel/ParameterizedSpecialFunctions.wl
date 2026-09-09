@@ -72,9 +72,6 @@ specialParameterizedForwardJet[e_, u_, ell_, ass_, Kw_, limit_] := Module[
 specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] := Module[
   {domain, argument, jet, negative, center, small, z = Unique["specialArgument$"],
    body, unary, normalized, factor, regular, result, relativeCut, weight},
-  domain = specialFunctionRealDomain[e, u,
-    <|"u" -> u, "Substitution" -> u, "LocalVariable" -> u|>, ass, limit];
-  If[! AssociationQ[domain] || ! TrueQ[domain["RealFunctionVerified"]], Return[$Failed, Module]];
   argument = e[[position]];
   jet = fwd[argument, u, ell, ass, Kw, limit];
   If[! MatchQ[jet, {_List, _, _}] || ! less[0, jet[[2]]], Return[$Failed, Module]];
@@ -82,6 +79,13 @@ specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] :
   If[negative =!= {} || ! FreeQ[center, ell] ||
     ! TrueQ[TimeConstrained[FullSimplify[Element[center, Reals], ass], 1, False]],
     Return[$Failed, Module]];
+  (* fwdAnalytic cannot return an exact jet for a nonconstant increment.
+     Reject that probe before proving the whole special function real;
+     arguments constant under the assumptions still take the usual path. *)
+  If[Kw === Infinity && small =!= {}, Return[$Failed, Module]];
+  domain = specialFunctionRealDomain[e, u,
+    <|"u" -> u, "Substitution" -> u, "LocalVariable" -> u|>, ass, limit];
+  If[! AssociationQ[domain] || ! TrueQ[domain["RealFunctionVerified"]], Return[$Failed, Module]];
   normalized = If[zeroQ[center, ass], specialParameterizedFrobenius[e, position, z, ass], $Failed];
   result = Block[{$specialParameterizedForwardActive = True},
     If[ListQ[normalized] &&

@@ -185,10 +185,10 @@ AsymptoticInverse`AsymptoticSpecialInverse[fam_String, {x_Symbol, endpoint_}, {y
   catch[specialConstruct[fam, x, endpoint, y, cutoff, opts]];
 AsymptoticInverse`AsymptoticSpecialInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use AsymptoticSpecialInverse[family,{x,endpoint},{y,cutoff}]."|>];
 
-specialNumerical[a_, target_, wp_] := Module[{x, y, value, approximate, reference, equation, tt, seed, result, bound},
+specialNumerical[a_, target_, wp_] := Module[{x, y, approximate, reference, equation, tt, bound},
   If[! IntegerQ[wp] || wp < 20, fail["InvalidPrecision", "WorkingPrecision must be an integer of at least 20 digits."]];
   If[! NumericQ[target] || (! exactQ[target] && Precision[target] < wp), fail["InsufficientPrecision", "Supply an exact target or enough input precision."]];
-  {x, y} = a["Variables"]; value = N[target, wp + 20];
+  {x, y} = a["Variables"];
   If[! TrueQ[N[a["TargetDomain"] /. y -> target, wp + 20]], fail["OutsideBranch", "The target is outside the adapter's selected real branch."]];
   (* Substitute exact target expressions before N so small reflected erfc
      tails and Log[Exp[v]] do not lose digits by subtracting rounded values. *)

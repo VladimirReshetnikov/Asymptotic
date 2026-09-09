@@ -1,7 +1,8 @@
 (* Run the same fixtures in fresh kernels before and after a refactor.
    ASYMPTOTIC_BENCHMARK_ROOT selects an immutable source copy; the default is
    this checkout. ASYMPTOTIC_BENCHMARK_OUTPUT selects the JSON report.
-   ASYMPTOTIC_BENCHMARK_SET selects Core (default), Operations or Construction.
+   ASYMPTOTIC_BENCHMARK_SET selects Core (default), Operations, Construction
+   or Composition fixtures.
    One warm-up and three measured samples per fixture; no timing assertions. *)
 benchmarkRoot = Environment["ASYMPTOTIC_BENCHMARK_ROOT"];
 If[! StringQ[benchmarkRoot] || benchmarkRoot === "",
@@ -83,6 +84,31 @@ benchmarkResults = Switch[benchmarkSet, "Core", {
       benchmarkSeriesResult[SeriesMultiply[benchmarkEnvelope, benchmarkEnvelope]]],
     benchmarkMeasure["Add an exact scalar to a Gamma inverse composite",
       benchmarkSeriesResult[SeriesAdd[benchmarkEnvelope, 1]]]
+  }, "Composition", {
+    benchmarkMeasure["Six nested logarithmic regions without exact-composition checks",
+      Module[{make, result, rows = {{1, 1}, {2, Sqrt[ell]}},
+        coord = AsymptoticInverse`Private`localCoordinate[x, 0, Automatic]},
+        make = If[DownValues[AsymptoticInverse`Private`logarithmicPowerBuilder] === {},
+          Function[h, AsymptoticInverse`Private`logarithmicPowerConstruct[
+            rows, 0, 1, {ell}, x + x^2 Sqrt[-Log[x]], x, 0, y, coord, h, 1, True, 20000]],
+          AsymptoticInverse`Private`logarithmicPowerBuilder[
+            rows, 0, 1, {ell}, x + x^2 Sqrt[-Log[x]], x, 0, y, coord, 1, True, 20000]];
+        Do[result = make[h], {h, Range[3/2, 13/2]}];
+        benchmarkSeriesResult[result]]],
+    benchmarkMeasure["Exact probe of a nonconstant trigamma composition",
+      AsymptoticInverse`Private`specialParameterizedForwardJet[
+        PolyGamma[1, 1 + u^Sqrt[2]], u, ell, True, Infinity, 20000] === $Failed],
+    benchmarkMeasure["Irrational Bessel order and argument at zero",
+      benchmarkSeriesResult[AsymptoticExpansion[BesselJ[Sqrt[2], x^Sqrt[2]], {x, 0, 5}]]],
+    benchmarkMeasure["Finite trigamma composition at an irrational increment",
+      benchmarkSeriesResult[AsymptoticExpansion[PolyGamma[1, 1 + x^Sqrt[2]], {x, 0, 5}]]],
+    benchmarkMeasure["Incomplete Gamma with irrational shape and input",
+      benchmarkSeriesResult[AsymptoticExpansion[Gamma[Sqrt[2], x^Sqrt[2]], {x, 0, 5}]]],
+    benchmarkMeasure["Symbolic positive hypergeometric parameter",
+      benchmarkSeriesResult[AsymptoticExpansion[Hypergeometric0F1[b, x^Sqrt[2]],
+        {x, 0, 5}, Assumptions -> b > 0]]],
+    benchmarkMeasure["Revert a Bessel perturbation with an irrational argument",
+      benchmarkSeriesResult[AsymptoticInverse[x + BesselJ[0, x^Sqrt[2]] - 1, {x, 0}, {y, 4}]]]
   }, _, Print["Unknown benchmark set: ", benchmarkSet]; Exit[2]];
 benchmarkUnchanged = benchmarkBefore === benchmarkHashes[];
 benchmarkOutput = Environment["ASYMPTOTIC_BENCHMARK_OUTPUT"];

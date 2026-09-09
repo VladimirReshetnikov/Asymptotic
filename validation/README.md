@@ -1,5 +1,52 @@
 # Review and validation record
 
+## Parameterized composition probes
+
+Parameterized special-function composition now examines the argument jet
+before proving the whole expression real. A nonconstant increment with an
+infinite working cutoff is rejected at the same limit as `fwdAnalytic`;
+an argument made constant by parameter assumptions still follows the full
+construction path. Every successful finite result retains the original
+real-domain and real-coefficient checks. The special-inverse numerical check
+also drops an unused eager numerical conversion and three unused locals.
+
+`CheckCompositionRefactoring.wl` selects six files and records **100 passed,
+zero failed**, with unchanged source hashes, in
+`composition-refactoring-tests.json`. Four new cases cover constant arguments
+under assumptions, finite retries after an exact probe, logarithmic increments,
+and rejected complex parameters/branches/centers. Existing numerical checks
+cover reflected Erfc tails, LogGamma, very large exact exponential targets,
+and Lambert thresholds. The standalone build, 11 Python builder tests and
+documentation checks passed. **The full package suite was not run.**
+
+The `Composition` benchmark compares immutable commit
+`07a9781212beb2eeb9ff16aa625b50ac27974078` with these sources in fresh Wolfram
+15.0.1 kernels. This baseline also predates the request-local logarithmic
+builder, so one fixture measures that builder separately from exact-composition
+checks. All seven finite outputs and remainders agree exactly. Each fixture
+has one warm-up and three measurements; the reports retain all samples and
+source/harness hashes.
+
+| Fixture | Before, median seconds | After, median seconds |
+| --- | ---: | ---: |
+| Six nested logarithmic regions, without exact-composition checks | 0.01520 | 0.00773 |
+| Nonconstant trigamma exact probe | 0.00345 | 0.00239 |
+| Irrational Bessel order and argument | 0.08311 | 0.08009 |
+| Finite trigamma composition | 0.03211 | 0.02811 |
+| Incomplete Gamma with irrational shape and input | 0.11596 | 0.07590 |
+| Hypergeometric function with a symbolic positive parameter | 0.05790 | 0.04217 |
+| Inverse of a Bessel perturbation | 0.03912 | 0.02763 |
+
+These selected local measurements are not general performance guarantees.
+The logarithmic builder improvement does not change the previously observed
+whole-constructor bottleneck in exact-composition checks.
+
+```powershell
+$env:ASYMPTOTIC_BENCHMARK_SET = 'Composition'
+wolfram.exe -noinit -script validation/BenchmarkRefactoring.wl
+wolfram.exe -noinit -script validation/CheckCompositionRefactoring.wl
+```
+
 ## Request-local construction reuse
 
 Generalized logarithmic term-goal searches now keep one lazy builder per

@@ -4306,7 +4306,7 @@ AsymptoticInverse`FourierInverseCoefficient[___] := Failure["InvalidArguments", 
 (* END SOURCE: AsymptoticInverse/Kernel/FourierCoefficients.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl
-   Source SHA256 (UTF-8/LF): 3d4a44ba90f44b25567da0a3f8fad8da0c8d9dd1984d78be0964d7ba6d62404e *)
+   Source SHA256 (UTF-8/LF): 70680b2fb1990f7564dc5a40658ee6d82d2e2ee7bd90e6e1b607e849620cb3de *)
 (* Real special-function adapters with explicit forward-model provenance.
    Finite Poincare models are never labelled convergent exact forward data. *)
 
@@ -4494,10 +4494,10 @@ AsymptoticInverse`AsymptoticSpecialInverse[fam_String, {x_Symbol, endpoint_}, {y
   catch[specialConstruct[fam, x, endpoint, y, cutoff, opts]];
 AsymptoticInverse`AsymptoticSpecialInverse[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use AsymptoticSpecialInverse[family,{x,endpoint},{y,cutoff}]."|>];
 
-specialNumerical[a_, target_, wp_] := Module[{x, y, value, approximate, reference, equation, tt, seed, result, bound},
+specialNumerical[a_, target_, wp_] := Module[{x, y, approximate, reference, equation, tt, bound},
   If[! IntegerQ[wp] || wp < 20, fail["InvalidPrecision", "WorkingPrecision must be an integer of at least 20 digits."]];
   If[! NumericQ[target] || (! exactQ[target] && Precision[target] < wp), fail["InsufficientPrecision", "Supply an exact target or enough input precision."]];
-  {x, y} = a["Variables"]; value = N[target, wp + 20];
+  {x, y} = a["Variables"];
   If[! TrueQ[N[a["TargetDomain"] /. y -> target, wp + 20]], fail["OutsideBranch", "The target is outside the adapter's selected real branch."]];
   (* Substitute exact target expressions before N so small reflected erfc
      tails and Log[Exp[v]] do not lose digits by subtracting rounded values. *)
@@ -7528,7 +7528,7 @@ specialFunctionNormalize[f_, x_, coord_, ass_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/SpecialFunctionIdentities.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/ParameterizedSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 94825324e7f9a9ea5abdba899c43e9b241a2fa589d8c199e90c0dd4aa07e05db *)
+   Source SHA256 (UTF-8/LF): 19370b301debf8107b96e356b00bc06a6c4bf04ee7aa9bab3060fff822afa204 *)
 (* Fixed-parameter special functions in the finite-argument composition
    calculus. Realness of the original expression is checked independently;
    a successful native series still has to satisfy fwdAnalytic's existing
@@ -7603,9 +7603,6 @@ specialParameterizedForwardJet[e_, u_, ell_, ass_, Kw_, limit_] := Module[
 specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] := Module[
   {domain, argument, jet, negative, center, small, z = Unique["specialArgument$"],
    body, unary, normalized, factor, regular, result, relativeCut, weight},
-  domain = specialFunctionRealDomain[e, u,
-    <|"u" -> u, "Substitution" -> u, "LocalVariable" -> u|>, ass, limit];
-  If[! AssociationQ[domain] || ! TrueQ[domain["RealFunctionVerified"]], Return[$Failed, Module]];
   argument = e[[position]];
   jet = fwd[argument, u, ell, ass, Kw, limit];
   If[! MatchQ[jet, {_List, _, _}] || ! less[0, jet[[2]]], Return[$Failed, Module]];
@@ -7613,6 +7610,13 @@ specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] :
   If[negative =!= {} || ! FreeQ[center, ell] ||
     ! TrueQ[TimeConstrained[FullSimplify[Element[center, Reals], ass], 1, False]],
     Return[$Failed, Module]];
+  (* fwdAnalytic cannot return an exact jet for a nonconstant increment.
+     Reject that probe before proving the whole special function real;
+     arguments constant under the assumptions still take the usual path. *)
+  If[Kw === Infinity && small =!= {}, Return[$Failed, Module]];
+  domain = specialFunctionRealDomain[e, u,
+    <|"u" -> u, "Substitution" -> u, "LocalVariable" -> u|>, ass, limit];
+  If[! AssociationQ[domain] || ! TrueQ[domain["RealFunctionVerified"]], Return[$Failed, Module]];
   normalized = If[zeroQ[center, ass], specialParameterizedFrobenius[e, position, z, ass], $Failed];
   result = Block[{$specialParameterizedForwardActive = True},
     If[ListQ[normalized] &&
