@@ -1,0 +1,20 @@
+  (* Preserve exponential degree until projecting the omitted tail.
+     Only contributions at degree n+1 determine its algebraic envelope.
+     Higher degrees absorb every fixed power-log factor as u -> 0+. *)
+  tail = flatOpsJetBound[convolution[[n + 2]], ell];
+  If[na === n,
+    tail = flatOpsTailAdd[tail, flatOpsBoundProduct[
+      a["SectorTail"], flatOpsJetBound[First[bj], ell]]]];
+  If[nb === n,
+    tail = flatOpsTailAdd[tail, flatOpsBoundProduct[
+      b["SectorTail"], flatOpsJetBound[First[aj], ell]]]];
+  (* No boundary term is not the same as no tail. If only later sectors
+     remain, use E^(n+1) O(1), rather than claiming an exact product. *)
+  If[tail[[1]] === Infinity && (
+      AnyTrue[Drop[convolution, n + 2], ! flatOpsExactZeroQ[#] &] ||
+      (a["SectorTail"][[1]] =!= Infinity &&
+        AnyTrue[bj, ! flatOpsExactZeroQ[#] &]) ||
+      (b["SectorTail"][[1]] =!= Infinity &&
+        AnyTrue[aj, ! flatOpsExactZeroQ[#] &]) ||
+      (a["SectorTail"][[1]] =!= Infinity &&
+        b["SectorTail"][[1]] =!= Infinity)), tail = {0, 0}];

@@ -1,0 +1,47 @@
+{
+  "provenance": "Manually transcribed from successful native Wolfram connector responses; not an automated export of the packaged harness.",
+  "date": "2026-09-09",
+  "commit": "921387e5ba1239bfda96e63e64e89bf63d9c41e6",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "package_loaded_from": "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse.wl",
+  "native_full_upstream_suite_executed": false,
+  "native_packaged_regression_suite_executed": false,
+  "native_patches_executed_successfully": false,
+  "service_errors": "Intermittent HTTP 502/network failures. Excluded from mathematical and package-failure findings.",
+  "observations": [
+    {
+      "id": "N01",
+      "case": "preconstructed conditional inverse; target 1; interval {1/2,3/2}; center 1; zero refinements",
+      "clean": "Failure[\"OutsideBranch\", ... \"Certified\" -> False, \"UnprovedCondition\" -> x > 2, \"ConditionScope\" -> \"EntireClosedVerificationInterval\", ...]",
+      "ambient_x_gt_2": "<|\"Certified\" -> True, \"RootEnclosure\" -> {1,1}, \"CertifiedSourceDomain\" -> x > 2, \"SourceDomainVerified\" -> True, \"CertifiedFunction\" -> x, \"CertifiedTarget\" -> 1|>",
+      "primitive_control": "Assuming[x>2,Refine[x>2,Element[x,Reals]]] -> True; Refine[x>2,Element[x,Reals],Assumptions->True] -> x>2",
+      "not_executed": "End-to-end patched certificate and valid target-3 native control"
+    },
+    {
+      "id": "N02",
+      "outer": "AsymptoticExpansion[x/(a+x),{x,0,2},Assumptions->a>0]",
+      "inner": "AsymptoticExpansion[a,{a,0,4}]",
+      "outer_summary": "Expression -> x/a; Remainder -> PowerLogRemainder[x,2,0]; Assumptions -> a>0; TargetDomain -> x>0",
+      "composition_summary": "Expression -> 1; Remainder -> PowerLogRemainder[a,2,0]; Assumptions -> a>0; TargetDomain -> a>0 && a>0; RemainderScaleExpression -> a^2",
+      "exact_diagonal": "1/2",
+      "extension_status": "Paths x=a^m, m>1, proved mathematically and checked in Python only; no native results claimed."
+    },
+    {
+      "id": "N03",
+      "definition": "g[t_?NumericQ] := If[TrueQ[t==0],0,t^2 Log[1+Abs[Log[Abs[t]]]]]; g'[0]=0;",
+      "input": "AsymptoticExpansion[g[x],{x,0,2}]",
+      "summary": "Expression -> 0; Remainder -> PowerLogRemainder[x,2,0]; Exact -> False; Assumptions -> True",
+      "native_limit": "Limit[Log[1-Log[x]],x->0,Direction->\"FromAbove\"] -> Infinity",
+      "derivative_at_zero": "0 (the assigned derivative is mathematically correct)"
+    },
+    {
+      "id": "N04",
+      "direct": "AsymptoticExpansion[Sqrt[-a]+x,{x,0,2},Assumptions->a>0]",
+      "direct_summary": "Expression -> Sqrt[-a]+x; Remainder -> 0; Assumptions -> a>0; TargetDomain -> x>0",
+      "observable": "SeriesObservable[AsymptoticExpansion[x,{x,0,3},Assumptions->a>0],z+Sqrt[-a],z]",
+      "observable_summary": "Kind -> Derived; Expression -> Sqrt[-a]+x; Remainder -> 0; Assumptions -> a>0; TargetDomain -> x>0",
+      "scalar_control": "SeriesAdd[base,Sqrt[-a]] -> Failure[\"UnprovedRealCoefficient\", ...]",
+      "inverse_control": "AsymptoticInverse[x+Sqrt[-a] x^2,{x,0},{y,3},Assumptions->a>0] -> Failure[\"UnprovedRealCoefficient\", ...]"
+    }
+  ]
+}

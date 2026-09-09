@@ -1,0 +1,665 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{newpxtext,newpxmath}
+\usepackage[margin=0.87in,headheight=15pt]{geometry}
+\usepackage{microtype,booktabs,longtable,array,tabularx}
+\usepackage{xcolor,listings,fancyhdr,xurl,needspace}
+\usepackage[colorlinks=true,linkcolor=blue!40!black,citecolor=blue!40!black,urlcolor=blue!40!black]{hyperref}
+\definecolor{ink}{HTML}{203745}
+\definecolor{light}{HTML}{F4F6F7}
+\definecolor{linegray}{HTML}{CDD5DA}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,breaklines=true,
+  keepspaces=true,showstringspaces=false,frame=single,rulecolor=\color{linegray},
+  backgroundcolor=\color{light},aboveskip=9pt,belowskip=9pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5.5pt plus 1pt}
+\setlength{\emergencystretch}{3em}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\textsc{Asymptotic / Incremental technical audit}}
+\fancyhead[R]{\small 9 September 2026}
+\fancyfoot[C]{\thepage}
+\newcommand{\code}[1]{{\small\nolinkurl{#1}}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\CC}{\mathbb C}
+\newcommand{\M}{\mathcal M}
+\newcommand{\commit}{\texttt{921387e5ba1239bfda96e63e64e89bf63d9c41e6}}
+\newcommand{\source}[2]{\textbf{Source locus:} \code{#1}; \code{#2}}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\hypersetup{pdftitle={When equal exponents are not equal keys: an incremental audit of Asymptotic 1.8.0},pdfauthor={Technical audit prepared for Vladimir Reshetnikov}}
+\begin{document}
+\begin{titlepage}
+\vspace*{0.55in}
+{\large\color{ink}\textsc{Mathematical software / Source and native-kernel audit}}\par
+\vspace{0.35in}
+{\Huge\bfseries When equal exponents\par are not equal keys}\par
+\vspace{0.3in}
+{\LARGE An incremental audit of\par Asymptotic 1.8.0}\par
+\vspace{0.4in}
+{\large New correctness evidence, a tested semantic-merge repair,\par real-domain enforcement, numerical diagnostics,\par and comparison with Wolfram Language}\par
+\vspace{0.65in}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+Prepared for & Vladimir Reshetnikov\\[6pt]
+Repository & \url{https://github.com/VladimirReshetnikov/Asymptotic}\\[6pt]
+Audited snapshot & \commit\\[6pt]
+Native evaluator & Wolfram Language 15.0.0, Linux x86 (64-bit), build dated 6 May 2026\\[6pt]
+Audit date & 9 September 2026
+\end{tabularx}
+\vfill
+\textbf{Scope of the contribution.} This is a delta to the nine existing reviews, not another presentation of their backlog. Its principal new finding is a native-reproduced false remainder caused by structural grouping of mathematically equal transcendental exponents. The report also turns the earlier real-coefficient concern into public counterexamples and gives an exact oracle for a numerical diagnostic that cannot resolve the error it displays.
+\end{titlepage}
+
+\section*{Executive assessment}
+\addcontentsline{toc}{section}{Executive assessment}
+\textbf{The package has substantial value, but a shared sparse-support invariant is currently false.} The strongest new result of this audit is not an absent feature or a speculative optimization. For two provably equal transcendental weights, ordinary \code{jetMerge} can retain two separate rows. Downstream code assumes the rows have distinct increasing weights. That mismatch can produce an invalid big-$O$ bound, return no terms for a one-term request, and spend a full multi-index budget trying to invert a function that is exactly $x^2$.
+
+The witness uses the elementary identity
+\[
+ a=\sinh^2(1)=\frac{\cosh(2)-1}{2}=b.
+\]
+Wolfram's simplifier proves $a-b=0$, but the package's separate canonicalization of $a$ and $b$ leaves different expression trees. Its ordinary merger groups by those trees, not by proved equality. The Fourier merger already uses the stronger equality-aware strategy. Thus the defect is localized and repairable without redesigning the coefficient theory.\cite{core,fourier}
+
+Three public examples were executed before and after a focused replacement of that grouping step. The repair changes a zero-term result to the exact one-term expression $x^2$, changes a product's remainder degree from $3$ to the required $6$, and changes an inverse-enumeration failure to the exact answer $\sqrt y$. These are native Wolfram observations, not Python simulations. They do \emph{not} constitute a run of the full repository suite.
+
+Two additional contributions matter. First, the real-domain concern already catalogued as C07 now has concrete public witnesses: \code{ArcSin[2]} bypasses a syntactic ban on \code{Complex} atoms, and the real-inverse constructor returns $y-\arcsin(2)$ with a nonreal target limit. The coefficients are correct as complex formulas; the defect is that they are accepted under a real-branch contract. Second, a high-precision numerical check can return an unresolved numerical zero for an error that is provably positive. Wolfram correctly retains the zero's poor accuracy, but the surrounding association has no explicit error-resolution status. This is a diagnostic and usability issue, not evidence that rational interval certification is false.\cite{core,numerical,real-domain}
+
+The practical priority is therefore narrow: repair semantic support grouping; enforce original-function realness at all public real-branch boundaries; and make numerical error resolution explicit. The archive provides an opt-in merge hotfix, a hash-guarded source patcher, regression specifications, a numerical-diagnostic prototype, selected native observations, and independent exact oracles.
+
+The broader comparison should remain fair. Wolfram Language is not limited to Taylor and Puiseux asymptotics: its documentation expressly permits automatically inferred, more exotic scales. The repository's advantage is the explicit, inspectable machinery for its selected real scales, including exact-weight coefficient access and transported remainder objects, not a universal claim that native functions cannot handle logarithms or irrational powers.\cite{wl-asymptotic,wl-solve}
+
+\clearpage
+\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup
+\clearpage
+
+\section{Scope, evidence, and non-duplication}
+\subsection{An immutable snapshot}
+All repository findings refer to \commit. The root standalone file loaded in the native evaluator was 574,894 bytes and exposed 37 public symbols in the package context. The repository identifies this API as version 1.8.0 and requires Wolfram Language 15.0 or later. The modular kernel is the development source; the root file is a generated standalone distribution.\cite{readme,core}
+
+The native environment reported:
+\begin{lstlisting}
+15.0.0 for Linux x86 (64-bit) (May 6, 2026)
+\end{lstlisting}
+This is the environment of the observations, not a claim about the newest available Wolfram point release. The current documentation was consulted separately on the audit date. No performance claim is extrapolated from another operating system or from the repository's historical validation records.
+
+\subsection{What was inspected and what was executed}
+The source inspection concentrated on the ordinary coefficient and precision algebra; forward expansion and object construction; series arithmetic and composition; Fourier coefficients; reciprocal-log calculus; source-coordinate reconstruction; flat-sector operations; inverse branch selection; special-function identities and real-domain contracts; Gamma/Barnes observable powers; exact interval certificates; and numerical inverse checks. Appendix~\ref{app:coverage} gives the inspected paths and distinguishes them from features assessed at the documented interface level.
+
+Repository content was read through the GitHub connector. There was no complete checkout in the local build container. The native Wolfram evaluator could load the pinned standalone package using a downloaded file, which permitted the focused examples and the merge transformation to be executed. Some later evaluator or external-download calls failed at the service boundary; they are not counted as package failures. The article and artifact bundle were built locally.
+
+The evidence has four levels:
+\begin{description}
+\item[Native observation.] A displayed public input and selected output were obtained from Wolfram Language at the stated version. The machine-readable record is \code{results/native_observations.json}; it is a selected transcription, not a full kernel-session export.
+\item[Mathematical proof.] The false remainder and the positive numerical error are established independently of runtime behavior by explicit identities and inequalities below.
+\item[Independent execution.] The Python oracles use exact rational arithmetic and high-precision decimal evaluation. They test a model of the boundary algorithm and the mathematical witnesses, not the Wolfram implementation itself.
+\item[Proposal.] The broader realness integration, numerical wrapper, and expanded test matrix are recommendations. They are not represented as completed, package-wide, natively validated fixes.
+\end{description}
+
+The exact arithmetic/model run checked 68 degree-pair cases with 204 family assertions, together with the positive-error oracle. Five Python tests exercised the source patcher's guards on synthetic fixtures. Those counts must not be added to the number of native repository tests. The supplied nine-test Wolfram regression collection was not executed as a complete \code{TestReport} run.
+
+\subsection{The existing reviews form the baseline, not this report's content}
+The pinned \code{code-review/README.md} indexes nine reviews. The maintained development register consolidates 87 numbered findings and their associated design and roadmap proposals. That register was used as the primary de-duplication map, with the relevant earlier discussion inspected where the present evidence sharpens or corrects it. This does not claim a line-by-line rereading of every page of all nine manuscripts.\cite{review-index,status,review2}
+
+\begin{longtable}{@{}p{0.14\linewidth}p{0.26\linewidth}p{0.53\linewidth}@{}}
+\toprule
+Item here & Relation to prior work & What is actually added\\\midrule
+\endhead
+A1 & New root cause; adjacent to C04 and C12 & The comparator proves equality, but structural grouping ignores it. A public product has a false remainder; the ordinary multi-index model can acquire a zero gap. A tested grouping repair is supplied.\\[5pt]
+A2 & Sharpens C07 & Public constant, analytic-function, and real-inverse examples demonstrate the gap. The distinction between syntactic exactness and original-function realness is made operational.\\[5pt]
+A3 & Sharpens the numerical-evidence/API discussion, including D05 & A returned zero is shown to be unresolved, with a strictly positive rational error bracket and a proposed explicit resolution state. The legacy naming of the reference root is not re-reported as new.\\[5pt]
+Excluded & C01, C02 and the rest of the unchanged register & Dense native export and fractional powers of pure uncertainty have focused fixes in the current snapshot. Previously catalogued resource, refinement, schema, licensing, and extension proposals are not reproduced as new findings.\\
+\bottomrule
+\end{longtable}
+
+Two distinctions prevent mistaken issue closure. A1 is not C12's concern about the last branch of an exact-order comparator: the equality required by this witness is already proved. Nor is A1 C04's unit-series frontier-degree rule: the failing product runs through ordinary multiplication and its two-pointer boundary scan. Repairing A1 does not establish that either earlier issue is resolved.\cite{core,status}
+
+Review 2 describes complete weight grouping before term counting as a strength. That description needs a qualification for ordinary transcendental weights: the intended property is present for identical canonical keys, but does not hold for every equality the comparator can prove. The correction is consequential because the same invariant supports both term-count semantics and remainder proofs.\cite{review2,core}
+
+\section{What the repository contributes, and where native Wolfram fits}
+\subsection{A useful architecture, not merely a replacement for InverseSeries}
+The ordinary representation is a finite jet
+\begin{equation}
+ F(u)=\sum_{\alpha\in A}u^\alpha P_\alpha(L)
+       +\OO\!\left(u^\rho(1+|L|)^d\right),
+ \qquad u\to0^+,\quad L=\log u,
+ \label{eq:jet}
+\end{equation}
+with exact real weights and polynomial logarithmic coefficients. At a finite endpoint, $u$ is the selected positive distance to that endpoint; at positive or negative infinity it is $1/x$ or $-1/x$. The use of a positive coordinate is an important part of the real-branch interpretation.\cite{core}
+
+Ordinary inversion normalizes a model of the form
+\begin{equation}
+ y-y_0=c u^p\left(1+\sum_{j=1}^{m}u^{\delta_j}B_j(L)\right),
+ \qquad c\ne0,\quad p\ne0,\quad\delta_j>0.
+ \label{eq:inversemodel}
+\end{equation}
+A uniformizer $z=((y-y_0)/c)^{1/p}$ separates the leading branch from a unit correction. Individual multi-index coefficients, grouped computations, and residual calculations operate on this structured model. The positivity of each gap is mathematically indispensable: it makes the set of relevant multi-indices finite below a fixed weight. A1 shows why this hypothesis must be established after semantic merging, not inferred from distinct expression keys.\cite{core}
+
+The remaining engines are deliberately different. Fourier coefficients have modes $P_\omega(L)e^{i\omega L}$; flat expansions separate exponential degree from the algebraic precision of each sector; reciprocal-log calculus retains a monomial carrier and an analytic unit in $\pm1/\log y$; Gamma/Barnes inverses retain exact Lambert cores and inverse-logarithmic coefficient blocks. A common result head provides access and provenance, but does not turn these representations into one unrestricted transseries field.\cite{readme,fourier,flat-ops,reciprocal,gamma-ops}
+
+This separation is often a strength. The envelope arithmetic can transport a sum or product error without forcing it into an unsuitable single scale. Its multiplication rule is the conservative identity
+\[
+ (e_1+\OO(R_1))(e_2+\OO(R_2))
+ =e_1e_2+\OO\!\left(|e_1|R_2+|e_2|R_1+R_1R_2\right).
+\]
+Its real $\sin$, $\cos$, and absolute-value operations rely on scalar Lipschitz bounds rather than an unjustified Taylor expansion of an arbitrary remainder. Exponentiation requires an absolutely small unknown error, whereas a logarithm requires a relatively small error and a positive approximation. These are meaningful contracts to retain while repairing the shared infrastructure.\cite{envelopes}
+
+\clearpage
+\subsection{A comparison by task and contract}
+\begin{longtable}{@{}p{0.21\linewidth}p{0.34\linewidth}p{0.38\linewidth}@{}}
+\toprule
+Task & Native Wolfram Language & Repository's additional role or limitation\\\midrule
+\endhead
+Ordinary local reversion & \code{Series} and \code{InverseSeries} provide compact, integrated series workflows. & More explicit real branch, exact-weight, logarithmic-block, remainder, and provenance machinery for the supported generalized models. Native reversion remains an excellent control on ordinary analytic examples.\\[5pt]
+Implicit asymptotic solving & \code{AsymptoticSolve} accepts scalar equations and systems, specified centers, real-domain restrictions, and automatically inferred scales. & A specialized inverse-model algebra with direct coefficient queries and inspectable finite-model residuals. It is not a general replacement for native systems solving.\\[5pt]
+Special-function asymptotics & \code{Asymptotic} and \code{Series} have broad native knowledge; the former also dispatches to other asymptotic tasks. & Domain-aware adapters, retained carriers, explicit errors, and selected exact identities. Some coefficients intentionally come from native routines; this is integration, not independent reimplementation.\\[5pt]
+Nonrational exponents & Native routines may return useful generalized or exact expressions; their asymptotic facilities are not restricted to rational powers. & A sparse support representation intended to treat arbitrary orderable exact real weights. Its particular semantic-equality obligation is central to A1.\\[5pt]
+Power/log/exp calculus & Native series arithmetic is integrated into ordinary expressions. & Explicit error transport across the package's selected scales and an envelope fallback. Operation eligibility depends on the representation and realness proof.\\[5pt]
+Branch selection & Native solving supports centers, domains, directions, and conditions. & Retained source/target information and branch inference for selected \code{InverseFunction} expressions. A2 is a hole in the common realness boundary, not a denial that branch checks exist.\\[5pt]
+Numerical comparison & \code{FindRoot}, precision tracking, and exact-number evaluation provide building blocks. & \code{InverseNumericalCheck} relates a retained equation to an expansion and its error scale. A3 concerns the resolution of the displayed comparison.\\[5pt]
+Certified finite-point result & Native numerical precision is not itself an interval theorem. & The repository implements rational interval enclosures and explicit elementary-function tails for a limited certificate route. This is distinct from a proof of every asymptotic remainder.\\
+\bottomrule
+\end{longtable}
+The native-side statements in this table follow the official references; the repository-side statements follow its README and inspected implementation.\cite{wl-series,wl-inverseseries,wl-seriesdata,wl-solve,wl-asymptotic,readme,certificates}
+
+A particularly important comparison boundary is \code{SeriesData}. Its documented representation stores a coefficient list, minimum and maximum numerator orders, and a denominator defining the exponent lattice. An arbitrary irrational support or a separate logarithmic bound does not have a direct, lossless encoding in those fields. That explains why a separate object is useful; it does not justify overlooking the package's own support invariant.\cite{wl-seriesdata}
+
+\subsection{What the native probes actually showed}
+A polynomial control behaved as expected:
+\begin{lstlisting}
+AsymptoticSolve[x + x^2 == y, x, {y, 0, 4}, Reals]
+(* {{x -> -1-y+y^2-2 y^3+5 y^4},
+    {x -> y-y^2+2 y^3-5 y^4}} *)
+
+InverseSeries[Series[x + x^2, {x, 0, 5}]]
+(* x - x^2 + 2 x^3 - 5 x^4 + 14 x^5 + O[x]^6 *)
+\end{lstlisting}
+These results confirm both the usefulness of native controls and the need to distinguish selecting a local inverse from finding several branches. The package's direct inverse call with a specified source endpoint selects a different contract from a native request for all nearby branches.
+
+Two bounded probes of the native solver returned unevaluated inputs in this environment:
+\begin{lstlisting}
+AsymptoticSolve[x + x^Sqrt[2] == y, x,
+  y -> Infinity, Reals, SeriesTermGoal -> 3]
+AsymptoticSolve[x + x^2 Log[x] == y, x,
+  y -> 0, Reals, SeriesTermGoal -> 3]
+\end{lstlisting}
+These are evidence about the exact inputs, options, and kernel tested. They are not a theorem that no change of variables, branch specification, preprocessing, or future native version can solve the problems. The package's documented specialized scope addresses precisely such models, but a broad superiority benchmark was not performed here.\cite{readme,wl-solve}
+
+Other controls demonstrate why careless comparisons are misleading. Native \code{Series[x^Sqrt[2]+x^Pi,{x,0,4}]} returned the exact finite expression, not a failure. Native \code{Asymptotic[Exp[x+1/x],x->Infinity,SeriesTermGoal->3]} retained the exact exponential expression. Retaining an exact answer is not an incorrect asymptotic result, even when a user would prefer an expanded correction bracket. A native \code{Erfc} probe returned its familiar exponentially small carrier with algebraic corrections. The delivered comparison script preserves these inputs so later versions can be assessed without changing the test definition.
+
+\subsection{Where the implementation deserves credit}
+The inspected code contains several safeguards that distinguish it from a formula-only experiment. The Fourier path checks reality by conjugate modes and fails rather than silently deleting frequencies. The inverse branch selector distinguishes an inconclusive proof from a rejected branch, and does not equate a bounded candidate search with completeness. Special-function identities retain subdominant exponentials in the supported exact reductions. The reciprocal-log calculus explicitly states the analytic derivative contract it uses.\cite{fourier,branches,identities,reciprocal}
+
+The certificate code uses exact rational interval operations, explicit exponential and logarithmic tails, and a nonzero derivative bound. The numerical route separately checks a recovered root against the retained source domain and labels the result as numerical evidence. Those distinctions are sound design choices; none of the present findings licenses a claim that every branch proof or interval certificate is unreliable.\cite{certificates,numerical}
+
+\section{A1: semantic weight collisions invalidate the ordinary support invariant}
+\label{sec:a1}
+\textbf{Priority: high correctness; native-reproduced. Novelty: a new mechanism with a false-bound witness and a focused tested repair.}
+
+\source{AsymptoticInverse/Kernel/AsymptoticInverse.wl}{jetMerge, jetProductBoundaryDegree, pMul, forwardCore}; also compare \code{fourierWeightGroups} in \code{FourierCoefficients.wl}.\cite{core,fourier}
+
+\subsection{The intended invariant}
+For an ordinary jet, each semantic weight should occur exactly once, carrying the sum of all its coefficient polynomials. After zero coefficients are removed, the weights should be strictly increasing:
+\begin{equation}
+ \alpha_1<\alpha_2<\cdots<\alpha_n,\qquad P_{\alpha_i}\ne0.
+ \label{eq:invariant}
+\end{equation}
+This is more than a convenient normal form. It makes the first row the true leading block; makes a term goal count complete nonzero blocks; makes a cutoff independent of how an exponent was written; and justifies the linear-time boundary scan used by multiplication.
+
+An exact simplifier is not, in general, a canonical representative of every equivalence class of real expressions. It can prove two expressions equal when asked about their difference, while simplifying each separately to different syntax. The source's relevant non-symbolic grouping step is
+\begin{lstlisting}
+groups = GatherBy[
+  {canon[#[[1]]], #[[2]]} & /@ terms, First];
+\end{lstlisting}
+\code{GatherBy} identifies equal keys by expression identity. The later numerical/symbolic order comparator does not retroactively combine those groups. Consequently, a perfectly successful equality proof in the comparator cannot repair an earlier partition by unequal keys.\cite{core}
+
+\subsection{A small exact witness}
+Set
+\begin{lstlisting}
+a = Sinh[1]^2;
+b = (Cosh[2] - 1)/2;
+FullSimplify[a - b]
+(* 0 *)
+\end{lstlisting}
+The native evaluator retained \code{Sinh[1]^2} and \code{(Cosh[2]-1)/2} as different separately simplified forms. Both are positive exact real numbers. Their common value is about $1.3811$, so it lies below $2$.
+
+The full forward expression
+\begin{lstlisting}
+AsymptoticExpansion[x^a - x^b + x^2, {x, 0, 3}]
+\end{lstlisting}
+retained separate opposite-coefficient rows at the two equal weights. Its finite expression still denotes $x^2$ on $x>0$, so this first observation alone is not a false numerical formula. It exposes a broken representation invariant.
+
+The one-term request makes the user-visible consequence immediate:
+\begin{lstlisting}
+s = AsymptoticExpansion[x^a - x^b + x^2,
+  {x, 0}, SeriesTermGoal -> 1];
+{Normal[s], s["Remainder"], s["ReturnedTermCount"]}
+(* {0, PowerLogRemainder[x,b,0], 0} *)
+\end{lstlisting}
+The mathematically complete answer is the single exact block $x^2$. Instead, the unmerged equal weights are counted when choosing a cutoff; the exclusive cutoff can then exclude both of them. This is not the intended convention that a term goal counts complete nonzero weight blocks. The zero expression plus the coarse bound is not by itself a false big-$O$ assertion, but it does not fulfill the requested term goal.
+
+\subsection{A false remainder, not merely untidy output}
+Consider the exact function
+\begin{equation}
+ F(x)=1+x^a+x^b(\log x)^3+x^{2a},\qquad x>0.
+ \label{eq:witnessF}
+\end{equation}
+The public sequence
+\begin{lstlisting}
+s = AsymptoticExpansion[
+  1 + x^a + x^b Log[x]^3 + x^(2 a),
+  {x, 0, 2 a}];
+t = SeriesMultiply[s, s];
+{Normal[t], t["Remainder"]}
+(* {1 + 2 x^a + 2 x^b Log[x]^3,
+     PowerLogRemainder[x, 2 a, 3]} *)
+\end{lstlisting}
+was reproduced in the native kernel. The input series has a valid remainder $\OO(x^{2a})$. The output, however, claims a logarithmic degree that is too small.
+
+\begin{proposition}
+For the exact function in \eqref{eq:witnessF}, the reported product error is not
+$\OO(x^{2a}(1+|\log x|)^3)$. Its leading logarithmic degree at weight $2a$ is $6$.
+\end{proposition}
+\begin{proof}
+Put $L=\log x$ and $t=x^a$. Since $a=b$,
+\[
+ F=1+t(1+L^3)+t^2.
+\]
+Subtracting the reported finite product gives the exact identity
+\begin{align}
+ F^2-\bigl(1+2t(1+L^3)\bigr)
+ &=t^2\bigl((1+L^3)^2+2\bigr)
+   +2t^3(1+L^3)+t^4.\label{eq:squareerror}
+\end{align}
+As $x\to0^+$, $t\to0$ and $L\to-\infty$. Dividing by $x^{2a}(1+|L|)^3$ gives a quantity asymptotic to $|L|^3$, which is unbounded. Dividing by $x^{2a}(1+|L|)^6$ instead gives a quantity tending to $1$. Therefore degree $3$ is false and degree $6$ is valid.
+\end{proof}
+
+The counterexample uses an exact admissible representative of the input remainder class. It therefore disproves the asserted transport for that class; it does not rely on guessing the hidden constant in a big-$O$ symbol or numerically sampling close enough to an endpoint.
+
+\subsection{Why the two-pointer boundary scan misses the worst term}
+\code{jetProductBoundaryDegree} walks one support from the beginning and the other from the end. When the two weights sum to the boundary, it records the sum of their coefficient degrees, then advances both pointers. That is a valid linear-time enumeration of boundary pairs when both supports satisfy \eqref{eq:invariant}. With duplicate semantic weights, moving both pointers can skip other pairs at the same sum.\cite{core}
+
+For the witness, the two equal-weight rows have degrees $0$ and $3$. The scan encounters cross-pairs of degree $3$ and misses the degree-$6$ product of the two cubic-log rows. This explains both the exact observed degree and why a correct error formula in \code{pMul} is insufficient without a correct support representation.
+
+The severity is not bounded by three missing logarithms. More generally, take noncancelling coefficient polynomials $L^p$ and $L^q$ in separate equal-weight rows, with $0\le p<q$. The duplicate-support scan records $p+q$, while the merged coefficient has degree $q$ and its square has degree $2q$. The loss is $q-p$, which can be arbitrarily large. The independent model checks cover 68 such degree pairs. This generalization is a mathematical/source-algorithm analysis; only the displayed $p=0,q=3$ public product was run in Wolfram.
+
+\subsection{The same defect can create a non-small inverse model}
+The exact identity $x^a-x^b+x^2=x^2$ also yields
+\begin{lstlisting}
+AsymptoticInverse[x^a - x^b + x^2,
+  {x, 0}, {y, 2}]
+(* Failure["ResourceLimit", <|
+     "MessageTemplate" ->
+       "Multi-index enumeration exceeded MaxTerms.",
+     "MaxTerms" -> 20000|>] *)
+\end{lstlisting}
+The selected real inverse is simply $\sqrt y$. Retaining two equal leading weights can create a correction gap equal to zero. The multi-index enumeration is then being asked to work with a model outside the strictly positive-gap hypothesis in \eqref{eq:inversemodel}. Raising \code{MaxTerms} is not a remedy for this example.
+
+This is a concrete performance failure caused by a correctness invariant, not a benchmark showing that one general inversion method is faster than another. It should be triaged before tuning enumeration constants or caches.
+
+\subsection{The focused repair and what was verified}
+The tested transformation replaces the structural partition with sorting followed by proved-equality grouping:
+\begin{lstlisting}
+groups = Split[
+  Sort[{canon[#[[1]]], #[[2]]} & /@ terms,
+    less[#1[[1]], #2[[1]]] &],
+  equal[#1[[1]], #2[[1]]] &];
+\end{lstlisting}
+The existing coefficient summation and zero elimination then operate on complete semantic classes. The Fourier implementation already uses the same pattern for its weights and frequencies, so this recommendation aligns the ordinary engine with a precedent in the repository rather than introducing a novel comparison convention.\cite{fourier}
+
+The native rerun after this transformation produced:
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lXX@{}}
+\toprule
+Example & Before & After\\\midrule
+One-term cancellation & $0$, zero returned terms & $x^2$, zero remainder, one term\\
+Product boundary & degree $3$ & degree $6$\\
+Inverse of exact $x^2$ & budget failure & $\sqrt y$, zero remainder\\\bottomrule
+\end{tabularx}
+\end{center}
+This validates the transformation against the three focused public examples. It does not validate every caller, the complete hotfix installation/removal wrapper, or all symbolic-weight behavior.
+
+\subsection{A safe repair process}
+The delivered runtime hotfix is opt-in and session-local. It saves the original downvalues, requires exactly one expected structural-grouping anchor, and refuses to undo unrelated later changes. The source patcher is stricter: it accepts only the audited modular source blob
+\begin{lstlisting}
+e01210c050dc923215c08d808db52fab140a7c4a
+\end{lstlisting}
+and the unique exact source anchor. It defaults to a dry run, preserves a backup when applying the patch, and does not modify the generated root distribution.
+
+A production integration should also assert the positive-gap invariant at inverse-model construction. That assertion is not a substitute for merging: it would turn the example into an explanatory failure rather than the correct answer. Its purpose is to prevent another support defect from reaching an enumeration routine whose finiteness proof assumes positive gaps.
+
+For performance, a two-stage implementation is reasonable: first combine identical canonical keys cheaply; then sort the remaining representatives, coalesce adjacent proved-equal weights, and combine their coefficient sums. If there are $n$ raw rows and $m$ structural groups, this leaves approximately $O(n)$ structural collection plus $O(m\log m)$ comparison work. This is a complexity argument, not a measured speedup. The minimal patch favors clarity and consistency with the Fourier implementation; a fast-path optimization should follow profiling and invariant tests.
+
+\subsection{Limits of the repair}
+Equality here must be proved, not inferred from a numerical tolerance. Distinct exact exponents can be arbitrarily close. Nor should a failed proof be converted into equality or a guessed strict order. The broader comparator concern in the existing register remains separate. The runtime messages also show repeated precision-limit warnings while comparing equivalent forms; the merge repair removes their repeated downstream consequences, but does not itself redesign that comparison procedure.
+
+Finally, this patch does not fix the earlier nonlinear unit-frontier degree issue, native-series export policy, arbitrary restored-object validation, or all possible composite-scale operations. Its claim is deliberately specific: ordinary support classes must reflect equality that the implementation already knows how to prove.
+
+\section{A2: syntactic exactness is not a real-domain proof}
+\label{sec:a2}
+\textbf{Priority: high contract integrity; native-reproduced. Novelty: concrete public witnesses and a sharper repair boundary for the earlier C07 concern.}
+
+\source{AsymptoticInverse/Kernel/AsymptoticInverse.wl}{exactQ, validateInput, pConst, fwdAnalytic, inverse object construction}; compare \code{specialFunctionRealDomain} in \code{SpecialFunctionRealDomain.wl}.\cite{core,real-domain}
+
+\subsection{The exact/real distinction}
+The shared syntactic test is essentially
+\begin{lstlisting}
+exactQ[e_] := FreeQ[e, _Real | _Complex]
+\end{lstlisting}
+and the associated validation message says that exact real input is required. This test rejects machine or arbitrary-precision real atoms and explicit complex atoms. It does not establish that an exact expression denotes a real number. An unevaluated special-function value can be nonreal without containing either forbidden head.\cite{core}
+
+The contrast is visible in public calls:
+\begin{lstlisting}
+AsymptoticExpansion[x + I, {x, 0, 3}]
+(* Failure["InexactInput", ...] *)
+
+s = AsymptoticExpansion[x + ArcSin[2], {x, 0, 3}];
+{Normal[s], s["Remainder"], s["TargetDomain"]}
+(* {x + ArcSin[2], 0, x > 0} *)
+\end{lstlisting}
+The first rejection is not evidence that the second expression is real. Under the principal branch,
+\begin{equation}
+ \arcsin(2)=\frac\pi2-i\log(2+\sqrt3),\qquad
+ \log(2+\sqrt3)>0.
+ \label{eq:arcsin}
+\end{equation}
+For example, the sine of the right-hand side is $\cosh(\log(2+\sqrt3))=2$, with the principal-branch sign consistent with Wolfram's convention. The official \code{ArcSin} reference documents complex values and branch behavior; it is not a real-valued function on all real arguments.\cite{wl-arcsin}
+
+\subsection{The native analytic path can introduce explicit complex coefficients}
+The problem is not limited to a constant that remains visibly unevaluated:
+\begin{lstlisting}
+AsymptoticExpansion[ArcSin[2 + x], {x, 0, 3}]
+(* ArcSin[2] - I x/Sqrt[3] + I x^2/(3 Sqrt[3])
+     + PowerLogRemainder[x,3,0] *)
+\end{lstlisting}
+The output's recorded target condition was $x>0$. The Taylor coefficients are mathematically correct for the complex principal branch, but the original function is nonreal throughout that positive neighborhood. Initial input validation cannot catch complex coefficients that are subsequently produced by a native analytic expansion.
+
+This is why inserting another test for a literal \code{I} at the front door is not an adequate repair. It would still miss encoded nonreal constants, and it would not establish reality of a discarded tail or of the original function.
+
+\subsection{The real-inverse constructor accepts a nonreal target endpoint}
+The stronger witness is
+\begin{lstlisting}
+s = AsymptoticInverse[x + ArcSin[2],
+  {x, 0}, {y, 3}];
+{Normal[s], s["Remainder"], s["Limit"]}
+(* {y - ArcSin[2], 0, ArcSin[2]} *)
+\end{lstlisting}
+Querying \code{TargetDomain} on this returned ordinary inverse object gave a missing-key result. That missing key is not the primary finding: even a positive-side condition cannot make a nonreal endpoint a real inverse endpoint.
+
+For real $x$, $x+\arcsin(2)$ has nonzero imaginary part by \eqref{eq:arcsin}; consequently it does not equal any real $y$. The returned expression is an exact complex inverse formula, but it is not the inverse of a map between real neighborhoods with the advertised source and target interpretation.
+
+It would be inaccurate to call this an erroneous Taylor coefficient or a counterexample to a complex inversion identity. The failing promise is the real-domain contract. That distinction matters when deciding whether to reject the expression or deliberately introduce a separate complex-domain API.
+
+\subsection{A repair that reuses existing machinery}
+The repository already contains a sufficient-real-domain prover. It first attempts a symbolic proof of realness on the positive local coordinate, then applies principal real-domain contracts for recognized heads. Its \code{ArcSin} rule requires an argument in $[-1,1]$, and its constant case requires a proof of membership in the reals. It returns inconclusive failure rather than assuming a real domain.\cite{real-domain}
+
+The proposed integration has three layers. At the public real-domain boundary, strip and retain user conditions, normalize the local chart, and require an eventual realness proof for the original expression under the effective assumptions. At native coefficient import or analytic expansion, verify that the resulting ordinary coefficient polynomials are real under the retained conditions. At real-inverse model construction, require a real finite target limit and real leading/correction data, not merely syntactic exactness of the source input.
+
+These checks address different obligations. A real finite coefficient list does not prove that an unrepresented exponentially small contribution is real; conversely, a sound original-function proof does not excuse an incorrectly imported coefficient. A coefficient check should be an invariant check in addition to, not instead of, the original-function domain proof.
+
+No global realness patch is claimed in this archive. The existing domain prover has deliberately bounded sufficient rules and cannot necessarily prove every valid real expression. Requiring it unconditionally without fallback analysis could reject previously supported real cases. The safe result for an unresolved real-branch obligation is an explanatory failure or an explicitly conditional result, not a silently assumed real germ. The supplied tests specify the three necessary rejections and preserve the explicit-complex rejection as a control.
+
+\subsection{Why changing the documentation alone is insufficient}
+Some package arithmetic is genuinely real-domain arithmetic. The composite envelope route's global $1$-Lipschitz bounds for $\sin$ and $\cos$ are valid on the real line, not on the entire complex plane. Fractional-power branches and positivity checks likewise depend on the real interpretation. Thus changing a usage string to say that some complex expressions happen to be accepted would not supply the missing contracts.\cite{envelopes}
+
+Existing downstream guards do reject many nonreal operands, and the interval certificate route supports a narrower set of expressions. The present examples do not show that a false interval certificate was issued, nor that every arithmetic path propagates the nonreal object unsafely. They show that a real-domain invariant must be established consistently before such paths decide what they may assume.
+
+\section{A3: numerical error needs a resolution state}
+\label{sec:a3}
+\textbf{Priority: medium diagnostic reliability. Novelty: an executed precision-floor example with a strictly positive exact error bracket.}
+
+\source{AsymptoticInverse/Kernel/NumericalInverseChecks.wl}{numericalInverseEvidence}.\cite{numerical}
+
+\subsection{What the current routine does correctly}
+The numerical checker substitutes an exact target before numerical evaluation, uses a higher working precision internally than requested, solves the retained original equation, checks the source side and retained domain, and reports both forward and root residuals. Its evidence text explicitly says that the result is numerical comparison rather than an interval certificate. The \code{ExactInverse} field is a documented legacy alias for the reference root; this audit does not re-report that name as a new defect.\cite{numerical}
+
+The remaining issue is that a fixed guard precision is not a guarantee that the difference of two nearly equal answers is resolved. Precision sufficient for a root value can be grossly insufficient for its truncation error. Native arbitrary-precision tracking does preserve this distinction, but the returned association does not elevate it to a clear success, unresolved, or insufficient-input status.\cite{wl-workingprecision,wl-accuracy}
+
+\subsection{The executed example}
+Let $g(y)$ be the positive small root of $x+x^2=y$. Its exact formula and convergent expansion near zero are
+\begin{equation}
+ g(y)=\frac{\sqrt{1+4y}-1}{2}
+     =\sum_{n\ge1}(-1)^{n-1}C_{n-1}y^n,
+ \qquad C_n=\frac{1}{n+1}\binom{2n}{n}.
+ \label{eq:catalan}
+\end{equation}
+Write $S_{19}$ for the truncation through $y^{19}$. The native call was
+\begin{lstlisting}
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 20}];
+c = InverseNumericalCheck[s, 1/1000,
+  WorkingPrecision -> 20];
+\end{lstlisting}
+Selected returned values were
+\begin{lstlisting}
+"Error"        -> 0``32.69940364882006
+"RemainderScale"-> 1.`20.*^-60
+"Ratio"        -> 0``-27.300596351179944
+"RootResidual" -> 0``32.99956678807954
+\end{lstlisting}
+The true absolute error is approximately
+\begin{equation}
+ |S_{19}(10^{-3})-g(10^{-3})|
+ =1.7607234447062309131509951812539731\ldots\times10^{-51}.
+ \label{eq:errorvalue}
+\end{equation}
+Therefore the returned error is \emph{unresolved}, not an exact zero. The ratio's negative accuracy makes that especially clear in full Wolfram input form. A client that drops the accuracy annotation, or a reader who sees a rounded zero in a table, loses this crucial distinction.
+
+A less extreme run with cutoff $12$, the same target, and the same requested working precision returned an error around $5.85787\times10^{-32}$, but only about $1.467$ digits of reported precision in that error and ratio. This gives a useful transition case: the issue is not only a binary zero/nonzero event, but also whether the comparison meets a meaningful error-digit requirement.
+
+\subsection{An exact rational proof that the error is nonzero}
+Numerical subtraction is unnecessary for the decisive conclusion. At the rational target $y=1/1000$, $S=S_{19}(y)$ is rational. Compute the rational forward residual
+\[
+ R=S+S^2-y.
+\]
+The delivered oracle computes $R$ exactly and verifies $R>0$. Since $g+g^2=y$,
+\begin{equation}
+ R=(S-g)(1+S+g).
+ \label{eq:residualidentity}
+\end{equation}
+The positive root satisfies $0<g<y$. It follows that
+\begin{equation}
+ 0<\frac{R}{1+S+y}<S-g<\frac{R}{1+S}.
+ \label{eq:rationalbounds}
+\end{equation}
+Both endpoints are explicit positive rational numbers. This proves the nonzero error without trusting a high-precision reference-root subtraction. The exact fractions and decimal evaluations are retained in \code{results/independent_oracles.json}.
+
+For a stable decimal evaluation of \eqref{eq:errorvalue}, the oracle uses
+\[
+ g=\frac{2y}{1+\sqrt{1+4y}},\qquad
+ S-g=\frac{R}{1+S+g}.
+\]
+The rational residual is formed before conversion to decimal. This avoids the catastrophic loss that would arise from subtracting two independently rounded values of $S$ and $g$.
+
+\subsection{This is not a counterexample to the asymptotic remainder}
+The package's remainder scale for the cutoff-$20$ expansion is $y^{20}=10^{-60}$ at this target. The actual error divided by that scale is about $1.76\times10^9$. A large ratio does not refute an asymptotic big-$O$ bound: the leading omitted coefficient is a large Catalan number, and the bound does not assert a constant of one.
+
+The relevant error here is loss of numerical resolution, not the size of the big-$O$ coefficient. Nor does a numerical zero with finite accuracy assert exact equality in Wolfram's numeric model. The improvement is to make the package's \emph{diagnostic contract} say plainly when it cannot measure the requested error.
+
+\subsection{A concrete output policy}
+A useful result should retain the raw numeric values while adding an explicit resolution state. For example, \code{"NumericallyResolved"} can mean that the nonzero error and its normalized ratio both carry at least a requested number of significant digits. \code{"UnresolvedAtWorkingPrecision"} can mean that an error difference is numerically zero or has too few reliable digits. A separate state is needed when the target itself has insufficient supplied precision for refinement.
+
+The source equation and asymptotic error scale can guide an adaptive precision request. A rough planning estimate compares the magnitude of the approximation with the magnitude of the error scale, then adds the desired error digits and a guard. It is only a planning heuristic: an asymptotic error scale has an unspecified constant, and a nonlinear equation can be ill-conditioned. The acceptance check must examine the resolved difference or a certified enclosure, rather than trusting the planned working precision.
+
+The delivered \code{ResolvedInverseNumericalCheck} prototype repeats the existing checker at increasing precision and accepts only a positive error and ratio with enough reported digits. It never pads an inexact target with invented precision. It returns a structured failure when the difference remains unresolved. This wrapper is intentionally conservative: an exactly correct approximation can remain a numerical zero at every precision and should then be handled by a separate symbolic or interval argument.
+
+The wrapper was not executed against the package in this audit. The underlying failure examples and the exact oracle were executed. Production integration should also compare successive reference computations, consider conditioning, and preserve the distinction between resolved numerical evidence and a certificate. The prototype's purpose is to make the proposed state transition concrete, not to imply that arbitrary-precision tracking alone proves an error bound.
+
+\section{Development recommendations arising from the new evidence}
+\subsection{Treat semantic support as a checked mathematical object}
+The immediate repair should be followed by a small support contract shared by ordinary jets and their consumers. The contract is not a large new public schema: it is the assertion that weights are ordered, proved-distinct after merging, and attached to nonzero complete coefficient blocks. Constructors and transformations should establish it before a consumer relies on it.
+
+In particular, leading-term extraction, multiplicative frontier scans, inverse gap generation, and term counting should all consume the same normalized support. They should not each silently assume that another path performed the required merge. A debugging or validation build can check adjacent weights and the positivity of normalized gaps. Those checks directly target the demonstrated defect and are narrower than a generic proposal for a new proof framework.
+
+The Fourier code is a useful internal reference implementation for the equality-aware partition. A shared helper could prevent the ordinary and Fourier paths from diverging again, provided that its contract distinguishes symbolic assumption-dependent weights from fully ordered numeric weights. Sharing an implementation must not accidentally apply an unconditional numeric ordering to a symbolic-depth expansion.\cite{core,fourier}
+
+\subsection{Add representation-changing metamorphic tests}
+The package should give equivalent results when an exact exponent is replaced by a provably equal expression. This supplies a test oracle without needing a closed form for every generalized inverse. Start from a supported model, replace selected exponents with equivalent forms, and compare normalized blocks, complete term counts, remainder bounds, and inverse residuals.
+
+The tests should deliberately cover an equality that \code{RootReduce} cannot settle merely as an algebraic-number normalization. Hyperbolic double-angle identities provide one family; other proved transcendental identities can be added only after their exact equality is established in the test. Nearby numerical values must never be treated as equivalent test inputs.
+
+The most valuable combinations are cancellation before a term goal, equal-weight terms with different logarithmic degrees, products whose worst boundary pair is not the pair visited by the old scan, and inverse leading blocks whose cancellation changes the leading power. Permuting input order and changing parenthesization should not alter these mathematical conclusions. The supplied examples establish the first regression family; a broader deterministic fuzzer is a development proposal, not a claimed completed test corpus.
+
+\subsection{Move realness proof to the semantic boundary}
+A2 shows that separate syntactic bans and specialized domain checks can leave a gap between dispatch paths. The recommended boundary is the original function on the selected deleted real neighborhood, under the conditions retained in the result. That proof should precede any arithmetic or branch claim that relies on realness.
+
+The existing sufficient-domain machinery provides a starting point. Integration should expose whether the proof succeeded, failed, or was inconclusive, but the important addition here is not another generic capability flag: it is a testable obligation that rejects \code{ArcSin[2]+x} consistently with \code{I+x} and rejects a nonreal target endpoint in a real inverse. This is a concrete acceptance criterion for closing the earlier C07 item.
+
+\subsection{Make numerical resolution a separate acceptance criterion}
+A numerical checker should not call a comparison resolved merely because \code{FindRoot} returned a number and the root passed a domain predicate. That establishes neither the accuracy of the difference nor that of the ratio. The acceptance criterion should be expressed in error digits, a reference enclosure, or an explicitly selected weaker diagnostic mode.
+
+This improvement is separate from increasing the number of retained asymptotic terms. In the executed example, retaining more terms makes the approximation better while making a fixed-precision comparison less informative. A good interface should explain that outcome rather than making an apparent zero ratio look like stronger evidence.
+
+\subsection{A staged integration plan without repeating the existing roadmap}
+The first stage is a support-normalization change with focused tests and a positive-gap assertion. Its release criterion is that the three public A1 examples pass, ordinary analytic controls still agree with native reversion, and the existing full suite is run on the supported configurations. The audit does not claim that last step has already happened.
+
+The second stage is a real-domain boundary change, with rejection tests and valid-real controls drawn from the ordinary and specialized paths. Its criterion is not simply that the three nonreal examples fail: ordinary real compositions and conditional source domains must retain their intended support.
+
+The third stage is diagnostic resolution reporting, with tests spanning a clearly resolved error, a low-digit error, an unresolved zero, insufficient input precision, and an exactly zero symbolic error. The rational quadratic oracle is small enough to remain an independent reference across implementation changes.
+
+The prior register already contains proposals for integration, complex sectors, broader coefficient fields, multivariate systems, automatic certificates, deployment, and generalized resource budgets. Repeating that roadmap would not add value here. The present recommendations are deliberately attached to newly demonstrated obligations and their acceptance tests.\cite{status}
+
+\section{Validation, use of the artifacts, and conclusions}
+\subsection{Using the source repair}
+The Python patcher reads a local checkout and defaults to a dry run:
+\begin{lstlisting}
+python code/apply_semantic_weight_patch.py /path/to/Asymptotic
+python code/apply_semantic_weight_patch.py /path/to/Asymptotic --apply
+\end{lstlisting}
+It refuses a changed source blob or an unexpected number of anchors. This is preferable to automatically applying a source-level edit to an arbitrary future version. The patch modifies the modular kernel only. Load that kernel for testing; regenerate the standalone distribution through the repository's own build workflow before distributing a new standalone release.
+
+The session-local alternative leaves the checkout unchanged:
+\begin{lstlisting}
+Get["/path/to/Asymptotic/AsymptoticInverse.wl"];
+Get["code/semantic_weight_hotfix.wl"];
+AsymptoticAudit`InstallSemanticWeightFix[]
+(* Run focused examples. *)
+AsymptoticAudit`RemoveSemanticWeightFix[]
+\end{lstlisting}
+The package should be loaded from the pinned version for reproducing this audit. A later version may already contain a different repair and should be reassessed rather than forced through this patch.
+
+\subsection{Running the supplied checks}
+The independent checks require only Python's standard library:
+\begin{lstlisting}
+python tests/independent_oracles.py
+python tests/test_patch_tool.py
+\end{lstlisting}
+The Wolfram regression runner reads the modular kernel from an existing checkout:
+\begin{lstlisting}
+wolframscript -file tests/run_audit.wls /path/to/Asymptotic
+wolframscript -file tests/run_audit.wls /path/to/Asymptotic --semantic-fix
+\end{lstlisting}
+The real-domain rejection tests intentionally remain failing after the semantic merge fix; that fix does not address A2. The runner checks that the expected number of tests actually ran and returns a nonzero exit status on failures. It is a small audit runner, not a replacement for the repository's own suite.
+
+The built-in comparison script uses bounded probes and records expressions rather than reducing every unevaluated answer to a universal unsupported-feature claim. The native numerical wrapper is a prototype with the limitations stated in Section~\ref{sec:a3}. Review its policy before integrating it into a public API.
+
+\subsection{What remains unverified}
+No full native regression suite, complete cross-platform test matrix, or broad performance benchmark was run. The source patcher was tested on synthetic fixtures rather than applied to a full local checkout. The runtime grouping transformation itself was tested on the three principal public examples; the additional installation and restoration guards in the delivered helper were not separately exercised in a native package session.
+
+The report also does not claim to have proved the entire repository article, every special-function adapter, or the absence of other defects. Broadly documented features were compared at their stated contract level, and the direct source coverage is listed in the appendix. These boundaries should remain attached to the artifacts when the findings are transferred into the existing issue register.
+
+\subsection{Conclusion}
+The most useful development action is not another expansion family. It is to make the representation obey the mathematical assumptions already used by its algorithms. A sparse jet is a sum over semantic weights, not a list of expression-tree keys. Once that distinction is enforced, the demonstrated incorrect remainder and the zero-gap inverse failure disappear under the same small repair.
+
+The real-domain and numerical-resolution examples point to the same engineering principle: a representation should record what has actually been established. Absence of a \code{Complex} atom does not establish a real function; a returned approximate zero does not establish a zero error; and a successful local patch test does not establish a fully validated release. The package already contains good mechanisms for many of these distinctions. The recommended work is to apply them consistently at the shared boundaries, with the new examples as permanent regressions.
+
+\clearpage
+\appendix
+\section{Source coverage and evidence map}
+\label{app:coverage}
+The following table records the focus of direct inspection. ``Selected paths'' means relevant functions or contiguous portions, not every line of the named module.
+\begin{longtable}{@{}p{0.43\linewidth}p{0.50\linewidth}@{}}
+\toprule
+Path under \code{AsymptoticInverse/Kernel/} & Inspection focus\\\midrule
+\endhead
+\code{AsymptoticInverse.wl} & Exactness, canonicalization, comparison, ordinary jet/precision primitives, forward construction, object properties, residual/numerical dispatch, coefficient access, module loading. Selected paths.\\[4pt]
+\code{SeriesOperations.wl} & Representation conversion, arithmetic, unary observables, composition, differentiation contracts. Selected paths.\\[4pt]
+\code{SeriesEnvelopeArithmetic.wl} & Composite error bounds, target approach checks, exact scalar operands, powers, logarithm/exponential and Lipschitz observables.\\[4pt]
+\code{FourierCoefficients.wl} & Semantic mode grouping, realness, budgets, coefficients, construction, residuals.\\[4pt]
+\code{ReciprocalLogOperations.wl} & Analytic unit conversion, composition, derivative contract and exact carrier treatment.\\[4pt]
+\code{SourceCoordinates.wl} & Logarithmic/exponential source charts, exact reconstruction and error amplification checks. Selected paths.\\[4pt]
+\code{FlatSectorOperations.wl} & Sector/inner precision distinction, alignment, products, polynomial observables and derivative transport. Selected paths.\\[4pt]
+\code{InverseFunctionBranches.wl} & Candidate completeness, real domains, eventual conditions, sign and local monotonicity validation. Selected paths.\\[4pt]
+\code{SpecialFunctionIdentities.wl} & Finite exact reductions and retention of subdominant exponential terms.\\[4pt]
+\code{SpecialFunctionRealDomain.wl} & Original-function realness proof and elementary/special-head domain rules. Selected paths.\\[4pt]
+\code{GammaInverseOperations.wl} & Observable powers and inherited precision caps during source replay.\\[4pt]
+\code{InverseCertificates.wl} & Rational interval arithmetic, elementary enclosures, derivative exclusion of zero, branch/domain checks and refinement.\\[4pt]
+\code{NumericalInverseChecks.wl} & Root seeding, precision, source-domain checks, error/ratio computation and evidence labels.\\\bottomrule
+\end{longtable}
+Other engine families and deployment features were assessed primarily through the README, public interfaces, imports, and maintained review register; their entire implementations were not reread. The direct review of prior manuscripts was targeted, while the consolidated register supplied the cross-review issue map. This is why no blanket statement that every repository line was audited appears in this report.
+
+\clearpage
+\section{Artifact inventory}
+\begin{longtable}{@{}p{0.48\linewidth}p{0.45\linewidth}@{}}
+\toprule
+Artifact & Purpose / validation status\\\midrule
+\endhead
+\code{article/asymptotic-incremental-audit.tex}\newline Companion \code{asymptotic-incremental-audit.pdf} & This report and compiled document.\\[4pt]
+\code{code/semantic_weight_hotfix.wl} & Opt-in runtime repair. The underlying grouping transformation was tested; helper guards were not fully native-tested.\\[4pt]
+\code{code/apply_semantic_weight_patch.py} & Hash-guarded modular source patcher; five synthetic-fixture unit tests passed.\\[4pt]
+\code{code/reliable_numerical_check.wl} & Adaptive error-resolution prototype, not package-tested or certified.\\[4pt]
+\code{tests/semantic_weight_regressions.wlt} & Three principal desired invariants plus ordinary controls.\\[4pt]
+\code{tests/real_domain_regressions.wlt} & Desired rejections for A2 and an explicit-complex control.\\[4pt]
+\code{tests/run_audit.wls} & Local native runner; deliberately distinguishes failure from a zero-test run.\\[4pt]
+\code{tests/builtin_comparison.wls} & Repeatable, bounded native comparison inputs.\\[4pt]
+\code{tests/independent_oracles.py} & Exact rational error bracket, duplicate-support boundary model and decimal growth data.\\[4pt]
+\code{results/native_observations.json} & Selected native input/output transcription and explicit execution scope.\\[4pt]
+\code{results/independent_oracles.json} & Executed mathematical/model checks and exact fractions.\\[4pt]
+\code{results/remainder_growth.csv} & Evaluation of the analytically derived bad-bound and valid-bound ratios.\\[4pt]
+\code{README.md}, \code{SOURCES.md}, \code{manifest.json} & Usage, source map, pinned identity and evidence boundaries.\\\bottomrule
+\end{longtable}
+
+\clearpage
+\section{Primary references}
+All repository URLs below are pinned to the audited commit. Documentation pages were consulted on 9 September 2026. The discussion of older review findings is attribution and delta analysis, not a claim that the older manuscripts describe the current implementation unchanged.
+\begin{thebibliography}{99}
+\bibitem{readme} V. Reshetnikov, \emph{Asymptotic: README}, audited snapshot.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/README.md}
+\bibitem{core} \emph{AsymptoticInverse/Kernel/AsymptoticInverse.wl}. Primary source for ordinary weights, precision algebra, and public construction.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/AsymptoticInverse.wl}
+\bibitem{review-index} \emph{code-review/README.md}. Index of the nine earlier reviews.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/code-review/README.md}
+\bibitem{status} \emph{docs/development/CODE\_REVIEW\_STATUS.md}. Maintained consolidation and implementation status.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/docs/development/CODE_REVIEW_STATUS.md}
+\bibitem{review2} \emph{Technical review and comparison with Wolfram Language}, review 2, earlier snapshot discussed in the manuscript.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/code-review/code-review-2/article/asymptotic-review.tex}
+\bibitem{fourier} \emph{FourierCoefficients.wl}, particularly \code{fourierWeightGroups} and the coefficient/error algebra.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/FourierCoefficients.wl}
+\bibitem{envelopes} \emph{SeriesEnvelopeArithmetic.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl}
+\bibitem{operations} \emph{SeriesOperations.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SeriesOperations.wl}
+\bibitem{reciprocal} \emph{ReciprocalLogOperations.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/ReciprocalLogOperations.wl}
+\bibitem{flat-ops} \emph{FlatSectorOperations.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/FlatSectorOperations.wl}
+\bibitem{gamma-ops} \emph{GammaInverseOperations.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/GammaInverseOperations.wl}
+\bibitem{branches} \emph{InverseFunctionBranches.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/InverseFunctionBranches.wl}
+\bibitem{identities} \emph{SpecialFunctionIdentities.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SpecialFunctionIdentities.wl}
+\bibitem{real-domain} \emph{SpecialFunctionRealDomain.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SpecialFunctionRealDomain.wl}
+\bibitem{numerical} \emph{NumericalInverseChecks.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/NumericalInverseChecks.wl}
+\bibitem{certificates} \emph{InverseCertificates.wl}.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/InverseCertificates.wl}
+\bibitem{wl-asymptotic} Wolfram Research, \emph{Asymptotic}.\newline
+\url{https://reference.wolfram.com/language/ref/Asymptotic.html}
+\bibitem{wl-solve} Wolfram Research, \emph{AsymptoticSolve}.\newline
+\url{https://reference.wolfram.com/language/ref/AsymptoticSolve.html}
+\bibitem{wl-series} Wolfram Research, \emph{Series}.\newline
+\url{https://reference.wolfram.com/language/ref/Series.html}
+\bibitem{wl-inverseseries} Wolfram Research, \emph{InverseSeries}.\newline
+\url{https://reference.wolfram.com/language/ref/InverseSeries.html}
+\bibitem{wl-seriesdata} Wolfram Research, \emph{SeriesData}.\newline
+\url{https://reference.wolfram.com/language/ref/SeriesData.html}
+\bibitem{wl-arcsin} Wolfram Research, \emph{ArcSin}.\newline
+\url{https://reference.wolfram.com/language/ref/ArcSin.html}
+\bibitem{wl-workingprecision} Wolfram Research, \emph{WorkingPrecision}.\newline
+\url{https://reference.wolfram.com/language/ref/WorkingPrecision.html}
+\bibitem{wl-accuracy} Wolfram Research, \emph{Accuracy}.\newline
+\url{https://reference.wolfram.com/language/ref/Accuracy.html}
+\end{thebibliography}
+\end{document}

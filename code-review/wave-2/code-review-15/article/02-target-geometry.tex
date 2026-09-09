@@ -1,0 +1,120 @@
+\section{F01: composite arithmetic can use the wrong target approach}\label{sec:f01}
+
+\textbf{Classification: high-priority correctness issue in germ metadata.} The finite coefficients need not be wrong for this to matter. A valid remainder at $y\to+\infty$ is not a valid remainder contract at $y\to0^+$. The composite fallback can make exactly this substitution of approaches.
+
+\source{AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl}{\code{seriesEnvelopeApproach}, \code{seriesEnvelopeData}, and \code{seriesEnvelopeBinary}. The relevant producers are \code{flatConstruct}, \code{flatOpsMake}, \code{specialErfc}, and \code{specialThreshold}.\cite{envelope,flat,flatops,special}}
+
+\subsection{The heuristic and the missing check}
+
+The fallback first accepts a stored \code{SeriesApproach}. Otherwise it searches for an expansion point or \code{Limit}; for a flat representation it uses \code{TargetOffset}, and for an original flat inverse it uses the model's \code{Offset}. It attempts recovery from a positive small coordinate only when this search leaves the endpoint unknown. If the direction is still unknown, it gives \code{TargetScale} priority over the leading/core coefficient and infers the side from that sign.\cite{envelope}
+
+Those fields do not all have the semantics required by that inference. A monomial target \emph{offset} is not necessarily the target \emph{limit}; an outer affine scale does not by itself determine the approach side of a non-monotone or reflected adapter. Moreover, once these shortcuts produce an endpoint and a direction, the code does not verify that the recorded small coordinate actually tends to zero there. The operand's domain is checked for contradiction, but that is weaker than checking that it contains an eventual neighborhood along the claimed approach.\cite{envelope}
+
+The distinction can be written precisely. Suppose an object records a positive coordinate $u(y)$ and an approach $\mathcal A$. Required invariants include
+\begin{equation}\label{eq:approach-invariant}
+ u(y)>0\text{ eventually along }\mathcal A,
+ \qquad \lim_{y\to\mathcal A}u(y)=0,
+ \qquad \text{the retained domain holds eventually along }\mathcal A.
+\end{equation}
+A domain such as $y>0$ is compatible with both $y\to0^+$ and $y\to+\infty$; non-contradiction alone cannot choose between them.
+
+\subsection{Witness A: a flat inverse with a pole target}
+
+Consider the supported exact model
+\begin{equation}\label{eq:flat-pole}
+ f(x)=\frac1x+e^{-1/x},\qquad x\to0^+.
+\end{equation}
+Its positive monomial core coordinate is $u=x$, its core power is $q=-1$, its coefficient is $a=1$, and its offset is $b=0$. The target therefore tends to $+\infty$, not to $0$. The constructor call is
+\begin{lstlisting}
+s = AsymptoticFlatInverse[
+  1/x + Exp[-1/x], {x, 0}, {y, 1}];
+\end{lstlisting}
+The flat constructor stores its core model and coordinate but no \code{Limit} or \code{SeriesApproach}. A derived flat object similarly stores its \code{FlatRepresentation} without an explicit target approach. The fallback consequently chooses the offset $0$ and the positive-coefficient side, namely $y\to0^+$. This is a direct source deduction, not a recorded native transcript.\cite{flat,flatops,envelope}
+
+The discrepancy is not merely formal. Let $t=1/x>0$. Then
+\[
+ y=t+e^{-t},\qquad \frac{dy}{dt}=1-e^{-t}>0.
+\]
+The image of this branch is $(1,\infty)$ because $t+e^{-t}\to1$ as $t\to0^+$ and tends to infinity as $t\to\infty$. There is \emph{no} positive-source root for $0<y<1$. In particular, interpreting this inverse as a germ near $0^+$ cannot be justified by the original equation.
+
+The actual large-target expansion starts with
+\[
+ t=y-e^{-y}+\cdots,
+ \qquad x=\frac1y+\frac{e^{-y}}{y^2}+\cdots.
+\]
+Here the positive core inverse coordinate is $u_0=1/y$, which tends to zero precisely at the large positive target end. Checking \eqref{eq:approach-invariant} would immediately reject the guessed endpoint.
+
+A white-box characterization isolates the problem from unrelated dispatch:
+\begin{lstlisting}
+AsymptoticInverse`Private`seriesEnvelopeApproach[
+  s[[1]], 20000]
+(* Desired: Point -> Infinity, Direction -> "FromBelow" *)
+\end{lstlisting}
+The public expression \code{SeriesAdd[s, Exp[-y]]} is also included in the supplied runner. The extra exponential is not a finite power--log coefficient in the flat monomial coordinate; the flat-specific path is expected to fall back to composite arithmetic. The runner records whether that public path produces an object or a failure, separately from the directly established inference defect. No exact public output is asserted without native execution.
+
+The upstream flat-operation tests already construct \eqref{eq:flat-pole} to check differentiation with a negative leading power. Thus this is not a request to support a previously unsupported source family; it concerns transport of an already supported family into the fallback arithmetic.\cite{flattests}
+
+\subsection{Witness B: the negative-source Erfc tail}
+
+Write an affine Erfc target as
+\[
+ y=b+s\operatorname{erfc}(x),\qquad s\ne0.
+\]
+For $x\to-\infty$, set $z=-x\to+\infty$. Using $\operatorname{erfc}(-z)=2-\operatorname{erfc}(z)$ gives
+\begin{equation}
+ y-(b+2s)=-s\operatorname{erfc}(z).
+\end{equation}
+Since the positive tail is positive, the target approaches $b+2s$ \emph{from below} when $s>0$ and from above when $s<0$. This follows directly from the reflection identity and is consistent with the tail model used by the adapter.\cite{special,dlmf712}
+
+For default $b=0,s=1$, the call
+\begin{lstlisting}
+s = AsymptoticSpecialInverse[
+  "Erfc", {x, -Infinity}, {y, 2}];
+\end{lstlisting}
+records \code{Limit -> 2}, \code{SourceSign -> -1}, and \code{TargetScale -> 1}. The fallback's scale-sign shortcut therefore chooses \code{FromAbove}, whereas the branch requires \code{FromBelow}. The exact coefficient used in the side test must incorporate the source-tail reflection, not just the outer target scale.\cite{special,envelope}
+
+The positive-tail domain in this adapter can even make the claimed opposite-side approach have no eventual points satisfying the domain. A later symbolic calculation may then fail or reason under an empty asymptotic approach. The audit does not claim to have observed a particular unsound simplification downstream; the incorrectly inferred side is itself the defect that must be repaired first.
+
+\subsection{Witness C: a downward quadratic threshold}
+
+For
+\[
+ y=b+s a(x-x_0)^2,
+\]
+the target-side sign is $\operatorname{sign}(sa)$, independently of which real source side is selected. In particular,
+\begin{lstlisting}
+s = AsymptoticSpecialInverse[
+  "QuadraticThreshold", {x, 0}, {y, 2},
+  "QuadraticCoefficient" -> -1];
+\end{lstlisting}
+represents a target tending to $0$ from below. The adapter retains the negative leading coefficient of the complete quadratic, but it also stores the default \code{TargetScale -> 1}. The fallback gives the latter priority and infers the opposite side.\cite{special,core,envelope}
+
+The three witnesses are one root cause with three different manifestations: offset is confused with endpoint, affine scale with reflected tail orientation, and affine scale with total curvature. Fixing only the negative flat exponent case would leave the other two intact.
+
+\subsection{Repair at the producers, with checked legacy recovery}
+
+For the exact chart
+\begin{equation}\label{eq:monomial-chart}
+ y=b+a u^q,\qquad u\to0^+,\quad a q\ne0,
+\end{equation}
+the target approach is determined without a symbolic limit:
+\begin{center}
+\begin{tabular}{@{}ccc@{}}\toprule
+Condition & Point & Direction\\\midrule
+$q>0$, $a>0$ & $b$ & FromAbove\\
+$q>0$, $a<0$ & $b$ & FromBelow\\
+$q<0$, $a>0$ & $+\infty$ & FromBelow\\
+$q<0$, $a<0$ & $-\infty$ & FromAbove\\\bottomrule
+\end{tabular}
+\end{center}
+For the Erfc adapter, multiply the sign of the outer target scale by \code{SourceSign}. For a quadratic threshold, use the coefficient of the \emph{complete} quadratic. These computations should populate \code{SeriesApproach} when the object is created. Flat-derived operations should carry the same chart-derived approach forward because multiplication, truncation, and differentiation do not change the independent-variable germ.
+
+Legacy recovery must not let an unverified \code{Offset} suppress recovery from the actual small coordinate. A sensible order is: accept producer-established approach evidence; otherwise recover from an invertible recorded coordinate; otherwise use a heuristic only after proving \eqref{eq:approach-invariant}. If the proof is unavailable, return an explicit uncertainty failure rather than an invented approach. This is a concrete repair of F01, not a re-proposal of the general scale protocol already listed in the earlier reviews.
+
+The supplied \code{ExpectedTargetApproach} and \code{AttachExpectedApproach} helpers implement the explicit formulas for these three families without overriding upstream definitions. They return new objects and intentionally reject unsupported chart families. They are not a complete migration layer: operations which subsequently build a new object still need producer-level propagation or a fresh explicit attachment. The Wolfram helpers require native validation.
+
+\subsection{Acceptance tests and metamorphic coverage}
+
+The independent geometry model contains sixteen cases: eight monomial charts, four Erfc orientations, and four quadratic scale/curvature combinations. The inspected shortcuts disagree with exact target geometry in eight cases. This count describes a deliberately constructed model grid, not an estimated failure rate for real workloads.
+
+The production regressions should check original and derived flat objects, both signs of $q$ and $a$, both Erfc source infinities and affine target signs, and both quadratic curvature signs. An affine metamorphic check is particularly effective: for a nonzero target multiplier $c$, $y\mapsto d+cy$ preserves the target side when $c>0$ and reverses it when $c<0$. Compare producer metadata, fallback metadata, and direct small-coordinate limits after the same transformation. Finally, exercise at least one public mixed-scale arithmetic path; a private helper regression alone would miss a producer that supplied stale overriding metadata.

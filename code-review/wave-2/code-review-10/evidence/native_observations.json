@@ -1,0 +1,131 @@
+{
+  "evidence_type": "Selected outputs transcribed from successful native tool evaluations; not a full raw kernel session log",
+  "snapshot": "921387e5ba1239bfda96e63e64e89bf63d9c41e6",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "loading": "Import pinned raw URL as Text; Export temporary file as Text; Get temporary file. Each evaluator call used a fresh kernel.",
+  "imported_string_length": 574893,
+  "unmodified_exported_working_copy_sha256": "651a824cac83243f97e6a80ccf50f9c24b915763f32b681932d8f9c269fb21c8",
+  "patched_exported_working_copy_sha256": "f5254c3abc07f169f1dc48461472001c492d6446265e9055ad5b62156f4484bf",
+  "hash_scope": "Exported Text working copies, not a claim about raw GitHub response bytes or Git blob identity.",
+  "N01_baseline": {
+    "construction": "AsymptoticInverse[ConditionalExpression[x+x^2,x<1/4],{x,0},{y,3}] outside hostile assumptions",
+    "target": "2",
+    "interval": [
+      "9/10",
+      "11/10"
+    ],
+    "center": "1",
+    "clean_result": {
+      "head": "Failure",
+      "tag": "OutsideBranch",
+      "Certified": false,
+      "UnprovedCondition": "x < 1/4",
+      "ConditionScope": "EntireClosedVerificationInterval"
+    },
+    "clean_history_enclosure_orders": [
+      60,
+      120,
+      240,
+      480,
+      960,
+      1920,
+      2000
+    ],
+    "polluted_assumptions": "x < 1/4",
+    "polluted_selected_result": {
+      "Certified": true,
+      "RootEnclosure": [
+        "1",
+        "1"
+      ],
+      "CertifiedErrorBound": "0",
+      "ResidualEnclosure": [
+        "0",
+        "0"
+      ],
+      "VerificationInterval": [
+        "9/10",
+        "11/10"
+      ],
+      "CertifiedFunction": "x + x^2",
+      "CertifiedTarget": "2",
+      "CertifiedSourceDomain": "x < 1/4",
+      "SourceDomainVerified": true,
+      "Route": "OriginalFunction"
+    },
+    "interpretation": "The unrestricted equation has root 1, but the reported source domain excludes the whole interval."
+  },
+  "N02_baseline": {
+    "construction": "s=AsymptoticFlatInverse[x+Exp[-1/x],{x,0},{y,8}]; c=FlatSeriesObservable[s,1,z]",
+    "normal": "1",
+    "remainder": "0",
+    "sector_depth": 8,
+    "sector_jets_leaf_count": 49,
+    "request": "FlatSeriesMultiply[c,1,\"MaxTerms\"->60]",
+    "result": {
+      "head": "Failure",
+      "tag": "ResourceLimit",
+      "message": "The complete flat-sector convolution exceeds MaxTerms pair products."
+    },
+    "dense_pairs": 81,
+    "active_pairs": 1,
+    "rejected_alternative_fixture": "MaxTerms 45 correctly fails an earlier retained-representation check (49 leaves); not counted as N02."
+  },
+  "patched_spot_checks": {
+    "polluted_N01": "Failure[\"OutsideBranch\", ...]",
+    "valid_control": {
+      "target": "11/100",
+      "interval": [
+        "9/100",
+        "11/100"
+      ],
+      "center": "1/10",
+      "Certified": true,
+      "SourceDomainVerified": true
+    },
+    "N02_result": {
+      "head": "GeneralizedSeries",
+      "normal": "1",
+      "remainder": "0"
+    },
+    "exact_zero_predicate": true,
+    "finite_unknown_remainder_zero_predicate": false
+  },
+  "fixture_correction": {
+    "initial_center": "1/4",
+    "interval": [
+      "1/5",
+      "1/4"
+    ],
+    "observed": "Failure[\"InvalidCenter\", ...]",
+    "reason": "Center must be strictly inside the verification interval.",
+    "corrected_center": "9/40",
+    "observed_after_correction": "Failure[\"OutsideBranch\", ...]",
+    "counted_as_repository_bug": false
+  },
+  "final_combined_patched_batch": {
+    "anchor_counts": [
+      1,
+      1,
+      1
+    ],
+    "checks": {
+      "C01-clean-domain-rejection": true,
+      "C02-polluted-domain-rejection": true,
+      "C03-valid-domain-certificate": true,
+      "C04-valid-enclosure-contains-root": true,
+      "C05-strict-endpoint-rejection": true,
+      "F01-sparse-exact-constant-product": true,
+      "F02-exact-zero-recognition": true,
+      "F03-uncertain-zero-not-annihilated": true,
+      "B01-native-polynomial-agreement": true,
+      "B02-native-logarithmic-agreement": true
+    },
+    "passed": 10,
+    "total": 10
+  },
+  "full_upstream_suite_run": false,
+  "canonical_checkout_rebuilt": false,
+  "local_wolframscript_runner_shell_executed": false,
+  "transport_errors": "Intermittent 502/network failures occurred; no functionality or timing conclusion is based on them."
+}

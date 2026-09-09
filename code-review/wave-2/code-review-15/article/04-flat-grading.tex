@@ -1,0 +1,158 @@
+\section{F03: flat products forget the dominant exponential grade}\label{sec:f03}
+
+\textbf{Classification: medium-priority precision and performance issue.} The current bound is conservative in the example below. The defect is avoidable loss of algebraic precision caused by discarding exponential grading \emph{before} deciding which error term dominates. The same implementation also computes full coefficient products in sectors that will not be retained.
+
+\source{AsymptoticInverse/Kernel/FlatSectorOperations.wl}{\code{flatOpsMultiplyData}, approximately lines 90--119; \code{flatOpsJetBound}, \code{flatOpsBoundProduct}, and \code{flatOpsMake}.\cite{flatops}}
+
+\subsection{Two independent truncations must remain independent}
+
+The flat representation uses
+\begin{equation}\label{eq:flat-representation}
+ s(u)=\sum_{k=0}^{N}\EE(u)^k A_k(u)
+       +\EE(u)^{N+1}\OO\!\left(u^p L^d\right),
+ \quad \EE(u)=e^{-\lambda/u^\nu},\quad
+ L=1+|\log u|,
+\end{equation}
+with fixed $\lambda,\nu>0$. Positive-sector amplitudes can themselves have power--log remainders; the zero sector is exact. The package stores those inner errors separately from the complete omitted-sector tail.\cite{flat,flatops}
+
+For two inputs of depths $N_a,N_b$, the product retains depth $N=\min(N_a,N_b)$. The implementation constructs the complete convolution through degree $N_a+N_b$ using \code{pMul} and \code{pAdd}. It then combines all discarded finite coefficients, all input-tail/finite-sector products, and the tail/tail product into a single algebraic pair $(p,d)$. The exponential degree of each discarded contribution is not retained in this comparison. Finally, \code{flatOpsMake} multiplies the combined pair by $\EE^{N+1}$.\cite{flatops}
+
+The source comment justifies each individual weakening using $\EE^{k-N-1}\le1$ for $k>N$. That inequality is true. But applying it independently to every term can let a very remote sector with a large algebraic pole determine the bound for the entire omitted tail. The later exponential should first be compared against the earlier exponential, because it dominates every fixed algebraic/logarithmic disadvantage.
+
+\subsection{A one-sector example loses three algebraic orders}
+
+Take the inverse of
+\[
+ y=x+e^{-1/x},\qquad x\to0^+,
+\]
+and write $u=y$, $\EE=e^{-1/u}$. Lagrange inversion in the exponential marker gives
+\begin{equation}\label{eq:first-flat}
+ x(u)=u-\EE+\frac{\EE^2}{u^2}
+       +\EE^3\left(\frac1{u^3}-\frac{3}{2u^4}\right)+\cdots.
+\end{equation}
+A depth-one object therefore carries
+\begin{equation}
+ s=u-\EE+\EE^2\OO(u^{-2}).
+\end{equation}
+Squaring the represented function gives
+\begin{align}
+ s^2={}&u^2-2u\EE+\EE^2
+     +\EE^2\OO(u^{-1})
+     +\EE^3\OO(u^{-2})
+     +\EE^4\OO(u^{-4})\\
+   ={}&u^2-2u\EE+\EE^2\OO(u^{-1}).\label{eq:sharp-flat-square}
+\end{align}
+Indeed, the first omitted exact coefficient from \eqref{eq:first-flat} is $1+2/u$, so the $u^{-1}$ bound is not an arbitrary optimistic guess.
+
+The inspected implementation combines the algebraic exponents $0,-1,-2,-4$ after suppressing their distinct exponential degrees. The tail/tail product then wins and the result carries
+\begin{equation}\label{eq:weak-flat-square}
+ s^2=u^2-2u\EE+\EE^2\OO(u^{-4}),
+\end{equation}
+three algebraic orders weaker than \eqref{eq:sharp-flat-square}. Both are valid asymptotic bounds; only the first uses the available grading correctly.
+
+The supplied native characterization separates baseline and proposal outputs:
+\begin{lstlisting}
+s = AsymptoticFlatInverse[x + Exp[-1/x], {x, 0}, {y, 1}];
+a = FlatSeriesMultiply[s, s];
+b = AsymptoticAudit`FlatSeriesMultiplyGraded[s, s];
+{a["SectorRemainder"], b["SectorRemainder"]}
+\end{lstlisting}
+The source-derived expected inner tail powers are $-4$ and $-1$, respectively. This call was not executed natively in the audit.
+
+\subsection{The loss grows with retained depth}
+
+The coefficient of $\EE^k$ in the flat inverse is
+\begin{equation}\label{eq:flat-coeff}
+ c_k(u)=\frac{(-1)^k}{k!}
+ \left(\frac{d}{du}+\frac{k}{u^2}\right)^{k-1}1.
+\end{equation}
+This follows by applying the Lagrange--B\"urmann derivative formula to the marker equation $x=u-z e^{-1/x}$ and then setting $z=1$ after grouping the exponential factors. Equivalently, each derivative of $P(u)e^{-k/u}$ is
+\[
+ e^{-k/u}\left(P'(u)+\frac{k}{u^2}P(u)\right).
+\]
+The strongest pole in \eqref{eq:flat-coeff} is obtained by choosing the phase-derivative contribution at every step:
+\begin{equation}\label{eq:flat-leading}
+ c_k(u)=\frac{(-1)^k k^{k-1}}{k!}\,u^{-2(k-1)}
+        +\text{less singular powers}.
+\end{equation}
+The exact sparse-Laurent implementation in \code{audit_models.py} checks the first coefficients and this leading term for a range of $k$.
+
+For a depth-$N$ inverse, the inherited tail is $\EE^{N+1}\OO(u^{-2N})$. The zero sector is $u$, so multiplication by the other zero sector yields the dominant square error
+\begin{equation}\label{eq:general-flat-sharp}
+ \EE^{N+1}\OO(u^{1-2N}).
+\end{equation}
+Finite products on the first omitted sector have algebraic power $2-2N$, which is smaller in magnitude than the inherited $u^{1-2N}$ term. The tail/tail product lies at sector $2N+2$, but the baseline flattens it to sector $N+1$ and lets its algebraic power $-4N$ dominate. The resulting algebraic precision loss is
+\begin{equation}
+ (1-2N)-(-4N)=2N+1.
+\end{equation}
+
+\begin{center}
+\begin{tabular}{@{}rrrrr@{}}\toprule
+Depth $N$ & Baseline power & Graded power & Orders lost & Full / retained coefficient pairs\\\midrule
+1 & $-4$ & $-1$ & 3 & $4/3$\\
+2 & $-8$ & $-3$ & 5 & $9/6$\\
+3 & $-12$ & $-5$ & 7 & $16/10$\\
+5 & $-20$ & $-9$ & 11 & $36/21$\\
+8 & $-32$ & $-15$ & 17 & $81/45$\\\bottomrule
+\end{tabular}
+\end{center}
+These are exact support/envelope-model calculations, not measured native performance figures. The baseline power formula is the consequence of the inspected tail-combination order for this family.
+
+\subsection{A graded error semiring sufficient for this repair}
+
+Represent an individual bound by a triple
+\[
+ (k,\beta,d)\quad\longleftrightarrow\quad
+ \EE^k\OO(u^\beta L^d).
+\]
+Products add triples componentwise. Dominance is lexicographic in $(k,\beta,-d)$: smaller exponential degree first, then smaller algebraic power, then larger logarithmic degree. No general transseries engine is needed for this restricted single-phase calculation.
+
+\begin{lemma}\label{lem:flat-dominance}
+For fixed $\lambda,\nu>0$, fixed real $\beta_1,\beta_2$, and fixed logarithmic degrees, every sector $k_2>k_1$ is negligible relative to sector $k_1$:
+\[
+ \frac{\EE^{k_2}u^{\beta_2}L^{d_2}}
+      {\EE^{k_1}u^{\beta_1}L^{d_1}}\longrightarrow0
+ \qquad(u\to0^+).
+\]
+\end{lemma}
+\begin{proof}
+The logarithm of the ratio is
+\[
+ -\frac{(k_2-k_1)\lambda}{u^\nu}
+ +(\beta_2-\beta_1)\log u+(d_2-d_1)\log L.
+\]
+The first term tends to $-\infty$ faster in magnitude than the other two. Exponentiating proves the result.
+\end{proof}
+
+The finite list of tail candidates for a product must retain these grades:
+\begin{align*}
+ &(i+j,\;B(A_i)+B(B_j)), &&i+j>N,\\
+ &(N_a+1+j,\;B(R_a)+B(B_j)), &&0\le j\le N_b,\\
+ &(N_b+1+i,\;B(R_b)+B(A_i)), &&0\le i\le N_a,\\
+ &(N_a+N_b+2,\;B(R_a)+B(R_b)).
+\end{align*}
+Here $B$ abbreviates an algebraic/logarithmic bound pair, addition of pairs means componentwise addition, and a coefficient's bound includes its unknown inner remainder. Exact zero contributes no candidate. The dominant triple is selected before any sector is weakened.
+
+For compatibility with the existing result schema, a dominant grade $(K,\beta,d)$ with $K\ge N+1$ can then be weakened to the legacy $\EE^{N+1}\OO(u^\beta L^d)$. Crucially, this happens \emph{after} dominance selection. The schema need not acquire an arbitrary transseries support merely to fix the present loss. A later enhancement can preserve $K$ explicitly when all earlier omitted sectors vanish.
+
+This ordering also explains why unrelated unknown errors must not be canceled. Equality of two finite approximations does not establish equality of their error functions. The proposal combines envelopes by dominance, never by signed cancellation. It preserves the existing separate inner remainders for retained positive sectors.
+
+\subsection{Avoid computing discarded coefficient polynomials}
+
+Only pairs $i+j\le N$ contribute retained coefficient polynomials. Pairs above that diagonal are needed only as bounds unless the implementation deliberately wants to discover cancellations in an omitted frontier. For equal depth $N$, the number of retained pairs is
+\[
+ \sum_{i=0}^{N}(N-i+1)=\frac{(N+1)(N+2)}2,
+\]
+compared with $(N+1)^2$ pairs in the complete convolution. The tail bound of a discarded pair can be formed from the two coefficient envelopes without multiplying and canonicalizing their entire logarithmic polynomials.
+
+This removes nearly half of the expensive coefficient-pair operations at large equal depths; it does not change the quadratic order of a naive scan over all candidate pairs. Nor does it guarantee a factor-of-two runtime improvement: coefficient sizes, cancellations, and symbolic simplification dominate real costs. The supplied proposal preserves the baseline's aggregate pair-budget check, avoiding an unreviewed change in resource-policy semantics while reducing actual coefficient work.
+
+There is a precision tradeoff worth making explicit. The current full convolution can discover exact cancellations among discarded finite coefficients. An envelope-only scan deliberately does not pay for those cancellations and therefore is not guaranteed to improve every possible input's tail. It improves the exhibited inverse family and prevents remote sectors from artificially controlling earlier ones, but a carefully arranged finite polynomial can benefit from omitted-frontier cancellation. A hybrid implementation can aggregate only the potentially dominant omitted sector, or only its leading algebraic/logarithmic block, under a separate small budget. Unknown remainders must still remain uncanceled.
+
+\subsection{The delivered candidate and its validation boundary}
+
+\code{FlatSeriesMultiplyGraded} in \code{proposals/AuditSupport.wl} is a named alternative, not an override of the upstream operation. It reuses the pinned private alignment, coefficient-bound, sparse precision arithmetic, truncation, and object-construction helpers. The implementation changes the scheduling and envelope grading while leaving retained inner-error transport to the existing primitives. Its returned flat result also receives the explicit target approach from the F01 helper.
+
+Because private helpers are used, the candidate is revision-specific. Its custom operation recipe has no new replay/refinement implementation in this archive; it is a candidate product and error-transport operation, not a complete integration into every recipe consumer. It was not loaded in a native kernel. The archive provides focused desired-contract and proposal-contract tests; none are advertised as a completed native test run. The Python model separately tests the mathematical graded bound and selected exact coefficients, not the full Wolfram candidate.
+
+The inspected upstream multiplication test compares the finite product with a marker-polynomial oracle and checks that a sector remainder is nonzero. That cannot distinguish \eqref{eq:sharp-flat-square} from \eqref{eq:weak-flat-square}; both have the same retained polynomial and a nonzero tail. New assertions must inspect the tail power, inner-remainder preservation, unequal input depths, exact-zero annihilation, and products where omitted finite coefficients cancel.\cite{flattests}

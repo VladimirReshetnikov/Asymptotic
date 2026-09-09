@@ -1,0 +1,224 @@
+{
+  "snapshot": "921387e5ba1239bfda96e63e64e89bf63d9c41e6",
+  "access": "Pinned GitHub connector reads; no complete local checkout",
+  "native_execution": "Unavailable: repeated HTTP 502 from Wolfram connector; no successful package execution",
+  "coverage_limitation": "Direct source reads include selected/truncated windows as individually recorded. No exhaustive whole-repository line audit is claimed.",
+  "sources": [
+    {
+      "key": "repo",
+      "title": "Pinned repository snapshot",
+      "path": "",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/tree/921387e5ba1239bfda96e63e64e89bf63d9c41e6",
+      "git_blob": null,
+      "coverage": "Repository tree and metadata"
+    },
+    {
+      "key": "readme",
+      "title": "Repository README",
+      "path": "README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/README.md",
+      "git_blob": null,
+      "coverage": "Direct read"
+    },
+    {
+      "key": "status",
+      "title": "Consolidated code-review status",
+      "path": "docs/development/CODE_REVIEW_STATUS.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/docs/development/CODE_REVIEW_STATUS.md",
+      "git_blob": null,
+      "coverage": "Direct read, including continuation"
+    },
+    {
+      "key": "reviews",
+      "title": "Existing code-review index",
+      "path": "code-review/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/code-review/README.md",
+      "git_blob": null,
+      "coverage": "Direct read"
+    },
+    {
+      "key": "review6",
+      "title": "Review 6: accompanying audit summary",
+      "path": "code-review/code-review-6/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/code-review/code-review-6/README.md",
+      "git_blob": null,
+      "coverage": "Full README; not the entire article"
+    },
+    {
+      "key": "review7",
+      "title": "Review 7: accompanying audit summary",
+      "path": "code-review/code-review-7/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/code-review/code-review-7/README.md",
+      "git_blob": null,
+      "coverage": "Full README; not the entire article"
+    },
+    {
+      "key": "review8",
+      "title": "Review 8: accompanying audit summary",
+      "path": "code-review/code-review-8/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/code-review/code-review-8/README.md",
+      "git_blob": null,
+      "coverage": "Full README; not the entire article"
+    },
+    {
+      "key": "review9",
+      "title": "Review 9: accompanying audit summary",
+      "path": "code-review/code-review-9/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/code-review/code-review-9/README.md",
+      "git_blob": null,
+      "coverage": "Full README; not the entire article"
+    },
+    {
+      "key": "core",
+      "title": "Core constructor and precision primitives",
+      "path": "AsymptoticInverse/Kernel/AsymptoticInverse.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/AsymptoticInverse.wl",
+      "git_blob": "e01210c050dc923215c08d808db52fab140a7c4a",
+      "coverage": "1-500, 946-1500; some long returned windows truncated at their ends"
+    },
+    {
+      "key": "cert",
+      "title": "Exact inverse certificate implementation",
+      "path": "AsymptoticInverse/Kernel/InverseCertificates.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/InverseCertificates.wl",
+      "git_blob": "c447755ab58f02aa8a80fa374329e00d6ff9641e",
+      "coverage": "Whole file through overlapping windows; key loci 1-65 and 214-390"
+    },
+    {
+      "key": "seriesops",
+      "title": "Ordinary series operations",
+      "path": "AsymptoticInverse/Kernel/SeriesOperations.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SeriesOperations.wl",
+      "git_blob": "b7bec8e526d2ead826125479db125858792d7e19",
+      "coverage": "1-510 in overlapping windows"
+    },
+    {
+      "key": "arithmetic",
+      "title": "Automatic arithmetic and held normalization",
+      "path": "AsymptoticInverse/Kernel/SeriesArithmetic.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SeriesArithmetic.wl",
+      "git_blob": "8b547b0698aae5fc3b7fca9d2d80c56bfc30d36a",
+      "coverage": "1-180"
+    },
+    {
+      "key": "coordinate",
+      "title": "Logarithmic target-coordinate inversion",
+      "path": "AsymptoticInverse/Kernel/CoordinateInverse.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/CoordinateInverse.wl",
+      "git_blob": "7a36671b7b008c7afa99a96709c0b7ab78708c2f",
+      "coverage": "Whole file"
+    },
+    {
+      "key": "sourcecoord",
+      "title": "Source-coordinate reconstruction",
+      "path": "AsymptoticInverse/Kernel/SourceCoordinates.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SourceCoordinates.wl",
+      "git_blob": null,
+      "coverage": "Constructor and reconstruction paths; whole-file response truncated near its end"
+    },
+    {
+      "key": "flat",
+      "title": "Flat inverse construction",
+      "path": "AsymptoticInverse/Kernel/FlatSectors.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/FlatSectors.wl",
+      "git_blob": null,
+      "coverage": "Whole-file source read"
+    },
+    {
+      "key": "flatops",
+      "title": "Flat-sector operations",
+      "path": "AsymptoticInverse/Kernel/FlatSectorOperations.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/FlatSectorOperations.wl",
+      "git_blob": "804949cc1fd34193414156a50faf7b20bfe634a3",
+      "coverage": "Whole file; reread 1-133 and 171-end"
+    },
+    {
+      "key": "envelope",
+      "title": "Composite arithmetic and target-approach inference",
+      "path": "AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl",
+      "git_blob": "d22438c738a90226b8a52d6b39074d5960e5eaa1",
+      "coverage": "Whole file in two windows, 1-165 and 164-360"
+    },
+    {
+      "key": "special",
+      "title": "Special inverse adapters",
+      "path": "AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl",
+      "git_blob": null,
+      "coverage": "1-180 requested; response truncated near end; Erfc and quadratic construction inspected"
+    },
+    {
+      "key": "gamma",
+      "title": "Gamma inverse construction",
+      "path": "AsymptoticInverse/Kernel/GammaInverse.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/GammaInverse.wl",
+      "git_blob": null,
+      "coverage": "1-180"
+    },
+    {
+      "key": "barnes",
+      "title": "Barnes inverse construction",
+      "path": "AsymptoticInverse/Kernel/BarnesInverse.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/BarnesInverse.wl",
+      "git_blob": null,
+      "coverage": "Whole-file source read"
+    },
+    {
+      "key": "gammaops",
+      "title": "Gamma/Barnes observable powers",
+      "path": "AsymptoticInverse/Kernel/GammaInverseOperations.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/GammaInverseOperations.wl",
+      "git_blob": "df1a4eb04a4177ecab3f149a48ec347df399efb0",
+      "coverage": "Whole file"
+    },
+    {
+      "key": "fourier",
+      "title": "Fourier-polynomial coefficients",
+      "path": "AsymptoticInverse/Kernel/FourierCoefficients.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/FourierCoefficients.wl",
+      "git_blob": null,
+      "coverage": "1-310 in two windows"
+    },
+    {
+      "key": "native",
+      "title": "Native special-function import",
+      "path": "AsymptoticInverse/Kernel/NativeSpecialFunctions.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/NativeSpecialFunctions.wl",
+      "git_blob": "86ade501d64b0ec9a6cc42a4d9e37bbd580d1485",
+      "coverage": "1-350 in overlapping windows"
+    },
+    {
+      "key": "dirichlet",
+      "title": "Dirichlet special-function adapters",
+      "path": "AsymptoticInverse/Kernel/DirichletSpecialFunctions.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/DirichletSpecialFunctions.wl",
+      "git_blob": null,
+      "coverage": "Whole-file source read"
+    },
+    {
+      "key": "numerical",
+      "title": "Numerical inverse checks",
+      "path": "AsymptoticInverse/Kernel/NumericalInverseChecks.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Kernel/NumericalInverseChecks.wl",
+      "git_blob": "122fc4255507e046b3130728354b25a2ccb890ad",
+      "coverage": "Whole file"
+    },
+    {
+      "key": "flattests",
+      "title": "Flat-sector operation tests",
+      "path": "AsymptoticInverse/Tests/FlatSectorOperations.wlt",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Tests/FlatSectorOperations.wlt",
+      "git_blob": "8a930fdaedc38a5a48b03ad54f2d6c5df915b47d",
+      "coverage": "Whole file"
+    },
+    {
+      "key": "certtests",
+      "title": "Certificate acceptance tests",
+      "path": "AsymptoticInverse/Tests/AcceptanceCertificates.wlt",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/921387e5ba1239bfda96e63e64e89bf63d9c41e6/AsymptoticInverse/Tests/AcceptanceCertificates.wlt",
+      "git_blob": "48ef25308ed8ea8df48194691e3504e1f0fcd09d",
+      "coverage": "Whole file"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+\appendix
+\section{Reproducibility and delivered artifacts}
+
+\subsection{Executed evidence}
+
+The independent checks use Python 3.10+ syntax and only the standard library. The recorded run used Python 3.13.5. From the extracted archive root:
+\begin{lstlisting}
+python -m unittest discover -s tests -p 'test_models.py' -v
+python code/generate_evidence.py
+\end{lstlisting}
+The first command ran twenty tests successfully. The second regenerates \code{evidence/independent_results.json}, including the sixteen orientation cases, both certificate-policy histories, and the flat-square depth table. Preserve the delivered evidence before rerunning when run provenance matters.
+
+\code{code/audit_models.py} is deliberately restricted. It is not a Wolfram interpreter, a substitute implementation of AsymptoticInverse, or a complete interval library. Its certificate model specializes to a positive square root and independently verifies every retained interval by squaring its rational endpoints. Its flat model represents integer Laurent powers for the selected inverse family. Those restrictions are strengths for checking the stated mechanisms, but they do not validate arbitrary package inputs.
+
+\subsection{Native experiments supplied but not executed}
+
+Set the package path to a local reviewed copy of the pinned standalone file or to the modular kernel entry in a complete pinned checkout. No supplied script downloads or executes remote code automatically.
+\begin{lstlisting}
+# POSIX shell
+export ASYMPTOTIC_AUDIT_PACKAGE=/absolute/path/AsymptoticInverse.wl
+wolframscript -file code/Characterize.wls
+wolframscript -file code/CompareBuiltins.wls
+
+# PowerShell
+$env:ASYMPTOTIC_AUDIT_PACKAGE =
+  (Resolve-Path 'C:\path\AsymptoticInverse.wl').Path
+wolframscript -file code/Characterize.wls
+\end{lstlisting}
+
+The characterization runner records nine bounded probes, including private approach inference and public fallback behavior separately. The comparison runner records twelve native/package calls. Their elapsed times, when the user runs them, are individual in-process call timings, not a controlled speed benchmark. Matching order contracts and repeated fresh-kernel runs are necessary before drawing performance conclusions.
+
+The runners record the actual native version, platform, and entry-file hash. An entry-file hash does not attest modular companion files, and the recorded expected commit is not proof that an arbitrary supplied path has that commit. The scripts explicitly mark this distinction. Each ordinary probe has a 45-second time limit and a 512 MiB additional-allocation limit; load and test-suite limits are separate. A runner limit is an audit-harness outcome, not proof of a package algorithmic failure.
+
+To run the proposal tests or desired upstream contracts:
+\begin{lstlisting}
+# POSIX shell; Proposal is also the default
+export ASYMPTOTIC_AUDIT_SUITE=Proposal
+wolframscript -file code/RunNativeTests.wls
+export ASYMPTOTIC_AUDIT_SUITE=Desired
+wolframscript -file code/RunNativeTests.wls
+
+# PowerShell
+$env:ASYMPTOTIC_AUDIT_SUITE = 'Proposal'
+wolframscript -file code/RunNativeTests.wls
+\end{lstlisting}
+The proposal suite contains seven tests; the desired-contract suite contains eight. The latter intentionally includes behavior expected to fail on the baseline, and F04 remains a feature proposal. The runner rejects an empty/noncompleted suite and uses the documented report-success property. Exit status is zero for a successful nonempty suite, one for test failures, and two for loading, runner, or noncompletion errors.\cite{wl-testreport}
+
+The Wolfram runners and helpers have not been executed or certified as syntactically accepted by a native kernel in this environment. Their results are not present in the delivered evidence directory. The output functions refuse to overwrite prior native evidence files.
+
+\Needspace{10\baselineskip}
+\subsection{Proposal scope}
+
+\begin{longtable}{@{}R{0.31\textwidth}R{0.61\textwidth}@{}}\toprule
+Artifact & Scope and limitations\\\midrule\endhead
+\code{AuditSupport.wl} & New namespaced helpers only. Explicit target geometry for selected charts; tightening of an existing certificate; revision-specific graded flat multiplication using private upstream primitives. No global overrides.\\[0.5em]
+\code{audit_models.py} & Executed restricted mathematical models. No package loading and no claim to emulate general Wolfram evaluation semantics.\\[0.5em]
+\code{DesiredContracts.wlt} & Eight intended upstream contracts, including a future F04 capability. Not a baseline passing suite.\\[0.5em]
+\code{ProposalContracts.wlt} & Seven focused tests for the supplied helpers. Not executed natively. Not a full regression suite.\\[0.5em]
+\code{Characterize.wls} & Records source-predicted behavior without rewriting it into a claimed observation.\\[0.5em]
+\code{CompareBuiltins.wls} & Paired result characterization under explicit resource limits; not matched-precision benchmarking.\\\bottomrule
+\end{longtable}
+
+No remote repository was changed. No full upstream source snapshot or font files are included. The maintained source should remain the canonical modular kernel; a reviewed production change would require regeneration of the standalone distribution and native regression testing. This operational note is not claimed as a new finding.
+
+\subsection{Rebuilding the article}
+
+The article uses standard LaTeX packages and Latin Modern through the installed TeX distribution. No font binaries are distributed. From \code{article/}:
+\begin{lstlisting}
+latexmk -pdf -interaction=nonstopmode -halt-on-error article.tex
+\end{lstlisting}
+The bibliography is an included conventional reference list, so a separate BibTeX step is unnecessary. The complete editable source consists of the master, the six section files, and \code{references.tex}. Rendered pages were checked for layout defects in the delivered PDF; the evidence directory contains the build/layout summary.
+
+\section{Coverage and novelty ledger}
+
+\subsection{Direct source coverage}
+
+The file-level manifest gives source windows and available Git blob identifiers. The directly inspected implementation families were: the core constructor and sparse precision primitives; ordinary series operations and automatic arithmetic; source and target coordinate reconstruction; exact inverse certificates and numerical checks; flat construction and operations; native special-function import and composite arithmetic; Dirichlet special functions; Gamma and Barnes inverse construction; Gamma/Barnes observable power replay; and Fourier coefficients. Some files were read in full and others in selected windows. Unread middle ranges are not treated as verified.
+
+\code{FlatSectorOperations.wlt} and \code{AcceptanceCertificates.wlt} were inspected in full for the new product and controller cases. Repository test records and prior review execution records were read as historical evidence where relevant, but their reported native successes were not reproduced in this audit. No full native suite result is attributed to this work.
+
+\subsection{Relationship to earlier review entries}
+
+\begin{longtable}{@{}R{0.09\textwidth}R{0.27\textwidth}R{0.56\textwidth}@{}}\toprule
+Finding & Related existing topic & Why the present contribution is additional\\\midrule\endhead
+F01 & D01/D02: coordinate contracts and a common scale protocol. & Identifies the exact offset/scale-priority defect, three constructor families with wrong approaches, exact orientation formulas, and public/private regression boundaries. It does not merely request a protocol.\\[0.6em]
+F02 & X05: improved quantitative certificates; C08: ordinary recipe-refinement precision. & Analyzes a different controller: successful certificate attempts freeze enclosure order. Supplies a rational reproducer and a theorem for a tighter error already implied by the retained interval. No restatement of fixed $h+2$ series replay.\\[0.6em]
+F03 & P01/P06: eager computation and resource semantics; X08: broader transseries. & Identifies loss of single-phase exponential grading, derives the exact $2N+1$-order degradation for a supported family, and proposes a restricted graded-tail algorithm. No multirate transseries redesign is required.\\[0.6em]
+F04 & X02: specialized coefficient-algebra capabilities. & Isolates a source-sign/observable-sign mismatch and a branch-correct reflected replay for positive even-power observables. It is not a generic request to unify Gamma arithmetic.\\\bottomrule
+\end{longtable}
+
+The relationships above are based on the consolidated register and inspected review summaries, not a claim that no sentence anywhere in an uninspected prior article could resemble a present observation. The machine-readable findings ledger records the same qualification.\cite{status,review6,review7,review8,review9}
+
+\subsection{Remaining uncertainty}
+
+The strongest source deductions are the explicit approach-priority logic, the enclosure-order branch, and the flat-tail grade erasure. The main uncertainty is their precise behavior through all public wrappers on a native Wolfram 15 kernel, including symbolic simplification, dispatch, messages, and performance. The probes are designed to make that distinction visible.
+
+The proposed helpers are not a completed repair of all four findings: F01 still needs producer integration; F02's supplied helper tightens existing bounds while the controller redesign remains a specified change; F03 has a named alternative implementation requiring native verification; F04 has a sign-correct design and desired behavior test, not a completed Gamma/Barnes reflection adapter. These boundaries are recorded so that the archive can serve as a development input without being mistaken for a validated replacement release.

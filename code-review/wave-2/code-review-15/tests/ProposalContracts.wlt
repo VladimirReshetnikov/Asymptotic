@@ -1,0 +1,21 @@
+(* Focused checks for the supplied helpers, unexecuted in this audit. *)
+VerificationTest[Module[{x,y,s},s=AsymptoticFlatInverse[1/x+Exp[-1/x],{x,0},{y,1}];
+  AsymptoticAudit`ExpectedTargetApproach[s]["Point"]],Infinity,TestID->"helper-flat-approach"]
+VerificationTest[Module[{x,y,s},s=AsymptoticSpecialInverse["Erfc",{x,-Infinity},{y,2}];
+  AsymptoticAudit`ExpectedTargetApproach[s]["Direction"]],"FromBelow",TestID->"helper-Erfc-approach"]
+VerificationTest[Module[{x,y,s},s=AsymptoticFlatInverse[x+Exp[-1/x],{x,0},{y,1}];
+  auditTail[AsymptoticAudit`FlatSeriesMultiplyGraded[s,s]]],{{-1,0}},TestID->"helper-graded-square-tail"]
+VerificationTest[Module[{x,y,s,a,b},s=AsymptoticFlatInverse[x+Exp[-1/x],{x,0},{y,2}];
+  a=FlatSeriesMultiply[s,s];b=AsymptoticAudit`FlatSeriesMultiplyGraded[s,s];
+  TrueQ[FullSimplify[Normal[a]==Normal[b],y>0]]],True,TestID->"helper-kept-coefficients-unchanged"]
+VerificationTest[Module[{x,y,s,t,a,b},s=AsymptoticFlatInverse[x+Exp[-1/x],{x,0},{y,2}];
+  t=FlatSeriesTruncate[s,1];a=FlatSeriesMultiply[t,s];b=AsymptoticAudit`FlatSeriesMultiplyGraded[t,s];
+  {TrueQ[FullSimplify[Normal[a]==Normal[b],y>0]],a["InnerRemainders"]===b["InnerRemainders"]}],
+  {True,True},TestID->"helper-retained-inner-errors-unchanged"]
+VerificationTest[Module[{c},c=<|"Certified"->True,"Center"->7/5,"RootEnclosure"->{141/100,142/100},
+  "CertifiedErrorBound"->1/10,"CertifiedErrorLowerBound"->0|>;
+  Lookup[AsymptoticAudit`TightenCertificate[c],{"CertifiedErrorLowerBound","CertifiedErrorBound"}]],
+  {1/100,1/50},TestID->"helper-tightens-existing-root-interval"]
+VerificationTest[Module[{x,y,s,z,t},s=AsymptoticFlatInverse[x+Exp[-1/x],{x,0},{y,1}];
+  z=FlatSeriesObservable[s,0,Unique["z"]];t=AsymptoticAudit`FlatSeriesMultiplyGraded[s,z];
+  {Normal[t],t["Remainder"]}],{0,0},TestID->"helper-exact-zero-annihilation"]
