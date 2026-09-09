@@ -112,10 +112,11 @@ logarithmic coefficients, finite and infinite endpoints, and explicit
 remainder classes. Additional constructors handle logarithmic
 hierarchies, exponential sectors, oscillatory coefficients, and selected
 special functions.</p>
-<p>Explicit native backends preserve Wolfram Language
-<code>Series</code> and <code>Asymptotic</code> results in the same
-result head, with a separate formal or native asymptotic contract. See
-<a href="#native-backend-expansions">Native Expansion Backends</a>.</p>
+<p>Explicit native backends and selected automatic routes preserve
+Wolfram Language <code>Series</code> and <code>Asymptotic</code> results
+in the same result head, with a separate formal or native asymptotic
+contract. See <a href="#native-backend-expansions">Native Expansion
+Backends</a>.</p>
 <p>This guide describes the Wolfram Language interface. See the <a href="../../article/asymptotic-inverse.pdf">mathematical article</a> for
 definitions, results, and proofs.</p>
 <section id="getting-started" class="level2">
@@ -279,13 +280,14 @@ Functions</a></td>
 <tbody>
 <tr>
 <td><code>AsymptoticExpansion[f, {x, x0, h}]</code></td>
-<td>Expansion at <code>x0</code> with exclusive cutoff
-<code>h</code>.</td>
+<td>Expansion at <code>x0</code>; a package result uses exclusive cutoff
+<code>h</code>, while an automatically selected native result uses
+native order.</td>
 </tr>
 <tr>
 <td><code>AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -&gt; n]</code></td>
-<td>First <code>n</code> complete nonzero blocks; separate carriers use
-the convention below.</td>
+<td>A package result retains <code>n</code> complete nonzero blocks; a
+native result uses its backend&#39;s term-goal convention.</td>
 </tr>
 <tr>
 <td><code>AsymptoticExpansion[f, x -&gt; x0, SeriesTermGoal -&gt; n]</code></td>
@@ -336,14 +338,14 @@ their selected backend&#39;s options. See <a href="#assumption-context">Assumpti
 <tbody>
 <tr>
 <td><code>Automatic</code></td>
-<td>Default shared by <code>AsymptoticExpansion</code> and
-<code>AsymptoticExpand</code>; currently uses the package engines,
-without automatic native fallback.</td>
+<td>Preserve supported package expansions; route native request forms
+and native-specific options, or selected real-representation failures,
+to one native backend.</td>
 </tr>
 <tr>
 <td><code>&quot;Package&quot;</code></td>
-<td>Use the package expansion engines and their analytic remainder
-contracts; do not fall back to a native result.</td>
+<td>Use the package engines and their analytic remainder contracts;
+refuse native-specific options and do not fall back.</td>
 </tr>
 <tr>
 <td><code>&quot;Series&quot;</code></td>
@@ -424,8 +426,56 @@ holds for every parameter value.</p>
 <code>&quot;InverseFunctionBranches&quot;</code> with
 <code>Failure[&quot;NativeOptionConflict&quot;, ...]</code>. These are
 package-specific contracts; use <code>&quot;Backend&quot; -&gt; &quot;Package&quot;</code>
-when they are needed. Automatic native fallback remains pending; select
-a native backend explicitly for native input coverage.</p>
+when they are needed. Package mode returns
+<code>Failure[&quot;UnsupportedOption&quot;, ...]</code> for native-specific
+options rather than ignoring them.</p>
+<p><a id="automatic-backend-routing"></a></p>
+</section>
+<section id="automatic-selection" class="level3">
+<h3>Automatic Selection</h3>
+<p><code>Automatic</code> preserves a successful package result and its
+existing cutoff, block count, and analytic contract. It also recognizes
+native-specific options and request forms, including multiple
+specifications, symbolic or complex centers, order
+<code>Infinity</code>, lists, inactive expressions, and a rule-form
+leading-order request without <code>SeriesTermGoal</code>.</p>
+<p>Otherwise the package engines are tried first. A selected
+representation limitation, such as inexact input, nonreal coefficients,
+or an unsupported coefficient scale, can produce a native fallback.
+Domain, inverse-branch, resource, and invalid-option failures are
+retained. A source containing <code>Function</code>,
+<code>InverseFunction</code>, <code>ConditionalExpression</code>,
+<code>GeneralizedSeries</code>, or <code>PowerLogRemainder</code>, or an
+explicitly supplied <code>Direction</code>, <code>&quot;MaxTerms&quot;</code>, or
+<code>&quot;InverseFunctionBranches&quot;</code>, keeps the package path. This
+conservative protection applies even when the explicitly supplied option
+has its default value.</p>
+<p>Native-specific options select a compatible backend:
+<code>Series</code> is preferred when it accepts all such option keys,
+then <code>Asymptotic</code>. Conflicting option sets return
+<code>Failure[&quot;NativeOptionConflict&quot;, ...]</code>. Without those
+options, a triple specification or successive specifications select
+<code>Series</code>; a single order-<code>Infinity</code> request and
+ordinary rule forms select <code>Asymptotic</code>. The selected engine
+is called once; an unresolved result does not trigger a probe of the
+other engine.</p>
+<pre class="wolfram"><code>Clear[x, y];
+s = AsymptoticExpand[Exp[I x], {x, 0, 3}];
+{s[&quot;NativeBackend&quot;], s[&quot;BackendSelectionReason&quot;],
+ s[&quot;OrderConvention&quot;], Normal[s]}
+
+AsymptoticExpansion[Exp[x + y], {x, 0, 2}, {y, 0, 1}]
+AsymptoticExpansion[Exp[x], {x, 0, 3}, Analytic -&gt; False]
+AsymptoticExpansion[Sin[x], x -&gt; 0]</code></pre>
+<p>An automatic native result records
+<code>&quot;OrderConvention&quot; -&gt; &quot;Native&quot;</code>. This is a change of
+representation and order semantics: native <code>Series</code> includes
+its requested order and its term goal can count zero coefficient
+positions. It does not promise the package&#39;s exclusive cutoff or
+nonzero-block count. Select <code>&quot;Backend&quot; -&gt; &quot;Package&quot;</code> when
+those conventions must be enforced, or an explicit native backend when
+the native engine must be fixed. These routes extend coverage; they do
+not establish complete automatic coverage of every native input.</p>
 </section>
 <section id="basic-examples" class="level3">
 <h3>Basic Examples</h3>
@@ -521,8 +571,9 @@ backend selector removed.</td>
 <tr>
 <td><code>&quot;ExpansionSpecifications&quot;</code></td>
 <td>Recognized specification forms retained individually inside
-<code>HoldComplete</code>, in their supplied order. These are syntactic
-records, not evaluated snapshots.</td>
+<code>HoldComplete</code>, in their supplied order. Literal explicit
+requests retain their syntax; automatic preparation can resolve
+expressions before these records are formed.</td>
 </tr>
 <tr>
 <td><code>&quot;AmbientAssumptions&quot;</code></td>
@@ -545,13 +596,46 @@ correctness certificate.</td>
 <code>&quot;NativeSystemID&quot;</code></td>
 <td>Runtime that produced the native result.</td>
 </tr>
+<tr>
+<td><code>&quot;BackendSelection&quot;</code>,
+<code>&quot;BackendSelectionReason&quot;</code></td>
+<td>For automatic native results, <code>Automatic</code> and one of
+<code>&quot;NativeOptions&quot;</code>, <code>&quot;NativeSpecification&quot;</code>, or
+<code>&quot;PackageRepresentation&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;OrderConvention&quot;</code></td>
+<td><code>&quot;Native&quot;</code> for an automatically selected native
+result.</td>
+</tr>
+<tr>
+<td><code>&quot;PackageFailure&quot;</code></td>
+<td>The preceding package failure for a representation fallback;
+<code>None</code> when native routing occurred before a package
+attempt.</td>
+</tr>
 </tbody>
 </table>
-<p>Native option expressions remain in the held request. The wrapper
-does not evaluate delayed native options again to fill metadata.
+<p>Literal explicit native calls keep their option expressions in the
+held request. The wrapper does not evaluate delayed native options again
+to fill metadata. A fallback after a package attempt instead reuses the
+prepared source and specifications, with the common assumptions and
+term-goal options materialized from that attempt.
+<code>&quot;OriginalArguments&quot;</code> retains the original input;
+<code>&quot;NativeRequest&quot;</code> records what was delegated.
 <code>&quot;AmbientAssumptions&quot;</code> does not include an explicitly
 supplied <code>Assumptions</code> option; inspect the held request as
 well when reproducing a calculation.</p>
+<p>Automatic package preparation evaluates the source in the package&#39;s
+neutral proof context, where <code>$Assumptions</code> is
+<code>True</code>; captured assumptions are supplied separately to the
+engines. Literal explicit native calls release the source under the
+captured ambient context. Computed trailing argument or option
+containers are resolved before selecting the backend, while keeping the
+source held. The wrapper reuses prepared input instead of rerunning the
+original source program after a package failure. This does not freeze
+user definitions or guarantee an identical ordering of arbitrary side
+effects across automatic preparation and a direct native call.</p>
 <p><code>Normal</code> does not guarantee a finite polynomial or finite
 sum. An infinite sum or another ordinary expression returned by a native
 calculation can remain in <code>Normal[s]</code>. For example, a native
@@ -700,10 +784,9 @@ the inverse precision. It requires ordinary exponent truncation.</p>
 </section>
 <section id="details-and-options-coordinates-and-cutoffs" class="level2">
 <h2>Details and Options: Coordinates and Cutoffs</h2>
-<p>This section describes the package&#39;s analytic representations.
-Explicit native backends retain their own coordinates, domains, and
-order conventions; see <a href="#native-backend-expansions">Native
-Expansion Backends</a>.</p>
+<p>This section describes the package&#39;s analytic representations. Native
+results, whether selected explicitly or automatically, retain their
+backend&#39;s coordinates, domains, and order conventions; see <a href="#native-backend-expansions">Native Expansion Backends</a>.</p>
 <section id="positive-local-coordinates" class="level3">
 <h3>Positive Local Coordinates</h3>
 <p>Every ordinary expansion uses a positive coordinate tending to
@@ -994,10 +1077,12 @@ s = AsymptoticExpansion[a + Sin[a] x, {x, 0, 2},
 <p><strong>Output</strong></p>
 <pre class="wolfram"><code>{a + Sin[a] x, 0}</code></pre>
 <p>Without the realness assumption, a coefficient <code>a</code>
-produces <code>Failure[&quot;UnprovedRealCoefficient&quot;, ...]</code>. A real
+produces <code>Failure[&quot;UnprovedRealCoefficient&quot;, ...]</code> in strict
+<code>&quot;Package&quot;</code> mode. Automatic mode can instead retain a native
+formal result; that result does not assert real coefficients. A real
 argument alone does not make every function value real:
 <code>ArcSin[a]</code> needs a suitable interval assumption, such as
-<code>-1 &lt; a &lt; 1</code>.</p>
+<code>-1 &lt; a &lt; 1</code>, for a real analytic representation.</p>
 <p>Contributions at equal powers are combined and simplified before
 their coefficients are checked. For example:</p>
 <p><strong>Input</strong></p>
@@ -2003,14 +2088,19 @@ For example, noninteger-order <code>BesselJ</code> at a negative
 argument, <code>BesselK</code> on its negative-axis cut, and
 <code>EllipticK[1 + x]</code> for small positive <code>x</code> are not
 admitted as real expansions:</p>
-<pre class="wolfram"><code>AsymptoticExpansion[BesselJ[Sqrt[2], -x], x -&gt; 0, SeriesTermGoal -&gt; 3]
-AsymptoticExpansion[BesselK[0, -x], x -&gt; Infinity, SeriesTermGoal -&gt; 3]
-AsymptoticExpansion[EllipticK[1 + x], x -&gt; 0, SeriesTermGoal -&gt; 3]</code></pre>
+<pre class="wolfram"><code>AsymptoticExpansion[BesselJ[Sqrt[2], -x], x -&gt; 0,
+  SeriesTermGoal -&gt; 3, &quot;Backend&quot; -&gt; &quot;Package&quot;]
+AsymptoticExpansion[BesselK[0, -x], x -&gt; Infinity,
+  SeriesTermGoal -&gt; 3, &quot;Backend&quot; -&gt; &quot;Package&quot;]
+AsymptoticExpansion[EllipticK[1 + x], x -&gt; 0,
+  SeriesTermGoal -&gt; 3, &quot;Backend&quot; -&gt; &quot;Package&quot;]</code></pre>
 <p>An unevaluated native expansion, a parameter pole, or a coefficient
 outside the supported real power-log and bounded-oscillation classes can
-return <code>Failure</code>. The fact that a function has numerical
-values does not establish an admissible asymptotic expansion at every
-endpoint.</p>
+return <code>Failure</code> in the package analytic path. A native
+result retained by another route has its native contract; it does not
+supply the missing real-domain or analytic-tail proof. The fact that a
+function has numerical values does not establish an admissible analytic
+expansion at every endpoint.</p>
 </section>
 </section>
 <section id="elementary-exponential-products" class="level4">
@@ -3234,27 +3324,32 @@ center remains fixed.</td>
 <tr>
 <td><code>&quot;TargetError&quot;</code></td>
 <td><code>Automatic</code></td>
-<td>Absolute error goal for the returned center.</td>
+<td>Positive exact rational absolute error goal for the returned
+center.</td>
 </tr>
 <tr>
 <td><code>&quot;RelativeError&quot;</code></td>
 <td><code>Automatic</code></td>
-<td>Relative error goal using a proved root-magnitude bound.</td>
+<td>Positive exact rational relative error goal using a proved
+root-magnitude bound.</td>
 </tr>
 <tr>
 <td><code>WorkingPrecision</code></td>
 <td><code>50</code></td>
-<td>Precision used in choosing numerical seeds.</td>
+<td>Precision used in choosing numerical seeds and in planning an
+automatic initial enclosure order.</td>
 </tr>
 <tr>
 <td><code>&quot;EnclosureOrder&quot;</code></td>
 <td><code>Automatic</code></td>
-<td>Order used for elementary-function enclosures.</td>
+<td>Initial order used for elementary-function enclosures; an explicit
+value must be an integer from <code>2</code> through
+<code>2000</code>.</td>
 </tr>
 <tr>
 <td><code>&quot;MaxRefinements&quot;</code></td>
 <td><code>6</code></td>
-<td>Maximum certificate refinement steps.</td>
+<td>Maximum retries after the initial certificate attempt.</td>
 </tr>
 <tr>
 <td><code>&quot;RefineExpansion&quot;</code></td>
@@ -3277,12 +3372,107 @@ c = InverseCertificate[s, 1/10, &quot;Interval&quot; -&gt; {1/20, 1/5},
 <p><strong>Output</strong></p>
 <pre class="wolfram"><code>{True, True}</code></pre>
 <p><code>c[&quot;Center&quot;]</code> and <code>c[&quot;RootEnclosure&quot;]</code> give the
-actual rational approximation and enclosure. When both tolerances are
-given, the accuracy request is
-<code>Abs[center - root] &lt;= Max[eps, tau Abs[root]]</code>. A zero
-root needs an absolute fallback. A fixed center that cannot meet the
-requested accuracy can return
-<code>Failure[&quot;AccuracyFloor&quot;, ...]</code>.</p>
+actual rational approximation and enclosure. For
+<code>c[&quot;RootEnclosure&quot;] == {a, b}</code>,
+<code>c[&quot;CertifiedErrorBound&quot;]</code> is
+<code>Max[Abs[a - c[&quot;Center&quot;]], Abs[b - c[&quot;Center&quot;]]]</code>. It bounds
+the distance from the specified center to every point in the sharpened
+enclosure. <code>&quot;ResidualRadius&quot;</code> separately records the residual
+absolute bound divided by the derivative lower bound; interval
+intersections can make the reported error smaller than this radius.</p>
+<p>When both tolerances are given, the accuracy request is
+<code>Abs[center - root] &lt;= Max[eps, tau Abs[root]]</code>.
+Acceptance uses exact bounds:
+<code>&quot;CertifiedErrorBound&quot; &lt;= &quot;SufficientAbsoluteTolerance&quot;</code>,
+where the sufficient tolerance is <code>Max[eps, tau m]</code> and
+<code>m</code> is a proved lower bound on the root magnitude. An omitted
+absolute tolerance contributes zero when a relative tolerance is
+requested. The relative bound is <code>&quot;CertifiedErrorBound&quot;/m</code>
+when <code>m &gt; 0</code>; otherwise
+<code>&quot;CertifiedRelativeErrorBound&quot;</code> is
+<code>Missing[&quot;RootNotSeparatedFromZero&quot;]</code>. When the enclosure
+proves the root is zero, a relative-only request returns
+<code>Failure[&quot;RelativeAccuracyAtZero&quot;, ...]</code>; supply a positive
+absolute fallback.</p>
+<section id="accuracy-and-refinement" class="level4">
+<h4>Accuracy and Refinement</h4>
+<p>With <code>&quot;EnclosureOrder&quot; -&gt; Automatic</code>, the initial order
+uses <code>WorkingPrecision</code> and a digit estimate from both exact
+rational tolerances, capped at <code>2000</code>. Failed enclosure
+attempts and retries with a fixed center raise the order up to this cap.
+With a movable center, a valid but insufficient certificate can trigger
+higher order when residual uncertainty materially limits the new root
+enclosure, or when both interval width and center-error progress stall.
+Otherwise, interval contraction continues at the current order. Reaching
+the cap still permits remaining interval refinements. These choices
+allocate work; only the exact enclosure inequalities establish
+accuracy.</p>
+<pre class="wolfram"><code>c = InverseCertificate[s, 1/10, &quot;Interval&quot; -&gt; {1/20, 1/5},
+  &quot;RelativeError&quot; -&gt; 10^-30, &quot;MaxRefinements&quot; -&gt; 6];
+{c[&quot;AccuracyGoalReached&quot;], c[&quot;EnclosureOrder&quot;],
+ c[&quot;CertifiedRelativeErrorBound&quot;]}</code></pre>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;AccuracyGoalReached&quot;</code></td>
+<td>Whether the proved bounds satisfy the requested tolerance. A
+certificate of a unique root alone does not establish this.</td>
+</tr>
+<tr>
+<td><code>&quot;ProvedRootMagnitudeLowerBound&quot;</code></td>
+<td>Lower bound used to obtain a relative error estimate.</td>
+</tr>
+<tr>
+<td><code>&quot;SufficientAbsoluteTolerance&quot;</code></td>
+<td>Exact absolute bound sufficient for the combined tolerance
+request.</td>
+</tr>
+<tr>
+<td><code>&quot;EnclosureOrder&quot;</code></td>
+<td>Order used for this certificate.</td>
+</tr>
+<tr>
+<td><code>&quot;EnclosureOrderLimitReached&quot;</code></td>
+<td>Whether the order reached <code>2000</code>; this does not identify
+the cause of an accuracy failure.</td>
+</tr>
+<tr>
+<td><code>&quot;History&quot;</code></td>
+<td>Attempt records, including orders, outcomes, enclosure widths,
+residual radii, and achieved error bounds when available.</td>
+</tr>
+<tr>
+<td><code>&quot;AccuracyComparisonKey&quot;</code></td>
+<td>Exact comparison tuple: error divided by the sufficient tolerance,
+absolute error, and root-enclosure width.</td>
+</tr>
+</tbody>
+</table>
+<p>When several valid attempts are available, the best certificate is
+selected lexicographically by <code>&quot;AccuracyComparisonKey&quot;</code>;
+equal keys retain the earlier certificate. The first component is
+<code>Infinity</code> when the sufficient tolerance is zero and
+<code>0</code> when no accuracy goal was requested.
+<code>&quot;BestCertificateCriterion&quot;</code> names these three
+comparisons.</p>
+<p>An exhausted retry budget returns
+<code>Failure[&quot;AccuracyNotReached&quot;, ...]</code> if a valid certificate
+was found, retaining it as <code>&quot;BestCertificate&quot;</code>. Its
+<code>&quot;EnclosureOrder&quot;</code> can differ from the final attempted order.
+The failure records
+<code>&quot;StoppingReason&quot; -&gt; &quot;RefinementBudgetExhausted&quot;</code>,
+<code>&quot;FinalEnclosureOrder&quot;</code>, <code>&quot;EnclosureOrderLimit&quot;</code>,
+and the retry counts. These distinguish the retry budget from the order
+cap. A fixed center with a proved positive accuracy floor can return
+<code>Failure[&quot;AccuracyFloor&quot;, ...]</code>, containing both
+<code>&quot;BestCertificate&quot;</code> and the
+<code>&quot;AccuracyFloorCertificate&quot;</code> that proves the obstruction.</p>
 <p>The certificate concerns the stored explicit equation within the
 supplied interval. It does not establish a global inverse branch or
 enclose unspecified terms represented only by an input remainder. All
@@ -3290,6 +3480,7 @@ retained source conditions must hold throughout the closed verification
 interval. A strict source condition therefore also constrains its
 endpoints.</p>
 <p><a id="PowerLogModel"></a></p>
+</section>
 </section>
 <section id="powerlogmodel" class="level3">
 <h3>PowerLogModel</h3>
@@ -3922,6 +4113,18 @@ depth. Exact cancellations can remove blocks.</td>
 <td>Native <code>Series</code> includes its requested order; ordinary
 package cutoff excludes it. Inspect the selected
 <code>&quot;Backend&quot;</code>.</td>
+</tr>
+<tr>
+<td>Automatic returns a native result</td>
+<td>Inspect <code>&quot;BackendSelectionReason&quot;</code>,
+<code>&quot;NativeBackend&quot;</code>, and <code>&quot;OrderConvention&quot;</code>. Native
+order and term goals can differ from package cutoff and block
+goals.</td>
+</tr>
+<tr>
+<td>A native-specific option is rejected by Package mode</td>
+<td>Select a compatible native backend or unprotected Automatic request;
+the package engine does not silently ignore those options.</td>
 </tr>
 <tr>
 <td>A native result has a missing remainder or exactness status</td>

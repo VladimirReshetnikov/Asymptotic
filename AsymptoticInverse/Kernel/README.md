@@ -37,8 +37,11 @@ register and notes on assumptions, coefficient reality, and native remainders.
 Explicit native delegation is implemented, with
 [130 passed, zero failed focused checks](../../validation/native-compatibility-tests.json)
 across eight selected files.
-`Automatic` and `"Package"` still select the existing real engines; automatic
-native fallback is [required work in progress](../../docs/development/NATIVE_COMPATIBILITY.md).
+`Automatic` now selects native backends for native specifications/options and
+selected representation failures; successful package requests retain their
+existing conventions. `"Package"` keeps the analytic engines and refuses
+native-only options. The [compatibility plan](../../docs/development/NATIVE_COMPATIBILITY.md)
+records remaining coverage work and the limits of the automatic policy.
 The [native result contract](../../docs/development/NATIVE_RESULT_CONTRACTS.md)
 distinguishes formal orders from analytic remainders and explains held metadata.
 The special-function importer remains a separate analytic conversion path.

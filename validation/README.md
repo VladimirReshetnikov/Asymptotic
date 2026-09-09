@@ -1,5 +1,50 @@
 # Review and validation record
 
+## Automatic native routing and report 18 certificate repair
+
+[CheckNativeAutomatic.wl](CheckNativeAutomatic.wl) passes **163 tests, zero
+failures**, across eight selected files in [native-automatic-tests.json](native-automatic-tests.json).
+This includes 35 automatic-routing cases and adjacent explicit-native,
+presentation, contract, assumption, real-coefficient and inverse-callable
+regressions. All 49 recorded source hashes match the final worktree and stayed
+unchanged during execution. The [159/4 first pass](native-automatic-first-pass.json)
+preserves two dispatch bugs (held infinity matching and selector-only empty
+option containers) and two fixture errors (a square inverse already simplified
+by native evaluation, and a single-support product that did not exceed its budget).
+
+[CheckReviewCertificateAccuracy.wl](CheckReviewCertificateAccuracy.wl) passes
+**58 tests, zero failures**, across three files in
+[review-certificate-accuracy-tests.json](review-certificate-accuracy-tests.json).
+All 44 recorded source hashes match the final worktree and stayed unchanged
+during execution. Sixteen new tests cover report 18's relative-only witness,
+explicit-order retry growth, rational endpoint-square checks at different root
+magnitudes, sharp error bounds, best-result retention, exact-root controls,
+and separate cap/budget behavior. Existing certificate regression and
+acceptance files also pass. The nine-case acceptance file took about 17.54
+seconds on this run; this is a single measurement, not a benchmark guarantee.
+
+The [earlier controller diagnostic](certificate-accuracy-first-pass.json) and
+its [captured log](certificate-accuracy-first-pass.txt) record 49 observed passes
+before the owner stopped the excessively slow acceptance file. That variant
+increased order on every retry. The final controller also contracts intervals
+without raising order when arithmetic uncertainty is already small; its exact
+acceptance predicate remains unchanged. No aggregate acceptance is claimed
+for the interrupted run.
+
+The [artifact receipt](automatic-certificate-artifacts.json) records the
+regenerated standalone package, eleven passing Python builder tests, and an
+isolated fresh-kernel [11/0 local load and reload](native-automatic-standalone.json).
+HTTP loading was not rerun. The rebuilt guide passes structural checks for
+38 public symbols, 209 anchors and 130 links. The mathematical PDF passed three
+serial strict LaTeX builds; all 98 pages were rendered and inspected in layout
+overviews, with pages 52 and 54 inspected at full size. No overfull or underfull
+boxes or text outside pages were found. Browser guide layout review remains
+incomplete following the prior preview-server approval rejection described below.
+
+The full package suite was skipped. Automatic native routing remains partial
+coverage of the complete native input-superset objective; an unresolved native
+call is not a successfully computed expansion.
+
 ## Native backend artifacts and late report 18
 
 The [native artifact receipt](native-compatibility-artifacts.json) records the
@@ -27,7 +72,7 @@ unchanged from `84650f3521cfcc89ae832f5bad3554f65faaab31`. It reviews the older
 `921387e` snapshot. The current [seven-case characterization](review-18-intake.json)
 from [ProbeReview18.wl](ProbeReview18.wl) records:
 
-- The relative-only certificate request still stalls at orders
+- At this earlier intake snapshot, the relative-only certificate request stalls at orders
   `{60, 60, 60, 60}`; absolute-error and explicit-order controls reach their goals.
 - Lower-cutoff refinement still coarsens forward and inverse approximations.
 - The analytic backend rejects the complex coefficient witness, while the
@@ -36,7 +81,7 @@ from [ProbeReview18.wl](ProbeReview18.wl) records:
   corrected logarithmic remainder degree two.
 
 All 40 characterization source hashes were verified and stayed unchanged
-during execution. These are observations of current behavior, including known
+during execution. These are observations of the intake snapshot, including then-known
 pending work, **not a passing acceptance suite**. The
 [implementation register](../docs/development/CODE_REVIEW_STATUS.md) maps the
 report's four findings and records the supplied certificate candidates' limits.
@@ -72,6 +117,8 @@ configured filename under `validation/`.
 
 | Area | Focused entry script | Explicitly selected scope |
 | --- | --- | --- |
+| Automatic native routing | [CheckNativeAutomatic.wl](CheckNativeAutomatic.wl) | Eight files covering automatic/explicit backends, options, assumptions, contracts, and inverse entry paths |
+| Certificate accuracy controller | [CheckReviewCertificateAccuracy.wl](CheckReviewCertificateAccuracy.wl) | Three files covering report 18 N01 / C19 and existing exact certificate acceptance |
 | Native import/export remainder contracts | [CheckReviewNativeTails.wl](CheckReviewNativeTails.wl) | Nine files covering native tails, ordinary operations, special functions, and refinement |
 | Complete real coefficients | [CheckReviewRealCoefficients.wl](CheckReviewRealCoefficients.wl) | Eleven files covering coefficient reality and adjacent assumptions, core, coordinate, and special-function paths |
 | Assumption capture | [CheckReviewAssumptions.wl](CheckReviewAssumptions.wl) | Eight files covering construction, arithmetic, inverse branches, and refinement |
@@ -121,8 +168,7 @@ fixtures were corrected; metadata option/specification classification was
 also corrected and additional cases were added before final acceptance.
 
 The [native compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md)
-keeps automatic native fallback as required work: `Automatic` and `"Package"`
-currently use the existing real engines. This focused result establishes the
+tracks automatic routing and remaining coverage work. This earlier focused result establishes the
 recorded explicit-mode cases, not complete input-superset coverage. The
 [native result notes](../docs/development/NATIVE_RESULT_CONTRACTS.md) describe
 held metadata and the distinct formal or native asymptotic contract. Document

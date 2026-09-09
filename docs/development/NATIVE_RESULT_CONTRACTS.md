@@ -13,8 +13,10 @@ scope, and finite examples alone cannot establish it.
 ## Interface and order
 
 `AsymptoticExpand` is a held alias of `AsymptoticExpansion`, with the same
-`"Backend" -> Automatic` default, which currently uses the existing real
-package path without native fallback. It does not implicitly select native order.
+`"Backend" -> Automatic` default. Successful package requests retain the real
+analytic contract and existing order convention. Native specifications/options
+and selected representation failures can instead produce a Native result,
+explicitly recording `OrderConvention -> "Native"`.
 `"Backend" -> "Package"` retains the package engines and declines native
 fallback. Explicit `"Series"` and `"Asymptotic"` modes select the corresponding
 System function, independently of that function's `Method` option.
@@ -44,6 +46,8 @@ the actual backend convention. See the official
 | `Assumptions` | `Missing["NativeContract"]`. |
 | `NativeEvaluationStatus` | `"Computed"` if no native Series/Asymptotic call remains, otherwise `"Unresolved"`. |
 | `NativeBackend`, `NativeKernelVersion`, `NativeSystemID` | Selected backend and producing runtime. |
+| `BackendSelection`, `BackendSelectionReason`, `OrderConvention` | Automatic native results record `Automatic`, their routing reason, and `"Native"` order semantics. |
+| `PackageFailure` | The representation failure leading to automatic fallback, or `None` for direct native routing. |
 
 Preserve nested `SeriesData`, lists, conditions, ordinary expressions, and
 infinite sums. Native `Asymptotic` may return a finite expression without
@@ -71,14 +75,16 @@ not be rejected merely because the analytic real representation cannot encode
 them. Preserve the order of successive specifications and their binding roles.
 
 The dispatcher preserves literal calls under `HoldComplete` until release to
-the selected System head. A computed option container may require ordinary
-argument evaluation to discover the selector; `OriginalArguments` retains the
+the selected System head. Computed trailing containers are resolved before
+the source, which stays held until the selected backend establishes its
+evaluation context. This preparation is not a promise to preserve arbitrary
+side-effect ordering of a direct native call. `OriginalArguments` retains the
 preparation input. Selector discovery traverses option containers, not rules
 inside the source or another option's value.
 
 The native call runs under the ambient assumptions captured at entry. Native
 option expressions, including delayed options, stay in the held request and
-are left to native evaluation. They are not evaluated again to populate
+are left to native evaluation on direct native routes. They are not evaluated again to populate
 metadata. `AmbientAssumptions` is not the effective value of an explicit
 `Assumptions` option, and `ExpansionSpecifications` is not a snapshot of
 evaluated endpoint or order values. Do not infer the analytic
@@ -86,14 +92,25 @@ evaluated endpoint or order values. Do not infer the analytic
 Ordinary Wolfram definitions remain in effect. Evidence must identify the
 kernel, original request, relevant definitions, and returned result.
 
+An automatic package attempt evaluates its source in the package's neutral
+proof context and materializes common options once. On a representation
+failure, the native request reuses those evaluated source/specification and
+option values. It does not replay the original source program or delayed
+common-option callbacks. Ordinary evaluation inside either engine can still
+invoke user definitions. The native call itself restores the captured ambient
+context; this does not undo evaluation already performed for the package attempt.
+
 Native delegation adds no independent real-branch proof. Explicit package-only
 `"MaxTerms"` and `"InverseFunctionBranches"` options return
 `Failure["NativeOptionConflict", ...]`; their restrictions are not discarded.
 The native backend receives source conditions and native options. Do not
 interpret missing generated conditions as unconditional validity. An unresolved native call
 must not be described as a successfully computed expansion. Automatic fallback
-must separately distinguish unsupported representation from invalid requests
-and user-imposed constraints; its final policy is not asserted here.
+keeps callable/inverse and conditional source requests, existing package
+series/remainders, and explicit direction, branch and resource options on the
+package path. Its narrow failure classifier excludes malformed requests,
+domain/branch failures and resource exhaustion. No automatic second-backend
+search or complete coverage theorem is claimed; see the compatibility plan.
 
 ## Parameter dependence and analytic operations
 

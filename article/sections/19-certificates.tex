@@ -49,6 +49,29 @@ The theorem asserts uniqueness on the specified interval. To enclose the selecte
 certify global injectivity or identify disconnected monotone intervals as the
 same continuation of an inverse germ.
 
+\begin{proposition}[Error measured from the sharpened enclosure]
+\label{prop:sharp-enclosure-error}
+Let $J=[a,b]$ be any proved root enclosure obtained by the intersections
+above, and let $c$ be the specified approximation. Then
+\[
+ |x_*-c|\le e_J:=\max\{|a-c|,|b-c|\}\le h.
+\]
+The number $e_J$ is the smallest uniform distance bound implied by membership
+in $J$ alone; it need not equal the actual error of the root.
+\end{proposition}
+\begin{proof}
+The maximum of $|z-c|$ on an interval is attained at an endpoint. Since
+$x_*\in J\subseteq[c-h,c+h]$, both inequalities follow. Any smaller bound
+would exclude at least one endpoint of $J$.
+\end{proof}
+
+Thus the residual radius $h=\epsilon/\mu$ and the error bound about the
+reported center play different roles. The former follows from the residual
+and derivative bounds; the latter uses all available enclosure information.
+Further interval intersections may improve $e_J$ without changing the
+previously computed residual radius. Recentring changes the distance bound
+and must be accounted for explicitly.
+
 \subsection{Rational arithmetic and elementary enclosures}
 
 Interval bounds can be constructed with rational endpoints. Addition,
@@ -159,6 +182,10 @@ Suppose the root enclosure $I$ is separated from zero, and set
  m_I=\min_{z\in I}|z|>0,\qquad M_I=\max_{z\in I}|z|.
 \]
 An absolute error bound $r$ gives the relative bound $r/m_I$.
+In particular, use $r=e_J$ and $I=J$ from
+Proposition~\ref{prop:sharp-enclosure-error} when a sharpened enclosure is
+available. Both the numerator and the lower root-magnitude bound then use
+the same proved enclosure and the specified center.
 For prescribed tolerances $\epsilon,\tau\ge0$, the sufficient condition
 \[
  r\le\max(\epsilon,\tau m_I)
@@ -174,3 +201,11 @@ a certified lower error bound must exceed $\max(\epsilon,\tau M_I)$.
 Using $m_I$ in this impossibility criterion would be incorrect: a
 sufficient success bound and a sufficient failure bound use opposite
 sides of the root-magnitude enclosure.
+
+A precision schedule may use the requested tolerances to choose initial
+enclosure orders and increase them after an insufficient attempt, even when
+that attempt already proved existence and uniqueness. Such a schedule is
+only a method for seeking stronger interval data. Acceptance still requires
+the exact sufficient inequality above; a requested digit count, a larger
+order, or exhaustion of a finite work budget is not an accuracy theorem.
+The best established enclosure remains valid if further refinement stops.

@@ -179,8 +179,12 @@ AsymptoticExpansion[Gamma[x], {x, Infinity, 3}, "Backend" -> "Asymptotic"]
 These explicit modes use their native input forms and order conventions;
 native `Series` includes the requested order. The
 [focused acceptance record](../validation/native-compatibility-tests.json)
-reports 130 passed, zero failed across eight selected files. Both `Automatic` and `"Package"` currently
-use the existing package engines. Automatic native fallback remains required
-work in the [compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md).
+reports 130 passed, zero failed across eight selected files for the explicit
+backend milestone. `Automatic` now routes native specifications/options and
+selected representation failures to a native backend, recording native order
+semantics. Successful package calls retain their existing conventions;
+`"Package"` keeps the strict analytic contract. The
+[compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md) records the
+remaining work toward complete native input coverage.
 See the [native result contract](../docs/development/NATIVE_RESULT_CONTRACTS.md)
 for held request metadata, option conflicts, and analytic-operation boundaries.

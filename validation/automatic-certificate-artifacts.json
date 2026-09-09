@@ -1,0 +1,157 @@
+{
+  "Scope": "Automatic native routing and C19 certificate controller repair. Full native coverage and other review items remain open. Full package suite skipped.",
+  "BaseCommit": "848bd78300c79b75008bdc5652f6f1cd0f49c94d",
+  "RecordedAtUTC": "2026-09-09T23:52:14.067808+00:00",
+  "NativeValidation": {
+    "Report": "validation/native-automatic-tests.json",
+    "SHA256": "bda808a11694cbb1289fd9b06d1a33bed782aec6f7c2cdcfacee490587334dd9",
+    "Passed": 163,
+    "Failed": 0,
+    "Files": 8,
+    "VerifiedSourceHashes": 49,
+    "SuiteSeconds": {
+      "NativeAutomatic.wlt": 0.761175,
+      "NativeCompatibility.wlt": 0.1317796,
+      "NativeContracts.wlt": 0.0530809,
+      "NativePresentation.wlt": 0.0275633,
+      "ReviewAssumptionReplay.wlt": 0.5687713,
+      "ReviewRealCoefficients.wlt": 4.509097,
+      "InverseFunctionIntegration.wlt": 2.411745,
+      "InverseFunctionSyntax.wlt": 0.180825
+    }
+  },
+  "CertificateValidation": {
+    "Report": "validation/review-certificate-accuracy-tests.json",
+    "SHA256": "5d4dd64a0be05a8dd1a1358d7b6608c6c8fbed52c05cc7f506e4b2b691444de0",
+    "Passed": 58,
+    "Failed": 0,
+    "Files": 3,
+    "VerifiedSourceHashes": 44,
+    "SuiteSeconds": {
+      "ReviewCertificateAccuracy.wlt": 0.1919142,
+      "CertificateRegressions.wlt": 0.276384,
+      "AcceptanceCertificates.wlt": 17.537667
+    }
+  },
+  "StandaloneValidation": {
+    "Report": "validation/native-automatic-standalone.json",
+    "SHA256": "09a170b76fca6726c126a6558cd58306d53c476a2cfa422d945b3c246012dcc3",
+    "Passed": 11,
+    "Failed": 0,
+    "Scope": "Isolated local standalone Get in a fresh kernel and explicit reload. HTTP loading not rerun."
+  },
+  "SourceSHA256": {
+    "article/asymptotic-inverse.tex": "099f13875cbf070f18e8823c50ff9ab765f368da40df0ac3d422b86cbcfb9869",
+    "article/sections/01-introduction.tex": "817b308632a56c247de9cbeb0b8b6dc3ae29563905789184af39c13cbb68ef4e",
+    "article/sections/02-scale.tex": "706ea9cbd941ac15b899dc3d1a5cce455ad018b022658cec4e9aaa5751f68018",
+    "article/sections/03-forward.tex": "f11afe40128834b574f84ffbf2611c8409cdf3e6f4ec7d4e7c99050bd9e277de",
+    "article/sections/04-branch.tex": "97cb8bbfb95b8846a7941c2f1f1c16d2d62da79e5c15108e3b619a9033c9aeb6",
+    "article/sections/05-lagrange.tex": "a5c6c892f16c5b3218ad4e2bc8fec196d87afbe1fe8ca899c0a74fb7a5cf8b9e",
+    "article/sections/06-coefficients.tex": "9b3162adeade047da981868cf1cf5a68535aa3d475382d560e4565263a65fb54",
+    "article/sections/07-convergence.tex": "84a60624d5c28ed692c1ab20a271bbdb67e69788db0a9d0db30b6e4efdcf0cfa",
+    "article/sections/08-remainders.tex": "263e1e25f3bfd7725c698e9a366cee2aa9d69208cc0a0330bdf15325ca3fbe18",
+    "article/sections/09-transport.tex": "a24ab3caa62974d7291149b7a25e98ad4627fab3f33d6d9e49a15ae85bc49611",
+    "article/sections/10-endpoints.tex": "0f0e918c0ad96709e90c1e98fe1de88407bff7ff0b04407a41184dd653c9f342",
+    "article/sections/11-examples.tex": "e7e8285439ef6ffbac203c7ef393ee98e0b7bc5b950b64e21ef5d9f70df9c39f",
+    "article/sections/12-boundaries.tex": "f3f46444458a78b77176d3fed6ae39418311e37e35df06d809221162716d7ffb",
+    "article/sections/15-coordinates.tex": "f5a7fed3fd8ab28e0911c52040df8d1c330fee5a9fde14790fc105457a216719",
+    "article/sections/16-incremental.tex": "5c57017f16b61bf4231c5bac90b5e2cd4d95252fa989ca05cc11b96f3875e0f1",
+    "article/sections/17-calculus.tex": "4d145427d9b893417da0c7a581cace34d4014a0827c65fb77d9b154f8e03c24d",
+    "article/sections/18-core-perturbations.tex": "65f08c22e52f6c7a5be1045fc7b97823b1e9568eec448e58bd747bbc7100fc6d",
+    "article/sections/19-certificates.tex": "320dda491c405af806d3da59b55db3e51bf6fd5fedbaf076b2ccdb3ea421ec63",
+    "article/sections/20-logarithmic-scales.tex": "e4a98602fdaafd5625be88222f3c6fea0aec0d2a1ad72a4a69df68600aa07271",
+    "article/sections/21-flat-sectors.tex": "bbf12e8f156dc108e6ae6c0ec15ebfeb89cbebd803aa0fe8994a3f1194f5dea1",
+    "article/sections/22-fourier.tex": "651327654ce686e0fb4b3ec8424dcce78ca32ad4d73cfb7fae20757f0eac50b5",
+    "article/sections/23-source-coordinates.tex": "d269eff6f56a550972c3e6630e30f9659c112d2bc02c884fc55471efdf36dc52",
+    "article/sections/24-special-functions.tex": "d2a84e39d48b52788f90065f6c0946e558cdd256e0828bc71a7df3cba5500ef2",
+    "article/sections/25-refinement-state.tex": "f0c2d423be0a69c8ddb8547ab722306dd589327c78c8712f5e936e4c436e3d1c",
+    "article/sections/27-exponential-core.tex": "768c4df1ccb2c70d87e68e4455bf32000246dc92883641805c4df057d9a992ff",
+    "article/sections/28-flat-sector-operations.tex": "a38db9c32048c7a166080c63e02a474bd572efc320ef2d006365ac0566ea275f",
+    "article/sections/30-reciprocal-log-operations.tex": "dd3e87f274f5e363cf5c041586a86376a642513ba9f79e2f15f5e8269030c5ca",
+    "article/sections/31-inverse-function-expressions.tex": "78674eb27cf7553c0ace41f4ddfb3cdc98c2a816166c1746768024301e40b7ec",
+    "article/sections/32-exponential-normalization.tex": "c3a8b1dd14a1b0f229415e903bf73d4fd162f2ce8706fb2e3a4a2c9c11b7ee83",
+    "article/sections/33-gamma-inverse.tex": "73f096ed6c770b2501d2b04fd79691b4a667de68f4ef51b6f5af6e92e02dae06",
+    "article/sections/34-barnes-inverse.tex": "7fd7324c7cfaaf51b193fa37a080c687126de4c677997162720dae80a13f8fa0",
+    "article/sections/35-special-function-expansions.tex": "efc6b1c6e8bfe97bb4a91cd8267e1f7446c24b7a49bbecdbb8dd0e6eadfc43b9",
+    "AsymptoticInverse/Documentation/UserGuide.md": "aeafd3be1d0e9440bf18a407992845fb7b35bde5fe7efab298ce98187c22b7f6",
+    "AsymptoticInverse/Documentation/UserGuide.html": "01d4d2fb00fc1a25635aae53a66b5ac2c224e1eaae6628395b1eb0278cabc009",
+    "AsymptoticInverse/Documentation/UserGuide.css": "69853132fec2f492c02fcdea11bc1c351cf5a2babc962b2dbbd8b9bd253e90d8",
+    "validation/build_standalone.py": "5db37e59cff38f0cca584bece730eb73677d2cb97c4af42a76c7958368f9cf4c",
+    "validation/test_standalone.py": "d496d59179c41076aa4ebc2d9574bce7f3b700beb83ae6002125dd0acac34472",
+    "validation/build_user_guide.py": "057fa8ff6352679d0ac532bda8f6b274e118439765cac317d02471c1ce2a264b",
+    "validation/check_documentation.py": "cab428c010309ee70af066ad45da43c7b7ea3b56630cf3257582af9be07c3195",
+    "validation/inspect_pdf.py": "d07a5c17c73a3dd12ccb82c9631eb793f6920ffa219e8a4182596be80da55b79",
+    "validation/CheckStandalone.wl": "847c3e7e6c02276a5649d537ba4a059055b2621d800e3f0028b3a1307d49181a"
+  },
+  "PDF": {
+    "Path": "article/asymptotic-inverse.pdf",
+    "SHA256": "b9e1f9bb962b23e77c8a8662ffd2c1646e38c4d281516d11fd501d51b943e95c",
+    "Pages": 98,
+    "Bytes": 1187657,
+    "BuildPasses": [
+      {
+        "Pass": 1,
+        "ExitCode": 0,
+        "LogSHA256": "32e711908ba59489cfad41763d904515324deea713688eddc62c26145b7ea5a6",
+        "Diagnostics": [
+          "Package epstopdf Warning: Shell escape feature is not enabled.",
+          "LaTeX Warning: Reference `prop:sharp-enclosure-error' on page 54 undefined on i",
+          "LaTeX Warning: There were undefined references.",
+          "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right."
+        ]
+      },
+      {
+        "Pass": 2,
+        "ExitCode": 0,
+        "LogSHA256": "be42e9b14b4d1b8472b82afa3da3bcde601560e180f984ffe443f152de597aa5",
+        "Diagnostics": [
+          "Package epstopdf Warning: Shell escape feature is not enabled."
+        ]
+      },
+      {
+        "Pass": 3,
+        "ExitCode": 0,
+        "LogSHA256": "be42e9b14b4d1b8472b82afa3da3bcde601560e180f984ffe443f152de597aa5",
+        "Diagnostics": [
+          "Package epstopdf Warning: Shell escape feature is not enabled."
+        ]
+      }
+    ],
+    "RenderedPages": 98,
+    "DPI": 100,
+    "Renderer": "pdftoppm",
+    "TextOutsidePage": 0,
+    "VisualReview": "All 98 pages reviewed in five layout overviews assembled from 17 contact sheets; pages 52 and 54 reviewed at full size. No layout changes needed.",
+    "ReviewedFullPages": [
+      52,
+      54
+    ]
+  },
+  "UserGuide": {
+    "PublicSymbols": 38,
+    "Anchors": 209,
+    "Links": 130,
+    "GeneratedHTMLMatchesSources": true,
+    "VisualReviewCompleted": false,
+    "VisualReviewLimit": "No new browser layout acceptance. The prior attempt to launch the documentation preview server was rejected by automatic approval review with blocked by policy."
+  },
+  "Standalone": {
+    "Path": "AsymptoticInverse.wl",
+    "SHA256": "aef7889329949776ab7dd841ec5ce93a0ef1e5dd7b608ae628e3344e0817d249",
+    "Bytes": 601783,
+    "Sources": 39,
+    "FreshnessCheck": true,
+    "PythonBuilderTests": 11
+  },
+  "DiagnosticRecords": [
+    "validation/native-automatic-first-pass.json",
+    "validation/certificate-accuracy-first-pass.json",
+    "validation/certificate-accuracy-first-pass.txt"
+  ],
+  "Report18": {
+    "ImportedRevision": "84650f3521cfcc89ae832f5bad3554f65faaab31",
+    "SuppliedFiles": 19,
+    "ByteUnchanged": true
+  },
+  "FullPackageSuiteRun": false
+}

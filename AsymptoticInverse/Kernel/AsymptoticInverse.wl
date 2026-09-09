@@ -28,6 +28,8 @@ Increasing BarnesG and LogBarnesG inverses use Scale -> \"BarnesGInverse\", with
 Real logarithms of supported positive Gamma products are normalized to LogGamma before ordinary absolute power-log expansion. \
 The explicit option \"Backend\" -> \"Series\" or \"Asymptotic\" delegates the original native argument forms and options, \
 using the native order convention and preserving the complete native result without asserting a package analytic remainder. \
+Automatic retains successful package expansions and uses a compatible native backend for native specifications/options or selected representation failures. \
+Native fallback records its own order convention; explicit direction, branch and resource constraints keep the package path. \
 \"Backend\" -> \"Package\" selects the existing real expansion engines. See Documentation/UserGuide.md for the domains and contracts.";
 
 AsymptoticExpand::usage =

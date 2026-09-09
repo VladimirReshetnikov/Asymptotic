@@ -23,11 +23,22 @@ complex and multivariable results. Explicit native backends and the held
 `AsymptoticExpand` alias are implemented, with
 [130 passed, zero failed focused checks](../../validation/native-compatibility-tests.json)
 across eight selected files and unchanged sources.
-`Automatic` currently uses the existing real engines. Automatic native fallback
-and remaining coverage evidence are required work in the register.
+`Automatic` now routes native specifications/options and selected representation
+failures to a compatible native backend. Successful package requests retain
+their existing analytic contract, cutoff and block-count semantics. The
+[automatic focused runner](../../validation/CheckNativeAutomatic.wl) checks
+routing, evaluation, constraints, and adjacent inverse entry paths. Complete
+native coverage remains required work in the register.
 The [native result contracts](NATIVE_RESULT_CONTRACTS.md) explain preserved
 native output, held request metadata, option conflicts, and the absence of
 an independently proved analytic remainder.
+
+Report 18's certificate accuracy stall is addressed in
+[InverseCertificates.wl](../../AsymptoticInverse/Kernel/InverseCertificates.wl).
+The [focused certificate runner](../../validation/CheckReviewCertificateAccuracy.wl)
+checks relative-aware planning, arithmetic retries, sharp root-interval bounds,
+best-result retention, and the distinction between a proved enclosure and
+achieving the requested accuracy.
 
 The [assumption-context notes](ASSUMPTION_CONTEXT.md) explain how constructor
 hypotheses survive coefficient queries, arithmetic and refinement, including

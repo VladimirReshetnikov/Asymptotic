@@ -2,7 +2,7 @@
 
 AsymptoticInverse computes asymptotic expansions of functions and selected real inverse functions. It supports exact real exponents, logarithmic coefficients, finite and infinite endpoints, and explicit remainder classes. Additional constructors handle logarithmic hierarchies, exponential sectors, oscillatory coefficients, and selected special functions.
 
-Explicit native backends preserve Wolfram Language `Series` and `Asymptotic` results in the same result head, with a separate formal or native asymptotic contract. See [Native Expansion Backends](#native-backend-expansions).
+Explicit native backends and selected automatic routes preserve Wolfram Language `Series` and `Asymptotic` results in the same result head, with a separate formal or native asymptotic contract. See [Native Expansion Backends](#native-backend-expansions).
 
 This guide describes the Wolfram Language interface. See the [mathematical article](../../article/asymptotic-inverse.pdf) for definitions, results, and proofs.
 
@@ -104,8 +104,8 @@ Outputs below are written in algebraically equivalent factored forms where this 
 
 | Form | Result |
 | --- | --- |
-| `AsymptoticExpansion[f, {x, x0, h}]` | Expansion at `x0` with exclusive cutoff `h`. |
-| `AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]` | First `n` complete nonzero blocks; separate carriers use the convention below. |
+| `AsymptoticExpansion[f, {x, x0, h}]` | Expansion at `x0`; a package result uses exclusive cutoff `h`, while an automatically selected native result uses native order. |
+| `AsymptoticExpansion[f, {x, x0}, SeriesTermGoal -> n]` | A package result retains `n` complete nonzero blocks; a native result uses its backend's term-goal convention. |
 | `AsymptoticExpansion[f, x -> x0, SeriesTermGoal -> n]` | Equivalent rule form. |
 | `AsymptoticExpansion[f, {x, x0, n}, "Backend" -> "Series"]` | Native `Series` result through native order `n`. |
 | `AsymptoticExpansion[f, {x, x0, n}, "Backend" -> "Asymptotic"]` | Native `Asymptotic` result at its requested order. |
@@ -121,8 +121,8 @@ An applied inverse can also occur inside a supported expression. See [Callable a
 
 | `"Backend"` setting | Meaning |
 | --- | --- |
-| `Automatic` | Default shared by `AsymptoticExpansion` and `AsymptoticExpand`; currently uses the package engines, without automatic native fallback. |
-| `"Package"` | Use the package expansion engines and their analytic remainder contracts; do not fall back to a native result. |
+| `Automatic` | Preserve supported package expansions; route native request forms and native-specific options, or selected real-representation failures, to one native backend. |
+| `"Package"` | Use the package engines and their analytic remainder contracts; refuse native-specific options and do not fall back. |
 | `"Series"` | Delegate to built-in `Series` and retain its native result. |
 | `"Asymptotic"` | Delegate to built-in `Asymptotic` and retain its native result. |
 
@@ -157,7 +157,29 @@ An order specification retains the selected built-in function's meaning. In part
 
 Select native options appropriate to that engine, such as `Analytic` for `Series`, or `GenerateConditions` and `WorkingPrecision` for `Asymptotic`. Preserve any domain conditions needed by the problem; suppressing generated conditions does not prove that the result holds for every parameter value.
 
-Native modes reject explicitly supplied `"MaxTerms"` and `"InverseFunctionBranches"` with `Failure["NativeOptionConflict", ...]`. These are package-specific contracts; use `"Backend" -> "Package"` when they are needed. Automatic native fallback remains pending; select a native backend explicitly for native input coverage.
+Native modes reject explicitly supplied `"MaxTerms"` and `"InverseFunctionBranches"` with `Failure["NativeOptionConflict", ...]`. These are package-specific contracts; use `"Backend" -> "Package"` when they are needed. Package mode returns `Failure["UnsupportedOption", ...]` for native-specific options rather than ignoring them.
+
+<a id="automatic-backend-routing"></a>
+### Automatic Selection
+
+`Automatic` preserves a successful package result and its existing cutoff, block count, and analytic contract. It also recognizes native-specific options and request forms, including multiple specifications, symbolic or complex centers, order `Infinity`, lists, inactive expressions, and a rule-form leading-order request without `SeriesTermGoal`.
+
+Otherwise the package engines are tried first. A selected representation limitation, such as inexact input, nonreal coefficients, or an unsupported coefficient scale, can produce a native fallback. Domain, inverse-branch, resource, and invalid-option failures are retained. A source containing `Function`, `InverseFunction`, `ConditionalExpression`, `GeneralizedSeries`, or `PowerLogRemainder`, or an explicitly supplied `Direction`, `"MaxTerms"`, or `"InverseFunctionBranches"`, keeps the package path. This conservative protection applies even when the explicitly supplied option has its default value.
+
+Native-specific options select a compatible backend: `Series` is preferred when it accepts all such option keys, then `Asymptotic`. Conflicting option sets return `Failure["NativeOptionConflict", ...]`. Without those options, a triple specification or successive specifications select `Series`; a single order-`Infinity` request and ordinary rule forms select `Asymptotic`. The selected engine is called once; an unresolved result does not trigger a probe of the other engine.
+
+```wolfram
+Clear[x, y];
+s = AsymptoticExpand[Exp[I x], {x, 0, 3}];
+{s["NativeBackend"], s["BackendSelectionReason"],
+ s["OrderConvention"], Normal[s]}
+
+AsymptoticExpansion[Exp[x + y], {x, 0, 2}, {y, 0, 1}]
+AsymptoticExpansion[Exp[x], {x, 0, 3}, Analytic -> False]
+AsymptoticExpansion[Sin[x], x -> 0]
+```
+
+An automatic native result records `"OrderConvention" -> "Native"`. This is a change of representation and order semantics: native `Series` includes its requested order and its term goal can count zero coefficient positions. It does not promise the package's exclusive cutoff or nonzero-block count. Select `"Backend" -> "Package"` when those conventions must be enforced, or an explicit native backend when the native engine must be fixed. These routes extend coverage; they do not establish complete automatic coverage of every native input.
 
 ### Basic Examples
 
@@ -214,13 +236,18 @@ Native results have the following contract:
 | `"NativeBackend"` | `"Series"` or `"Asymptotic"`. |
 | `"NativeRequest"` | Held call to the selected built-in function, with the wrapper's backend selector removed. |
 | `"OriginalArguments"` | Original arguments retained inside `HoldComplete`. |
-| `"ExpansionSpecifications"` | Recognized specification forms retained individually inside `HoldComplete`, in their supplied order. These are syntactic records, not evaluated snapshots. |
+| `"ExpansionSpecifications"` | Recognized specification forms retained individually inside `HoldComplete`, in their supplied order. Literal explicit requests retain their syntax; automatic preparation can resolve expressions before these records are formed. |
 | `"AmbientAssumptions"` | Ambient assumption value captured at native entry. |
 | `"Assumptions"` | `Missing["NativeContract"]`; the wrapper does not independently reconstruct the backend's effective proof context. |
 | `"NativeEvaluationStatus"` | `"Computed"` when no unevaluated native `Series` or `Asymptotic` call remains; otherwise `"Unresolved"`. This is an evaluation status, not a correctness certificate. |
 | `"NativeKernelVersion"`, `"NativeSystemID"` | Runtime that produced the native result. |
+| `"BackendSelection"`, `"BackendSelectionReason"` | For automatic native results, `Automatic` and one of `"NativeOptions"`, `"NativeSpecification"`, or `"PackageRepresentation"`. |
+| `"OrderConvention"` | `"Native"` for an automatically selected native result. |
+| `"PackageFailure"` | The preceding package failure for a representation fallback; `None` when native routing occurred before a package attempt. |
 
-Native option expressions remain in the held request. The wrapper does not evaluate delayed native options again to fill metadata. `"AmbientAssumptions"` does not include an explicitly supplied `Assumptions` option; inspect the held request as well when reproducing a calculation.
+Literal explicit native calls keep their option expressions in the held request. The wrapper does not evaluate delayed native options again to fill metadata. A fallback after a package attempt instead reuses the prepared source and specifications, with the common assumptions and term-goal options materialized from that attempt. `"OriginalArguments"` retains the original input; `"NativeRequest"` records what was delegated. `"AmbientAssumptions"` does not include an explicitly supplied `Assumptions` option; inspect the held request as well when reproducing a calculation.
+
+Automatic package preparation evaluates the source in the package's neutral proof context, where `$Assumptions` is `True`; captured assumptions are supplied separately to the engines. Literal explicit native calls release the source under the captured ambient context. Computed trailing argument or option containers are resolved before selecting the backend, while keeping the source held. The wrapper reuses prepared input instead of rerunning the original source program after a package failure. This does not freeze user definitions or guarantee an identical ordering of arbitrary side effects across automatic preparation and a direct native call.
 
 `Normal` does not guarantee a finite polynomial or finite sum. An infinite sum or another ordinary expression returned by a native calculation can remain in `Normal[s]`. For example, a native `Asymptotic` request can use order `Infinity`. See [Normal](https://reference.wolfram.com/language/ref/Normal.html).
 
@@ -274,7 +301,7 @@ The source symbol `x` and target symbol `y` must be distinct. The forward expres
 <a id="coordinates-and-cutoffs"></a>
 ## Details and Options: Coordinates and Cutoffs
 
-This section describes the package's analytic representations. Explicit native backends retain their own coordinates, domains, and order conventions; see [Native Expansion Backends](#native-backend-expansions).
+This section describes the package's analytic representations. Native results, whether selected explicitly or automatically, retain their backend's coordinates, domains, and order conventions; see [Native Expansion Backends](#native-backend-expansions).
 
 ### Positive Local Coordinates
 
@@ -434,7 +461,7 @@ s = AsymptoticExpansion[a + Sin[a] x, {x, 0, 2},
 {a + Sin[a] x, 0}
 ```
 
-Without the realness assumption, a coefficient `a` produces `Failure["UnprovedRealCoefficient", ...]`. A real argument alone does not make every function value real: `ArcSin[a]` needs a suitable interval assumption, such as `-1 < a < 1`.
+Without the realness assumption, a coefficient `a` produces `Failure["UnprovedRealCoefficient", ...]` in strict `"Package"` mode. Automatic mode can instead retain a native formal result; that result does not assert real coefficients. A real argument alone does not make every function value real: `ArcSin[a]` needs a suitable interval assumption, such as `-1 < a < 1`, for a real analytic representation.
 
 Contributions at equal powers are combined and simplified before their coefficients are checked. For example:
 
@@ -1307,12 +1334,15 @@ This is a numerical sample. A Poincare remainder specifies an asymptotic error c
 The requested real branch must be established on the chosen approach. For example, noninteger-order `BesselJ` at a negative argument, `BesselK` on its negative-axis cut, and `EllipticK[1 + x]` for small positive `x` are not admitted as real expansions:
 
 ```wolfram
-AsymptoticExpansion[BesselJ[Sqrt[2], -x], x -> 0, SeriesTermGoal -> 3]
-AsymptoticExpansion[BesselK[0, -x], x -> Infinity, SeriesTermGoal -> 3]
-AsymptoticExpansion[EllipticK[1 + x], x -> 0, SeriesTermGoal -> 3]
+AsymptoticExpansion[BesselJ[Sqrt[2], -x], x -> 0,
+  SeriesTermGoal -> 3, "Backend" -> "Package"]
+AsymptoticExpansion[BesselK[0, -x], x -> Infinity,
+  SeriesTermGoal -> 3, "Backend" -> "Package"]
+AsymptoticExpansion[EllipticK[1 + x], x -> 0,
+  SeriesTermGoal -> 3, "Backend" -> "Package"]
 ```
 
-An unevaluated native expansion, a parameter pole, or a coefficient outside the supported real power-log and bounded-oscillation classes can return `Failure`. The fact that a function has numerical values does not establish an admissible asymptotic expansion at every endpoint.
+An unevaluated native expansion, a parameter pole, or a coefficient outside the supported real power-log and bounded-oscillation classes can return `Failure` in the package analytic path. A native result retained by another route has its native contract; it does not supply the missing real-domain or analytic-tail proof. The fact that a function has numerical values does not establish an admissible analytic expansion at every endpoint.
 
 #### Elementary Exponential Products
 
@@ -2181,11 +2211,11 @@ Use exact targets or targets with sufficient input precision. Exact target offse
 | --- | --- | --- |
 | `"Interval"` | `Automatic` | Verification interval. Supply exact rational endpoints for an explicit request. |
 | `"Center"` | `Automatic` | Initial or fixed rational approximation. An explicitly supplied center remains fixed. |
-| `"TargetError"` | `Automatic` | Absolute error goal for the returned center. |
-| `"RelativeError"` | `Automatic` | Relative error goal using a proved root-magnitude bound. |
-| `WorkingPrecision` | `50` | Precision used in choosing numerical seeds. |
-| `"EnclosureOrder"` | `Automatic` | Order used for elementary-function enclosures. |
-| `"MaxRefinements"` | `6` | Maximum certificate refinement steps. |
+| `"TargetError"` | `Automatic` | Positive exact rational absolute error goal for the returned center. |
+| `"RelativeError"` | `Automatic` | Positive exact rational relative error goal using a proved root-magnitude bound. |
+| `WorkingPrecision` | `50` | Precision used in choosing numerical seeds and in planning an automatic initial enclosure order. |
+| `"EnclosureOrder"` | `Automatic` | Initial order used for elementary-function enclosures; an explicit value must be an integer from `2` through `2000`. |
+| `"MaxRefinements"` | `6` | Maximum retries after the initial certificate attempt. |
 | `"RefineExpansion"` | `True` | Allow expansion refinement when selecting a center. |
 | `"ExponentMagnitudeLimit"` | `10000` | Bound on exponential arguments handled by the enclosure arithmetic. |
 
@@ -2204,7 +2234,34 @@ c = InverseCertificate[s, 1/10, "Interval" -> {1/20, 1/5},
 {True, True}
 ```
 
-`c["Center"]` and `c["RootEnclosure"]` give the actual rational approximation and enclosure. When both tolerances are given, the accuracy request is `Abs[center - root] <= Max[eps, tau Abs[root]]`. A zero root needs an absolute fallback. A fixed center that cannot meet the requested accuracy can return `Failure["AccuracyFloor", ...]`.
+`c["Center"]` and `c["RootEnclosure"]` give the actual rational approximation and enclosure. For `c["RootEnclosure"] == {a, b}`, `c["CertifiedErrorBound"]` is `Max[Abs[a - c["Center"]], Abs[b - c["Center"]]]`. It bounds the distance from the specified center to every point in the sharpened enclosure. `"ResidualRadius"` separately records the residual absolute bound divided by the derivative lower bound; interval intersections can make the reported error smaller than this radius.
+
+When both tolerances are given, the accuracy request is `Abs[center - root] <= Max[eps, tau Abs[root]]`. Acceptance uses exact bounds: `"CertifiedErrorBound" <= "SufficientAbsoluteTolerance"`, where the sufficient tolerance is `Max[eps, tau m]` and `m` is a proved lower bound on the root magnitude. An omitted absolute tolerance contributes zero when a relative tolerance is requested. The relative bound is `"CertifiedErrorBound"/m` when `m > 0`; otherwise `"CertifiedRelativeErrorBound"` is `Missing["RootNotSeparatedFromZero"]`. When the enclosure proves the root is zero, a relative-only request returns `Failure["RelativeAccuracyAtZero", ...]`; supply a positive absolute fallback.
+
+#### Accuracy and Refinement
+
+With `"EnclosureOrder" -> Automatic`, the initial order uses `WorkingPrecision` and a digit estimate from both exact rational tolerances, capped at `2000`. Failed enclosure attempts and retries with a fixed center raise the order up to this cap. With a movable center, a valid but insufficient certificate can trigger higher order when residual uncertainty materially limits the new root enclosure, or when both interval width and center-error progress stall. Otherwise, interval contraction continues at the current order. Reaching the cap still permits remaining interval refinements. These choices allocate work; only the exact enclosure inequalities establish accuracy.
+
+```wolfram
+c = InverseCertificate[s, 1/10, "Interval" -> {1/20, 1/5},
+  "RelativeError" -> 10^-30, "MaxRefinements" -> 6];
+{c["AccuracyGoalReached"], c["EnclosureOrder"],
+ c["CertifiedRelativeErrorBound"]}
+```
+
+| Property | Meaning |
+| --- | --- |
+| `"AccuracyGoalReached"` | Whether the proved bounds satisfy the requested tolerance. A certificate of a unique root alone does not establish this. |
+| `"ProvedRootMagnitudeLowerBound"` | Lower bound used to obtain a relative error estimate. |
+| `"SufficientAbsoluteTolerance"` | Exact absolute bound sufficient for the combined tolerance request. |
+| `"EnclosureOrder"` | Order used for this certificate. |
+| `"EnclosureOrderLimitReached"` | Whether the order reached `2000`; this does not identify the cause of an accuracy failure. |
+| `"History"` | Attempt records, including orders, outcomes, enclosure widths, residual radii, and achieved error bounds when available. |
+| `"AccuracyComparisonKey"` | Exact comparison tuple: error divided by the sufficient tolerance, absolute error, and root-enclosure width. |
+
+When several valid attempts are available, the best certificate is selected lexicographically by `"AccuracyComparisonKey"`; equal keys retain the earlier certificate. The first component is `Infinity` when the sufficient tolerance is zero and `0` when no accuracy goal was requested. `"BestCertificateCriterion"` names these three comparisons.
+
+An exhausted retry budget returns `Failure["AccuracyNotReached", ...]` if a valid certificate was found, retaining it as `"BestCertificate"`. Its `"EnclosureOrder"` can differ from the final attempted order. The failure records `"StoppingReason" -> "RefinementBudgetExhausted"`, `"FinalEnclosureOrder"`, `"EnclosureOrderLimit"`, and the retry counts. These distinguish the retry budget from the order cap. A fixed center with a proved positive accuracy floor can return `Failure["AccuracyFloor", ...]`, containing both `"BestCertificate"` and the `"AccuracyFloorCertificate"` that proves the obstruction.
 
 The certificate concerns the stored explicit equation within the supplied interval. It does not establish a global inverse branch or enclose unspecified terms represented only by an input remainder. All retained source conditions must hold throughout the closed verification interval. A strict source condition therefore also constrains its endpoints.
 
@@ -2557,6 +2614,8 @@ For positive Gamma prefactors, `SeriesLog` returns the additive logarithmic expa
 | Incompatible source or target condition | Select an approach on which the condition holds eventually. |
 | Unexpected number of terms | Check whether the request is a cutoff, block goal, or marker/sector depth. Exact cancellations can remove blocks. |
 | Native and package requests retain different orders | Native `Series` includes its requested order; ordinary package cutoff excludes it. Inspect the selected `"Backend"`. |
+| Automatic returns a native result | Inspect `"BackendSelectionReason"`, `"NativeBackend"`, and `"OrderConvention"`. Native order and term goals can differ from package cutoff and block goals. |
+| A native-specific option is rejected by Package mode | Select a compatible native backend or unprotected Automatic request; the package engine does not silently ignore those options. |
 | A native result has a missing remainder or exactness status | Inspect `"NativeResult"` and `"RemainderContract"`; missing analytic evidence is not a zero remainder. |
 | A native result rejects package arithmetic or refinement | Use native operations on `"NativeResult"`, retaining their native semantics. |
 | Unexpected power of the remainder | Inspect `"RemainderVariable"`, `"Prefactor"`, and `"TermConvention"`. Sparse support or transported input errors can change the first omitted power. |

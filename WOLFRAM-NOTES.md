@@ -408,3 +408,21 @@ algebraic-number code, asymptotic computation, and Wolfram evaluation semantics.
   `"Expression"` field is already an ordinary expression. Returning that
   field drops every remainder and metadata field, including nested series
   retained solely in operation recipes. A pure remainder returns `0`.
+- A held backend selector cannot discover a computed option container without
+  evaluation. Resolve trailing containers while keeping the source held, then
+  release the source in the selected backend's context. Otherwise a computed
+  `Assumptions -> True` list can let the source simplify under ambient
+  assumptions before the package's neutral proof scope starts. Container
+  preparation is observable and need not preserve arbitrary native side-effect
+  ordering. Keep original held arguments as well as the prepared native request.
+- Before package-to-native fallback, retain evaluated source/specification
+  values and materialize common delayed options once. Releasing the original
+  request again repeats user programs. Native-only options must be routed or
+  rejected before a successful package engine can silently ignore them.
+- An interval proof can succeed before its requested accuracy is reached.
+  Such a retry may need higher arithmetic order as well as a narrower interval.
+  Cap automatic order planning without rejecting an exact zero-residual proof;
+  explicit invalid orders remain errors. A reached arithmetic cap does not
+  prevent useful interval contraction. Preserve the best certified attempt
+  separately from the last attempt and from any certificate proving a fixed
+  center's accuracy floor.

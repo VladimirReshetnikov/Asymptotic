@@ -12,15 +12,15 @@ reviewRealCoefficientEqual[s_, expected_, assumptions_: True] := MatchQ[s, _Gene
 VerificationTest[
   Module[{x, a},
     And @@ (reviewRealCoefficientFailureQ[#] & /@ {
-      AsymptoticExpansion[Log[-a], {x, 0, 2}, Assumptions -> a > 0],
-      AsymptoticExpansion[Log[-a] + x, {x, 0, 2}, Assumptions -> a > 0]})],
+      AsymptoticExpansion[Log[-a], {x, 0, 2}, "Backend" -> "Package", Assumptions -> a > 0],
+      AsymptoticExpansion[Log[-a] + x, {x, 0, 2}, "Backend" -> "Package", Assumptions -> a > 0]})],
   True, TestID -> "review-real-coefficients-reject-complex-constant-and-forward-offset"]
 
 VerificationTest[
   Module[{x},
     And @@ (reviewRealCoefficientFailureQ[#] & /@ {
-      AsymptoticExpansion[ArcSin[2 + x], {x, 0, 3}],
-      AsymptoticExpansion[ArcCos[2 + x], {x, 0, 3}]})],
+      AsymptoticExpansion[ArcSin[2 + x], {x, 0, 3}, "Backend" -> "Package"],
+      AsymptoticExpansion[ArcCos[2 + x], {x, 0, 3}, "Backend" -> "Package"]})],
   True, TestID -> "review-real-coefficients-native-inverse-trigonometric-complex-branches-rejected"]
 
 VerificationTest[
@@ -50,8 +50,8 @@ VerificationTest[
 VerificationTest[
   Module[{x, a},
     And @@ (reviewRealCoefficientFailureQ[#] & /@ {
-      AsymptoticExpansion[a + x, {x, 0, 2}, Assumptions -> True],
-      AsymptoticExpansion[a x, {x, 0, 2}, Assumptions -> True]})],
+      AsymptoticExpansion[a + x, {x, 0, 2}, "Backend" -> "Package", Assumptions -> True],
+      AsymptoticExpansion[a x, {x, 0, 2}, "Backend" -> "Package", Assumptions -> True]})],
   True, TestID -> "review-real-coefficients-undeclared-parameter-is-not-assumed-real"]
 
 VerificationTest[
@@ -66,7 +66,7 @@ VerificationTest[
 VerificationTest[
   Module[{x, a},
     reviewRealCoefficientFailureQ[
-      AsymptoticExpansion[ArcSin[a] + x, {x, 0, 2}, Assumptions -> Element[a, Reals]]]],
+      AsymptoticExpansion[ArcSin[a] + x, {x, 0, 2}, "Backend" -> "Package", Assumptions -> Element[a, Reals]]]],
   True, TestID -> "review-real-coefficients-real-argument-alone-does-not-prove-real-arcsine"]
 
 VerificationTest[
@@ -154,8 +154,8 @@ VerificationTest[
 
 VerificationTest[
   Module[{x, a, nonreal, unknown},
-    nonreal = AsymptoticExpansion[Log[-a] + x, {x, 0, 2}, Assumptions -> a > 0];
-    unknown = AsymptoticExpansion[a + x, {x, 0, 2}, Assumptions -> True];
+    nonreal = AsymptoticExpansion[Log[-a] + x, {x, 0, 2}, "Backend" -> "Package", Assumptions -> a > 0];
+    unknown = AsymptoticExpansion[a + x, {x, 0, 2}, "Backend" -> "Package", Assumptions -> True];
     reviewRealCoefficientFailureQ[nonreal] && reviewRealCoefficientFailureQ[unknown] &&
       nonreal[[2]]["Realness"] === "Nonreal" && nonreal[[2]]["Condition"] === False &&
       unknown[[2]]["Realness"] === "Unproved" &&
@@ -165,7 +165,7 @@ VerificationTest[
 VerificationTest[
   Module[{x, a},
     reviewRealCoefficientFailureQ[
-      AsymptoticExpansion[1 + x^100 Log[-a], {x, 0, 2}, Assumptions -> a > 0]]],
+      AsymptoticExpansion[1 + x^100 Log[-a], {x, 0, 2}, "Backend" -> "Package", Assumptions -> a > 0]]],
   True, TestID -> "review-real-coefficients-known-exact-nonreal-block-is-checked-before-cutoff"]
 
 VerificationTest[

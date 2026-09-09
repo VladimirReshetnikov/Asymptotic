@@ -89,10 +89,19 @@ operation guards, and adjacent existing behavior. The earlier focused
 harnesses listed above do not establish acceptance of this native result kind.
 
 The [native compatibility plan](../../docs/development/NATIVE_COMPATIBILITY.md)
-describes the implementation and contract boundaries. Automatic fallback
-remains required work: `Automatic` currently selects the package engines.
+describes the implementation and contract boundaries.
+[CheckNativeAutomatic.wl](../../validation/CheckNativeAutomatic.wl) selects
+automatic routing, argument evaluation, native option and branch constraints,
+and adjacent explicit-backend and inverse-callable regressions.
 This focused acceptance is separate from historical analytic-import evidence
 and does not establish the complete input-superset objective.
+
+[CheckReviewCertificateAccuracy.wl](../../validation/CheckReviewCertificateAccuracy.wl)
+selects report 18 N01 / C19's relative-accuracy, retry, sharp-bound, best-result,
+and budget/cap regressions, plus the existing exact certificate acceptance
+files. Its square-root tests use rational endpoint squares as the oracle;
+the synthetic controller-selection fixture is explicitly distinguished from
+the interval engine's mathematical proof tests.
 
 The existing [NativeSpecialIngress.wlt](NativeSpecialIngress.wlt),
 [ReviewNativeTailImport.wlt](ReviewNativeTailImport.wlt), and

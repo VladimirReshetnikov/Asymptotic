@@ -59,12 +59,16 @@ function `AsymptoticExpansion` now also has the held alias `AsymptoticExpand`.
 
 | ID | Required work and acceptance boundary |
 | --- | --- |
-| B01 | **Partial — explicit modes focused verified.** Native `Series` and `Asymptotic` delegation is available before real-coordinate admission, with no special-function whitelist. The accepted full input-superset scope remains open: `Automatic` still uses the existing package path, and automatic native fallback is required. |
-| B02 | **Explicit interface focused verified; automatic policy pending.** Held alias, explicit backend selection, native options and native order conventions are implemented. `"Package"` keeps strict real-engine behavior; explicit native modes reject package-only branch and budget options instead of dropping them. Further automatic routing must preserve these constraints. |
+| B01 | **Partial — automatic routing focused verified.** Native `Series` and `Asymptotic` delegation is available before real-coordinate admission, with no special-function whitelist. `Automatic` routes native specifications/options and selected representation failures; successful package calls keep their analytic contract. The accepted full input-superset scope remains open: second-backend search, remaining structures/options, and the coverage argument are still required. |
+| B02 | **Automatic policy focused verified.** Held alias, explicit backend selection, native options and native order conventions are implemented. Automatic native results identify native order and routing reason, retaining the package failure when applicable. Callables, inverse/conditional sources and explicit direction/branch/budget options stay on the package path. `"Package"` rejects native-only options instead of silently ignoring them. |
 | B03 | **Native representation focused verified.** `Kind`/`Scale` `"Native"` preserves the complete native result, held request and syntactic specifications, ambient context and runtime provenance. Analytic remainder and exactness remain missing; `Normal` applies native normalization and can retain infinite expressions. Analytic operations refuse to infer a remainder theorem. Further analytic promotion and native operations remain separate work; coordinate with C06, C07, C13 and C16. |
-| B04 | **Partial — focused comparisons recorded.** Eight selected files pass 130 tests on Wolfram 15.0.1 Windows with unchanged sources, including native differential, contract and presentation cases plus adjacent regressions. This evidence supports those cases only. Broader matrix coverage, R17 N4's specific comparison, and the structural argument for full Automatic coverage remain required. |
+| B04 | **Partial — focused comparisons recorded.** Eight selected files pass 163 tests on Wolfram 15.0.1 Windows with unchanged sources, including native differential, contract and presentation cases plus adjacent regressions. This evidence supports those cases only. Broader matrix coverage, R17 N4's specific comparison, and the structural argument for full Automatic coverage remain required. |
 
 Implementation: [NativeCompatibility.wl](../../AsymptoticInverse/Kernel/NativeCompatibility.wl).
+Current automatic evidence: [163/0 record](../../validation/native-automatic-tests.json),
+[eight-file runner](../../validation/CheckNativeAutomatic.wl), and
+[artifact receipt](../../validation/automatic-certificate-artifacts.json).
+The following records preserve the earlier explicit-mode milestone.
 Evidence: [entry script](../../validation/CheckNativeCompatibility.wl),
 [final 130/0 record](../../validation/native-compatibility-tests.json), and
 [earlier 120/2 fixture-diagnostic record](../../validation/native-compatibility-first-pass.json).
@@ -356,7 +360,7 @@ source-admission policy.
 | C16 | **Source admission audit remains open.** Native `Series` may use formal analyticity for an opaque function with only a few truthful derivatives. C06's finite-log allowance presupposes an analytic tail theorem. The reported smooth nonanalytic function is now rejected by C07 because a derivative coefficient is unproved real, but this incidental refusal is not a regularity proof. Native coverage B03 must preserve formal output separately from a proved analytic bound. | [R11 N03][R11]; C06, B03 |
 | C17 | **Current native invalid optional view.** Check native integer/index representability as well as dense allocation length. A one-slot view for `1+x^(2^100)` still contains a native endpoint outside the supported machine range. Check denominator and signed lattice indices before constructing the optional view; preserve the sparse result. | [R12 N03][R12]; C01 |
 | C18 | **Pending — source inspected.** Derive and verify the target endpoint and approach direction from the complete target chart. Current composite fallback misuses flat offsets and isolated target scales: flat pole inverses approach infinity, negative-source Erfc approaches 2 from below, and negative quadratic curvature reverses the side. Cover original and derived objects. | [R15 F01][R15]; D01, D02 |
-| C19 | **Current native accuracy stagnation; repair pending.** A successful but inaccurate interval-certificate attempt must increase arithmetic precision when needed. Plan relative-only targets, tighten bounds from the proved root interval, retain the best certificate, and distinguish certification from reaching requested accuracy. The current R18 probe reproduces enclosure orders `{60,60,60,60}` and `AccuracyNotReached` at relative tolerance `10^-120`; absolute order-135 and explicit order-150 controls reach the goal. This is not a false certificate. Its complete adapter and source patch are unvalidated candidates. | [R15 F02][R15], [R16 N02][R16], [R18 N01][R18]; [current probe](../../validation/review-18-intake.json), C08, X05 |
+| C19 | **Focused verified — 58/0 across three selected files.** Automatic order planning includes relative tolerances and is capped without rejecting exact zero-residual proofs. Selective retries increase arithmetic precision when residual uncertainty or stalled progress limits a valid but insufficient certificate; useful geometric contraction keeps its existing arithmetic order. The reported error uses the sharp proved root interval; `ResidualRadius` retains the old residual/derivative majorant. Best retention uses exact normalized goal progress, absolute error and interval width, with stable ties. Budget exhaustion and an active arithmetic cap are reported separately; the cap does not stop interval contraction. The earlier R18 probe records the original `{60,60,60,60}` stall. Supplied external adapters remain unvalidated candidate artifacts. | [R15 F02][R15], [R16 N02][R16], [R18 N01][R18]; [baseline probe](../../validation/review-18-intake.json), [58/0 acceptance](../../validation/review-certificate-accuracy-tests.json), [focused runner](../../validation/CheckReviewCertificateAccuracy.wl), C08, X05 |
 | C20 | **Pending — source inspected.** Evaluate exact rational affine cancellation before interval rounding. Separately enclosing a huge translation and its cancellation can make even a linear certificate unusably wide. Preserve outward enclosures for nonlinear subexpressions; this is an availability failure, not evidence of an unsound certificate. | [R14 N02][R14]; X05 |
 | C21 | **Pending — source inspected.** Solve and compare in the local source coordinate, and expose unresolved numerical error/ratio states. A large source origin can erase a small displacement; an inexact zero with poor accuracy is not exact agreement. Use bounded precision retries or normalized corrections without manufacturing target digits; keep numerical diagnostics distinct from interval certificates. | [R13 A3][R13], [R14 N03][R14], [R17 N3][R17]; D05, D06 |
 | C22 | **Pending — source inspected.** Retain quantitative remainder bounds and their conditions through truncation. Transport a known upper bound by adding the absolute discarded finite part; do not copy a signed lower bound blindly. Include a no-op truncation of a Zeta/Lerch result and later supported arithmetic. | [R14 N05][R14]; D02, X05 |
@@ -364,8 +368,8 @@ source-admission policy.
 
 Additional concrete existing-item work: R10 N02 supplies a sparse flat-product
 budget witness for P06; R14 N04 adds ignored Fourier term goals to D01/D02;
-R16 N03 requires correcting the documented seed-only `WorkingPrecision`
-contract and its capped proof-order conversion; R16 N04 requires a common
+R16 N03's seed-only `WorkingPrecision` documentation and capped proof-order
+conversion are addressed with C19; R16 N04 still requires a common
 cutoff/term-goal policy. R16 S01 and R18 D-C04 propose sharper closed-boundary convolution
 under C04/P02/P03, not a reason to erase C04's verified conservative fix.
 R15 F04 adds reflected positive Gamma/Barnes observables to X02.
@@ -485,7 +489,7 @@ number of required fixes. Unnumbered roadmap proposals are covered above.
 4. Establish C08's achieved-precision postcondition; then replace the fixed
    margins with backward demand planning. Address P01–P03 as bounded resource
    fixes, followed by measured P04/P05 work.
-5. Address C19–C23, C09/C10, D04/D08 and V02 with focused contract checks.
+5. Address C20–C23, C09/C10, D04/D08 and V02 with focused contract checks.
    Resolve D10's lower-cutoff refinement policy separately from a soundness fix.
    Required native input coverage is not deferred with the optional research
    proposals; preserve that distinction when prioritizing extensions.

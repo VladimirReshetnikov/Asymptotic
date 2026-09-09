@@ -34,6 +34,18 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticInverse`"],
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
   VerificationTest[Module[{x, s},
+    s = AsymptoticExpand[Exp[I x], {x, 0, 3}];
+    {s["Kind"], s["OrderConvention"],
+      s["NativeResult"] === Series[Exp[I x], {x, 0, 3}]}],
+    {"Native", "Native", True}, TestID -> "loading-automatic-native-representation-fallback"],
+  VerificationTest[Module[{x, y, s, c},
+    s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
+    c = InverseCertificate[s, 2, "Interval" -> {1, 2}, "RelativeError" -> 10^-120,
+      "MaxRefinements" -> 3, "RefineExpansion" -> False];
+    AssociationQ[c] && TrueQ[c["AccuracyGoalReached"]] &&
+      c["CertifiedRelativeErrorBound"] <= 10^-120],
+    True, TestID -> "loading-relative-certificate-review18-repair"],
+  VerificationTest[Module[{x, s},
     s = AsymptoticExpand[Exp[I x], {x, 0, 3}, "Backend" -> "Series"];
     {Context[AsymptoticExpand], s["Kind"],
       s["NativeResult"] === Series[Exp[I x], {x, 0, 3}],

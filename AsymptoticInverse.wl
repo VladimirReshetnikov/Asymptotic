@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/AsymptoticInverse.wl
-   Source SHA256 (UTF-8/LF): 5516b779b4b199000c59cd8c063683245db40f0c235b94fef2a4714861b4ff34 *)
+   Source SHA256 (UTF-8/LF): 61df713ddefc8de27510b5e4223b459b34c46bfc1281bc3d04472cbbb3534d63 *)
 (* ::Package:: *)
 (* AsymptoticInverse -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -37,6 +37,8 @@ Increasing BarnesG and LogBarnesG inverses use Scale -> \"BarnesGInverse\", with
 Real logarithms of supported positive Gamma products are normalized to LogGamma before ordinary absolute power-log expansion. \
 The explicit option \"Backend\" -> \"Series\" or \"Asymptotic\" delegates the original native argument forms and options, \
 using the native order convention and preserving the complete native result without asserting a package analytic remainder. \
+Automatic retains successful package expansions and uses a compatible native backend for native specifications/options or selected representation failures. \
+Native fallback records its own order convention; explicit direction, branch and resource constraints keep the package path. \
 \"Backend\" -> \"Package\" selects the existing real expansion engines. See Documentation/UserGuide.md for the domains and contracts.";
 
 AsymptoticExpand::usage =
@@ -2966,7 +2968,7 @@ AsymptoticInverse`AsymptoticCoreInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: AsymptoticInverse/Kernel/CorePerturbation.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/InverseCertificates.wl
-   Source SHA256 (UTF-8/LF): ef67eb2fc10bf65c476c70b1ebfe58ca9965c54a369b619d19c73ab75e496121 *)
+   Source SHA256 (UTF-8/LF): 232bea1ed6859bfe7a98ca516efb0dcf4f55a678cd399a9b31b5312a41fb75dc *)
 (* Exact rational residual certificates. Decimal arithmetic is used only to
    choose a center; every successful proof uses rational interval endpoints. *)
 
@@ -3236,7 +3238,7 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
     Min[interval[[2]], bracket[[2]], center - correction[[1]]]};
   If[sharp[[1]] > sharp[[2]], certFail["CertificateInvariant", "The exact root enclosure became empty."]];
   <|"Certified" -> True, "RootEnclosure" -> sharp, "Center" -> center,
-    "CertifiedErrorBound" -> radius,
+    "CertifiedErrorBound" -> Max[Abs[sharp - center]], "ResidualRadius" -> radius,
     "CertifiedErrorLowerBound" -> If[residual[[1]] <= 0 <= residual[[2]], 0,
       Min[Abs[residual]]/Max[Abs[derivative]]], "ResidualEnclosure" -> residual,
     "ResidualAbsoluteBound" -> epsilon, "DerivativeEnclosure" -> derivative,
@@ -3259,6 +3261,40 @@ Options[AsymptoticInverse`InverseCertificate] = {"Interval" -> Automatic, "Cente
   "TargetError" -> Automatic, "RelativeError" -> Automatic, WorkingPrecision -> 50, "EnclosureOrder" -> Automatic,
   "MaxRefinements" -> 6, "RefineExpansion" -> True, "ExponentMagnitudeLimit" -> 10000};
 
+(* This is a starting heuristic only. Exact certified bounds decide whether
+   the requested accuracy has been reached, even when this estimate is capped. *)
+certToleranceDigits[t_] := If[t === Automatic, 0,
+  Max[0, IntegerLength[Denominator[t]] - IntegerLength[Numerator[t]]]];
+
+(* Increase arithmetic work when its point-residual uncertainty materially
+   limits the new enclosure. This plans work only; it is not an error theorem.
+   Comparing against the old center error would delay a necessary increase
+   until too little refinement budget remains for the next recentering. *)
+certArithmeticLimitedQ[result_Association] := Module[
+  {residualWidth = result["ResidualEnclosure"][[2]] - result["ResidualEnclosure"][[1]],
+   rootWidth = result["RootEnclosure"][[2]] - result["RootEnclosure"][[1]]},
+  TrueQ[residualWidth > 0 && 2 residualWidth >= result["DerivativeLowerBound"] rootWidth]];
+certProgressStalledQ[history_List] := Module[{previous, current},
+  If[Length[history] < 2, Return[False, Module]];
+  {previous, current} = Take[history, -2];
+  TrueQ[previous["Outcome"] === "Certified" && current["Outcome"] === "Certified" &&
+    previous["EnclosureOrder"] === current["EnclosureOrder"] &&
+    current["RootEnclosureWidth"] >= previous["RootEnclosureWidth"] &&
+    current["CertifiedErrorBound"] >= previous["CertifiedErrorBound"]]];
+
+(* Compare proof quality against this request, then break ties by the absolute
+   error and interval width. A relative-only interval crossing zero has no
+   positive sufficient absolute tolerance and therefore an infinite ratio. *)
+certAccuracyKey[result_Association] := Module[{goal = result["SufficientAbsoluteTolerance"], error = result["CertifiedErrorBound"]},
+  {Which[goal === Infinity, 0, goal > 0, error/goal, True, Infinity],
+    error, result["RootEnclosure"][[2]] - result["RootEnclosure"][[1]]}];
+certBetterCertificateQ[candidate_Association, best_] := Module[{left, right},
+  If[! AssociationQ[best], Return[True, Module]];
+  left = certAccuracyKey[candidate]; right = certAccuracyKey[best];
+  Which[left[[1]] =!= right[[1]], TrueQ[left[[1]] < right[[1]]],
+    left[[2]] =!= right[[2]], TrueQ[left[[2]] < right[[2]]],
+    True, TrueQ[left[[3]] < right[[3]]]]];
+
 AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts : OptionsPattern[]] := catch[Module[
   {interval = OptionValue["Interval"], center = OptionValue["Center"], tolerance = OptionValue["TargetError"],
    relative = OptionValue["RelativeError"], lowerMagnitude, upperMagnitude, goalBound, floorBound, absoluteTolerance,
@@ -3266,7 +3302,8 @@ AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts
    maximum = OptionValue["MaxRefinements"], refine = OptionValue["RefineExpansion"],
    magnitude = OptionValue["ExponentMagnitudeLimit"], fixed, x, y, f, target, route, ctx,
    result, best = Missing["NotCertified"], iteration = 0, seed, history = {}, initial, digits, knownRoot = False,
-   certificateModel = a, phaseData},
+   certificateModel = a, phaseData, accuracyReached, completion,
+   bestCriterion = {"CertifiedErrorBound/SufficientAbsoluteTolerance", "CertifiedErrorBound", "RootEnclosureWidth"}},
   If[! MemberQ[{"Inverse", "CoreInverse"}, Lookup[a, "Kind", None]],
    certFail["Unsupported", "Certificates require an inverse or exact-core inverse expansion."]];
   If[! exactQ[yv] || ! NumericQ[yv], certFail["InexactTarget", "The certificate target must be an exact numeric expression."]];
@@ -3280,9 +3317,8 @@ AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts
   If[relative =!= Automatic && (! certRationalQ[relative] || ! TrueQ[relative > 0]),
    certFail["InvalidTolerance", "RelativeError must be a positive exact rational number."]];
   If[order === Automatic,
-   digits = If[tolerance === Automatic, 0,
-     Max[0, IntegerLength[Denominator[tolerance]] - IntegerLength[Numerator[tolerance]]]];
-   order = Max[wp + 10, digits + 15]];
+   digits = Max[certToleranceDigits[tolerance], certToleranceDigits[relative]];
+   order = Min[2000, Max[wp + 10, digits + 15]]];
   If[! IntegerQ[order] || order < 2 || order > 2000,
    certFail["InvalidOption", "EnclosureOrder must be an integer between 2 and 2000."]];
   x = a["Variables"][[1]]; y = a["Variable"]; f = a["Function"]; target = yv; route = "OriginalFunction";
@@ -3321,22 +3357,37 @@ AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts
     goalBound = If[relative === Automatic, If[tolerance === Automatic, Infinity, tolerance],
       Max[absoluteTolerance, relative lowerMagnitude]];
     floorBound = If[relative === Automatic, goalBound, Max[absoluteTolerance, relative upperMagnitude]];
+    accuracyReached = TrueQ[result["CertifiedErrorBound"] <= goalBound] &&
+      ! (relative =!= Automatic && tolerance === Automatic && upperMagnitude === 0);
     result = Join[result, <|"RelativeError" -> relative, "ProvedRootMagnitudeLowerBound" -> lowerMagnitude,
       "CertifiedRelativeErrorBound" -> If[lowerMagnitude > 0, result["CertifiedErrorBound"]/lowerMagnitude,
-        Missing["RootNotSeparatedFromZero"]], "SufficientAbsoluteTolerance" -> goalBound|>];
-    best = result;
+        Missing["RootNotSeparatedFromZero"]], "SufficientAbsoluteTolerance" -> goalBound,
+      "AccuracyGoalReached" -> accuracyReached, "EnclosureOrder" -> order,
+      "EnclosureOrderLimitReached" -> (order === 2000), "Refinements" -> iteration,
+      "BestCertificateCriterion" -> bestCriterion|>];
+    result = Join[result, <|"AccuracyComparisonKey" -> certAccuracyKey[result]|>];
+    history[[-1]] = Join[Last[history], KeyTake[result,
+      {"CertifiedErrorBound", "ResidualRadius", "SufficientAbsoluteTolerance", "AccuracyGoalReached", "AccuracyComparisonKey"}],
+      <|"RootEnclosureWidth" -> result["RootEnclosure"][[2]] - result["RootEnclosure"][[1]],
+        "ResidualEnclosureWidth" -> result["ResidualEnclosure"][[2]] - result["ResidualEnclosure"][[1]]|>];
+    If[certBetterCertificateQ[result, best], best = result];
     If[relative =!= Automatic && tolerance === Automatic && upperMagnitude === 0,
      certFail["RelativeAccuracyAtZero", "A relative accuracy request at a zero root requires an explicit positive TargetError absolute fallback.",
        <|"BestCertificate" -> result, "History" -> history|>]];
-    If[result["CertifiedErrorBound"] <= goalBound,
+    If[accuracyReached,
      Return[Join[result, <|"OriginalTarget" -> yv, "TargetError" -> tolerance, "AccuracyGoalReached" -> True,
         "Refinements" -> iteration, "History" -> history|>], Module]];
     If[fixed && result["CertifiedErrorLowerBound"] > floorBound,
      certFail["AccuracyFloor", "The fixed center's certified error lower bound exceeds the requested absolute or relative tolerance.",
-      <|"TargetError" -> tolerance, "RelativeError" -> relative, "BestCertificate" -> result, "History" -> history,
+      <|"TargetError" -> tolerance, "RelativeError" -> relative, "BestCertificate" -> best,
+        "AccuracyFloorCertificate" -> result, "History" -> history,
         "CenterWasFixed" -> True|>]]];
    If[iteration >= maximum, Break[]];
    iteration++;
+   (* Useful geometric contraction does not itself require more arithmetic.
+      At the arithmetic cap, retain all remaining interval-contraction steps. *)
+   If[! AssociationQ[result] || fixed || certArithmeticLimitedQ[result] || certProgressStalledQ[history],
+     order = Min[2000, 2 order]];
    If[AssociationQ[result] && ! fixed,
     knownRoot = True;
     If[result["RootEnclosure"][[1]] < result["RootEnclosure"][[2]],
@@ -3344,15 +3395,16 @@ AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts
      center = First[result["RootEnclosure"]]; interval = initial];
     If[refine,
      seed = certRefinedSeed[a, yv, iteration, wp + 10 iteration];
-     If[certRationalQ[seed] && TrueQ[interval[[1]] < seed < interval[[2]]], center = seed]],
-    (* More precise enclosures can resolve dependency-free sign or residual
-       tests. A fixed center is deliberately never silently replaced. *)
-    order = Min[2000, 2 order]]];
+     If[certRationalQ[seed] && TrueQ[interval[[1]] < seed < interval[[2]]], center = seed]]]];
+  completion = <|"StoppingReason" -> "RefinementBudgetExhausted", "MaxRefinements" -> maximum,
+    "Refinements" -> iteration, "EnclosureOrderLimit" -> 2000, "FinalEnclosureOrder" -> order,
+    "EnclosureOrderLimitReached" -> (order === 2000), "AccuracyGoalReached" -> False,
+    "BestCertificateCriterion" -> bestCriterion|>;
   If[AssociationQ[best],
    certFail["AccuracyNotReached", "The requested error was not certified within the refinement budget.",
-    <|"TargetError" -> tolerance, "BestCertificate" -> best, "History" -> history,
-      "CenterWasFixed" -> fixed|>],
-   If[FailureQ[result], Return[Failure[result[[1]], Join[result[[2]], <|"History" -> history|>]], Module]];
+    Join[completion, <|"TargetError" -> tolerance, "RelativeError" -> relative,
+      "BestCertificate" -> best, "History" -> history, "CenterWasFixed" -> fixed|>]],
+   If[FailureQ[result], Return[Failure[result[[1]], Join[result[[2]], completion, <|"History" -> history|>]], Module]];
    certFail["CertificateFailure", "No residual certificate was established."]]]];
 
 AsymptoticInverse`InverseCertificate[___] := Failure["InvalidArguments", <|"Certified" -> False,
@@ -8197,7 +8249,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
 (* END SOURCE: AsymptoticInverse/Kernel/NativeSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/NativeCompatibility.wl
-   Source SHA256 (UTF-8/LF): b68a929fa064ef46dc6ad66d36fc437cf3582f1f51b19cfaf9673d5a7169a039 *)
+   Source SHA256 (UTF-8/LF): 63844f835e6e8571bf3d45c01603666ff48346de23afe4ebfb9f3a748e1353be *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
    do not resolve native delayed options for a second metadata lookup. *)
@@ -8219,6 +8271,11 @@ nativeSeriesValue[a_Association, value_] := catch[Module[{variable = Lookup[a, "
   a["Expression"] /. variable -> value]];
 
 nativeHeldArguments[held_HoldComplete] := Cases[held, item_ :> HoldComplete[item], {1}];
+nativeSequenceArguments[HoldComplete[Sequence[args___]]] :=
+  Flatten[nativeSequenceArguments /@ nativeHeldArguments[HoldComplete[args]], 1];
+nativeSequenceArguments[held_HoldComplete] := {held};
+nativeTailArguments[request_HoldComplete] :=
+  Flatten[nativeSequenceArguments /@ Rest[nativeHeldArguments[request]], 1];
 nativeHeldJoin[items_List] := Fold[
   Function[{left, right}, Replace[{left, right},
     {HoldComplete[a___], HoldComplete[b___]} :> HoldComplete[a, b]]], HoldComplete[], items];
@@ -8239,32 +8296,40 @@ nativeStripSelector[HoldComplete[(Rule | RuleDelayed)["Backend", _]]] := HoldCom
 nativeStripSelector[HoldComplete[Sequence[args___]]] :=
   Replace[nativeHeldJoin[nativeStripSelector /@ nativeHeldArguments[HoldComplete[args]]],
     HoldComplete[items___] :> HoldComplete[Sequence[items]]];
-nativeStripSelector[held : HoldComplete[List[args___]]] /; nativeOptionTreeQ[held] :=
-  Replace[nativeHeldJoin[nativeStripSelector /@ nativeHeldArguments[HoldComplete[args]]],
-    HoldComplete[items___] :> HoldComplete[List[items]]];
+nativeStripSelector[held : HoldComplete[List[args___]]] /; nativeOptionTreeQ[held] := Module[{items},
+  items = DeleteCases[nativeStripSelector /@ nativeHeldArguments[HoldComplete[args]], HoldComplete[Sequence[]]];
+  If[items === {} && nativeHeldArguments[HoldComplete[args]] =!= {}, Return[HoldComplete[Sequence[]], Module]];
+  Replace[nativeHeldJoin[items], HoldComplete[kept___] :> HoldComplete[List[kept]]]];
 nativeStripSelector[held_] := held;
 
-(* A computed option container needs ordinary argument evaluation once before
-   selection. Literal native requests bypass this preparation altogether. *)
-nativeComputedArgumentQ[HoldComplete[_Rule | _RuleDelayed | _List]] := False;
+(* Resolve computed trailing argument containers before selecting a backend,
+   keeping the source held for that backend's evaluation context. Literal
+   native requests bypass this preparation altogether. *)
+nativeComputedArgumentQ[HoldComplete[_Rule | _RuleDelayed]] := False;
+nativeComputedArgumentQ[HoldComplete[{x_Symbol, _, ___}]] /; OwnValues[x] === {} := False;
+nativeComputedArgumentQ[HoldComplete[List[args___]]] :=
+  Or @@ (nativeComputedArgumentQ /@ nativeHeldArguments[HoldComplete[args]]);
 nativeComputedArgumentQ[HoldComplete[Sequence[args___]]] :=
   Or @@ (nativeComputedArgumentQ /@ nativeHeldArguments[HoldComplete[args]]);
 nativeComputedArgumentQ[_] := True;
 SetAttributes[expansionHeldEntry, HoldAllComplete];
 expansionHeldEntry[args___] := expansionDispatch[HoldComplete[args], False];
-expansionPreparedEntry[original_HoldComplete, args___] := expansionDispatch[HoldComplete[args], True, original];
+expansionPreparedEntry[original_HoldComplete, source_HoldComplete, args___] :=
+  expansionDispatch[nativeHeldJoin[{source, HoldComplete[args]}], True, original];
 expansionDispatch[request_HoldComplete, prepared_, original_: Automatic] := Module[
   {parts = nativeHeldArguments[request], values, backend, clean, sourceRequest},
   If[parts === {}, Return[catch[forwardEntry[]], Module]];
   sourceRequest = If[original === Automatic, request, original];
   values = Flatten[nativeSelectorValues /@ Rest[parts], 1];
-  If[values === {} && ! TrueQ[prepared] && Or @@ (nativeComputedArgumentQ /@ Rest[parts]),
-    Return[Replace[request, HoldComplete[args___] :> expansionPreparedEntry[sourceRequest, args]], Module]];
+  If[! TrueQ[prepared] && Or @@ (nativeComputedArgumentQ /@ Rest[parts]),
+    Return[Replace[request, HoldComplete[f_, args___] :>
+      expansionPreparedEntry[sourceRequest, HoldComplete[f], args]], Module]];
   backend = If[values === {}, Automatic, ReleaseHold[First[values]]];
   clean = nativeHeldJoin[Prepend[nativeStripSelector /@ Rest[parts], First[parts]]];
   Switch[backend,
     "Series" | "Asymptotic", nativeExpansion[clean, backend, sourceRequest],
-    Automatic | "Package", Replace[clean, HoldComplete[args___] :> catch[forwardHeldEntry[args]]],
+    Automatic, automaticExpansion[clean, sourceRequest],
+    "Package", packageExpansion[clean],
     _, Failure["InvalidBackend", <|"MessageTemplate" -> "Backend must be Automatic, Package, Series, or Asymptotic.", "Backend" -> backend|>]]];
 
 nativeSpecificationVariable[HoldComplete[{x_Symbol, _, ___}]] := HoldComplete[x];
@@ -8279,9 +8344,128 @@ nativePackageOption[held : HoldComplete[(List | Sequence)[args___]]] /; nativeOp
   Flatten[nativePackageOption /@ nativeHeldArguments[HoldComplete[args]]];
 nativePackageOption[_] := {};
 
+nativeOptionKeys[HoldComplete[(Rule | RuleDelayed)[key_, _]]] := {HoldComplete[key]};
+nativeOptionKeys[held : HoldComplete[(List | Sequence)[args___]]] /; nativeOptionTreeQ[held] :=
+  Flatten[nativeOptionKeys /@ nativeHeldArguments[HoldComplete[args]], 1];
+nativeOptionKeys[_] := {};
+nativeRequestOptionKeys[request_HoldComplete] := DeleteDuplicates[Flatten[
+  nativeOptionKeys /@ Select[nativeTailArguments[request], ! nativeSpecificationQ[#] &], 1]];
+
+$packageExpansionOptionKeys = {HoldComplete[Assumptions], HoldComplete[Direction],
+  HoldComplete[SeriesTermGoal], HoldComplete["MaxTerms"], HoldComplete["InverseFunctionBranches"]};
+nativeExclusiveOptionKeys[request_HoldComplete] := Complement[
+  nativeRequestOptionKeys[request], $packageExpansionOptionKeys];
+packageExpansion[request_HoldComplete] := Replace[request,
+  HoldComplete[f_, args___] :> catch[packageEvaluatedEntry[forwardHeldExpression[f], args]]];
+packageEvaluatedEntry[args___] := packagePreparedExpansion[HoldComplete[args]];
+packagePreparedExpansion[request_HoldComplete] := Module[{extra = nativeExclusiveOptionKeys[request]},
+  If[extra =!= {}, Return[Failure["UnsupportedOption", <|
+    "MessageTemplate" -> "The package analytic engine does not implement these native options. Select a compatible native backend or Automatic.",
+    "Options" -> extra|>], Module]];
+  Replace[request, HoldComplete[args___] :> catch[forwardEntry[args]]]];
+
+(* Native-only options must be dispatched before an otherwise successful
+   package calculation can silently ignore them. No backend may discard an
+   explicit branch, direction, or resource contract to obtain a result. *)
+automaticProtectedQ[request_HoldComplete, original_HoldComplete] :=
+  ! FreeQ[First[nativeHeldArguments[original]], _InverseFunction | _Function | _ConditionalExpression | _GeneralizedSeries | _PowerLogRemainder] ||
+  ! FreeQ[First[nativeHeldArguments[request]], _InverseFunction | _Function | _ConditionalExpression | _forwardCallable | _GeneralizedSeries | _PowerLogRemainder] ||
+  Intersection[nativeRequestOptionKeys[request],
+    {HoldComplete[Direction], HoldComplete["MaxTerms"], HoldComplete["InverseFunctionBranches"]}] =!= {};
+
+automaticNativeBackend[request_HoldComplete] := Module[{keys, series, asymptotic, specifications},
+  keys = nativeExclusiveOptionKeys[request];
+  series = HoldComplete /@ (First /@ Options[System`Series]);
+  asymptotic = HoldComplete /@ (First /@ Options[System`Asymptotic]);
+  If[keys =!= {}, Return[Which[
+    Complement[keys, series] === {}, "Series",
+    Complement[keys, asymptotic] === {}, "Asymptotic",
+    True, Failure["NativeOptionConflict", <|
+      "MessageTemplate" -> "No native backend supports all the supplied option keys.", "Options" -> keys|>]], Module]];
+  specifications = Select[nativeTailArguments[request], nativeSpecificationQ];
+  If[MatchQ[specifications, {HoldComplete[{_Symbol, _, Infinity | DirectedInfinity[1]}]}],
+    Return["Asymptotic", Module]];
+  If[MatchQ[specifications, {HoldComplete[{_Symbol, _, _}]}] || Length[specifications] > 1,
+    "Series", "Asymptotic"]];
+
+automaticNativeResult[request_HoldComplete, original_HoldComplete, reason_, failure_: None] := Module[{backend, result},
+  backend = automaticNativeBackend[request];
+  If[FailureQ[backend], Return[backend, Module]];
+  result = nativeExpansion[request, backend, original];
+  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
+  GeneralizedSeries[Join[result[[1]], <|"BackendSelection" -> Automatic,
+    "BackendSelectionReason" -> reason, "OrderConvention" -> "Native",
+    "PackageFailure" -> failure|>]]];
+
+(* Ordinary argument evaluation happens once at this entry, under the same
+   neutral proof context as the established package entry. The resulting
+   source and specifications, not their original programs, are reused after
+   a representation failure. Literal explicit native calls never enter it. *)
+automaticExpansion[request_HoldComplete, original_HoldComplete] := Module[{extra},
+  If[automaticProtectedQ[request, original], Return[packageExpansion[request], Module]];
+  extra = nativeExclusiveOptionKeys[request];
+  If[extra =!= {}, Return[automaticNativeResult[request, original, "NativeOptions"], Module]];
+  Replace[request, HoldComplete[f_, args___] :>
+    catch[automaticEvaluatedEntry[original, forwardHeldExpression[f], args]]]];
+automaticEvaluatedEntry[original_HoldComplete, args___] :=
+  automaticPreparedExpansion[HoldComplete[args], original];
+
+automaticNativeShapeQ[request_HoldComplete] := Module[{parts, specifications, center, order},
+  parts = nativeHeldArguments[request];
+  specifications = Select[Rest[parts], nativeSpecificationQ];
+  If[specifications === {}, Return[False, Module]];
+  If[Length[specifications] > 1, Return[True, Module]];
+  If[MatchQ[First[parts], HoldComplete[_List]] || ! FreeQ[First[parts], _Inactive], Return[True, Module]];
+  If[MatchQ[First[specifications], HoldComplete[_RuleDelayed]], Return[True, Module]];
+  center = Replace[First[specifications], {
+    HoldComplete[{_, point_, ___}] :> point,
+    HoldComplete[(Rule | RuleDelayed)[_, point_]] :> point}];
+  If[! MemberQ[{Infinity, -Infinity}, center] && ! exactRealQ[center], Return[True, Module]];
+  order = Replace[First[specifications], {HoldComplete[{_, _, n_}] :> n, _ :> Automatic}];
+  If[order =!= Automatic, Return[! exactRealQ[order], Module]];
+  ! MemberQ[nativeRequestOptionKeys[request], HoldComplete[SeriesTermGoal]]];
+
+(* These tags describe limitations of the real power-log representation.
+   Domain, inverse branch, arithmetic budget and invalid-option failures are
+   deliberately absent. A failed analytic proof is never reused as native
+   analytic evidence. *)
+$automaticNativeRepresentationFailures = {"InexactInput", "UnprovedRealCoefficient",
+  "UnsupportedInput", "UnsupportedCoefficient", "SymbolicExponent", "ComplexExponent",
+  "LogarithmicLeadingPower", "ExponentialScale", "UnsupportedNumber", "InfiniteSeries"};
+
+automaticPreparedExpansion[request_HoldComplete, original_HoldComplete] := Module[
+  {parts, specifications, options, keys, ass, dir, goal, limit, branches, packageRequest, replay, result},
+  If[automaticProtectedQ[request, original], Return[packageExpansion[request], Module]];
+  If[nativeExclusiveOptionKeys[request] =!= {},
+    Return[automaticNativeResult[request, original, "NativeOptions"], Module]];
+  If[automaticNativeShapeQ[request],
+    Return[automaticNativeResult[request, original, "NativeSpecification"], Module]];
+  parts = nativeHeldArguments[request];
+  specifications = Select[Rest[parts], nativeSpecificationQ];
+  options = Flatten[ReleaseHold /@ Select[Rest[parts], ! nativeSpecificationQ[#] &]];
+  keys = nativeRequestOptionKeys[request];
+  ass = optionAssumptions[AsymptoticExpansion, options];
+  dir = OptionValue[AsymptoticExpansion, options, Direction];
+  goal = OptionValue[AsymptoticExpansion, options, SeriesTermGoal];
+  limit = OptionValue[AsymptoticExpansion, options, "MaxTerms"];
+  branches = OptionValue[AsymptoticExpansion, options, "InverseFunctionBranches"];
+  packageRequest = nativeHeldJoin[Join[Take[parts, 1], specifications,
+    With[{a = ass, d = dir, g = goal, m = limit, b = branches},
+      {HoldComplete[Assumptions -> a], HoldComplete[Direction -> d],
+        HoldComplete[SeriesTermGoal -> g], HoldComplete["MaxTerms" -> m],
+        HoldComplete["InverseFunctionBranches" -> b]}]]];
+  result = Replace[packageRequest, HoldComplete[args___] :> catch[forwardEntry[args]]];
+  If[! FailureQ[result] || ! MemberQ[$automaticNativeRepresentationFailures, result[[1]]], Return[result, Module]];
+  (* Only common native options are replayed. Their delayed values have been
+     consumed once above; omitted native defaults remain the native defaults. *)
+  replay = nativeHeldJoin[Join[Take[parts, 1], specifications,
+    With[{a = ass}, {HoldComplete[Assumptions -> a]}],
+    If[MemberQ[keys, HoldComplete[SeriesTermGoal]], With[{g = goal}, {HoldComplete[SeriesTermGoal -> g]}], {}]]];
+  automaticNativeResult[replay, original, "PackageRepresentation", result]];
+
 nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module[
   {call, result, normal, parts, specifications, variables, variable, conflicts, ambient},
-  parts = Rest[nativeHeldArguments[request]];
+  parts = nativeTailArguments[request];
   conflicts = Flatten[nativePackageOption /@ parts];
   If[conflicts =!= {}, Return[Failure["NativeOptionConflict", <|
     "MessageTemplate" -> "Package resource budgets and inverse branch selectors require Backend -> Package; native delegation does not implement these options.",

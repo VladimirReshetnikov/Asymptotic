@@ -267,7 +267,7 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
     Min[interval[[2]], bracket[[2]], center - correction[[1]]]};
   If[sharp[[1]] > sharp[[2]], certFail["CertificateInvariant", "The exact root enclosure became empty."]];
   <|"Certified" -> True, "RootEnclosure" -> sharp, "Center" -> center,
-    "CertifiedErrorBound" -> radius,
+    "CertifiedErrorBound" -> Max[Abs[sharp - center]], "ResidualRadius" -> radius,
     "CertifiedErrorLowerBound" -> If[residual[[1]] <= 0 <= residual[[2]], 0,
       Min[Abs[residual]]/Max[Abs[derivative]]], "ResidualEnclosure" -> residual,
     "ResidualAbsoluteBound" -> epsilon, "DerivativeEnclosure" -> derivative,
@@ -290,6 +290,40 @@ Options[AsymptoticInverse`InverseCertificate] = {"Interval" -> Automatic, "Cente
   "TargetError" -> Automatic, "RelativeError" -> Automatic, WorkingPrecision -> 50, "EnclosureOrder" -> Automatic,
   "MaxRefinements" -> 6, "RefineExpansion" -> True, "ExponentMagnitudeLimit" -> 10000};
 
+(* This is a starting heuristic only. Exact certified bounds decide whether
+   the requested accuracy has been reached, even when this estimate is capped. *)
+certToleranceDigits[t_] := If[t === Automatic, 0,
+  Max[0, IntegerLength[Denominator[t]] - IntegerLength[Numerator[t]]]];
+
+(* Increase arithmetic work when its point-residual uncertainty materially
+   limits the new enclosure. This plans work only; it is not an error theorem.
+   Comparing against the old center error would delay a necessary increase
+   until too little refinement budget remains for the next recentering. *)
+certArithmeticLimitedQ[result_Association] := Module[
+  {residualWidth = result["ResidualEnclosure"][[2]] - result["ResidualEnclosure"][[1]],
+   rootWidth = result["RootEnclosure"][[2]] - result["RootEnclosure"][[1]]},
+  TrueQ[residualWidth > 0 && 2 residualWidth >= result["DerivativeLowerBound"] rootWidth]];
+certProgressStalledQ[history_List] := Module[{previous, current},
+  If[Length[history] < 2, Return[False, Module]];
+  {previous, current} = Take[history, -2];
+  TrueQ[previous["Outcome"] === "Certified" && current["Outcome"] === "Certified" &&
+    previous["EnclosureOrder"] === current["EnclosureOrder"] &&
+    current["RootEnclosureWidth"] >= previous["RootEnclosureWidth"] &&
+    current["CertifiedErrorBound"] >= previous["CertifiedErrorBound"]]];
+
+(* Compare proof quality against this request, then break ties by the absolute
+   error and interval width. A relative-only interval crossing zero has no
+   positive sufficient absolute tolerance and therefore an infinite ratio. *)
+certAccuracyKey[result_Association] := Module[{goal = result["SufficientAbsoluteTolerance"], error = result["CertifiedErrorBound"]},
+  {Which[goal === Infinity, 0, goal > 0, error/goal, True, Infinity],
+    error, result["RootEnclosure"][[2]] - result["RootEnclosure"][[1]]}];
+certBetterCertificateQ[candidate_Association, best_] := Module[{left, right},
+  If[! AssociationQ[best], Return[True, Module]];
+  left = certAccuracyKey[candidate]; right = certAccuracyKey[best];
+  Which[left[[1]] =!= right[[1]], TrueQ[left[[1]] < right[[1]]],
+    left[[2]] =!= right[[2]], TrueQ[left[[2]] < right[[2]]],
+    True, TrueQ[left[[3]] < right[[3]]]]];
+
 AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts : OptionsPattern[]] := catch[Module[
   {interval = OptionValue["Interval"], center = OptionValue["Center"], tolerance = OptionValue["TargetError"],
    relative = OptionValue["RelativeError"], lowerMagnitude, upperMagnitude, goalBound, floorBound, absoluteTolerance,
@@ -297,7 +331,8 @@ AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts
    maximum = OptionValue["MaxRefinements"], refine = OptionValue["RefineExpansion"],
    magnitude = OptionValue["ExponentMagnitudeLimit"], fixed, x, y, f, target, route, ctx,
    result, best = Missing["NotCertified"], iteration = 0, seed, history = {}, initial, digits, knownRoot = False,
-   certificateModel = a, phaseData},
+   certificateModel = a, phaseData, accuracyReached, completion,
+   bestCriterion = {"CertifiedErrorBound/SufficientAbsoluteTolerance", "CertifiedErrorBound", "RootEnclosureWidth"}},
   If[! MemberQ[{"Inverse", "CoreInverse"}, Lookup[a, "Kind", None]],
    certFail["Unsupported", "Certificates require an inverse or exact-core inverse expansion."]];
   If[! exactQ[yv] || ! NumericQ[yv], certFail["InexactTarget", "The certificate target must be an exact numeric expression."]];
@@ -311,9 +346,8 @@ AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts
   If[relative =!= Automatic && (! certRationalQ[relative] || ! TrueQ[relative > 0]),
    certFail["InvalidTolerance", "RelativeError must be a positive exact rational number."]];
   If[order === Automatic,
-   digits = If[tolerance === Automatic, 0,
-     Max[0, IntegerLength[Denominator[tolerance]] - IntegerLength[Numerator[tolerance]]]];
-   order = Max[wp + 10, digits + 15]];
+   digits = Max[certToleranceDigits[tolerance], certToleranceDigits[relative]];
+   order = Min[2000, Max[wp + 10, digits + 15]]];
   If[! IntegerQ[order] || order < 2 || order > 2000,
    certFail["InvalidOption", "EnclosureOrder must be an integer between 2 and 2000."]];
   x = a["Variables"][[1]]; y = a["Variable"]; f = a["Function"]; target = yv; route = "OriginalFunction";
@@ -352,22 +386,37 @@ AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts
     goalBound = If[relative === Automatic, If[tolerance === Automatic, Infinity, tolerance],
       Max[absoluteTolerance, relative lowerMagnitude]];
     floorBound = If[relative === Automatic, goalBound, Max[absoluteTolerance, relative upperMagnitude]];
+    accuracyReached = TrueQ[result["CertifiedErrorBound"] <= goalBound] &&
+      ! (relative =!= Automatic && tolerance === Automatic && upperMagnitude === 0);
     result = Join[result, <|"RelativeError" -> relative, "ProvedRootMagnitudeLowerBound" -> lowerMagnitude,
       "CertifiedRelativeErrorBound" -> If[lowerMagnitude > 0, result["CertifiedErrorBound"]/lowerMagnitude,
-        Missing["RootNotSeparatedFromZero"]], "SufficientAbsoluteTolerance" -> goalBound|>];
-    best = result;
+        Missing["RootNotSeparatedFromZero"]], "SufficientAbsoluteTolerance" -> goalBound,
+      "AccuracyGoalReached" -> accuracyReached, "EnclosureOrder" -> order,
+      "EnclosureOrderLimitReached" -> (order === 2000), "Refinements" -> iteration,
+      "BestCertificateCriterion" -> bestCriterion|>];
+    result = Join[result, <|"AccuracyComparisonKey" -> certAccuracyKey[result]|>];
+    history[[-1]] = Join[Last[history], KeyTake[result,
+      {"CertifiedErrorBound", "ResidualRadius", "SufficientAbsoluteTolerance", "AccuracyGoalReached", "AccuracyComparisonKey"}],
+      <|"RootEnclosureWidth" -> result["RootEnclosure"][[2]] - result["RootEnclosure"][[1]],
+        "ResidualEnclosureWidth" -> result["ResidualEnclosure"][[2]] - result["ResidualEnclosure"][[1]]|>];
+    If[certBetterCertificateQ[result, best], best = result];
     If[relative =!= Automatic && tolerance === Automatic && upperMagnitude === 0,
      certFail["RelativeAccuracyAtZero", "A relative accuracy request at a zero root requires an explicit positive TargetError absolute fallback.",
        <|"BestCertificate" -> result, "History" -> history|>]];
-    If[result["CertifiedErrorBound"] <= goalBound,
+    If[accuracyReached,
      Return[Join[result, <|"OriginalTarget" -> yv, "TargetError" -> tolerance, "AccuracyGoalReached" -> True,
         "Refinements" -> iteration, "History" -> history|>], Module]];
     If[fixed && result["CertifiedErrorLowerBound"] > floorBound,
      certFail["AccuracyFloor", "The fixed center's certified error lower bound exceeds the requested absolute or relative tolerance.",
-      <|"TargetError" -> tolerance, "RelativeError" -> relative, "BestCertificate" -> result, "History" -> history,
+      <|"TargetError" -> tolerance, "RelativeError" -> relative, "BestCertificate" -> best,
+        "AccuracyFloorCertificate" -> result, "History" -> history,
         "CenterWasFixed" -> True|>]]];
    If[iteration >= maximum, Break[]];
    iteration++;
+   (* Useful geometric contraction does not itself require more arithmetic.
+      At the arithmetic cap, retain all remaining interval-contraction steps. *)
+   If[! AssociationQ[result] || fixed || certArithmeticLimitedQ[result] || certProgressStalledQ[history],
+     order = Min[2000, 2 order]];
    If[AssociationQ[result] && ! fixed,
     knownRoot = True;
     If[result["RootEnclosure"][[1]] < result["RootEnclosure"][[2]],
@@ -375,15 +424,16 @@ AsymptoticInverse`InverseCertificate[GeneralizedSeries[a_Association], yv_, opts
      center = First[result["RootEnclosure"]]; interval = initial];
     If[refine,
      seed = certRefinedSeed[a, yv, iteration, wp + 10 iteration];
-     If[certRationalQ[seed] && TrueQ[interval[[1]] < seed < interval[[2]]], center = seed]],
-    (* More precise enclosures can resolve dependency-free sign or residual
-       tests. A fixed center is deliberately never silently replaced. *)
-    order = Min[2000, 2 order]]];
+     If[certRationalQ[seed] && TrueQ[interval[[1]] < seed < interval[[2]]], center = seed]]]];
+  completion = <|"StoppingReason" -> "RefinementBudgetExhausted", "MaxRefinements" -> maximum,
+    "Refinements" -> iteration, "EnclosureOrderLimit" -> 2000, "FinalEnclosureOrder" -> order,
+    "EnclosureOrderLimitReached" -> (order === 2000), "AccuracyGoalReached" -> False,
+    "BestCertificateCriterion" -> bestCriterion|>;
   If[AssociationQ[best],
    certFail["AccuracyNotReached", "The requested error was not certified within the refinement budget.",
-    <|"TargetError" -> tolerance, "BestCertificate" -> best, "History" -> history,
-      "CenterWasFixed" -> fixed|>],
-   If[FailureQ[result], Return[Failure[result[[1]], Join[result[[2]], <|"History" -> history|>]], Module]];
+    Join[completion, <|"TargetError" -> tolerance, "RelativeError" -> relative,
+      "BestCertificate" -> best, "History" -> history, "CenterWasFixed" -> fixed|>]],
+   If[FailureQ[result], Return[Failure[result[[1]], Join[result[[2]], completion, <|"History" -> history|>]], Module]];
    certFail["CertificateFailure", "No residual certificate was established."]]]];
 
 AsymptoticInverse`InverseCertificate[___] := Failure["InvalidArguments", <|"Certified" -> False,

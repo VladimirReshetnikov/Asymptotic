@@ -4,15 +4,18 @@ A Wolfram Language package for real asymptotic expansions of functions and
 their inverses. It handles real exponents, logarithmic coefficients, finite
 and infinite endpoints, and selected logarithmic, exponential, flat, and
 oscillatory scales. Analytic results carry an explicit remainder and real branch
-information. Explicit native backends preserve built-in formal and asymptotic
-results with their own contracts.
+information. Native backends preserve built-in formal and asymptotic results
+with their own contracts, selected explicitly or by automatic routing.
 
 The current development target is complete input coverage of the built-in
 Wolfram `Series` and `Asymptotic` functions, including native-supported cases
-outside the existing real expansion models. Explicit native delegation and
-the `AsymptoticExpand` alias are implemented, with focused acceptance recorded.
-Automatic fallback remains required work. The
-[native compatibility plan](docs/development/NATIVE_COMPATIBILITY.md) records
+outside the existing real expansion models. Native delegation, the
+`AsymptoticExpand` alias, and automatic routing for native specifications,
+options and selected representation failures are implemented. Successful
+package calls keep their existing cutoff and block-count conventions; native
+results record native order semantics. Complete coverage remains a development
+target, with further routing and input-matrix work recorded in the
+[native compatibility plan](docs/development/NATIVE_COMPATIBILITY.md), alongside
 the required interfaces, result semantics, and validation boundaries.
 
 ## Documentation

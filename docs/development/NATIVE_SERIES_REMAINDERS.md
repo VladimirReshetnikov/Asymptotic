@@ -1,10 +1,17 @@
 # Native series and analytic remainder contracts
 
-This note records the C03 export and C06 import decisions in the
+This note records the C03 export and C06 analytic-import decisions in the
 [code review register](CODE_REVIEW_STATUS.md). The
 [user guide](../../AsymptoticInverse/Documentation/UserGuide.md#native-series-remainder-view)
 describes the public behavior. Implementation and focused native validation
 are separate evidence; this document does not certify a test run.
+
+The separate `"Kind" -> "Native"` representation preserves a built-in result
+without asserting these analytic contracts. It is available through explicit
+native backends and selected automatic routes. See
+[native compatibility and routing](NATIVE_COMPATIBILITY.md) and
+[native result contracts](NATIVE_RESULT_CONTRACTS.md). A representation fallback
+does not establish a hypothesis that the analytic importer failed to prove.
 
 ## Formal representation and analytic meaning
 
@@ -17,8 +24,8 @@ not a separate logarithmic degree field for the unknown tail.
 [Series](https://reference.wolfram.com/language/ref/Series.html),
 [O](https://reference.wolfram.com/language/ref/O.html).
 
-The package additionally asserts an analytic magnitude bound on a retained
-real branch:
+The package's analytic representations additionally assert a magnitude bound
+on a retained real branch:
 
 ```wolfram
 PowerLogRemainder[w, rho, degree]
@@ -53,6 +60,10 @@ degree zero. Both forward and inverse views use the same export contract.
 
 ## Incoming unknown tail
 
+This section applies only when native output is promoted into a package
+analytic representation. A preserved `NativeResult` needs no such promotion
+and receives `Missing["NativeContract"]` for its package remainder.
+
 For an admitted function and branch, suppose a separate finite-order theorem
 establishes `E = O[w^rho M^D]`, where `M = 1 + Abs[Log[w]]` and `D` is some
 fixed finite degree. For every fixed positive `epsilon`, power dominance
@@ -86,7 +97,41 @@ so power three with degree zero is not a valid error class. A smaller-power
 degree-zero bound or a justified power-three logarithmic bound is acceptable;
 the contract does not require the sharpest representable bound. This note
 does not prescribe a particular lookahead depth or assert a native test
-result.
+result. To require an analytic result, the example can explicitly select
+`"Backend" -> "Package"`; an automatic native fallback has a different
+contract and is not an alternative proof of the displayed analytic bound.
+
+## Automatic delegation is not analytic promotion
+
+Automatic routing can preserve native-only options and request structures, or
+retry a selected real-representation failure using one native backend. The
+returned `OrderConvention -> "Native"` identifies the backend's order, which
+is not translated into the package's exclusive cutoff or nonzero-block goal.
+`PackageFailure` retains the preceding representation failure when one
+occurred; its absence for direct native routing does not supply analytic
+evidence. `NativeEvaluationStatus -> "Computed"` is only an evaluation status.
+
+Native `SeriesData` may carry formal orders in complex or successive
+expansions. Native `Asymptotic` may return a finite expression without an
+explicit tail. Both retain `Exact -> Missing["NotEstablished"]` and no package
+analytic remainder. `Normal` can preserve an infinite expression, and analytic
+arithmetic or refinement declines native objects with `NativeSeriesContract`.
+Native formal operations remain available through `NativeResult`.
+
+Explicit branch, direction and resource requests conservatively retain the
+package path in Automatic mode. So do existing series and remainder inputs;
+their unknown errors must not become native exact coefficients by delegation.
+The routing policy is narrower than complete native input coverage.
+
+Fallback after a package attempt reuses the prepared source and specifications
+and materializes the already-consumed common options. Preparation evaluates
+the source in the neutral package proof context; literal explicit native calls
+release it under the captured ambient context. Computed trailing arguments and
+option containers are resolved before backend selection while the source stays
+held. This prevents wrapper replay of the original source on fallback; it does
+not freeze surviving symbol definitions or promise arbitrary side-effect
+ordering identical to a direct native call. Use the held `OriginalArguments`
+and actual `NativeRequest` together when diagnosing these distinctions.
 
 ## Proof sources and maintenance obligations
 

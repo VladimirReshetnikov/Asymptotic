@@ -4,9 +4,10 @@ The accepted goal is for the package's expansion functionality to completely
 subsume the input coverage of ``System`Series`` and ``System`Asymptotic``, while
 allowing a different result representation. This includes their less familiar
 inputs and options, not only the examples in the current user guide.
-**Explicit native delegation and the held alias are implemented, with
-focused acceptance recorded. Automatic native fallback remains required work.
-This plan does not claim that the complete goal has been achieved.**
+**Explicit native delegation and the held alias have focused acceptance.
+Structural automatic routing and a narrow representation fallback are now
+implemented; their current validation is recorded separately below.
+The complete input-superset goal remains open.**
 
 ## Current boundary
 
@@ -14,8 +15,10 @@ The public function `AsymptoticExpansion` and its held alias `AsymptoticExpand`
 share `"Backend" -> Automatic`. In
 [NativeCompatibility.wl](../../AsymptoticInverse/Kernel/NativeCompatibility.wl),
 explicit `"Series"` and `"Asymptotic"` modes delegate before real-coordinate
-admission and return a distinct native result. Both `Automatic` and `"Package"`
-currently select the existing package path. That path's
+admission and return a distinct native result. `"Package"` selects only the
+existing analytic engines. `Automatic` retains their successful results,
+routes selected native forms and options directly, and permits a native
+fallback for selected representation failures. The package path's
 [held entry and ordinary engine](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl)
 accept one expansion variable and use an exclusive power cutoff. The
 [forward dispatcher](../../AsymptoticInverse/Kernel/InverseFunctionExpressions.wl)
@@ -24,8 +27,9 @@ Exact real input, admissible real coefficients and supported coefficient
 scales are required by these paths. The
 [structured special-function importer](../../AsymptoticInverse/Kernel/NativeSpecialFunctions.wl)
 also requires a real-domain proof and a supported finite error representation.
-Those analytic contracts remain in force for package results; the explicit
-native result kind preserves outputs outside those representations.
+Those analytic contracts remain in force for package results; the native
+result kind preserves outputs outside those representations without
+asserting an analytic remainder or a real-source proof.
 
 The official references are [Series](https://reference.wolfram.com/language/ref/Series.html),
 [Asymptotic](https://reference.wolfram.com/language/ref/Asymptotic.html), and
@@ -51,16 +55,50 @@ AsymptoticExpansion[expr, specs, "Backend" -> "Series", nativeOptions]
 AsymptoticExpansion[expr, spec, "Backend" -> "Asymptotic", nativeOptions]
 ```
 
-These explicit interfaces are implemented. Automatic mode currently preserves
-the existing package path; adding native coverage there remains required work.
-`NativeBackend` identifies the selected native convention. The alias alone
-does not turn an exclusive cutoff into native order.
+Automatic native results record `OrderConvention -> "Native"` and the selected
+`NativeBackend`. Neither the exclusive cutoff nor a complete nonzero-block
+goal is translated into native semantics. In particular, a fallback can
+include the order excluded by a package request. Choose `"Package"` to require
+the analytic cutoff and block-count conventions; choose an explicit native
+backend to fix its order and option semantics. The alias alone changes none
+of these rules.
+
+## Implemented automatic routing
+
+Routing first preserves explicit package contracts: source callables,
+`InverseFunction`, `ConditionalExpression`, `GeneralizedSeries` and
+`PowerLogRemainder`, or an explicit `Direction`, `"MaxTerms"` or
+`"InverseFunctionBranches"`, keep the package path. Supplying a default option
+value explicitly still activates this protection. Package mode rejects
+native-only option keys with `UnsupportedOption` instead of ignoring them.
+
+Otherwise, native-only option keys select `Series` when its runtime options
+contain all such keys, then `Asymptotic` when its options do. No compatible
+backend produces `NativeOptionConflict`. Structural routes include multiple
+specifications, symbolic or complex centers, non-real order specifications,
+lists, inactive expressions and rule-form leading requests without a term
+goal. Without native-only options, a single triple with order `Infinity`
+selects `Asymptotic`; other triples and multiple specifications select `Series`;
+rule forms select `Asymptotic`.
+
+Remaining inputs try the package engine. Only the following failures permit
+fallback: `InexactInput`, `UnprovedRealCoefficient`, `UnsupportedInput`,
+`UnsupportedCoefficient`, `SymbolicExponent`, `ComplexExponent`,
+`LogarithmicLeadingPower`, `ExponentialScale`, `UnsupportedNumber`, and
+`InfiniteSeries`. Invalid options, inverse-branch failures, domain failures,
+undecidable ordering and resource failures are not general fallback triggers.
+
+Native results record `BackendSelection -> Automatic`, a reason of
+`"NativeOptions"`, `"NativeSpecification"` or `"PackageRepresentation"`, and
+`PackageFailure` (the original failure or `None` for direct routing). One
+native backend is selected. An unresolved native result does not trigger a
+second backend probe; this is a concrete remaining coverage limitation.
 
 ## Required coverage matrix
 
-Every row describes the full acceptance target. Structural explicit delegation
-is implemented; the matrix is not a claim that every row has passed testing
-or is reachable through Automatic mode.
+Every row describes the full acceptance target. Structural delegation and
+selected automatic routes are implemented; the matrix is not a claim that
+every row has passed testing or is reachable through Automatic mode.
 
 | Area | Required behavior |
 | --- | --- |
@@ -83,9 +121,12 @@ the roles of fixed parameters and bound variables, and all returned conditions.
 
 The implemented native result kind preserves the complete `NativeResult`,
 `OriginalArguments`, and selected `NativeRequest` inside held forms. It records
-recognized syntactic `ExpansionSpecifications`, `AmbientAssumptions`, backend,
-kernel version and evaluation status. Native option expressions are not
-reevaluated to build an effective-option snapshot; `Assumptions` is
+recognized `ExpansionSpecifications`, `AmbientAssumptions`, backend,
+kernel version and evaluation status. Literal explicit requests retain
+syntactic specifications; preparation may resolve automatic specifications.
+Native option expressions are not reevaluated to build a metadata snapshot;
+common options consumed by a package attempt are materialized for fallback.
+The native result's `Assumptions` is
 `Missing["NativeContract"]`. A native result can contain
 nested `SeriesData`, ordinary expressions, lists, `ConditionalExpression`,
 `Piecewise` or infinite sums; these shapes must not themselves cause rejection.
@@ -109,18 +150,31 @@ identified variable; other cases return `NativeVariables`. See the detailed
 
 Explicit native handling precedes `localCoordinate`, `validateInput` and real
 coefficient checks. Literal requests remain held until release to the native
-head. Computed option containers can require ordinary argument evaluation to
-discover the selector; original arguments remain held in metadata. The native
-call runs under captured ambient assumptions, while explicit native options
-are left to the backend. Held specifications are syntactic records, not
-evaluated snapshots or independently retained analytic proof predicates.
+head under the captured ambient assumptions. Computed trailing arguments and
+option containers are resolved first to discover the backend, while the source
+remains held for that backend. This ordering need not match arbitrary side
+effects in a direct native call.
+
+Automatic requests requiring package preparation evaluate their source under
+the neutral package proof context, `$Assumptions = True`; hypotheses are
+supplied separately. Literal native-only option routing can bypass that
+preparation. On representation failure, the wrapper reuses the prepared source
+and specifications instead of replaying the original source program. Effective
+`Assumptions` and an explicitly requested `SeriesTermGoal` are supplied as
+immediate rules; delayed common options are not consumed again for fallback.
+Other native defaults remain those of the selected backend.
+
+`OriginalArguments` records the original held input, while `NativeRequest`
+records the actual delegated call. `AmbientAssumptions` does not absorb an
+explicit assumption option. These records do not freeze symbol definitions,
+prevent ordinary further evaluation of surviving expressions, or establish
+identical side-effect ordering between preparation and a direct native call.
 
 Explicit native modes reject package-only `"MaxTerms"` and
 `"InverseFunctionBranches"` options with `NativeOptionConflict`. They do not
-silently discard those contracts. Automatic fallback still needs to
-distinguish representation limits from malformed requests, explicit resource
-limits and incompatible inverse branches. Native diagnostics must not be
-confused with a proof that a returned expression is invalid.
+silently discard those contracts. Automatic routing conservatively keeps
+the package path for the protected cases listed above. Native diagnostics
+must not be confused with a proof that a returned expression is invalid.
 
 C07 tests become representation-specific: the ordinary real engine must still
 reject nonreal coefficients, while a native formal or complex result may be
@@ -136,13 +190,16 @@ special-function real projection remains governed by
    Validate native order, options, computed containers and evaluation effects.
 2. **Implemented; focused verified:** preserved native result, display,
    `Normal`, metadata and analytic-operation guards, without sparse-to-dense export.
-3. **Required and pending:** automatic routing and fallback with branch,
-   option and diagnostic preservation. Analytic promotion needs its own proof.
+3. **Implemented; focused verified:** structural and option-based
+   automatic routing, narrow fallback, source reuse, explicit package-contract
+   protection and native order metadata. Remaining automatic coverage,
+   selection when only the other backend succeeds, and evaluation compatibility
+   require further work. Analytic promotion needs its own proof.
 4. **Partial evidence recorded:** focused differential tests across the matrix, including
    unknown-function options, mixed complex/approximate data, multiple variables,
    conditions, infinite order, inactive transforms and existing package examples.
-5. **Source documentation updated; artifact builds pending:** public interfaces
-   and contracts. Record generated artifacts separately from native acceptance.
+5. **Documentation and distribution artifacts rebuilt:** public interfaces
+   and contracts, with a separate [artifact receipt](../../validation/automatic-certificate-artifacts.json).
    Extend native operations only where their semantics are defined.
 
 The target invariant is structural: on the same kernel, with corresponding
@@ -153,6 +210,14 @@ coverage. Record the exact native requests, versions, outputs and evidence
 limits in the [validation record](../../validation/README.md). The
 [explicit-mode acceptance record](../../validation/native-compatibility-tests.json)
 reports 130 passed and zero failed across eight files, with unchanged sources
-on Wolfram 15.0.1 Windows. Existing analytic ingress/export tests alone do not
-establish acceptance of the new native result kind, and this focused matrix
-does not prove complete input-superset coverage.
+on Wolfram 15.0.1 Windows. It predates automatic routing and does not validate
+that new path. Existing analytic ingress/export tests alone do not establish
+acceptance of the native result kind, and no finite matrix proves complete
+input-superset coverage.
+
+The subsequent [automatic acceptance](../../validation/native-automatic-tests.json)
+passes 163 tests across eight selected files with unchanged sources, including
+35 automatic-routing cases and the adjacent explicit-native, assumption,
+real-coefficient and inverse-callable checks. It establishes those cases,
+not full coverage. The first-pass record preserves two dispatch bugs and two
+incorrect fixture assumptions that were corrected before this acceptance.

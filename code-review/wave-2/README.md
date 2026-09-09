@@ -66,9 +66,12 @@ items and two attributed deltas to earlier findings. Its README mentions
 `CHECKSUMS.sha256`, which is absent from the supplied nineteen-file package;
 no replacement manifest or common license has been invented.
 
-The separate [current report-18 characterization](../../validation/review-18-intake.json)
+The separate [report-18 intake characterization](../../validation/review-18-intake.json)
 records seven bounded observations on Wolfram 15.0.1 Windows. It reproduces
 relative-certificate stagnation and lower-cutoff coarsening, distinguishes
 strict real admission from native formal output, and checks a degree-two
-nonlinear frontier control. This is not an acceptance suite; current repair
-status and the earlier focused precision evidence remain in the register.
+nonlinear frontier control. This predates the C19 repair and is not an
+acceptance suite. The subsequent [58/0 certificate acceptance](../../validation/review-certificate-accuracy-tests.json)
+verifies relative planning, selective arithmetic retries, sharp error bounds,
+best-result retention and budget/cap semantics. Lower-cutoff refinement remains
+the D10 policy item; current status is maintained in the register.
