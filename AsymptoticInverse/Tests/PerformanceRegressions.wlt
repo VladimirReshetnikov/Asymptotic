@@ -92,3 +92,51 @@ VerificationTest[
   AsymptoticInverse`Private`catch[AsymptoticInverse`Private`indexRegion[{1, 1}, 1, False, 2]],
   Failure["ResourceLimit", _Association], SameTest -> MatchQ,
   TestID -> "weighted-index-budget-includes-boundary"]
+
+VerificationTest[
+  Module[{ell, u, v, boundaries, expected},
+   u = {{-3, 1 + ell}, {-Sqrt[2], ell^2}, {0, ell^7}, {Sqrt[2], ell^3}, {4, ell}};
+   v = {{-Sqrt[2], ell^5}, {0, 2}, {Sqrt[2], ell^4}, {4, ell^2}};
+   boundaries = DeleteDuplicates[Join[{-10, 1/3, 10},
+     Flatten[Table[a[[1]] + b[[1]], {a, u}, {b, v}]]]];
+   And @@ Table[
+     expected = Max[0, Sequence @@ Flatten[Table[
+       If[RootReduce[a[[1]] + b[[1]] - boundary] === 0,
+         Exponent[a[[2]], ell] + Exponent[b[[2]], ell], 0], {a, u}, {b, v}]]];
+     AsymptoticInverse`Private`jetProductBoundaryDegree[u, v, boundary, ell] === expected &&
+       AsymptoticInverse`Private`jetProductBoundaryDegree[v, u, boundary, ell] === expected,
+     {boundary, boundaries}]],
+  True, TestID -> "product-boundary-degree-matches-cartesian-oracle-with-irrational-weights"]
+
+VerificationTest[
+  Module[{ell},
+   {AsymptoticInverse`Private`jetProductBoundaryDegree[{}, {{0, ell^3}}, 0, ell],
+    AsymptoticInverse`Private`jetProductBoundaryDegree[{{0, ell^3}}, {}, 0, ell],
+    AsymptoticInverse`Private`jetProductBoundaryDegree[{}, {}, 0, ell]}],
+  {0, 0, 0}, TestID -> "product-boundary-degree-handles-empty-jets"]
+
+VerificationTest[
+  Module[{ell, product},
+   product = AsymptoticInverse`Private`pMul[
+     {{{0, 1}, {1, ell^5}, {2, ell^7}}, 3, 0},
+     {{{0, 1}, {1, -ell^5}, {2, ell^7}}, 3, 0}, ell, True, 100];
+   {product[[1]] === {{0, 1}, {2, 2 ell^7 - ell^10}}, Rest[product]}],
+  {True, {3, 12}}, TestID -> "product-keeps-conservative-log-bound-when-boundary-coefficients-cancel"]
+
+VerificationTest[
+  Module[{ell}, AsymptoticInverse`Private`pMul[
+    {{}, 2, 3}, {{{-1, ell^2}, {1, ell}}, 4, 7}, ell, True, 100]],
+  {{}, 1, 5}, TestID -> "product-pure-remainder-times-laurent-logarithmic-leading-block"]
+
+VerificationTest[
+  Module[{ell}, AsymptoticInverse`Private`jetMerge[
+    {{Sqrt[3 + 2 Sqrt[2]], 1 + ell}, {1 + Sqrt[2], -1 - ell},
+     {2, (Log[4] - 2 Log[2]) ell^3}, {0, 3},
+     {3, (Sqrt[5 + 2 Sqrt[6]] - Sqrt[2] - Sqrt[3]) ell^2}}, ell, True]],
+  {{0, 3}}, TestID -> "jet-merge-preserves-algebraic-weight-and-logarithmic-zero-recognition"]
+
+VerificationTest[
+  Module[{ell, a, b}, AsymptoticInverse`Private`jetMerge[
+    {{a, 1 + ell}, {b, -1 - ell}, {a + 1, 2}, {b + 1, 3}},
+    ell, b == a && a > 0, True] /. a -> \[FormalA]],
+  {{1 + \[FormalA], 5}}, TestID -> "jet-merge-preserves-symbolic-weight-collisions-under-assumptions"]

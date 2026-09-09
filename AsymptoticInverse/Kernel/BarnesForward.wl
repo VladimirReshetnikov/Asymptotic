@@ -3,20 +3,6 @@
    asymptotic surrogate. Its parser always attaches the Bernoulli tail.
    https://dlmf.nist.gov/5.17.E5 *)
 
-barnesProductData[e_, x_] := Module[{parts, base, r},
-  If[FreeQ[e, _Gamma | _BarnesG] || FreeQ[e, x], Return[{e, {}, {}}, Module]];
-  Which[
-    MatchQ[e, Gamma[_] | BarnesG[_]], {1, {{e, 1}}, {}},
-    Head[e] === Times,
-      parts = barnesProductData[#, x] & /@ List @@ e;
-      If[MemberQ[parts, $Failed], $Failed,
-        {Times @@ parts[[All, 1]], Join @@ parts[[All, 2]], Join @@ parts[[All, 3]]}],
-    Head[e] === Power,
-      base = barnesProductData[e[[1]], x]; r = e[[2]];
-      If[base === $Failed || base[[2]] === {}, $Failed,
-        {base[[1]]^r, {#[[1]], r #[[2]]} & /@ base[[2]], Append[base[[3]], r]}],
-    True, $Failed]];
-
 (* Canonicalize bounded integer shifts before any finite tails are formed.
    Choosing the shift +1 also preserves the even correction lattice of G(x+1).
    Every intermediate Gamma argument must lie on the positive real branch. *)
@@ -59,26 +45,14 @@ barnesLogDomain[e_] := And @@ (First[#] > 0 & /@
   DeleteDuplicates[Cases[e, _barnesLog | _LogGamma, {0, Infinity}]]);
 
 barnesProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
-  {lowered, product, factors, powers, domain, ordinary, localArg, growing = False,
-   logFunction, simplified, reduced},
+  {lowered, source, factors, domain, logFunction, simplified, reduced},
   If[FreeQ[f, _BarnesG], Return[$Failed, Module]];
   validateInput[f, limit];
-  lowered = gammaRelatedExpression[f]; product = barnesProductData[lowered, x];
-  If[product === $Failed || product[[2]] === {}, Return[$Failed, Module]];
-  factors = product[[2]];
-  Do[
-    localArg = factor[[1, 1]] /. x -> coord["Substitution"];
-    If[! inverseFunctionEventually[localArg > 0, coord["u"], ass], Return[$Failed, Module]];
-    If[TrueQ[requireGrowth] && inverseBranchTry[Limit[localArg, coord["u"] -> 0,
-        Direction -> "FromAbove", Assumptions -> ass]] === Infinity, growing = True],
-    {factor, factors}];
-  If[TrueQ[requireGrowth] && ! growing, Return[$Failed, Module]];
-  powers = DeleteDuplicates[Join[product[[3]], factors[[All, 2]]]];
-  If[! AllTrue[powers, logarithmicRealCondition[Element[# /. x -> coord["Substitution"], Reals], ass, coord] &],
-    fail["UnsupportedBarnesPower", "Barnes G products require exact exponents that are eventually real.", <|"Powers" -> powers|>]];
-  ordinary = logarithmicProductSource[product[[1]], x, ass, coord];
-  domain = ordinary["Domain"] && And @@ (#[[1, 1]] > 0 & /@ factors) &&
-    And @@ (Element[#, Reals] & /@ powers);
+  lowered = gammaRelatedExpression[f];
+  source = positiveSpecialProductSource[lowered, x, _Gamma | _BarnesG, ass, coord, requireGrowth,
+    {"UnsupportedBarnesPower", "Barnes G products require exact exponents that are eventually real."}];
+  If[source === $Failed, Return[$Failed, Module]];
+  factors = source["Factors"]; domain = source["Domain"];
   logFunction = Total[#[[2]] If[Head[#[[1]]] === BarnesG,
       barnesLogShift[#[[1, 1]], x, ass, coord, limit], LogGamma[#[[1, 1]]]] & /@ factors];
   domain = domain && barnesLogDomain[logFunction];
@@ -86,7 +60,7 @@ barnesProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
   logFunction = reduced["Expression"]; domain = domain && reduced["Domain"];
   simplified = TimeConstrained[FullSimplify[logFunction, ass && domain], 3, logFunction];
   If[FreeQ[simplified, _Gamma | _BarnesG], logFunction = simplified];
-  <|"Logarithm" -> logFunction + ordinary["Logarithm"], "Sign" -> ordinary["Sign"],
+  <|"Logarithm" -> logFunction + source["OrdinaryLogarithm"], "Sign" -> source["Sign"],
     "Domain" -> domain, "BarnesExpression" -> lowered,
     "BarnesFactors" -> ({#[[1, 1]], #[[2]]} & /@ Select[factors, Head[#[[1]]] === BarnesG &]),
     "GammaFactors" -> ({#[[1, 1]], #[[2]]} & /@ Select[factors, Head[#[[1]]] === Gamma &])|>];

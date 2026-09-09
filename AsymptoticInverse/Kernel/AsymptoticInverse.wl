@@ -181,8 +181,9 @@ polyCanon[q_, ell_, ass_] := Module[{cl, e = Expand[logCanon[q]]},
   Expand[cl . ell^Range[0, Length[cl] - 1]]];
 zeroQ[q_, ass_] := q === 0 || (NumericQ[q] && exactQ[q] && (algebraicRealQ[q] && RootReduce[q] === 0 || TrueQ[Simplify[q == 0]])) ||
   (! NumericQ[q] && TrueQ[Simplify[q == 0, ass]]);
-polyZeroQ[q_, ell_, ass_] := Module[{p = polyCanon[q, ell, ass]},
-  p === 0 || (PolynomialQ[p, ell] && And @@ (zeroQ[#, ass] & /@ CoefficientList[p, ell]))];
+polyCanonicalZeroQ[p_, ell_, ass_] :=
+  p === 0 || (PolynomialQ[p, ell] && And @@ (zeroQ[#, ass] & /@ CoefficientList[p, ell]));
+polyZeroQ[q_, ell_, ass_] := polyCanonicalZeroQ[polyCanon[q, ell, ass], ell, ass];
 polyDegree[q_, ell_] := If[q === 0, 0, Exponent[q, ell]];
 
 (* ------------------------------------------------------------------ *)
@@ -198,10 +199,10 @@ jetMerge[terms_List, ell_, ass_, symbolic_: False] := Module[{groups, out},
      If[MissingQ[pos], AppendTo[out, {t[[1]], t[[2]]}],
       out[[pos[[1]], 2]] = out[[pos[[1]], 2]] + t[[2]]]], {t, terms}];
    out = {#[[1]], polyCanon[#[[2]], ell, ass]} & /@ out;
-   Return[Select[out, ! polyZeroQ[#[[2]], ell, ass] &], Module]];
-  groups = GatherBy[terms, canon[#[[1]]] &];
-  out = {canon[#[[1, 1]]], polyCanon[Total[#[[All, 2]]], ell, ass]} & /@ groups;
-  out = Select[out, ! polyZeroQ[#[[2]], ell, ass] &];
+   Return[Select[out, ! polyCanonicalZeroQ[#[[2]], ell, ass] &], Module]];
+  groups = GatherBy[{canon[#[[1]]], #[[2]]} & /@ terms, First];
+  out = {#[[1, 1]], polyCanon[Total[#[[All, 2]]], ell, ass]} & /@ groups;
+  out = Select[out, ! polyCanonicalZeroQ[#[[2]], ell, ass] &];
   Sort[out, leq[#1[[1]], #2[[1]]] &]];
 
 jetTrim[u_List, cut_, ell_, ass_] := jetMerge[Select[u, less[#[[1]], cut] &], ell, ass];
@@ -285,14 +286,20 @@ pAdd[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_] := Module[{pd = combinePrecis
    pd[[2]] = Max[pd[[2]], polyDegree[Total[Cases[Join[T1, T2], {w_, q_} /; equal[w, pd[[1]]] :> q]], ell]]];
   {jetTrim[Join[T1, T2], pd[[1]], ell, ass], pd[[1]], pd[[2]]}];
 pScale[{T_, P_, D_}, c_, ell_, ass_] := If[zeroQ[c, ass], {{}, Infinity, 0}, {jetScale[T, c, ell, ass], P, D}];
+(* Canonical jets have distinct increasing weights. Walk opposite ends to
+   find every product on the boundary without inspecting the full rectangle. *)
+jetProductBoundaryDegree[u_List, v_List, weight_, ell_] := Module[{i = 1, j = Length[v], degree = 0},
+  While[i <= Length[u] && j > 0,
+   Switch[compare[u[[i, 1]] + v[[j, 1]], weight],
+    -1, i++, 1, j--,
+    0, degree = Max[degree, polyDegree[u[[i, 2]], ell] + polyDegree[v[[j, 2]], ell]]; i++; j--]];
+  degree];
 pMul[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_, limit_] := Module[{v1, v2, e1, e2, pd},
   If[P1 === Infinity && P2 === Infinity, Return[{jetMul[T1, T2, Infinity, ell, ass, limit], Infinity, 0}, Module]];
   v1 = If[T1 === {}, P1, jetValuation[T1]]; e1 = If[T1 === {}, D1, jetLeadingDegree[T1, ell]];
   v2 = If[T2 === {}, P2, jetValuation[T2]]; e2 = If[T2 === {}, D2, jetLeadingDegree[T2, ell]];
   pd = combinePrecision[{If[P1 === Infinity, Infinity, P1 + v2], D1 + e2}, {If[P2 === Infinity, Infinity, P2 + v1], D2 + e1}];
-  If[pd[[1]] =!= Infinity,
-   Do[If[equal[t1[[1]] + t2[[1]], pd[[1]]], pd[[2]] = Max[pd[[2]], polyDegree[t1[[2]], ell] + polyDegree[t2[[2]], ell]]],
-    {t1, T1}, {t2, T2}]];
+  If[pd[[1]] =!= Infinity, pd[[2]] = Max[pd[[2]], jetProductBoundaryDegree[T1, T2, pd[[1]], ell]]];
   {jetMul[T1, T2, pd[[1]], ell, ass, limit], pd[[1]], pd[[2]]}];
 pIntegerPower[j_, n_Integer?NonNegative, ell_, ass_, limit_] := Module[{r = pConst[1, ell, ass], b = j, k = n},
   (* Binary powering also preserves the precision propagation of pMul. *)
@@ -789,13 +796,16 @@ inverseBlocks[d_, polys_, p_, rint_, H_, method_, ell_, ass_, limit_, region_] :
 
 (* Look past finitely many cancelled boundary blocks. A bounded search retains
    the original valid (possibly non-sharp) bound if no nonzero block is found. *)
-inverseFrontier[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] := Module[
-  {region = region0, ws, weight, near, poly, first = None, result = None, next, attempt},
-  If[d === {} || region["Boundary"] === {}, Return[None, Module]];
+inverseFrontier[region_, d_, polys_, p_, rint_, ell_, ass_, limit_] :=
+  First[inverseFrontierWithCount[region, d, polys, p, rint, ell, ass, limit]];
+inverseFrontierWithCount[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] := Module[
+  {region = region0, ws, weight, near, poly, first = None, result = None, next, attempt, count = 0},
+  If[d === {} || region["Boundary"] === {}, Return[{None, 0}, Module]];
   Do[
    ws = canon[# . d] & /@ region["Boundary"];
    weight = First[Sort[ws, leq]];
    near = Pick[region["Boundary"], equal[#, weight] & /@ ws];
+   count += Length[near];
    poly = jetMerge[lagrangeCoefficient[#, d, polys, p, rint, ell, ass, False] & /@ near, ell, ass];
    result = {weight, If[poly === {}, 0, poly[[1, 2]]]};
    If[first === None, first = result];
@@ -804,7 +814,7 @@ inverseFrontier[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] := Module[
    If[FailureQ[next] || next["Boundary"] === {}, result = first; Break[]];
    region = next,
    {attempt, 8}];
-  If[result[[2]] === 0, first, result]];
+  {If[result[[2]] === 0, first, result], count}];
 
 (* finite power-log parser that tolerates symbolic exponents (used by depth truncation) *)
 parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, ok = True},
@@ -881,12 +891,11 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     Do[If[! (NumericQ[dd] && exactQ[dd]), fail["SymbolicExponent", "Exponents must be exact numbers; use \"Truncation\" -> \"Depth\" with Assumptions for symbolic exponents.", <|"Exponent" -> dd|>]], {dd, d}];
     If[cutoff === Automatic,
      (* term goal: enlarge the inclusive weight bound until goal blocks are present *)
-     Module[{W = 0, count = 0, tries2 = 0, sigmaStar},
+     Module[{count = 0, tries2 = 0},
       computationState = incrementalInverseState[d, polys, p, rint, ell, ass, limit];
       While[True,
        tries2++; If[tries2 > 50 goal + 10, fail["ResourceLimit", "SeriesTermGoal iteration did not terminate."]];
        computationState = advanceInverseState[computationState];
-       region = incrementalInverseRegion[computationState];
        blocks = computationState["Blocks"];
        count = Length[blocks];
        If[terminationEligible,
@@ -895,10 +904,9 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
          terminationTried = reliableBlocks;
          termination = exactInverseTermination[f, x, x0, coord, model, reliableBlocks, ell, ass];
          If[AssociationQ[termination], blocks = reliableBlocks; Break[]]]];
-       If[count >= goal || region["Boundary"] === {}, Break[]];
-       sigmaStar = First[Sort[canon[# . d] & /@ region["Boundary"], leq]];
-       W = sigmaStar]];
-     H = If[AssociationQ[termination] || region["Boundary"] === {}, Infinity, canon[First[Sort[canon[# . d] & /@ region["Boundary"], leq]]]];
+       If[count >= goal || computationState["NextWeight"] === Infinity, Break[]]];
+      region = incrementalInverseRegion[computationState]];
+     H = If[AssociationQ[termination], Infinity, computationState["NextWeight"]];
      cutoff = If[H === Infinity, Infinity, canon[(rint + H)/Abs[p]]],
      H = canon[Abs[p] cutoff - rint];
      If[! less[0, H], fail["CutoffTooSmall", "The cutoff must exceed the leading exponent r/|p| of the inverse.", <|"LeadingExponent" -> ToRadicals[rint/Abs[p]]|>]]];

@@ -73,11 +73,11 @@ specialNativeAbs[e_, u_, ass_] := Module[{value},
   If[value === $Failed, Abs[e], value]];
 
 specialNativeMultiply[{a_, r_}, {b_, s_}, u_, ass_] :=
-  {a b, specialNativeAbs[a, u, ass] s + specialNativeAbs[b, u, ass] r + r s};
+  {a b, If[s === 0, 0, specialNativeAbs[a, u, ass] s] +
+    If[r === 0, 0, specialNativeAbs[b, u, ass] r] + r s};
 
 specialNativeTree[e_, u_, ass_, limit_] := Module[
-  {head = Head[e], parts, result, argument, value, error, power, rows, degree, coefficient, term,
-    nativeLog = Unique["nativeLog$"]},
+  {head = Head[e], result, argument, value, error, power, rows, coefficient, term},
   If[LeafCount[e] > limit, fail["ResourceLimit", "The native special-function expansion exceeds MaxTerms."]];
   If[FreeQ[e, _SeriesData],
     If[! FreeQ[e, _Series | _Derivative | Indeterminate | _DirectedInfinity],
@@ -87,13 +87,11 @@ specialNativeTree[e_, u_, ass_, limit_] := Module[
     SeriesData,
       If[e[[1]] =!= u || e[[2]] =!= 0 || ! IntegerQ[e[[6]]] || e[[6]] < 1,
         fail["UnsupportedNativeCoordinate", "Native series must use the recorded positive local variable at zero."]];
-      rows = e[[3]]; result = {0, 0}; degree = 0;
+      rows = e[[3]]; result = {0, 0};
       Do[
         coefficient = specialNativeTree[rows[[k]], u, ass, limit];
         term = specialNativeMultiply[coefficient, {u^((e[[4]] + k - 1)/e[[6]]), 0}, u, ass];
-        result += term;
-        If[PolynomialQ[coefficient[[1]] /. Log[u] -> nativeLog, nativeLog],
-          degree = Max[degree, Exponent[coefficient[[1]] /. Log[u] -> nativeLog, nativeLog]]],
+        result += term,
         {k, Length[rows]}];
       (* SeriesData does not encode the logarithmic degree of its unknown
          tail. A half-lattice-step loss absorbs every fixed logarithmic
@@ -223,7 +221,7 @@ specialNativeOrderedResult[truncated_, remainder_, u_, x_, coord_, ass_, domain_
 
 specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[
   {domain, normalized, source, u = coord["u"], order, raw, data, expression, sectors,
-    truncated, remainder, nativeRemainder, work = 0, enough, exact, result, restored, localDomain,
+    truncated, remainder, work = 0, enough, exact, result, restored, localDomain,
     exactPart, uncertainExpression, uncertainSectors, uncertainCarriers, ordinary},
   If[! specialNativeCandidateQ[f, x], Return[$Failed, Module]];
   validateInput[f, limit];
@@ -258,7 +256,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
     uncertainSectors = specialNativeSectors[uncertainExpression, u, ass];
     uncertainCarriers = Lookup[uncertainSectors, "OriginalCarrier", {}];
     expression = uncertainExpression + exactPart;
-    sectors = specialNativeSectors[expression, u, ass];
+    sectors = If[exactPart === 0, uncertainSectors, specialNativeSectors[expression, u, ass]];
     exact = TrueQ[specialNativeTry[FullSimplify[source == expression, localDomain && u > 0]]];
     If[FreeQ[raw, _SeriesData] && ! exact,
       fail["UnresolvedNativeSeries", "A finite native result without a remainder is accepted only after exact equality with the source is established."]];
@@ -266,16 +264,14 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
       Length[#["Rows"]] > goal || ! MemberQ[uncertainCarriers, #["OriginalCarrier"]] ||
       (#["OriginalCarrier"] === 1 && FreeQ[Total[#["Rows"][[All, 2]]], u] &&
         And @@ (# == 0 & /@ #["Rows"][[All, 1]])) &]));
-    If[enough && ! exact,
+    If[enough,
       truncated = specialNativeTruncate[sectors, u, cut, goal, ass];
-      enough = truncated["Remainder"] =!= 0 &&
-        specialNativeSmallQ[data[[2]]/specialNativeBound[truncated["Remainder"]], u, ass]];
+      If[! exact, enough = truncated["Remainder"] =!= 0 &&
+        specialNativeSmallQ[data[[2]]/specialNativeBound[truncated["Remainder"]], u, ass]]];
     If[enough, Break[]]; order = 2 order + 1];
-  truncated = specialNativeTruncate[sectors, u, cut, goal, ass];
-  nativeRemainder = If[exact, 0, data[[2]]];
+  (* A nonexact exit has already proved the native error negligible beside
+     this truncation's remainder. Reuse that accepted bound and its proof. *)
   remainder = truncated["Remainder"];
-  If[nativeRemainder =!= 0 && (remainder === 0 ||
-      ! specialNativeSmallQ[nativeRemainder/specialNativeBound[remainder], u, ass]), remainder += nativeRemainder];
   restored = {u -> coord["LocalVariable"]};
   result = specialNativeOrderedResult[truncated, remainder, u, x, coord, ass,
     domain["Domain"] && normalized["Domain"], limit];

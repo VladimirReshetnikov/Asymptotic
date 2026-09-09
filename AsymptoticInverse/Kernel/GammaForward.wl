@@ -3,21 +3,45 @@
    https://dlmf.nist.gov/5.11.E3 and https://dlmf.nist.gov/5.11.ii . *)
 
 (* Separate ordinary factors before distributing powers over positive
-   Gamma factors. Retain original exponents as well as their products,
-   so an unsupported exponent cannot disappear by cancellation. *)
-gammaProductData[e_, x_] := Module[{parts, base, r},
-  If[FreeQ[e, _Gamma] || FreeQ[e, x], Return[{e, {}, {}}, Module]];
+   special-function factors. Keep whole atoms and original exponents:
+   constant factors remain ordinary, and powers still require realness
+   even if their products simplify. The family pattern includes every
+   arity so an unsupported dependent Gamma[a,x] cannot become ordinary. *)
+positiveSpecialProductData[e_, x_, family_] := Module[{parts, base, r},
+  If[FreeQ[e, family] || FreeQ[e, x], Return[{e, {}, {}}, Module]];
   Which[
-    MatchQ[e, Gamma[_]], {1, {{e[[1]], 1}}, {}},
+    MatchQ[e, family] && Length[e] === 1, {1, {{e, 1}}, {}},
     Head[e] === Times,
-      parts = gammaProductData[#, x] & /@ List @@ e;
+      parts = positiveSpecialProductData[#, x, family] & /@ List @@ e;
       If[MemberQ[parts, $Failed], $Failed,
         {Times @@ parts[[All, 1]], Join @@ parts[[All, 2]], Join @@ parts[[All, 3]]}],
     Head[e] === Power,
-      base = gammaProductData[e[[1]], x]; r = e[[2]];
+      base = positiveSpecialProductData[e[[1]], x, family]; r = e[[2]];
       If[base === $Failed || base[[2]] === {}, $Failed,
         {base[[1]]^r, {#[[1]], r #[[2]]} & /@ base[[2]], Append[base[[3]], r]}],
     True, $Failed]];
+
+(* Positivity and optional growth precede the power checks; the ordinary
+   coefficient is checked last. Gamma and Barnes keep their own power
+   failure tags and construct their logarithms only after these proofs. *)
+positiveSpecialProductSource[e_, x_, family_, ass_, coord_, requireGrowth_, powerFailure_] := Module[
+  {product, factors, arguments, powers, localArg, growing = False, ordinary},
+  product = positiveSpecialProductData[e, x, family];
+  If[product === $Failed || product[[2]] === {}, Return[$Failed, Module]];
+  factors = product[[2]]; arguments = DeleteDuplicates[factors[[All, 1, 1]]];
+  Do[
+    localArg = arg /. x -> coord["Substitution"];
+    If[! inverseFunctionEventually[localArg > 0, coord["u"], ass], Return[$Failed, Module]];
+    If[TrueQ[requireGrowth] && inverseBranchTry[Limit[localArg, coord["u"] -> 0,
+        Direction -> "FromAbove", Assumptions -> ass]] === Infinity, growing = True], {arg, arguments}];
+  If[TrueQ[requireGrowth] && ! growing, Return[$Failed, Module]];
+  powers = DeleteDuplicates[Join[product[[3]], factors[[All, 2]]]];
+  If[! AllTrue[powers, logarithmicRealCondition[Element[# /. x -> coord["Substitution"], Reals], ass, coord] &],
+    fail[powerFailure[[1]], powerFailure[[2]], <|"Powers" -> powers|>]];
+  ordinary = logarithmicProductSource[product[[1]], x, ass, coord];
+  <|"Factors" -> factors, "Sign" -> ordinary["Sign"], "OrdinaryLogarithm" -> ordinary["Logarithm"],
+    "Domain" -> ordinary["Domain"] && And @@ (# > 0 & /@ arguments) &&
+      And @@ (Element[#, Reals] & /@ powers)|>];
 
 gammaRelatedExpression[e_] := e /. {
   HoldPattern[Factorial[z_]] :> Gamma[z + 1],
@@ -28,28 +52,14 @@ gammaRelatedExpression[e_] := e /. {
 (* The logarithmic identity also applies at finite positive arguments.
    Growing arguments are required only when extracting a Gamma carrier. *)
 gammaProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
-  {lowered, product, factors, coefficient, localArg, argumentLimit, growing = False,
-   logFunction, simplified, domain, ordinary, powers},
+  {lowered, source, factors, logFunction, simplified, domain},
   If[FreeQ[f, _Gamma | _Factorial | _Binomial | _Beta | _Pochhammer], Return[$Failed, Module]];
   validateInput[f, limit];
   lowered = gammaRelatedExpression[f];
-  product = gammaProductData[lowered, x];
-  If[product === $Failed || product[[2]] === {}, Return[$Failed, Module]];
-  coefficient = product[[1]]; factors = product[[2]];
-  Do[
-    localArg = arg /. x -> coord["Substitution"];
-    If[! inverseFunctionEventually[localArg > 0, coord["u"], ass], Return[$Failed, Module]];
-    If[TrueQ[requireGrowth],
-      argumentLimit = inverseBranchTry[Limit[localArg, coord["u"] -> 0,
-        Direction -> "FromAbove", Assumptions -> ass]];
-      If[argumentLimit === Infinity, growing = True]], {arg, DeleteDuplicates[factors[[All, 1]]]}];
-  If[TrueQ[requireGrowth] && ! growing, Return[$Failed, Module]];
-  powers = DeleteDuplicates[Join[product[[3]], factors[[All, 2]]]];
-  If[! AllTrue[powers, logarithmicRealCondition[Element[# /. x -> coord["Substitution"], Reals], ass, coord] &],
-    fail["UnsupportedGammaPower", "Gamma powers require exact exponents that are eventually real.", <|"Powers" -> powers|>]];
-  domain = coord["LocalVariable"] > 0 && And @@ (#[[1]] > 0 & /@ factors) && And @@ (Element[#, Reals] & /@ powers);
-  ordinary = logarithmicProductSource[coefficient, x, ass, coord];
-  domain = domain && ordinary["Domain"];
+  source = positiveSpecialProductSource[lowered, x, _Gamma, ass, coord, requireGrowth,
+    {"UnsupportedGammaPower", "Gamma powers require exact exponents that are eventually real."}];
+  If[source === $Failed, Return[$Failed, Module]];
+  factors = {#[[1, 1]], #[[2]]} & /@ source["Factors"]; domain = source["Domain"];
   logFunction = Total[#[[2]] LogGamma[#[[1]]] & /@ factors];
   simplified = TimeConstrained[FullSimplify[logFunction, ass && domain], 3, logFunction];
   (* FullSimplify can recombine LogGamma into Log[Gamma]. Keep only
@@ -57,8 +67,8 @@ gammaProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
      from the exact recurrence. Finite Stirling cancellation is not an
      exact identity of the original functions. *)
   If[FreeQ[simplified, _Gamma], logFunction = simplified];
-  logFunction += ordinary["Logarithm"];
-  <|"Logarithm" -> logFunction, "Sign" -> ordinary["Sign"], "Domain" -> domain,
+  logFunction += source["OrdinaryLogarithm"];
+  <|"Logarithm" -> logFunction, "Sign" -> source["Sign"], "Domain" -> domain,
     "GammaFactors" -> factors, "GammaExpression" -> lowered|>];
 
 gammaForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Module[{source, factors},

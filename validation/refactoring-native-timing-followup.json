@@ -1,0 +1,129 @@
+{
+  "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+  "Scope": "Alternating baseline and refactored package in one kernel; each pass has one warm-up and three timed runs of x+Erfc[x] at infinity with term goal 3.",
+  "Results": [
+    {
+      "Source": "Before",
+      "Seconds": [
+        6.623623,
+        7.304114,
+        6.3244972
+      ],
+      "MedianSeconds": 6.623623,
+      "Result": "{(1/Sqrt[Pi] + 3/(4*Sqrt[Pi]*x^4) - 1/(2*Sqrt[Pi]*x^2))/(E^x^2*x) + x, PowerLogRemainder[x^(-1), 6, 0]/(E^x^2*x)}"
+    },
+    {
+      "Source": "After",
+      "Seconds": [
+        7.72851,
+        6.767676,
+        6.0071787
+      ],
+      "MedianSeconds": 6.767676,
+      "Result": "{(1/Sqrt[Pi] + 3/(4*Sqrt[Pi]*x^4) - 1/(2*Sqrt[Pi]*x^2))/(E^x^2*x) + x, PowerLogRemainder[x^(-1), 6, 0]/(E^x^2*x)}"
+    },
+    {
+      "Source": "Before",
+      "Seconds": [
+        5.9630143,
+        5.9132751,
+        6.7331782
+      ],
+      "MedianSeconds": 5.9630143,
+      "Result": "{(1/Sqrt[Pi] + 3/(4*Sqrt[Pi]*x^4) - 1/(2*Sqrt[Pi]*x^2))/(E^x^2*x) + x, PowerLogRemainder[x^(-1), 6, 0]/(E^x^2*x)}"
+    },
+    {
+      "Source": "After",
+      "Seconds": [
+        5.8957517,
+        5.8264069,
+        6.2370259
+      ],
+      "MedianSeconds": 5.8957517,
+      "Result": "{(1/Sqrt[Pi] + 3/(4*Sqrt[Pi]*x^4) - 1/(2*Sqrt[Pi]*x^2))/(E^x^2*x) + x, PowerLogRemainder[x^(-1), 6, 0]/(E^x^2*x)}"
+    }
+  ],
+  "BaselineRevision": "0ddac97340cc223abd36fdeceb325bdffbefc5ab",
+  "BaselineSourceSHA256": {
+    "AsymptoticInverse.wl": "a4ca19b407f21b9bfa55c6abfd00b1ea8c93569b2bcc63ad1498b3edafda8fd0",
+    "BarnesForward.wl": "e29b45bdeb3e975b3a2d457bf4d71bf80cfb17bed55e3caf2ae1d2185bea6808",
+    "BarnesInverseChecks.wl": "89bdf4ac3da37afd7afe58899954a14d2e019b161ef686f94c76a39874b697eb",
+    "BarnesInverse.wl": "56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
+    "CoordinateInverse.wl": "f6994d5da0a5dae44332cf11e79a47dfe817491224c0bdc55bae3fb403e3cd45",
+    "CorePerturbation.wl": "a3af395e7d0a8554e2003ced31def5c902bf8df70c061e74f260bb8dcc6c09cf",
+    "DirichletSpecialFunctions.wl": "050590310209007f41f90ca9bf5ad50987568f3b98bc38a211e609c4dd2f6bf9",
+    "ExactTermination.wl": "269151674e4af3be5012a161d39f2981094a16ddb06ef2559cda5cbf50ed2c48",
+    "ExponentialCorePerturbation.wl": "0eb5f5c72d385a4c24f1af2c30c89b2f0bec663f41106e771f4ae9718850a82d",
+    "ExponentialForward.wl": "af0c90c3ea174c4f933109b309aee1a8e7d270242f713e98206bafe13c134553",
+    "FlatSectorOperations.wl": "dd67077de75359af4ec76bbb9d63e8dcb83aea751543a809f3f9a7773d4659e0",
+    "FlatSectors.wl": "d8caeb47a9ef4fd7649ce6f0d40a00f8f9a5f522d261926e54e4a7d1d443da96",
+    "FourierCoefficients.wl": "83075c84e2f13e259872a1175a8a729e7e68f7a959a3eb5e2201095e784092ff",
+    "GammaForward.wl": "14fde493ca257e03d6a09e3223be8babefd443ecbaab87414dbe2fc9c1a0322c",
+    "GammaInverseChecks.wl": "5c63f888643584607af9c85330120def03ca522198260c0c4d0a968616061d82",
+    "GammaInverseOperations.wl": "050bd8c169098f72eac8ae48fdf92632c4a0121fc19cb4bc05d89120f7c5e713",
+    "GammaInverse.wl": "3039ec9db86fee866cf6290e6c4fc14df3aca7963d0badfbbb172e9c73ca3618",
+    "IncrementalInverse.wl": "a410833cc04cfb857eeafe07072e39846e9df4bbb68089c870810b4e973c6e00",
+    "InverseCertificates.wl": "6d6050e19e9c2156bac5b6417d10ebb12891e4d595b3c45c25609d99f31ee415",
+    "InverseFunctionBranches.wl": "727c43fd3e873a3853caa82ddbbd83be18d1923353e8be62f154e904e804eafe",
+    "InverseFunctionExpressions.wl": "40062a23175f9f80105aba2c8ac45f1a281cc836a9693f25775b7c404bfbdca2",
+    "InverseFunctionFamilies.wl": "c6ce61a378b7b367d9c7839479d3999c404b8576a93bfdb742448de688f0e090",
+    "InverseFunctionSyntax.wl": "94bf63f456ead299aaac357858ac53c22d781871b386405c31a5880eea66bfb9",
+    "LambertInverse.wl": "1da19f04df8efd2dc05405651026cf423bac019838e856143f8a7df90ab3a6cf",
+    "LogarithmicScales.wl": "d4258c4529b8ceae3f990a32dbda9cb701097c684089987397033ef91f837327",
+    "NativeSpecialFunctions.wl": "115e2934e2bc284c27b0ffe17405144b69859bfda7ac7746ffa60a67e38068d1",
+    "NumericalInverseChecks.wl": "a3f1fd51ff3232b01025ed59eff3628cf1e693533f0a8627f439f32768f656d5",
+    "ParameterizedSpecialFunctions.wl": "94825324e7f9a9ea5abdba899c43e9b241a2fa589d8c199e90c0dd4aa07e05db",
+    "ReciprocalLogOperations.wl": "8d5d95767ece61a370562f7b52c235d7ef778c7b1466aecf1ccdfe734b4fb843",
+    "RefinementRequests.wl": "12658bdf2b9d35b0886fb3c9301b3901402f0f8182124095d4df20220426bcaa",
+    "RefinementState.wl": "dc4f88b5b97c7c3a9aca9620d8d95bbede91d3051ad460f71828bc51bf9f09ac",
+    "SeriesArithmetic.wl": "40093681c6b3a275acd99a9576ff1f6d5ea823908180f3c9c6be04997f948f91",
+    "SeriesEnvelopeArithmetic.wl": "937cd8cf1453a7fce8fa35c08f44cc9f6e79e854171b514a800e94b96b52da44",
+    "SeriesOperations.wl": "5d6f00aba9d75d8df6a20b7913bbfdd8a64315f32f93b863b5629d965e07b9ce",
+    "SourceCoordinates.wl": "29520105f2ff2d266eb8194b36824bec0a891f72df25ddf0524f2bd2536be675",
+    "SpecialFunctionAdapters.wl": "deae27086814dc566514bc9757625c9ceed2faa25a102abb6dd39cb3ef14b841",
+    "SpecialFunctionIdentities.wl": "58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
+    "SpecialFunctionRealDomain.wl": "6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c"
+  },
+  "RefactoredSourceSHA256": {
+    "AsymptoticInverse.wl": "e224617abde5c3a0116cdcb44a1498ce4785ad3ccb8b57438f795dd6b7ab030b",
+    "BarnesForward.wl": "036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479",
+    "BarnesInverseChecks.wl": "89bdf4ac3da37afd7afe58899954a14d2e019b161ef686f94c76a39874b697eb",
+    "BarnesInverse.wl": "56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
+    "CoordinateInverse.wl": "f6994d5da0a5dae44332cf11e79a47dfe817491224c0bdc55bae3fb403e3cd45",
+    "CorePerturbation.wl": "a3af395e7d0a8554e2003ced31def5c902bf8df70c061e74f260bb8dcc6c09cf",
+    "DirichletSpecialFunctions.wl": "050590310209007f41f90ca9bf5ad50987568f3b98bc38a211e609c4dd2f6bf9",
+    "ExactTermination.wl": "269151674e4af3be5012a161d39f2981094a16ddb06ef2559cda5cbf50ed2c48",
+    "ExponentialCorePerturbation.wl": "0eb5f5c72d385a4c24f1af2c30c89b2f0bec663f41106e771f4ae9718850a82d",
+    "ExponentialForward.wl": "af0c90c3ea174c4f933109b309aee1a8e7d270242f713e98206bafe13c134553",
+    "FlatSectorOperations.wl": "5d7aa1898b547c34bc7a968c1a7f16e611db336d50f16c8869078687b8113840",
+    "FlatSectors.wl": "d8caeb47a9ef4fd7649ce6f0d40a00f8f9a5f522d261926e54e4a7d1d443da96",
+    "FourierCoefficients.wl": "83075c84e2f13e259872a1175a8a729e7e68f7a959a3eb5e2201095e784092ff",
+    "GammaForward.wl": "a4182442d3d51e6e845d0714b6da3c45648c62bbd691bc9e0e325c00dc816a74",
+    "GammaInverseChecks.wl": "5c63f888643584607af9c85330120def03ca522198260c0c4d0a968616061d82",
+    "GammaInverseOperations.wl": "050bd8c169098f72eac8ae48fdf92632c4a0121fc19cb4bc05d89120f7c5e713",
+    "GammaInverse.wl": "3039ec9db86fee866cf6290e6c4fc14df3aca7963d0badfbbb172e9c73ca3618",
+    "IncrementalInverse.wl": "a410833cc04cfb857eeafe07072e39846e9df4bbb68089c870810b4e973c6e00",
+    "InverseCertificates.wl": "6d6050e19e9c2156bac5b6417d10ebb12891e4d595b3c45c25609d99f31ee415",
+    "InverseFunctionBranches.wl": "727c43fd3e873a3853caa82ddbbd83be18d1923353e8be62f154e904e804eafe",
+    "InverseFunctionExpressions.wl": "40062a23175f9f80105aba2c8ac45f1a281cc836a9693f25775b7c404bfbdca2",
+    "InverseFunctionFamilies.wl": "c6ce61a378b7b367d9c7839479d3999c404b8576a93bfdb742448de688f0e090",
+    "InverseFunctionSyntax.wl": "94bf63f456ead299aaac357858ac53c22d781871b386405c31a5880eea66bfb9",
+    "LambertInverse.wl": "1da19f04df8efd2dc05405651026cf423bac019838e856143f8a7df90ab3a6cf",
+    "LogarithmicScales.wl": "d4258c4529b8ceae3f990a32dbda9cb701097c684089987397033ef91f837327",
+    "NativeSpecialFunctions.wl": "16070d77d08c9189ea6d5faf228df3a3e4de2b602be9ca0903ebbc1a02a39514",
+    "NumericalInverseChecks.wl": "a3f1fd51ff3232b01025ed59eff3628cf1e693533f0a8627f439f32768f656d5",
+    "ParameterizedSpecialFunctions.wl": "94825324e7f9a9ea5abdba899c43e9b241a2fa589d8c199e90c0dd4aa07e05db",
+    "ReciprocalLogOperations.wl": "8d5d95767ece61a370562f7b52c235d7ef778c7b1466aecf1ccdfe734b4fb843",
+    "RefinementRequests.wl": "12658bdf2b9d35b0886fb3c9301b3901402f0f8182124095d4df20220426bcaa",
+    "RefinementState.wl": "f65ff31dcfa490ad9279dccad86518fac557e0e86639ddf450229be37117468f",
+    "SeriesArithmetic.wl": "40093681c6b3a275acd99a9576ff1f6d5ea823908180f3c9c6be04997f948f91",
+    "SeriesEnvelopeArithmetic.wl": "937cd8cf1453a7fce8fa35c08f44cc9f6e79e854171b514a800e94b96b52da44",
+    "SeriesOperations.wl": "5d6f00aba9d75d8df6a20b7913bbfdd8a64315f32f93b863b5629d965e07b9ce",
+    "SourceCoordinates.wl": "29520105f2ff2d266eb8194b36824bec0a891f72df25ddf0524f2bd2536be675",
+    "SpecialFunctionAdapters.wl": "deae27086814dc566514bc9757625c9ceed2faa25a102abb6dd39cb3ef14b841",
+    "SpecialFunctionIdentities.wl": "58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
+    "SpecialFunctionRealDomain.wl": "6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c"
+  },
+  "SameResultAcrossPasses": true,
+  "Procedure": "Load the baseline package, then alternate Get of the baseline and refactored modular entry four times in the same kernel. After each load, warm AsymptoticExpansion[x + Erfc[x], x -> Infinity, SeriesTermGoal -> 3] once and time three calls with AbsoluteTiming. Compare {Normal[s], s[\"Remainder\"]} after each pass. Source versions are identified by the two SHA256 maps."
+}

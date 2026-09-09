@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/AsymptoticInverse.wl
-   Source SHA256 (UTF-8/LF): a4ca19b407f21b9bfa55c6abfd00b1ea8c93569b2bcc63ad1498b3edafda8fd0 *)
+   Source SHA256 (UTF-8/LF): e224617abde5c3a0116cdcb44a1498ce4785ad3ccb8b57438f795dd6b7ab030b *)
 (* ::Package:: *)
 (* AsymptoticInverse -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -190,8 +190,9 @@ polyCanon[q_, ell_, ass_] := Module[{cl, e = Expand[logCanon[q]]},
   Expand[cl . ell^Range[0, Length[cl] - 1]]];
 zeroQ[q_, ass_] := q === 0 || (NumericQ[q] && exactQ[q] && (algebraicRealQ[q] && RootReduce[q] === 0 || TrueQ[Simplify[q == 0]])) ||
   (! NumericQ[q] && TrueQ[Simplify[q == 0, ass]]);
-polyZeroQ[q_, ell_, ass_] := Module[{p = polyCanon[q, ell, ass]},
-  p === 0 || (PolynomialQ[p, ell] && And @@ (zeroQ[#, ass] & /@ CoefficientList[p, ell]))];
+polyCanonicalZeroQ[p_, ell_, ass_] :=
+  p === 0 || (PolynomialQ[p, ell] && And @@ (zeroQ[#, ass] & /@ CoefficientList[p, ell]));
+polyZeroQ[q_, ell_, ass_] := polyCanonicalZeroQ[polyCanon[q, ell, ass], ell, ass];
 polyDegree[q_, ell_] := If[q === 0, 0, Exponent[q, ell]];
 
 (* ------------------------------------------------------------------ *)
@@ -207,10 +208,10 @@ jetMerge[terms_List, ell_, ass_, symbolic_: False] := Module[{groups, out},
      If[MissingQ[pos], AppendTo[out, {t[[1]], t[[2]]}],
       out[[pos[[1]], 2]] = out[[pos[[1]], 2]] + t[[2]]]], {t, terms}];
    out = {#[[1]], polyCanon[#[[2]], ell, ass]} & /@ out;
-   Return[Select[out, ! polyZeroQ[#[[2]], ell, ass] &], Module]];
-  groups = GatherBy[terms, canon[#[[1]]] &];
-  out = {canon[#[[1, 1]]], polyCanon[Total[#[[All, 2]]], ell, ass]} & /@ groups;
-  out = Select[out, ! polyZeroQ[#[[2]], ell, ass] &];
+   Return[Select[out, ! polyCanonicalZeroQ[#[[2]], ell, ass] &], Module]];
+  groups = GatherBy[{canon[#[[1]]], #[[2]]} & /@ terms, First];
+  out = {#[[1, 1]], polyCanon[Total[#[[All, 2]]], ell, ass]} & /@ groups;
+  out = Select[out, ! polyCanonicalZeroQ[#[[2]], ell, ass] &];
   Sort[out, leq[#1[[1]], #2[[1]]] &]];
 
 jetTrim[u_List, cut_, ell_, ass_] := jetMerge[Select[u, less[#[[1]], cut] &], ell, ass];
@@ -294,14 +295,20 @@ pAdd[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_] := Module[{pd = combinePrecis
    pd[[2]] = Max[pd[[2]], polyDegree[Total[Cases[Join[T1, T2], {w_, q_} /; equal[w, pd[[1]]] :> q]], ell]]];
   {jetTrim[Join[T1, T2], pd[[1]], ell, ass], pd[[1]], pd[[2]]}];
 pScale[{T_, P_, D_}, c_, ell_, ass_] := If[zeroQ[c, ass], {{}, Infinity, 0}, {jetScale[T, c, ell, ass], P, D}];
+(* Canonical jets have distinct increasing weights. Walk opposite ends to
+   find every product on the boundary without inspecting the full rectangle. *)
+jetProductBoundaryDegree[u_List, v_List, weight_, ell_] := Module[{i = 1, j = Length[v], degree = 0},
+  While[i <= Length[u] && j > 0,
+   Switch[compare[u[[i, 1]] + v[[j, 1]], weight],
+    -1, i++, 1, j--,
+    0, degree = Max[degree, polyDegree[u[[i, 2]], ell] + polyDegree[v[[j, 2]], ell]]; i++; j--]];
+  degree];
 pMul[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_, limit_] := Module[{v1, v2, e1, e2, pd},
   If[P1 === Infinity && P2 === Infinity, Return[{jetMul[T1, T2, Infinity, ell, ass, limit], Infinity, 0}, Module]];
   v1 = If[T1 === {}, P1, jetValuation[T1]]; e1 = If[T1 === {}, D1, jetLeadingDegree[T1, ell]];
   v2 = If[T2 === {}, P2, jetValuation[T2]]; e2 = If[T2 === {}, D2, jetLeadingDegree[T2, ell]];
   pd = combinePrecision[{If[P1 === Infinity, Infinity, P1 + v2], D1 + e2}, {If[P2 === Infinity, Infinity, P2 + v1], D2 + e1}];
-  If[pd[[1]] =!= Infinity,
-   Do[If[equal[t1[[1]] + t2[[1]], pd[[1]]], pd[[2]] = Max[pd[[2]], polyDegree[t1[[2]], ell] + polyDegree[t2[[2]], ell]]],
-    {t1, T1}, {t2, T2}]];
+  If[pd[[1]] =!= Infinity, pd[[2]] = Max[pd[[2]], jetProductBoundaryDegree[T1, T2, pd[[1]], ell]]];
   {jetMul[T1, T2, pd[[1]], ell, ass, limit], pd[[1]], pd[[2]]}];
 pIntegerPower[j_, n_Integer?NonNegative, ell_, ass_, limit_] := Module[{r = pConst[1, ell, ass], b = j, k = n},
   (* Binary powering also preserves the precision propagation of pMul. *)
@@ -798,13 +805,16 @@ inverseBlocks[d_, polys_, p_, rint_, H_, method_, ell_, ass_, limit_, region_] :
 
 (* Look past finitely many cancelled boundary blocks. A bounded search retains
    the original valid (possibly non-sharp) bound if no nonzero block is found. *)
-inverseFrontier[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] := Module[
-  {region = region0, ws, weight, near, poly, first = None, result = None, next, attempt},
-  If[d === {} || region["Boundary"] === {}, Return[None, Module]];
+inverseFrontier[region_, d_, polys_, p_, rint_, ell_, ass_, limit_] :=
+  First[inverseFrontierWithCount[region, d, polys, p, rint, ell, ass, limit]];
+inverseFrontierWithCount[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] := Module[
+  {region = region0, ws, weight, near, poly, first = None, result = None, next, attempt, count = 0},
+  If[d === {} || region["Boundary"] === {}, Return[{None, 0}, Module]];
   Do[
    ws = canon[# . d] & /@ region["Boundary"];
    weight = First[Sort[ws, leq]];
    near = Pick[region["Boundary"], equal[#, weight] & /@ ws];
+   count += Length[near];
    poly = jetMerge[lagrangeCoefficient[#, d, polys, p, rint, ell, ass, False] & /@ near, ell, ass];
    result = {weight, If[poly === {}, 0, poly[[1, 2]]]};
    If[first === None, first = result];
@@ -813,7 +823,7 @@ inverseFrontier[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] := Module[
    If[FailureQ[next] || next["Boundary"] === {}, result = first; Break[]];
    region = next,
    {attempt, 8}];
-  If[result[[2]] === 0, first, result]];
+  {If[result[[2]] === 0, first, result], count}];
 
 (* finite power-log parser that tolerates symbolic exponents (used by depth truncation) *)
 parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, ok = True},
@@ -923,12 +933,11 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
     Do[If[! (NumericQ[dd] && exactQ[dd]), fail["SymbolicExponent", "Exponents must be exact numbers; use \"Truncation\" -> \"Depth\" with Assumptions for symbolic exponents.", <|"Exponent" -> dd|>]], {dd, d}];
     If[cutoff === Automatic,
      (* term goal: enlarge the inclusive weight bound until goal blocks are present *)
-     Module[{W = 0, count = 0, tries2 = 0, sigmaStar},
+     Module[{count = 0, tries2 = 0},
       computationState = incrementalInverseState[d, polys, p, rint, ell, ass, limit];
       While[True,
        tries2++; If[tries2 > 50 goal + 10, fail["ResourceLimit", "SeriesTermGoal iteration did not terminate."]];
        computationState = advanceInverseState[computationState];
-       region = incrementalInverseRegion[computationState];
        blocks = computationState["Blocks"];
        count = Length[blocks];
        If[terminationEligible,
@@ -937,10 +946,9 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
          terminationTried = reliableBlocks;
          termination = exactInverseTermination[f, x, x0, coord, model, reliableBlocks, ell, ass];
          If[AssociationQ[termination], blocks = reliableBlocks; Break[]]]];
-       If[count >= goal || region["Boundary"] === {}, Break[]];
-       sigmaStar = First[Sort[canon[# . d] & /@ region["Boundary"], leq]];
-       W = sigmaStar]];
-     H = If[AssociationQ[termination] || region["Boundary"] === {}, Infinity, canon[First[Sort[canon[# . d] & /@ region["Boundary"], leq]]]];
+       If[count >= goal || computationState["NextWeight"] === Infinity, Break[]]];
+      region = incrementalInverseRegion[computationState]];
+     H = If[AssociationQ[termination], Infinity, computationState["NextWeight"]];
      cutoff = If[H === Infinity, Infinity, canon[(rint + H)/Abs[p]]],
      H = canon[Abs[p] cutoff - rint];
      If[! less[0, H], fail["CutoffTooSmall", "The cutoff must exceed the leading exponent r/|p| of the inverse.", <|"LeadingExponent" -> ToRadicals[rint/Abs[p]]|>]]];
@@ -2193,7 +2201,7 @@ AsymptoticInverse`SeriesRefine[s : PowerLogSeries[a_Association], h_, opts : Opt
 (* END SOURCE: AsymptoticInverse/Kernel/SeriesOperations.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/RefinementState.wl
-   Source SHA256 (UTF-8/LF): dc4f88b5b97c7c3a9aca9620d8d95bbede91d3051ad460f71828bc51bf9f09ac *)
+   Source SHA256 (UTF-8/LF): f65ff31dcfa490ad9279dccad86518fac557e0e86639ddf450229be37117468f *)
 (* Reuse of ordinary inverse coefficient prefixes. No global cache is used.
    $Failed requests the existing source-replay path (for example when a new
    automatic forward expansion is needed). All returned states are values. *)
@@ -2282,19 +2290,8 @@ refinementNewtonSeed[a_, limit_, signature_] := Module[
 
 (* Same complete-boundary convention as inverseFrontier, with an explicit
    count of the independent Euler-coefficient work used for the remainder. *)
-refinementNewtonFrontier[region0_, d_, polys_, p_, r_, ell_, ass_, limit_] := Module[
-  {region = region0, first = None, result = None, weight, near, poly, next, count = 0},
-  If[d === {} || region["Boundary"] === {}, Return[{None, 0}, Module]];
-  Do[weight = First[Sort[canon[# . d] & /@ region["Boundary"], leq]];
-    near = Select[region["Boundary"], equal[canon[# . d], weight] &];
-    count += Length[near];
-    poly = jetMerge[lagrangeCoefficient[#, d, polys, p, r, ell, ass, False] & /@ near, ell, ass];
-    result = {weight, If[poly === {}, 0, poly[[1, 2]]]}; If[first === None, first = result];
-    If[poly =!= {}, Break[]];
-    next = catch[indexRegion[d, weight, True, limit]];
-    If[FailureQ[next] || next["Boundary"] === {}, result = first; Break[]]; region = next,
-    {8}];
-  {If[result[[2]] === 0, first, result], count}];
+refinementNewtonFrontier[region_, d_, polys_, p_, r_, ell_, ass_, limit_] :=
+  inverseFrontierWithCount[region, d, polys, p, r, ell, ass, limit];
 
 refinementAssemble[a_, cutoff_, blocks_, frontier_, state_, statistics_] := Module[
   {p = a["LeadingPower"], leading = a["LeadingCoefficient"], r = a["Power"], rint,
@@ -3789,7 +3786,7 @@ AsymptoticInverse`AsymptoticFlatInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: AsymptoticInverse/Kernel/FlatSectors.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/FlatSectorOperations.wl
-   Source SHA256 (UTF-8/LF): dd67077de75359af4ec76bbb9d63e8dcb83aea751543a809f3f9a7773d4659e0 *)
+   Source SHA256 (UTF-8/LF): 5d7aa1898b547c34bc7a968c1a7f16e611db336d50f16c8869078687b8113840 *)
 (* Two independent truncations: inclusive exponential degree and exclusive
    inner power. A discarded inner coefficient remains in its own sector. *)
 
@@ -3881,16 +3878,21 @@ flatOpsTruncateData[d0_, h_, limit_] := Module[{d = d0, jets, ell = d0["LogVaria
   flatOpsBudget[Join[d, <|"SectorJets" -> jets, "InnerCutoff" -> h|>], limit]];
 
 flatOpsMultiplyData[a0_, b0_, limit_] := Module[
-  {a, b, n, na, nb, ell, ass, convolution, term, tail = {Infinity, 0}, aj, bj, data},
+  {a, b, n, na, nb, ell, ass, convolution, term, tail = {Infinity, 0}, aj, bj,
+   aIndices, bIndices, data},
   {a, b} = flatOpsAlign[a0, b0];
   {na, nb} = {a["SectorDepth"], b["SectorDepth"]}; n = Min[na, nb];
   ell = a["LogVariable"]; ass = a["Assumptions"]; aj = a["SectorJets"]; bj = b["SectorJets"];
   If[(na + 1) (nb + 1) > limit,
     fail["ResourceLimit", "The complete flat-sector convolution exceeds MaxTerms pair products."]];
+  (* Only exact zeros annihilate a pair. An empty finite part with an
+     unknown inner remainder still contributes in its convolution sector. *)
+  aIndices = Select[Range[na + 1], ! flatOpsExactZeroQ[aj[[#]]] &];
+  bIndices = Select[Range[nb + 1], ! flatOpsExactZeroQ[bj[[#]]] &];
   convolution = Table[flatOpsZero[ell, ass], {na + nb + 1}];
-  Do[term = pMul[aj[[i + 1]], bj[[j + 1]], ell, ass, limit];
-    convolution[[i + j + 1]] = pAdd[convolution[[i + j + 1]], term, ell, ass],
-    {i, 0, na}, {j, 0, nb}];
+  Do[term = pMul[aj[[i]], bj[[j]], ell, ass, limit];
+    convolution[[i + j - 1]] = pAdd[convolution[[i + j - 1]], term, ell, ass],
+    {i, aIndices}, {j, bIndices}];
   (* E^(k-N-1)<=1 for k>N. Keeping the coefficient's algebraic bound is
      conservative; it does not move an inner error to a later sector. *)
   Do[tail = flatOpsTailAdd[tail, flatOpsJetBound[convolution[[k + 1]], ell]], {k, n + 1, na + nb}];
@@ -5680,27 +5682,51 @@ inverseFunctionJetApply[e_, x_, input_, d_, cut_, limit_] := Module[
 (* END SOURCE: AsymptoticInverse/Kernel/InverseFunctionExpressions.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/GammaForward.wl
-   Source SHA256 (UTF-8/LF): 14fde493ca257e03d6a09e3223be8babefd443ecbaab87414dbe2fc9c1a0322c *)
+   Source SHA256 (UTF-8/LF): a4182442d3d51e6e845d0714b6da3c45648c62bbd691bc9e0e325c00dc816a74 *)
 (* Combine real Gamma products in the logarithmic domain. Stirling's
    expansion is Poincare asymptotic, not a convergent series:
    https://dlmf.nist.gov/5.11.E3 and https://dlmf.nist.gov/5.11.ii . *)
 
 (* Separate ordinary factors before distributing powers over positive
-   Gamma factors. Retain original exponents as well as their products,
-   so an unsupported exponent cannot disappear by cancellation. *)
-gammaProductData[e_, x_] := Module[{parts, base, r},
-  If[FreeQ[e, _Gamma] || FreeQ[e, x], Return[{e, {}, {}}, Module]];
+   special-function factors. Keep whole atoms and original exponents:
+   constant factors remain ordinary, and powers still require realness
+   even if their products simplify. The family pattern includes every
+   arity so an unsupported dependent Gamma[a,x] cannot become ordinary. *)
+positiveSpecialProductData[e_, x_, family_] := Module[{parts, base, r},
+  If[FreeQ[e, family] || FreeQ[e, x], Return[{e, {}, {}}, Module]];
   Which[
-    MatchQ[e, Gamma[_]], {1, {{e[[1]], 1}}, {}},
+    MatchQ[e, family] && Length[e] === 1, {1, {{e, 1}}, {}},
     Head[e] === Times,
-      parts = gammaProductData[#, x] & /@ List @@ e;
+      parts = positiveSpecialProductData[#, x, family] & /@ List @@ e;
       If[MemberQ[parts, $Failed], $Failed,
         {Times @@ parts[[All, 1]], Join @@ parts[[All, 2]], Join @@ parts[[All, 3]]}],
     Head[e] === Power,
-      base = gammaProductData[e[[1]], x]; r = e[[2]];
+      base = positiveSpecialProductData[e[[1]], x, family]; r = e[[2]];
       If[base === $Failed || base[[2]] === {}, $Failed,
         {base[[1]]^r, {#[[1]], r #[[2]]} & /@ base[[2]], Append[base[[3]], r]}],
     True, $Failed]];
+
+(* Positivity and optional growth precede the power checks; the ordinary
+   coefficient is checked last. Gamma and Barnes keep their own power
+   failure tags and construct their logarithms only after these proofs. *)
+positiveSpecialProductSource[e_, x_, family_, ass_, coord_, requireGrowth_, powerFailure_] := Module[
+  {product, factors, arguments, powers, localArg, growing = False, ordinary},
+  product = positiveSpecialProductData[e, x, family];
+  If[product === $Failed || product[[2]] === {}, Return[$Failed, Module]];
+  factors = product[[2]]; arguments = DeleteDuplicates[factors[[All, 1, 1]]];
+  Do[
+    localArg = arg /. x -> coord["Substitution"];
+    If[! inverseFunctionEventually[localArg > 0, coord["u"], ass], Return[$Failed, Module]];
+    If[TrueQ[requireGrowth] && inverseBranchTry[Limit[localArg, coord["u"] -> 0,
+        Direction -> "FromAbove", Assumptions -> ass]] === Infinity, growing = True], {arg, arguments}];
+  If[TrueQ[requireGrowth] && ! growing, Return[$Failed, Module]];
+  powers = DeleteDuplicates[Join[product[[3]], factors[[All, 2]]]];
+  If[! AllTrue[powers, logarithmicRealCondition[Element[# /. x -> coord["Substitution"], Reals], ass, coord] &],
+    fail[powerFailure[[1]], powerFailure[[2]], <|"Powers" -> powers|>]];
+  ordinary = logarithmicProductSource[product[[1]], x, ass, coord];
+  <|"Factors" -> factors, "Sign" -> ordinary["Sign"], "OrdinaryLogarithm" -> ordinary["Logarithm"],
+    "Domain" -> ordinary["Domain"] && And @@ (# > 0 & /@ arguments) &&
+      And @@ (Element[#, Reals] & /@ powers)|>];
 
 gammaRelatedExpression[e_] := e /. {
   HoldPattern[Factorial[z_]] :> Gamma[z + 1],
@@ -5711,28 +5737,14 @@ gammaRelatedExpression[e_] := e /. {
 (* The logarithmic identity also applies at finite positive arguments.
    Growing arguments are required only when extracting a Gamma carrier. *)
 gammaProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
-  {lowered, product, factors, coefficient, localArg, argumentLimit, growing = False,
-   logFunction, simplified, domain, ordinary, powers},
+  {lowered, source, factors, logFunction, simplified, domain},
   If[FreeQ[f, _Gamma | _Factorial | _Binomial | _Beta | _Pochhammer], Return[$Failed, Module]];
   validateInput[f, limit];
   lowered = gammaRelatedExpression[f];
-  product = gammaProductData[lowered, x];
-  If[product === $Failed || product[[2]] === {}, Return[$Failed, Module]];
-  coefficient = product[[1]]; factors = product[[2]];
-  Do[
-    localArg = arg /. x -> coord["Substitution"];
-    If[! inverseFunctionEventually[localArg > 0, coord["u"], ass], Return[$Failed, Module]];
-    If[TrueQ[requireGrowth],
-      argumentLimit = inverseBranchTry[Limit[localArg, coord["u"] -> 0,
-        Direction -> "FromAbove", Assumptions -> ass]];
-      If[argumentLimit === Infinity, growing = True]], {arg, DeleteDuplicates[factors[[All, 1]]]}];
-  If[TrueQ[requireGrowth] && ! growing, Return[$Failed, Module]];
-  powers = DeleteDuplicates[Join[product[[3]], factors[[All, 2]]]];
-  If[! AllTrue[powers, logarithmicRealCondition[Element[# /. x -> coord["Substitution"], Reals], ass, coord] &],
-    fail["UnsupportedGammaPower", "Gamma powers require exact exponents that are eventually real.", <|"Powers" -> powers|>]];
-  domain = coord["LocalVariable"] > 0 && And @@ (#[[1]] > 0 & /@ factors) && And @@ (Element[#, Reals] & /@ powers);
-  ordinary = logarithmicProductSource[coefficient, x, ass, coord];
-  domain = domain && ordinary["Domain"];
+  source = positiveSpecialProductSource[lowered, x, _Gamma, ass, coord, requireGrowth,
+    {"UnsupportedGammaPower", "Gamma powers require exact exponents that are eventually real."}];
+  If[source === $Failed, Return[$Failed, Module]];
+  factors = {#[[1, 1]], #[[2]]} & /@ source["Factors"]; domain = source["Domain"];
   logFunction = Total[#[[2]] LogGamma[#[[1]]] & /@ factors];
   simplified = TimeConstrained[FullSimplify[logFunction, ass && domain], 3, logFunction];
   (* FullSimplify can recombine LogGamma into Log[Gamma]. Keep only
@@ -5740,8 +5752,8 @@ gammaProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
      from the exact recurrence. Finite Stirling cancellation is not an
      exact identity of the original functions. *)
   If[FreeQ[simplified, _Gamma], logFunction = simplified];
-  logFunction += ordinary["Logarithm"];
-  <|"Logarithm" -> logFunction, "Sign" -> ordinary["Sign"], "Domain" -> domain,
+  logFunction += source["OrdinaryLogarithm"];
+  <|"Logarithm" -> logFunction, "Sign" -> source["Sign"], "Domain" -> domain,
     "GammaFactors" -> factors, "GammaExpression" -> lowered|>];
 
 gammaForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Module[{source, factors},
@@ -5860,25 +5872,11 @@ logarithmicForwardExpansion[f_, logFunction_, sign_, domain_, x_, x0_, cutoff0_,
 (* END SOURCE: AsymptoticInverse/Kernel/GammaForward.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/BarnesForward.wl
-   Source SHA256 (UTF-8/LF): e29b45bdeb3e975b3a2d457bf4d71bf80cfb17bed55e3caf2ae1d2185bea6808 *)
+   Source SHA256 (UTF-8/LF): 036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479 *)
 (* Positive-real Barnes G products use the same logarithmic carrier calculus
    as Gamma products. barnesLog is an exact internal logarithm, not a finite
    asymptotic surrogate. Its parser always attaches the Bernoulli tail.
    https://dlmf.nist.gov/5.17.E5 *)
-
-barnesProductData[e_, x_] := Module[{parts, base, r},
-  If[FreeQ[e, _Gamma | _BarnesG] || FreeQ[e, x], Return[{e, {}, {}}, Module]];
-  Which[
-    MatchQ[e, Gamma[_] | BarnesG[_]], {1, {{e, 1}}, {}},
-    Head[e] === Times,
-      parts = barnesProductData[#, x] & /@ List @@ e;
-      If[MemberQ[parts, $Failed], $Failed,
-        {Times @@ parts[[All, 1]], Join @@ parts[[All, 2]], Join @@ parts[[All, 3]]}],
-    Head[e] === Power,
-      base = barnesProductData[e[[1]], x]; r = e[[2]];
-      If[base === $Failed || base[[2]] === {}, $Failed,
-        {base[[1]]^r, {#[[1]], r #[[2]]} & /@ base[[2]], Append[base[[3]], r]}],
-    True, $Failed]];
 
 (* Canonicalize bounded integer shifts before any finite tails are formed.
    Choosing the shift +1 also preserves the even correction lattice of G(x+1).
@@ -5922,26 +5920,14 @@ barnesLogDomain[e_] := And @@ (First[#] > 0 & /@
   DeleteDuplicates[Cases[e, _barnesLog | _LogGamma, {0, Infinity}]]);
 
 barnesProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
-  {lowered, product, factors, powers, domain, ordinary, localArg, growing = False,
-   logFunction, simplified, reduced},
+  {lowered, source, factors, domain, logFunction, simplified, reduced},
   If[FreeQ[f, _BarnesG], Return[$Failed, Module]];
   validateInput[f, limit];
-  lowered = gammaRelatedExpression[f]; product = barnesProductData[lowered, x];
-  If[product === $Failed || product[[2]] === {}, Return[$Failed, Module]];
-  factors = product[[2]];
-  Do[
-    localArg = factor[[1, 1]] /. x -> coord["Substitution"];
-    If[! inverseFunctionEventually[localArg > 0, coord["u"], ass], Return[$Failed, Module]];
-    If[TrueQ[requireGrowth] && inverseBranchTry[Limit[localArg, coord["u"] -> 0,
-        Direction -> "FromAbove", Assumptions -> ass]] === Infinity, growing = True],
-    {factor, factors}];
-  If[TrueQ[requireGrowth] && ! growing, Return[$Failed, Module]];
-  powers = DeleteDuplicates[Join[product[[3]], factors[[All, 2]]]];
-  If[! AllTrue[powers, logarithmicRealCondition[Element[# /. x -> coord["Substitution"], Reals], ass, coord] &],
-    fail["UnsupportedBarnesPower", "Barnes G products require exact exponents that are eventually real.", <|"Powers" -> powers|>]];
-  ordinary = logarithmicProductSource[product[[1]], x, ass, coord];
-  domain = ordinary["Domain"] && And @@ (#[[1, 1]] > 0 & /@ factors) &&
-    And @@ (Element[#, Reals] & /@ powers);
+  lowered = gammaRelatedExpression[f];
+  source = positiveSpecialProductSource[lowered, x, _Gamma | _BarnesG, ass, coord, requireGrowth,
+    {"UnsupportedBarnesPower", "Barnes G products require exact exponents that are eventually real."}];
+  If[source === $Failed, Return[$Failed, Module]];
+  factors = source["Factors"]; domain = source["Domain"];
   logFunction = Total[#[[2]] If[Head[#[[1]]] === BarnesG,
       barnesLogShift[#[[1, 1]], x, ass, coord, limit], LogGamma[#[[1, 1]]]] & /@ factors];
   domain = domain && barnesLogDomain[logFunction];
@@ -5949,7 +5935,7 @@ barnesProductLogSource[f_, x_, ass_, coord_, limit_, requireGrowth_] := Module[
   logFunction = reduced["Expression"]; domain = domain && reduced["Domain"];
   simplified = TimeConstrained[FullSimplify[logFunction, ass && domain], 3, logFunction];
   If[FreeQ[simplified, _Gamma | _BarnesG], logFunction = simplified];
-  <|"Logarithm" -> logFunction + ordinary["Logarithm"], "Sign" -> ordinary["Sign"],
+  <|"Logarithm" -> logFunction + source["OrdinaryLogarithm"], "Sign" -> source["Sign"],
     "Domain" -> domain, "BarnesExpression" -> lowered,
     "BarnesFactors" -> ({#[[1, 1]], #[[2]]} & /@ Select[factors, Head[#[[1]]] === BarnesG &]),
     "GammaFactors" -> ({#[[1, 1]], #[[2]]} & /@ Select[factors, Head[#[[1]]] === Gamma &])|>];
@@ -7792,7 +7778,7 @@ dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_]
 (* END SOURCE: AsymptoticInverse/Kernel/DirichletSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: AsymptoticInverse/Kernel/NativeSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 115e2934e2bc284c27b0ffe17405144b69859bfda7ac7746ffa60a67e38068d1 *)
+   Source SHA256 (UTF-8/LF): 16070d77d08c9189ea6d5faf228df3a3e4de2b602be9ca0903ebbc1a02a39514 *)
 (* Import structured native asymptotic series without discarding their O terms.
    Native special-function expansions may contain several exact exponential
    carriers and oscillatory phases. Every tree operation transports an
@@ -7868,11 +7854,11 @@ specialNativeAbs[e_, u_, ass_] := Module[{value},
   If[value === $Failed, Abs[e], value]];
 
 specialNativeMultiply[{a_, r_}, {b_, s_}, u_, ass_] :=
-  {a b, specialNativeAbs[a, u, ass] s + specialNativeAbs[b, u, ass] r + r s};
+  {a b, If[s === 0, 0, specialNativeAbs[a, u, ass] s] +
+    If[r === 0, 0, specialNativeAbs[b, u, ass] r] + r s};
 
 specialNativeTree[e_, u_, ass_, limit_] := Module[
-  {head = Head[e], parts, result, argument, value, error, power, rows, degree, coefficient, term,
-    nativeLog = Unique["nativeLog$"]},
+  {head = Head[e], result, argument, value, error, power, rows, coefficient, term},
   If[LeafCount[e] > limit, fail["ResourceLimit", "The native special-function expansion exceeds MaxTerms."]];
   If[FreeQ[e, _SeriesData],
     If[! FreeQ[e, _Series | _Derivative | Indeterminate | _DirectedInfinity],
@@ -7882,13 +7868,11 @@ specialNativeTree[e_, u_, ass_, limit_] := Module[
     SeriesData,
       If[e[[1]] =!= u || e[[2]] =!= 0 || ! IntegerQ[e[[6]]] || e[[6]] < 1,
         fail["UnsupportedNativeCoordinate", "Native series must use the recorded positive local variable at zero."]];
-      rows = e[[3]]; result = {0, 0}; degree = 0;
+      rows = e[[3]]; result = {0, 0};
       Do[
         coefficient = specialNativeTree[rows[[k]], u, ass, limit];
         term = specialNativeMultiply[coefficient, {u^((e[[4]] + k - 1)/e[[6]]), 0}, u, ass];
-        result += term;
-        If[PolynomialQ[coefficient[[1]] /. Log[u] -> nativeLog, nativeLog],
-          degree = Max[degree, Exponent[coefficient[[1]] /. Log[u] -> nativeLog, nativeLog]]],
+        result += term,
         {k, Length[rows]}];
       (* SeriesData does not encode the logarithmic degree of its unknown
          tail. A half-lattice-step loss absorbs every fixed logarithmic
@@ -8018,7 +8002,7 @@ specialNativeOrderedResult[truncated_, remainder_, u_, x_, coord_, ass_, domain_
 
 specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[
   {domain, normalized, source, u = coord["u"], order, raw, data, expression, sectors,
-    truncated, remainder, nativeRemainder, work = 0, enough, exact, result, restored, localDomain,
+    truncated, remainder, work = 0, enough, exact, result, restored, localDomain,
     exactPart, uncertainExpression, uncertainSectors, uncertainCarriers, ordinary},
   If[! specialNativeCandidateQ[f, x], Return[$Failed, Module]];
   validateInput[f, limit];
@@ -8053,7 +8037,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
     uncertainSectors = specialNativeSectors[uncertainExpression, u, ass];
     uncertainCarriers = Lookup[uncertainSectors, "OriginalCarrier", {}];
     expression = uncertainExpression + exactPart;
-    sectors = specialNativeSectors[expression, u, ass];
+    sectors = If[exactPart === 0, uncertainSectors, specialNativeSectors[expression, u, ass]];
     exact = TrueQ[specialNativeTry[FullSimplify[source == expression, localDomain && u > 0]]];
     If[FreeQ[raw, _SeriesData] && ! exact,
       fail["UnresolvedNativeSeries", "A finite native result without a remainder is accepted only after exact equality with the source is established."]];
@@ -8061,16 +8045,14 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
       Length[#["Rows"]] > goal || ! MemberQ[uncertainCarriers, #["OriginalCarrier"]] ||
       (#["OriginalCarrier"] === 1 && FreeQ[Total[#["Rows"][[All, 2]]], u] &&
         And @@ (# == 0 & /@ #["Rows"][[All, 1]])) &]));
-    If[enough && ! exact,
+    If[enough,
       truncated = specialNativeTruncate[sectors, u, cut, goal, ass];
-      enough = truncated["Remainder"] =!= 0 &&
-        specialNativeSmallQ[data[[2]]/specialNativeBound[truncated["Remainder"]], u, ass]];
+      If[! exact, enough = truncated["Remainder"] =!= 0 &&
+        specialNativeSmallQ[data[[2]]/specialNativeBound[truncated["Remainder"]], u, ass]]];
     If[enough, Break[]]; order = 2 order + 1];
-  truncated = specialNativeTruncate[sectors, u, cut, goal, ass];
-  nativeRemainder = If[exact, 0, data[[2]]];
+  (* A nonexact exit has already proved the native error negligible beside
+     this truncation's remainder. Reuse that accepted bound and its proof. *)
   remainder = truncated["Remainder"];
-  If[nativeRemainder =!= 0 && (remainder === 0 ||
-      ! specialNativeSmallQ[nativeRemainder/specialNativeBound[remainder], u, ass]), remainder += nativeRemainder];
   restored = {u -> coord["LocalVariable"]};
   result = specialNativeOrderedResult[truncated, remainder, u, x, coord, ass,
     domain["Domain"] && normalized["Domain"], limit];

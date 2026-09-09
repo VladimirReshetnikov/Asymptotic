@@ -89,16 +89,21 @@ flatOpsTruncateData[d0_, h_, limit_] := Module[{d = d0, jets, ell = d0["LogVaria
   flatOpsBudget[Join[d, <|"SectorJets" -> jets, "InnerCutoff" -> h|>], limit]];
 
 flatOpsMultiplyData[a0_, b0_, limit_] := Module[
-  {a, b, n, na, nb, ell, ass, convolution, term, tail = {Infinity, 0}, aj, bj, data},
+  {a, b, n, na, nb, ell, ass, convolution, term, tail = {Infinity, 0}, aj, bj,
+   aIndices, bIndices, data},
   {a, b} = flatOpsAlign[a0, b0];
   {na, nb} = {a["SectorDepth"], b["SectorDepth"]}; n = Min[na, nb];
   ell = a["LogVariable"]; ass = a["Assumptions"]; aj = a["SectorJets"]; bj = b["SectorJets"];
   If[(na + 1) (nb + 1) > limit,
     fail["ResourceLimit", "The complete flat-sector convolution exceeds MaxTerms pair products."]];
+  (* Only exact zeros annihilate a pair. An empty finite part with an
+     unknown inner remainder still contributes in its convolution sector. *)
+  aIndices = Select[Range[na + 1], ! flatOpsExactZeroQ[aj[[#]]] &];
+  bIndices = Select[Range[nb + 1], ! flatOpsExactZeroQ[bj[[#]]] &];
   convolution = Table[flatOpsZero[ell, ass], {na + nb + 1}];
-  Do[term = pMul[aj[[i + 1]], bj[[j + 1]], ell, ass, limit];
-    convolution[[i + j + 1]] = pAdd[convolution[[i + j + 1]], term, ell, ass],
-    {i, 0, na}, {j, 0, nb}];
+  Do[term = pMul[aj[[i]], bj[[j]], ell, ass, limit];
+    convolution[[i + j - 1]] = pAdd[convolution[[i + j - 1]], term, ell, ass],
+    {i, aIndices}, {j, bIndices}];
   (* E^(k-N-1)<=1 for k>N. Keeping the coefficient's algebraic bound is
      conservative; it does not move an inner error to a later sector. *)
   Do[tail = flatOpsTailAdd[tail, flatOpsJetBound[convolution[[k + 1]], ell]], {k, n + 1, na + nb}];

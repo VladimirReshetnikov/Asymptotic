@@ -1,5 +1,84 @@
 # Review and validation record
 
+## Internal simplification and performance
+
+The internal refactor shares Gamma/Barnes product parsing and branch proofs,
+and the cancelled-frontier search used by inverse construction and refinement.
+The inverse term-goal loop now consumes the boundary weight already recorded
+in its computation state. Sparse multiplication finds its remainder-boundary
+degree with a monotone scan instead of a Cartesian scan; merging normalizes
+each weight and coefficient once. Native arithmetic skips absolute-majorant
+work for exact-zero errors and reuses accepted truncations and error proofs.
+Flat multiplication skips exact-zero sectors while retaining uncertain empty
+jets, complete omitted-sector sums, and the original resource budget.
+
+Eight focused validation entry scripts now use `FocusedTests.wl`. Their suite
+selections, default output paths, and time limits are preserved. This reduces
+the runners from 483 to 143 lines, including the helper: 340 lines removed.
+The runner checks package loading, rejects empty suites, records source hashes
+before loading, rejects changes during testing, and propagates report-export
+failures. `focused-runner-tests.json` records eight passing synthetic checks,
+including failing tests, timeouts, empty suites, source mutation, missing
+files, empty selections, and a syntax error in the package loader.
+
+`refactoring-tests.json` records **316 passing tests in 17 explicitly selected
+files**, including 30 new regression tests. There were no failures, and all
+recorded kernel, test, and runner source hashes remained unchanged throughout
+the run. Coverage includes sparse arithmetic, complete inverse frontiers,
+incremental refinement, native error bounds, flat-sector cancellation,
+Gamma/Barnes branch conditions and exact identities, and formatting/`Normal`.
+The 11 standalone-builder tests and documentation consistency checks also
+passed. `refactoring-standalone-tests.json` records seven additional passing
+checks in a fresh kernel loading only the generated file from an isolated
+directory, including explicit reload, arithmetic, `Normal`, formatting, and
+representative inverse/special-function calls. Both the generated file and
+its acceptance script retained their recorded hashes. **The full package
+suite was not run.**
+
+`BenchmarkRefactoring.wl` ran unchanged in two fresh Wolfram 15.0.1 kernels,
+against an immutable copy of commit `0ddac97340cc223abd36fdeceb325bdffbefc5ab`
+and the refactored sources. Each fixture had one warm-up and three measured
+runs. The two reports include all samples and source hashes; all seven
+returned expressions and remainders agree exactly, with stable results
+within each run. These are local measurements, not portable guarantees.
+
+| Fixture | Before, median seconds | After, median seconds |
+| --- | ---: | ---: |
+| Sparse product with finite remainder | 0.4914 | 0.1540 |
+| Merge irrational weights and logarithmic polynomials | 0.1303 | 0.0665 |
+| Import a 40-coefficient native logarithmic series | 0.0980 | 0.0028 |
+| Irrational inverse, five blocks | 8.3630 | 8.2714 |
+| Gamma ratio, five correction blocks | 0.4563 | 0.4868 |
+| Barnes G, five correction blocks | 3.3755 | 3.4171 |
+| Exact summand plus native Erfc tail | 2.0874 | 3.5020 |
+
+The helper fixtures improved by approximately 3.2, 2.0 and 35.5 times.
+The public examples do not establish an overall speedup. The initially
+slower Erfc result was investigated by alternating the original and
+refactored package in one kernel. Median times for the four passes were
+6.624, 6.768, 5.963 and 5.896 seconds, respectively, with identical results.
+The overlap and variation do not establish a consistent slowdown either;
+`refactoring-native-timing-followup.json` preserves these measurements.
+
+To reproduce the selected regression checks and the current benchmark:
+
+```powershell
+wolfram.exe -noinit -script validation/CheckFocusedRunner.wl
+wolfram.exe -noinit -script validation/CheckRefactoring.wl
+wolfram.exe -noinit -script validation/BenchmarkRefactoring.wl
+python validation/build_standalone.py --check
+python -m unittest discover -s validation -p test_standalone.py -v
+python validation/check_documentation.py
+```
+
+`ASYMPTOTIC_BENCHMARK_ROOT` selects a separate baseline checkout or source
+copy, and `ASYMPTOTIC_BENCHMARK_OUTPUT` selects the output report. The default
+source is this checkout. Validation selects 17 regression files explicitly;
+it does not discover or run the full package suite. The public interfaces,
+mathematical article, and user guide are unchanged by this internal refactor.
+
+## Standalone distribution (version 1.7.1)
+
 Version 1.7.1 adds a standalone distribution at the repository root:
 
 ```wolfram

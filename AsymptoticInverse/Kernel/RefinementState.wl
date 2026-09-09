@@ -86,19 +86,8 @@ refinementNewtonSeed[a_, limit_, signature_] := Module[
 
 (* Same complete-boundary convention as inverseFrontier, with an explicit
    count of the independent Euler-coefficient work used for the remainder. *)
-refinementNewtonFrontier[region0_, d_, polys_, p_, r_, ell_, ass_, limit_] := Module[
-  {region = region0, first = None, result = None, weight, near, poly, next, count = 0},
-  If[d === {} || region["Boundary"] === {}, Return[{None, 0}, Module]];
-  Do[weight = First[Sort[canon[# . d] & /@ region["Boundary"], leq]];
-    near = Select[region["Boundary"], equal[canon[# . d], weight] &];
-    count += Length[near];
-    poly = jetMerge[lagrangeCoefficient[#, d, polys, p, r, ell, ass, False] & /@ near, ell, ass];
-    result = {weight, If[poly === {}, 0, poly[[1, 2]]]}; If[first === None, first = result];
-    If[poly =!= {}, Break[]];
-    next = catch[indexRegion[d, weight, True, limit]];
-    If[FailureQ[next] || next["Boundary"] === {}, result = first; Break[]]; region = next,
-    {8}];
-  {If[result[[2]] === 0, first, result], count}];
+refinementNewtonFrontier[region_, d_, polys_, p_, r_, ell_, ass_, limit_] :=
+  inverseFrontierWithCount[region, d, polys, p, r, ell, ass, limit];
 
 refinementAssemble[a_, cutoff_, blocks_, frontier_, state_, statistics_] := Module[
   {p = a["LeadingPower"], leading = a["LeadingCoefficient"], r = a["Power"], rint,
