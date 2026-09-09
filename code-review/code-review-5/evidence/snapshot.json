@@ -1,0 +1,55 @@
+{
+  "repository": "https://github.com/VladimirReshetnikov/Asymptotic",
+  "commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "tree": "cf1296fef5f5024c0bd63f7a3a66305d6458defb",
+  "kernel_tree": "51d7b620c98aae453150f3e9afb0530191c39b61",
+  "snapshot_timestamp_utc": "2026-09-09T19:01:30Z",
+  "package_version": "1.8.0",
+  "minimum_documented_wolfram_version": "15.0",
+  "canonical_wl_module_count": 38,
+  "canonical_entry_git_blob": "ea9eaf4a11130e922ac4fb3faae37fd8e8d29643",
+  "review_date": "2026-09-09",
+  "native_wolfram_execution": {
+    "attempted": true,
+    "available": false,
+    "package_tests_executed": 0,
+    "reason": "Remote evaluator failed; no usable local Wolfram kernel."
+  },
+  "independent_checks": {
+    "executed": 22,
+    "passed": 22,
+    "result": "results/oracles.json"
+  },
+  "audit_tool_tests": {
+    "executed": 11,
+    "passed": 11,
+    "result": "results/tool-tests.txt",
+    "scope": "Audit tooling and synthetic patch anchors, not upstream runtime"
+  },
+  "native_reproduction_tests": {
+    "supplied": 11,
+    "executed": 0
+  },
+  "source_patches": {
+    "supplied_for": [
+      "F01",
+      "F02",
+      "F05"
+    ],
+    "applied_to_full_checkout": false,
+    "native_validated": false
+  },
+  "upstream_validation_reported_not_rerun": {
+    "focused_native_passed": 305,
+    "focused_native_failed": 0,
+    "focused_suite_count": 18,
+    "full_suite_run_for_that_focused_report": false,
+    "source": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/validation/README.md"
+  },
+  "document": {
+    "title": "An engineering and mathematical audit of Asymptotic 1.8.0",
+    "pdf": "article/asymptotic-audit.pdf",
+    "tex": "article/asymptotic-audit.tex",
+    "pages": 39
+  }
+}

@@ -1,0 +1,11 @@
+ID,Priority,Category,Evidence,Finding
+F01,High,Correctness/provenance,Native reproduced,Ambient assumptions used but omitted from metadata
+F02,High,Real-branch contract,Native reproduced,Wrapped fractional power bypasses the pure-remainder guard
+F03,High,Resource control,Native reproduced + source proof,Eager rational-grid SeriesData cache allocates a dense span
+F04,High,Resource control,Native reproduced,Generic unit-series loop exceeds MaxTerms output and depth
+F05,Medium,Performance,Static proof and focused native patched control,Annihilated Euler coefficient recurrence continues multiplying
+F06,Medium,Resource architecture,Design assessment,Budgets use inconsistent units and do not bound total work
+F07,Medium,Release validation,Upstream records,Selected tests and builder CI do not establish full-suite coverage
+F08,Medium,Compatibility/UX,Documented behavior,Head rename requires migration of stored objects and patterns
+F09,Low,Packaging metadata,Source confirmed,MIT-0 license text versus MIT paclet metadata
+F10,Low,Certificate UX,Source confirmed,Automatic interval default is rejected instead of inferred

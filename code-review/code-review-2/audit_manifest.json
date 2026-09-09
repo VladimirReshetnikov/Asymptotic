@@ -1,0 +1,53 @@
+{
+  "title": "Asymptotic 1.8.0: Technical review and comparison with Wolfram Language",
+  "review_date": "2026-09-09",
+  "repository": "https://github.com/VladimirReshetnikov/Asymptotic",
+  "commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "package_version": "1.8.0",
+  "commit_timestamp": "2026-09-09T19:01:30Z",
+  "main_article": "article/asymptotic-review.pdf",
+  "latex_source": "article/asymptotic-review.tex",
+  "article_pages": 33,
+  "bibliography_entries": 28,
+  "source_acquisition": "GitHub connector, pinned source files and selected ranges; no complete executable checkout",
+  "source_coverage": "Article Appendix A records directly inspected modules and interface-level coverage; no claim of exhaustive proof review.",
+  "mathematical_checks": {
+    "passed": 262,
+    "failed": 0,
+    "randomized_exact_polynomial_cases": 250,
+    "cases_exposing_old_log_degree_rule": 186
+  },
+  "patch_helper_tests": {
+    "passed": 6,
+    "failed": 0,
+    "scope": "Synthetic exact-source-anchor and Git-blob-hash machinery tests, not full-checkout patch application"
+  },
+  "patches": {
+    "core": [
+      "F01",
+      "F02",
+      "F03",
+      "F04"
+    ],
+    "optional": [
+      "F07"
+    ],
+    "not_implemented": [
+      "F05",
+      "F06"
+    ],
+    "native_validated": false,
+    "applied_to_user_repository": false,
+    "default_mode": "Dry run with pinned blob checks"
+  },
+  "native_execution_status_file": "results/native_status.json",
+  "artifact_checks_file": "results/artifact_checks.json",
+  "python_version": "3.13.5",
+  "rendering": "All PDF pages rendered; contact sheets and selected full pages inspected visually.",
+  "limitations": [
+    "No native Wolfram evaluation or newly measured native benchmark",
+    "Proposed patch application to an actual pinned checkout was not executed",
+    "Source-traced reproduction outputs are predictions, not captured native transcripts"
+  ],
+  "file_integrity": "SHA256SUMS.txt covers deliverables other than itself"
+}

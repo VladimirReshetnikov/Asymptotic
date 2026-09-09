@@ -1,0 +1,115 @@
+\section{Concrete correctness and interoperability findings}
+\subsection{A01: nested observable powers bypass the real-branch guard}\label{sec:a01}
+\status{High-priority source deduction, supported by an elementary counterexample; native reproduction not executed}
+
+\textbf{Location.} \path{AsymptoticInverse/Kernel/SeriesOperations.wl}, the direct \code{seriesPower} guard and recursive \code{seriesJetApply}; \path{AsymptoticInverse/Kernel/AsymptoticInverse.wl}, \code{fwdPower}. The relevant inspected windows are lines 165--190 and 181--320 of the former, and 354--405 of the latter.\cite{operations,core}
+
+The direct operation rejects a noninteger power when an operand consists only of an uncertain remainder. That is correct: no real branch can be inferred from a magnitude class alone. However, a nested power inside a general observable is dispatched straight to \code{fwdPower}. Its empty-jet branch permits any positive noninteger exponent by multiplying the error exponent and rounding up the logarithmic degree, without establishing a real sign.
+
+A minimal public-path test is:
+\begin{lstlisting}
+Clear[x, z];
+s = AsymptoticExpansion[-x^2, {x, 0, 2}];
+SeriesPower[s, 1/2]
+SeriesObservable[s, 1 + Sqrt[z], z]
+\end{lstlisting}
+The first construction discards the weight-two block and retains a pure $\OO(x^2)$ remainder. The direct power route should return a failure and has an explicit guard to do so. The recursive observable route instead reaches the unguarded empty-jet power rule; the predicted finite result is $1$ with an error of order $x$. This is a control-flow prediction, not a captured Wolfram output transcript.
+
+\textbf{Why it is wrong.} The original real function is $-x^2$ on $x>0$, and no real square root exists. Its complex principal square root $ix$ does satisfy a complex magnitude bound of order $x$, so this finding is \emph{not} a claim that the complex modulus estimate is numerically false. It is a violation of the API's real-branch contract. More generally, the same remainder class includes both $x^2$ and $-x^2$; a source-independent real observable cannot decide the square-root branch from that class.
+
+\textbf{Fix.} Move the invariant into \code{fwdPower}: for an empty jet with finite uncertainty and a noninteger exponent, return \code{Failure["UnknownLeadingTerm",...]} unless an explicit sign/domain certificate is supplied. Preserve the exact-zero case and known positive leading monomials. Public forward construction may respond by increasing working order until a genuine leading term is available. Arithmetic on a source-less uncertain object may not invent that information.
+
+The supplied patch generator implements the conservative rejection, not a new sign-proof subsystem. Tests cover the direct and nested routes, a known positive base, and exact zero. The fix should also be exercised through inverse target composition and nested analytic functions because those reuse the same low-level evaluator.
+
+\subsection{A02: eager native export defeats sparse resource limits}\label{sec:a02}
+\status{High-priority source deduction with an independently checked allocation count; no enormous allocation was executed}
+
+\textbf{Location.} The main kernel's \code{makeSeriesData} and \code{makeInverseSeriesData}, called while constructing result associations. Their inspected windows are 621--760 and 901--1040.\cite{core}
+
+The internal representation is sparse, but the optional \code{"SeriesData"} field is computed eagerly. The conversion obtains a common denominator, converts retained and remainder weights to integer indices, then allocates
+\begin{lstlisting}
+coeffs = Table[0, {nmax - nmin}];
+\end{lstlisting}
+without first limiting the number of slots. A small number of blocks therefore does not imply a small conversion.
+
+Consider, for an exact positive integer $N$,
+\begin{lstlisting}
+With[{n = 1009},
+  AsymptoticExpansion[x^(1/n) + x, {x, 0, 1},
+    "MaxTerms" -> 10]]
+\end{lstlisting}
+where the displayed call uses the safe concrete value $N=1009$. Only the weight $1/N$ is retained, and the first omitted weight is $1$. The common lattice denominator is $N$, so $n_{\min}=1$, $n_{\max}=N$, and the temporary coefficient array has $N-1$ slots. At $N=10^9$ this is 999,999,999 slots, despite the tiny sparse input. The independent checker calculates that cardinality without allocating the array.
+
+A native series constructor may later remove trailing zero coefficients. That does not cure the defect: the temporary dense \code{Table} has already been allocated. Accordingly, this review does not claim that the final exported object's coefficient list necessarily remains that large.
+
+\textbf{Impact.} A mathematically trivial sparse request can exhaust memory or spend excessive time during metadata construction. The user-supplied \code{"MaxTerms"} does not constrain that allocation. Since the export is optional interoperability data, its failure should not invalidate the already available generalized expansion.
+
+\textbf{Fix.} Compute a conversion plan first. It should contain the lattice denominator, minimum and maximum indices, required slots, and reasons why conversion is lossy or unavailable. Refuse or defer dense export when its budget is exceeded. The preferred architecture computes \code{"SeriesData"} lazily on request and returns \code{Missing["SeriesDataSizeLimit",...]} rather than attempting an uncontrolled allocation.
+
+The prototype inserts a fixed 20,000-slot guard in both conversion functions. This is an interim safety cap, \emph{not} complete plumbing of the caller's \code{"MaxTerms"} through all operations. A production change should expose a dedicated export-size budget or incorporate the conversion into a coherent shared resource policy. The native regression uses $N=20011$, so the unpatched allocation is modest; the billion-slot example is never executed.
+
+\subsection{A03: native conversion loses logarithmic error information}\label{sec:a03}
+\status{Disclosed interoperability limitation, independently demonstrated mathematically; a stricter policy is proposed}
+
+\textbf{Location.} The same two conversion functions use the remainder power but do not encode its logarithmic degree. The current guide already warns that native \code{SeriesData} may hide the logarithmic degree and instructs users to keep the package remainder.\cite{core,guide}
+
+For
+\begin{lstlisting}
+s = AsymptoticExpansion[x + x^2 Log[x], {x, 0, 2}];
+{s["Remainder"], s["SeriesData"]}
+\end{lstlisting}
+the authoritative package object records an error of order
+\[
+ x^2(1+|\log x|).
+\]
+The native export is structurally of the form $x+O(x)^2$. Interpreting this as a strict mathematical $\OO(x^2)$ error loses information, because
+\[
+ \frac{x^2\log x}{x^2}=\log x\longrightarrow-\infty.
+\]
+This does not establish a defect in the primary \code{GeneralizedSeries} remainder; that remainder is the correct one. Nor does it imply that native Wolfram series cannot contain logarithms. Native representation conventions and the surrounding coefficient expressions are richer than a plain analytic power series. The issue is the loss of the package's stronger, explicit error contract at the export boundary.\cite{wl-seriesdata,wl-o}
+
+There are three defensible policies. A strict conversion can refuse nonrepresentable error information. A permissive conversion can return the native object together with a loss report and the authoritative sidecar remainder. Or a mathematically conservative conversion can weaken the exponent by a justified positive amount, using the fact that every fixed logarithmic polynomial is dominated by any inverse positive power. The last option must also account for retained terms and the new cutoff; simply editing an order index is not a general solution.
+
+The prototype chooses strict conversion: it rejects a nonzero remainder logarithmic degree and variable-dependent retained coefficients in this optional export. The latter rejection is intentionally conservative and may remove exports that native Wolfram Language can represent in its generalized conventions. This is a policy change, not a claim that such native expressions are invalid.
+
+Even a strict native power-series export does not encode all branch and assumption provenance. A complete semantic round trip requires a sidecar or a dedicated generalized interchange schema. The requested improvement is therefore explicit loss accounting, not a promise that one \code{SeriesData} object can preserve every field.
+
+\subsection{A04: ambient assumptions can escape result provenance}\label{sec:a04}
+\status{High-priority source deduction grounded in documented Wolfram evaluation semantics; native reproduction not executed}
+
+\textbf{Location.} The main kernel's simplification and canonicalization helpers, its default \code{Assumptions -> True}, and public wrappers in \path{InverseFunctionExpressions.wl}. The inspected source uses \code{Simplify}/\code{FullSimplify} with local assumption arguments and sometimes without one; it does not consistently isolate \code{$Assumptions} or capture the ambient context into the returned object.\cite{core,inverseexpressions}
+
+Wolfram's simplification semantics matter here: the default assumption option draws on \code{$Assumptions}, and that option is appended to an explicitly supplied second assumption argument. \code{Assuming} temporarily extends the ambient assumption context. Thus passing \code{True} as the local assumption argument does not necessarily mean that the calculation was assumption-free.\cite{wl-simplify,wl-assuming,wl-assumptions}
+
+A diagnostic input is:
+\begin{lstlisting}
+Clear[a, x];
+s = Assuming[a == 0,
+  AsymptoticExpansion[a x + x^2, {x, 0, 3}]];
+{Normal[s], s["Assumptions"], s["Function"]}
+\end{lstlisting}
+Inside the construction, zero tests can discard $ax$ under the ambient condition $a=0$. Yet the stored assumption value is obtained from the explicit option, whose default is \code{True}. The predicted result therefore has finite expression $x^2$ while lacking the condition that made this exact simplification legitimate. The original symbolic function can remain $ax+x^2$. Outside \code{Assuming}, at $a=1$ and $x=1/10$, the discarded term is $1/10$.
+
+The problem is not that simplification under $a=0$ was mathematically incorrect. It is that the dependent conclusion is packaged as a reusable object without the hypothesis. The same issue can affect sign proofs: an inverse admitted under ambient $a>0$ may outlive that condition if the object records only the default explicit assumptions. Subsequent arithmetic, refinement, or serialization can then operate on incomplete provenance.
+
+\textbf{Fix.} Choose one explicit policy and apply it consistently at every public entry point:
+\begin{enumerate}
+\item Capture the effective ambient-plus-explicit assumptions at entry, record them, split approach-dependent conditions where appropriate, and run internal computation with ambient \code{$Assumptions} neutralized; or
+\item Deliberately ignore ambient assumptions, isolate internal computation, and require the explicit option as the only admitted source of assumptions.
+\end{enumerate}
+The first policy is more natural for ordinary Wolfram workflows. In either case, every operation on a stored object must use its retained context rather than accidentally acquiring unrelated ambient hypotheses.
+
+A safe construction pattern for an explicitly supplied condition is:
+\begin{lstlisting}
+Block[{$Assumptions = True},
+  AsymptoticExpansion[a x + x^2, {x, 0, 3},
+    Assumptions -> a == 0]]
+\end{lstlisting}
+This is a workaround, not a package-wide repair. Changing only the default option to \code{$Assumptions} is insufficient if later nested operations can still read an unrelated global context. Likewise, simplifying a captured assumption formula under itself can collapse it to \code{True} and recreate the provenance loss. Context capture should be structural, and proof evaluation should be isolated.
+
+The regression bundle checks an invariant rather than an exact output string: outside the ambient context, the stored assumptions must justify equality of the finite exact result and its original expression. A second test requires an ambient sign proof either to be retained or to be conservatively rejected. These acceptance criteria leave room for either coherent policy.
+
+\subsection{Patch scope and release caution}
+The provided Python patch generator is hash-gated to the canonical main-file Git blob at the reviewed revision. It prints a unified diff by default and refuses to overwrite a file. It addresses the low-level power guard, a conservative export policy, and an interim dense-export cap. It does not repair the cross-cutting assumption issue, add lazy properties, or unify resource budgets.
+
+Only its transformation mechanics were tested on synthetic source fixtures. The real canonical file was inspected through the connector but was not assembled into a local checkout, and the proposed kernel was not loaded in a Wolfram runtime. The hash and unique-anchor checks deliberately make the script fail rather than guess when applied to a changed revision. After review and application, the canonical modular package must pass native tests and the standalone distribution must be regenerated from it.

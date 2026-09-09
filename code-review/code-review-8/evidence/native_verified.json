@@ -1,0 +1,102 @@
+{
+  "audit_date": "2026-09-09",
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "system_id": "Linux-x86-64",
+  "standalone_sha256": "b2aebac8176649ff53634816f17e92c8f0ccb397f7606a5ac819b6f157b6d7ed",
+  "standalone_bytes": 573940,
+  "method": "Successful responses from stateless Wolfram connector; pinned standalone loaded using URLDownload then Get. Intermittent service errors also occurred. No failed transport call is treated as an algorithm result.",
+  "confirmed": [
+    {
+      "id": "F01",
+      "input": "Assuming[a > 0, AsymptoticExpansion[Sqrt[a^2] + x, {x,0,2}]]",
+      "expression": "a + x",
+      "stored_assumptions": "True",
+      "target_domain": "x > 0",
+      "normal_at_a_minus_one": "-1 + x",
+      "true_source_at_a_minus_one": "1 + x"
+    },
+    {
+      "id": "F02",
+      "input_series": "AsymptoticExpansion[-x^4,{x,0,1}]",
+      "finite": "0",
+      "remainder": "PowerLogRemainder[x,4,0]",
+      "SeriesPower_half": "Failure[UnknownLeadingTerm]",
+      "SeriesObservable_1_plus_sqrt": "GeneralizedSeries: 1 + PowerLogRemainder[x,2,0]",
+      "actual_on_x_positive": "1 + I*x^2"
+    },
+    {
+      "id": "F03",
+      "input": "AsymptoticExpansion[x+x^(1+1/N)+x^2,{x,0,3/2},\"MaxTerms\"->10]",
+      "measurements": [
+        {
+          "N": 1000,
+          "seconds": 0.007882,
+          "additional_peak_bytes": 89576,
+          "retained_blocks": 2
+        },
+        {
+          "N": 100000,
+          "seconds": 0.037655,
+          "additional_peak_bytes": 1655616,
+          "retained_blocks": 2
+        },
+        {
+          "N": 1000000,
+          "seconds": 0.294606,
+          "additional_peak_bytes": 16055384,
+          "retained_blocks": 2
+        }
+      ],
+      "measurement_caution": "Single measurements, not a controlled throughput benchmark. MaxMemoryUsed[expression] measured additional peak memory; includes all work inside that expression."
+    },
+    {
+      "id": "F04",
+      "input": "AsymptoticExpansion[Exp[x^(1/50)],{x,0,1},\"MaxTerms\"->10]",
+      "returned_blocks": 50,
+      "remainder": "PowerLogRemainder[x,1,0]"
+    }
+  ],
+  "comparison": {
+    "polynomial": {
+      "package": "y-y^2+2*y^3-5*y^4+14*y^5 + PowerLogRemainder[y,6,0]",
+      "native": "SeriesData[y,0,{1,-1,2,-5,14},1,6,1]"
+    },
+    "irrational": {
+      "package": "y-y^Sqrt[2]+Sqrt[2]*y^(-1+2*Sqrt[2])",
+      "remainder": "PowerLogRemainder[y,-2+3*Sqrt[2],0]",
+      "formal_residual": {
+        "ZeroBelowCutoff": true,
+        "NormalizedResidual": 0,
+        "ResidualBlocks": [],
+        "RelativeCutoff": "-3+3*Sqrt[2]",
+        "Scope": "Formal composition with the finite forward model only."
+      },
+      "native_AsymptoticSolve_corrected_call": "Returned unevaluated after removing an inappropriate variable-dependent Assumptions option; see code/comparison.wl.",
+      "native_Asymptotic_InverseFunction": "Returned the unevaluated InverseFunction application; messages were emitted.",
+      "messages_observed": [
+        "Solve::nsmet",
+        "ReplaceAll::reps",
+        "Power::infy"
+      ],
+      "caution": "Results describe only the recorded calls on 15.0.0, not impossibility for Wolfram Language or a result on 15.0.1."
+    },
+    "native_Erfc": {
+      "SeriesTermGoal_3": "exp(-x^2)/sqrt(pi)*(1/x-1/(2*x^3))",
+      "SeriesTermGoal_5": "exp(-x^2)/sqrt(pi)*(1/x-1/(2*x^3)+3/(4*x^5))"
+    }
+  },
+  "not_executed": [
+    "Full upstream Wolfram test suite",
+    "Python upstream standalone-builder tests in this environment",
+    "Cross-platform test matrix",
+    "Full upstream Wolfram suite against the patched source"
+  ],
+  "local_python_tests": {
+    "count": 18,
+    "status": "passed",
+    "scope": "10 independent arithmetic checks and 8 source-patch mechanics checks on explicit anchor fixtures; not Wolfram execution"
+  },
+  "patch_checks": "See native_patch_verified.json: five focused native checks succeeded; F01 not fixed."
+}

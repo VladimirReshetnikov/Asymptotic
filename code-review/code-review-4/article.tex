@@ -1,0 +1,725 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=0.88in,headheight=14pt]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{xcolor,listings,enumitem,fancyhdr,xurl}
+\usepackage[pdfusetitle,colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!45!black,citecolor=blue!45!black]{hyperref}
+\definecolor{ink}{HTML}{17364D}
+\definecolor{light}{HTML}{F3F5F7}
+\lstdefinestyle{wl}{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,
+  keepspaces=true,showstringspaces=false,frame=single,rulecolor=\color{black!15},
+  backgroundcolor=\color{light},aboveskip=9pt,belowskip=9pt,tabsize=2}
+\lstset{style=wl}
+\setlist{nosep,leftmargin=1.5em}
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{2em}
+\renewcommand{\arraystretch}{1.15}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textsc{Asymptotic: technical audit}}
+\fancyhead[R]{\small\texttt{07a9781}}
+\fancyfoot[L]{\small Source-pinned review \textperiodcentered\ 9 September 2026}
+\fancyfoot[R]{\thepage}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\OO}{\mathcal{O}}
+\newcommand{\repo}{\texttt{AsymptoticInverse}}
+\newcommand{\commit}{\texttt{07a9781212beb2eeb9ff16aa625b50ac27974078}}
+\newcommand{\finding}[3]{\subsection{#1: #2}\textbf{Classification:} #3.\par}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\title{\textbf{Asymptotic}\\[0.3em]{\Large A source-pinned technical audit and\\ comparison with Wolfram Language}}
+\author{Independent review prepared for Vladimir Reshetnikov}
+\date{9 September 2026}
+\hypersetup{pdftitle={Asymptotic: source-pinned technical audit and Wolfram Language comparison},pdfauthor={Independent review prepared for Vladimir Reshetnikov}}
+\begin{document}
+\begin{titlepage}
+\color{ink}
+\maketitle
+\thispagestyle{empty}
+\vspace{0.4in}
+\begin{center}
+\large Correctness contracts \quad Sparse asymptotics \quad Inverse branches\\[0.5em]
+\large Performance \quad API design \quad Reproducible engineering
+\end{center}
+\vfill
+\color{black}
+\textbf{Reviewed repository}\par
+\url{https://github.com/VladimirReshetnikov/Asymptotic}\par
+\textbf{Pinned revision}\par
+\commit\par
+\textbf{Package baseline:} version 1.8.0; declared requirement Wolfram Language 15.0 or later.\par
+\medskip
+\hrule
+\medskip
+\textbf{Evidence boundary.} This is a source audit with independent exact mathematical checks. A native Wolfram evaluator was attempted but unavailable. The supplied Wolfram regression tests and patch are therefore \emph{not} reported as executed or accepted. Historical repository validation is distinguished from new evidence throughout. The accompanying Python checks were executed; their logs are included.
+\end{titlepage}
+
+\begin{abstract}
+The repository is substantially more than a replacement for \code{InverseSeries}. It combines sparse exact-weight power--log arithmetic, several inverse-expansion algorithms, exact inverse cores, finite exponential sectors, oscillatory coefficients, native special-function adapters, explicit remainder transport, local branch evidence, and a separate exact interval-certificate subsystem. Its strongest contribution is a persistent, inspectable expansion object carrying information that an ordinary displayed approximation loses.
+
+The most actionable findings are a real-branch guard bypass for nested fractional-power observables, an eager native-series conversion that can turn two sparse rational-power blocks into more than one hundred million dense coefficient slots, and a provably redundant coefficient-composition loop. Additional concerns involve expression-provenance growth, trusted raw association payloads, fragmented resource budgets, API conventions, and the distinction between focused validation and full release acceptance. Several possible proof gaps are identified as review targets rather than asserted public failures.
+
+The recommended strategy is to strengthen common invariants and deployment evidence before adding more special-function families. Wolfram Language should remain a computational backend and comparison baseline, not be portrayed as limited to Taylor series. A small, source-hash-guarded hardening patch generator, native regression specifications, diagnostic benchmarks, and independently executed mathematical checks accompany the report.
+\end{abstract}
+\tableofcontents
+\clearpage
+
+\section{Executive assessment}
+\subsection{Overall judgment}
+The package has a coherent and useful specialization: \emph{real, source- and target-aware asymptotic calculations whose truncation, coefficient scale, and remainder can survive subsequent operations}. It exposes ordinary arithmetic on \code{GeneralizedSeries}, but also explicit operations for composition, refinement, differentiation, inverse residuals, and certification. There is meaningful engineering around branch selection, exact coefficients, generated standalone loading, and historical validation. Treating this repository as a small experimental reversion script would miss most of its current design.\cite{readme,guide,arithmetic,operations,certificates}
+
+Conversely, breadth is not the same as a single closed transseries algebra. Different families use different coefficient rings and truncation meanings, and some mixed-family operations deliberately fall back to composite absolute-error envelopes. Some native special functions are candidates for a guarded adapter rather than universally supported inputs. The result is best understood as a collection of cooperating, partially overlapping algebras with a common wrapper.\cite{guide,envelope,native}
+
+\textbf{Priority recommendation:} fix the common low-level branch invariant and dense-export allocation first; then establish a reproducible full-suite release gate and a stable typed contract for scale, domain, error, and provenance. New families should be admitted through that contract.
+
+\subsection{Decision summary}
+\begin{longtable}{@{}p{0.085\textwidth}p{0.17\textwidth}p{0.46\textwidth}p{0.21\textwidth}@{}}
+\toprule
+ID & Severity / evidence & Finding & Recommended action\\
+\midrule\endhead
+A01 & High; source-proven guard gap & Nested observables reach a fractional-power path that accepts a sign-unknown pure remainder. Native public output is predicted, not measured. & Centralize the guard in \code{fwdPower}; test nesting.\\
+A02 & High; exact allocation calculation & Eager conversion to \code{SeriesData} allocates a dense rational-exponent lattice without a span budget. & Guard now; make native export lazy later.\\
+A03 & Low--medium; exact recurrence proof & A zero composition coefficient causes \code{Continue}, although every later coefficient is zero. & Replace with \code{Break}; compare output and operation counts.\\
+A04 & Medium; structural risk & Whole operands in binary refinement recipes can produce exponential serialized provenance. Physical memory growth is unmeasured. & Use a shared recipe graph and bounded export.\\
+A05 & Medium; trust-boundary risk & Raw result associations can contain mutually inconsistent displayed expressions and internal jets. & Version and validate external object construction.\\
+A06 & Medium; observed design limitation & Budgets have several meanings; some expansion/simplification work is not covered by a single global resource policy. & Separate work, storage, proof-time, and output budgets.\\
+A07 & Medium; documented release gap & Strong focused results are not a full semantic release-suite run; the inspected CI workflow checks standalone freshness. & Add native semantic release acceptance.\\
+A08 & Medium; UX / compatibility & Order, power observables, assumptions, numerical evaluation, and migration have nonuniform or surprising meanings. & Structured requests, better summaries, explicit compatibility policy.\\
+R01--R03 & Unconfirmed review targets & Complex intermediate errors in trigonometric native trees; real scalar consistency; unresolved native-tail logarithmic degree. & Targeted native probes and invariant proofs, not speculative hotfixes.\\
+\bottomrule
+\end{longtable}
+
+\subsection{What is not being claimed}
+No native kernel timings were measured for this audit. No count of passing upstream tests is presented as a new test run. The report does not claim that all 38 kernel source files, every mathematical proof in the repository's article, every notebook, or every historical artifact received a line-by-line review. The reviewed central execution paths, documentation, representative tests, and source ranges are identified in Appendix~\ref{app:coverage}. Broad feature descriptions outside those paths are explicitly grounded in the current guide. No repository changes or external issue submissions were made.
+
+The absence of a universal algorithm for every real or complex inverse is not itself a bug. Nor is a conservative \code{Failure} an incorrect result when a branch, order, or error condition cannot be established. The relevant questions are whether a successful result meets its stated contract and whether a rejection accurately explains the missing condition.
+
+\section{Snapshot, sources, and reproducibility}
+\subsection{Repository organization}
+The pinned tree contains a canonical modular package under \code{AsymptoticInverse/Kernel}, a generated repository-root \code{AsymptoticInverse.wl}, a paclet layout, examples, tests, a mathematical article, a user guide, validation records, and historical development material. The kernel inventory contains 38 \code{.wl} files plus \code{init.m}. The standalone distribution is 573,940 bytes in the reviewed tree. These are inventory facts, not a count of independently audited algorithms.\cite{tree,development,readme}
+
+The modular implementation is the source of truth. The generated file carries module provenance and is checked by a deterministic builder. Rebuilding and checking the standalone distribution after a source change is part of the intended development workflow. The development notes explicitly distinguish current reader-facing documentation from preserved historical plans and reports. Accordingly, this audit does not label a feature missing merely because an old plan lists it as future work.\cite{development,workflow}
+
+The reviewed core file has Git blob identifier
+\begin{center}\code{ea9eaf4a11130e922ac4fb3faae37fd8e8d29643}.\end{center}
+The supplied patch generator verifies this content identity, after normalizing a CRLF worktree to LF, before producing a proposed change. A commit pin identifies the whole snapshot; the blob identifier identifies the particular edited file. Neither should be confused with a SHA-256 digest of a downloaded release archive.
+
+\subsection{Evidence categories}
+Four categories are used. A \emph{source-proven} result follows from explicit code paths and a stated mathematical invariant. A \emph{mathematical witness} is checked independently of the implementation. A \emph{historical validation claim} is a repository record with its own scope and version. A \emph{native probe} is a supplied test that remains unexecuted here.
+
+The Wolfram connector failed even on a basic version-and-arithmetic query. Direct checkout/download access in the container was also unavailable; repository material was read through the GitHub connector. Therefore, the complete original package was not installed in the container, the upstream builder was not rerun here, and the patch was not applied to a complete local checkout. The patch-editing machinery was tested against small exact source-anchor fixtures; that is much weaker than a native integration test and is labelled accordingly.
+
+Current official Wolfram reference pages were consulted on 9 September 2026. Documentation-based capabilities and actual behavior of a particular installed kernel are different kinds of evidence. The benchmark harness records the native kernel version when the reader runs it; this report does not infer the current latest Wolfram release from the repository's minimum requirement.
+
+\subsection{Executed independent checks}
+The bundle's \code{independent_checks.py} uses exact rational arithmetic and SymPy 1.14.0. It verifies the rational-lattice span in A02, the complex square-root witness in A01, five generalized inverse coefficients by independent composition, a zero-tail recurrence, an equal-weight collision, and a derivative-bound counterexample. Eight Python artifact tests check the planner and fail-closed patch machinery. The final logs report success. These checks establish the stated mathematical or tooling properties; they do not establish that the Wolfram package evaluates as predicted.
+
+\section{Architecture and mathematical contracts}
+\subsection{The ordinary sparse power--log algebra}
+Let $u\to0^+$ be the positive local coordinate. An ordinary expansion is a finite sum
+\begin{equation}\label{eq:jet}
+ J(u)=\sum_{\beta\in B}u^\beta P_\beta(\log u)
+       +\OO\!\left(u^\rho(1+|\log u|)^k\right),
+\end{equation}
+where $B$ is a finite ordered set of exact real exponents and each $P_\beta$ is a polynomial in the logarithm. The core uses precision-tracked triples consisting of rows, a remainder power, and a logarithmic degree. Rows at equal weights are merged before truncation.\cite{core,operations}
+
+For finite source points the positive coordinate is either $x-x_0$ or $x_0-x$; at signed infinities it is $1/x$ or $-1/x$. This is not cosmetic: a real noninteger power, the sign of an eventual leading term, and the correct logarithm all depend on the selected positive coordinate. The guide specifies these conventions and an \emph{exclusive} cutoff. A block at exactly the cutoff belongs to the omitted part.\cite{guide,core}
+
+The object layer may represent
+\begin{equation}\label{eq:carrier}
+ b(y)+C(y)\bigl(J(w(y))+\OO(R(w(y)))\bigr),
+\end{equation}
+with an exact offset $b$, exact carrier $C$, and a small coordinate $w$. Its absolute error is then controlled by $|C(y)|R(w(y))$, not merely $R(w(y))$. The series-calculus code explicitly preserves this distinction.\cite{operations}
+
+\subsection{Inverse construction and the exact-weight frontier}
+After normalization, the ordinary inverse engine works with a model of the form
+\begin{equation}\label{eq:model}
+ y-y_0=a u^p\left(1+\sum_{j=1}^m u^{\delta_j}P_j(\log u)\right),
+ \qquad a\ne0,\quad p\ne0,\quad\delta_j>0.
+\end{equation}
+The source and target signs are selected so the uniformizer is real. Corrections live in the additive semigroup generated by the positive gaps $\delta_j$. The repository offers direct Lagrange coefficients, grouped Lagrange computation, and Newton refinement with precision doubling. The incremental state also carries a bounded cache of powers of logarithmic polynomials; this cache already exists and should not be proposed as though absent.\cite{core,incremental,guide}
+
+For a multi-index $\mathbf{k}$, write $n=|\mathbf{k}|$ and $\omega=\mathbf{k}\cdot\boldsymbol\delta$. For the observable $u^r$, the inspected coefficient routine applies
+\begin{equation}\label{eq:euler}
+ \frac{(-1)^n r}{p^n\prod_j k_j!}
+ \prod_{j=1}^{n-1}\left(\partial_L+r+\omega+pj\right)
+ \prod_iP_i(L)^{k_i},\qquad n\ge1.
+\end{equation}
+The zero-index coefficient is one. This formula explains both why equal weights must be merged and why polynomial-degree growth matters independently of the number of weights. The grouped route combines contributions before applying the common differential operator.\cite{incremental}
+
+The incremental frontier is correctly organized to consume an entire equal-weight layer, not just the first index at a weight. With gaps $1$ and $2$, weight $2$ has indices $(2,0)$ and $(0,1)$. Their contributions can cancel, so an implementation counting the first one as a completed nonzero block would be wrong. The reviewed implementation explicitly avoids that mistake. Newton refinement likewise checks that the normalized symbolic residual vanishes below its claimed precision.\cite{incremental}
+
+\subsection{Why input remainder transport needs more than algebra}
+Suppose the model is perturbed by $\OO(u^\rho L^k)$, where here $L=1+|\log u|$, and $f'(u)\asymp u^{p-1}$. A mean-value or local inverse argument gives an inverse displacement of order
+\begin{equation}
+ \Delta u=\OO(u^{\rho-p+1}L^k).
+\end{equation}
+For the observable $u^r$ this becomes $\OO(u^{\rho-p+r}L^k)$. Translating to the target's positive small coordinate yields the exponent cap used by the ordinary engine. This derivation presupposes the derivative control needed to preserve the local branch, not just a value bound. The guide states that a declared \code{"InputRemainder" -> {rho,k}} includes matching first-derivative order. That is a significant contract, and must be visible to callers.\cite{core,guide}
+
+The declaration is not a numerical constant or a universal certificate over every function with the same displayed prefix. It is an assumption about the admitted remainder class. The separate certificate subsystem explicitly declines to certify an unspecified input-remainder family.\cite{certificates}
+
+\subsection{Different scales are not interchangeable}
+The guide describes several additional families. Lambert inverses use reciprocal-logarithmic corrections around a retained prefactor. Increasing Gamma/LogGamma inverses use an exact Lambert core with complete reciprocal-log coefficient polynomials at each inverse-core power. Barnes inverses use a related shifted-log coefficient coordinate. Source and target charts transport these expansions through exact transformations. Flat inverses use finite exponential-sector truncations; Fourier inverses use oscillatory logarithmic coefficients with separate frequency budgets.\cite{guide}
+
+The special-function adapter layer is particularly important to interpret correctly. The broad native forward adapter requests a structured Wolfram \code{Series} expansion with \code{Analytic -> False}, transports its error through a supported expression tree, proves an appropriate real source domain, and projects to a real expression only under that evidence. A function being a candidate for this route does not imply support for every parameter regime or endpoint.\cite{native}
+
+Incompatible coefficient rings are sometimes combined using an envelope rather than a falsely ordered single series. For example, for independent errors,
+\begin{align}
+ (A+\OO(R))+(B+\OO(S))&=A+B+\OO(R+S),\\
+ (A+\OO(R))(B+\OO(S))&=AB+\OO(|A|S+|B|R+RS).
+\end{align}
+The composite representation deliberately retains separate error scales and refuses a single exponent cutoff when one has not been justified. This is a sound fallback, not evidence of a complete mixed transseries field.\cite{envelope,arithmetic}
+
+\section{Comparison with built-in Wolfram Language}
+\subsection{The correct baseline}
+The native baseline includes \code{Asymptotic} and \code{AsymptoticSolve}, alongside conventional series tools. Wolfram's documented asymptotic functions infer scales that can extend beyond Taylor, Laurent, and Puiseux forms; \code{AsymptoticSolve} supports implicit equations and systems, real-only solutions, and finite or infinite centers. Accordingly, the assertion that built-in Wolfram Language ``only handles rational power series'' would be false.\cite{wl-asymptotic,wl-asolve}
+
+There is a narrower, useful representation distinction: one \code{SeriesData} object uses a common rational power lattice. Wolfram documentation also explicitly shows logarithmic coefficients, symbolic powers outside \code{SeriesData}, and rapidly growing or oscillatory factors outside it. The repository's sparse real-weight object and error metadata are a different representation choice, not proof that Wolfram cannot compute an expression involving those scales.\cite{wl-seriesdata}
+
+\begin{longtable}{@{}p{0.205\textwidth}p{0.36\textwidth}p{0.36\textwidth}@{}}
+\toprule
+Task & Built-in baseline & Repository contribution / limitation\\
+\midrule\endhead
+Local power series & \code{Series}, \code{SeriesData}, coefficient operations; native arithmetic, differentiation, integration. & Sparse exact real weights, explicit logarithmic error degrees and retained coordinate metadata. Not a replacement for every native series task.\\
+Reversion & \code{InverseSeries} reverses appropriately structured series, including ramified examples in the documentation. & Direct generalized power--log inverse coefficients, several algorithms, input-order caps, source-side selection, refinement state.\\
+Implicit asymptotics & \code{AsymptoticSolve} handles equations and systems with automatically inferred scales. & More specialized univariate inverse workflow, structured result and explicit model provenance; not general system solving.\\
+Composition & \code{ComposeSeries} and series substitution require compatible limiting points. & Positive-coordinate checks and transported errors across admitted generalized scales; not every pair of package families is composable.\\
+Special functions & \code{Series} and \code{Asymptotic} already have substantial built-in special-function knowledge. & Guarded import, carrier decomposition, selected identities/domains, and retained remainders; much of the broad forward adapter delegates to native \code{Series}.\\
+Transcendental cores & Built-in \code{ProductLog}, inverse functions, simplification, and asymptotics are available building blocks. & Preserves exact inverse cores rather than flattening all slow factors into a finite elementary approximation.\\
+Error checks & \code{AsymptoticLess} tests an asymptotic relation; ordinary numerical root finding is another separate facility. & Formal residuals, numerical checks, and exact rational interval certificates are separate APIs with different scopes.\\
+Calculus beyond series & \code{AsymptoticIntegrate} directly addresses asymptotics of integrals. & The current public operation index has no general \code{SeriesIntegrate}; integration is a development opportunity, not a reason to replace the native integral engine.\\
+\bottomrule
+\end{longtable}
+The built-in columns follow the official references; package behavior follows the guide and the inspected implementation paths. The table is a capability map, not an empirical winner/loser benchmark.\cite{wl-series,wl-seriesdata,wl-inverse,wl-compose,wl-asolve,wl-asymptotic,wl-aless,wl-integrate,guide,operations,native}
+
+\subsection{Reversion and inverse branches}
+\code{InverseSeries} is the natural first comparison for ordinary local reversion; its documentation includes examples such as reversing $x\sin x$ and explicitly supplied ramified series. One should not infer that a nonzero ordinary linear coefficient is universally necessary for this built-in function.\cite{wl-inverse}
+
+For an implicit inverse, \code{AsymptoticSolve} is the stronger baseline. In the package, the source endpoint and side explicitly select a local branch, and inference for unevaluated \code{InverseFunction} nodes records whether candidate enumeration is complete. A bounded candidate search is not treated as a completeness proof. This inspectable evidence is valuable even when both approaches ultimately produce the same finite coefficients.\cite{wl-asolve,branches}
+
+A recommended comparison case is the inverse of $x+x^{\sqrt2}$ near $0^+$. The package can state a nonzero-block request in its chosen real-weight scale. The native harness asks \code{AsymptoticSolve} for a corresponding term goal, but the two requests are not automatically equivalent until the actual returned scales and truncations are inspected. No current-kernel success or failure for this example is asserted here.
+
+\subsection{Arithmetic and differentiation}
+Native \code{SeriesData} already supports rich arithmetic and calculus. The repository's important distinction is its explicitly declared remainder class and derivative-order contract. For a general Poincar\'e remainder, differentiation is not justified merely because an expression is printable with a Big-O term. The package's refusal in that case is desirable and should be preserved.\cite{wl-seriesdata,operations}
+
+Composition must align the outer endpoint with the inner limit, in both systems. The repository additionally deals with different positive coordinates, exact carriers, and branches of real powers. These are precisely the paths on which guard duplication becomes dangerous: agreement between a direct operation and the same operation nested in an observable should be a tested invariant.\cite{wl-compose,operations}
+
+\subsection{What an honest numerical comparison would measure}
+Measure coefficient generation, representation conversion, subsequent arithmetic, refinement, and numeric evaluation separately. Native and package outputs may encode different information. Comparing a bare approximation against a structured object containing a model, branch evidence, a coefficient cache, and replayable provenance is not an equal output-work comparison. Conversely, counting that extra metadata as an advantage is inappropriate when the caller only needs a finite numerical approximation.
+
+For ordinary integer-order Taylor tasks, package cutoff $h$ corresponds to retaining powers strictly below $h$; a native \code{Series} order of $h-1$ is the natural comparison when no cancellations or family-specific conventions intervene. For special-function carriers, logarithmic blocks, inverse cores, and sector depth, explicitly normalize the error target instead of equating the integer arguments. \code{Asymptotic}'s order is not generally synonymous with polynomial degree.\cite{guide,wl-series,wl-asymptotic}
+
+The supplied benchmark records version, platform, entry-file hash, bounded timings, result size, failures, and unresolved native calls. It intentionally records \code{SemanticEquivalenceVerified -> False}. A failed or unevaluated native result is not a very fast successful computation. Likewise, a package failure is not evidence that the mathematical problem has no expansion.
+
+\section{Correctness finding: nested real-power guard bypass}
+\finding{A01}{A pure remainder acquires an unjustified real fractional power}{high severity; source-level guard gap, mathematical witness verified independently, public evaluation not run}
+\subsubsection{The invariant}
+A result $s(u)=\OO(u^2)$ alone does not establish $s(u)\ge0$. Hence it cannot justify a real-valued square root. The direct \code{seriesPower} path recognizes this: a noninteger power of a nonexact jet with no known leading row raises \code{UnknownLeadingTerm}. The lower-level \code{fwdPower} path does not consistently enforce the same condition.\cite[\code{seriesPower}]{operations}\cite[lines 369--387]{core}
+
+The discrepancy matters because \code{seriesJetApply}, used for general observables, recursively dispatches a \code{Power} node directly to \code{fwdPower}. The top-level shortcut to the guarded public power path applies only when the entire observable has the special form $z^r$. Adding an outer sum, or nesting inside another regular function, takes a different route.\cite[\code{seriesJetApply}, \code{SeriesObservable}]{operations}
+
+\subsubsection{A minimal public regression specification}
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+Clear[x, z];
+pure = AsymptoticExpansion[-x^2, {x, 0, 1}];
+SeriesPower[pure, 1/2]
+SeriesObservable[pure, 1 + Sqrt[z], z]
+\end{lstlisting}
+\end{minipage}\par
+The first construction retains no finite term and records an $\OO(x^2)$ remainder on $x\to0^+$. Direct power application rejects the missing real branch. Source tracing predicts that the nested observable instead reaches the positive-exponent empty-jet case and returns a generalized result with finite part $1$ and an order-$x$ remainder.
+
+The underlying explicit function provides the witness:
+\begin{equation}
+ 1+\sqrt{-x^2}=1+ix,\qquad x>0,
+\end{equation}
+using the principal complex square root. It is not a real-valued observable. An arbitrary member of the magnitude-only remainder class could also have either sign, so the error metadata by itself cannot repair the missing branch condition.
+
+\textbf{Precise scope of the defect.} The complex magnitude statement $1+ix=1+\OO(x)$ is true. The defect is the \emph{real-branch guarantee and consistency of the API}, not a claim that this particular complex Big-O estimate is false. This distinction is important when evaluating the regression.
+
+\subsubsection{Control-flow proof}
+In the inspected \code{fwdPower}, nonnegative integer powers are handled first. If the remaining input has no finite rows and the exponent is positive, the routine immediately returns a pure remainder with multiplied exponent and a ceiling-adjusted logarithmic degree. It does not require a positive leading coefficient because there is no leading coefficient to inspect. The later positivity check is reached only for nonempty jets.\cite[lines 370--386]{core}
+
+For the nested observable, the recursive sum applies that rule to the square root of the empty jet and adds the exact constant one. No later real-branch proof is performed by \code{seriesMake}. This establishes the guard bypass from the source. A native run is still necessary to confirm the complete public evaluation and to detect any unforeseen evaluator interaction.
+
+\subsubsection{Proposed repair}
+Enforce the invariant at the lowest shared precision-algebra operation:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+If[T === {},
+  If[! IntegerQ[rr] && P =!= Infinity,
+    fail["UnknownLeadingTerm",
+      "A pure remainder does not establish the real branch required by a noninteger power."]];
+  (* existing empty-jet handling follows *)
+]
+\end{lstlisting}
+\end{minipage}\par
+Do not require a known leading term for a positive integer power: it is defined for either real sign. Do not reject the exact zero function raised to a positive noninteger exponent. Exact zero is different from an unknown remainder, which is why the precision test is needed. Negative powers must continue to reject a sign-unknown or possibly zero remainder.
+
+The tests include direct, sum-nested, and deeper-nested square roots, a positive known leading monomial, and exact zero. Moving the failure into \code{fwdPower} may trigger the existing forward working-order retry mechanism in cases where additional terms could resolve the sign. That is preferable to silently guessing, but its performance and termination must be checked against the full suite.
+
+\section{Performance finding: sparse-to-dense native conversion}
+\finding{A02}{Two sparse rational powers can allocate a hundred-million-slot array}{high severity; source allocation path and exact size calculation established}
+\subsubsection{Mechanism}
+Both \code{makeSeriesData} and \code{makeInverseSeriesData} compute a common denominator from the retained exponents and the remainder frontier, then allocate
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+den = LCM @@ (Denominator /@ Append[exps, remData[[1]]]);
+nmin = (* least retained exponent *) den;
+nmax = remData[[1]] den;
+coeffs = Table[0, {nmax - nmin}];
+\end{lstlisting}
+\end{minipage}\par
+The converter receives no \code{MaxTerms} argument and performs no dense-span check. It is called while constructing the expansion object, rather than only when a user explicitly requests the native representation. Thus an optional interoperability field can dominate, or prevent, an otherwise cheap sparse computation.\cite[lines 647--660 and \code{makeInverseSeriesData}]{core}
+
+\subsubsection{Exact witness and scale of the problem}
+Consider the supported finite expression
+\begin{equation}
+ f(x)=x^{1/10007}+x^{1/10009}+x,\qquad x\to0^+,
+\end{equation}
+with exclusive cutoff $1$. Only two rows are retained; the omitted $x$ supplies remainder frontier $1$. Because $10007$ and $10009$ are coprime,
+\begin{align}
+ d&=\operatorname{lcm}(10007,10009)=100160063,\\
+ n_{\min}&=10007,\qquad n_{\max}=100160063,\\
+ N&=n_{\max}-n_{\min}=\boxed{100150056}.
+\end{align}
+The planner included in the bundle verifies these integers without allocating the array.
+
+An illustrative eight-byte-per-slot storage model gives 801,200,448 bytes before additional structure, input, or symbolic overhead. This is \emph{not a measured Wolfram memory footprint or a guaranteed lower bound for every implementation}: zero sharing, packing, and internal representations can change storage. The decisive source fact is the demand to construct a list of 100,150,056 entries. Increasing the two coprime denominators worsens it rapidly.
+
+The public triggering expression is
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+AsymptoticExpansion[
+  x^(1/10007) + x^(1/10009) + x, {x, 0, 1},
+  "MaxTerms" -> 100]
+\end{lstlisting}
+\end{minipage}\par
+It should not be run on the unpatched implementation merely to confirm the allocation. The supplied large-denominator native tests are in a separate, patched-only suite with a second memory guard. A smaller $101,103$ example has 10,302 slots and is suitable for a bounded diagnostic benchmark.
+
+\subsubsection{Recommended fix and its limits}
+The minimal patch checks the projected span before \code{Table} and returns
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+Missing["DenseRepresentationTooLarge",
+  <|"RequiredSlots" -> nmax - nmin, "SlotLimit" -> 20000|>]
+\end{lstlisting}
+\end{minipage}\par
+for the \code{"SeriesData"} property while preserving the useful sparse result. The same repair is required in both forward and inverse converters. Failing the entire expansion would be inferior when the sparse computation is already valid.
+
+The supplied fixed cap is a conservative stopgap, \emph{not} a complete implementation of the user-specified \code{MaxTerms} contract. The durable API should make native conversion lazy and expose a separate \code{"MaxNativeSeriesSlots"} or byte/work budget. Before conversion it should inspect the lattice span, direction, logarithmic error semantics, and representation compatibility. Exact results, unsupported irrational weights, and expensive rational lattices should have distinct reasons for unavailable conversion.
+
+\subsubsection{Native format is an adapter, not the internal algebra}
+A common rational lattice is appropriate for \code{SeriesData}; that is its documented representation. The problem is not that Wolfram has a rational-lattice format. It is the repository's eager decision to densify sparse data into that format. A sparse exact-weight package should remain sparse when native interoperability is unavailable or expensive.\cite{wl-seriesdata}
+
+\section{Performance finding: a zero coefficient tail is not terminated}
+\finding{A03}{The composition recurrence keeps multiplying after permanent termination}{low--medium severity; exact optimization, not a wrong coefficient}
+The routine \code{jetComposeBlock} expands
+\begin{equation}
+ (1+U)^aP\bigl(L+\log(1+U)\bigr)
+   =\sum_{k\ge0}Q_k(L)U^k,
+\end{equation}
+using
+\begin{equation}\label{eq:qrec}
+ Q_0=P,\qquad Q_{k+1}=\frac{(a-k)Q_k+Q_k'}{k+1}.
+\end{equation}
+After updating $Q_k$ and multiplying the current power of $U$, the source uses \code{Continue[]} when the new coefficient is provably zero.\cite[lines 251--263]{core}
+
+\begin{proposition}
+If $Q_k$ is identically zero in the coefficient polynomial algebra, then $Q_j$ is identically zero for every $j>k$.
+\end{proposition}
+\begin{proof}
+Both multiplication by $a-k$ and differentiation send the zero polynomial to zero. Equation~\eqref{eq:qrec} therefore sends $Q_k=0$ to $Q_{k+1}=0$, and induction proves the assertion.
+\end{proof}
+For $a=0$ and $P=1$, the answer is exactly one, but the loop can continue generating powers $U,U^2,\ldots$ until the cutoff is reached. Replacing this specific \code{Continue[]} with \code{Break[]} avoids all subsequent work and preserves the finite result. The proposed patch retains the one multiplication already performed before the zero test; a further local rearrangement could eliminate that multiplication too, but is not needed for the minimal repair.
+
+The optimization depends on the zero predicate proving equality in the polynomial coefficient algebra. It must not be generalized to ``a numerical sample was zero'' or to coefficients known only to vanish at one value of $L$. The included exact recurrence check and native result-control specification test the intended algebraic situation. No speedup factor is claimed without native timing.
+
+\section{Structural, resource, and validation findings}
+\finding{A04}{Replayable recipes can expand as trees rather than shared graphs}{medium severity; structural serialization risk, runtime memory unmeasured}
+\code{seriesMake} retains a \code{SeriesRecipe}, and binary operations include their complete operand objects in that recipe. Retaining enough information to refine a derived result is useful; simply deleting provenance would remove a documented capability. The problem is the representation of shared dependencies.\cite[\code{seriesMake}, \code{seriesBinary}]{operations}
+
+Consider repeatedly applying an explicit binary operation to the same value:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+s = AsymptoticExpansion[1, {x, 0, 2}];
+Do[s = SeriesMultiply[s, s], {n}]
+\end{lstlisting}
+\end{minipage}\par
+The mathematical result stays one. If each recipe embeds both prior operands, the logical recipe tree has the recurrence $T_{n+1}=2T_n+1$ and hence $T_n=2^{n+1}-1$ nodes for a unit-sized initial node. At depth 20 that abstract tree has 2,097,151 nodes. This is an exact structural model, not a measured \code{ByteCount} for the package.
+
+Wolfram's runtime may share subexpressions internally, so claiming exponential physical memory from this observation alone would overstate the evidence. Serialization, expression traversal, hashing, or a naïve replay can nevertheless revisit the same logical dependency many times. The bounded inspection probe records \code{LeafCount}, \code{ByteCount}, and \code{InputForm} length separately, precisely because they measure different things.
+
+A better representation is an immutable directed acyclic graph: operation nodes refer to content-identified operands, and a result carries a root identifier plus a compact provenance store. Cache keys must include the coefficient algebra, assumptions, approach, truncation semantics, and implementation/schema version. Refinement should memoize a node by both its identifier and requested precision. Existing state-local polynomial caches are compatible with this design; they do not solve recipe sharing by themselves.\cite{incremental,operations}
+
+\finding{A05}{The raw association constructor is a trusted boundary}{medium severity; extension and serialization risk, not an ordinary-input exploit}
+The public head \code{GeneralizedSeries} wraps an association. \code{Normal} reads its \code{"Expression"} field; series calculus can instead trust a stored \code{"SeriesRepresentation"} without checking consistency. A caller who manually changes the former but retains the latter can make displayed and arithmetic behavior disagree.\cite{core,operations}
+
+This is not presented as a bug in the package's ordinary constructors, which normally build their own data. It is a risk for extension authors, saved expressions, migrations, and user code that manipulates result associations. The inspection probe deliberately constructs malformed data to expose the boundary; such a probe is not a claim that malformed objects are supported inputs.
+
+Define a versioned external constructor or importer that checks required fields, variable scope, positive-coordinate metadata, coefficient-ring membership, exponent ordering, remainder consistency, and the relationship between finite expression and internal representation. Keep a separate trusted internal constructor for performance. A successful validation may cache an invariant token, but that token must not survive arbitrary payload mutation. Existing read-only interpretation boxes are useful against accidental notebook editing; they are not a replacement for data validation.\cite{core}
+
+\finding{A06}{Resource control is local and heterogeneous}{medium severity; observed API limitation and performance risk}
+The single spelling \code{"MaxTerms"} controls different quantities in different paths: leaves, retained rows, multi-indices plus boundary entries, Taylor order, and intermediate products. The incremental cache intentionally shares spare index budget; this is a thoughtful local policy. Other paths have fixed Taylor-order caps or independent proof timeouts. The native adapter also performs symbolic expansion and simplification around its bounded native series call.\cite{core,incremental,native,guide}
+
+This is not inherently wrong, but the option is not a universal memory or wall-clock guarantee. A small number of logarithmic-polynomial coefficients can have enormous degree or integer height. A factored expression can expand into exponentially many terms before an output-size check. Repeated short proof calls can consume a large aggregate budget, while a helper without a local timeout can dominate a request.
+
+Use distinct request budgets for retained blocks, generated candidates, coefficient degree, coefficient bit-size, native dense slots, expression leaves, total proof time, and aggregate work. Report the exhausted quantity and the phase that exhausted it. Add projected-size checks before expansion, not only after an expanded result exists. A resource failure should preserve the best sound partial object only when its remainder contract still holds; an unfinished coefficient must not be promoted to a complete block.
+
+For inverse frontier discovery, the inspected implementation scans the boundary to collect a layer and sorts its weights to obtain the next one. A priority structure with exact weight comparisons can reduce repeated ordering work, but it must consume \emph{all} collisions at a weight and preserve the index-budget invariant. No claim of an asymptotically optimal or measured faster implementation is made here.\cite{incremental}
+
+\finding{A07}{Focused validation is not full release acceptance}{medium severity; explicitly documented evidence gap}
+The current validation summary is unusually careful: it records focused test sets, fresh-kernel conditions, package-source identities, standalone checks, and benchmark limitations. Its current section reports 305 passing tests in 18 selected files, along with builder and standalone checks, and explicitly says that the full package suite was not run. Earlier sections describe other focused subsets, including 316 tests during refactoring. These counts overlap and must not be summed into a fictitious total.\cite{validation}
+
+The inspected GitHub Actions workflow runs the standalone builder in check mode and Python builder tests. It does not run a Wolfram semantic suite. This is a statement about that workflow, not an unsupported claim that no other validation process exists anywhere. A green freshness check establishes distribution consistency, not correctness of branch selection or remainder transport.\cite{workflow}
+
+The arithmetic test excerpt already checks independent low-order coefficients, exactness restrictions, real fractional-power branches, cancellation of displayed terms without loss of an unknown tail, coordinate compatibility, and refinement replay. Those are meaningful tests, not superficial smoke tests. The A01 finding motivates extending their \emph{cross-entry-path} coverage: a direct guard and its nested-observable counterpart should be tested together.\cite{arithmetic-tests}
+
+A release gate should run every intended semantic test in fresh kernels, reject empty test reports and runner failures, record the complete file set and hashes, and export failed test details. It should distinguish the declared minimum version from the tested matrix. Windows 15.0.1 evidence in the current summary is useful, but cannot by itself establish all-platform behavior across every supported version. A smaller fast PR suite can coexist with a mandatory comprehensive release run.
+
+\finding{A08}{A common head hides several different request contracts}{medium severity; UX and compatibility issue, largely documented}
+The guide documents the differences clearly, but their number remains a cost to the user. An integer can mean an exclusive ordinary exponent, a relative amplitude cutoff inside a carrier, reciprocal-log order, inverse-core order, inclusive perturbation depth, or inclusive exponential-sector degree. A term goal can be global for one family and per carrier for another. The output still has the same head.\cite{guide}
+
+The right remedy is not to pretend these notions are mathematically identical. Add structured requests, for example:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+<|"Kind" -> "ExponentCutoff", "Coordinate" -> w,
+  "Bound" -> 5, "Boundary" -> "Exclusive"|>
+<|"Kind" -> "SectorDepth", "Depth" -> 3,
+  "AmplitudeRequest" -> <|...|>|>
+\end{lstlisting}
+\end{minipage}\par
+These are proposed data structures, not current package syntax. Existing shorthand can remain as a convenience, with the expanded request displayed in the result's summary.
+
+Other concrete usability concerns follow from the inspected interface. \code{Assumptions -> True} is the documented default, whereas many native Wolfram functions use ambient \code{$Assumptions}; users should not have to infer whether \code{Assuming} will have the intended effect. The ordinary coordinate routine accepts named directions rather than every native direction syntax. Non-unit \code{"Power"} refers to an offset-relative observable at finite source points, while the unit power includes the source translation. All three choices should be made explicit in examples and normalized through one entry layer.\cite{guide,core}\cite{wl-asymptotic}
+
+Numeric application \code{s[value]} substitutes into the finite expression; it does not evaluate the unknown remainder, prove the supplied value lies in the valid asymptotic region, or return a certified enclosure. \code{Normal[s]} likewise intentionally discards metadata. These behaviors are documented or visible in the source and are not being called false numerical claims. A safer numerical API would return the approximation together with domain-check status and an explicit ``not certified'' status unless a separate certificate has been obtained.\cite{core,guide}
+
+Finally, the current README states that version 1.8 renamed the old \code{PowerLogSeries} head without retaining an alias. That is an intentional compatibility change. Saved expressions and downstream patterns can still break, so a migration function, schema version, and release-note policy are advisable. If semantic-version compatibility is promised, the versioning policy must account for such changes; this audit does not assume an unstated SemVer commitment.\cite{readme}
+
+\section{Additional proof obligations and unconfirmed probes}
+\subsection{R01: real finite phases do not imply real uncertain phases}
+In \code{specialNativeTree}, a sine or cosine node can take a short path when the finite argument approximation is provably real. That path returns the argument's absolute error without requiring it to tend to zero. For a truly real perturbed argument, the real Lipschitz bound for sine and cosine justifies this. For a possibly complex perturbation, reality of the finite approximation alone is insufficient.\cite[\code{specialNativeTree}]{native}
+
+The formal witness is $z(u)=i/u=0+\OO(1/u)$. Although the displayed approximation zero is real,
+\begin{equation}
+ |\sin z(u)-\sin0|=\sinh(1/u)\notin\OO(1/u).
+\end{equation}
+The broad adapter proves the \emph{source expression} real before final projection. That does not automatically prove every intermediate argument real, and expression-tree arithmetic should not assume it without a contract.
+
+\textbf{Status:} no public source expression was demonstrated here to pass the entire native pipeline and return this bad estimate. Native \code{Series} may rewrite such expressions into forms taking another guarded route, and final acceptance checks may reject them. Therefore this is a helper-level proof obligation, not a confirmed public incorrect output. A suitable repair would require either reality of the represented argument or a vanishing complex error, with the appropriate complex derivative majorant. That change needs path-specific tests before being shipped.
+
+\subsection{R02: real scalar validation differs between entry paths}
+\code{seriesRegularOperand} verifies real coefficient polynomials for a scalar added through ordinary arithmetic. By contrast, the variable-independent branch of \code{seriesIndependentJet} directly constructs a constant jet, and the general observable recursion can reach it for a parameter such as $a$. The probe compares \code{SeriesAdd[s,a]} and \code{SeriesObservable[s,a+z,z]} without real assumptions on $a$.\cite{arithmetic,operations}
+
+The source paths are visibly different. Whether every resulting discrepancy is a violation depends on the intended policy for unproved symbolic constants in forward and observable calculations. The guide describes a real setting, so the policy should be stated and tested, but the supplied bundle does not silently impose a new one. A centralized coefficient-domain predicate or an explicit condition-generating mode would remove the ambiguity.
+
+\subsection{R03: unknown native tails need an honest logarithmic degree}
+The broad native importer acknowledges that a native \code{SeriesData} tail does not store a separate logarithmic degree. It therefore takes a half-lattice-step loss in the provisional error bound and later demands a sufficiently dominant explicitly computed omitted frontier. This is a careful design.\cite{native}
+
+The older core fallback \code{fwdSeries}, however, initializes the unknown logarithmic degree to zero and probes one additional native order. If no nonzero omitted coefficient is obtained, the routine can use a new native frontier while leaving degree zero. One must prove that every admitted fallback expression in that situation has the claimed strict analytic Big-O class, or use the same conservative loss policy.\cite[lines 452--489]{core}
+
+This is not a demonstrated public counterexample: many elementary power--log expressions use other core routes, and many special functions use the newer adapter. The review target is the remaining fallback surface. A synthetic native-series provider is useful for testing the importer contract, but it would not by itself prove that an ordinary supported built-in expression triggers a current failure.
+
+\subsection{Why unconfirmed findings are kept separate}
+An audit is more useful when it identifies a precise missing proof than when it invents an execution transcript. R01--R03 should become targeted tests and explicit invariants. They should not be turned into release-blocking claims of incorrect public output until the remaining path and scope questions are resolved. They are deliberately not included in the proposed three-edit hardening patch.
+
+\section{Mathematical safeguards worth preserving}
+\subsection{Differentiating a Big-O term requires a contract}
+Let
+\begin{equation}
+ R(x)=x^2\sin(x^{-4}),\qquad x\to0^+.
+\end{equation}
+Then $R(x)=\OO(x^2)$, but
+\begin{equation}
+ R'(x)=2x\sin(x^{-4})-4x^{-3}\cos(x^{-4}).
+\end{equation}
+At $x_n=(2\pi n)^{-1/4}$, the first term vanishes and $R'(x_n)=-4x_n^{-3}$. Thus $R'$ is not $\OO(x)$. A generic magnitude-only remainder cannot be differentiated by subtracting one from its exponent.
+
+The package's derivative-order declaration and refusal without sufficient evidence address exactly this issue. Automatically granting derivative control to a Poincar\'e expansion merely because native \code{Series} generated it would undo a major safety property. Exact finite expressions, explicit conormal derivative contracts, and native formal-series calculus must remain distinct notions.\cite{operations,native,guide}
+
+\subsection{Exponentiating a relative approximation can be wrong}
+If $g=A+R$ with $R\to0$, then $e^g=e^A(1+\OO(R))$, with an eventual constant justified by the local exponential derivative. But $g\sim A$ does not suffice. For $A=x$ and $R=\log x$, one has $g/A\to1$ while
+\begin{equation}
+ \frac{e^g}{e^A}=x\to\infty.
+\end{equation}
+The relevant requirement is \emph{small absolute phase error}, not small relative error in the phase. The explicit series exponential and source-coordinate reconstruction guard this distinction. Keeping an exact inverse core can avoid an otherwise invalid exponential amplification of a finite inverse approximation.\cite{operations,source-coordinates}
+
+\subsection{Oscillatory coefficients are not invertible units by default}
+An expression such as $u^\alpha\sin(\log u)$ has a bounded oscillatory coefficient but infinitely many zeros approaching the endpoint. Treating the sine factor as an eventually nonzero leading constant would invalidate division and relative-error estimates. Separate oscillatory coefficient handling and absolute envelopes are appropriate; a claimed inverse or reciprocal needs stronger sign or separation evidence. The inspected native-sector logic explicitly avoids promoting bounded oscillations to nonzero constants.\cite{native}
+
+\subsection{A zero truncated residual is not automatically exact termination}
+Formal cancellation below a cutoff proves consistency to that cutoff, not equality to the original function. The inverse construction distinguishes an exact model from a finite forward jet and attempts an explicit exact-termination certificate only on eligible reliable blocks. The incremental Newton route independently checks the residual at its claimed precision. These are safeguards to preserve during performance optimization.\cite{core,incremental}
+
+\subsection{Exact interval certification: a separate, narrower achievement}
+The certificate subsystem uses rational intervals with directed dyadic rounding and explicit series tails for elementary exponentials and logarithms. Approximate arithmetic is used for seeds, but acceptance depends on exact enclosures. The code checks the entire verification interval against retained source-domain conditions and separates the derivative from zero. It states that it certifies the stored explicit function on that interval, not an unspecified input-remainder family or a global inverse branch.\cite{certificates}
+
+\begin{proposition}[Residual containment certificate]\label{prop:cert}
+Let $F=f-y$ be continuously differentiable on an interval $I$. Suppose $c\in I$, $|F(c)|\le\varepsilon$, and $f'$ has constant sign with $|f'(x)|\ge\mu>0$ on $I$. If $[c-\varepsilon/\mu,c+\varepsilon/\mu]\subseteq I$, then $F$ has exactly one root in $I$, and its distance from $c$ is at most $\varepsilon/\mu$.
+\end{proposition}
+\begin{proof}
+Assume $f'>0$; the decreasing case is analogous. With $r=\varepsilon/\mu$, the mean-value theorem gives $F(c-r)\le F(c)-\mu r\le0$ and $F(c+r)\ge F(c)+\mu r\ge0$. Continuity gives a root between these points. Strict monotonicity on $I$ gives uniqueness. The enclosure immediately gives the distance bound.
+\end{proof}
+The implementation also permits exact endpoint signs when the residual bracket is not contained, and then sharpens the enclosure using the signed derivative interval. For example, for $f(x)=x+x^2$, $y=1$, $I=[1/2,3/4]$, and $c=5/8$,
+\begin{equation}
+ F(c)=1/64,\quad f'(I)=[2,5/2],\quad r=1/128.
+\end{equation}
+The signed mean-value correction gives the independent rational enclosure
+\begin{equation}
+ x_*\in\left[\frac58-\frac1{128},\frac58-\frac1{160}\right]
+      =\left[\frac{79}{128},\frac{99}{160}\right].
+\end{equation}
+This is a mathematical illustration of the certificate argument, not a literal recorded output from \code{InverseCertificate}.
+
+For logarithms, the underlying positive-argument reduction uses a convergent atanh-type series with a geometric tail; exponentials are reduced to a small positive argument and bounded by explicit series tails before reconstruction. Directed rounding must enclose, not merely approximate, every intermediate arithmetic operation. This subsystem is sufficiently valuable to justify independent unit tests of its primitives and eventual independent verification of its certificates.\cite{certificates}
+
+\section{Performance analysis and a fair benchmark program}
+\subsection{Separate representation complexity from coefficient complexity}
+Several different size measures coexist: the number of retained weights, the number of multi-indices contributing to those weights, the degree and coefficient size of each logarithmic polynomial, the Fourier-mode count, the number of exponential sectors, and the size of the provenance graph. A cutoff or term goal constrains only part of this state. A02 is an extreme example in which a representation conversion, not coefficient generation, dominates cost.
+
+For positive fixed gaps $\delta_1,\ldots,\delta_m$, the number of nonnegative multi-indices with $\mathbf{k}\cdot\boldsymbol\delta<H$ grows on the scale of the simplex volume
+\begin{equation}
+ \frac{H^m}{m!\,\delta_1\cdots\delta_m}
+\end{equation}
+as $H$ becomes large, up to boundary effects. This geometric estimate explains why many generators or very small gaps can be expensive even when equal weights collapse to far fewer output blocks. It is a complexity model, not a timing prediction for the package.
+
+Grouped Lagrange evaluation can exploit collisions; Newton can avoid explicitly enumerating every multi-index in suitable regimes. Their relative value depends on sparsity and coefficient growth. An automatic selector should use observed state statistics and bounded pilot work, not a universal rule that one method is always faster. The existing multiple implementations are also useful differential test oracles.\cite{incremental}
+
+\subsection{What the repository's recorded benchmarks actually support}
+\begin{longtable}{@{}p{0.45\textwidth}r r p{0.14\textwidth}@{}}
+\toprule
+Recorded workload & Before (s) & After (s) & Approx. ratio\\
+\midrule\endhead
+100 translated coordinate inversions & 0.12115 & 0.00418 & $29.0\times$\\
+Fourier coefficient merge & 0.19112 & 0.09396 & $2.0\times$\\
+$200\times200$ Fourier product, weight cutoff 4 & 1.28634 & 0.00776 & $165.8\times$\\
+Public Fourier inverse case & 0.02514 & 0.02325 & $1.08\times$\\
+\bottomrule
+\end{longtable}
+These are \emph{repository-reported} medians, not new audit measurements. The cited record describes one warm-up and three measured runs in fresh native-kernel benchmarking conditions. The dramatic low-level product improvement did not translate to a similarly dramatic public inverse improvement in the cited example. Earlier records also distinguish noise-sensitive end-to-end measurements from clear local gains. That restraint should be retained in future performance claims.\cite{validation}
+
+\subsection{Recommended workload matrix}
+A useful benchmark suite covers ordinary Taylor inversion as a native baseline; sparse irrational gaps; dense rational lattices; many resonant generators; high logarithmic degree; repeated refinement; translated and signed endpoints; Gamma/Barnes exact-core observables; mixed carriers; and Fourier frequency growth. Each workload needs both a coefficient or residual oracle and an error-contract oracle.
+
+Report fresh-process load time separately from cold computation, and cold computation separately from warm repeated runs. Record kernel version, operating system, source commit, loader mode, options, output shape, failure/timeout status, retained blocks, generated candidates, and peak-memory measurement methodology. A before/after comparison must run the same mathematical request under both implementations. Do not silently loosen a cutoff, drop a logarithmic factor, or strip provenance in only one branch to obtain a favorable ratio.
+
+The bundled harness is deliberately small and diagnostic. It includes a matched sine-inverse case, a generalized inverse comparison with \code{AsymptoticSolve}, an Erfc comparison, and the moderate rational-lattice case. It is not a publication-ready benchmark result. Later cases in the same process are explicitly not labelled fresh-process cold timings.
+
+\section{API and representation redesign proposal}
+\subsection{A shared result contract}
+Keep the common \code{GeneralizedSeries} surface, but give every result a schema describing its mathematical obligations. At minimum, separate the finite expression, coordinate approach, coefficient algebra, support/truncation request, error class, derivative evidence, branch evidence, and provenance identifier. Fields that do not apply should be explicitly unavailable rather than overloading a similarly named field with a different meaning.
+
+A proposed representation could expose
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+<|"SchemaVersion" -> 2,
+  "Approach" -> <|"Variable" -> y, "Point" -> Infinity,
+    "Side" -> "FromBelow", "Coordinate" -> 1/y|>,
+  "CoefficientAlgebra" -> "PolynomialLog",
+  "Truncation" -> <|"Kind" -> "ExponentCutoff",
+    "Bound" -> 5, "Boundary" -> "Exclusive"|>,
+  "Error" -> <|"Kind" -> "AsymptoticBigO",
+    "Scale" -> ..., "DerivativeOrder" -> 0|>,
+  "Evidence" -> <|"RealBranch" -> ..., "Exactness" -> ...|>,
+  "ProvenanceID" -> ...|>
+\end{lstlisting}
+\end{minipage}\par
+This is a design sketch, not an implemented API. The error record should distinguish an asymptotic class from an explicit pointwise majorant and from an interval certificate at a particular target. A field named \code{"Certified"} should never be inferred merely from a symbolic residual or an exact finite model.
+
+\subsection{Centralize invariant enforcement}
+Every public operation, including nested observables, should reach the same low-level checks for real coefficients, positive bases of noninteger powers, nonzero reciprocal bases, compatible approaches, and allowable remainder transport. This is the architectural lesson of A01. A direct operation and a semantically equivalent nested form should differ only in diagnostic context, not in whether an invariant is enforced.
+
+A three-valued proof outcome is preferable to a Boolean overloaded with failure: proved, disproved, and unresolved. Attach a reason to unresolved results, such as timeout, unsupported syntax, or insufficient precision. For an inverse branch, candidate generation, local validation, and completeness should remain separate outcomes, as the current branch module already does.\cite{branches}
+
+\subsection{Improve diagnostics without weakening conservatism}
+Expose the actual selected constructor and transformations, not only the originally requested method. A diagnostic trace should explain the normalized coordinate, detected leading scale, attempted algorithms, precision requested from each operand, and the particular missing proof. Keep such traces bounded and optional; otherwise they become another provenance-size problem.
+
+For failures caused by insufficient input order, give the maximum justified output cutoff and the extra source precision needed. For an unsupported coefficient ring, name the ring encountered and the supported alternatives. For native special-function failures, distinguish native expansion failure, real-domain failure, unsupported expression-tree transport, and inability to dominate the native tail by the proposed omitted frontier. The inspected code already has many differentiated failure tags; the next improvement is a coherent public taxonomy rather than collapsing them into a generic message.\cite{core,native,arithmetic}
+
+\subsection{Numerical evaluation should expose what it discards}
+A proposed \code{EvaluateApproximation} wrapper could return a finite numeric value, the evaluated asymptotic scale, domain-check status, and certificate status. An evaluated scale alone is \emph{not an error bar}, because a Big-O statement lacks a supplied constant and validity threshold. Where a pointwise bound or \code{InverseCertificate} is available, include its explicit interval and function scope separately.
+
+Do not force approximate numeric inputs into the exact coefficient algebra by silently rationalizing them. The package's exact-input restriction is an intentional design choice. A convenience layer could accept a numerical target for evaluation or an explicitly declared parameter approximation, but should keep those modes distinct from exact symbolic construction.\cite{guide,arithmetic-tests}
+
+\section{Missing functionality and development opportunities}
+\subsection{A safe generalized-series integration operation}
+The current public function overview includes differentiation but no general series-integration operation. This is an opportunity to extend the algebra, not evidence that the native \code{AsymptoticIntegrate} facility is missing.\cite{guide,wl-integrate}
+
+For a logarithmic monomial and $\beta\ne-1$, a natural coefficient rule is
+\begin{equation}
+ \int u^\beta(\log u)^k\,du
+ =u^{\beta+1}\sum_{j=0}^k
+ \frac{(-1)^j k!}{(k-j)!(\beta+1)^{j+1}}
+ (\log u)^{k-j}+C.
+\end{equation}
+At resonance $\beta=-1$ the result is $(\log u)^{k+1}/(k+1)+C$. The remainder rule requires a separate theorem about the chosen definite or indefinite integral and its normalization. For instance, integrating a bound from $0$ is straightforward only when the error is integrable there. Transformed coordinates also require the correct Jacobian. A serious implementation must expose the constant of integration and the endpoint convention, not merely integrate displayed terms and carry an unproved Big-O suffix.
+
+\subsection{Uniform parameter regimes and transition points}
+The current real-domain and parameter checks do not constitute a general uniform asymptotic theory. When a leading coefficient tends to zero, two exponents cross, a gap tends to zero, or saddle/branch structures change, a fixed-parameter expansion can become nonuniform. A future API should state whether assumptions define only a pointwise parameter regime or a region with uniform constants.
+
+An initial practical extension would partition parameter space into regions with a stable leading scale and report transition boundaries explicitly. More ambitious uniform approximations should be separate constructors with their own error theorems. It would be unsafe to advertise all parameter values merely because a native special-function head is recognized. The guide's existing warnings about supported regimes are the correct starting point.\cite{guide,native}
+
+\subsection{Multivariate and coupled implicit systems}
+The current inverse API selects a single source and target variable. Wolfram's \code{AsymptoticSolve} already supplies a native baseline for systems. A package extension could add multivariate supports and a valuation cone, but then order is generally partial, Newton polygons/polyhedra enter, and branch/uniqueness evidence becomes more complicated. This should be an explicit new algebra rather than an unnoticed generalization of one-dimensional sort order.\cite{guide,wl-asolve}
+
+\subsection{Broader coefficient algebras and transseries}
+The existing logarithmic, exact-core, flat-sector, and Fourier families provide a useful foundation. They should not be described as a universal closure under arbitrary nested exponentials, iterated logarithms, complex sectors, Stokes transitions, or resurgent operations. The current guide gives family-specific boundaries, and several operations explicitly reject unsupported scales.\cite{guide,operations}
+
+A modular coefficient-algebra interface can support future rational functions of logarithms, nested slow variables, and additional oscillatory structures. Each extension needs an order relation, zero/sign logic, differentiation rules, composition conditions, truncation semantics, and an error-envelope interpretation. Adding a parser pattern for a new expression is not the same as implementing that algebra.
+
+\subsection{Extending numerical certification}
+Useful next steps include interval subdivision when dependency inflation prevents derivative separation, tighter polynomial enclosures, explicit bounds for additional elementary/special functions, and certificate verification independent of the approximation generator. A proof-checking layer could validate rational arithmetic, tail inequalities, domain facts, and the residual-to-root theorem with a much smaller trusted surface than the full symbolic engine.
+
+The distinction between certifying the stored explicit model and certifying a family with unspecified input error must remain visible. Extending the latter requires a pointwise interval envelope for that family and its derivative, not only an asymptotic exponent pair. It also requires a clear statement of which branch, interval, and target are covered.\cite{certificates,guide}
+
+\subsection{Distribution and compatibility}
+Keep modular sources canonical and regenerate the standalone file. The guide already supplies pinned and offline loading instructions and documents the observed direct-HTTP \code{Get} issue; proposing those facilities as wholly new would be inaccurate. The remaining opportunity is release packaging with explicit versioned documentation, checksums, migration guidance, and a declared semantic test matrix. Prefer a pinned source or release in reproducible examples rather than a floating \code{main} URL.\cite{guide,development,readme}
+
+\section{Test strategy and prioritized roadmap}
+\subsection{Test mathematical invariants, not only example strings}
+Every supported construction should be tested for finite coefficients, retained order, coordinate and domain, derivative eligibility, and exactness classification. Differential tests between Lagrange, grouped Lagrange, and Newton are valuable, but they are not independent when all routes share the same low-level guard or error converter. Include direct coefficient identities, exact inverse examples, original-function residuals, and independently derived error bounds.\cite{incremental,arithmetic-tests}
+
+Metamorphic tests should compare a direct power with the same power inside a sum or composition; compare refinement in one step with refinement in several steps; check truncation idempotence and monotonicity; test translation and signed-coordinate equivariance; and ensure budget failures never silently manufacture missing coefficients. Mutation tests that remove a branch guard, a log-degree maximum, or an input-order cap are useful for checking whether the suite would detect the intended class of defect.
+
+Native importing needs adversarial expression-tree tests: unknown logarithmic tails, exact offsets plus uncertain carriers, cancellation of carriers, complex intermediate phases, parameter sign changes, and oscillatory zeros. Tests for a mock provider should be labelled adapter-contract tests, not evidence of behavior of an actual native special function.
+
+\subsection{Roadmap with acceptance criteria}
+\begin{longtable}{@{}p{0.12\textwidth}p{0.37\textwidth}p{0.43\textwidth}@{}}
+\toprule
+Priority & Work & Acceptance criterion\\
+\midrule\endhead
+P0 & A01 shared real-power guard; A02 dense-export cap in both converters & Direct and nested branch tests agree; sparse high-denominator construction returns normally with unavailable native export; no loss of supported exact-zero behavior.\\
+P0 & Native validation of the proposed patch & Full semantic suite finishes in fresh kernels with nonempty reports; modular and rebuilt standalone outputs agree; source identities and failures are archived.\\
+P1 & A03 early termination; targeted frontier optimization & Exact coefficient and residual equality retained; operation counts or native timings demonstrate reduced work without changing requested precision.\\
+P1 & Budget taxonomy and output preflight & Every exhausted budget is identified; small input cannot trigger an unbounded optional conversion; partial results retain sound errors.\\
+P1 & Schema, validated import, compact provenance graph & Malformed payloads are rejected on external import; repeated shared computation has bounded graph growth and scalable serialization.\\
+P1 & Resolve R01--R03 & Either an explicit invariant proof closes each path or a minimal native regression and repair are recorded.\\
+P2 & Structured truncation requests, capability reporting, compatibility/migration & Every family reports its coefficient algebra, coordinate, cutoff meaning, and supported operations in one stable interface.\\
+P2 & Generalized integration and stronger interval certificates & Coefficient identities and endpoint/error theorems accompany implementation; numerical certificate scope remains explicit.\\
+P3 & Uniform parameter regions, multivariate supports, broader transseries & Each extension has a separately specified algebra and validation corpus; no universal-support claim is inferred from syntax recognition.\\
+\bottomrule
+\end{longtable}
+Priorities denote dependency and impact, not promised delivery dates or estimated implementation times.
+
+\section{Conclusions}
+The repository's strongest engineering choices are worth retaining: exact real-weight arithmetic, complete collision layers, multiple inverse algorithms, explicit input-precision caps, distinct symbolic/numerical/certified evidence, derivative-contract checks, exact phase cores, and honest composite envelopes. Its extensive documentation and cautious validation record make a source audit substantially more productive than an undocumented package would be.\cite{guide,incremental,operations,native,certificates,validation}
+
+The most urgent defects are not an absence of advanced special functions. They are failures of common infrastructure: a real-power invariant that is enforced at one entry point but bypassed at another, and a sparse object that eagerly builds an enormous dense native representation. A small recurrence optimization is also mathematically clear. These are concrete targets for the supplied patch and regression bundle.
+
+The durable product direction is a dependable generalized asymptotic object model layered over Wolfram Language's existing strengths. A validated common contract, resource-aware representation adapters, shared provenance, and reproducible release evidence will make every current and future family more useful than adding breadth without those foundations.
+
+\appendix
+\section{Review coverage and source map}\label{app:coverage}
+All repository references below point to the pinned commit. Line ranges refer to the original modular files, not to the generated standalone file. Some long connector responses were truncated; the audit uses the visible central paths and does not claim unseen ranges were reviewed.
+
+\begin{longtable}{@{}p{0.43\textwidth}p{0.49\textwidth}@{}}
+\toprule
+Source & Review focus\\
+\midrule\endhead
+\path{AsymptoticInverse/Kernel/AsymptoticInverse.wl} & Public/core definitions; jet arithmetic; composition recurrence (251--263); powers (369--387); native fallback (452--489); coordinate construction; forward native conversion (647--660); inverse construction/precision caps; inverse native conversion and object accessors.\\
+\path{Kernel/SeriesOperations.wl} & Representation extraction and construction; binary/unary operations; direct power guard; generic observable recursion; composition; truncation; derivative contract.\\
+\path{Kernel/SeriesArithmetic.wl} & Held normalizer, operator upvalues, scalar validation, guarded fallback, and nested dispatch.\\
+\path{Kernel/SeriesEnvelopeArithmetic.wl} & Absolute composite errors, approach compatibility, resource checks, result/provenance construction.\\
+\path{Kernel/IncrementalInverse.wl} & Equal-weight frontier layers, polynomial caches, grouped Lagrange and Newton precision checks.\\
+\path{Kernel/InverseCertificates.wl} & Exact interval primitives; exponential/logarithmic tails; domain checks; residual/derivative certificate and stated scope.\\
+\path{Kernel/InverseFunctionBranches.wl} & Candidate generation, unresolved proof outcomes, local validation, monotonicity and completeness distinctions.\\
+\path{Kernel/NativeSpecialFunctions.wl} & Native candidate dispatch, expression-tree error transport, real projection, sector extraction, truncation and acceptance.\\
+\path{Kernel/SourceCoordinates.wl} & Exact source charts, carrier reconstruction, exponential error guard, provenance and source-power conventions.\\
+\path{Kernel/SpecialFunctionAdapters.wl} & Erfc/Gamma model bounds and provenance; local threshold adapters; explicit distinction between exact and finite asymptotic models.\\
+\path{Documentation/UserGuide.md}; root \path{README.md} & Current public API, family-specific cutoff meanings, requirements, loading and migration. Broader family coverage in the report is guide-based rather than a line-by-line proof audit of every family implementation.\\
+\path{Tests/SeriesArithmetic.wlt} & Representative coefficient, branch, precision, compatibility and replay tests; not a full review or execution of the test tree.\\
+\path{validation/README.md}; \path{docs/development/README.md}; \path{.github/workflows/standalone.yml} & Historical validation scope, benchmark interpretation, canonical/generated source process, inspected CI behavior.\\
+\bottomrule
+\end{longtable}
+Paths abbreviated as \path{Kernel/...}, \path{Tests/...}, or \path{Documentation/...} are relative to \path{AsymptoticInverse/}. Other family modules were inventoried and contextualized through the guide, but are not included in this table as fully reviewed implementations.
+
+\section{Independent inverse-coefficient oracle}
+For the real germ $f(x)=x+x^{1+d}$ with $d>0$, write its inverse as $x=yW(t)$ with $t=y^d$. Then
+\begin{equation}
+ W+tW^{1+d}=1.
+\end{equation}
+The first coefficients are
+\begin{align}
+ W(t)={}&1-t+(d+1)t^2-\frac{(d+1)(3d+2)}2t^3\notag\\
+ &+\frac{(d+1)(2d+1)(4d+3)}3t^4\notag\\
+ &-\frac{(d+1)(5d+2)(5d+3)(5d+4)}{24}t^5+\OO(t^6).
+\end{align}
+They also follow from the coefficient formula
+\begin{equation}
+ c_n=\frac{(-1)^n}{n!}\prod_{j=1}^{n-1}(1+nd+j),\qquad n\ge1.
+\end{equation}
+The included checker substitutes these coefficients into $W+tW^{1+d}-1$, expands the power independently using the binomial identity, and checks every coefficient through degree five is exactly zero as a polynomial in $d$. This is a small but genuinely independent algebraic oracle for generalized real exponents. It does not use a native Wolfram kernel or call the package.
+
+\section{Bundle contents and execution status}
+\begin{longtable}{@{}p{0.48\textwidth}p{0.44\textwidth}@{}}
+\toprule
+Artifact & Status / purpose\\
+\midrule\endhead
+\path{article.tex}, \path{article.pdf} & This report and its compiled PDF.\\
+\path{code/patch_core.py} & Source-identity-guarded three-edit patch generator. Python editing logic tested on anchor fixtures; not applied to a full checkout here.\\
+\path{code/independent_checks.py} & Executed exact mathematics and allocation planner; not a Wolfram emulator.\\
+\path{code/run_native.wl} & Fresh-kernel audit regression runner. Not executed here.\\
+\path{tests/AuditRegressions.wlt} & Nine native regression/control specifications, including two nested A01 cases expected to fail before the patch. Not executed here.\\
+\path{tests/PatchedOnly.wlt} & Two guarded high-denominator tests; do not enable on the unpatched source. Not executed here.\\
+\path{code/inspection_probes.wl} & Bounded exploratory probes for scalar consistency, raw object invariants, and provenance growth. Not executed here.\\
+\path{code/benchmark_native.wl} & Version/hash-aware, time- and memory-bounded diagnostic comparison harness. Not executed here.\\
+\path{tests/test_python_artifacts.py} & Eight executed tests of planner and fail-closed patch tooling.\\
+\path{evidence/independent-checks.json} and logs & Executed mathematical results and Python test output. No fabricated native results.\\
+\path{evidence/source-manifest.json}, \path{evidence/findings.json} & Pinned source identities, scope, and machine-readable finding status.\\
+\path{README.md}, \path{SHA256SUMS} & Build/run instructions, limitations, and bundle file checksums.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Applying the proposal in a disposable checkout}
+The patch generator writes a new output directory outside the checkout; it never edits the repository in place. First obtain the pinned commit, then run
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}[language={}]
+python code/patch_core.py --repository /path/to/Asymptotic \
+  --output /path/to/new-audit-patch-directory
+\end{lstlisting}
+\end{minipage}\par
+Review the emitted diff, apply it to a disposable branch, regenerate the standalone file with the repository's builder, and run both the audit subset and the complete upstream semantic suite in native kernels. A02 uses a fixed 20,000-slot safety cap; threading a configurable budget and making conversion lazy are separate follow-up work.
+
+\subsection{Native runner safeguards}
+Set \code{ASYMPTOTIC_AUDIT_PACKAGE} to the absolute local source path. The patched-only suite is enabled only when \code{ASYMPTOTIC_AUDIT_PATCHED=1} and the loaded source text contains the A02 patch marker. The tests add a memory guard. These checks reduce the chance of accidentally executing the deliberately expensive unpatched example; they do not substitute for reading the source and test instructions.
+
+The runner rejects empty or incomplete test reports and writes the resulting version, platform, entry-file hash, counts, and report. When loading the modular entry, an entry-file hash alone does not identify all companions: record the pinned commit and full module manifest as part of release acceptance. The README supplies separate POSIX and PowerShell examples.
+
+\subsection{Building the article}
+Run \code{latexmk -pdf -interaction=nonstopmode -halt-on-error article.tex}. The document is self-contained and requires standard LaTeX packages; no external image or font files are distributed. The final PDF was rendered for layout inspection. None of the report's source-code findings relies on OCR or a screenshot of code.
+
+\clearpage
+\begin{thebibliography}{99}
+\small
+\bibitem{readme} Asymptotic contributors. \emph{Repository README}, version 1.8.0 snapshot. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/README.md}.
+\bibitem{tree} Asymptotic contributors. \emph{Pinned repository tree}. \url{https://github.com/VladimirReshetnikov/Asymptotic/tree/07a9781212beb2eeb9ff16aa625b50ac27974078}.
+\bibitem{guide} Asymptotic contributors. \emph{AsymptoticInverse User Guide}, especially usage, directions, input remainders, and the family-specific cutoff table. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Documentation/UserGuide.md}.
+\bibitem{core} Asymptotic contributors. \emph{Canonical kernel: AsymptoticInverse.wl}. Git blob \code{ea9eaf4a11130e922ac4fb3faae37fd8e8d29643}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/AsymptoticInverse.wl}.
+\bibitem{operations} Asymptotic contributors. \emph{SeriesOperations.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SeriesOperations.wl}.
+\bibitem{arithmetic} Asymptotic contributors. \emph{SeriesArithmetic.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SeriesArithmetic.wl}.
+\bibitem{envelope} Asymptotic contributors. \emph{SeriesEnvelopeArithmetic.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl}.
+\bibitem{incremental} Asymptotic contributors. \emph{IncrementalInverse.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/IncrementalInverse.wl}.
+\bibitem{certificates} Asymptotic contributors. \emph{InverseCertificates.wl}, exact interval primitives and certificate scope. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseCertificates.wl}.
+\bibitem{branches} Asymptotic contributors. \emph{InverseFunctionBranches.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseFunctionBranches.wl}.
+\bibitem{native} Asymptotic contributors. \emph{NativeSpecialFunctions.wl}, structured native-series transport and acceptance. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/NativeSpecialFunctions.wl}.
+\bibitem{source-coordinates} Asymptotic contributors. \emph{SourceCoordinates.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SourceCoordinates.wl}.
+\bibitem{adapters} Asymptotic contributors. \emph{SpecialFunctionAdapters.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl}.
+\bibitem{validation} Asymptotic contributors. \emph{Validation record}. Focused results and benchmark caveats are historical claims of this record, not new audit runs. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/validation/README.md}.
+\bibitem{development} Asymptotic contributors. \emph{Development notes and standalone build process}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/docs/development/README.md}.
+\bibitem{workflow} Asymptotic contributors. \emph{Standalone package freshness workflow}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/.github/workflows/standalone.yml}.
+\bibitem{arithmetic-tests} Asymptotic contributors. \emph{SeriesArithmetic.wlt}, representative native regression tests. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Tests/SeriesArithmetic.wlt}.
+\bibitem{wl-series} Wolfram Research. \emph{Series}. Official reference, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/Series.html}.
+\bibitem{wl-seriesdata} Wolfram Research. \emph{SeriesData}. Official reference, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/SeriesData.html}.
+\bibitem{wl-inverse} Wolfram Research. \emph{InverseSeries}. Official reference, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/InverseSeries.html}.
+\bibitem{wl-compose} Wolfram Research. \emph{ComposeSeries}. Official reference, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/ComposeSeries.html}.
+\bibitem{wl-asymptotic} Wolfram Research. \emph{Asymptotic}. Official reference, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/Asymptotic.html}.
+\bibitem{wl-asolve} Wolfram Research. \emph{AsymptoticSolve}. Official reference, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/AsymptoticSolve.html}.
+\bibitem{wl-aless} Wolfram Research. \emph{AsymptoticLess}. Official reference, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/AsymptoticLess.html}.
+\bibitem{wl-integrate} Wolfram Research. \emph{AsymptoticIntegrate}. Official reference, accessed 9 September 2026. \url{https://reference.wolfram.com/language/ref/AsymptoticIntegrate.html}.
+\end{thebibliography}
+\end{document}

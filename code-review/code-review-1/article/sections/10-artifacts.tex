@@ -1,0 +1,62 @@
+\section{Accompanying artifacts and reproduction}
+\subsection{Bundle contents}
+The archive contains the article's complete LaTeX source tree and compiled PDF; an independent mathematical checker and its JSON result; a hash-gated patch generator; six synthetic-fixture unit tests with their execution log; fifteen prospective Wolfram tests; a native runner; a benchmark harness; a findings ledger; a source-coverage manifest; references; and checksums. No repository checkout or licensed Wolfram runtime is bundled.
+
+\begin{lstlisting}
+article/     article.tex, article.pdf, sections/, sources.tex
+code/        check_mathematics.py, propose_core_patch.py
+             run_audit.wls, benchmark_audit.wls
+tests/       audit_regressions.wlt, test_patch_planner.py
+evidence/    mathematical_checks.json, patch_planner_tests.txt
+             review_manifest.json, findings.csv
+             source_coverage.csv, references.json, pdf_qa.json
+README.md    requirements.txt, SHA256SUMS
+\end{lstlisting}
+
+\subsection{Re-running the executed checks}
+From the bundle root, using Python with SymPy installed:
+\begin{lstlisting}
+python code/check_mathematics.py \
+  --output evidence/mathematical_checks.json
+python -m unittest discover -s tests -p test_patch_planner.py -v
+\end{lstlisting}
+The recorded mathematical run used Python 3.13.5 and SymPy 1.14.0. The checker does not allocate the huge native lattice used in A02's motivating example; it computes the number of slots symbolically with exact integer/rational arithmetic.
+
+\subsection{Generating the proposed patch}
+Use a local checkout of the pinned revision. The patch tool accepts the repository root or its canonical kernel file:
+\begin{lstlisting}
+python code/propose_core_patch.py /path/to/Asymptotic \
+  > proposed_core.diff
+\end{lstlisting}
+It compares the LF-normalized canonical file with Git blob hash
+\begin{center}\code{ea9eaf4a11130e922ac4fb3faae37fd8e8d29643}.\end{center}
+A mismatch is an intentional refusal, not permission to disable the check. Review the diff, apply it in a separate working branch, and test it natively. The alternative \code{--output} option writes a new file without replacing an existing one; that file is not a standalone package without its companion modules.
+
+After editing canonical kernel sources, regenerate and verify the standalone distribution with the repository's existing builder. Do not independently edit both the modular source and generated distribution.\cite{development}
+
+\subsection{Running native regressions later}
+The native scripts require a local Wolfram Language 15.0+ installation and a local checkout. An example shell invocation is:
+\begin{lstlisting}
+export ASYMPTOTIC_AUDIT_ROOT=/path/to/Asymptotic
+wolframscript -file code/run_audit.wls
+
+# Optional: include the repository's full discovered .wlt suite.
+export ASYMPTOTIC_AUDIT_FULL_SUITE=1
+wolframscript -file code/run_audit.wls
+\end{lstlisting}
+PowerShell equivalents are in the README. Run baseline and modified sources separately, retain both reports, and compare the recorded source hashes. Do not interpret expected failures of new corrected-behavior tests on the baseline as failures of the test runner itself.
+
+For benchmarks, select one case per fresh kernel through \code{ASYMPTOTIC_AUDIT_CASE}. The output records inputs and full results to support a semantic comparison before timing interpretation. No native benchmark results are included because none were executed during the review.
+
+\subsection{Rebuilding the article}
+From the \path{article/} directory:
+\begin{lstlisting}
+pdflatex -interaction=nonstopmode -halt-on-error article.tex
+pdflatex -interaction=nonstopmode -halt-on-error article.tex
+\end{lstlisting}
+A third pass may be needed after changes to cross-references or the contents. The source uses standard LaTeX packages and no custom font files. The PDF was compiled and visually checked for this delivery; its existence does not imply native Wolfram execution.
+
+\subsection{Final assessment}
+The repository deserves further development. Its exact coefficient calculus, explicit real branches, conservative treatment of several remainder hazards, and specialized inverse cores are more substantial than a wrapper around one native command. Its strongest future direction is to become a dependable contract-preserving layer over both its own algorithms and Wolfram's native asymptotics.
+
+The immediate priorities are concrete: centralize the fractional-power branch invariant, capture assumptions faithfully, prevent optional export from defeating sparse resource limits, and make native conversion loss explicit. Then validate the complete release surface and consolidate the increasingly heterogeneous representations and request semantics. The supplied examples, tests, and patch planner are intended to make those recommendations actionable without overstating what was executed or proved.

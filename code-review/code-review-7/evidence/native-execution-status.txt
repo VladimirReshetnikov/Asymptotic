@@ -1,0 +1,17 @@
+Native evaluation access record
+===============================
+Initial Wolfram context request: connection failure.
+Initial version/evaluator request: HTTP 502.
+Later version probe succeeded:
+  {"15.0.0 for Linux x86 (64-bit) (May 6, 2026)", 2}
+Attempt to download and load the commit-pinned standalone package:
+  Connection failed; no package-load result or source digest was returned.
+Follow-up package-state / elliptic-Series probe:
+  HTTP 502; no result returned.
+
+Consequently, no successful execution results for the repository or the
+accompanying Wolfram regression files were obtained. The version probe is
+not a repository test. A failed remote response does not establish whether
+its remote execution began or completed. All package-specific runtime
+predictions in the article remain source-derived unless expressly stated.
+The independently executed Python checks are separately documented.

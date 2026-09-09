@@ -1,0 +1,112 @@
+[
+  {
+    "id": "F01",
+    "priority": "High",
+    "title": "Unbounded eager dense SeriesData conversion",
+    "evidence": "Source-confirmed allocation; exact size checked independently",
+    "native_status": "Not executed",
+    "location": "Kernel/AsymptoticInverse.wl: makeSeriesData and makeInverseSeriesData",
+    "fix": "Avoid trailing padding; cap or lazily compute optional native view",
+    "artifact": "emit_patch_proposals.py; AuditRegressions.wlt"
+  },
+  {
+    "id": "F02",
+    "priority": "High",
+    "title": "Nested observable bypasses real-power guard",
+    "evidence": "Source-derived public control flow; mathematical real-branch counterexample",
+    "native_status": "Pending reproduction",
+    "location": "Kernel/AsymptoticInverse.wl: fwdPower; Kernel/SeriesOperations.wl: seriesPower and seriesJetApply",
+    "fix": "Move finite pure-remainder noninteger-power guard into shared primitive",
+    "artifact": "emit_patch_proposals.py; AuditRegressions.wlt"
+  },
+  {
+    "id": "F03",
+    "priority": "High to investigate",
+    "title": "Unseen native logarithmic tail assigned degree zero",
+    "evidence": "Unsafe inference identified; elliptic tail derivation and numeric reference checked",
+    "native_status": "Native shape and public reachability unverified",
+    "location": "Kernel/AsymptoticInverse.wl: fwdSeries; compare Kernel/NativeSpecialFunctions.wl: specialNativeTree",
+    "fix": "Shared native importer; conservative exponent loss under an explicit admitted tail contract",
+    "artifact": "ProbeNativeTail.wls; optional emit_patch_proposals.py flag; independent_checks.py"
+  },
+  {
+    "id": "F04",
+    "priority": "Medium",
+    "title": "Forward constant coefficient realness not uniformly checked",
+    "evidence": "Source-derived contract inconsistency",
+    "native_status": "Pending reproduction",
+    "location": "Kernel/AsymptoticInverse.wl: pConst and fwd constant arm",
+    "fix": "Central coefficient-domain validator and explicit real/formal policy",
+    "artifact": "AuditRegressions.wlt; not implemented by emitter"
+  },
+  {
+    "id": "F05",
+    "priority": "Medium",
+    "title": "Commensurate flat rates restricted to multiples of minimum",
+    "evidence": "Explicit source restriction; exact rational normalization checked",
+    "native_status": "Pending reproduction",
+    "location": "Kernel/FlatSectors.wl: flatModel",
+    "fix": "Fundamental rate from rational gcd; cap normalized degree",
+    "artifact": "emit_patch_proposals.py; independent_checks.py; AuditRegressions.wlt"
+  },
+  {
+    "id": "E01",
+    "priority": "High process priority",
+    "title": "Latest focused tests do not constitute a full native release gate",
+    "evidence": "Repository validation record and inspected workflow",
+    "native_status": "No independent full suite",
+    "location": "validation/README.md; .github/workflows/standalone.yml",
+    "fix": "Native smoke and complete release suites, source/version/skip manifests",
+    "artifact": "Article roadmap"
+  },
+  {
+    "id": "E02",
+    "priority": "Medium",
+    "title": "Order/resource/observable/result semantics vary across families",
+    "evidence": "Documented API and inspected dispatch",
+    "native_status": "Design review",
+    "location": "UserGuide.md; core/options; SeriesOperations.wl; GammaInverse.wl",
+    "fix": "Typed requests, requested/effective method, schema/evidence contracts",
+    "artifact": "Article API and architecture proposals"
+  },
+  {
+    "id": "E03",
+    "priority": "Low",
+    "title": "License text and identifiers disagree",
+    "evidence": "Root MIT No Attribution text versus MIT header/paclet metadata",
+    "native_status": "Not applicable",
+    "location": "LICENSE; main kernel SPDX header; PacletInfo.wl",
+    "fix": "Align intended license text and identifiers consistently",
+    "artifact": "Article; upstream-LICENSE.txt"
+  },
+  {
+    "id": "E04",
+    "priority": "Medium UX",
+    "title": "Certificate automatic interval default is rejected as missing interval",
+    "evidence": "Options and immediate validation in source",
+    "native_status": "Source-derived",
+    "location": "Kernel/InverseCertificates.wl: InverseCertificate options/entry",
+    "fix": "Require interval explicitly or implement bounded verified interval discovery",
+    "artifact": "Article certificate section"
+  },
+  {
+    "id": "R01",
+    "priority": "Review target",
+    "title": "Domain transport at uncertain composition boundaries",
+    "evidence": "Design risk, not established public bug",
+    "native_status": "Unverified",
+    "location": "Kernel/SeriesOperations.wl: composition domain construction",
+    "fix": "Jet-aware eventual-domain transport and boundary tests",
+    "artifact": "Article further correctness boundaries"
+  },
+  {
+    "id": "R02",
+    "priority": "Profiling target",
+    "title": "Provenance expression growth and hidden proof costs",
+    "evidence": "Inspected data-flow; no performance regression measured",
+    "native_status": "Unmeasured",
+    "location": "Operations/provenance recipes; simplification and normalization helpers",
+    "fix": "Counters, bounded request context, optional provenance DAG",
+    "artifact": "Article performance plan"
+  }
+]

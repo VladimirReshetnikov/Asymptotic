@@ -1,0 +1,43 @@
+\section{Executive assessment and scope}
+\subsection{Overall verdict}
+\textbf{Keep the mathematical core and strengthen its contracts before broadening the public surface.} The package has a coherent niche: constructing and manipulating selected real inverse expansions whose exponents, logarithmic coefficient blocks, exact carriers, and branch conditions do not fit comfortably into a single ordinary power-series object. The source already contains several features that an elementary implementation would lack: complete collision handling, sparse product pruning, derivative-aware remainder policies, guarded arithmetic normalization, independent inverse residual checks, and exact rational root enclosures. These are substantive strengths, not merely interface embellishments.\cite{core,operations,arithmetic,incremental,certificates}
+
+The highest-priority defects are at boundaries between those layers. A stronger check in a public wrapper is ineffective when an internal recursive route bypasses it. A sparse algorithm ceases to be resource-safe when optional metadata allocates a dense array. An expansion is not self-contained when simplifications depend on assumptions that the result does not retain. These observations motivate the main recommendation: make branch, precision, assumptions, and resource limits invariants of the underlying operations rather than conventions enforced by selected entry points.
+
+The current implementation should be described as a collection of supported asymptotic calculi sharing a result head. It is not a general closed transseries field, a general complex-branch solver, or a uniform asymptotic solver for moving parameters. Its guide generally acknowledges such boundaries. The review recommends clearer capability discovery rather than treating every conservative refusal as a bug.\cite{guide,core,sourcecharts,inverseexpressions,native}
+
+\subsection{Priority findings}
+\begin{longtable}{P{0.09\textwidth}P{0.14\textwidth}P{0.42\textwidth}P{0.24\textwidth}}
+\toprule ID & Priority & Finding & Required response \\\midrule
+\endfirsthead
+\toprule ID & Priority & Finding & Required response \\\midrule
+\endhead
+A01 & High & Nested observable powers can accept an unknown-sign pure remainder although the direct power API rejects it. & Centralize the real-branch guard. \\
+A02 & High & Optional native export eagerly constructs a dense rational lattice without an allocation cap. & Guard before allocation; make export lazy. \\
+A03 & Medium & Native export does not preserve the logarithmic remainder degree; the guide discloses this loss. & Strict conversion or explicit loss report. \\
+A04 & High & Ambient assumptions can influence simplification without being captured in result metadata. & Capture and isolate the effective assumption context. \\
+A05 & High release priority & The recorded 1.8.0 validation is focused, not a full native suite. & Gate releases on a complete, reproducible native run. \\
+A06--A14 & Medium / design & Resource accounting, cutoff semantics, compatibility, evaluation, documentation, closure, provenance, and distribution. & Consolidate contracts and measured engineering work. \\
+\bottomrule
+\end{longtable}
+Priority denotes consequence and release importance, not an estimate of exploitability. A02 is a local availability/resource defect; no remote attack or security compromise was demonstrated. A03 is an interoperability hazard with an existing warning, not corruption of the authoritative package remainder.
+
+\subsection{Revision and evidence boundary}
+The review is pinned to commit \commit, whose package metadata declares version 1.8.0, MIT licensing, and Wolfram Language 15.0 or later. The branch response identifies a commit timestamp of September 9, 2026, 19:01:30 UTC. A changing \code{main} branch was not used as the definition of the reviewed behavior. All repository references in the bibliography point to this immutable revision. The top-level license is actually MIT No Attribution; the metadata discrepancy is discussed under A14.\cite{revision,paclet,license}
+
+The canonical implementation is modular under \path{AsymptoticInverse/Kernel/}. The repository-root \path{AsymptoticInverse.wl} is a generated standalone distribution. The canonical main file is 83,094 bytes; the generated file is 573,940 bytes. The repository reports 38 canonical kernel source files and 37 documented public symbols. The generated file should not be treated as a second independent implementation.\cite{tree,development,validation}
+
+The inspection concentrated on the entire central engine as exposed through successive source ranges, arithmetic and observable dispatch, inverse expression handling, exact certificates, selected incremental and special-function code, the current guide, and validation infrastructure. Several other modules were inventoried or reached through dispatch without a complete line-by-line review. The mathematical article's top-level source and stated scope were inspected; all of its included proofs were \emph{not} independently audited. Appendix~\ref{app:coverage} records the coverage precisely.
+
+Four evidence categories are used:
+\begin{description}
+\item[Source deduction.] A conclusion follows from the inspected control flow and a stated mathematical invariant. This can establish a defect without a successful runtime session, but an exact console transcript is not claimed.
+\item[Independent execution.] Python/SymPy or exact rational arithmetic was executed for mathematical identities, counterexamples, allocation planning, or patch mechanics. This is not execution of the package.
+\item[Repository report.] A result was recorded by the repository's maintainers and read at the pinned revision. It is attributed, not presented as a replication.
+\item[Prospective test or proposal.] Code, a test, a benchmark, or an architectural change is supplied for subsequent native validation.
+\end{description}
+
+The connected Wolfram evaluation service failed even on a version query, and no local Wolfram kernel was available. Consequently, this review does not report newly measured package timings, native test passes, or observed built-in failures on particular exotic expressions. The supplied native scripts are intentionally useful despite that limitation: they turn the source deductions into concrete acceptance criteria.
+
+\subsection{What should not be called a defect}
+An unsupported branch is preferable to an unjustified real expansion. A finite Poincar\'e expansion need not converge. A formal residual against a finite forward model is not an interval enclosure of the original function. A bound that includes several separate error scales need not have one scalar exponent. An exact forward model need not have a terminating inverse. These distinctions already appear in the source and documentation and must survive future simplification of the API.\cite{guide,core,certificates,native,dlmf-asymptotic}

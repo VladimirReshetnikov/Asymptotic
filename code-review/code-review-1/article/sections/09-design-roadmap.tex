@@ -1,0 +1,76 @@
+\section{Proposed architecture and development roadmap}
+\subsection{A small trusted contract layer}
+The most effective refactoring is not a rewrite of all expansion algorithms. Introduce a small common layer that validates a result before any adapter returns it and that every operation uses for branch and precision decisions. A normalized internal germ record could contain:
+\begin{lstlisting}
+<|"SchemaVersion" -> 1,
+  "Variable" -> x,
+  "Approach" -> <|"Point" -> x0, "Direction" -> direction|>,
+  "Coordinate" -> positiveSmallCoordinate,
+  "AssumptionContext" -> effectiveAssumptions,
+  "Domain" -> retainedDomain,
+  "Representation" -> representation,
+  "ErrorContract" -> errorContract,
+  "Evidence" -> evidence,
+  "RefinementRecipe" -> recipe,
+  "Capabilities" -> capabilities|>
+\end{lstlisting}
+This is a design sketch, not implemented package syntax. The existing family associations can initially be adapted to it without changing user-visible expressions.
+
+The common validator should check that a purported positive coordinate is attached to the correct approach, that retained weights and remainders are ordered under the stored context, that exactness is supported, and that branch-sensitive operations have the required evidence. It should distinguish a formal coefficient identity, an asymptotic theorem application, a declared hypothesis, numerical evidence, and an interval certificate. A single Boolean \code{"Verified"} would erase those distinctions.
+
+\subsection{An explicit error-contract algebra}
+Represent error information with distinct kinds: exact zero; power--log envelope; a finite sum of carrier-weighted envelopes; finite sector remainder; and a derivative contract attached to a particular envelope and coordinate. Optional explicit constants and validity regions should be separate from an asymptotic class with an unknown constant.
+
+Central operations should include addition, multiplication, pullback through a proved coordinate map, differentiation with an admitted derivative order, and a branch-aware observable transport rule. A comparison function should return proved dominance, proved nondominance, or unknown. Unknown must not collapse to true because a simplifier failed or a numerical estimate looked plausible.
+
+This layer can eliminate duplicated logic between ordinary jets and composite envelopes. It also provides a natural place to fix A01: the power operation must request a branch certificate or a known positive leading unit. An adapter should not be able to bypass that requirement by calling a lower-level coefficient routine directly.
+
+\subsection{Captured assumptions and proof context}
+Capture the effective context at the outermost public entry. Pass it explicitly through normalization, zero tests, exact comparison, branch selection, native adapters, and refinement. Neutralize ambient \code{$Assumptions} around internal evaluation. Record any additional proved or required domain restrictions when transformations are applied.
+
+A proof-cache key should include the expression, assumptions, coordinate, direction, and relevant algorithm/version settings. An assumption formula must remain a hypothesis, not be simplified away under itself. When combining two objects, form a compatible joint context and reject inconsistent branches; do not merely retain whichever association happens to be first in the argument list.
+
+Because Wolfram expressions can evaluate through user definitions, a held public boundary is only one part of this policy. Clearly define which inputs are evaluated normally, which callable syntax is preserved, and when own values or definitions are captured. The current held inverse syntax and normalizer are valuable starting points, but assumptions deserve the same explicit treatment.\cite{arithmetic,inverseexpressions}
+
+\subsection{A clean native adapter boundary}
+Expose conversion as an operation with a plan and a loss report. A possible result is a native value plus a sidecar describing dropped branch/domain/error information, or \code{Missing} when strict conversion is impossible. Conversion must never allocate a dense representation before checking its size.
+
+For native special-function imports, retain the existing conservative handling of structured errors, real-domain proofs, and exact carriers. Add a trace identifying which native call supplied the expansion, its working order, the accepted remainder comparison, and the final representation. Do not infer exactness merely because a native result happened to contain no \code{SeriesData}; the inspected equality check is an important safeguard to preserve.\cite{native}
+
+\subsection{Capabilities and request normalization}
+A proposed \code{SeriesCapabilities[s]} should describe supported arithmetic, composition, differentiation depth, refinement sources, numerical checking, certificate support, and conversion restrictions. The result should be machine-readable as well as useful in a notebook summary. This avoids brittle external tests against family-name strings.
+
+Normalize requests into explicit order semantics before dispatch. A result should say, for example, ``exclusive power weight $h$ in $1/X$, with complete polynomials in $1/\log X$,'' or ``inclusive sector degree $n$ with exclusive inner cutoff $h$.'' Existing compact syntax can remain, but it should map to that single request model. Record requested and achieved precision separately, including the first known omitted block and any input precision cap.
+
+\subsection{Development stages and acceptance criteria}
+\begin{longtable}{P{0.12\textwidth}P{0.4\textwidth}P{0.38\textwidth}}
+\toprule Stage & Work & Acceptance criterion \\\midrule
+\endfirsthead
+\toprule Stage & Work & Acceptance criterion \\\midrule
+\endhead
+1: Correctness & Fix A01 and A04; cap dense export; define strict/permissive conversion. & Native path-equivalence and assumption-provenance regressions pass; optional export cannot exhaust the sparse request budget. \\
+2: Release trust & Full native suite, source/artifact manifests, schema compatibility, license metadata alignment. & Each release links tested source hashes, generated artifact hashes, kernel/platform matrix, and explicit unsupported cases. \\
+3: Contract consolidation & Shared assumptions, error algebra, request normalization, capabilities. & Every constructor and operation passes common invariant tests; no family silently drops conditions. \\
+4: Measured performance & Profile comparisons, frontiers, Gamma/Barnes recurrences, adapter dispatch, and object storage. & Public-call speedups preserve exact coefficients, branch conditions, and error strength; memory is reported. \\
+5: Focused extensions & Fill operation-closure gaps and add high-value admitted families. & Each extension has a mathematical admission theorem, precise remainder semantics, and adversarial tests. \\
+\bottomrule
+\end{longtable}
+These stages are ordered by dependency, not by a promised delivery schedule. A small correctness-focused release is more valuable than simultaneously changing the object schema, dispatch architecture, and expansion families without a full native test gate.
+
+\subsection{High-value mathematical extensions}
+\textbf{Closure within existing scales.} Before adding more named functions, make compatible logarithmic, Gamma/Barnes, exact-core, and composite objects easier to compose and refine. Preserve exact carrier information whenever expanding it prematurely would lose the requested error hierarchy.
+
+\textbf{Coupled implicit equations and varying parameters.} The current inverse-expression layer accepts selected affine output-family reductions; genuinely coupled varying parameters are rejected. A natural extension is a parameter-dependent implicit solver with a proved nonsingular Jacobian in an explicit coefficient ring. Singular or coalescing regimes need a different balance and should not be treated as an ordinary extension of a fixed-parameter formula.\cite{inverseexpressions}
+
+\textbf{Uniform regimes and resonances.} When exponents depend on parameters, gaps can vanish or change order, and a fixed truncation region can become nonuniform. Add parameter strata with proved order relations and identify transition regimes explicitly. A request with $\delta\to0$ together with $u\to0$ may require keeping $\delta\log u$ as a new scale variable.
+
+\textbf{More certificate languages.} Extend exact enclosures to useful special functions only when an independent tail or interval theorem is available. Export a compact proof trace so another checker can replay the enclosure arithmetic. Keep asymptotic family certificates distinct from certificates of the stored explicit function; an unknown Big-O family needs quantitative constants and a validity interval before interval enclosure is possible.
+
+\textbf{Complex sectors and Stokes behavior.} A genuine complex transseries extension would need sector domains, branch determinations, exponential dominance orders, and Stokes data or connection information where relevant. This is not achieved by replacing ``real'' with ``complex'' in existing positivity checks. It is a worthwhile research direction, but it should be a distinct capability with its own contracts rather than an overbroad claim attached to the current real engine.
+
+\textbf{Discrete and combinatorial interfaces.} Native discrete asymptotics already provide a broad baseline. A package extension would be most valuable when it transports a discrete asymptotic expansion into a selected continuous inverse or retains exponentially small arithmetic contributions with explicit conventions. Avoid an ambiguous ``inverse sequence'' API until interpolation or generalized-inverse semantics are specified.\cite{wl-discrete}
+
+\subsection{A recommended product description}
+A defensible description is: \emph{a Wolfram Language toolkit for selected real generalized asymptotic expansions and inverse germs, with exact-weight coefficient calculus, explicit error contracts, and reusable branch-aware operations}. It should not claim to solve every transseries inversion problem or to supersede the host language's full asymptotic ecosystem.
+
+That narrower description is not a limitation of ambition. It identifies the part worth making exceptionally reliable. A rigorous common contract layer, transparent native cooperation, and a reproducible validation matrix would make the existing mathematical work considerably easier to trust and extend.

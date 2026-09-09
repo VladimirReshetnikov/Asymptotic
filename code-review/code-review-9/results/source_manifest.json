@@ -1,0 +1,216 @@
+{
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "commit_time_utc": "2026-09-09T19:01:30Z",
+  "paclet_version": "1.8.0",
+  "review_date": "2026-09-09",
+  "retrieval": "GitHub connector file reads pinned to the commit; no local full checkout",
+  "not_claimed": [
+    "Exhaustive line-by-line review of all 38 kernel files",
+    "Native kernel execution",
+    "Full upstream test-suite execution",
+    "Complete proof audit of all article chapters"
+  ],
+  "reviewed_files": [
+    {
+      "path": "README.md",
+      "git_blob_sha1": null,
+      "source_line_windows": [
+        [
+          1,
+          150
+        ]
+      ],
+      "scope": "Reader-facing feature and loading contract",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/README.md"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/AsymptoticInverse.wl",
+      "git_blob_sha1": "ea9eaf4a11130e922ac4fb3faae37fd8e8d29643",
+      "source_line_windows": [
+        [
+          1,
+          1260
+        ]
+      ],
+      "scope": "Entire modular core reviewed through overlapping source windows",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/AsymptoticInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SeriesOperations.wl",
+      "git_blob_sha1": "b7bec8e526d2ead826125479db125858792d7e19",
+      "source_line_windows": [
+        [
+          1,
+          425
+        ]
+      ],
+      "scope": "Entire explicit operations and refinement implementation reviewed",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SeriesOperations.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SeriesArithmetic.wl",
+      "git_blob_sha1": "8b547b0698aae5fc3b7fca9d2d80c56bfc30d36a",
+      "source_line_windows": [
+        [
+          1,
+          145
+        ]
+      ],
+      "scope": "Public arithmetic dispatch and regular operand conversion",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SeriesArithmetic.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/InverseFunctionExpressions.wl",
+      "git_blob_sha1": "200f46ee2994e5b366a1bc169daa58d27861bcdc",
+      "source_line_windows": [
+        [
+          1,
+          160
+        ]
+      ],
+      "scope": "Forward dispatch, eventual conditions and input-jet conditions",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseFunctionExpressions.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/InverseCertificates.wl",
+      "git_blob_sha1": "c447755ab58f02aa8a80fa374329e00d6ff9641e",
+      "source_line_windows": [
+        [
+          1,
+          318
+        ]
+      ],
+      "scope": "Rational enclosures, domain validation, residual/derivative certificate and public argument checks",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseCertificates.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/NativeSpecialFunctions.wl",
+      "git_blob_sha1": "86ade501d64b0ec9a6cc42a4d9e37bbd580d1485",
+      "source_line_windows": [
+        [
+          1,
+          305
+        ]
+      ],
+      "scope": "Entire structured native import and remainder handling reviewed",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/NativeSpecialFunctions.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/IncrementalInverse.wl",
+      "git_blob_sha1": "11e74e13a35d73bb659e3a827b755c14c8fe9b37",
+      "source_line_windows": [
+        [
+          1,
+          150
+        ]
+      ],
+      "scope": "Immutable Lagrange state, cache management and Newton doubling",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/IncrementalInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/GammaInverse.wl",
+      "git_blob_sha1": "e46c1046f8d9af7a67f4a132c0b3cb6767ca2aea",
+      "source_line_windows": [
+        [
+          1,
+          220
+        ]
+      ],
+      "scope": "Entire Gamma/Barnes shared inverse constructor and truncator reviewed",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/GammaInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Documentation/UserGuide.md",
+      "git_blob_sha1": "618d8206c8a518f99eaa4b1a6d632f1063a5cd52",
+      "source_line_windows": [
+        [
+          1,
+          160
+        ],
+        [
+          200,
+          370
+        ]
+      ],
+      "scope": "Public syntax, result schema, remainder and SeriesData caveats",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Documentation/UserGuide.md"
+    },
+    {
+      "path": "validation/README.md",
+      "git_blob_sha1": "c9fa63ada03d8a72a6c9a6dec258af258ceff912",
+      "source_line_windows": [
+        [
+          1,
+          180
+        ]
+      ],
+      "scope": "Current scoped validation and benchmark record",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/validation/README.md"
+    },
+    {
+      "path": ".github/workflows/standalone.yml",
+      "git_blob_sha1": "2ec5fd70e9a297009ec8ddbf7e47545b929f0987",
+      "source_line_windows": null,
+      "scope": "Entire CI workflow",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/.github/workflows/standalone.yml"
+    },
+    {
+      "path": "AsymptoticInverse/PacletInfo.wl",
+      "git_blob_sha1": "f41b43c96baf759f7f45256890cb73c097fe977a",
+      "source_line_windows": null,
+      "scope": "Entire paclet metadata",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/PacletInfo.wl"
+    },
+    {
+      "path": "docs/development/README.md",
+      "git_blob_sha1": "af48e55e87503e000ebdd9ebd4cd3c09c43ed60d",
+      "source_line_windows": null,
+      "scope": "Entire documentation/provenance index and build notes",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/docs/development/README.md"
+    },
+    {
+      "path": "article/asymptotic-inverse.tex",
+      "git_blob_sha1": "96c659e42efa6a180c9b7216e5eff31d6001de79",
+      "source_line_windows": [
+        [
+          1,
+          135
+        ]
+      ],
+      "scope": "Abstract and section structure, not all included theorem chapters",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/article/asymptotic-inverse.tex"
+    },
+    {
+      "path": "AsymptoticInverse.wl",
+      "git_blob_sha1": "65363f73158c3d01e10fa274385341f9585c1efc",
+      "source_line_windows": [
+        [
+          1,
+          24
+        ]
+      ],
+      "scope": "Standalone header and blob identity, not full generated duplicate",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse.wl"
+    },
+    {
+      "path": "LICENSE",
+      "git_blob_sha1": "7d2b7fa09617f2024f157a40a318f4b12586644b",
+      "source_line_windows": null,
+      "scope": "Entire license text",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/LICENSE"
+    },
+    {
+      "path": "AsymptoticInverse/Tests/AcceptanceCoordinatesCalculus.wlt",
+      "git_blob_sha1": "1e15800fcba5909f543b2906490beb417981a1f6",
+      "source_line_windows": [
+        [
+          1,
+          150
+        ]
+      ],
+      "scope": "Independent formula, branch, observable and precision-transport acceptance tests inspected; not executed",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Tests/AcceptanceCoordinatesCalculus.wlt"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "runtime": "3.13.5",
+  "kind": "independent mathematical checks",
+  "native_wolfram_execution": false,
+  "checks": [
+    {
+      "name": "dense-allocation-arithmetic",
+      "q": 101,
+      "requested_zero_slots": 100,
+      "retained_blocks": 1,
+      "status": "passed",
+      "note": "Arithmetic only; no dense list is allocated. SeriesData may subsequently trim zeros."
+    },
+    {
+      "name": "dense-allocation-arithmetic",
+      "q": 1009,
+      "requested_zero_slots": 1008,
+      "retained_blocks": 1,
+      "status": "passed",
+      "note": "Arithmetic only; no dense list is allocated. SeriesData may subsequently trim zeros."
+    },
+    {
+      "name": "dense-allocation-arithmetic",
+      "q": 1000000007,
+      "requested_zero_slots": 1000000006,
+      "retained_blocks": 1,
+      "status": "passed",
+      "note": "Arithmetic only; no dense list is allocated. SeriesData may subsequently trim zeros."
+    },
+    {
+      "name": "logarithmic-error-ratio",
+      "n": [
+        1,
+        10,
+        100,
+        1000
+      ],
+      "ratio": [
+        1,
+        10,
+        100,
+        1000
+      ],
+      "status": "passed",
+      "identity": "|x^2 log(x)| / x^2 = n at x=exp(-n)"
+    },
+    {
+      "name": "quadratic-inverse-exact-composition",
+      "cutoff": 14,
+      "coefficients": [
+        "1",
+        "-1",
+        "2",
+        "-5",
+        "14",
+        "-42",
+        "132",
+        "-429",
+        "1430",
+        "-4862",
+        "16796",
+        "-58786",
+        "208012"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "collision-count-demonstration",
+      "gaps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "depth": 12,
+      "multi_indices_at_most_depth": 125970,
+      "upper_bound_distinct_weights": 97,
+      "status": "passed",
+      "note": "Combinatorial illustration, not a benchmark or a count for an exponent-truncated run."
+    },
+    {
+      "name": "weighted-multi-index-count",
+      "gaps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "exclusive_weight_cutoff": 19,
+      "multi_indices": 1313,
+      "distinct_weights": 19,
+      "status": "passed",
+      "note": "Exact support count, not a native timing measurement."
+    }
+  ],
+  "passed": 7,
+  "failed": 0
+}

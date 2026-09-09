@@ -1,0 +1,90 @@
+[
+  {
+    "id": "A01",
+    "severity": "High",
+    "evidence": "Source-proven guard bypass; public execution predicted, not run",
+    "finding": "Nested fractional powers of a pure remainder bypass the direct real-branch guard",
+    "patch_proposed": true,
+    "native_verified": false
+  },
+  {
+    "id": "A02",
+    "severity": "High",
+    "evidence": "Source allocation established; exact span computed without allocation",
+    "finding": "Eager sparse-to-dense conversion can allocate 100150056 slots for two retained rational-power blocks",
+    "patch_proposed": true,
+    "native_verified": false
+  },
+  {
+    "id": "A03",
+    "severity": "Low-medium",
+    "evidence": "Exact recurrence proof; native performance not measured",
+    "finding": "Permanent zero coefficient tail uses Continue instead of Break",
+    "patch_proposed": true,
+    "native_verified": false
+  },
+  {
+    "id": "A04",
+    "severity": "Medium",
+    "evidence": "Structural risk; no native memory measurement",
+    "finding": "Whole-operand recipes can produce exponentially expanded serialization",
+    "patch_proposed": false,
+    "native_verified": false
+  },
+  {
+    "id": "A05",
+    "severity": "Medium",
+    "evidence": "Trusted external-constructor boundary; malformed-input probe",
+    "finding": "Raw object associations can disagree with their internal representation",
+    "patch_proposed": false,
+    "native_verified": false
+  },
+  {
+    "id": "A06",
+    "severity": "Medium",
+    "evidence": "Observed design limitation",
+    "finding": "Fragmented work/resource budgets and expansion preflight gaps",
+    "patch_proposed": false,
+    "native_verified": false
+  },
+  {
+    "id": "A07",
+    "severity": "Medium",
+    "evidence": "Repository explicitly records focused rather than full semantic validation",
+    "finding": "Release evidence needs a complete native suite and matrix",
+    "patch_proposed": false,
+    "native_verified": false
+  },
+  {
+    "id": "A08",
+    "severity": "Medium",
+    "evidence": "Documented design/UX/compatibility tradeoffs",
+    "finding": "Several cutoff, power, assumptions and evaluation conventions share one head",
+    "patch_proposed": false,
+    "native_verified": false
+  },
+  {
+    "id": "R01",
+    "severity": "Unconfirmed",
+    "evidence": "Helper proof obligation; no public failing input established",
+    "finding": "Reality of a finite trigonometric argument does not establish reality of its unknown error",
+    "patch_proposed": false,
+    "native_verified": false
+  },
+  {
+    "id": "R02",
+    "severity": "Unconfirmed",
+    "evidence": "Consistency probe; symbolic-domain policy needs resolution",
+    "finding": "Scalar realness validation differs between ordinary arithmetic and nested observables",
+    "patch_proposed": false,
+    "native_verified": false
+  },
+  {
+    "id": "R03",
+    "severity": "Unconfirmed",
+    "evidence": "Fallback coverage/proof obligation; no public counterexample established",
+    "finding": "Unresolved native tail may not justify logarithmic degree zero",
+    "patch_proposed": false,
+    "native_verified": false
+  }
+]

@@ -1,0 +1,52 @@
+{
+  "repository": "https://github.com/VladimirReshetnikov/Asymptotic",
+  "commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "package_version": "1.8.0",
+  "commit_timestamp_utc": "2026-09-09T19:01:30Z",
+  "review_date": "2026-09-09",
+  "declared_wolfram_requirement": "15.0+",
+  "native_wolfram_executed": false,
+  "native_runtime_limitation": "Connected evaluator failed even on version query; no local Wolfram kernel available.",
+  "source_access": "GitHub connector, immutable file/range reads; no local repository checkout assembled.",
+  "independent_mathematical_checks": {
+    "passed": 42,
+    "failed": 0,
+    "file": "mathematical_checks.json",
+    "not_package_execution": true
+  },
+  "patch_planner_checks": {
+    "passed": 6,
+    "failed": 0,
+    "scope": "synthetic fixtures only; not applied to real checkout or executed in Wolfram"
+  },
+  "native_regressions": {
+    "count": 15,
+    "executed": false
+  },
+  "native_benchmarks": {
+    "executed": false
+  },
+  "repository_reported_native_validation": {
+    "passed": 305,
+    "failed": 0,
+    "selected_suites": 18,
+    "full_suite_run": false,
+    "independently_replicated": false
+  },
+  "findings_count": 14,
+  "patch_scope": [
+    "A01 conservative guard",
+    "A02 interim fixed allocation cap",
+    "A03 strict export policy"
+  ],
+  "not_patched": [
+    "A04 ambient assumption provenance",
+    "lazy export",
+    "unified resource policy"
+  ],
+  "license_metadata_discrepancy": {
+    "PacletInfo": "MIT",
+    "LICENSE": "MIT No Attribution (MIT-0)"
+  },
+  "coverage_limit": "No claim of exhaustive line-by-line audit of every module or proof; see source_coverage.csv."
+}

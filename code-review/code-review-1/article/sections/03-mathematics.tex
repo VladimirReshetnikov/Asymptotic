@@ -1,0 +1,170 @@
+\section{Mathematical analysis of the core}
+\subsection{Why complete blocks are the correct unit}
+Let $L=\log u$ and consider a finite set of terms $u^{\beta_j}P_j(L)$. For distinct real exponents, a smaller exponent dominates a larger one as $u\to0^+$, regardless of any fixed polynomial logarithmic degree. At a fixed exponent, however, logarithmic degree and cancellation matter. Thus
+\[
+ u^2(L^2+L)-u^2L^2=u^2L
+\]
+is one surviving block, not two terms of unrelated order. Similarly, terms arising from different multi-indices can cancel their entire polynomial coefficient. An algorithm that truncates or counts contributions before merging equal weights can return an incorrect term count and an incorrect frontier.
+
+The package's use of exact exponent canonicalization, complete polynomial coefficients, and layer-based merging is mathematically well motivated. For algebraic exponents, root reduction supports exact equality and ordering. For more general exact constants, simplification and sign decisions may be harder; a failure to prove an order should not be replaced by a floating-point comparison.\cite{core,incremental}
+
+For positive gaps $\delta_1,\ldots,\delta_m$, the set
+\[
+ \{k\in\N^m:k\cdot\delta<H\}
+\]
+is finite for every finite $H$. This is the elementary reason that the finitely generated positive-weight model supports exact finite truncation even when some weights are irrational. Rational dependence creates collisions; irrationality does not itself prevent a finite computation. Uniform behavior as a parameter causes a gap to approach zero is a different problem, addressed in the roadmap rather than assumed here.
+
+\subsection{The Euler-operator coefficient formula}
+Write the forward model as
+\begin{equation}\label{eq:model}
+ f(u)=y_0+a u^p\left(1+\sum_{i=1}^{m}u^{\delta_i}P_i(\log u)\right),
+ \qquad a\ne0,\quad p\ne0,\quad\delta_i>0.
+\end{equation}
+On a selected real branch define $v=y-y_0$ when the target limit is finite, and use the corresponding unshifted signed target at infinity. The positive uniformizer is
+\[
+ z=(v/a)^{1/p},\qquad z\to0^+.
+\]
+For a fixed observable power $r$, expand $u^r$ about $z^r$. If
+\[
+ n=|k|,\qquad w=k\cdot\delta,\qquad Q_k(L)=\prod_iP_i(L)^{k_i},
+\]
+the implementation's nonzero multi-index coefficient is
+\begin{equation}\label{eq:euler}
+ C_k(L)=\frac{(-1)^n r}{p^n\prod_i k_i!}
+ \prod_{j=1}^{n-1}\left(\frac{\dd}{\dd L}+r+w+pj\right)Q_k(L),
+ \qquad n\ge1,
+\end{equation}
+with $C_0=1$. Consequently,
+\begin{equation}\label{eq:inverseformal}
+ u^r=z^r\sum_k z^{k\cdot\delta}C_k(\log z)
+\end{equation}
+in the formal marker expansion, and as an asymptotic expansion under the requisite local regularity and remainder hypotheses. This is the formula implemented by \code{lagrangeCoefficient} and its cached counterpart.\cite{core,incremental,repoarticle}
+
+\begin{proposition}
+The coefficient formula \eqref{eq:euler} follows from perturbative Lagrange inversion with the leading monomial retained as the exact core.
+\end{proposition}
+\begin{proof}
+Introduce independent markers $t_i$ in the corrections of \eqref{eq:model}, divide by $a$, and regard $s=v/a$ as the target. The inverse of the unperturbed map $u\mapsto u^p$ is $z=s^{1/p}$. The coefficient of total marker degree $n$ in an observable $u^r$ is obtained by applying $n-1$ target derivatives to the product of its core derivative and the $n$ perturbation factors. For a fixed multi-index $k$, the multinomial coefficient converts $1/n!$ to $1/\prod_i k_i!$. The starting product is
+\[
+ \frac r p z^{r-p}\,z^{pn+w}Q_k(\log z)
+ =\frac r p z^{r+p(n-1)+w}Q_k(L).
+\]
+Since
+\[
+ \frac{\dd}{\dd s}\bigl(z^A Q(L)\bigr)
+ =\frac1p z^{A-p}\left(A+\frac{\dd}{\dd L}\right)Q(L),
+\]
+the $n-1$ derivatives give the factors with constants
+$r+w+p(n-1),\ldots,r+w+p$. These operators commute, and their product yields \eqref{eq:euler}, including the sign $(-1)^n$. This derivation establishes the formal coefficient identity; analytic convergence or finite-order error control requires separate hypotheses.
+\end{proof}
+
+A computational advantage follows immediately: for fixed $(n,w)$, every contributing multi-index has the same Euler-operator product. Summing the weighted products $Q_k/\prod k_i!$ before differentiating can avoid repeated polynomial work. This explains the grouped Lagrange route; it is not an arbitrary alternate formula.
+
+\subsection{Independent coefficient checks}
+For $f(u)=u+u^2$, formula \eqref{eq:euler} gives the alternating Catalan coefficients:
+\[
+ u=y-y^2+2y^3-5y^4+14y^5-42y^6+\cdots.
+\]
+For $f(u)=u+u^\alpha$ with $\alpha>1$, it gives
+\[
+ u=y-y^\alpha+\alpha y^{2\alpha-1}
+ -\frac{\alpha(3\alpha-1)}2 y^{3\alpha-2}+\cdots.
+\]
+In particular, $\alpha=\sqrt2$ requires no rational exponent lattice. For
+$f(u)=u+u^2(1+\log u)$, the first complete logarithmic blocks are
+\begin{align*}
+ u={}&y-y^2(1+\log y)\\
+ &+y^3\bigl(2\log^2y+5\log y+3\bigr)+\cdots.
+\end{align*}
+The accompanying Python program checks these identities, the $p=2$ Puiseux case, and collision sums for $u+u^2+u^3$ against independent ordinary Lagrange coefficients. These are mathematical cross-checks, not tests of Wolfram evaluation, package parsing, or native object formatting.
+
+\subsection{Precision algebra and its invariants}
+Suppose $A$ and $B$ are finite retained expressions with errors $R$ and $S$. Then
+\[
+ (A+R)(B+S)=AB+AS+BR+RS.
+\]
+The error order must account for the leading size of each retained expression, both input errors, and any newly discarded boundary products. The code's precision-aware multiplication does this through valuations, leading logarithmic degrees, and an explicit boundary-degree scan. The recent optimization to a monotone boundary walk changes the cost of finding that degree, not the underlying error identity.\cite{core}
+
+Addition combines the weaker of the two error classes. It cannot generally improve a remainder simply because the visible leading terms cancel. For example, two independently represented quantities $u+\OO(u^2)$ and $-u+\OO(u^2)$ add to $\OO(u^2)$, not exact zero. On the other hand, an expression that uses the very same exact algebraic object may have exact identities. The normalizer's treatment of evaluation and cancellation must therefore respect both symbolic identities and uncertainty; conservative loss of a correlation is different from inventing precision.\cite{arithmetic}
+
+For a positive leading monomial $A\sim c u^\alpha$, $c>0$, a differentiable fixed power satisfies
+\[
+ (A+R)^r-A^r=\OO\bigl(u^{\alpha(r-1)}R\bigr)
+\]
+when the relative error is small. Without a sign or branch hypothesis this statement cannot serve as a real-power rule. A pure magnitude remainder $R=\OO(u^P)$ is especially dangerous: it does not reveal whether $R$ is positive, negative, identically zero, or sign-changing. Finding A01 occurs precisely at that logical boundary.
+
+\subsection{Inverse error transport}
+Assume a real branch with
+\[
+ f_0'(u)\sim ap\,u^{p-1},\qquad
+ f(u)=f_0(u)+\OO(u^\rho\Lenv^k),
+\]
+with enough derivative control to ensure local invertibility and stable comparison of the selected inverse branches. Let $g_0$ and $g$ be the corresponding local inverses. A mean-value argument gives
+\begin{equation}\label{eq:inverseerror}
+ g(y)-g_0(y)=\OO(u^{\rho-p+1}\Lenv^k).
+\end{equation}
+For the observable $u^r$, the derivative contributes another factor $u^{r-1}$:
+\begin{equation}\label{eq:observableerror}
+ g(y)^r-g_0(y)^r=\OO(u^{\rho-p+r}\Lenv^k).
+\end{equation}
+In the package's positive small target coordinate this corresponds to an exponent divided by $|p|$, with the appropriate internal sign of the observable power for a source infinity. This explains why a forward remainder can cap an inverse request even when many formal coefficients are computable.\cite{core,guide}
+
+The guide's \code{"InputRemainder" -> {rho,k}} is stronger than a bare pointwise Big-O declaration: it includes a matching first-derivative order. That convention is mathematically necessary for the advertised inverse transport. It should remain explicit in any redesigned request object rather than being shortened to ``input error order.''\cite{guide}
+
+\subsection{Differentiation requires additional information}
+A simple counterexample shows why arbitrary magnitude remainders cannot be differentiated:
+\[
+ R(u)=u^2\sin(u^{-3})=\OO(u^2),
+\]
+but
+\[
+ R'(u)=2u\sin(u^{-3})-3u^{-2}\cos(u^{-3})
+\]
+is not $\OO(u)$. Thus \code{RemainderDerivativeOrder} is a mathematical contract, not merely a performance hint. A constructor with an analytically justified differentiable expansion may supply it; a user may declare it with responsibility for the hypothesis; an unrelated pure Big-O input does not imply it. The independent checks verify the derivative identity.\cite{operations,guide}
+
+The same principle extends to other operations. Exponentiation needs a vanishing absolute error in the exponent if it is to produce a small relative multiplicative error. Keeping a large exponential carrier exact is sound; exponentiating a rough logarithmic-depth approximation without checking its absolute error can be catastrophically unsound. The inspected source-coordinate and exponential operation paths explicitly guard this issue.\cite{operations,sourcecharts}
+
+\subsection{Oscillatory and flat scales}
+An oscillatory coefficient such as $\cos(\log u)$ is bounded, but it has zeros arbitrarily close to $u=0$. Consequently, an absolute envelope may remain valid while a relative error or reciprocal expansion does not. A general algorithm cannot promote ``bounded coefficient'' to ``nonzero leading unit.'' The native importer preserves oscillations inside bounded coefficients and uses separate absolute errors rather than relying on such a promotion.\cite{native}
+
+An exponentially small sector, for example $e^{-1/u}$, is smaller than every positive power of $u$. A finite number of algebraic terms cannot reveal it. Conversely, a finite-sector expansion with a sector-degree cutoff is not automatically complete within each sector's algebraic coefficient expansion. The repository's distinction between sector depth and inner cutoff is essential. A more unified API should expose both quantities, not disguise them as the same integer order.\cite{guide,repoarticle}
+
+\subsection{Gamma and Barnes cores}
+The Gamma inverse code solves its leading logarithmic balance exactly in terms of a Lambert core. If $T$ denotes the logarithmic target for Gamma, or the target for LogGamma, then
+\[
+ X(\log X-1)=T,
+ \qquad X=\frac{T}{W(T/e)}.
+\]
+Writing the inverse as a series in $1/X$ with whole polynomial coefficients in $1/\log X$ preserves the scale separation between algebraic corrections and logarithmic substructure. The first normalized correction in the inspected recurrence is
+\[
+ x=X+\frac12-\frac{\log(2\pi)}{2\log X}+\cdots
+\]
+for the unshifted positive Gamma argument. Affine source transformations are handled separately.\cite{gamma,dlmf-gamma}
+
+For Barnes G, the leading logarithmic model in the shifted argument $X$ gives
+\[
+ \frac12X^2\left(\log X-\frac32\right)=T,
+ \qquad X=\sqrt{\frac{4T}{W(4T/e^3)}}.
+\]
+The original Barnes argument is shifted by one; the natural reciprocal-log coefficient coordinate in the implementation is $1/(\log X-1)$. These details are easy to lose in an oversimplified ``inverse of Gamma-like growth'' routine.\cite{gamma,dlmf-barnes}
+
+Retaining the Lambert core does not turn Stirling or Barnes asymptotic series into convergent series. The implementation correctly identifies these as finite-order Poincar\'e constructions. A fixed finite expansion of $W$ in nested logarithms should not be substituted casually: its error can be much larger than the inverse-power corrections that the algorithm is attempting to retain. A future fully nested implementation must carry that extra error through the observable, not merely replace one printed expression with another.\cite{gamma,dlmf-gamma,dlmf-barnes}
+
+\subsection{What the exact certificate proves}
+Let $F$ be the stored explicit function, $y$ an exact target, $I=[a,b]$ a verification interval, and $c\in(a,b)$ a center. Suppose exact interval evaluation establishes continuity on $I$, a constant derivative sign, and
+\[
+ |F'(x)|\ge\mu>0\quad(x\in I),\qquad |F(c)-y|\le\varepsilon.
+\]
+If $[c-\varepsilon/\mu,c+\varepsilon/\mu]\subseteq I$, monotonicity and the derivative bound establish a unique root in that bracket. Alternatively, exact endpoint signs can establish existence in $I$ first. A second mean-value enclosure using the signed interval for $F'$ can sharpen the root interval. This is the structure of the inspected certificate routine.\cite{certificates}
+
+The implementation's final proof arithmetic uses exact rational endpoints, directed dyadic rounding, and explicit elementary exponential/logarithm tails. Floating-point computation chooses a seed only. Unsupported predicates or expression forms are not silently accepted. A declared asymptotic input remainder is not enclosed by the certificate; the result explicitly says that it certifies the stored expression rather than every member of an unspecified remainder family.\cite{certificates}
+
+The independent bundle checks a simple example without calling the package. For $F(x)=x+x^2$, $y=1/10$, $c=9/100$, and $I=[2/25,1/10]$,
+\[
+ F(c)-y=-\frac{19}{10000},\qquad F'(I)=\left[\frac{29}{25},\frac65\right].
+\]
+The error radius is $19/11600$, and signed derivative sharpening yields
+\[
+ x_*\in\left[\frac{1099}{12000},\frac{1063}{11600}\right].
+\]
+This demonstrates the certificate argument, not independent verification of every branch of the repository's interval evaluator.

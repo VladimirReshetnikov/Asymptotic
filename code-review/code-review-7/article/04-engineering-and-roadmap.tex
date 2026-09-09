@@ -1,0 +1,249 @@
+\section{Performance and scalability}
+\label{sec:performance}
+
+\subsection{Existing optimizations should not be proposed as new work}
+
+The inspected implementation is not uniformly naive. Sparse jet multiplication exploits sorted weights to find admissible product columns before multiplying coefficients, and checks the product budget before allocating the retained product list. Integer powers use binary powering. Multi-index boundary neighbors are deduplicated as they are generated. Grouped Lagrange and Newton methods are already present. The newest change introduces a request-local logarithmic coefficient builder, including cached zero coefficients, and narrowly reuses identical composite-operand data.\cite{core,commit}
+
+A review recommending simply ``add memoization,'' ``use sparse multiplication,'' or ``implement Newton inversion'' would miss this work. The remaining problem is to make optimization decisions and budgets consistent across the entire request, including native views, proof attempts, normalization, and formatting.
+
+\subsection{Multi-index growth versus output growth}
+
+For positive gaps $\delta_i$ and a weight cutoff $H$, ordinary enumeration considers
+\[
+ \left\{\boldsymbol k\in\NN^m:
+        \sum_i k_i\delta_i<H\right\}.
+\]
+With fixed positive gaps, its leading volume estimate grows like
+$H^m/(m!\prod_i\delta_i)$ as the cutoff grows; boundary effects and resonance affect the exact count. Many multi-indices can contribute to a single output weight. Thus the number of nonzero output blocks can be much smaller than the amount of coefficient work.
+
+For commensurate gaps, grouped convolution may avoid repeated work over resonant indices. For noncommensurate gaps, support ordering and exact exponent comparison become important costs. A term goal further complicates matters: zeros can force exploration past many candidate weights. The repository already implements grouping, incremental state, and bounded termination checks; future profiling should distinguish their costs instead of attributing everything to the final term count.\cite{core,commit}
+
+The useful counters are candidate indices, distinct weights, zero blocks, polynomial degree, coefficient expression size, exponent-comparison count, and proof-oracle time. Report these alongside elapsed time. A large speedup caused by silently returning a weaker remainder is not a valid optimization.
+
+\subsection{One option currently represents several different resources}
+
+\texttt{MaxTerms} is used as a bound on sparse product pairs, multi-indices, expression leaves, requested orders, and other local work units. These units are not interchangeable. A single enormous exact coefficient can be expensive with one retained term; a rational exponent with a large denominator can trigger F01; and symbolic simplification or exact integer factorization can dominate without increasing a term count. The core's logarithm canonicalization and repeated symbolic reasoning therefore deserve profiling even after sparse multiplication has been optimized.\cite{core,parameterized,native,gammainverse}
+
+Replace the informal global meaning of \texttt{MaxTerms} with a request budget whose dimensions are explicit. A proposed shape is
+\begin{lstlisting}
+"ResourceBudget" -> <|
+  "SupportEntries" -> 20000,
+  "ProductPairs" -> 200000,
+  "CoefficientLeaves" -> 100000,
+  "DenseViewEntries" -> 100000,
+  "ProofSeconds" -> 5,
+  "TotalSeconds" -> 60
+|>
+\end{lstlisting}
+These numbers are illustrative policy defaults, not measured recommendations. Retain \texttt{MaxTerms} as a compatibility shorthand mapping to documented defaults. Preflight allocations where possible, check a total deadline between stages, and return the resource that was exhausted together with the work already justified.
+
+\subsection{Hard-coded proof budgets and fallthrough can hide the real bottleneck}
+
+Native-series probes and domain checks have different fixed timeouts. The parameterized-special-function wrapper can spend up to its local timeout, convert a failed or inapplicable attempt into \texttt{\$Failed}, and let the ordinary dispatcher try another route. A costly input may therefore pay several budgets sequentially and eventually receive an unhelpful unsupported-input message.\cite{parameterized,native,inverseexpressions}
+
+Use explicit outcomes such as \texttt{NotApplicable}, \texttt{UnsupportedScale}, \path{UnprovedCondition}, and \texttt{ResourceLimit}. The dispatcher may fall through on the first; it should preserve the reason and work record for the others. A diagnostic trace should show which adapters were considered, the effective method, the chosen scale, proof obligations, and stage timings. This would make both performance engineering and user support much easier.
+
+Request-local caching is a good default because assumptions, branch selections, coefficient variables, and source state matter. Global memoization without those components risks cross-request contamination. The current local-cache direction should be extended through a common context object, not replaced by unbounded global caches.\cite{commit,inverseexpressions}
+
+\subsection{What the reported benchmarks do and do not say}
+
+The latest repository record compares immutable commit \path{07a9781212beb2eeb9ff16aa625b50ac27974078} with the newer construction changes in fresh Wolfram 15.0.1 kernels. It reports one warm-up and three measured runs per fixture, and exact agreement of finite expressions and remainders in eight fixtures. Selected medians are reproduced below as \emph{repository-reported} values, not measurements from this audit.\cite{validation}
+
+\begin{center}
+\begin{tabular}{@{}P{9.0cm}rr@{}}
+\toprule Fixture & Before (s) & After (s)\\\midrule
+Generalized logarithmic inverse, six blocks & 8.09769 & 8.08571\\
+Cancelled logarithmic resonance, five blocks & 6.14373 & 6.09454\\
+Identical Gamma inverse composite, addition & 0.00170 & 0.00093\\
+Identical Gamma inverse composite, multiplication & 0.00116 & 0.00085\\
+Exact scalar added to Gamma inverse composite & 0.00153 & 0.00130\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The record itself says the public logarithmic times are essentially unchanged because bounded exact-composition checks dominate. It does not claim a general logarithmic speedup. The millisecond arithmetic fixtures should not be used to infer whole-workload performance. The earlier internal coordinate/Fourier improvements are likewise scoped microbenchmarks, not a comparison with built-in Wolfram asymptotic functions.\cite{validation}
+
+A useful future benchmark suite should have cold-load, warm public-call, and internal-kernel categories; randomize execution order; run isolated kernels; retain every sample; record hardware and source hashes; and compare equivalent branch/error targets. Peak memory and failed cases belong in the report. Performance thresholds should tolerate platform noise but catch asymptotic regressions such as dense lattice allocation.
+
+\subsection{Result and provenance size}
+
+Derived series retain recipes referring to their operands, and inverse-expression provenance can retain inverse series. This is valuable for refinement but can produce large serialized expression trees after repeated composition and arithmetic. The current audit did not measure pathological growth, so this is a profiling target rather than a demonstrated memory leak.\cite{operations,inverseexpressions}
+
+Separate the mathematical value from an optional provenance DAG with stable node identifiers. Provide compact inspection and a serialization mode that can omit or externalize caches. Avoid retaining duplicate complete operand histories when a shared immutable node would suffice. Cache removal must not remove information required to justify a result or reconstruct its branch.
+
+\section{API and user-experience design}
+\label{sec:api}
+
+\subsection{Names and discoverability}
+
+The repository is named \texttt{Asymptotic}, the package/context is \pkg, and its primary forward entry point is \path{AsymptoticExpansion}. The name reflects the project's origin but now understates its scope. This is not a reason to introduce a second abrupt rename. A clearer top-level description, reference index, and stable context would be preferable.\cite{guide,paclet}
+
+Version 1.8.0 replaces \texttt{PowerLogSeries} with \gseries\ without an exported compatibility alias. The guide explicitly warns that patterns and saved inputs must be updated. This is a real compatibility cost, even though it is documented. Add an import/migration function and a schema version for saved objects. Preserve old input migration separately from the runtime public head so that compatibility does not require every internal function to recognize multiple unvalidated representations.\cite{guide,validation}
+
+\subsection{Cutoff is an overloaded semantic parameter}
+
+The guide carefully explains that ordinary powers, correction brackets, inverse-log coordinates, retained cores, marker degrees, sector degrees, Fourier weights, and defining-sum weights have different order conventions. Some cutoffs are exclusive; marker and sector depths are inclusive. A multi-carrier term goal can return more than the requested total number of blocks because it applies per carrier. This is documented complexity, not missing documentation.\cite{guide}
+
+The API can still make these distinctions more visible. Introduce typed requests such as
+\begin{lstlisting}
+TruncationSpec["Power", "Coordinate" -> w,
+  "Below" -> h]
+TruncationSpec["RelativePower", "Below" -> h]
+TruncationSpec["SectorDegree", "Through" -> n]
+TruncationSpec["NonzeroBlocks", "Count" -> n,
+  "Scope" -> "PerCarrier"]
+\end{lstlisting}
+These are proposed interfaces, not existing symbols. Existing positional forms should translate to a normalized request object. A result should expose both \path{RequestedTruncation} and \path{AchievedTruncation}, the actual coordinate, the first excluded weight when known, and whether a term goal was reached or exact termination occurred.
+
+A lightweight \texttt{ExplainRequest} operation could state, before substantial computation, ``retain powers below $h$ in $1/X$, with each reciprocal-logarithmic coefficient kept whole.'' That is more useful than a generic list of options, especially when automatic dispatch changes the scale family.
+
+\subsection{The observable called \texttt{Power} changes meaning at one}
+
+At a finite source endpoint, \texttt{"Power" -> r} for $r\ne1$ returns a displacement power $(x-x_0)^r$, while $r=1$ returns the original source variable including its translation. In contrast, applying \texttt{SeriesPower[s,r]} to a result is naturally understood as a power of the whole represented expression. The distinction is explained in the guide but remains easy to miss in reusable code.\cite{guide,core,operations}
+
+A proposed replacement is an explicit observable:
+\begin{lstlisting}
+"Observable" -> Function[x, x^2]
+"Observable" -> Function[x, (x - x0)^2]
+\end{lstlisting}
+with an optional, separately named local-coordinate observable. Implement both through the same shared error-transport machinery used by \texttt{SeriesObservable}. Keep the old \texttt{Power} option as a documented compatibility translation. This both clarifies the API and reduces opportunities for direct-versus-nested validation differences such as F02.
+
+\subsection{Requested method versus effective method}
+
+The ordinary inverse defaults to \texttt{"Lagrange"} and also admits \texttt{"Newton"} and \texttt{"GroupedLagrange"}. The Gamma/Barnes inverse constructor accepts these ordinary method names as supported options but computes its family-specific ordered corrections through the same coefficient construction path. A user selecting Newton should be able to determine whether Newton was actually used.\cite{core,gammainverse}
+
+Expose \texttt{RequestedMethod}, \texttt{EffectiveMethod}, and \path{MethodSelectionReason}. An eventual \texttt{Method -> Automatic} can choose among existing ordinary algorithms using gap structure, support size, and coefficient complexity, but should first be evaluated against reproducible public benchmarks. A supplied explicit method should either be honored, reported as translated, or rejected with an actionable explanation.
+
+\subsection{A uniform result schema}
+
+The present association-based representation is flexible, but operations repeatedly branch on \texttt{Kind}, \texttt{Scale}, \path{SeriesRepresentation}, and optional coordinate keys. The arithmetic object's preliminary structural check requires only a few keys. This is not a validation of the full mathematical invariants. Hand-constructed or old saved associations can therefore reach deeper code with mismatched metadata.\cite{arithmetic,operations}
+
+The public contract should discourage direct construction and provide a validator. A proposed common schema includes:
+\begin{lstlisting}
+<|"SchemaVersion" -> 2,
+  "Germ" -> <|"Variable" -> x, "Point" -> x0,
+    "Direction" -> side, "Domain" -> domain|>,
+  "Scale" -> scaleDescriptor,
+  "FinitePart" -> sparseData,
+  "ErrorContract" -> errorDescriptor,
+  "Evidence" -> evidenceDescriptor,
+  "Recipe" -> recipeReference|>
+\end{lstlisting}
+Scale-specific data can remain in dedicated payloads. Common operations should depend on capabilities such as exact coefficient addition, ordered support, coordinate differentiation, absolute envelopes, and branch proofs, rather than arbitrary string tests scattered across modules.
+
+The validator should check positive local coordinate meaning, coefficient-domain declarations, support ordering and uniqueness, remainder/retained-support consistency, and which derivative orders are justified. Validation should not attempt to prove every analytic theorem afresh; it should verify that the required evidence or trusted-constructor tag is present and well formed.
+
+\subsection{Formatting, numerical evaluation, and \texttt{Normal}}
+
+The pretty representation deliberately hides the \gseries\ head and displays a familiar finite expression plus an $O$ term. Copying the formatted object preserves the underlying object; \texttt{Normal} explicitly drops the remainder. These are thoughtful usability choices. However, an attractive $O$ display can obscure the distinction between an asymptotic class, a numerical error bound, and a certified enclosure.\cite{guide}
+
+A compact expandable summary should show the active coordinate, branch, remainder interpretation, and evidence status. The numerical application \texttt{s[value]} evaluates the finite expression; it should not be mistaken for a guaranteed approximation with a prescribed number of correct digits. A separately named checked-evaluation operation could verify the recorded domain and return the value together with any available numerical or certified error evidence. Failure to have a pointwise bound should be explicit, not silently replaced by the magnitude of the formal remainder scale.
+
+For conditions, standardize diagnostics around the expression being proved, assumptions used, source/target role, and eventual versus pointwise scope. \texttt{FunctionDomain} or other native domain tools may help, but a computed domain and a proof of eventual containment along a selected germ remain different tasks.\cite{wl-functiondomain,inverseexpressions}
+
+\section{Testing, packaging, documentation, and maintenance}
+
+\subsection{A mathematical CI gate is the highest-leverage process improvement}
+
+The inspected \path{.github/workflows/standalone.yml} runs the standalone freshness check and Python builder tests. Its path filters concern kernel sources, the standalone artifact, builder files, and the workflow itself; a change only to Wolfram test files does not trigger that workflow. These are facts about the inspected workflow, not a claim that no other external test process exists. Combined with the explicit absence of a full-suite run at the latest milestones, they leave a release-assurance gap.\cite{ci,validation}
+
+Keep the fast packaging check. Add a native smoke gate covering every public family and all newly fixed invariants, then a complete native suite for releases and scheduled runs. Native-kernel availability, licensing, and runner isolation must be arranged within the project's environment. A test infrastructure failure should be distinguishable from a mathematical test failure and from an intentionally skipped family.
+
+Every report should retain commit hash, source-tree digest, native version, platform, test selection, pass/fail/skip counts, elapsed time, and abnormal kernel termination. A report generated by one kernel version must not silently serve as proof of a later version's compatibility. Treat generated standalone parity as an independent test dimension: passing the modular source is not enough if packaging changed contexts or load order.
+
+\subsection{Property-based and differential tests}
+
+The highest-value additions are cross-path tests rather than more snapshots of long expressions. Generate small admissible sparse models and check complete coefficient blocks by independent substitution. Compare Lagrange, grouped Lagrange, and Newton on the same domain and cutoff. Check resonant cancellation, sparse gaps, negative endpoints, exact termination, and unknown leading terms.
+
+For operations, test information monotonicity, branch consistency, and equivalent syntax. In particular, every guarded operation should also be reached through \texttt{SeriesObservable}, \texttt{SeriesNormalize}, composition, and arithmetic upvalues. Test native import through both direct special-function and fallback routes where possible. Native comparison should use independent coefficients or normalized residual bounds, not require identical printed expressions.
+
+A useful metamorphic test begins with a known invertible function $f$ and an exact affine change of source or target. Compare the transformed inverse with the transformation of the original inverse, including remainder scale and branch side. Another changes an input remainder from a stronger to a weaker bound and checks that the output does not spuriously improve. Such tests directly target the boundaries exposed by this audit.
+
+\subsection{Benchmark tests should include failure behavior}
+
+Add safe allocation sentinels for large rational denominators, large normalized flat degrees, and small requested support with expensive coefficients. A resource failure should preserve a useful diagnostic and should not leave package-global state changed. Test aborted computations followed by an ordinary successful call. The direct large-$N$ allocation example must be capped before running it in CI; deliberately exhausting a runner is not a useful regression test.
+
+Warm and cold loading, reloads, \texttt{Needs}, context pollution, saved objects, and numerical precision should also have explicit tests. The repository already performs several isolated loading checks; keep them and include their selection in release manifests.\cite{development,validation}
+
+\subsection{Distribution: keep one canonical implementation}
+
+The generated standalone file is a practical distribution mechanism. The builder checks dependencies and source freshness, and the development notes explain why \texttt{URLDownload} followed by local \texttt{Get} replaced direct compressed HTTP loading after observed Wolfram 15.0.1 problems. That workaround should not be removed merely for aesthetic reasons.\cite{development}
+
+The getting-started guide defaults to a moving \texttt{main} URL while also documenting pinned commits. For reproducible research, make a versioned release or immutable commit the first recommended path, publish a digest, and keep ``latest development'' explicit. Package loading executes code, so a checked immutable artifact is a stronger default than an unversioned network dependency.
+
+The paclet manifest declares only a kernel extension. The repository does have a substantive Markdown/HTML guide and a mathematical article; it would be inaccurate to call it undocumented. Native paclet reference pages, guide pages, examples, and F1 discoverability remain useful additions. Generate these from a stable source and test their examples rather than maintaining multiple drifting copies.\cite{paclet,guide,development}
+
+\subsection{License identifiers should match the actual text}
+
+The root \texttt{LICENSE} is titled ``MIT No Attribution License.'' The main source header declares \texttt{SPDX-License-Identifier: MIT}, and \texttt{PacletInfo.wl} declares \texttt{"License" -> "MIT"}. These identifiers do not describe the same license text. This is a directly observed metadata inconsistency, not an opinion about legal enforceability.\cite{license,core,paclet}
+
+Choose the intended license consistently. For the current no-attribution text, align identifiers with MIT-0; alternatively adopt the intended standard MIT text consistently. Include the license choice in generated distributions and release metadata. This repair is small, but it removes avoidable ambiguity for downstream packaging and automated scanners.
+
+\section{A proposed development architecture}
+\label{sec:architecture}
+
+\subsection{Separate mathematical primitives from dispatch policy}
+
+The most important refactor is not a wholesale rewrite. Extract a small trusted-by-design kernel of operations that all public paths use: coefficient-domain validation; exact support normalization; remainder comparison and transport; real-power/logarithm admission; positive local-coordinate composition; and proof-status handling. F02 demonstrates why a wrapper-only check is insufficient. F03 demonstrates why two independent native-tail import policies should not persist.
+
+Keep family adapters responsible for their own normalization identities and specialized coefficient formulas. Require each adapter to state its coordinate, coefficient domain, tail theorem or imported error source, branch obligations, and capabilities. The dispatcher should select an applicable adapter and report that choice, rather than accumulate increasingly broad exception handlers.
+
+\subsection{Make proof obligations inspectable}
+
+Introduce an evidence record with categories such as \texttt{ExactAlgebra}, \path{AsymptoticTheorem}, \path{NativeSeriesImport}, \path{UserDeclaredContract}, \path{NumericalEvidence}, and \path{RationalIntervalCertificate}. Each should state its hypotheses and scope. A user's derivative-bound declaration must remain distinguishable from a bound derived by the implementation.
+
+An operation can combine evidence without pretending to strengthen it. For example, multiplying two Poincar\'e expansions yields a transported asymptotic contract, not automatically a numerical certificate. Normalizing an exact identity may preserve all evidence; truncation weakens information; refinement may add information only by replaying a justified recipe. This record would make results easier to review, serialize, and eventually formalize.
+
+\subsection{Typed scales and capability negotiation}
+
+A scale descriptor should expose ordered support where available, coefficient operations, a realization map to ordinary expressions, and an absolute-envelope operation. Some algebras support differentiation under specified contracts; some support only arithmetic or selected observables. Operations should ask for those capabilities before falling back to an envelope.
+
+This permits a principled distinction between a coefficient algebra and an asymptotic order. A Fourier coefficient algebra has bounded modes but not general nonvanishing; a reciprocal-logarithmic polynomial algebra has its own coefficient ordering; a finite flat-sector algebra has an exponential degree plus amplitude information. Treating all of them as ordinary power-log rows with extra flags invites accidental assumptions.
+
+\subsection{Formal verification opportunities}
+
+A realistic formalization target is the small algebraic/error kernel, not the whole Wolfram evaluator. Start with exact sparse support merge, truncated convolution, the product-envelope rule~\eqref{eq:producterror}, and rational interval arithmetic. Next formalize the Euler-operator coefficient identity and the finite-order inverse perturbation theorem with explicit derivative hypotheses.
+
+Native \texttt{Series}, \texttt{Simplify}, and domain solvers can then act as external producers of candidates or certificates rather than opaque proofs. Checking a polynomial identity or a rational interval derivation is much smaller than verifying every symbolic algorithm that discovered it. The repository's explicit coefficient access and certificate structure make this a plausible development direction, but no formal verification of the current implementation is claimed here.
+
+\section{Missing features and a prioritized roadmap}
+\label{sec:roadmap}
+
+\subsection{Stabilization before breadth}
+
+\textbf{Release A: contract hardening.} Repair F01 and F02, reproduce and reconcile F03, settle the forward coefficient-domain policy in F04, and align license metadata. Add direct-versus-nested operation regressions and a native smoke gate. Acceptance means no unbounded native-view allocation, no unproved real radical through a recursive route, and no native-tail upgrade without a stated contract. Publish the complete native test selection and outcomes.
+
+\textbf{Release B: predictable requests and results.} Introduce normalized truncation requests, requested/effective method metadata, result schema versioning, a validator, a checked evaluation path, and explicit evidence summaries. Preserve compatibility translations. Acceptance means that a user can inspect the actual coordinate and remainder meaning without reading a family-specific implementation file.
+
+\textbf{Release C: measured scalability.} Extend the existing request-local computation state, add multi-dimensional resource budgets, instrument proof-oracle time, make native views lazy, and benchmark method selection. Acceptance means equivalent finite coefficients, branch domains, and remainder guarantees before and after optimization, plus bounded peak-memory behavior for sparse high-denominator inputs.
+
+\textbf{Release D: focused mathematical extensions.} Generalize rationally commensurate flat rates first, then consider multiple independent exponential rates, broader exact-core observables, and more consistent algebra on reciprocal-logarithmic and composite results. Each new family must bring a tail theorem, branch/domain contract, cross-operation tests, and failure cases. Expanding a list of recognized function heads is not sufficient.
+
+\subsection{General multirate and nested transseries}
+
+The current finite sector model is not a general treatment of arbitrary nested exponential/logarithmic scales. A multi-rate extension should use exact rate vectors and a supported ordering, explicitly handle resonant rates, and keep the algebraic zero sector accurate enough relative to the requested exponential sectors. General nesting requires a valuation tower and clear closure conditions for composition and inversion.
+
+This is a substantive research and engineering project. A useful intermediate deliverable is a finite generated scale algebra with explicit capabilities and conservative errors, not a claim of universal transseries support. The commensurate-rate repair in F05 is a small, testable step toward that architecture.
+
+\subsection{Complex branches and Stokes behavior}
+
+Complex asymptotics require sectors or approach curves, branch cuts, and potentially Stokes-dependent exponentially small contributions. Extending a real sign test to \texttt{Complexes} is not enough. A future complex mode should be a separate declared contract with sector-aware powers, logarithms, native imports, and continuation rules.
+
+The near-term package should continue to refuse unsupported complex behavior explicitly. The F04 real-coefficient issue should be resolved as a domain-policy decision, not used to advertise accidental formal complex manipulation as complex asymptotic support.
+
+\subsection{Uniform parameter asymptotics}
+
+Parameter assumptions are not the same as uniform error bounds. For fixed $a>0$, $e^{-a/u}$ is smaller than every power as $u\to0^+$, but along $a=u$ it equals $e^{-1}$. A fixed-parameter flat estimate does not hold uniformly through $a\to0$. Likewise, a leading coefficient approaching zero can change the dominant balance and invalidate an inverse chart.
+
+A future interface should distinguish fixed parameters, compact parameter domains bounded away from degeneracy, and joint limits. Uniform expansions near coalescing balances may require different scales. This is an improvement opportunity and a warning against overinterpreting ordinary assumptions, not a reproduced defect in the documented fixed-parameter contract.
+
+\subsection{Integration, summation, and equation adapters}
+
+The package's explicit remainder objects could become useful inputs and outputs for native asymptotic integration, summation, differential-equation, and recurrence solvers. Start with an importer/exporter that states what information is preserved and what is lost. Do not claim that a generic $O$ descriptor can always be integrated termwise over an unbounded or parameter-dependent domain.
+
+Prioritize adapters that reuse established native functionality and add verifiable metadata. A new standalone asymptotic differential-equation engine would be a much larger undertaking with little immediate benefit compared with stabilizing the current inverse calculus.\cite{wl-integrate,wl-sum,wl-dsolve,wl-rsolve}
+
+\subsection{Success criteria for future development}
+
+A successful extension should improve at least one of four measurable dimensions: admitted mathematically justified input class, strength and clarity of the error/branch guarantee, reproducible resource behavior, or composability of results. A shorter printed expression alone is not enough. The project will be strongest when its output tells the user not only an asymptotic formula, but precisely which germ it represents, which operations remain valid, and why its remainder can be trusted.

@@ -1,0 +1,15 @@
+id,priority,evidence,finding,sources,recommendation,artifact_status
+A01,High,Source deduction,Nested observable power bypasses real-branch guard,core; operations,Centralize unknown-sign noninteger power rejection,Prototype supplied; native tests not run
+A02,High,Source deduction + independent integer calculation,Eager dense SeriesData export has no allocation cap,core,Preflight allocation and make optional export lazy,Interim fixed-cap prototype supplied; native tests not run
+A03,Medium,Disclosed limitation + independent counterexample,Native export loses explicit logarithmic remainder information,core; guide,Strict conversion or explicit loss report and sidecar,Conservative strict-export prototype supplied; native tests not run
+A04,High,Source deduction + official Wolfram semantics,Ambient assumptions used without durable provenance,core; inverseexpressions; wl-simplify,Capture effective assumptions and isolate internal evaluation,Design and prospective native tests supplied; no patch
+A05,High release priority,Repository report + workflow inspection,Current focused validation is not full-suite release coverage,validation; workflow; runner,Add full native release gate,Prospective runner supplied
+A06,Medium,Source-level design analysis,Fragmented resource accounting and hard-coded limits,core; incremental; native; arithmetic,Shared multidimensional budgets and diagnostic failures,Design recommendation
+A07,Medium,Documented design complexity,Heterogeneous cutoff and term-goal semantics,guide,Normalize requests and expose their resolved meaning,Design recommendation
+A08,Medium,Documented compatibility change,Result-head rename affects saved objects and patterns,guide; revision,Schema versioning and explicit migration policy,Design recommendation
+A09,Low/Medium,Source-confirmed API inconsistency,Automatic certificate interval default is rejected,certificates,Required-option diagnostic or verified automatic bracketing,Design recommendation
+A10,Medium usability,Metadata inspection,No documentation extension registered in paclet metadata,paclet; guide,Documentation-center pages and executable examples,Design recommendation
+A11,Medium usability,Documented behavior,Numeric application substitutes finite expression without certification,core; guide,Separate checked evaluator from lightweight substitution,Design recommendation
+A12,Medium,Documented limitation,Shared head does not imply closure between scales,guide; arithmetic; sourcecharts,Capabilities and shared operation contracts,Design recommendation
+A13,Investigate,Performance hypothesis,Retained provenance and caches may inflate object size,incremental; inverseexpressions; arithmetic,Profile storage and allow contract-preserving cache compaction,No quantitative performance claim
+A14,Low/Medium,Documentation + literal metadata mismatch,Mutable quickstart and MIT versus MIT-0 metadata,development; guide; license; paclet; spdx,Pinned releases and consistent license metadata,Release recommendation

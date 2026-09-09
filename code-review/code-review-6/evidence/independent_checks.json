@@ -1,0 +1,157 @@
+{
+  "scope": "Independent mathematical checks; no Wolfram package execution",
+  "repository_commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "python": "3.13.5",
+  "sympy": "1.14.0",
+  "passed": 16,
+  "failed": 0,
+  "dense_plans": [
+    {
+      "q": 10,
+      "denominator": 10,
+      "slots": 10,
+      "blocks": 2
+    },
+    {
+      "q": 1000,
+      "denominator": 1000,
+      "slots": 1000,
+      "blocks": 2
+    },
+    {
+      "q": 1000000,
+      "denominator": 1000000,
+      "slots": 1000000,
+      "blocks": 2
+    },
+    {
+      "q": 1000000000,
+      "denominator": 1000000000,
+      "slots": 1000000000,
+      "blocks": 2
+    }
+  ],
+  "inverse_log_coefficients": [
+    {
+      "power": 2,
+      "coefficient_in_L": "-L"
+    },
+    {
+      "power": 3,
+      "coefficient_in_L": "2*L**2 + L"
+    },
+    {
+      "power": 4,
+      "coefficient_in_L": "-5*L**3 - 11*L**2/2 - L"
+    },
+    {
+      "power": 5,
+      "coefficient_in_L": "14*L**4 + 73*L**3/3 + 21*L**2/2 + L"
+    }
+  ],
+  "checks": [
+    {
+      "id": "dense-span-10",
+      "passed": true,
+      "q": 10,
+      "denominator": 10,
+      "slots": 10,
+      "blocks": 2
+    },
+    {
+      "id": "dense-span-1000",
+      "passed": true,
+      "q": 1000,
+      "denominator": 1000,
+      "slots": 1000,
+      "blocks": 2
+    },
+    {
+      "id": "dense-span-1000000",
+      "passed": true,
+      "q": 1000000,
+      "denominator": 1000000,
+      "slots": 1000000,
+      "blocks": 2
+    },
+    {
+      "id": "dense-span-1000000000",
+      "passed": true,
+      "q": 1000000000,
+      "denominator": 1000000000,
+      "slots": 1000000000,
+      "blocks": 2
+    },
+    {
+      "id": "log-inverse-coefficient-2",
+      "passed": true,
+      "power": 2,
+      "coefficient_in_L": "-L"
+    },
+    {
+      "id": "log-inverse-coefficient-3",
+      "passed": true,
+      "power": 3,
+      "coefficient_in_L": "2*L**2 + L"
+    },
+    {
+      "id": "log-inverse-coefficient-4",
+      "passed": true,
+      "power": 4,
+      "coefficient_in_L": "-5*L**3 - 11*L**2/2 - L"
+    },
+    {
+      "id": "log-inverse-coefficient-5",
+      "passed": true,
+      "power": 5,
+      "coefficient_in_L": "14*L**4 + 73*L**3/3 + 21*L**2/2 + L"
+    },
+    {
+      "id": "log-inverse-residual-through-five",
+      "passed": true,
+      "normalized_residual": "0",
+      "interpretation": "L represents Log[y]"
+    },
+    {
+      "id": "ordinary-inverse-first-correction",
+      "passed": true
+    },
+    {
+      "id": "square-observable-first-correction",
+      "passed": true
+    },
+    {
+      "id": "log-remainder-not-O-x",
+      "passed": true
+    },
+    {
+      "id": "derivative-counterexample-identity",
+      "passed": true,
+      "derivative": "2*x*sin(x**(-3)) - 3*cos(x**(-3))/x**2",
+      "subsequence": "x_n=(2*pi*n)^(-1/3): R'(x_n)/x_n=-6*pi*n"
+    },
+    {
+      "id": "valuation-aware-demand",
+      "passed": true,
+      "requested": 5,
+      "fixed_margin_source_order": 7,
+      "resulting_error_power": -93,
+      "necessary_source_order": 105
+    },
+    {
+      "id": "algebraic-weight-collision",
+      "passed": true
+    },
+    {
+      "id": "rational-residual-certificate",
+      "passed": true,
+      "residual": "1/100",
+      "derivative_lower_bound": "1",
+      "root_bracket": [
+        "9/100",
+        "11/100"
+      ],
+      "scope": "An independent elementary example, not a package certificate run"
+    }
+  ]
+}

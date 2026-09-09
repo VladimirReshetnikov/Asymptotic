@@ -1,0 +1,17 @@
+id,priority,evidence,finding,source,recommendation
+A01,High,S D E U,Eager dense export bypasses sparse budget,core: makeSeriesData; makeInverseSeriesData,Lazy bounded export; proposed guard patch
+A02,High,S D E U,Classical export loses logarithmic remainder degree,core: makeSeriesData; makeInverseSeriesData,Reject or explicitly label lossy export
+A03,Medium,S D U,Stored power shadows explicit coefficient option,core: InverseExpansionCoefficient object overload,Explicit-wins or reject-conflict policy; helper supplied
+A04,Medium,S D E U,Fixed replay margin can underachieve refinement,SeriesOperations.wl: SeriesRefine,Backward valuation-based precision planning
+A05,Medium,S P U,Unbounded factorization in coefficient normalization,core: logCanon,Preserve atomic logs; budget canonicalization
+A06,Medium,S P,MaxTerms measures incompatible resources,core/native/gamma/refinement/source charts,Structured per-resource budget
+A07,High,S R P,CI does not execute native mathematical tests,standalone.yml; validation/README.md,Native release gate with pinned all-module hashes
+A08,Medium,S P U,Legacy full runner lacks explicit empty-suite gate,Tests/RunTests.wl,Reuse stronger focused-runner infrastructure
+A09,Medium,S P,Cutoff semantics change across scales,core; GammaInverse; SpecialFunctionAdapters,Typed requests and resolved plans
+A10,Medium,S P,Numeric accessor performs unchecked finite substitution,core: GeneralizedSeries numeric accessor,Separate checked evaluation
+A11,Medium,S R P,Implicit schema and migration contracts,core; SeriesOperations; validation record,Schema versions and capabilities
+A12,Low-Medium,S P,Native conventions partially accepted,core: localCoordinate; options,Normalize direction aliases and assumption policy
+A13,Low-Medium,S P,Certificate interval default/discovery mismatch,InverseCertificates.wl,Explicit required-interval diagnostic
+A14,Low,S P,Distribution metadata and native help gaps,PacletInfo.wl; LICENSE,Consistent license identifier; Documentation extension
+A15,Audit candidate,S P U,Comparator fallback needs stronger proof invariant,core: compare,Prove equality/negative/positive separately; no public counterexample established
+A16,Medium,S P U,Repeated powers and expansions merit profiling,NativeSpecialFunctions; GammaInverse,Contract-matched profiling and incremental/binary algebra

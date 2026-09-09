@@ -1,0 +1,39 @@
+{
+  "repository": "https://github.com/VladimirReshetnikov/Asymptotic",
+  "commit": "75de8756175911cd8830704fd1a3406c1022f018",
+  "commit_timestamp_utc": "2026-09-09T19:16:26Z",
+  "package_name": "AsymptoticInverse",
+  "package_version": "1.8.0",
+  "declared_wolfram_version": "15.0+",
+  "upstream_standalone_bytes": 574627,
+  "upstream_standalone_git_blob": "b02f688fb39e5c7cf01b095cd69b59cea222d870",
+  "patch_input_git_blobs": {
+    "AsymptoticInverse/Kernel/AsymptoticInverse.wl": "ea9eaf4a11130e922ac4fb3faae37fd8e8d29643",
+    "AsymptoticInverse/Kernel/FlatSectors.wl": "293450f13e3ede4b490680f9ac0dea2f39fa2183"
+  },
+  "native_package_execution": "No successful results obtained",
+  "native_version_probe": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "independent_checks": {
+    "tests": 15,
+    "failures": 0,
+    "errors": 0,
+    "python": "3.13.5",
+    "sympy": "1.14.0",
+    "mpmath": "1.3.0"
+  },
+  "patch_fixture_checks": {
+    "tests": 5,
+    "status": "passed",
+    "scope": "Text transformations on excerpts; no complete source or native semantic execution"
+  },
+  "native_regression_cases": 9,
+  "native_comparison_calls": 12,
+  "limitations": [
+    "Not an exhaustive line-by-line review of all files or proofs",
+    "No full local checkout",
+    "No successful native package or regression run",
+    "No measured package-versus-built-in speed claims",
+    "Optional F03 patch is only a narrow mitigation",
+    "F04 has a desired test but no implemented fix"
+  ]
+}

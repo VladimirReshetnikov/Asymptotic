@@ -1,0 +1,24 @@
+{
+  "native_wolfram_executed": false,
+  "native_regression_candidates_executed": false,
+  "native_comparison_executed": false,
+  "patched_package_executed": false,
+  "complete_repository_suite_executed": false,
+  "reason": "Wolfram integration connection attempts failed; no local Wolfram executable or complete executable checkout was available.",
+  "attempted_integration_actions": [
+    "WolframContext",
+    "WolframLanguageEvaluator"
+  ],
+  "integration_result": "network/connection failure",
+  "available_evidence": [
+    "Pinned GitHub source inspection",
+    "Independent exact Python/SymPy checks",
+    "High-precision mpmath witnesses",
+    "Patch-helper unit tests"
+  ],
+  "native_test_file": "code/RegressionCandidates.wlt",
+  "native_test_candidate_count": 12,
+  "native_counts": null,
+  "new_native_timings": null,
+  "repository_reported_tests_are_not_audit_executions": true
+}

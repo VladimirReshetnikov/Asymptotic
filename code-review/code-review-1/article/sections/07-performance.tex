@@ -1,0 +1,55 @@
+\section{Performance analysis and benchmark design}
+\subsection{Improvements already present}
+A useful audit must not recommend work that the current revision already implements. The inspected source already has sparse truncation-aware multiplication, efficient enumeration of weighted index regions instead of a surrounding Cartesian cube, a stars-and-bars preflight for depth regions, grouped equal-weight coefficients, polynomial-power caching with bounded occupancy, and Newton precision doubling with a residual invariant.\cite{core,incremental}
+
+The 1.8.0 validation record reports focused improvements to coordinate reconstruction, Fourier merging/products, and checks. Its timings are repository measurements, not measurements performed for this article. In particular, a very large speedup in a low-level product does not imply the same gain in a complete inverse calculation.\cite{validation}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{P{0.49\textwidth}rr}
+\toprule Repository benchmark case & Before (s) & After (s) \\\midrule
+100 translated inverse reconstructions & 0.12115 & 0.00418 \\
+Fourier merge case & 0.19112 & 0.09396 \\
+$200\times200$ Fourier product, cutoff 4 & 1.28634 & 0.00776 \\
+Public Fourier inverse, weight 4 & 0.02514 & 0.02325 \\\bottomrule
+\end{tabular}
+\caption{Selected timings as recorded by the repository. The validation record describes a warm-up and three measured samples in a fresh kernel. These numbers were not replicated in this audit and are not a comparison against native Wolfram functions.\cite{validation}}
+\end{table}
+
+\subsection{Priority cost centers}
+\textbf{Dense export.} A02 is the clearest allocation problem because the cost follows directly from an exact index count. Fix it before optimizing coefficient algebra: otherwise improvements to the sparse core can be overwhelmed by metadata conversion.
+
+\textbf{Exact comparison and simplification.} Exact exponent comparison, coefficient zero tests, and repeated full simplification can dominate small algebraic operations. Cache normalized exponents and proof results within an explicit immutable assumption context. A cache keyed only by an expression, without its domain and assumption context, can become mathematically unsafe. Avoid global caches that silently acquire ambient assumptions.\cite{core,inverseexpressions}
+
+\textbf{Frontier selection.} The incremental inverse routine scans boundary values to select the current layer and sorts boundary weights to find the next one. A priority queue could reduce repeated full scans when the frontier is large. However, it must use exact ordering and batch all equal-weight collisions before producing a block. For small frontiers, the current list/association approach may be faster; this is a profiling candidate, not a guaranteed improvement.\cite{incremental}
+
+\textbf{Gamma/Barnes coefficient rebuilding.} The inspected Gamma inverse routine computes coefficients in increasing order, repeatedly expands a phase series, and may rebuild rows while searching for a nonzero frontier. Retaining a recurrence state could avoid recomputing lower-order coefficients. The stored coefficient ring is structured enough to support specialized polynomial operations in the reciprocal-log variable. A production change should first compare coefficients and frontier bounds exactly across several observable powers and affine transformations.\cite{gamma}
+
+\textbf{Native adapter probes.} The forward dispatcher tries several families and performs bounded native expansions and simplifications. Repeated failed probes can cost more than the successful expansion. Introduce cheap structural admission predicates, a per-request dispatch trace, and a shared time budget. Cache a negative admission result only when its dependence on parameters, direction, and assumptions is explicit.\cite{inverseexpressions,native,sourcecharts}
+
+\textbf{Object history.} Retained recipes and operand trees can make copying or serialization expensive even when arithmetic is fast. Profile full public objects, not only \code{Normal[s]}. Caches should be optional and removable without changing the finite expression, remainder, or proof obligations.
+
+\subsection{A method-selection cost model}
+For $m$ positive correction gaps and a fixed cutoff $H$, direct Lagrange work is related to the number of multi-indices in $k\cdot\delta<H$. Its leading large-$H$ geometric scale is
+\[
+ \frac{H^m}{m!\prod_i\delta_i},
+\]
+for fixed positive gaps, before polynomial coefficient costs and boundary overhead. This is a planning estimate, not an exact count or a uniform formula as gaps vary. The actual weighted region should still be enumerated or bounded exactly for resource admission.
+
+Grouped Lagrange benefits when many indices share the same pair $(n,w)$ and when differentiating their logarithmic polynomial products is expensive. Newton benefits from increasing precision and reusable truncated products, but its constant factors and coefficient complexity can outweigh those gains at low orders. A sensible \code{Method -> Automatic} should use measured structural features rather than a fixed preference: gap count, rational relations, expected collisions, logarithmic degree, requested precision, and whether a valid previous state is available.
+
+The current Gamma/Barnes family already records both the requested ordinary method and its actual ordered special-family method. Preserve that transparency: a method option should not silently pretend to select an algorithm that is not used. Report the selected engine, the reason, and any fallback.\cite{gamma}
+
+\subsection{Benchmark protocol}
+Every timing comparison should first establish comparable mathematical output. Normalize the source/target branch, coordinate, retained block set, exact carriers, and requested remainder strength. A fast answer with a weaker error, a different inverse branch, or fewer complete blocks is not an equivalent result.
+
+Use a fresh kernel for each case, separate loading cost from first-call cost and warm performance, record the complete kernel/platform version, and retain all samples. The supplied harness performs one warm-up followed by three timed calls, with an explicit per-call timeout, and records \code{ByteCount}, \code{LeafCount}, and the full input/output forms. It does not automatically certify equivalence between related native and package calls.
+
+The benchmark matrix should contain ordinary Taylor and Puiseux controls, irrational gaps, multiple colliding gaps, high-degree logarithmic coefficients, cancellation at the frontier, composition and refinement, Gamma/Barnes inverses, flat sectors, oscillatory coefficients, failed branch proofs, and very sparse rational lattices. Include both low-level kernels and the public entry point. Failed or unsupported cases are part of the result, not samples to discard.
+
+For oscillatory numerical checks, evaluate absolute residuals scaled by a nonvanishing envelope rather than divide by a leading oscillatory term near its zeros. For logarithmic/exponential reconstructions, compare phase residuals when appropriate to avoid overflow and cancellation. For asymptotic remainder validation, a finite set of numerical points is evidence only; it is not a proof of a limiting Big-O assertion.
+
+\subsection{Recommended counters}
+A diagnostic result should expose the number of generated and retained support entries, merged collisions, coefficient simplifications, polynomial-power cache hits and evictions, boundary scans, native oracle calls, precision-doubling steps, reconstruction attempts, and bytes retained in the final object. Some incremental statistics already exist. Standardize them rather than introducing another disconnected performance report.\cite{incremental}
+
+These counters also help users understand a resource failure. ``MaxTerms exceeded'' is much less actionable than ``19,842 retained indices plus 321 frontier indices exceed a 20,000 index budget; the last certified cutoff is $h$.'' The exact wording can vary, but the mathematical state at failure should be visible and unambiguous.

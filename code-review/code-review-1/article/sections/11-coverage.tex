@@ -1,0 +1,34 @@
+\section{Source coverage and limitations}\label{app:coverage}
+The following is a review-coverage ledger, not a claim that every listed file was fully verified. Repository paths are relative to the pinned revision. ``Inspected'' means the source text was read; it does not mean that every branch was executed or formally proved correct.
+
+\begin{longtable}{P{0.43\textwidth}P{0.2\textwidth}P{0.27\textwidth}}
+\toprule Source & Read coverage & Main use \\\midrule
+\endfirsthead
+\toprule Source & Read coverage & Main use \\\midrule
+\endhead
+\path{Kernel/AsymptoticInverse.wl} & Successive ranges across the main module, plus focused re-reads & Jet algebra, inversion, error transport, conversion, properties, dispatch. \\
+\path{Kernel/SeriesOperations.wl} & Lines 1--320, with overlaps & Dedicated and recursive observable paths; branch guard comparison. \\
+\path{Kernel/SeriesArithmetic.wl} & Lines 1--290 & Held normalization, arithmetic dispatch, composite fallback, resource policy. \\
+\path{Kernel/InverseFunctionExpressions.wl} & Lines 1--130 and 160--end & Public wrappers, assumptions, branch provenance, recursive inverse composition. \\
+\path{Kernel/InverseCertificates.wl} & Successive ranges through the full file & Exact interval arithmetic, domain proofs, residual brackets, scope and options. \\
+\path{Kernel/IncrementalInverse.wl} & Lines 1--155 & Frontier/state design, cache policy, Newton invariants, grouped-route rationale. \\
+\path{Kernel/SourceCoordinates.wl} & Lines 1--140 & Source chart admission and reconstruction constraints. \\
+\path{Kernel/GammaInverse.wl} & Lines 1--150 & Gamma/Barnes model recognition, core formulas, coefficient recurrence, bounds. \\
+\path{Kernel/NativeSpecialFunctions.wl} & Lines 1--150 and 250--end & Native tree error transport, branch and real-domain checks, result metadata. \\
+\path{Documentation/UserGuide.md} & Lines 1--300 & Current public overview, loading, order/branch conventions, result properties and native-export warning. \\
+\path{PacletInfo.wl} & Full file & Version, minimum kernel, extensions, license metadata. \\
+\path{README.md} & Connector read & Repository orientation and declared scope. \\
+\path{validation/README.md} & Lines 1--150 & Focused validation record and attributed timings. \\
+\path{validation/FocusedTests.wl} & Full file & Test-runner design, failure handling, source hashes. \\
+\path{.github/workflows/standalone.yml} & Full file & Checked-in standalone freshness/build-test workflow. \\
+\path{docs/development/README.md} & Full returned text & Canonical/generated source relationship, loading history, validation workflow. \\
+\path{article/asymptotic-inverse.tex} & Top-level source & Mathematical article scope and organization; included proofs not all audited. \\
+\path{LICENSE} & Full file & MIT No Attribution text and metadata consistency. \\
+Repository tree and branch metadata & Inventory and revision responses & Immutable revision, file layout, canonical/distribution distinction. \\
+\bottomrule
+\end{longtable}
+Paths beginning \path{Kernel/}, \path{Documentation/}, or \path{PacletInfo.wl} in this table are under \path{AsymptoticInverse/}. Other paths are repository-relative as written. Source range endpoints are review windows, not necessarily function boundaries.
+
+Files reached only through module-load lists or public guide summaries were not silently counted as fully reviewed. In particular, the entire flat-sector, Fourier, logarithmic-scale, branch-selector, refinement, and Barnes-specific implementation families were not independently traced line by line. The article makes architectural recommendations about these families from their documented contracts and inspected integration points, but it does not claim an exhaustive defect inventory for them.
+
+Official Wolfram documentation was consulted for the host-language comparison and assumption semantics, and NIST DLMF for asymptotic, Gamma, and Barnes background. These are current primary references, not evidence that a particular native call was successfully executed. The bibliography's URLs make the distinction between pinned repository evidence and mutable official documentation explicit.

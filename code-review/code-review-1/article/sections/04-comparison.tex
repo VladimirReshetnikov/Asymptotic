@@ -1,0 +1,64 @@
+\section{Comparison with built-in Wolfram Language}
+\subsection{The appropriate comparison}
+The relevant baseline is not only \code{Series}. It includes native structured series and their calculus, \code{Asymptotic}, implicit asymptotic equation solving, asymptotic comparison predicates, and discrete asymptotics. Their documented scope is broader than ordinary Taylor expansion. The comparison below concerns documented capabilities and inspected package design, not an experimentally established ranking of success rates.\cite{wl-series,wl-seriesdata,wl-inverse,wl-compose,wl-asymptotic,wl-solve,wl-discrete,wl-less}
+
+\begin{longtable}{P{0.19\textwidth}P{0.35\textwidth}P{0.36\textwidth}}
+\toprule Task & Native Wolfram Language & Repository contribution / limitation \\\midrule
+\endfirsthead
+\toprule Task & Native Wolfram Language & Repository contribution / limitation \\\midrule
+\endhead
+Taylor, Laurent, Puiseux & \code{Series} and \code{SeriesData}; native arithmetic and calculus. & Overlapping functionality; extra branch, source, and explicit envelope metadata. \\
+Logarithmic behavior & Native series may have logarithmic or other slowly varying coefficients. & Complete polynomial-log blocks with an explicit logarithmic remainder degree. \\
+Noncommensurate real powers & One \code{SeriesData} uses a common rational exponent lattice; broader native expressions can contain external factors and exotic scales. & Sparse exact real exponent weights with complete collision grouping in an admitted real class. \\
+Reversion & \code{InverseSeries} for suitable structured series; \code{AsymptoticSolve} for implicit equations. & Explicit local source side, multi-index coefficients, selected exact cores, retained inverse state. \\
+Composition & \code{ComposeSeries} and native series substitution with compatible centers. & Selected generalized-scale composition, explicit error transport, guarded failures outside closure. \\
+General asymptotics & \code{Asymptotic} infers scales and handles a broad range of objects. & More specialized constructors with durable result objects; not a replacement for the full native scope. \\
+Real and complex branches & \code{AsymptoticSolve} supports real-valued solutions and complex approaches. & Deliberately selected real branches; branch metadata is a principal feature. \\
+Special functions & Broad built-in expansion support. & Many forward paths delegate to native \code{Series} and import its structured errors; Gamma/Barnes inverse organization adds specialized algorithms. \\
+Oscillation / exponentials & Native results can contain exact rapidly varying factors outside a series object. & Selected bounded Fourier coefficients, exact carriers, finite flat sectors, absolute error envelopes. \\
+Discrete problems & \code{DiscreteAsymptotic} covers integer-variable asymptotics. & No inspected general-purpose replacement for this discrete problem family. \\
+Numerical rigor & Ordinary symbolic approximation and numerical root finding are not themselves the package's exact residual certificate. & An explicit, restricted rational-interval certificate API with a narrowly stated scope. \\
+\bottomrule
+\end{longtable}
+The native entries are grounded in the official references; the package entries are grounded in its guide and implementation. Claims of a universal inability of Wolfram Language to handle logarithms, exponentials, irrational powers, or asymptotic inverses would be incorrect.\cite{wl-series,wl-seriesdata,wl-inverse,wl-compose,wl-asymptotic,wl-solve,wl-discrete,guide,core,native,gamma,certificates}
+
+\subsection{Structured data versus a durable asymptotic germ}
+A native \code{SeriesData} has a rational lattice encoded by integer indices and a denominator. It participates naturally in arithmetic, function application, differentiation, integration, and composition. Its surrounding expression can contain logarithmic coefficients or external non-power factors. Those facilities already cover a large fraction of routine local series work.\cite{wl-seriesdata,wl-compose}
+
+The repository's differentiator is the \emph{combination} of an admitted generalized support with a stored positive coordinate, branch conditions, complete error descriptor, and reconstruction or refinement recipe. The result can be interrogated after the original computation. However, that claim is only as strong as the invariants of every operation and metadata transfer. Findings A01 and A04 show why it is insufficient to attach a descriptive association after a successful symbolic computation.
+
+\subsection{Different meanings of order}
+For ordinary integer-power local expansions, \code{Series[f,{x,0,n}]} requests a polynomial order through $n$, while the package's ordinary cutoff $h$ is exclusive: retain weights strictly smaller than $h$. Thus $n=h-1$ is a useful matching rule only in the ordinary integer-power setting. It is not a universal conversion for relative prefactors, irrational weights, logarithmic hierarchies, or sector depth.\cite{wl-series,guide}
+
+Native \code{Asymptotic} and \code{AsymptoticSolve} interpret approximation order and \code{SeriesTermGoal} in their inferred asymptotic scales, not as the package's universal power-weight cutoff. The package counts complete nonzero blocks; a structured multi-carrier forward result can apply its goal separately to each carrier. A benchmark that assigns the same integer to every function without checking the actual retained information is not a fair comparison.\cite{wl-asymptotic,wl-solve,guide}
+
+\subsection{Practical baseline calls}
+The following are comparison inputs, not newly executed results:
+\begin{lstlisting}
+(* Native local inverse, with its truncation made explicit. *)
+InverseSeries[x + x^2 + O[x]^5, y]
+
+(* Package: exclusive target-power cutoff. *)
+AsymptoticInverse`AsymptoticInverse[x + x^2,
+  {x, 0}, {y, 5}]
+
+(* Native implicit route: selected point and real-valued solutions. *)
+AsymptoticSolve[x + x^Sqrt[2] == y, x -> 0, y -> 0,
+  Reals, Assumptions -> y > 0, SeriesTermGoal -> 5,
+  GenerateConditions -> True]
+
+(* Package: five complete generalized blocks on its source side. *)
+AsymptoticInverse`AsymptoticInverse[x + x^Sqrt[2],
+  {x, 0}, y, SeriesTermGoal -> 5]
+\end{lstlisting}
+The first pair has an analytically known common finite inverse polynomial. The second pair asks related, not automatically identical, questions: native scale inference, branch reporting, output structure, and term conventions must be inspected before claiming equivalence. The official implicit solver also supports systems and more general approaches than the package's ordinary scalar real interface.\cite{wl-inverse,wl-solve}
+
+\subsection{Native conditions and package assumptions}
+Native \code{Asymptotic} and \code{AsymptoticSolve} offer condition-generation options. A comparison should enable the needed conditions rather than suppress them and then criticize the native result for lacking a branch guarantee. Conversely, the package should not be credited with stronger provenance merely because it has an \code{"Assumptions"} property; that property must contain every assumption actually used.\cite{wl-asymptotic,wl-solve,guide}
+
+The ambient-assumption issue in Section~\ref{sec:a04} is particularly relevant to integration with normal Wolfram workflows. \code{Assuming} is a standard way to supply assumptions, and simplification functions may use the global assumption context. A durable result should either capture that context explicitly or deliberately isolate itself from it. Mixing the two policies is the defect.\cite{wl-assuming,wl-simplify}
+
+\subsection{Recommended positioning}
+Use native structured series for routine commensurate local expansions, native implicit asymptotics for broad equation-solving tasks, and native discrete asymptotics for their integer-variable domain. Use this package when complete generalized blocks, selected real inverse cores, transported error metadata, repeated refinement, or the explicit certificate workflow are central to the task. This is an engineering recommendation based on scope, not a measured rule that one engine is always faster or more successful.
+
+The best long-term architecture is cooperative: native engines provide admitted local expansions and symbolic subroutines; the package supplies a coherent asymptotic-germ contract, sparse generalized support, provenance, and checked transformations. A more explicit adapter boundary will make failures diagnosable and help avoid duplicate implementations of features already provided reliably by the host language.

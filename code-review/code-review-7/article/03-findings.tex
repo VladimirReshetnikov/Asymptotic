@@ -1,0 +1,253 @@
+\section{Detailed correctness and implementation findings}
+\label{sec:findings}
+
+\subsection{F01: optional native views can cause mandatory dense allocation}
+\label{sec:f01}
+
+\status{Source-confirmed resource defect; allocation size checked independently. No large Wolfram allocation was attempted}
+
+\source{\path{AsymptoticInverse/Kernel/AsymptoticInverse.wl}, functions \texttt{makeSeriesData} and \path{makeInverseSeriesData}}\cite{core}
+
+Both conversion paths compute a common denominator for rational exponents and construct a full coefficient array extending to the remainder order. In simplified form, the relevant logic is
+\begin{lstlisting}
+den = LCM @@ (Denominator /@ Append[exps, remPower]);
+nmin = Min[exps] den;
+nmax = remPower den;
+coeffs = Table[0, {nmax - nmin}];
+(* assign retained coefficients at their lattice positions *)
+SeriesData[x, x0, coeffs, nmin, nmax, den]
+\end{lstlisting}
+The actual forward path handles empty support specially. That does not change the issue: the dense allocation is eager, has no size guard, and does not receive the construction's \texttt{MaxTerms} budget. The \texttt{SeriesData} property is built while the main result association is built, even when the user never asks for that property.
+
+\subsubsection*{Two distinct sources of waste}
+
+Consider the following family for an integer $N>2$; the code uses the bounded representative $N=200001$:
+\begin{lstlisting}
+With[{n = 200001},
+ AsymptoticExpansion[1 + x^(1/n) + x,
+  {x, 0, 1}, "MaxTerms" -> 32]]
+\end{lstlisting}
+The retained generalized support is just $\{0,1/N\}$; the omitted $x$ supplies remainder exponent 1. The original conversion allocates $N$ zeros, although only two adjacent coefficients are retained. A native series stores its remainder order separately from its coefficient-list length, so this trailing zero padding is unnecessary.
+
+Now add a second widely separated fractional term:
+\begin{lstlisting}
+With[{n = 200001},
+ AsymptoticExpansion[1 + x^(1/n) + x^(1 - 1/n) + x,
+  {x, 0, 1}, "MaxTerms" -> 32]]
+\end{lstlisting}
+There are only three retained sparse blocks, but a genuine rational-grid native view requires slots from 0 through $N-1$. Eliminating trailing padding is no longer enough: there is a large interior gap. For $N=10^9$, the inspected formula calls for one billion coefficient entries. The included checks calculate this count with integer arithmetic; they do not allocate the array.
+
+This is a performance and robustness bug, not merely an inconvenient native representation. The optional view can prevent completion of a valid sparse calculation. Its input encoding is small, its sparse support is small, and \texttt{MaxTerms} does not protect the allocation. Exact memory consumption depends on Wolfram's representation and must not be guessed from an assumed bytes-per-entry constant.
+
+\subsubsection*{Why inspecting the final object can miss the problem}
+
+\texttt{SeriesData} may canonicalize away trailing zero coefficients after construction. A short returned coefficient list does not prove that the temporary \texttt{Table} was short. A correct regression therefore needs either allocation instrumentation or a preallocation guard; checking only final \texttt{ByteCount} or \texttt{Length} can miss the first example entirely.
+
+The companion regression suite uses a bounded $N=200001$ for the wide-interior-gap case. A separate short-coefficient-list test checks the intended native view, but is explicitly not evidence that the baseline avoided a large temporary allocation.
+
+\subsubsection*{Recommended fix}
+
+The best interface makes native conversion lazy and explicitly fallible. A sparse expansion should remain usable even when its native view is uneconomical. A native-view method can return
+\begin{lstlisting}
+Missing["DenseSeriesDataLimit",
+  <|"RequiredCoefficients" -> count, "Limit" -> cap|>]
+\end{lstlisting}
+without invalidating the \gseries\ itself.
+
+Before allocation, compute the number of \emph{retained} lattice slots,
+\[
+ n_{\rm slots}=\begin{cases}
+ 0,&S=\varnothing,\\
+ 1+d\max S-n_{\min},&S\ne\varnothing,
+ \end{cases}
+\]
+where $d$ is the common denominator and $n_{\min}=d\min S$. Keep the remainder index $n_{\max}$ separate. Apply an absolute slot cap and, optionally, a density test comparing slots with retained support size. The same helper should serve forward and inverse views.
+
+The supplied emitter implements an interim version: no unnecessary trailing padding and a preallocation cap of 100,000 retained lattice slots, configurable when generating the proposal. It intentionally does not pretend to implement lazy properties or a general memory-budget framework. The sparse constructor survives a refused view. Tests must cover empty support, negative starting exponents, rational denominators, inverse coefficients, and invariance of the finite expression and remainder.
+
+\subsection{F02: real-power validation is bypassed inside nested observables}
+\label{sec:f02}
+
+\status{Source-derived public control-flow defect; native reproduction pending}
+
+\source{\texttt{seriesPower} and \texttt{seriesJetApply} in \path{SeriesOperations.wl}; shared \texttt{fwdPower} in the core kernel}\cite{operations,core}
+
+The explicit series-power wrapper already protects against a positive noninteger power of a pure finite remainder. It rejects an input whose finite support is empty and whose error is nonzero, because a magnitude bound does not establish the real radical branch. This is good behavior.
+
+However, \texttt{seriesJetApply}, used recursively by \texttt{SeriesObservable}, sends a nested power directly to \texttt{fwdPower}. That primitive contains the following earlier return, before a known leading coefficient is checked:
+\begin{lstlisting}
+If[T === {},
+ If[less[0, rr],
+  Return[{{}, If[P === Infinity, Infinity, rr P],
+    Ceiling[rr D]}, Module],
+  fail["UnknownLeadingTerm", ...]]]
+\end{lstlisting}
+For a positive fractional \texttt{rr}, it transports the magnitude exponent without establishing that the underlying quantity is nonnegative. The special top-level shortcut for an observable exactly equal to a bare power does not protect powers deeper in an expression tree.
+
+\subsubsection*{Minimal public-path reproducer}
+
+\begin{lstlisting}
+s = AsymptoticExpansion[-x, {x, 0, 1}];
+SeriesPower[s, 1/2]
+SeriesObservable[s, 1 + Sqrt[z], z]
+\end{lstlisting}
+The first constructor retains no finite term: the result represents a zero finite expression with an $\OO(x)$ remainder on $x\to0^+$. The direct power is guarded. The recursive observable instead reaches the early return above, and source tracing predicts a finite expression 1 with an $\OO(x^{1/2})$ remainder rather than a branch failure.
+
+The intended original source is $-x$, whose principal square root is not real for $x>0$. More fundamentally, the abstract information $\OO(x)$ alone cannot distinguish positive, negative, and sign-changing realizations. It therefore cannot certify a real square root. This finding is a \emph{real-branch contract violation}; it is not an assertion that $\sqrt{-x}$ fails a complex magnitude estimate of order $x^{1/2}$.
+
+\subsubsection*{Recommended fix and compatibility boundary}
+
+Place the uncertain-real-power check in the shared primitive before the pure-remainder return. The supplied proposal rejects a noninteger power when support is empty and precision is finite. It leaves an exact zero distinct from an unknown zero-sized approximation and preserves the existing known-positive-leading-term path.
+
+A richer future contract could carry a proved nonnegativity property and permit selected pure-remainder powers. That would require the proof to survive all transformations; a generic value bound or a discarded source coefficient is insufficient. Do not repair this by replaying arbitrary source expressions only in one wrapper, because it would reintroduce route-dependent semantics.
+
+The supplied tests require both direct and nested uncertain square roots to fail, while a known-positive leading term remains accepted. Broader tests should place the same fractional power beneath addition, multiplication, exponential, reciprocal, and conditional-observable nodes. The expected invariant is independent of the syntactic route.
+
+\subsection{F03: an unseen logarithmic tail is treated too sharply}
+\label{sec:f03}
+
+\status{Unsafe internal inference identified; mathematical counterexample established independently. The exact native series shape and public constructor reachability have not been reproduced}
+
+\source{Core \texttt{fwdSeries}, especially its empty-candidate branch; compare \path{specialNativeTree} in \path{NativeSpecialFunctions.wl}}\cite{core,native}
+
+The older ordinary fallback asks native \texttt{Series} for one order, converts its visible coefficients, and asks again at one higher order. It tries to infer the first omitted coefficient's logarithmic degree from the second result. When no such coefficient is visible, it leaves \texttt{kdeg = 0} and raises the remainder exponent to the second series object's endpoint:
+\begin{lstlisting}
+If[cand =!= {},
+ kdeg = polyDegree[(* first visible omitted coefficient *), ell];
+ rho = (* its exponent *),
+ rho = sd2[[5]]/sd2[[6]]
+]
+\end{lstlisting}
+The missing premise is that the unknown coefficient at that endpoint has logarithmic degree zero. An absent visible block says nothing of the kind.
+
+This is especially notable because the newer native importer explicitly addresses the same issue. It says that native \texttt{SeriesData} does not encode the logarithmic degree of its unknown tail, and conservatively loses half a lattice step when forming an absolute power envelope. The old and new paths therefore embody different precision policies.\cite{native}
+
+\subsubsection*{A mathematically decisive test family}
+
+Let $K_{\rm par}(m)$ denote the complete elliptic integral with \emph{parameter} $m$, as in Wolfram's \texttt{EllipticK[m]}. DLMF uses modulus notation in its corresponding expansion. Set $m=1-u^2$ and $L=\log(4/u)$. The complementary-modulus expansion gives
+\begin{equation}\label{eq:elliptic}
+ K_{\rm par}(1-u^2)
+ =L+\frac{u^2}{4}(L-1)
+  +\frac{9u^4}{64}\left(L-\frac76\right)
+  +\OO(u^6L),\qquad u\to0^+.
+\end{equation}
+The coefficients follow from DLMF 19.12.1 and 19.12.3 after translating between parameter and modulus.\cite{dlmf-elliptic,wl-elliptick}
+
+Subtract the first two displayed blocks and call the residual $R(u)$. Then
+\[
+ \frac{R(u)}{u^4}
+ =\frac9{64}\log(1/u)+\OO(1)\longrightarrow+\infty,
+ \qquad
+ \frac{R(u)}{u^4\log(1/u)}\longrightarrow\frac9{64}.
+\]
+Therefore $R\notin\OO(u^4)$, although $R\in\OO(u^4M)$ and $R\in\OO(u^{7/2})$. There is no cubic block. If the first native probe ends at the cubic order and the second probe contains no visible cubic coefficient but an endpoint at order four, the old empty-candidate branch produces the invalid pair $\{4,0\}$.
+
+The conditional clause matters. Native \texttt{Series} could return a different expression shape on a particular version; the old fallback might reject it; and the public special-function constructor can route this example through the newer, safer importer. This audit does \emph{not} assert that the public \path{AsymptoticExpansion[EllipticK[1-u^2], ...]} was observed to return the wrong bound. The included probe records native shapes, the old private conversion, and the public result separately.
+
+\begin{center}
+\begin{tabular}{@{}rrrr@{}}
+\toprule $u$ & $R/u^4$ & $R/(u^4\log(1/u))$ & $R/u^{7/2}$\\\midrule
+$10^{-2}$ & $0.678534$ & $0.147342$ & $0.0678534$\\
+$10^{-4}$ & $1.326089$ & $0.143978$ & $0.0132609$\\
+$10^{-8}$ & $2.621293$ & $0.142302$ & $0.000262129$\\
+$10^{-12}$ & $3.916497$ & $0.141743$ & $0.00000391650$\\
+\bottomrule
+\end{tabular}
+\end{center}
+These numbers were computed independently with mpmath at high precision. They support the derivation, but the divergence proof comes from~\eqref{eq:elliptic}, not a finite sample.
+
+\subsubsection*{Recommended fix}
+
+Unify native import through one contract-aware conversion. When a tail is known only to have a fixed finite logarithmic polynomial at a native lattice endpoint $\rho$, return a slightly weaker exponent $\rho-\varepsilon$, or retain an explicitly unknown logarithmic degree until more information is obtained. The implication
+\[
+ u^\rho M(u)^k=\OO(u^{\rho-\varepsilon})
+ \quad(\varepsilon>0,\ k\ \text{fixed})
+\]
+is rigorous. It is not a theorem about arbitrary unrecognized coefficient scales, so the importer must still state the admitted tail class.
+
+The optional patch proposal changes only the empty-candidate branch to a half-lattice-step loss. It is a narrow mitigation, not a complete unification and not a proof that every native fallback is sound. A finite additional peek must never be upgraded into proof that the next unknown coefficient has no logarithm. Regression coverage should include lacunary special-function series, mixed logarithmic powers, Puiseux denominators, and identical inputs reaching different dispatch routes.
+
+\subsection{F04: ordinary forward constants lack a shared realness gate}
+\label{sec:f04}
+
+\status{Source-derived contract inconsistency; native reproduction pending}
+
+\source{Core \texttt{pConst} and the \texttt{FreeQ[e,u]} arm of \texttt{fwd}; compare \texttt{rowsToModel}, regular arithmetic operands, and parameterized special-function checks}\cite{core,arithmetic,parameterized}
+
+A coefficient independent of the local variable enters \texttt{pConst}, which checks that it is polynomial in the logarithm placeholder but does not apply the realness proof used by several other subsystems. The ordinary forward route can therefore carry symbolic coefficients whose nonreality follows from the supplied assumptions.
+
+A focused regression candidate is
+\begin{lstlisting}
+AsymptoticExpansion[Log[-a] + x, {x, 0, 2},
+  Assumptions -> a > 0]
+\end{lstlisting}
+For real positive $a$, the principal logarithm has imaginary part $\pi$. Merely being independent of $x$ does not make the coefficient real. The package can manipulate the resulting formal expression, but that is different from meeting its advertised real-expansion contract. The related parameterized-special-function path explicitly verifies real coefficients, making the policy discrepancy concrete.
+
+The proper design decision is to choose and publish a coefficient domain. In a strict real mode, a provably nonreal coefficient must be rejected. An unproved coefficient may require conditions or an explicit formal mode. A future complex mode would need branch and sector contracts rather than silently inheriting real-coordinate conclusions.
+
+A centralized coefficient validator should receive the assumptions and the declared coefficient variables, including the reality of the logarithm placeholder. This must be tested for positive and negative parameters, symbolic real parameters, undefined functions, and exact transcendental constants. The companion regression records the desired rejection above; the patch emitter does not implement this broader policy change.
+
+\subsection{F05: ``commensurate'' flat rates are more restricted than necessary}
+\label{sec:f05}
+
+\status{Source-confirmed support limitation; exact normalization proposal supplied}
+
+\source{\texttt{flatModel} in \path{FlatSectors.wl}}\cite{flat}
+
+The flat engine requires a common positive phase power and chooses the smallest rate as its base. It then requires every rate divided by that minimum to be an integer. This admits rates $\{1,2,3\}$ and $\{2,4,6\}$, but rejects $\{2,3\}$. The latter are genuinely commensurate: both are integer multiples of 1. The implemented class is ``integer multiples of the smallest \emph{present} rate,'' a stricter class than general finite commensurability.
+
+For example,
+\begin{lstlisting}
+AsymptoticFlatInverse[
+ x + Exp[-2/x] + Exp[-3/x], {x, 0}, {y, 3}]
+\end{lstlisting}
+reaches the explicit \path{IncommensurateFlatRates} restriction. A valid formal sector marker is $q=\exp(-1/y)$, with input contributions at degrees 2 and 3. Through degree 3, the inverse is
+\[
+ x=y-e^{-2/y}-e^{-3/y}+
+       \text{terms in sectors of degree at least four}.
+\]
+The polynomial factors accompanying higher sectors require their own bounds; the expression above is not shorthand for a coefficient-free $\OO(q^4)$ assertion.
+
+\subsubsection*{A rational greatest-common-divisor construction}
+
+Choose a positive reference rate $c_0$ and prove that every ratio $r_i=c_i/c_0$ is a positive rational. Write the ratios in lowest terms and set
+\[
+ g=\frac{\gcd_i\operatorname{num}(r_i)}
+         {\operatorname{lcm}_i\operatorname{den}(r_i)},\qquad
+ c_*=c_0g.
+\]
+Then $c_i/c_*$ are positive integers. For $\{2,3\}$, the reference 2 gives ratios $\{1,3/2\}$, $g=1/2$, and fundamental rate $c_*=1$.
+
+This can also admit a common exact algebraic factor when ratio simplification proves rationality. It must not use floating-point near-integer tests: rates 1 and $\sqrt2$ are not commensurate. A small denominator can produce a very large normalized degree, so the normalization must be followed by a degree/resource check before the existing dense polynomial-sector operations are entered.
+
+The supplied proposal implements exact rational-ratio normalization, rechecks integer degrees, and caps the maximum degree using the existing limit. A later sparse sector polynomial would allow large unused gaps more naturally. General incommensurate rates require multiple markers or a finitely generated ordered rate monoid, not rounding to a convenient common base.
+
+\section{Other correctness boundaries: sound choices and residual risks}
+
+\subsection{Composition must prove the outer domain on the actual inner germ}
+
+The ordinary composition routine checks that the inner local coordinate has a positive monomial leading block and transports the outer power/logarithm remainder. It also constructs an output domain by substituting the finite inner expression into the outer domain. That substitution is not, by itself, a proof that a strict domain condition holds for every realization of an uncertain inner germ.\cite{operations}
+
+This is a high-value audit target, not a reported reproduced bug. Away from boundaries, a positive leading separation can prove eventual containment. At a boundary, a discarded error may determine which side is entered. A future domain-transport helper should consume the whole precision-tracked jet, much as the observable-condition logic already does, and return proved, disproved, or unresolved status. Tests should combine narrow conditional domains, translations, and inner remainders that touch a boundary.
+
+\subsection{Do not confuse requested and available precision}
+
+Truncating an existing object cannot recover information beyond its input remainder. Increasing an operation's requested cutoff must either replay a trusted source/refinement recipe or preserve the old precision cap. The inspected precision triples, observable checks, and refinement mechanisms show substantial attention to this distinction. Regression tests should make it a universal law across ordinary, transformed, flat, reciprocal-logarithmic, and composite objects.\cite{operations,guide}
+
+A useful property test is monotonicity: weakening input information must not strengthen output guarantees without an independent proof. Another is path consistency: applying an observable directly should agree, up to the declared error, with an equivalent composition route. F02 is precisely the kind of cross-route failure such tests can expose.
+
+\subsection{A local interval certificate is not a global inverse theorem}
+
+The certificate evaluator uses exact rational endpoints and directed dyadic rounding. Its supported expression grammar includes rational arithmetic and selected exponential/logarithmic operations with explicit tail bounds. It checks the selected source side, retained source-domain condition over the entire closed verification interval, continuity through supported evaluation, and derivative separation from zero. Approximate arithmetic is used to propose a seed, not to settle the final containment test.\cite{certificates}
+
+If $c$ lies in a verification interval, $|f'(x)|\ge\mu>0$ there, and $|f(c)-y|\le\epsilon$, then an established root satisfies $|x_*-c|\le\epsilon/\mu$. The existence premise is essential. The inspected implementation supplies it through residual-bracket containment or exact endpoint signs, then tightens the enclosure with the signed derivative interval. This is a meaningful certificate for the stored explicit function on that interval.
+
+It does not certify all unknown functions sharing a declared \texttt{InputRemainder}; it does not imply a global branch theorem; and its public kind restriction does not admit every generalized inverse family. Those are documented scope limits, not evidence of a broken certificate. Extension to new functions should add independently reviewed enclosures rather than merely permit new heads in a switch.
+
+There is, however, a concrete UX inconsistency: \path{InverseCertificate} advertises an option default \texttt{"Interval" -> Automatic}, but its entry validation immediately requires an ordered pair of exact rational endpoints. Thus the default is effectively a missing mandatory argument, not automatic interval discovery. Either make the interval an explicit required argument or implement a bounded discovery phase that still returns an unproved failure when verification cannot be completed.\cite{certificates}
+
+\subsection{Unknown or unsupported must remain distinct from false}
+
+Several helpers use bounded symbolic reasoning and dispatch fallbacks. This is necessary for a symbolic package, but an undecided comparison or a timeout must not be interpreted as a proof of the opposite statement. Exact exponent ordering, eventual-domain tests, positivity, nonzero leading coefficients, and exact termination each need a three-way outcome with a separate resource-limit state.\cite{core,inverseexpressions,parameterized}
+
+The appropriate goal is not to force every input into an answer. It is to return a result whose declared contract is justified, or a diagnostic explaining the unsatisfied obligation. A refusal on an unsupported scale is preferable to a sharper-looking expression with an unproved remainder.

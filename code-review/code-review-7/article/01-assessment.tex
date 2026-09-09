@@ -1,0 +1,138 @@
+\section{Executive assessment}
+
+\textbf{The repository is a substantial, useful asymptotic-calculus extension, but it should be positioned as a structured companion to Wolfram Language, not as a replacement for its asymptotic engine.} Its distinctive contribution is the combination of sparse exact exponent arithmetic, complete logarithmic blocks, selected real inverse branches, retained inverse cores, explicit error transport, and reusable result objects. Much of the general special-function knowledge and ordinary series machinery already exists in Wolfram Language and is deliberately reused by the package. The strongest development strategy is to make the added contracts exceptionally reliable and interoperable.\cite{guide,core,native,wl-series,wl-asymptotic,wl-asymptoticsolve}
+
+The inspected snapshot has moved well beyond the original inverse-function problem. Its public interface covers ordinary forward and inverse expansions, logarithmic hierarchies, Fourier-valued coefficients, finite exponential sectors, Gamma and Barnes inverses, explicit series operations, numerical evidence, and selected rational-interval certificates. The generated standalone distribution combines 38 canonical kernel sources. The package guide explains many otherwise surprising restrictions, and its validation records carefully distinguish focused runs from the full suite. These are meaningful engineering strengths, not merely a collection of symbolic formulas.\cite{guide,development,validation}
+
+The principal concerns are concentrated at interfaces between these subsystems. A result's optional native representation can allocate an enormous dense array during otherwise sparse computation. A real-power safeguard exists in one public operation but is absent from the recursive primitive used by another. An older native-series fallback infers an unknown logarithmic tail more aggressively than the newer importer. A restricted choice of exponential base rejects some genuinely commensurate rates. Constant-coefficient realness is not checked uniformly. These observations suggest that the next release should prioritize shared invariants and integration tests ahead of another large family of adapters.\cite{core,operations,flat,native,parameterized}
+
+\subsection{Highest-priority findings}
+
+Table~\ref{tab:priority} separates a demonstrated source property from a runtime observation. ``Source-derived'' means the relevant implementation was inspected and the stated control flow was traced; it does not mean the Wolfram example was executed successfully here. Severity measures the consequence if reached, not the frequency of occurrence.
+
+\begin{longtable}{@{}P{1.0cm}P{2.0cm}P{7.3cm}P{4.4cm}@{}}
+\caption{Priority findings and their evidence status.}\label{tab:priority}\\
+\toprule ID & Priority & Finding & Evidence \\\midrule
+\endfirsthead
+\toprule ID & Priority & Finding & Evidence \\\midrule
+\endhead
+F01 & High & Eager, unbounded dense \texttt{SeriesData} conversion can defeat the sparse representation and \texttt{MaxTerms}. & Source-confirmed allocation; size derived exactly.\\
+F02 & High & A nested observable can bypass the real-branch check applied by direct \texttt{SeriesPower}. & Source-derived public control flow; native reproduction pending.\\
+F03 & High to investigate & The old native fallback can assign logarithmic degree zero to an unseen tail. An elliptic-integral example exposes the mathematical danger. & Unsafe inference identified; exact native shape and public reachability pending.\\
+F04 & Medium & Constant coefficients enter the ordinary forward jet without the realness checks used by other paths. & Source-derived contract inconsistency; native reproduction pending.\\
+F05 & Medium & Flat rates 2 and 3 are rejected although they have a common fundamental rate 1. & Explicit source restriction; mathematical fix supplied.\\
+E01 & High process priority & The latest milestone records focused tests, not a complete package run; the inspected CI workflow checks packaging rather than mathematics. & Repository's own records and workflow.\\
+E02 & Medium & Resource, order, observable, and result-schema conventions vary across subsystems. & Documented API and inspected dispatch.\\
+E03 & Low, easy repair & Root license text says MIT No Attribution, while source and paclet metadata say MIT. & Direct metadata discrepancy.\\
+\bottomrule
+\end{longtable}
+
+The near-term recommendation is a \emph{contract-hardening release}: bound native-view construction, move branch obligations into shared operations, unify native-tail import, run complete native regression coverage, and publish a revision-pinned evidence manifest. The flat-rate generalization is a suitable small feature once its degree budget is also bounded. A more ambitious transseries framework should follow these repairs, not conceal them behind a growing dispatch tree.
+
+\subsection{What this audit does not establish}
+
+This report does not certify the entire package, prove every theorem in the repository article, establish a public speed advantage over Wolfram Language, or claim that built-in \texttt{AsymptoticSolve} fails on all logarithmic or irrational inverse problems. It also does not claim that the package's interval certificate is invalid merely because its numerical seed is approximate: the inspected certificate arithmetic deliberately separates heuristic seed selection from exact rational verification.\cite{certificates}
+
+Conversely, inability to obtain a native run does not erase source-level evidence. An explicit unbounded \texttt{Table} has a determinable allocation length, and rejecting rates unless they are integer multiples of their minimum is a directly readable restriction. The appropriate response is to provide bounded reproducers, explain the mathematical expectation, and reserve execution claims for actual observations.
+
+\section{Snapshot, method, and coverage}
+\label{sec:method}
+
+\subsection{An immutable source boundary}
+
+The audit is anchored to full commit
+\begin{center}\path{75de8756175911cd8830704fd1a3406c1022f018}.\end{center}
+The commit message describes request-local logarithmic coefficient reuse and identical-envelope-operand reuse. It was newer than the initial snapshot encountered during inspection; the final report uses the newer revision. The principal core-file findings are unaffected by that change. Every repository reference in the bibliography points to the pinned revision rather than a moving \texttt{main} branch.\cite{commit,core}
+
+The paclet manifest declares version 1.8.0 and Wolfram Language 15.0+. The root standalone file is reported by the Git tree as 574,627 bytes. This file is generated; the modular sources under \path{AsymptoticInverse/Kernel/} remain canonical. The two Git blob identities used by the patch emitter are recorded in Appendix~\ref{sec:reproduce}. A patch must not be silently applied to a different source revision.\cite{paclet,tree,development}
+
+\subsection{Inspection approach}
+
+The review followed data through the public entry points, coordinate normalization, sparse precision algebra, inversion, object construction, explicit operations, ordinary arithmetic, native special-function import, and certificate evaluation. Particular attention was paid to situations in which one component believes it has a stronger mathematical guarantee than another component actually supplied.
+
+The following were examined in depth: the core kernel file; major parts of \texttt{SeriesOperations}, \texttt{SeriesArithmetic}, \path{InverseFunctionExpressions}, \path{InverseCertificates}, \path{NativeSpecialFunctions}, \path{ParameterizedSpecialFunctions}, \texttt{GammaInverse}, and \texttt{FlatSectors}; the current user guide; package metadata; the standalone-build workflow; validation records; and representative acceptance tests. The article's entry file, section organization, abstract, and references were reviewed for intended mathematical scope. Other modules were inventoried or consulted selectively through their interfaces and callers. This is not a claim of exhaustive line-by-line review of every historical report, generated artifact, or test file.\cite{core,operations,arithmetic,inverseexpressions,certificates,native,parameterized,gammainverse,flat,guide,article,acceptance}
+
+Public Wolfram documentation was checked as current documentation on the audit date. Such documentation describes supported interfaces and intended behavior; it is not a substitute for a version-specific comparative execution. Native and package order parameters were therefore not treated as automatically equivalent.
+
+\subsection{Execution record}
+
+The execution boundary is unusually important for this audit. A Wolfram evaluator eventually returned the version string
+\begin{quote}\ttfamily 15.0.0 for Linux x86 (64-bit) (May 6, 2026).\end{quote}
+However, the subsequent request to download and load the pinned standalone package failed at the tool connection layer, and a follow-up probe also failed. No confirmed package load, package output, package source digest, native-tail probe, or full package test report was returned. The raw account is in \path{evidence/native-execution-status.txt}. A failed response cannot establish what, if anything, completed remotely.
+
+Local independent checks did run under Python 3.13.5, SymPy 1.14.0, and mpmath 1.3.0. Fifteen mathematical and finite-model checks passed. Five additional tests of the patch emitter's text transformations passed. The latter exercise excerpt fixtures and fail-closed anchors, not a complete parsed or executed Wolfram package. Logs and a machine-readable mathematical-results file are included.
+
+\begin{longtable}{@{}P{5.1cm}P{4.1cm}P{5.7cm}@{}}
+\toprule Evidence category & Obtained here & Proper interpretation \\\midrule
+\endhead
+Pinned source inspection & Yes, through repository tools & Grounds implementation and control-flow claims.\\
+Official Wolfram documentation & Yes & Grounds documented native capabilities, not comparative success rates.\\
+Independent mathematical checks & 15 passed; zero failures/errors & Checks derivations and counterexample mathematics, not repository execution.\\
+Patch-transformation fixtures & 5 passed & Checks selected textual edits and drift rejection; not native semantics.\\
+Native kernel version probe & One successful result & Establishes that probe's kernel version only.\\
+Repository Wolfram regression run & Not obtained & Supplied \texttt{.wlt}/\texttt{.wls} files remain to be run.\\
+Repository-reported focused tests & Read, not independently rerun & Historical evidence with the scope stated by the repository.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Existing validation deserves credit, but not extrapolation}
+
+The newest validation record reports 135 passing tests in eight selected files, including ten new checks, with unchanged source hashes. It explicitly says that the full package suite was not run. The preceding generalized-series milestone reports 305 passing checks in 18 selected files and makes the same qualification. These are overlapping milestone records, not disjoint test populations to be added together.\cite{validation}
+
+The selected acceptance tests include independent formulas, several numerical scales, retained remainder orders, cancellation, branch sides, and composition with vanishing derivatives. This is stronger than checking that outputs merely have the expected head. It nevertheless leaves a need for cross-dispatch adversarial cases: a property protected at a public wrapper can still fail when the same primitive is reached through an observable or a native fallback.\cite{acceptance,operations}
+
+\section{Architecture and mathematical contracts}
+
+\subsection{A family of algebras, not one universal series type}
+
+The public head \gseries\ wraps an association. Different constructors populate different keys: ordinary jets have power/logarithm blocks, factored expansions have an exact prefactor, transformed inverses retain coordinate series, Gamma/Barnes inverses retain Lambert cores, and flat or native special-function results may carry separate sectors or absolute envelopes. \texttt{Normal} extracts only the finite expression. The common head is useful, but common syntax does not by itself supply a common coefficient algebra.\cite{core,operations,guide,gammainverse,native,flat}
+
+A useful conceptual decomposition is
+\begin{align*}
+  \text{result}={}&\text{coordinate and branch}
+  +\text{finite algebraic data}\\
+  &+\text{remainder contract}
+  +\text{construction provenance}.
+\end{align*}
+Here the plus signs describe components, not numerical addition. Correct operations require compatibility in all four components. Equal-looking finite expressions need not have equal domains, derivative contracts, or omitted errors.
+
+The inspected implementation already reflects much of this distinction. Ordinary arithmetic first tries a compatible ordered jet algebra, then may fall back to a composite absolute envelope. Flat sectors are handled separately. Differentiation requires a remainder-derivative contract. Native oscillations retain absolute bounds rather than being assumed bounded away from zero. These decisions should become explicit shared interfaces rather than remain distributed conventions.\cite{operations,arithmetic,native}
+
+\subsection{Positive local coordinates}
+
+For ordinary real approaches, the package uses a coordinate $u\to0^+$:
+\[
+ u=x-x_0,\qquad u=x_0-x,\qquad u=1/x,\qquad u=-1/x,
+\]
+for a finite point from above, a finite point from below, positive infinity, and negative infinity, respectively. Source and target coordinates need not be the same. The inverse target coordinate also depends on the limiting target value and the sign of the leading coefficient. This is a sound basis for real powers and real logarithms.\cite{core,guide}
+
+A consequence is that an order such as $u^3$ may mean $(x-x_0)^3$ in one object and $x^{-3}$ in another. A numerical value substituted into the displayed expression does not validate the selected asymptotic approach or prove that the approximation is accurate there.
+
+\subsection{The ordinary precision algebra}
+
+Write
+\begin{equation}\label{eq:jet}
+ J(u)=\sum_{\lambda\in S}u^\lambda P_\lambda(\log u)
+       +\OO\!\left(u^\rho M(u)^k\right),\qquad
+ M(u)=1+|\log u|,
+\end{equation}
+where $S$ is a finite ordered support and each $P_\lambda$ is a polynomial. The core stores a precision-tracked jet essentially as a triple of rows, remainder exponent, and logarithmic degree. Exactness corresponds to infinite remainder exponent.\cite{core}
+
+For fixed real exponents and finite logarithmic degrees,
+\[
+ u^a M(u)^k=o\!\left(u^b M(u)^\ell\right)\quad(a>b),
+\]
+regardless of $k,\ell$. At equal powers, the larger logarithmic degree gives the weaker envelope. Thus an error comparison must not discard the logarithmic degree merely because the power is correct.
+
+Addition must merge all equal-weight coefficients before determining which block survives. Multiplication must transport both input errors and their product. For finite expressions $A,B$ and errors $R,S$, the basic envelope is
+\begin{equation}\label{eq:producterror}
+ (A+\OO(R))(B+\OO(S))
+ =AB+\OO\bigl(|A|S+|B|R+RS\bigr).
+\end{equation}
+The newer native and composite arithmetic follows this principle. Identical operand extraction can be reused computationally without treating two error occurrences as cancelling.\cite{native,commit}
+
+\subsection{Evidence classes that should remain distinct}
+
+A robust result protocol should distinguish the following claims. A \emph{formal identity} says that algebraic coefficients cancel under substitution in the finite model. An \emph{asymptotic contract} supplies an error class under hypotheses. A \emph{numerical comparison} gives empirical agreement at selected points. A \emph{certified enclosure} proves a pointwise containment with specified arithmetic and domain obligations. A \emph{convergence theorem} is a different statement again.
+
+The repository generally acknowledges these distinctions. In particular, \texttt{InverseResidual} states that its ordinary residual concerns the finite forward model, and \path{InverseNumericalCheck} is described as numerical evidence rather than an interval certificate. The certificate explicitly excludes unspecified functions represented only by \texttt{InputRemainder}. The proposed architecture should preserve these qualifications in machine-readable form and expose them prominently in the user interface.\cite{core,certificates,guide}

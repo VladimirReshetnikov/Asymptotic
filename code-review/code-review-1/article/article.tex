@@ -1,0 +1,97 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=23mm,headheight=15pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,array,tabularx}
+\usepackage{xcolor,xurl,listings,enumitem,needspace}
+\usepackage{fancyhdr,titlesec}
+\usepackage[colorlinks=true,linkcolor=navy,citecolor=teal,urlcolor=navy]{hyperref}
+\definecolor{navy}{HTML}{18334D}
+\definecolor{teal}{HTML}{11696D}
+\definecolor{light}{HTML}{F2F5F7}
+\definecolor{muted}{HTML}{52616B}
+\hypersetup{pdftitle={Asymptotic 1.8.0: Mathematical and Engineering Audit},pdfauthor={OpenAI, prepared for Vladimir Reshetnikov},pdfsubject={Pinned-source review, Wolfram Language comparison, defects, tests and development recommendations}}
+\titleformat{\section}{\Large\sffamily\bfseries\color{navy}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries\color{navy}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries}{\thesubsubsection}{0.7em}{}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlength{\emergencystretch}{3em}
+\setcounter{tocdepth}{2}
+\widowpenalty=10000
+\clubpenalty=10000
+\raggedbottom
+\AddToHook{cmd/section/before}{\Needspace{6\baselineskip}}
+\AddToHook{cmd/subsection/before}{\Needspace{4\baselineskip}}
+\setlist{nosep,leftmargin=1.6em}
+\allowdisplaybreaks
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{muted}ASYMPTOTIC / TECHNICAL AUDIT}
+\fancyhead[R]{\small\sffamily\color{muted}1.8.0 \;\textperiodcentered\; 07a9781}
+\fancyfoot[L]{\small\sffamily\color{muted}September 9, 2026}
+\fancyfoot[R]{\small\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\dd}{\mathrm d}
+\newcommand{\val}{\operatorname{val}}
+\newcommand{\N}{\mathbb N}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Lenv}{(1+|\log u|)}
+\newcommand{\commit}{\texttt{07a9781212beb2eeb9ff16aa625b50ac27974078}}
+\newcommand{\status}[1]{\textbf{Evidence:} #1.}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\theoremstyle{remark}\newtheorem{remark}[proposition]{Remark}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,breaklines=true,breakatwhitespace=false,showstringspaces=false,backgroundcolor=\color{light},frame=single,rulecolor=\color{light},framerule=0pt,xleftmargin=0.5em,xrightmargin=0.5em,aboveskip=0.8em,belowskip=0.8em,tabsize=2}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\begin{document}
+\thispagestyle{empty}
+{\sffamily\small\bfseries\color{teal}PINNED-SOURCE REVIEW \quad / \quad MATHEMATICS + SOFTWARE ENGINEERING\par}
+\vspace{1.1cm}
+{\sffamily\Huge\bfseries\color{navy}Asymptotic 1.8.0\par}
+\vspace{0.25cm}
+{\sffamily\LARGE\color{navy}Mathematical and engineering audit\par}
+\vspace{0.4cm}
+{\large A comparison with Wolfram Language, concrete defects,\par reproducible checks, and a development roadmap\par}
+\vspace{0.8cm}
+\textbf{Repository:} VladimirReshetnikov/Asymptotic\\
+\textbf{Reviewed revision:} \commit\\
+\textbf{Review date:} September 9, 2026\\
+\textbf{Prepared for:} Vladimir Reshetnikov\par
+\vspace{0.65cm}
+\begin{abstract}
+\noindent
+The repository is a substantial, specialized extension to Wolfram Language, not a replacement for its asymptotic engine. Its principal contribution is a reusable representation of selected real asymptotic germs: complete blocks with exact real exponents, explicit error scales, source and target branches, retained computation state, and specialized inverse constructions. Much of its value lies in preserving meaning during subsequent operations rather than merely printing an expansion.
+
+This review traces the central power--logarithmic engine and important surrounding layers, compares the design with current official Wolfram documentation, and identifies four particularly actionable issues: a nested-observable real-branch guard bypass; an unbounded eager dense allocation during optional native export; disclosed loss of logarithmic error information in that export; and use of ambient assumptions without reliably recording their provenance. Other findings concern release validation, resource accounting, heterogeneous cutoff semantics, compatibility, and incomplete closure between supported scales.
+
+The accompanying Python checks establish 42 mathematical and allocation-policy assertions. Six further tests exercise the patch generator on synthetic fixtures. Fifteen prospective Wolfram regression tests and a benchmark harness are supplied, but \emph{no native Wolfram execution was available during this review}. Source deductions, independent checks, repository-reported validation, and unexecuted proposals are distinguished throughout.
+\end{abstract}
+\vfill
+{\small\color{muted}This is a review of one immutable revision. It does not assert correctness of every implementation path or every theorem in the repository. Proposed patches require native regression testing before release.}
+\clearpage
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\clearpage
+\input{sections/01-summary-scope}
+\input{sections/02-architecture}
+\input{sections/03-mathematics}
+\input{sections/04-comparison}
+\input{sections/05-defects}
+\input{sections/06-engineering}
+\input{sections/07-performance}
+\input{sections/08-validation}
+\input{sections/09-design-roadmap}
+\input{sections/10-artifacts}
+\clearpage
+\appendix
+\input{sections/11-coverage}
+\input{sources}
+\end{document}

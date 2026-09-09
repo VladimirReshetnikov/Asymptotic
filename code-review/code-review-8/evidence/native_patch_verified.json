@@ -1,0 +1,26 @@
+{
+  "audit_date": "2026-09-09",
+  "commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "original_sha256": "b2aebac8176649ff53634816f17e92c8f0ccb397f7606a5ac819b6f157b6d7ed",
+  "candidate_sha256": "a3c5a870e93890884576f149cc31438b9294035406c4d647627e70953466f24b",
+  "method": "Successful Wolfram connector evaluation: fetch original, exact text replacements, Export temporary text, Get patched temporary file, evaluate five focused checks. This local script packages equivalent replacements; it was not separately run via wolframscript.",
+  "anchor_counts": [
+    1,
+    2,
+    1,
+    1
+  ],
+  "dense_limit": 100000,
+  "native_observed": {
+    "WrappedPower": "Failure[UnknownLeadingTerm, A pure remainder does not prove the real branch of a noninteger power; refine or supply a proved sign contract.]",
+    "LoopBudget": "Failure[ResourceLimit, Unit-series depth exceeds MaxTerms.]",
+    "DenseCache": "Missing[DenseRepresentationLimit, <|RequiredCoefficients -> 1000000, MaximumCoefficients -> 100000|>]",
+    "DenseExpression": "x + x^(1000001/1000000)",
+    "PolynomialControl": "y-y^2+2*y^3-5*y^4+14*y^5",
+    "AnnihilatedComposition": "{{0,1}}"
+  },
+  "focused_checks_succeeded": 5,
+  "full_upstream_suite_executed": false,
+  "ambient_assumption_leak_fixed": false
+}

@@ -1,0 +1,164 @@
+\section{Conclusion}
+
+The repository has a coherent mathematical center and a substantial engineering investment. Its explicit inverse coefficients, complete-block treatment, retained cores, branch-aware transformations, and conservative error operations can support workflows that are awkward to organize using finite expressions alone. Built-in Wolfram functionality remains an essential foundation and comparison baseline.\cite{core,guide,operations,gammainverse,native}
+
+The audit's central recommendation is to make all dispatch paths obey the same mathematical obligations. F01 exposes an unbounded representation conversion; F02 exposes a wrapper-versus-primitive branch inconsistency; F03 exposes duplicated native-tail policies; F04 exposes inconsistent coefficient-domain enforcement; and F05 exposes a fixable mismatch between mathematical commensurability and the chosen encoding. These are more actionable than a broad assertion that the package needs ``more features.''
+
+The supplied patches are proposals, not a newly certified release. Native execution remains the next acceptance step. The repository's own habit of publishing scoped test records is a good foundation: extend it to a complete release gate, preserve the distinction between formal and analytic evidence, and publish reproducible resource behavior. That would make the package a considerably stronger research tool without abandoning its current architecture or its cooperation with Wolfram Language.
+
+\appendix
+\section{Reproducing this audit and using the companion artifacts}
+\label{sec:reproduce}
+
+\subsection{Archive layout}
+
+\begin{longtable}{@{}P{6.0cm}P{8.9cm}@{}}
+\toprule Artifact & Purpose and status \\\midrule
+\endhead
+\path{article/asymptotic-audit.tex} and section files & Complete editable article source.\\
+\path{article/asymptotic-audit.pdf} & Compiled article.\\
+\path{code/independent_checks.py} & Fifteen executed mathematical and finite-model checks.\\
+\path{code/emit_patch_proposals.py} & Fail-closed emitter of review patches and changed source copies; never edits the supplied checkout.\\
+\path{code/test_patch_proposals.py} & Five executed text-transformation fixture tests; not Wolfram semantic validation.\\
+\path{code/AuditRegressions.wlt} & Nine desired-behavior and control tests; native execution not obtained.\\
+\path{code/RunAudit.wls} & Loads a local checkout, runs those tests, records native metadata, and invokes the tail probe.\\
+\path{code/ProbeNativeTail.wls} & Records the actual native elliptic series shapes, old private fallback, and public result separately.\\
+\path{code/CompareBuiltins.wls} & Twelve bounded native/package comparison calls; no results claimed here.\\
+\path{results/} & Actual independent-test logs and machine-readable mathematical results.\\
+\path{evidence/} & Snapshot, findings ledger, coverage, native-execution limitations, and source metadata.\\
+\path{README.md} & Commands, dependencies, limitations, and patch-integration instructions.\\
+\bottomrule
+\end{longtable}
+
+The archive does not contain a full repository clone, a Wolfram kernel, or a compiled native test report. Repository access succeeded through source-reading tools, but the environment did not provide a mounted complete checkout for package execution. The patch emitter therefore validates a checkout supplied by the reader and produces proposals only when the expected source blobs match.
+
+\subsection{Actual independent checks}
+
+From the archive root, with Python, SymPy, and mpmath installed:
+\begin{lstlisting}
+python code/independent_checks.py
+python -m unittest discover -s code -p test_patch_proposals.py -v
+\end{lstlisting}
+The saved run used Python 3.13.5, SymPy 1.14.0, and mpmath 1.3.0. It passed all 15 independent checks and all five transformation checks. The mathematical checks cover allocation counts without allocation, rational rate normalization, coefficient formulas, resonance, an independent inverse polynomial, the elliptic logarithmic tail, a rational residual enclosure example, and the failure of differentiation of an arbitrary magnitude bound.
+
+Neither test count should be presented as a count of passing repository tests. Several checks establish the reference mathematics for a proposed regression; others validate artifact-generation logic. They do not execute Wolfram evaluation rules, package upvalues, native special-function dispatch, formatting, or the complete repository suite.
+
+\subsection{Patch proposal generation}
+
+The emitter recognizes these exact normalized Git blob identities:
+\begin{center}
+\begin{tabular}{@{}P{5.7cm}P{9.2cm}@{}}
+\toprule Canonical file & Git blob SHA-1\\\midrule
+Core \texttt{AsymptoticInverse.wl} & \path{ea9eaf4a11130e922ac4fb3faae37fd8e8d29643}\\
+\texttt{FlatSectors.wl} & \path{293450f13e3ede4b490680f9ac0dea2f39fa2183}\\
+\bottomrule
+\end{tabular}
+\end{center}
+These are Git object identities, not raw-file SHA-256 digests. The emitter uses LF-normalized UTF-8 text to reconstruct the blob hash, so a checkout with ordinary line-ending conversion can still be recognized. A mismatch or missing anchor causes failure before output is written.
+
+Use a checkout of the pinned commit and a new output directory outside it:
+\begin{lstlisting}
+python code/emit_patch_proposals.py /path/to/Asymptotic \
+  /path/to/new-review-proposals
+\end{lstlisting}
+For the optional narrow F03 mitigation:
+\begin{lstlisting}
+python code/emit_patch_proposals.py /path/to/Asymptotic \
+  /path/to/new-review-proposals \
+  --conservative-native-tails
+\end{lstlisting}
+The emitter writes changed source copies, a unified patch, and a manifest. Default proposals address F01, F02, and F05. The optional flag also changes the identified empty-native-tail branch. It does not implement F04, a typed result schema, lazy properties, or the full shared native importer.
+
+The transformation tests exercise excerpts and anchor checks. The emitter was not run end to end against a complete local checkout during this audit, and the emitted Wolfram source was not executed. Review the patch, apply it only in a separate development branch, run the proposed regressions and the full native suite, then regenerate the standalone distribution using the repository's builder. Do not edit only the generated root file.
+
+\subsection{Native regression commands}
+
+On a machine with a compatible Wolfram kernel and a local checkout, set \path{ASYMPTOTIC_AUDIT_ROOT}. For example, in a POSIX shell:
+\begin{lstlisting}
+export ASYMPTOTIC_AUDIT_ROOT=/path/to/Asymptotic
+wolframscript -file code/RunAudit.wls
+wolframscript -file code/CompareBuiltins.wls
+\end{lstlisting}
+In PowerShell, set the environment variable with
+\begin{lstlisting}
+$env:ASYMPTOTIC_AUDIT_ROOT = "C:\path\to\Asymptotic"
+\end{lstlisting}
+The comparison and probe output files are written to the current working directory. Run in a dedicated results directory or preserve previous results before repeating a run.
+
+The nine regression tests are \emph{desired behavior} tests mixed with controls. Some are expected to fail on the pinned baseline. The F04 test remains a requested policy change even after applying the default patch proposals. A nonzero exit status therefore does not automatically mean the emitter corrupted the package; inspect test IDs and compare with the intended change set.
+
+After modifying canonical kernel sources, the repository documents the following packaging checks:
+\begin{lstlisting}
+python validation/build_standalone.py
+python validation/build_standalone.py --check
+python -m unittest discover -s validation \
+  -p test_standalone.py -v
+\end{lstlisting}
+These are packaging checks, not replacements for native mathematical tests.\cite{development,ci}
+
+\subsection{Compiling the article}
+
+From the \texttt{article} directory:
+\begin{lstlisting}
+latexmk -pdf -interaction=nonstopmode -halt-on-error \
+  asymptotic-audit.tex
+\end{lstlisting}
+The source uses standard LaTeX packages and an embedded conventional bibliography; no external bibliography processor or proprietary fonts are required. All section files must remain beside the master source.
+
+\section{Regression and acceptance matrix}
+
+\begin{longtable}{@{}P{1.4cm}P{6.6cm}P{6.9cm}@{}}
+\toprule Item & Desired invariant & Supplied evidence or next acceptance step \\\midrule
+\endhead
+F01 & A wide rational native grid cannot block a sparse result. & Exact allocation-count tests passed; bounded native desired-behavior test supplied. Measure preallocation/peak behavior, not just final list length.\\
+F01 & The native remainder order does not require trailing zero padding. & Emitter change and transformation tests supplied. Output-length control alone may already pass the baseline after native canonicalization.\\
+F02 & Pure-remainder real radicals are rejected through direct and recursive routes. & Source trace and nonreal mathematical example; two native desired/control tests supplied.\\
+F03 & An invisible logarithmic coefficient cannot be assigned degree zero without evidence. & Elliptic derivation and high-precision checks passed; private/public native-shape probe supplied.\\
+F04 & A real result cannot accept a provably nonreal constant coefficient silently. & Desired-behavior test supplied; broader coefficient policy is not patched.\\
+F05 & Positive rational rate ratios determine a fundamental rate, subject to degree limits. & Exact rational normalization tests passed; native sector example supplied.\\
+Control & Complete logarithmic and irrational inverse blocks are preserved. & Independent coefficient checks and two native control tests supplied.\\
+Control & Product remainder degree includes discarded boundary logarithms. & Native control test supplied; existing repository acceptance test corroborates intended behavior.\cite{acceptance}\\
+Process & Release claims match the test selection and source revision. & Manifest and execution-status files included; native package result remains explicitly unverified.\\
+\bottomrule
+\end{longtable}
+
+\section{Coverage and source-navigation guide}
+\label{sec:coverage}
+
+Repository references below are immutable. Function names, not the line numbers of generated standalone output, are the most stable locators for the findings. The standalone file embeds sources and has different line positions. The cited commit is essential: later revisions may already change the relevant implementation.
+
+\begin{longtable}{@{}P{5.1cm}P{9.8cm}@{}}
+\toprule Source group & Inspection focus and coverage boundary \\\midrule
+\endhead
+Core kernel & Deep review of exact weights, sparse arithmetic, precision triples, ordinary forward fallback, endpoint normalization, Lagrange coefficients, inverse construction, native conversion, and public object behavior.\\
+\texttt{SeriesOperations} and \texttt{SeriesArithmetic} & Deep review of representation extraction, arithmetic fallback, power/log/exp, observable recursion, composition, derivative admission, held normalization, and result recipes.\\
+\path{InverseFunctionExpressions} & Branch/condition preprocessing, request-local caches, native inverse syntax recovery, dispatch, and provenance. Other branch/syntax modules were not exhaustively audited.\\
+\path{InverseCertificates} & Rational enclosure primitives and main verification flow, including derivative separation, source-domain checks, existence, refinement, and stated certificate scope.\\
+\path{NativeSpecialFunctions} and \path{ParameterizedSpecialFunctions} & Structured native-series import, absolute error transport, logarithmic tail policy, fixed-parameter/Frobenius preprocessing, and fallback budgets. Not every supported special function was independently checked.\\
+\texttt{GammaInverse} & Family model restrictions, retained Lambert cores, coefficient recurrence, reciprocal-logarithmic remainder form, and option dispatch. Barnes-related interfaces and documentation reviewed; not every Barnes theorem or operation was re-proved.\\
+\texttt{FlatSectors} & Exact monomial core, phase/rate admission, marker construction, finite degree operations, and sector-tail contract.\\
+Guide, article, validation, tests & Current guide sections and feature map; article entry/organization and stated scope; current validation records; representative independent acceptance tests. Historical archives and all test files were not read exhaustively.\\
+Distribution and metadata & Paclet declaration, root license, source header, root tree metadata, generated-distribution documentation, and the standalone freshness workflow. No full local clone or release build was obtained.\\
+\bottomrule
+\end{longtable}
+
+\section{An exact enclosure example independent of the package}
+
+To illustrate the distinction between a small residual and a certified interval, consider $f(x)=x+x^2$ and target $y=1/100$. Choose
+\[
+ I=[9/1000,11/1000],\qquad c=99/10000.
+\]
+The derivative is $1+2x$, so it is at least $509/500$ throughout $I$. The exact residual is
+\[
+ f(c)-y=-\frac{199}{100000000}.
+\]
+Hence the residual radius is
+\[
+ r=\frac{199}{101800000}.
+\]
+The interval $[c-r,c+r]$ is contained in $I$. Since the derivative is positive, moving right by $r$ increases $f$ by at least the residual magnitude; continuity and monotonicity establish a unique root and the enclosure
+\[
+ x_*\in\left[\frac{1007621}{101800000},
+                 \frac{1008019}{101800000}\right].
+\]
+The included rational-arithmetic test verifies these relations. This is an independent illustrative calculation; it is not reported as an output of \path{InverseCertificate}. Its purpose is to make the certificate's existence and derivative obligations concrete.

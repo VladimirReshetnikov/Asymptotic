@@ -1,0 +1,54 @@
+\section{Validation strategy and adversarial testing}
+\subsection{What was actually executed for this audit}
+\begin{longtable}{P{0.3\textwidth}P{0.16\textwidth}P{0.44\textwidth}}
+\toprule Check group & Result & Scope \\\midrule
+\endfirsthead
+\toprule Check group & Result & Scope \\\midrule
+\endhead
+Independent Python/SymPy checks & 42 passed & Coefficient identities, counterexamples, allocation planning, and one exact rational certificate argument. \\
+Patch-generator unit tests & 6 passed & Synthetic fixtures, anchor validation, budget handling, and Git-blob hashing. \\
+Supplied Wolfram regressions & 15 supplied; not run & Corrected-behavior tests and ordinary controls in a native kernel. \\
+Supplied benchmark harness & Not run & Native/package comparison inputs and measurement capture. \\
+Repository 1.8.0 focused suite & 305 passes reported & Maintainer-recorded 18-suite run; full suite explicitly not run. \\
+\bottomrule
+\end{longtable}
+The first two results are in the bundle's evidence files. The last row is attributed to the repository. The Python checks are deliberately independent of Wolfram evaluation and do not pretend to emulate upvalues, holding attributes, assumptions, or \code{SeriesData}.\cite{validation}
+
+\subsection{Tests for invariants, not merely example outputs}
+An exact expected polynomial is a useful regression test, but it does not cover the whole contract. Each result should also be tested for the validity of its coordinate, domain, remainder, exactness status, and refinement recipe. In particular, a visually correct finite expression can still have an invalid branch or a falsely strong error bound.
+
+For every elementary operation, construct the same observable through multiple paths: the dedicated API, ordinary arithmetic, \code{SeriesNormalize}, nested \code{SeriesObservable}, and composition. The mathematical result and branch admission policy should agree, modulo explicitly documented representation changes. A01 shows why these path-equivalence tests are essential.
+
+Assumption tests should run with explicit assumptions, ambient \code{Assuming}, both together, conflicting conditions, and a fresh outer context after construction. Test that a saved object can be reloaded and used without relying on an assumption that was active only in the original session. Deliberately changing \code{$Assumptions} after construction must not retroactively change the object's claimed branch or exactness.
+
+\subsection{Metamorphic and differential checks}
+Several useful properties do not require an independent generalized-series solver. Construct a finite analytic or algebraic inverse $g$ first, derive a forward function when feasible, and check that reversion recovers the expected germ to the requested precision. Compare Lagrange, grouped Lagrange, and Newton on their common admitted class after canonicalizing complete blocks. Compare ordinary power-series cases with native \code{InverseSeries} and composition with \code{ComposeSeries}.\cite{wl-inverse,wl-compose}
+
+Test that truncating twice is consistent with truncating to the weaker final order. Test that a failed refinement leaves the original result unchanged. Check that refining a source-backed result agrees with a fresh construction at the stronger order, while an object carrying only an unknown remainder cannot gain precision. Exact termination should require exact evidence, not a long run of zero computed coefficients.
+
+Differential tests against native \code{AsymptoticSolve} should compare branch conditions and asymptotic residuals, not raw expression strings. An unevaluated native call is an unsupported or unresolved case in that tested version, not proof that the host language has no relevant capability. Likewise, a package failure may be the correct response to an unproved real branch.
+
+\subsection{Adversarial case families}
+\textbf{Cancellation and exact zero.} Include zero finite parts, canceled leading blocks, exact zero, powers zero and negative, and unknown denominators. Distinguish algebraic identity from cancellation of independently uncertain operands.
+
+\textbf{Exponents and frontiers.} Include rational exponents with large denominators, irrational algebraic exponents with exact relations, nearly equal numerical values that are exactly different, and symbolic gaps under different parameter inequalities. Ensure that equality grouping precedes truncation and term counting.
+
+\textbf{Logs and nested operations.} Include nonzero logarithmic remainder degree, high-degree complete log blocks, logarithms of sign-indefinite inputs, and exponentials whose argument remainder is not small in absolute value.
+
+\textbf{Branches and endpoints.} Test both finite source sides, both infinities, translated coordinates, negative source powers where admitted, conditional expressions, and a target with the same limiting value reached by different source branches.
+
+\textbf{Oscillation and special functions.} Test zeros of oscillatory leading coefficients, real-domain boundaries, distinct exponential carriers, cancellation between carriers, and unsupported parameter regimes that must fail rather than silently project a complex result.
+
+\textbf{Certificates.} Test intervals crossing singularities or violating a source condition, strict endpoint contact, derivatives not separated from zero, fixed-center accuracy floors, relative accuracy near zero, and a declared input remainder whose family is not certified. The certificate code already treats many of these conservatively; tests should lock in that behavior.\cite{certificates}
+
+\subsection{Native runner and release gates}
+The supplied runner loads the canonical modular package before reading the test file, records source hashes and kernel information, treats aborted/empty reports as failures, and can optionally discover all repository \code{.wlt} files. It is a prospective tool: no output file claiming native execution is included in this bundle.
+
+A production release gate should run the full suite in isolated kernels, alongside the standalone builder tests and loading checks. Include the declared minimum Wolfram version and at least the actual supported release/platform combinations. Avoid a test strategy that depends on session state accumulated by earlier suites. Test IDs should be unique and meaningful, and a changed public head should trigger saved-object compatibility tests.
+
+Keep the repository's existing before/after source hashing and failure details. Add a release-level manifest that connects the tested canonical sources, generated standalone artifact, documentation examples, version metadata, and downloadable release checksum. A passing test report for one source hash must not be silently reused after regenerating or editing another artifact.\cite{runner,development}
+
+\subsection{How to interpret the proposed regressions}
+The native test file is not an assertion that the current revision passes. A01's nested path and A04's ambient-assumption cases target corrected behavior. A02 expects the new conservative export cap. A03's strict-export test deliberately changes a currently disclosed permissive behavior. Controls preserve ordinary exports, exact zero, a positive square root, classical inversion, irrational-power inversion, complete logarithmic blocks, and certificate scope.
+
+The local patch generator's six tests do not establish Wolfram syntax or semantic validity of the modified kernel. They test that the intended edits are placed once in a controlled fixture, that malformed anchors are rejected, and that hashing and budget handling behave as designed. Applying a patch to the actual pinned source and running a native suite remain necessary acceptance steps.

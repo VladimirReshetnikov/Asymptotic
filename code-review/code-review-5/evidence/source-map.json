@@ -1,0 +1,331 @@
+{
+  "snapshot": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "native_execution": false,
+  "coverage_definition": {
+    "full_source": "Source read, not exhaustive path verification or runtime execution",
+    "substantial": "Main implementation paths and relevant helpers read",
+    "selected_source": "Selected implementation sections read",
+    "interface": "Inventory, documented contract and/or call sites; full implementation audit not claimed"
+  },
+  "modules": [
+    {
+      "path": "AsymptoticInverse/Kernel/AsymptoticInverse.wl",
+      "bytes_from_git_tree": 83094,
+      "review_depth": "substantial",
+      "findings": [
+        "F01",
+        "F02",
+        "F03",
+        "F05",
+        "F06"
+      ],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/AsymptoticInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/BarnesForward.wl",
+      "bytes_from_git_tree": 5770,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/BarnesForward.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/BarnesInverse.wl",
+      "bytes_from_git_tree": 6221,
+      "review_depth": "full_source",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/BarnesInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/BarnesInverseChecks.wl",
+      "bytes_from_git_tree": 1813,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/BarnesInverseChecks.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/CoordinateInverse.wl",
+      "bytes_from_git_tree": 8062,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/CoordinateInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/CorePerturbation.wl",
+      "bytes_from_git_tree": 16126,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/CorePerturbation.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/DirichletSpecialFunctions.wl",
+      "bytes_from_git_tree": 10237,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/DirichletSpecialFunctions.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/ExactTermination.wl",
+      "bytes_from_git_tree": 1647,
+      "review_depth": "full_source",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/ExactTermination.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/ExponentialCorePerturbation.wl",
+      "bytes_from_git_tree": 14153,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/ExponentialCorePerturbation.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/ExponentialForward.wl",
+      "bytes_from_git_tree": 4348,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/ExponentialForward.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/FlatSectorOperations.wl",
+      "bytes_from_git_tree": 17543,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/FlatSectorOperations.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/FlatSectors.wl",
+      "bytes_from_git_tree": 8939,
+      "review_depth": "full_source",
+      "findings": [
+        "F07"
+      ],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/FlatSectors.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/FourierCoefficients.wl",
+      "bytes_from_git_tree": 20811,
+      "review_depth": "substantial",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/FourierCoefficients.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/GammaForward.wl",
+      "bytes_from_git_tree": 12222,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/GammaForward.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/GammaInverse.wl",
+      "bytes_from_git_tree": 12576,
+      "review_depth": "substantial",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/GammaInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/GammaInverseChecks.wl",
+      "bytes_from_git_tree": 10395,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/GammaInverseChecks.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/GammaInverseOperations.wl",
+      "bytes_from_git_tree": 6059,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/GammaInverseOperations.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/IncrementalInverse.wl",
+      "bytes_from_git_tree": 9921,
+      "review_depth": "full_source",
+      "findings": [
+        "F03"
+      ],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/IncrementalInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/InverseCertificates.wl",
+      "bytes_from_git_tree": 25527,
+      "review_depth": "full_source",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseCertificates.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/InverseFunctionBranches.wl",
+      "bytes_from_git_tree": 15481,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseFunctionBranches.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/InverseFunctionExpressions.wl",
+      "bytes_from_git_tree": 17556,
+      "review_depth": "substantial",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseFunctionExpressions.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/InverseFunctionFamilies.wl",
+      "bytes_from_git_tree": 7000,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseFunctionFamilies.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/InverseFunctionSyntax.wl",
+      "bytes_from_git_tree": 8311,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/InverseFunctionSyntax.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/LambertInverse.wl",
+      "bytes_from_git_tree": 19845,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/LambertInverse.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/LogarithmicScales.wl",
+      "bytes_from_git_tree": 30645,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/LogarithmicScales.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/NativeSpecialFunctions.wl",
+      "bytes_from_git_tree": 20025,
+      "review_depth": "full_source",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/NativeSpecialFunctions.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/NumericalInverseChecks.wl",
+      "bytes_from_git_tree": 4609,
+      "review_depth": "full_source",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/NumericalInverseChecks.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/ParameterizedSpecialFunctions.wl",
+      "bytes_from_git_tree": 6110,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/ParameterizedSpecialFunctions.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/ReciprocalLogOperations.wl",
+      "bytes_from_git_tree": 11366,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/ReciprocalLogOperations.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/RefinementRequests.wl",
+      "bytes_from_git_tree": 3628,
+      "review_depth": "full_source",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/RefinementRequests.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/RefinementState.wl",
+      "bytes_from_git_tree": 15052,
+      "review_depth": "substantial",
+      "findings": [
+        "F01"
+      ],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/RefinementState.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SeriesArithmetic.wl",
+      "bytes_from_git_tree": 15318,
+      "review_depth": "selected_source",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SeriesArithmetic.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl",
+      "bytes_from_git_tree": 20627,
+      "review_depth": "substantial",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SeriesOperations.wl",
+      "bytes_from_git_tree": 32811,
+      "review_depth": "full_source",
+      "findings": [
+        "F02",
+        "F04"
+      ],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SeriesOperations.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SourceCoordinates.wl",
+      "bytes_from_git_tree": 20474,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SourceCoordinates.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl",
+      "bytes_from_git_tree": 18879,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SpecialFunctionAdapters.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SpecialFunctionIdentities.wl",
+      "bytes_from_git_tree": 10406,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SpecialFunctionIdentities.wl"
+    },
+    {
+      "path": "AsymptoticInverse/Kernel/SpecialFunctionRealDomain.wl",
+      "bytes_from_git_tree": 13736,
+      "review_depth": "interface",
+      "findings": [],
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Kernel/SpecialFunctionRealDomain.wl"
+    }
+  ],
+  "additional_sources": [
+    {
+      "path": "README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/README.md"
+    },
+    {
+      "path": "AsymptoticInverse/Documentation/UserGuide.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/AsymptoticInverse/Documentation/UserGuide.md"
+    },
+    {
+      "path": "article/asymptotic-inverse.tex",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/article/asymptotic-inverse.tex"
+    },
+    {
+      "path": "article/sections/08-remainders.tex",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/article/sections/08-remainders.tex"
+    },
+    {
+      "path": "article/sections/09-transport.tex",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/article/sections/09-transport.tex"
+    },
+    {
+      "path": "validation/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/validation/README.md"
+    },
+    {
+      "path": "validation/FocusedTests.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/validation/FocusedTests.wl"
+    },
+    {
+      "path": "validation/CheckGeneralizedSeries.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/validation/CheckGeneralizedSeries.wl"
+    },
+    {
+      "path": ".github/workflows/standalone.yml",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/07a9781212beb2eeb9ff16aa625b50ac27974078/.github/workflows/standalone.yml"
+    }
+  ]
+}

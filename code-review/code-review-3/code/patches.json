@@ -1,0 +1,26 @@
+[
+  {
+    "name": "fractional-power-reality",
+    "old": "  If[T === {},\n   If[less[0, rr], Return[{{}, If[P === Infinity, Infinity, rr P], Ceiling[rr D]}, Module],",
+    "new": "  If[T === {} && P =!= Infinity && ! IntegerQ[rr],\n   fail[\"UnknownLeadingTerm\", \"A pure remainder cannot establish the real branch of a noninteger power; refine the argument first.\"]];\n  If[T === {},\n   If[less[0, rr], Return[{{}, If[P === Infinity, Infinity, rr P], Ceiling[rr D]}, Module],",
+    "expected": 1
+  },
+  {
+    "name": "capture-ambient-assumptions",
+    "old": "  clauses = If[Head[ass] === And, List @@ ass, {ass}];",
+    "new": "  clauses = With[{effective = ass && $Assumptions},\n    If[Head[effective] === And, List @@ effective, {effective}]];",
+    "expected": 1
+  },
+  {
+    "name": "preserve-logarithmic-tail-contract",
+    "old": "  den = LCM @@ (Denominator /@ Append[exps, remData[[1]]]);",
+    "new": "  If[remData[[2]] =!= 0,\n   Return[Missing[\"LogarithmicRemainderNotRepresentable\"], Module]];\n  den = LCM @@ (Denominator /@ Append[exps, remData[[1]]]);",
+    "expected": 2
+  },
+  {
+    "name": "bound-dense-native-export",
+    "old": "  coeffs = Table[0, {nmax - nmin}];",
+    "new": "  If[nmax - nmin > 100000,\n   Return[Missing[\"DenseRepresentationTooLarge\",\n     <|\"RequestedSlots\" -> nmax - nmin, \"SlotLimit\" -> 100000|>], Module]];\n  coeffs = Table[0, {nmax - nmin}];",
+    "expected": 2
+  }
+]

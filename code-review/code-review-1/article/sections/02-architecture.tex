@@ -1,0 +1,51 @@
+\section{Architecture and implemented capabilities}
+\subsection{The central representation}
+The ordinary engine works in a positive local coordinate $u\to0^+$. At a finite point this is $x-x_0$ or $x_0-x$; at the two real infinities it is $1/x$ or $-1/x$. A finite jet is a sparse list of complete blocks
+\[
+ J(u)=\sum_{\beta<h}u^\beta P_\beta(\log u),
+ \qquad P_\beta\in\R[L],
+\]
+together with a descriptor of the uncomputed part. Internally, the tuple \code{{rows, P, D}} means a finite expression plus an error of order $u^P(1+|\log u|)^D$. Infinite precision denotes an exact finite expression in this representation. The actual domain and assumptions are additional information, not consequences of the tuple alone.\cite{core,operations}
+
+The public \code{GeneralizedSeries[association]} stores the finite expression, remainder descriptor, variable, and family-dependent metadata. Ordinary arithmetic is implemented through guarded upvalues and the held \code{SeriesNormalize} entry point. The representation can also contain an exact prefactor and offset,
+\[
+ \text{Offset}+\text{Prefactor}\bigl(J(u)+R(u)\bigr).
+\]
+The distinction matters: a cutoff inside a correction bracket is not generally an absolute error cutoff for the entire expression.\cite{operations,arithmetic,guide}
+
+Formatting is deliberately separate from representation. Standard and traditional forms hide the wrapper but retain the original object through held interpretation boxes; edited display coefficients are not allowed to retain stale metadata. \code{Normal} explicitly discards the remainder. These choices address a real symbolic-computing problem: a visually familiar expression must not silently lose its uncertainty merely because it was copied into another input cell.\cite{core,guide}
+
+\subsection{Inversion and reuse}
+The ordinary inverse starts from a normalized model with nonzero leading coefficient and leading power, positive correction gaps, and polynomial logarithmic coefficients. The implementation supplies direct multi-index Lagrange coefficients, a grouped Lagrange route, and Newton iteration in the jet algebra. It enumerates complete equal-weight layers, because several distinct multi-indices can contribute to one coefficient. Cancellation is performed before a block count is interpreted.\cite{core,incremental}
+
+Incremental states retain the processed index region, frontier, completed blocks, and bounded polynomial-power caches. Newton states record their achieved precision and step cutoffs; an exact symbolic residual is checked after a nontrivial update. The state is returned by value, and cache exhaustion can cause recomputation rather than changing the mathematical result. This is a strong foundation for reproducible refinement, even though the size and serialization of retained states deserve further profiling.\cite{incremental}
+
+The public operation layer supports arithmetic, powers, logarithms, exponentials, selected observables, composition, truncation, refinement, and differentiation subject to scale and derivative contracts. \code{SeriesTruncate} discards information; \code{SeriesRefine} must obtain additional information from an actual source or retained computation. Those operations should never become interchangeable merely because they both take an order argument.\cite{operations,arithmetic,guide}
+
+\subsection{Specialized families}
+\begin{longtable}{P{0.23\textwidth}P{0.42\textwidth}P{0.25\textwidth}}
+\toprule Family & Implemented role & Important boundary \\\midrule
+\endfirsthead
+\toprule Family & Implemented role & Important boundary \\\midrule
+\endhead
+Ordinary power--log & Exact real weights, complete polynomial-log blocks, real local inversion and selected calculus. & Symbolic ordering and leading logarithmic factors need separate treatment. \\
+Lambert and logarithmic charts & Recognized leading logarithmic/exponential cores and admitted logarithmic coordinate changes. & Not arbitrary nested-log closure or automatic choice of every inverse branch. \\
+Exact-core perturbation & Retains a known inverse core and organizes perturbative corrections. & A formal marker degree is not automatically an asymptotic power cutoff. \\
+Finite flat sectors & Selected exponentially small sectors with separate inner coefficient orders and sector operations. & Finite sector depth is not a general all-sector or Stokes analysis. \\
+Fourier logarithmic coefficients & Bounded oscillatory modes, grouped frequencies, selected inverse coefficients and checks. & Boundedness does not imply invertibility of an oscillating leading coefficient. \\
+Gamma / Barnes inverses & Ordered corrections about exact Lambert cores, with complete reciprocal-log coefficient polynomials. & Special inverse representations have a smaller operation closure than ordinary jets. \\
+Native special-function adapters & Import structured native asymptotic trees, carriers, oscillatory phases, and error envelopes. & Supported function names do not guarantee every parameter regime and endpoint. \\
+Zeta / Lerch constructions & Defining-sum expansions in their documented special coordinates. & Their order conventions differ from ordinary local powers. \\
+\bottomrule
+\end{longtable}
+This inventory follows the current guide and the inspected dispatch and adapter code. It is not a declaration that every combination of rows in the table is implemented.\cite{guide,sourcecharts,gamma,native,inverseexpressions}
+
+\subsection{Native delegation is part of the design}
+The package is not algorithmically independent of Wolfram Language. It uses \code{Series} for appropriate analytic or special-function expansions, \code{Simplify}/\code{FullSimplify} for algebraic and branch questions, and symbolic solving for selected coordinate inversions. Its value is often the normalization, admission checks, precision transport, and reusable object built around those native results. A comparison that counts every supported special function as an independently implemented expansion algorithm would overstate the repository's contribution.\cite{core,operations,native}
+
+The native special-function importer is notably cautious. It retains nested \code{SeriesData} errors instead of applying \code{Normal} everywhere; transports absolute error through products and exponentials; requires a real-domain justification before projecting a complex-looking native expression to a real result; and accepts a finite native result without a remainder only after establishing exact equality with the source. When a native tail does not encode a logarithmic degree, it initially weakens the power bound and seeks a justified explicit frontier.\cite{native}
+
+\subsection{Three distinct kinds of checking}
+\code{InverseResidual} checks formal composition against the stored model, with explicit special-family variants. \code{InverseNumericalCheck} compares with a numerical reference on the selected branch. \code{InverseCertificate} can establish an exact rational root enclosure for its admitted elementary expression language and a supplied interval. None is a synonym for the others.\cite{core,certificates}
+
+This hierarchy is a valuable design asset. It should become more visible in result summaries and documentation, rather than being flattened into a generic ``verified'' flag. A numerical comparison can corroborate a formula but cannot certify an omitted asymptotic family. Conversely, a local exact interval proof can certify a root without proving that the root belongs to the intended global inverse continuation. The certificate code explicitly limits its scope to the stored function, the selected source side, retained domain conditions, and the verification interval.\cite{certificates}

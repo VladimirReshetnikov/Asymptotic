@@ -1,0 +1,145 @@
+\section{The inverse calculus and its genuine added value}
+
+\subsection{Complete-block Lagrange coefficients}
+
+The ordinary inverse engine considers a normalized local model
+\begin{equation}\label{eq:model}
+ v=a u^p\left(1+\sum_{i=1}^m u^{\delta_i}P_i(\log u)\right),
+ \qquad \delta_i>0,
+\end{equation}
+with a selected real branch. Set $z=(v/a)^{1/p}>0$ and $L=\log z$. For an internal observable $u^r$, the coefficient construction implemented by \path{lagrangeCoefficient} has the form
+\begin{equation}\label{eq:inv}
+ u^r=z^r\sum_{\boldsymbol k\in\NN^m}
+             z^{\boldsymbol k\cdot\boldsymbol\delta}
+             C_{\boldsymbol k}(L).
+\end{equation}
+Here $C_{\boldsymbol0}=1$. If $n=|\boldsymbol k|>0$ and $w=\boldsymbol k\cdot\boldsymbol\delta$, then
+\begin{equation}\label{eq:coeff}
+ C_{\boldsymbol k}(L)=
+ \frac{(-1)^n r}{p^n\prod_i k_i!}
+ \prod_{j=1}^{n-1}\bigl(\D+r+w+pj\bigr)
+ \prod_iP_i(L)^{k_i},\qquad \D=\frac{d}{dL}.
+\end{equation}
+The empty operator product at $n=1$ is the identity. This is the exact Euler-operator coefficient formula implemented in the core, not a numerical fit. The repository's mathematical article develops its analytic and asymptotic interpretations for stated classes. This audit checks representative coefficient consequences rather than claiming a new proof of all those extension theorems.\cite{core,article}
+
+For $f(x)=x+x^2(1+\log x)$, formula~\eqref{eq:coeff} gives
+\begin{align*}
+ f^{-1}(y)={}&y-y^2(1+\log y)\\
+ &+y^3\bigl(2\log^2y+5\log y+3\bigr)+\cdots.
+\end{align*}
+The first correction is $-P$, with $P=1+L$. The second is
+$(\D+4)P^2/2=2L^2+5L+3$. Keeping the \emph{entire} polynomial at a weight avoids a false ordering of its individual logarithmic terms.
+
+For $f(x)=x+x^\beta$, $\beta>1$, the same formula yields
+\begin{align*}
+ f^{-1}(y)={}&y-y^\beta+\beta y^{2\beta-1}\\
+ &-\frac{\beta(3\beta-1)}2y^{3\beta-2}+\cdots.
+\end{align*}
+In particular, $\beta=\sqrt2$ does not fit one rational exponent lattice. The repository's explicit sparse weights and coefficient access are particularly natural for this case. These formulas were independently checked in the included Python tests.
+
+Resonance matters even with rational gaps. For
+$f(x)=x+a x^2+b x^3$, the inverse coefficient of $y^3$ is $2a^2-b$. The multi-indices $(2,0)$ and $(0,1)$ have the same weight and must be combined. When $b=2a^2$, the block disappears. A term goal counts the resulting nonzero blocks, not the number of multi-indices generated. The code's grouping and frontier logic are designed around this distinction.\cite{core}
+
+\subsection{Why remainder transport requires derivative information}
+
+Suppose the finite model has leading derivative $ap u^{p-1}$ and an unknown additional term has value bound $\OO(u^\rho M^k)$ with suitable corresponding derivative control. At the selected inverse branch, a perturbation argument gives
+\[
+ \Delta u=\OO(u^{\rho-p+1}M^k).
+\]
+For $u^r$, differentiation of the observable transports this to
+\begin{equation}\label{eq:transport}
+ \Delta(u^r)=\OO(u^{\rho-p+r}M^k).
+\end{equation}
+In the package's positive target coordinate, the corresponding power is
+$(\rho-p+r)/|p|$. At source infinity, the internal power is the negative of the requested source observable power. This explains the input-precision cap in the ordinary inverse constructor.\cite{core}
+
+Crucially, a bound on a function alone does not imply a bound on its derivative. For example, $R(u)=u^2\sin(u^{-2})$ is $\OO(u^2)$ but
+\[
+ R'(u)=2u\sin(u^{-2})-2u^{-1}\cos(u^{-2})
+\]
+is not $\OO(u)$. The repository guide explicitly gives \texttt{InputRemainder -> \{rho,k\}} the stronger meaning of both a value bound and a matching first-derivative bound. This is \emph{not} a missing assumption in the documented API. The improvement opportunity is to represent that obligation as a structured contract rather than a pair whose meaning must be remembered.\cite{guide}
+
+\subsection{Retained Gamma and Barnes cores}
+
+The Gamma inverse does not simply reverse a Taylor polynomial. For large target $Y$, write $\Lambda=\log Y$; for inverse \texttt{LogGamma}, write $\Lambda=Y$. The leading equation
+\[
+ X(\log X-1)=\Lambda
+\]
+has the exact Lambert solution
+\[
+ X=\frac{\Lambda}{W(\Lambda/e)}.
+\]
+The inspected module computes corrections in powers of $1/X$ with whole polynomial coefficients in $q=1/\log X$. Its first correction implies
+\[
+ x=X+\frac12-\frac{\log(2\pi)}{2\log X}+\cdots.
+\]
+This follows by dividing the logarithmic Gamma equation's leading correction by $\log X$. The code uses finite Stirling information and records a Poincar\'e contract, rather than asserting convergence of an infinite Stirling series.\cite{gammainverse,article}
+
+For Barnes G the retained core is
+\[
+ X=\sqrt{\frac{4\Lambda}{W(4\Lambda/e^3)}},
+ \qquad q=\frac1{\log X-1},
+\]
+with the Barnes argument reconstructed using its offset by one. Whole reciprocal-logarithmic coefficient blocks preserve a useful intermediate scale that would be obscured by immediately expanding every Lambert function into iterated logarithms. Affine source and target transformations and fixed powers have explicit restrictions in the parser. A claim of support for arbitrary products or compositions of inverse Gamma functions would go beyond that implementation.\cite{gammainverse,guide}
+
+\subsection{Finite sectors, oscillatory coefficients, and envelopes}
+
+The flat engine treats a finite family of exponentially small contributions around an \emph{exact} shifted monomial core. It refuses a merely truncated algebraic inverse as an exact zero sector. That refusal is mathematically appropriate: an omitted algebraic term can be larger than every retained exponential correction. Its current rate normalization is unnecessarily restrictive, as F05 explains, but the exact-core requirement itself is not a defect.\cite{flat}
+
+Fourier-valued logarithmic coefficients and structured native special-function carriers broaden the supported examples without making the package a complete general transseries field. In particular, a sine or cosine coefficient is bounded but can have infinitely many zeros. It cannot be inverted as though it were a nonzero scalar coefficient. The newer native importer preserves separate error envelopes and checks the reality of relevant phases. This is a valuable bridge between native asymptotic formulas and explicit downstream error accounting.\cite{guide,native}
+
+\section{Comparison with built-in Wolfram Language}
+\label{sec:comparison}
+
+\subsection{The correct comparison baseline}
+
+A comparison limited to \texttt{InverseSeries} would be misleading. The relevant native baseline includes \texttt{Series}, \texttt{SeriesData}, \texttt{InverseSeries}, \texttt{Asymptotic}, \texttt{AsymptoticSolve}, asymptotic comparison predicates, and the integration, summation, differential-equation, and recurrence families. The native solver accepts real or complex centers, real-domain selection, conditions, and inferred nonstandard scales. A blanket claim that Wolfram Language has only rational-power Taylor reversion is false.\cite{wl-series,wl-seriesdata,wl-inverseseries,wl-asymptotic,wl-asymptoticsolve}
+
+\texttt{SeriesData} has a rational arithmetic-progression exponent structure, but this is a representation fact, not a global limitation on every expression returned by \texttt{Series} or \texttt{Asymptotic}. Logarithmic behavior and factors outside a series object must be considered separately. Likewise, built-in asymptotic order is not generally polynomial degree, while the package's ordinary cutoff is a precise exclusive exponent bound. Comparisons must normalize these semantics before comparing output length or speed.\cite{wl-seriesdata,wl-series,wl-asymptotic,wl-asymptoticsolve}
+
+\begin{longtable}{@{}P{3.0cm}P{5.9cm}P{6.0cm}@{}}
+\caption{Feature comparison: native capabilities versus the package's incremental contribution.}\label{tab:features}\\
+\toprule Task & Native Wolfram Language & Repository and assessment \\\midrule
+\endfirsthead
+\toprule Task & Native Wolfram Language & Repository and assessment \\\midrule
+\endhead
+Ordinary local series & \texttt{Series} and \texttt{SeriesData} provide established local-series computation and arithmetic. & Broad overlap. Prefer native objects where their representation and contracts suffice.\cite{wl-series,wl-seriesdata}\\
+Taylor/Puiseux inverse & \texttt{InverseSeries} handles suitable native series; \texttt{AsymptoticSolve} treats implicit equations. & Adds selected real source charts, complete-block cutoffs, explicit model access, and generalized weights.\cite{wl-inverseseries,wl-asymptoticsolve,core}\\
+Irrational power weights & Native asymptotic functions can infer nonstandard scales; success is problem-dependent. & Exact sparse real weights are central rather than an incidental expression outside a rational grid.\cite{wl-asymptotic,core}\\
+Logarithmic inverse blocks & Native methods already address logarithmic and implicit asymptotic problems. & Explicit Euler coefficients, weight grouping, frontiers, and term-goal semantics are useful additions.\cite{wl-asymptoticsolve,core}\\
+Real branches and conditions & \texttt{Reals}, \texttt{Direction}, \texttt{Assumptions}, and \path{GenerateConditions} are available in native solving. & Records source-side choices and provenance across supported inverse expressions; should interoperate rather than duplicate all solving.\cite{wl-asymptoticsolve,inverseexpressions}\\
+Lambert and rapid-growth inverses & Native \texttt{ProductLog} and asymptotic transformations provide relevant building blocks. & Dedicated retained-core Gamma/Barnes scales and operations provide a specialized workflow. No general native failure claim is made.\cite{gammainverse,guide}\\
+Special-function expansions & \texttt{Series}/\texttt{Asymptotic} already cover many special functions. & Mixes custom normalizations and defining sums with native import; added value is structured carriers and propagated errors.\cite{wl-series,wl-asymptotic,native,parameterized}\\
+Series arithmetic and composition & Already intrinsic to native series objects. & Extends operations to selected generalized scales and falls back to conservative composite envelopes. Not every scale supports every operation.\cite{wl-seriesdata,operations,arithmetic}\\
+Differentiation of remainders & Native series calculus differentiates its structured series representations. & Makes derivative-contract restrictions explicit for broader error descriptors.\cite{wl-seriesdata,operations}\\
+Finite exponential sectors & Native exotic-scale asymptotics is relevant, but representation and order conventions differ. & Explicit finite sector depth and exact-core assumptions; currently not a general multirate transseries algebra.\cite{wl-asymptotic,flat}\\
+Pointwise evidence & Native numerical solving and symbolic domain tools are available. & Distinguishes numerical comparison, finite-model residual, and a selected exact-rational certificate route.\cite{core,certificates,wl-functiondomain}\\
+Integrals and sums & \path{AsymptoticIntegrate} and \texttt{AsymptoticSum} are direct built-ins. & No corresponding general public package engine appears in the documented interface. Integration should initially delegate or import structured results.\cite{wl-integrate,wl-sum,guide}\\
+Differential and recurrence equations & \path{AsymptoticDSolveValue} and \path{AsymptoticRSolveValue} address these domains. & Not a general replacement; a future adapter is more credible than broad reimplementation.\cite{wl-dsolve,wl-rsolve,guide}\\
+Systems and multiple variables & Native implicit asymptotic solving supports systems and multiple independent variables. & The reviewed generalized inverse machinery is essentially one real source/target germ.\cite{wl-asymptoticsolve,guide}\\
+\bottomrule
+\end{longtable}
+
+\subsection{How to compare concrete examples fairly}
+
+For the regular inverse of $x+x^2$, a native baseline can use
+\begin{lstlisting}
+InverseSeries[Series[x + x^2, {x, 0, 4}], y]
+\end{lstlisting}
+The package uses
+\begin{lstlisting}
+AsymptoticInverse[x + x^2, {x, 0}, {y, 5}]
+\end{lstlisting}
+The common finite polynomial is $y-y^2+2y^3-5y^4$, derived directly from the inverse $(-1+\sqrt{1+4y})/2$. This is a mathematical reference value, not a newly obtained native execution transcript. For this problem the package offers metadata and workflow advantages, not a new inverse formula.\cite{wl-inverseseries,guide}
+
+For $x+x^{\sqrt2}$ or $x+x^2\log x$, the comparison must include native \texttt{AsymptoticSolve}, not only \texttt{InverseSeries}. A suitable task specification selects the solution tending to zero, a real target approach, and sufficient approximation depth. The included \path{CompareBuiltins.wls} records both sides without assuming that equal numeric order arguments request the same finite support. Any result comparison must first identify the selected branch and compare complete blocks.\cite{wl-asymptoticsolve}
+
+For Gamma ratios and special functions, compare a native factored output with the package's factored output before expanding carriers. The quotient of two growing factors can have a small correction bracket while its absolute expansion begins at a nonzero power. Conversely, two native special-function carriers may cancel and leave an ordinary amplitude scale. Benchmarks based only on string size or visible powers would mix different computational tasks.\cite{guide,native}
+
+The paired harness captures elapsed time, full input-form result, result head, version, and system ID, with a time and memory cap. It is a starting point, not a published benchmark: it was not successfully run during this audit, it does not prove semantic equivalence automatically, and a one-pass within-kernel ordering is inadequate for portable speed claims.
+
+\subsection{Where the package should explicitly defer}
+
+Use native \texttt{SeriesData} when a small rational lattice genuinely fits. Use native symbolic solving and domain reasoning as bounded proof oracles, not as silently trusted substitutes for a recorded branch condition. Preserve \texttt{ProductLog} when it is a useful exact core. Import native special-function asymptotics only through a checked conversion of the finite expression and its remainder structure. Leave general multivariate equation solving, asymptotic integration, summation, and differential equations to the corresponding native functions until a well-defined adapter contract is available.\cite{wl-seriesdata,wl-asymptoticsolve,wl-integrate,wl-sum,wl-dsolve,wl-rsolve,native}
+
+This division of labor makes the package more valuable. The user should gain a persistent, inspectable error-aware object around difficult asymptotic calculations, rather than a competing function name whose relationship to Wolfram's existing system is unclear.

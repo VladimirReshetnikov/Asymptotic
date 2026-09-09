@@ -1,0 +1,141 @@
+{
+  "snapshot": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "findings": [
+    {
+      "id": "F01",
+      "title": "Eager dense SeriesData export",
+      "priority": "high",
+      "classification": "source_confirmed_resource_defect",
+      "native_reproduced": false,
+      "mathematical_check_executed": true,
+      "source_symbols": [
+        "makeSeriesData",
+        "makeInverseSeriesData"
+      ],
+      "exact_witness": {
+        "denominator": 1000000000,
+        "retained_weights": 1,
+        "required_dense_slots": 999999999,
+        "list_allocated_during_audit": false
+      },
+      "patch_supplied": true,
+      "patch_native_validated": false,
+      "fix": "Refuse oversized optional export before allocation; prefer a lazy conversion API with an independent budget."
+    },
+    {
+      "id": "F02",
+      "title": "Nested fractional observable bypasses branch guard",
+      "priority": "high",
+      "classification": "source_traced_correctness_defect",
+      "native_reproduced": false,
+      "mathematical_check_executed": true,
+      "source_symbols": [
+        "fwdPower",
+        "seriesPower",
+        "seriesJetApply"
+      ],
+      "reproduction": "s=AsymptoticExpansion[x,{x,0,1}]; SeriesObservable[s,1+Sqrt[-z],z]",
+      "patch_supplied": true,
+      "patch_native_validated": false,
+      "fix": "Centralize the noninteger pure-remainder branch check in fwdPower."
+    },
+    {
+      "id": "F03",
+      "title": "Newton/grouped wrapper enumerates direct Lagrange indices",
+      "priority": "high",
+      "classification": "source_confirmed_algorithmic_bottleneck",
+      "native_reproduced": false,
+      "mathematical_check_executed": true,
+      "source_symbols": [
+        "construct",
+        "indexRegion",
+        "inverseFrontier",
+        "groupedLagrangeBlocks"
+      ],
+      "exact_witness": {
+        "gaps": "1 through 30",
+        "exclusive_relative_weight": 30,
+        "retained_multiindices": 23025,
+        "requested_power_positions": 30
+      },
+      "patch_supplied": false,
+      "fix": "Separate jet computation, support planning, and optional sharp-frontier evaluation."
+    },
+    {
+      "id": "F04",
+      "title": "Derived refinement can miss requested precision without reporting failure",
+      "priority": "high",
+      "classification": "source_traced_precision_request_defect",
+      "native_reproduced": false,
+      "mathematical_check_executed": true,
+      "source_symbols": [
+        "SeriesRefine",
+        "seriesRefinementResult"
+      ],
+      "reproduction": "s=AsymptoticExpansion[Exp[x]-1,{x,0,3}]; t=SeriesPower[s,-10]; SeriesRefine[t,5]",
+      "precision_trace": {
+        "requested_output": 5,
+        "fixed_guard_operand_order": 7,
+        "predicted_achieved_remainder_power": -4,
+        "required_operand_order": 16
+      },
+      "patch_supplied": false,
+      "caveat": "The weak returned remainder may be mathematically correct. The successful refinement request lacks its requested postcondition.",
+      "fix": "Backward precision propagation and/or adaptive replay with an achieved-precision postcondition."
+    },
+    {
+      "id": "F05",
+      "title": "Residual label omits target offset",
+      "priority": "low",
+      "classification": "source_confirmed_diagnostic_defect",
+      "native_reproduced": false,
+      "mathematical_check_executed": true,
+      "source_symbols": [
+        "InverseResidual::usage",
+        "InverseResidual Normalization property"
+      ],
+      "patch_supplied": true,
+      "patch_native_validated": false,
+      "fix": "Use (f(g(y))-y0)/(a z^p)-1 in both text locations; prefer structured normalization metadata."
+    },
+    {
+      "id": "F06",
+      "title": "Unbounded factorization in logarithm normalization",
+      "priority": "medium",
+      "classification": "source_confirmed_performance_risk",
+      "native_reproduced": false,
+      "native_timing_measured": false,
+      "source_symbols": [
+        "logCanon"
+      ],
+      "patch_supplied": false,
+      "fix": "Bound optional factorization, preserve opaque exact logarithms, and account for symbolic time separately."
+    },
+    {
+      "id": "F07",
+      "title": "Commensurate flat rates need not be multiples of the minimum",
+      "priority": "medium",
+      "classification": "documented_limitation_and_extension_opportunity",
+      "native_reproduced": false,
+      "mathematical_check_executed": true,
+      "source_symbols": [
+        "flatModel"
+      ],
+      "exact_witness": {
+        "rates": [
+          2,
+          3
+        ],
+        "primitive_base": 1,
+        "degrees": [
+          2,
+          3
+        ]
+      },
+      "patch_supplied": false,
+      "helper_supplied": true,
+      "helper_native_validated": false,
+      "fix": "Compute primitive rational rate lattice, budget marker degrees, distinguish nonrational ratios from resource limits."
+    }
+  ]
+}

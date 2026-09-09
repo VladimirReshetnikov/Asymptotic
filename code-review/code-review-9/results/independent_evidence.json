@@ -1,0 +1,110 @@
+{
+  "audit_commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "scope": "Independent Python mathematical models; not execution of the Wolfram package",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+  "collision_fixture": {
+    "gaps": 24,
+    "inside_indices": 2925,
+    "boundary_indices": 17550,
+    "budgeted_indices": 20475,
+    "retained_weights": 142
+  },
+  "dense_bridge_dimensions": [
+    {
+      "q": 101,
+      "sparse_blocks": 2,
+      "denominator": 101,
+      "nmin": 0,
+      "nmax": 101,
+      "dense_slots": 101,
+      "minimal_native_prefix": 2,
+      "wider_example_minimal_prefix": 102
+    },
+    {
+      "q": 997,
+      "sparse_blocks": 2,
+      "denominator": 997,
+      "nmin": 0,
+      "nmax": 997,
+      "dense_slots": 997,
+      "minimal_native_prefix": 2,
+      "wider_example_minimal_prefix": 998
+    },
+    {
+      "q": 100003,
+      "sparse_blocks": 2,
+      "denominator": 100003,
+      "nmin": 0,
+      "nmax": 100003,
+      "dense_slots": 100003,
+      "minimal_native_prefix": 2,
+      "wider_example_minimal_prefix": 100004
+    },
+    {
+      "q": 1000000000,
+      "sparse_blocks": 2,
+      "denominator": 1000000000,
+      "nmin": 0,
+      "nmax": 1000000000,
+      "dense_slots": 1000000000,
+      "minimal_native_prefix": 2,
+      "wider_example_minimal_prefix": 1000000001
+    }
+  ],
+  "bounded_power_work": [
+    {
+      "n": 16,
+      "exclusive_cutoff": 3,
+      "pair_products": 25,
+      "multiplication_calls": 5,
+      "peak_support": 3,
+      "coefficients": {
+        "0": "1",
+        "1": "16",
+        "2": "120"
+      }
+    },
+    {
+      "n": 256,
+      "exclusive_cutoff": 3,
+      "pair_products": 49,
+      "multiplication_calls": 9,
+      "peak_support": 3,
+      "coefficients": {
+        "0": "1",
+        "1": "256",
+        "2": "32640"
+      }
+    },
+    {
+      "n": 1000000,
+      "exclusive_cutoff": 3,
+      "pair_products": 151,
+      "multiplication_calls": 26,
+      "peak_support": 3,
+      "coefficients": {
+        "0": "1",
+        "1": "1000000",
+        "2": "499999500000"
+      }
+    }
+  ],
+  "refinement_example": {
+    "requested_power": 5,
+    "operand_a_replayed_power": 7,
+    "operand_b_valuation": -10,
+    "transported_power": -3,
+    "needed_operand_a_power": 15
+  },
+  "native_status": "NOT_RUN: Wolfram connector context request failed, evaluator returned HTTP 502",
+  "source_files_downloaded_to_runtime": false,
+  "code_sha256": {
+    "code/audit_models.py": "4c209ae4d42a67e5c7eae9ae3a1fd7b5986d78316968b744f37b48aaa56a514a",
+    "code/download_pinned.py": "8ca7136656080aa5bebb58a51c85bd1c68d053655ecb6e4101ae12438f05806a",
+    "code/generate_evidence.py": "5657e5991db9d1c61567eef38dbd26fdda99f1e5f35986baa494c092637bab59",
+    "code/test_audit_models.py": "9938a9d4533d3fd56bd0e158164185612ccb282eadb18ec900419ddb2ffd6c61",
+    "code/test_patch_proposal.py": "3bae7f1fb70ff33cbf1a23326f0b803a64ca58e39bd1459f1a98aa33071675ea",
+    "proposals/apply_bridge_hardening.py": "41c6411607ad4d37a869e3e9ac16d3d689444b0ebbb8591b2d6333d465499365"
+  }
+}

@@ -1,0 +1,66 @@
+\section{Engineering, API, and UX findings}
+\subsection{A05: release evidence is narrower than the changed surface}
+\status{Repository-reported validation scope and inspected workflow; no independent native rerun}
+The version 1.8.0 record reports 305 passing focused tests in 18 selected suites, with no failures in that run. It explicitly says the full suite was not run. It also records separate builder, documentation, and isolated loading checks. Those are useful results, but they should not be combined into an unsupported assertion that every package path passed on that revision.\cite{validation}
+
+The inspected GitHub Actions workflow checks standalone freshness and Python builder tests; it does not run Wolfram semantic tests. This is a statement about that checked-in workflow, not a claim that no external or manually operated validation exists. The risk is especially relevant when a common result head, public arithmetic, and several adapters change together. A narrow regression run can miss interactions outside its selected files.\cite{workflow}
+
+\textbf{Recommendation.} Keep focused tests for development feedback, but require a complete native run before a release is declared validated. Identify the source hashes, kernel version, platform, selected suites, timeouts, empty suites, and aborted runs in a machine-readable manifest. Store failures and unsupported cases rather than only aggregate pass counts. The repository's shared focused runner already checks several of these conditions; extending that discipline to a release gate is a better starting point than replacing it.\cite{runner}
+
+\subsection{A06: one resource option has several meanings}
+\status{Source-level design limitation; not a measured end-to-end timing regression}
+\code{"MaxTerms"} can govern retained pair products, index regions, cache capacity, expression leaf counts, or input operands depending on the path. Some automatic arithmetic uses a hard-coded default rather than a caller's full context. Independent hard limits also occur for Taylor work, repeated order enlargement, source-chart depth, and timed native simplification or series calls. A request can therefore fail below the advertised term count, or perform expensive work not bounded by that count.\cite{core,arithmetic,incremental,sourcecharts,native}
+
+Several local limits are prudent safeguards. The problem is their discoverability and composition, not the mere fact that they exist. A per-probe time limit does not provide an end-to-end time limit when many probes are attempted. A cap on the number of polynomial coefficients does not bound the size of each coefficient. A budget consumed by optional caching should not reduce the set of mathematically admissible output terms; the incremental cache already takes care to avoid that particular mistake.\cite{incremental}
+
+\textbf{Recommendation.} Introduce a shared request budget with separate counters for support size, polynomial complexity, candidate products, dense export slots, memory estimate, simplification calls, and elapsed time. Every failure should report the exhausted dimension, used amount, requested amount where known, and last certified precision. Preserve a usable partial result when the API contract allows it, but never disguise a partial result as meeting the requested cutoff.
+
+\subsection{A07: cutoff and term-goal semantics are too heterogeneous}
+\status{Documented design complexity}
+The guide carefully distinguishes ordinary powers, correction brackets, Lambert inverse-logarithmic weights, Gamma/Barnes core powers, source-coordinate reconstructions, total perturbation depth, flat-sector degree, Fourier weights, and defining-sum coordinates. That accuracy is commendable, but the same positional order argument now means many things. Structured forward special functions can return more total blocks than a nominal term goal because each carrier is counted separately.\cite{guide}
+
+A user should not need to inspect a family-specific source file to determine whether a request means absolute accuracy, relative accuracy, retained blocks, marker degree, or sector depth. Introduce a normalized request description, such as an association containing \code{"Coordinate"}, \code{"OrderKind"}, \code{"Boundary"}, and \code{"Inclusive"}, while retaining existing syntax as a convenience wrapper. Every result should expose both the original request and its resolved interpretation. A capability query should say whether a requested operation changes the scale or can honor that order convention.
+
+\subsection{A08: the result-head rename is a compatibility break}
+\status{Documented breaking interface change}
+Version 1.8.0 replaces \code{PowerLogSeries} with \code{GeneralizedSeries}; the guide tells users to update explicit patterns and saved input. The broader name accurately describes the supported families, but an object-head change affects notebooks, pattern-matching code, serialized expressions, and external packages. It is not only a cosmetic rename.\cite{guide,revision}
+
+For a stable package, choose an explicit compatibility policy. A deprecated reader or constructor can migrate old objects if their schema is recognizable; alternatively, a major-version transition can clearly advertise the break. Automatic migration should not simply rename the head of an arbitrary association, because old metadata may have different precision semantics. Store a schema version, validate required invariants, and maintain archived round-trip fixtures. Do not rely solely on the package version embedded in the loading file.
+
+\subsection{A09: a certificate option default that cannot be used}
+\status{Source-confirmed API inconsistency, not a false certificate}
+\code{InverseCertificate} declares \code{"Interval" -> Automatic}, but its entry validation immediately requires a literal ordered pair of exact rational endpoints. Calling it without the interval fails. The documented usage supplies an interval, so the current code is conservative; the inconsistency is that the option table suggests automatic interval construction even though that behavior is not implemented.\cite{certificates,guide}
+
+Either use a clearly required/missing option value with a targeted diagnostic, or implement automatic bracket generation as a separate, verified step. Automatic bracketing must check the selected branch and all retained source-domain conditions, not merely search near the asymptotic seed with floating-point samples. Report failure to find a bracket separately from failure of the exact enclosure arithmetic.
+
+\subsection{A10: paclet documentation integration is incomplete}
+\status{Inspected metadata and current documentation layout}
+The repository has extensive Markdown/HTML user documentation and a mathematical article, but the inspected \code{PacletInfo.wl} registers only a kernel extension. It does not register a documentation extension. This does not mean that documentation is absent; it means the paclet metadata does not provide a full native documentation-center integration.\cite{paclet,guide,development}
+
+A useful improvement is a reference page for each public symbol with evaluated examples, option semantics, failure examples, and related functions. Automatically test the examples in a fresh kernel and link each page to its mathematical contract. Give the order/coordinate explanation a common location that every constructor references. The extensive existing guide can supply the content; the task is integration and executable consistency, not writing another independent manual.
+
+\subsection{A11: numerical application is not a checked evaluator}
+\status{Documented behavior with a potentially misleading convenience syntax}
+The rule \code{s[value]} substitutes the value into the finite expression. It is not a certificate request and does not by itself establish that the numerical target lies in a valid asymptotic regime. The guide explains that it evaluates the finite expression, and \code{Normal} has similarly explicit information-dropping semantics.\cite{core,guide}
+
+Nevertheless, function-like application encourages users to interpret the result as a reliable approximation to the original inverse. Introduce a separate checked evaluator with domain validation, requested precision, a distinction between an error \emph{scale} and an explicit error \emph{bound}, and an optional certificate route. Keep the lightweight substitution syntax, but give it an unmistakable role in the documentation. An unspecified Big-O constant cannot be converted into a numerical error bar merely by evaluating its scale.
+
+\subsection{A12: shared result head does not imply operation closure}
+\status{Documented limitation and architectural opportunity}
+The package includes ordinary, logarithmic, exact-core, flat, Fourier, special inverse, and composite results. Some operations apply only to selected representations; others fall back to a composite absolute envelope. For example, a composite result does not have one exponent cutoff, and source reconstruction can fail when an intermediate exponential would amplify insufficient precision. These are often mathematically justified refusals.\cite{arithmetic,sourcecharts,guide}
+
+The UX problem is not that all combinations must succeed. It is that the user discovers the admissible algebra by trying operations and interpreting family-specific failures. Add \code{SeriesCapabilities[s]} or an equivalent property that lists supported operations, preconditions, possible representation changes, and whether refinement has a valid source. The operation layer should consult capabilities and shared invariants instead of growing a long list of kind-specific exceptions.
+
+\subsection{A13: provenance and retained state need a storage policy}
+\status{Source-level performance and maintainability hypothesis; profiling required}
+Objects may retain original functions, models, branch records, operation recipes, operand objects, computation states, and caches. That provenance enables refinement and auditability, but repeated composition can duplicate large symbolic structures. A compact printed expression can conceal a large underlying association. The inspected code does not justify a specific memory-growth rate, so no quantitative blow-up claim is made here.\cite{arithmetic,incremental,inverseexpressions,gamma}
+
+Measure \code{ByteCount}, serialized size, repeated-subexpression counts, and refinement reuse. Consider a compact immutable proof/recipe graph with content-addressed nodes, optional cache dropping, and an explicit \code{CompactSeries} operation that preserves the mathematical contract while removing reproducible performance state. Distinguish essential evidence from optional acceleration data. Exporting a notebook should not inadvertently embed a large history of equivalent intermediate objects.
+
+\subsection{A14: distribution and metadata consistency}
+\status{Documented distribution behavior and a literal license-metadata mismatch}
+The quick-start command loads the current \code{main} standalone file, while the guide also gives a commit-pinned and offline route. The development notes document a real reason to download fully before loading: direct compressed HTTP reads were problematic in the tested kernel, and an earlier nested convenience loader was withdrawn after abnormal exits. Reintroducing an elaborate remote loader without addressing that history would be a regression in engineering discipline.\cite{guide,development}
+
+Prefer a pinned release artifact and checksum for reproducible work. Keep the generated standalone file deterministic and derived only from canonical modules. The existing builder validates dependency structure and checks byte-for-byte freshness, which is a good foundation. A package signature or trusted release channel would address provenance more directly than another layer of automatic source fetching. No malicious distribution incident was observed.\cite{development,workflow}
+
+There is also a concrete metadata discrepancy: \code{PacletInfo.wl} says \code{"License" -> "MIT"}, whereas the root \path{LICENSE} is headed ``MIT No Attribution License.'' The SPDX identifier for the latter is \code{MIT-0}, distinct from ordinary MIT. Align the package metadata with the intended authoritative license text. This is a release-metadata correction, not a conclusion about a licensing dispute.\cite{paclet,license,spdx}

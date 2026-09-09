@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm,headheight=15pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,array,enumitem,listings}
+\usepackage{xcolor,xurl,needspace,fancyhdr}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\hypersetup{pdftitle={Asymptotic: A Technical Audit and Development Roadmap},pdfauthor={OpenAI},pdfsubject={Source audit of VladimirReshetnikov/Asymptotic, pinned September 9, 2026}}
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+\setcounter{tocdepth}{2}
+\allowdisplaybreaks
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Asymptotic: technical audit}
+\fancyhead[R]{\small Snapshot 75de875}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,breaklines=true,breakatwhitespace=false,showstringspaces=false,frame=single,framerule=0.25pt,rulecolor=\color{black!25},xleftmargin=0.5em,xrightmargin=0.5em,aboveskip=0.7em,belowskip=0.7em}
+\setlist{itemsep=0.15em,topsep=0.25em,leftmargin=*}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\NN}{\mathbb N_0}
+\newcommand{\D}{\mathcal D}
+\newcommand{\commit}{\texttt{75de875}}
+\newcommand{\pkg}{\path{AsymptoticInverse}}
+\newcommand{\gseries}{\path{GeneralizedSeries}}
+\newcommand{\status}[1]{\textbf{Evidence status:} #1.}
+\newcommand{\source}[1]{\textbf{Source location:} #1.}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{remark}[proposition]{Remark}
+\begin{document}
+\begin{titlepage}
+\vspace*{1.0cm}
+{\large SOFTWARE AND MATHEMATICAL AUDIT\par}
+\vspace{1.0cm}
+{\Huge\bfseries Asymptotic\par}
+\vspace{0.4cm}
+{\LARGE A technical audit and development roadmap\par}
+\vspace{0.6cm}
+{\large Comparison with Wolfram Language, correctness risks,\par performance, API design, and reproducible improvement proposals\par}
+\vspace{1.3cm}
+\begin{tabular}{@{}P{3.6cm}P{11.7cm}@{}}
+Repository & \url{https://github.com/VladimirReshetnikov/Asymptotic}\\[0.5em]
+Pinned revision & \path{75de8756175911cd8830704fd1a3406c1022f018}\\[0.5em]
+Commit timestamp & September 9, 2026, 19:16:26 UTC\\[0.5em]
+Declared package & \pkg\ 1.8.0; Wolfram Language 15.0 or later\\[0.5em]
+Audit date & September 9, 2026\\[0.5em]
+Prepared for & Vladimir Reshetnikov\\
+\end{tabular}
+\vfill
+\textbf{Reading the evidence correctly.} This report combines inspected source, official documentation, mathematical derivations, and executed independent Python checks. The 15 mathematical checks and five patch-transformation checks passed. No successful execution of the repository's Wolfram package or its regression suite was obtained during this audit. Wolfram regression cases and patch proposals are supplied for native validation, not presented as already validated fixes.
+\vspace{0.6cm}
+\end{titlepage}
+{\small\setlength{\parskip}{0pt}\tableofcontents}
+\clearpage
+\input{01-assessment}
+\input{02-mathematics-and-capabilities}
+\input{03-findings}
+\input{04-engineering-and-roadmap}
+\input{05-reproducibility}
+\input{references}
+\end{document}

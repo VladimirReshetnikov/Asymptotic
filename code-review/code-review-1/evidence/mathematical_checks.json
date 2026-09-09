@@ -1,0 +1,306 @@
+{
+  "scope": "Independent mathematical and allocation-policy checks; not execution of the Wolfram package",
+  "repository_commit": "07a9781212beb2eeb9ff16aa625b50ac27974078",
+  "python_version": "3.13.5",
+  "sympy_version": "1.14.0",
+  "native_wolfram_executed": false,
+  "passed": 42,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "catalan_n_0",
+      "passed": true,
+      "details": "1"
+    },
+    {
+      "name": "catalan_n_1",
+      "passed": true,
+      "details": "-1"
+    },
+    {
+      "name": "catalan_n_2",
+      "passed": true,
+      "details": "2"
+    },
+    {
+      "name": "catalan_n_3",
+      "passed": true,
+      "details": "-5"
+    },
+    {
+      "name": "catalan_n_4",
+      "passed": true,
+      "details": "14"
+    },
+    {
+      "name": "catalan_n_5",
+      "passed": true,
+      "details": "-42"
+    },
+    {
+      "name": "catalan_n_6",
+      "passed": true,
+      "details": "132"
+    },
+    {
+      "name": "catalan_n_7",
+      "passed": true,
+      "details": "-429"
+    },
+    {
+      "name": "catalan_n_8",
+      "passed": true,
+      "details": "1430"
+    },
+    {
+      "name": "puiseux_n_0",
+      "passed": true,
+      "details": "1"
+    },
+    {
+      "name": "puiseux_n_1",
+      "passed": true,
+      "details": "-1/2"
+    },
+    {
+      "name": "puiseux_n_2",
+      "passed": true,
+      "details": "5/8"
+    },
+    {
+      "name": "puiseux_n_3",
+      "passed": true,
+      "details": "-1"
+    },
+    {
+      "name": "puiseux_n_4",
+      "passed": true,
+      "details": "231/128"
+    },
+    {
+      "name": "puiseux_n_5",
+      "passed": true,
+      "details": "-7/2"
+    },
+    {
+      "name": "puiseux_n_6",
+      "passed": true,
+      "details": "7293/1024"
+    },
+    {
+      "name": "complete_logarithmic_block",
+      "passed": true,
+      "details": "2*L**2 + 5*L + 3"
+    },
+    {
+      "name": "weight_collision_0",
+      "passed": true,
+      "details": "1"
+    },
+    {
+      "name": "weight_collision_1",
+      "passed": true,
+      "details": "-1"
+    },
+    {
+      "name": "weight_collision_2",
+      "passed": true,
+      "details": "1"
+    },
+    {
+      "name": "weight_collision_3",
+      "passed": true,
+      "details": "0"
+    },
+    {
+      "name": "weight_collision_4",
+      "passed": true,
+      "details": "-4"
+    },
+    {
+      "name": "weight_collision_5",
+      "passed": true,
+      "details": "14"
+    },
+    {
+      "name": "weight_collision_6",
+      "passed": true,
+      "details": "-30"
+    },
+    {
+      "name": "irrational_third_correction",
+      "passed": true,
+      "details": "-3 + sqrt(2)/2"
+    },
+    {
+      "name": "log_error_not_plain_big_O",
+      "passed": true,
+      "details": "(u^2 log(u))/u^2 -> -Infinity"
+    },
+    {
+      "name": "strict_power_loss_absorbs_log",
+      "passed": true,
+      "details": "u^(1/2) log(u) -> 0"
+    },
+    {
+      "name": "negative_square_has_no_real_square_root",
+      "passed": true,
+      "details": "principal sqrt(-u^2) = I*u for u>0; no real square root exists"
+    },
+    {
+      "name": "derivative_counterexample_identity",
+      "passed": true,
+      "details": "2*u*sin(u**(-3)) - 3*cos(u**(-3))/u**2"
+    },
+    {
+      "name": "forgotten_assumption_changes_function",
+      "passed": true,
+      "details": "Dropping a*u under a==0 is invalid after discarding a==0; this is an algebra check, not a WL execution."
+    },
+    {
+      "name": "sparse_lattice_slots_101",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "sparse_lattice_slots_1009",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "sparse_lattice_slots_20011",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "sparse_lattice_slots_1000000000",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "log_export_rejected",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "ordinary_export_allowed",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "huge_export_blocked_before_allocation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "pure_remainder_no_allocation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "invalid_frontier_rejected",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "certificate_residual_bracket_contained",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "certificate_exact_endpoint_signs",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "certificate_sharpening_nested",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "allocation_examples": [
+    {
+      "N": 101,
+      "status": "Allowed",
+      "denominator": 101,
+      "minimum_index": 1,
+      "maximum_index": 101,
+      "required_slots": 100
+    },
+    {
+      "N": 1009,
+      "status": "Allowed",
+      "denominator": 1009,
+      "minimum_index": 1,
+      "maximum_index": 1009,
+      "required_slots": 1008
+    },
+    {
+      "N": 20011,
+      "status": "SeriesDataSizeLimit",
+      "denominator": 20011,
+      "minimum_index": 1,
+      "maximum_index": 20011,
+      "required_slots": 20010
+    },
+    {
+      "N": 1000000000,
+      "status": "SeriesDataSizeLimit",
+      "denominator": 1000000000,
+      "minimum_index": 1,
+      "maximum_index": 1000000000,
+      "required_slots": 999999999
+    }
+  ],
+  "collision_examples": [
+    {
+      "weight": 0,
+      "coefficient": "1",
+      "index_count": 1
+    },
+    {
+      "weight": 1,
+      "coefficient": "-1",
+      "index_count": 1
+    },
+    {
+      "weight": 2,
+      "coefficient": "1",
+      "index_count": 2
+    },
+    {
+      "weight": 3,
+      "coefficient": "0",
+      "index_count": 2
+    },
+    {
+      "weight": 4,
+      "coefficient": "-4",
+      "index_count": 3
+    },
+    {
+      "weight": 5,
+      "coefficient": "14",
+      "index_count": 3
+    },
+    {
+      "weight": 6,
+      "coefficient": "-30",
+      "index_count": 4
+    }
+  ],
+  "certificate_example": {
+    "target": "1/10",
+    "center": "9/100",
+    "residual": "-19/10000",
+    "derivative_interval": [
+      "29/25",
+      "6/5"
+    ],
+    "radius": "19/11600",
+    "root_enclosure": [
+      "1099/12000",
+      "1063/11600"
+    ]
+  }
+}
