@@ -1,7 +1,7 @@
 # Code review implementation status
 
-Updated September 9, 2026. This register consolidates the **119 numbered finding
-entries in all seventeen [review packages](../../code-review/README.md)** into shared
+Updated September 9, 2026. This register consolidates the **123 identified finding
+entries in all eighteen [review packages](../../code-review/README.md)** into shared
 work items. It also records substantive roadmap proposals separately. It is a
 work map, not a claim that every recommendation is a defect or an accepted API
 change.
@@ -14,12 +14,18 @@ native execution; the other reports' independent mathematical and patch-fixture
 checks do not execute this package. See the [review index](../../code-review/README.md)
 for each report's evidence boundary.
 
-Wave 2 adds reports 10–17, all pinned to
-`921387e5ba1239bfda96e63e64e89bf63d9c41e6`, with 32 numbered items.
-Reports 10–13 and 17 record selected Wolfram 15.0.0 Linux observations;
+Wave 2 adds reports 10–18, all pinned to
+`921387e5ba1239bfda96e63e64e89bf63d9c41e6`, with 36 identified items, including
+report 18's two explicitly attributed deltas to earlier findings.
+Reports 10–13, 17 and 18 record selected Wolfram 15.0.0 Linux observations;
 reports 14–16 record independent checks without successful package execution.
-These snapshots precede the recent C04–C07 repairs. The eight supplied packages
+These snapshots precede the recent C04–C07 repairs. The first eight supplied packages
 were merged from `origin/main` commit `c19c0cd` without editing their contents.
+Report 18's nineteen files were added from
+`84650f3521cfcc89ae832f5bad3554f65faaab31`; its observations are historical,
+not new reproductions against this checkout. The separately recorded
+[seven current characterizations](../../validation/review-18-intake.json)
+use Wolfram 15.0.1 Windows and unchanged sources; they are not an acceptance suite.
 See the [wave-2 index](../../code-review/wave-2/README.md).
 
 Status meanings:
@@ -154,6 +160,18 @@ has eight precision failures; the [nine-file acceptance](../../validation/review
 has **196 successes, 0 failures**, including the recurrence tests below, with
 unchanged sources during the run. Finding: [R2 F01][R2].
 
+[R18 D-C04][R18] supplies historical native confirmation plus a separate
+rational-weight prototype that computes the complete boundary polynomial
+before discarding it. Its thirteen Python methods include forty deterministic
+independent-oracle subcases. This sharper-degree proposal is not integrated
+and is not needed to make the existing conservative bound sound. Any future
+implementation must preserve unknown input errors, call stateful coefficient
+generators once in order, and retain a sound fallback under its budget; see
+P02/P03 and [the report's validation scope][R18-validation].
+The current report-18 probe records `PowerLogRemainder[x, 2, 2]` for both
+default `SeriesExp[s]` and the formerly failing explicit `SeriesExp[s, 3]`.
+The broader precision acceptance above covers adjacent nonlinear operations.
+
 ### C05 — Retain every assumption used to establish a reusable result
 
 **Focused verified.** All nine constructors now capture the
@@ -243,7 +261,13 @@ Sources: [core constants and analytic expansion](../../AsymptoticInverse/Kernel/
 [observables](../../AsymptoticInverse/Kernel/SeriesOperations.wl),
 [special-function domains](../../AsymptoticInverse/Kernel/SpecialFunctionRealDomain.wl).
 Findings: [R4 R02][R4], [R7 F04][R7], [R9 F04][R9], [R11 N04][R11],
-[R12 N02][R12], [R13 A2][R13]. The wave-2 nonreal algebraic-root witness
+[R12 N02][R12], [R13 A2][R13], [R18 D-C07][R18]. Report 18 adds a historical
+cross-entry acceptance matrix for nonreal constants; it does not replace the
+current scoped acceptance above or the separate native-result policy.
+The current report-18 probe for `ArcSin[2] + x` returns
+`UnprovedRealCoefficient` under `"Package"`, while `"Series"` preserves a
+`"Native"` result with missing analytic remainder and exactness contracts.
+The wave-2 nonreal algebraic-root witness
 is now rejected by this real representation, as recorded in the intake probe.
 
 ### C08 — Make refinement meet or honestly report its precision target
@@ -332,7 +356,7 @@ source-admission policy.
 | C16 | **Source admission audit remains open.** Native `Series` may use formal analyticity for an opaque function with only a few truthful derivatives. C06's finite-log allowance presupposes an analytic tail theorem. The reported smooth nonanalytic function is now rejected by C07 because a derivative coefficient is unproved real, but this incidental refusal is not a regularity proof. Native coverage B03 must preserve formal output separately from a proved analytic bound. | [R11 N03][R11]; C06, B03 |
 | C17 | **Current native invalid optional view.** Check native integer/index representability as well as dense allocation length. A one-slot view for `1+x^(2^100)` still contains a native endpoint outside the supported machine range. Check denominator and signed lattice indices before constructing the optional view; preserve the sparse result. | [R12 N03][R12]; C01 |
 | C18 | **Pending — source inspected.** Derive and verify the target endpoint and approach direction from the complete target chart. Current composite fallback misuses flat offsets and isolated target scales: flat pole inverses approach infinity, negative-source Erfc approaches 2 from below, and negative quadratic curvature reverses the side. Cover original and derived objects. | [R15 F01][R15]; D01, D02 |
-| C19 | **Pending — source inspected.** A successful but inaccurate interval-certificate attempt must increase arithmetic precision when needed. Plan relative-only targets, tighten bounds from the proved root interval, retain the best certificate, and distinguish certification from reaching requested accuracy. | [R15 F02][R15], [R16 N02][R16]; C08, X05 |
+| C19 | **Current native accuracy stagnation; repair pending.** A successful but inaccurate interval-certificate attempt must increase arithmetic precision when needed. Plan relative-only targets, tighten bounds from the proved root interval, retain the best certificate, and distinguish certification from reaching requested accuracy. The current R18 probe reproduces enclosure orders `{60,60,60,60}` and `AccuracyNotReached` at relative tolerance `10^-120`; absolute order-135 and explicit order-150 controls reach the goal. This is not a false certificate. Its complete adapter and source patch are unvalidated candidates. | [R15 F02][R15], [R16 N02][R16], [R18 N01][R18]; [current probe](../../validation/review-18-intake.json), C08, X05 |
 | C20 | **Pending — source inspected.** Evaluate exact rational affine cancellation before interval rounding. Separately enclosing a huge translation and its cancellation can make even a linear certificate unusably wide. Preserve outward enclosures for nonlinear subexpressions; this is an availability failure, not evidence of an unsound certificate. | [R14 N02][R14]; X05 |
 | C21 | **Pending — source inspected.** Solve and compare in the local source coordinate, and expose unresolved numerical error/ratio states. A large source origin can erase a small displacement; an inexact zero with poor accuracy is not exact agreement. Use bounded precision retries or normalized corrections without manufacturing target digits; keep numerical diagnostics distinct from interval certificates. | [R13 A3][R13], [R14 N03][R14], [R17 N3][R17]; D05, D06 |
 | C22 | **Pending — source inspected.** Retain quantitative remainder bounds and their conditions through truncation. Transport a known upper bound by adding the absolute discarded finite part; do not copy a signed lower bound blindly. Include a no-op truncation of a Zeta/Lerch result and later supported arithmetic. | [R14 N05][R14]; D02, X05 |
@@ -342,11 +366,21 @@ Additional concrete existing-item work: R10 N02 supplies a sparse flat-product
 budget witness for P06; R14 N04 adds ignored Fourier term goals to D01/D02;
 R16 N03 requires correcting the documented seed-only `WorkingPrecision`
 contract and its capped proof-order conversion; R16 N04 requires a common
-cutoff/term-goal policy. R16 S01 is optional sharper closed-boundary convolution
+cutoff/term-goal policy. R16 S01 and R18 D-C04 propose sharper closed-boundary convolution
 under C04/P02/P03, not a reason to erase C04's verified conservative fix.
 R15 F04 adds reflected positive Gamma/Barnes observables to X02.
 R16 O01/O02 and R17's derivative extension supply concrete Zeta/Lerch tail
 derivative obligations for X04/X05, with parameter and coordinate restrictions.
+
+R18's [certificate adapter](../../code-review/wave-2/code-review-18/code/AccuracyAwareCertificate.wl)
+and [source patch generator](../../code-review/wave-2/code-review-18/code/patch_certificate.py)
+remain candidates. Before integration, audit the adapter's `Return` inside
+`Do`, its stricter enclosure-order range, and whether the cap limits all
+underlying attempts. The patch's automatic relative-digit heuristic also needs
+capping before existing order validation, so an extreme requested tolerance
+does not reject an exact zero-residual case unnecessarily. These are static
+candidate concerns, not new native reproductions or defects attributed to the
+current package.
 
 ## Performance and resource contracts
 
@@ -382,6 +416,7 @@ observations, and include peak memory and unchanged controls.
 | D07 | **Decision / partially existing.** Versioned release artifacts, checksums, and reproducible load examples remain useful. Download-before-`Get`, offline use, commit-pinned examples, canonical modular sources, and standalone freshness checks already exist; do not implement them again as missing features. | [R1 A14][R1]; [development README](README.md), [standalone workflow](../../.github/workflows/standalone.yml). |
 | D08 | **Pending — source inspected.** Align the paclet's `"MIT"` identifier with the root MIT No Attribution license after confirming the intended distribution metadata. Preserve separate review-package licenses and notices. | [R1 A14][R1], [R6 A14][R6], [R7 E03][R7], [R8 F09][R8]; [PacletInfo](../../AsymptoticInverse/PacletInfo.wl), [LICENSE](../../LICENSE). |
 | D09 | **Optional distribution decision.** Add Documentation Center symbol/reference pages and executable examples if native paclet help integration is desired. The current paclet declares a Kernel extension only; the existing HTML guide remains maintained documentation. | [R1 A10][R1], [R6 A14][R6]; [PacletInfo](../../AsymptoticInverse/PacletInfo.wl). |
+| D10 | **API policy decision; current coarsening observed.** Decide whether `SeriesRefine[s, lowerCutoff]` is a minimum-precision request, an explicit refusal, or intentional retargeting that may discard displayed terms. The current R18 probe reproduces valid coarser forward and inverse approximations; this is not a wrong asymptotic formula. Any no-op guard must first validate the request and establish comparable coordinates and cutoff conventions, preserve domains and retained information, and leave deliberate coarsening available through `SeriesTruncate`. | [R18 N02][R18]; [current probe](../../validation/review-18-intake.json), C08, D01, P08 |
 | V01 | **Deferred by current user instruction.** The reviews propose a full native release gate and CI semantic coverage. The present workflow checks standalone generation with Python; focused native records remain scoped evidence. Record source hashes, kernel version, selected suites, messages and failed/aborted cases. Do not claim or run a full-suite gate for this task. | [R1 A05][R1], [R4 A07][R4], [R6 A07][R6], [R7 E01][R7], [R8 F07][R8]; [validation record](../../validation/README.md). |
 | V02 | **Pending — source inspected.** Make the legacy aggregate runner reject zero discovered/executed tests and failed report/export construction. Reuse the stronger focused runner's checks without running the aggregate suite. Validate the runner itself with isolated empty/aborted fixtures. | [R6 A08][R6]; [RunTests](../../AsymptoticInverse/Tests/RunTests.wl), [FocusedTests](../../validation/FocusedTests.wl). |
 
@@ -410,7 +445,8 @@ coefficient oracles, remainder/branch obligations, and refusal cases.
 
 ## Complete finding crosswalk
 
-Every numbered ledger/README finding appears below. A finding spanning several
+Every identified ledger/README finding appears below, including the two named
+deltas in report 18. A finding spanning several
 contracts maps to more than one item; duplicate reports do not multiply the
 number of required fixes. Unnumbered roadmap proposals are covered above.
 
@@ -433,12 +469,14 @@ number of required fixes. Unnumbered roadmap proposals are covered above.
 | [15][R15] — 4 entries | F01 → C18; F02 → C19; F03 → C23; F04 → X02. |
 | [16][R16] — 7 entries | N01 → C05; N02 → C19; N03 → D01, P06; N04 → D01; S01 → C04, P02, P03; O01 → X04, X05; O02 → X04, X05. |
 | [17][R17] — 4 entries | N1 → C05; N2 → C23; N3 → C21; N4 → B04. |
+| [18][R18] — 4 entries | N01 → C19; N02 → D10, C08; D-C07 → C07, B01–B03; D-C04 → C04, P02, P03. |
 
 ## Next priorities and acceptance records
 
-1. Implement B01–B03's native-compatible entry and result contracts, preserving
-   native formal/complex output without giving it an unproved real analytic
-   interpretation. Current real-model repairs remain scoped to that model.
+1. Complete B01–B03's required automatic native routing and coverage argument,
+   preserving the implemented explicit native result contracts without giving
+   formal/complex output an unproved real analytic interpretation. Current
+   real-model repairs remain scoped to that model.
 2. Repair the current wrong results C14/C15, then target-chart correctness C18.
    Establish C16's source/admission boundary alongside native compatibility.
 3. Retain the focused acceptance boundaries for C01–C07 and P03; extend their
@@ -448,6 +486,7 @@ number of required fixes. Unnumbered roadmap proposals are covered above.
    margins with backward demand planning. Address P01–P03 as bounded resource
    fixes, followed by measured P04/P05 work.
 5. Address C19–C23, C09/C10, D04/D08 and V02 with focused contract checks.
+   Resolve D10's lower-cutoff refinement policy separately from a soundness fix.
    Required native input coverage is not deferred with the optional research
    proposals; preserve that distinction when prioritizing extensions.
 
@@ -474,6 +513,8 @@ fixture alone does not close an item in the current package.
 [R15]: ../../code-review/wave-2/code-review-15/evidence/findings.csv
 [R16]: ../../code-review/wave-2/code-review-16/evidence/findings.csv
 [R17]: ../../code-review/wave-2/code-review-17/evidence/novelty_matrix.json
+[R18]: ../../code-review/wave-2/code-review-18/evidence/novelty_ledger.json
+[R18-validation]: ../../code-review/wave-2/code-review-18/evidence/patch_validation.json
 [R2-article]: ../../code-review/wave-1/code-review-2/article/asymptotic-review.tex
 [R3-article]: ../../code-review/wave-1/code-review-3/article/asymptotic-audit.tex
 [R4-article]: ../../code-review/wave-1/code-review-4/article.tex

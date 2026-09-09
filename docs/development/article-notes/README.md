@@ -22,7 +22,7 @@ maintained separately. These archived fragments are not included in that build.
 
 The report comparison here belongs to the
 [original report collection](../../../reports/COMPARISON.md). The later
-[code review library](../../../code-review/README.md) contains seventeen
+[code review library](../../../code-review/README.md) contains eighteen
 packages in two waves. Consult the
 [current finding register](../CODE_REVIEW_STATUS.md) for implementation status
 and the [validation record](../../../validation/README.md) for the exact

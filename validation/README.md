@@ -1,5 +1,47 @@
 # Review and validation record
 
+## Native backend artifacts and late report 18
+
+The [native artifact receipt](native-compatibility-artifacts.json) records the
+completed distribution and documentation checks for the explicit native
+backends. The [focused acceptance](native-compatibility-tests.json) has
+**130 passes, zero failures** across eight files, with all 49 recorded source
+hashes verified against the final worktree. A separate fresh-kernel local
+[standalone load and reload run](native-compatibility-standalone.json) passed
+all nine checks, including the alias and both native backends. HTTP loading
+was not rerun for this milestone. Eleven Python builder tests passed, and
+standalone freshness covers 39 modular sources.
+
+The guide HTML was regenerated and its consistency check passed for 38 public
+symbols, 206 anchors, and 130 links. Browser visual review is incomplete:
+automatic approval review rejected launching the local documentation preview
+server with only `blocked by policy`. No new browser layout acceptance is
+claimed. The mathematical PDF was rebuilt in three serial strict LaTeX passes;
+all 97 pages were rendered and reviewed in layout overviews, with pages 10–11
+inspected at full size. There were no overfull or underfull boxes. The build
+records the `epstopdf` warning that shell escape is disabled; no layout repair
+was needed. Sources, output hashes, and review scope are in the receipt.
+
+Late [report 18](../code-review/wave-2/code-review-18/README.md) was imported
+unchanged from `84650f3521cfcc89ae832f5bad3554f65faaab31`. It reviews the older
+`921387e` snapshot. The current [seven-case characterization](review-18-intake.json)
+from [ProbeReview18.wl](ProbeReview18.wl) records:
+
+- The relative-only certificate request still stalls at orders
+  `{60, 60, 60, 60}`; absolute-error and explicit-order controls reach their goals.
+- Lower-cutoff refinement still coarsens forward and inverse approximations.
+- The analytic backend rejects the complex coefficient witness, while the
+  native backend preserves it without asserting an analytic remainder or exactness.
+- Default and explicit-cutoff nonlinear exponential requests both retain the
+  corrected logarithmic remainder degree two.
+
+All 40 characterization source hashes were verified and stayed unchanged
+during execution. These are observations of current behavior, including known
+pending work, **not a passing acceptance suite**. The
+[implementation register](../docs/development/CODE_REVIEW_STATUS.md) maps the
+report's four findings and records the supplied certificate candidates' limits.
+The full package suite remains skipped.
+
 This directory contains focused runners, characterization probes, build and
 provenance tools, benchmarks, and saved evidence from individual milestones.
 The [test directory guide](../AsymptoticInverse/Tests/README.md) explains test

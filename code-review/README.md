@@ -1,11 +1,11 @@
 # Code review reports
 
-Seventeen review packages are grouped into two waves. Each wave index links the reports, articles, evidence, proposed patches, and package-specific reproduction instructions.
+Eighteen review packages are grouped into two waves. Each wave index links the reports, articles, evidence, proposed patches, and package-specific reproduction instructions.
 
 | Wave | Reports | Reviewed version | Date |
 | --- | --- | --- | --- |
 | [Wave 1](wave-1/README.md) | Nine independent review packages, numbered 1–9 | AsymptoticInverse 1.8.0; snapshots `07a9781` and `75de875` | September 9, 2026 |
-| [Wave 2](wave-2/README.md) | Eight incremental review packages, numbered 10–17 | AsymptoticInverse 1.8.0; snapshot `921387e` | September 9, 2026 |
+| [Wave 2](wave-2/README.md) | Nine incremental review packages, numbered 10–18 | AsymptoticInverse 1.8.0; snapshot `921387e` | September 9, 2026 |
 
 The maintained [implementation status](../docs/development/CODE_REVIEW_STATUS.md) consolidates the findings and links completed fixes to focused validation, while tracking pending work and design decisions.
 

@@ -11,7 +11,7 @@ Wolfram reference page.
 | Load and use the package | [User guide (HTML)](../AsymptoticInverse/Documentation/UserGuide.html) · [Markdown source](../AsymptoticInverse/Documentation/UserGuide.md) |
 | Rebuild the guide or inspect its examples | [Guide build instructions](../AsymptoticInverse/Documentation/README.md) · [Examples](../AsymptoticInverse/Examples/README.md) |
 | Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients |
-| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Seventeen code review packages in two waves](../code-review/README.md) |
+| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Eighteen code review packages in two waves](../code-review/README.md) |
 | Check what was actually validated | [Validation record](../validation/README.md), with focused test results and artifact-specific build and review evidence |
 | Explore related asymptotic and inverse theory | [Vendored ProveIt article catalog](../vendor/proveit/README.md), with TeX/PDF sources, reading lists, and provenance |
 

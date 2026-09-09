@@ -8,9 +8,9 @@ The maintained reader-facing documentation consists of the
 [mathematical article](../../article/asymptotic-inverse.pdf) and the
 [package user guide](../../AsymptoticInverse/Documentation/UserGuide.html).
 
-The [code review library](../../code-review/README.md) contains seventeen
+The [code review library](../../code-review/README.md) contains eighteen
 packages in two waves: [reports 1–9](../../code-review/wave-1/README.md) and
-[reports 10–17](../../code-review/wave-2/README.md). The maintained
+[reports 10–18](../../code-review/wave-2/README.md). The maintained
 [code review status](CODE_REVIEW_STATUS.md) consolidates findings, links current
 implementation evidence, and keeps pending repairs separate from deferred API
 and research proposals. The wave indexes record each package's pinned snapshot

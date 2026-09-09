@@ -21,7 +21,7 @@ the required interfaces, result semantics, and validation boundaries.
 | --- | --- |
 | **[Mathematical article (PDF)](article/asymptotic-inverse.pdf)** · [LaTeX source](article/asymptotic-inverse.tex) | Definitions, theorems, proofs, mathematical examples, and the hypotheses behind each scale and error estimate. |
 | **[User guide (HTML)](AsymptoticInverse/Documentation/UserGuide.html)** · [Markdown source](AsymptoticInverse/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
-| **[Code review reports](code-review/README.md)** | Seventeen reports in two waves: [reports 1–9](code-review/wave-1/README.md) and [reports 10–17](code-review/wave-2/README.md), with pinned revisions, mathematical and engineering findings, evidence, regression candidates, and proposed patches. |
+| **[Code review reports](code-review/README.md)** | Eighteen reports in two waves: [reports 1–9](code-review/wave-1/README.md) and [reports 10–18](code-review/wave-2/README.md), with pinned revisions, mathematical and engineering findings, evidence, regression candidates, and proposed patches. |
 | **[Vendored ProveIt articles](vendor/proveit/README.md)** | A revision-pinned TeX/PDF library on asymptotic expansions, transseries, q-analogs, combinatorial sequences, and their interpolated inverses, with topic reading lists and build provenance. |
 
 The article is independent of software syntax. The guide follows the
@@ -148,7 +148,7 @@ for the exact scope of each run.
 | [article/](article/README.md) | Mathematical article and its build instructions. |
 | [docs/](docs/README.md) | Reading paths and links between mathematical, user, and contributor documentation. |
 | [docs/development/](docs/development/README.md) | Current review status, implementation plans, gotcha notes, and preserved historical engineering chapters. |
-| [code-review/](code-review/README.md) | Seventeen review packages across two waves, with articles, evidence, and reproduction tools. |
+| [code-review/](code-review/README.md) | Eighteen review packages across two waves, with articles, evidence, and reproduction tools. |
 | [vendor/](vendor/README.md) | Revision-pinned ProveIt articles on asymptotic expansions and inverses, with TeX, PDFs, topic reading lists, and upstream build provenance. |
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
 | [reports/](reports/README.md) | The nine original research and implementation reports, with their analysis and comparison. |
