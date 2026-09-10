@@ -671,6 +671,25 @@ The sparse terms, `Normal[s]`, remainder, and supported series operations remain
 available. This bound applies to the optional native view and is independent
 of the `"MaxTerms"` construction option.
 
+The native view also requires representable lattice indices. Write
+`b = 2^($SystemWordLength - 1)`. Its denominator must be an integer from
+`1` through `b - 1`, both endpoint indices must lie from `-b` through
+`b - 1`, and their difference must lie from `0` through `b - 1`.
+If any of these conditions fails, the property returns
+
+```wolfram
+Missing["NativeSeriesDataRange",
+  <|"Indices" -> {nmin, nmax, den}, "OrderSpan" -> nmax - nmin,
+    "AllowedIndexRange" -> {-b, b - 1},
+    "MaximumDenominator" -> b - 1, "MaximumOrderSpan" -> b - 1|>]
+```
+
+These checks precede dense coefficient allocation and inverse coefficient
+scaling. They apply even when only one coefficient is retained, and valid
+individual endpoints do not guarantee a valid difference. The sparse
+expansion, `Normal[s]`, and its remainder remain usable when this optional
+view is unavailable.
+
 <a id="PowerLogRemainder"></a>
 ## PowerLogRemainder
 

@@ -758,9 +758,12 @@ makeSeriesData[terms_, x_, x0_, coord_, remData_, logw_] :=
 
 (* Native SeriesData is an optional dense view of the sparse result. Its
    remainder index does not require trailing zero coefficients. Bound the
-   retained lattice span before allocating or scaling any coefficients. *)
+   native integer fields and their order difference, then the retained
+   lattice span, before allocating or scaling any coefficients. A native
+   order difference outside the signed range can silently discard terms. *)
 makeRationalSeriesData[terms_, x_, x0_, remData_, scale_: 1] := Module[
-  {exps, den, nmin, nmax, count, coeffs, limit = 100000},
+  {exps, den, nmin, nmax, span, count, coeffs, limit = 100000,
+   nativeMax = 2^($SystemWordLength - 1) - 1},
   exps = terms[[All, 1]];
   If[! (And @@ (IntegerQ[#] || Head[#] === Rational & /@ exps)), Return[Missing["IrrationalExponents"], Module]];
   If[remData === None, Return[Missing["Exact"], Module]];
@@ -769,6 +772,12 @@ makeRationalSeriesData[terms_, x_, x0_, remData_, scale_: 1] := Module[
     <|"RemainderPower" -> remData[[1]], "RemainderLogDegree" -> remData[[2]]|>], Module]];
   den = LCM @@ (Denominator /@ Append[exps, remData[[1]]]);
   nmin = If[exps === {}, remData[[1]] den, Min[exps] den]; nmax = remData[[1]] den;
+  span = nmax - nmin;
+  If[! TrueQ[1 <= den <= nativeMax && -nativeMax - 1 <= nmin <= nativeMax &&
+      -nativeMax - 1 <= nmax <= nativeMax && 0 <= span <= nativeMax],
+    Return[Missing["NativeSeriesDataRange", <|"Indices" -> {nmin, nmax, den},
+      "OrderSpan" -> span, "AllowedIndexRange" -> {-nativeMax - 1, nativeMax},
+      "MaximumDenominator" -> nativeMax, "MaximumOrderSpan" -> nativeMax|>], Module]];
   count = If[exps === {}, 0, Max[exps] den - nmin + 1];
   If[count > limit, Return[Missing["DenseSeriesDataLimit",
     <|"RequiredCoefficients" -> count, "Limit" -> limit|>], Module]];

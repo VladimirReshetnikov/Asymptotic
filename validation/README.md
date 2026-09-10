@@ -1,8 +1,37 @@
 # Review and validation record
 
+## Native `SeriesData` integer and order-span limits
+
+The [focused C17 acceptance](review-native-index-range-tests.json) passes
+**46 tests, zero failures**, across [four selected files](CheckReviewNativeIndexRange.wl).
+Seventeen new cases check native signed-index, positive-denominator and
+order-span boundaries, preservation of the sparse result, inverse scaling,
+and precedence of the existing export guards. This checkpoint starts from
+merged `main` revision `96122d74097c58cb0ea1da341b4e5d8a90af90d4`.
+
+The [fourteen native constructor observations](native-index-range-probe.json)
+separately establish the supported boundary values on Wolfram 15.0.1 for
+64-bit Windows. Two observations show silent loss of the supplied coefficient
+when individually valid indices have an overflowing difference. They are
+runtime characterizations, not package acceptance tests. The
+[probe](ProbeNativeIndexRange.wl) records indices as decimal strings because
+the native `RawJSON` exporter misformats the most-negative machine integer.
+
+The [local loading acceptance](review-native-index-range-loading-tests.json)
+passes **85 checks, zero failures, in five fresh kernels**: isolated standalone,
+modular entry, `init.m`, `Needs`, and paclet loading. Each includes reloads,
+native Mathics-adapter isolation, previous review repairs, and the new C17
+endpoint and span witnesses. The 13 standalone-builder Python tests also pass.
+
+The standalone distribution and HTML guide were rebuilt and their source
+freshness and documentation links checked. The mathematical
+article is unchanged: this fix concerns an optional native representation,
+and the sparse mathematical expansion retains its existing contract.
+The full package suite and Mathics runtime tests were not run.
+
 ## Exact exponent collection, composition scope, and native search
 
-The published checkpoint is `243ceff`, which also merges the subsequent
+The earlier published checkpoint `243ceff` also merges the subsequent
 Mathics-only changes from `main` revision `73c23e0`. Its
 [second-sync checks](review-mathics-sync-artifacts.json) pass **32/32 in two
 fresh Wolfram kernels**, exercising modular and repository-root standalone

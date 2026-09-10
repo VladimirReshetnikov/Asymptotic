@@ -409,6 +409,28 @@ for local, offline, and commit-pinned forms.
   absorbs any fixed logarithmic degree. Compute an explicit omitted block
   and prove the native tail smaller before reporting a sharper boundary.
   The maximum degree among retained coefficients is not a tail-degree bound.
+- Native `SeriesData` index limits are separate from dense coefficient
+  allocation. Probes on Wolfram 15.0.1 for 64-bit Windows admit a positive
+  denominator through `2^63-1` and individual signed indices from `-2^63`
+  through `2^63-1`. The difference `nmax-nmin` must also fit the nonnegative
+  signed range: valid individual indices do not suffice. A constructor with
+  a span larger than `2^63-1` can silently discard supplied coefficients,
+  so absence of messages does not establish a faithful native view.
+  The optional exporter must check denominator, both endpoints, and span
+  before dense allocation or inverse coefficient scaling. This restriction
+  belongs to the native representation; it does not limit the sparse
+  expansion's exact rational exponents. The
+  [14 constructor characterizations](../validation/native-index-range-probe.json)
+  distinguish native diagnostics from silent coefficient loss. The separate
+  [46/0 focused acceptance](../validation/review-native-index-range-tests.json)
+  covers 17 new range cases and 29 existing export/representation cases in
+  four selected files, with unchanged sources during the run. C17 in the
+  [review register](development/CODE_REVIEW_STATUS.md) records that scope;
+  the full suite was not run.
+- On the same native kernel, `RawJSON` export of the signed boundary
+  integer `-2^63` produced malformed numeric text. Boundary diagnostics
+  serialize lattice indices as `InputForm` strings; they do not infer
+  successful JSON encoding from successful evaluation of the exact integer.
 - Absolute majorants should be computed structurally. The bounds
   `Abs[Sin[a + I b]] <= Exp[Abs[b]]` and the analogous cosine bound expose
   cancellation of opposite exponential carriers without costly simplification
