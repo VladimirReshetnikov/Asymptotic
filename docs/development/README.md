@@ -34,12 +34,13 @@ The maintained reader-facing documentation consists of the
 [package user guide](../../src/Documentation/UserGuide.html).
 
 The [code review library](../../external-reports/code-review/README.md) retains
-thirty-five packages in five waves:
+forty-five packages in six waves:
 [reports 1, 4–9](../../external-reports/code-review/wave-1/README.md),
 [reports 11, 15–18](../../external-reports/code-review/wave-2/README.md),
 [reports 19–25, 27](../../external-reports/code-review/wave-3/README.md),
 [reports 28–31, 33–36](../../external-reports/code-review/wave-4/README.md), and
-[reports 37–39, 42–45](../../external-reports/code-review/wave-5/README.md). Ten
+[reports 37–39, 42–45](../../external-reports/code-review/wave-5/README.md), and
+[reports 46–55](../../external-reports/code-review/wave-6/README.md). Ten
 packages whose entries were implemented or duplicated elsewhere are listed in the
 [retirement register](../../external-reports/code-review/README.md#retired-review-packages),
 each with a tombstone page in place of its removed directory.

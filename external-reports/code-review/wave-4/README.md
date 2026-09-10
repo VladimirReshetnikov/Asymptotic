@@ -6,7 +6,7 @@ contracts, and bounded mathematical extensions of AsymptoticAnalysis. Report
 [32](code-review-32.md) was [retired](../README.md#retired-review-packages): its
 timeout finding is implemented and every other entry restates a work item that
 retained packages already carry. Together with the other waves, the collection now contains
-**35 retained reviews across five waves**. The supplied packages arrived in
+**45 retained reviews across six waves**. The supplied packages arrived in
 [8cb9b7f](https://github.com/VladimirReshetnikov/Asymptotic/commit/8cb9b7f16b005e368a360308ec3b78919ef7c465).
 
 Reports 28, 29, and 33–36 review

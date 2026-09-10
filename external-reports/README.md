@@ -12,8 +12,9 @@ different collections with separate numbering, source snapshots, and evidence.
 | Code reviews, wave 3 | Eight retained incremental review packages, numbered 19–25 and 27, concerning snapshot `6687962`. | [Wave 3 index](code-review/wave-3/README.md) |
 | Code reviews, wave 4 | Eight retained incremental review packages, numbered 28–31 and 33–36, concerning snapshots `7d1bc83` or `513917b`. | [Wave 4 index](code-review/wave-4/README.md) |
 | Code reviews, wave 5 | Seven retained incremental review packages, numbered 37–39 and 42–45, concerning snapshots `8e85996` or `651f202`. | [Wave 5 index](code-review/wave-5/README.md) |
+| Code reviews, wave 6 | Ten retained incremental review packages, numbered 46–55, concerning snapshot `8cee870`. | [Wave 6 index](code-review/wave-6/README.md) |
 
-The thirty-five retained code reviews are separate from the nine original
+The forty-five retained code reviews are separate from the nine original
 proposals. Ten further packages were retired once every entry they carried was
 implemented, settled, or restated by a retained report. A tombstone page stands
 where each removed directory was, and the

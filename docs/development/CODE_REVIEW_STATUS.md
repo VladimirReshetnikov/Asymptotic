@@ -46,7 +46,7 @@ retained package that still carries each open obligation. Retiring a copy does
 not close an item, and the entry counts above still describe what arrived.
 References of the form `[Rn]` for a retired package resolve to that package's
 tombstone page, which records the disposition of each of its entries.
-Thirty-five packages are retained across five waves.
+Forty-five packages are retained across six waves.
 
 The [wave-4 intake](WAVE_4_INTAKE.md) maps every report-local entry from
 reports 28–36 to implementation obligations and proposals. Source-audited
@@ -129,6 +129,43 @@ nonconstant logarithmic leading block — is now in the
 [mathematical article](../article/sections/03-forward.tex), together with the
 [separate reason](../article/sections/17-calculus.tex) a faithful magnitude
 bound does not transport a classical derivative contract.
+
+Wave 6 supplied reports 46–55 at `8cee870`, all ten retained and indexed in the
+[wave-6 index](../../external-reports/code-review/wave-6/README.md). **It has no
+consolidated intake either**, so its entries are outside the 231 counted above
+and outside every item; nothing below is closed or refuted by them. No package
+was retired: five defects are reported two or three times, but in five of the six
+overlaps the copies propose non-interchangeable repairs at the same line, so the
+index counts each obligation once instead. The
+[four-case characterization](../../validation/wave6-witness-probe.json) from
+[ProbeWave6Witnesses](../../validation/ProbeWave6Witnesses.wl) reproduces four of
+its witnesses on the current source with unchanged sources during the run.
+
+Three of those bear directly on items recorded here.
+`AsymptoticExponentialCoreInverse` admits a target-dependent `"SourceShift"`
+instead of refusing it, and returns a correct finite expression under a
+remainder scale that is exponentially too small — at `y = 20` the true error is
+`1.29·10⁻³` against a claimed `1.06·10⁻²⁰`. No register file mentions
+`SourceShift`, so this is unrecorded work rather than a regression; its nearest
+recorded principle is C15's forward note in the
+[parameter-scope notes](COMPOSITION_PARAMETER_SCOPE.md) that later shifting
+operations must keep fixed data separate from varying coordinates. The
+coefficient-option corruption is a defect inside C09's own repair and is
+recorded in that section. The `"LocalCoordinate"` label shipped by C21's
+implementation describes `LocalRoot` and `LocalApproximation` as one quantity
+when the run confirms the second is the first raised to the requested power;
+the same sentence stands in the [user guide](../../src/Documentation/UserGuide.md)
+and its generated HTML, which no wave-6 package noticed, so a kernel-only repair
+would leave the documentation contradicting the new contract.
+
+Two wave-6 entries are **not** new obligations. Report 55's N02 restates
+retained report 16's N04, which this register already carries under D01 as the
+open common cutoff and term-goal policy; report 55 adds a native reproduction, a
+sub-mechanism in which a resource refusal ignores an active goal, and a patch
+that selects one of the two policies report 16 identified. Report 49's E2 proves
+an obligation already recorded as R16 O01/O02 under X04/X05. Reports 47 N01 and
+50 E2 fall inside P08's stated lanes and 48 P1 inside P06's, and are governed by
+those items' acceptance rules rather than by new entries.
 
 The first wave-4 [runner repair](../../validation/wave4-runner-integrity-tests.json)
 records **32 passed, 0 failed focused Python tests** on Windows, using synthetic
@@ -487,6 +524,19 @@ same inverse constructed with that power, at finite and infinite endpoints
 ([tests](../../src/Tests/ReviewCoefficientPowerResidualLabel.wlt)).
 Source: [core coefficient overload](../../src/Kernel/AsymptoticAnalysis.wl).
 Finding: [R6 A03][R6].
+
+**Verified for the string spelling only; a symbol-spelled option is not
+covered.** Wave-6 report 48 N1 reports, and the
+[wave-6 characterization](../../validation/wave6-witness-probe.json) reproduces,
+that the selection matches the option by name equivalence but extracts it by
+literal string replacement. `InverseExpansionCoefficient[s, {1}, Power -> 2]`
+therefore returns a *successful* association whose `Exponent` is `1 + "Power"`
+and whose `Coefficient` is `-"Power"`, and supplying both spellings lets the
+later string win, so first-option precedence does not hold. Every case in the
+regression file above uses the string spelling, which is also the only spelling
+the user guide documents. This is a defect inside the repair recorded here, not
+a new area; it must be repaired and the regression extended before the
+precedence claim is restated without qualification.
 
 ### C10 — Include the target offset in residual normalization labels
 

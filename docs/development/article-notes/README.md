@@ -23,7 +23,7 @@ maintained separately. These archived fragments are not included in that build.
 The report comparison here belongs to the
 [original report collection](../../../external-reports/original-proposals/COMPARISON.md). The later
 [code review library](../../../external-reports/code-review/README.md) retains
-thirty-five packages in five waves. Consult the
+forty-five packages in six waves. Consult the
 [current finding register](../CODE_REVIEW_STATUS.md) for implementation status
 and the [validation record](../../../validation/README.md) for the exact
 scope of focused tests and artifact checks. Historical claims and proposed
