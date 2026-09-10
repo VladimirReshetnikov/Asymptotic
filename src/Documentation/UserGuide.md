@@ -21,6 +21,8 @@ Get[URLDownload[
 
 This loads the package into the current kernel without installation or a local checkout. Evaluate the command again in each new kernel session.
 
+The URL selects the repository-root [standalone package](../../AsymptoticAnalysis.wl), which includes every companion module. The move of the modular package directory to `src/` leaves this URL unchanged. Use `src/Kernel/AsymptoticAnalysis.wl` with a [local checkout](#loading-a-local-checkout).
+
 `URLDownload` saves the complete source to a temporary file, then normal `Get` loads that file. Downloading first avoids an observed Wolfram 15.0.1 issue that intermittently truncated direct `Get` of the compressed package response.
 
 <a id="loading-fixed-versions"></a>

@@ -135,6 +135,10 @@ article</a> for definitions, results, and proofs.</p>
 <p>This loads the package into the current kernel without installation
 or a local checkout. Evaluate the command again in each new kernel
 session.</p>
+<p>The URL selects the repository-root <a href="../../AsymptoticAnalysis.wl">standalone package</a>, which
+includes every companion module. The move of the modular package
+directory to <code>src/</code> leaves this URL unchanged. Use
+<code>src/Kernel/AsymptoticAnalysis.wl</code> with a <a href="#loading-a-local-checkout">local checkout</a>.</p>
 <p><code>URLDownload</code> saves the complete source to a temporary
 file, then normal <code>Get</code> loads that file. Downloading first
 avoids an observed Wolfram 15.0.1 issue that intermittently truncated

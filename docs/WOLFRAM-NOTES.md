@@ -12,10 +12,23 @@ algebraic-number code, asymptotic computation, and Wolfram evaluation semantics.
 
 ## Loading from HTTP
 
+For the current renamed package, use:
+
+```wolfram
+Get[URLDownload[
+  "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticAnalysis.wl"]];
+```
+
+This URL selects the complete standalone file at the repository root.
+The modular entry point `src/Kernel/AsymptoticAnalysis.wl` loads sibling
+files from a local checkout. See the [loading guide](../src/Documentation/UserGuide.md#getting-started)
+for local, offline, and commit-pinned forms.
+
 - In a native Wolfram 15.0.1 probe, both `$InputFileName` and `$Input` were
   empty inside a file loaded by `Get["http://127.0.0.1:.../probe.wl"]`.
   Do not assume that a remotely loaded entry point can locate sibling
-  modules through these variables. The repository-root `AsymptoticInverse.wl`
+  modules through these variables. The repository-root standalone file
+  (named `AsymptoticInverse.wl` in that probe, now `AsymptoticAnalysis.wl`)
   includes all modules and needs only one HTTP fetch.
 - Cold `Get` calls against the unbuffered 574,410-byte GitHub distribution
   intermittently emitted `Syntax::sntue` at varying positions and omitted

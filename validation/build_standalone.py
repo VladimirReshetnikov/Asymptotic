@@ -1,4 +1,4 @@
-"""Build the single-file Wolfram package used by Get[raw-GitHub-URL].
+"""Build the single-file Wolfram package used by Get[URLDownload[url]].
 
 The canonical implementation remains in src/Kernel. Companion
 loads are expanded in place, preserving Wolfram's streaming context changes.
@@ -95,7 +95,7 @@ def assemble() -> tuple[bytes, list[str]]:
               "(* GENERATED FILE. Edit src/Kernel/*.wl instead.\n"
               "   Rebuild: python validation/build_standalone.py\n"
               "   Verify:  python validation/build_standalone.py --check\n"
-              "   This file is self-contained and can be loaded directly by URL.\n"
+              "   This file is self-contained; load a remote URL with Get[URLDownload[url]].\n"
               "   SPDX-License-Identifier: MIT *)\n\n")
     return (header + body).encode("utf-8"), sources
 

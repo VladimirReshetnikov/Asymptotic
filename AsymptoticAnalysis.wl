@@ -2,7 +2,7 @@
 (* GENERATED FILE. Edit src/Kernel/*.wl instead.
    Rebuild: python validation/build_standalone.py
    Verify:  python validation/build_standalone.py --check
-   This file is self-contained and can be loaded directly by URL.
+   This file is self-contained; load a remote URL with Get[URLDownload[url]].
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
