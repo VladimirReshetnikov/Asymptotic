@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): fb3d4d584255d03f2e923956391efac5bfab225a481748dca3bac0bb56cd24b1 *)
+   Source SHA256 (UTF-8/LF): cd116cb984a1a059510506072f00c22e36afa046e8d1115f2db6a077dfb0136e *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -1078,14 +1078,25 @@ inverseFrontierWithCount[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] :=
    {attempt, 8}];
   {If[result[[2]] === 0, first, result], count}];
 
+(* Return the real logarithm only for a proved positive monomial tree.
+   Recursion preserves reciprocal/scaled bases introduced by coordinates;
+   realness of an outer power cannot erase an unproved inner branch. *)
+finitePositiveMonomialLog[e_, u_Symbol, ass_] := Module[{parts}, Which[
+  e === u, Log[u],
+  FreeQ[e, u], If[TrueQ[Simplify[e > 0, ass]], Log[e], $Failed],
+  Head[e] === Power && FreeQ[e[[2]], u] &&
+      TrueQ[Simplify[Element[e[[2]], Reals], ass]],
+    parts = finitePositiveMonomialLog[e[[1]], u, ass];
+    If[parts === $Failed, $Failed, e[[2]] parts],
+  Head[e] === Times,
+    parts = finitePositiveMonomialLog[#, u, ass] & /@ List @@ e;
+    If[MemberQ[parts, $Failed], $Failed, Total[parts]],
+  True, $Failed]];
+
 (* finite power-log parser that tolerates symbolic exponents (used by depth truncation) *)
 parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, ok = True},
-  (* The positive local base does not remove principal-log winding for a
-     complex exponent. Require a real exponent before either identity. *)
-  ex = Expand[e //. {
-    Log[u^k_] /; FreeQ[k, u] && TrueQ[Simplify[Element[k, Reals], ass]] :> k Log[u],
-    Log[c_ u^k_.] /; FreeQ[c, u] && FreeQ[k, u] &&
-      TrueQ[Simplify[c > 0, ass]] && TrueQ[Simplify[Element[k, Reals], ass]] :> Log[c] + k Log[u]} /. Log[u] -> ell];
+  ex = Expand[(e /. Log[b_] :> With[{lg = finitePositiveMonomialLog[b, u, ass]},
+      If[lg === $Failed, Log[b], lg]]) /. Log[u] -> ell];
   summands = If[Head[ex] === Plus, List @@ ex, {ex}];
   Do[Module[{factors, expo = 0, coef = 1},
     factors = If[Head[term] === Times, List @@ term, {term}];

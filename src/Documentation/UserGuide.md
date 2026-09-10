@@ -1759,6 +1759,12 @@ AsymptoticInverse[x + x^2 Log[x^a]^2, {x, 0}, {y, 1},
   "Truncation" -> "Depth", Assumptions -> Element[a, Reals]]
 ```
 
+The same rule applies recursively to positive bases. For example,
+`Log[(1/u)^a]` becomes `-a Log[u]` when `a` is proved real, including after
+changing a source coordinate at infinity. Every constant factor must be
+proved positive and every exponent used in the normalization must be proved
+real; a real outer exponent alone does not justify an unproved inner power.
+
 Under this hypothesis the source is `x + a^2 x^2 Log[x]^2`. The assumption
 `a^2 == -1` does not justify the same normalization. Although the original
 source is then real for positive `x`, its squared principal logarithm is a
@@ -1771,8 +1777,8 @@ result where applicable.
 These conditions also apply when this finite parser is used by exact-core
 and flat-sector constructors. They do not restrict explicit native backends
 to real inputs. A periodic-coefficient inverse constructor is a separate
-development proposal. Targeted native before/after probes confirm the new
-refusals; focused suite acceptance is pending. The
+development proposal. Targeted native before/after probes and 207 passing
+focused tests cover the guarded normalization and selected consumers. The
 [normalization notes](../../docs/development/LOG_POWER_NORMALIZATION.md)
 record the mathematical contract and validation status.
 

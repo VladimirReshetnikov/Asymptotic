@@ -1,5 +1,49 @@
 # Review and validation record
 
+## Principal-logarithm normalization and positive nested bases
+
+The [eight-file native run](log-power-normalization-tests.json) passes
+**207 tests with zero failures** on Wolfram 15.0.1, including 21 dedicated
+[logarithm regressions](../src/Tests/ReviewLogPowerNormalization.wlt).
+All 65 input hashes remain unchanged during the run. The recursive proof
+accepts positive monomial bases and real exponents at every nesting level,
+including reciprocal source coordinates at infinity. Unsupported winding
+remains visible to the parser and receives the caller's structured refusal.
+The [development note](../docs/development/LOG_POWER_NORMALIZATION.md)
+separates the source-identity obligation from coefficient reality and the
+still-open periodic coefficient constructor.
+
+The [first pass](log-power-normalization-first-pass.json) records 201 passes
+and two failures against the earlier implementation in `a76c0b5`. One exposed
+the nested reciprocal-base gap. The other was an old automatic-backend test
+whose blanket inexact-input refusal no longer matched native delegation.
+That check now selects the package backend explicitly, and a separate
+automatic/native comparison verifies the supported route. The
+[seven follow-up observations](log-power-normalization-followup.json) retain
+the actual unsupported chart and a representative inexact-input comparison;
+they are characterization evidence rather than acceptance.
+
+The [13 baseline observations](log-power-normalization-baseline.json) refer
+to `41ac72d`; the [13 after-guard observations](log-power-normalization-after-guard.json)
+refer to the first two-pattern repair preserved in `290f1af`. They distinguish
+the wrong finite depth and flat expressions from the exact-core admission
+issue, whose finite expression retained its winding logarithm.
+
+The [local loading run](log-power-normalization-loading-tests.json) passes
+**100 checks in five fresh kernels**, covering isolated standalone, modular,
+`init.m`, `Needs`, and paclet loading. It records 61 unchanged input hashes,
+20 checks per mode, and no local HTTP server. The 55-module standalone matches
+its sources. All 14 standalone-builder tests and the six incoming Mathics
+summary tests also pass; no full package or Mathics feature suite was run.
+
+The [article build](log-power-normalization-pdf-build.json) records exactly
+three serial strict LaTeX passes. The final **102-page PDF** has no unresolved
+references or overflowing boxes. The [render record](log-power-normalization-pdf-layout.json)
+records all 102 rendered pages and visual inspection of contact pages 1–12,
+25–30, 37–42, and 91–102, plus full page 40. Other pages were rendered but
+were not visually inspected in this checkpoint. The final source and artifact
+checks are recorded in [the hash audit](log-power-normalization-artifacts.json).
+
 ## Observable Taylor information, approach sides, and real arguments
 
 After the final sync through immutable `main` revision `b4c2a2d`, the
@@ -212,13 +256,32 @@ full original-suite outcomes and native symbol-definition comparisons
 separate. It records the unchanged original 1,452 passes and 12 failures,
 as well as subsequent definition comparisons against updated upstream
 controls. Consult each stage's source hashes before attributing it to a
-later commit. The latest stage compares the merged observable-series changes
-against `ac91e66`: all 2,059 modular and 2,058 standalone package symbol
+later commit. The latest stage compares the merged principal-logarithm guard
+against `a76c0b5`: all 2,059 modular and 2,058 standalone package symbol
 definitions match, as do the six monitored System builtins and eight behavior
-probes across load and reload. This is a definition comparison, separate
+probes across load and reload. Only the private `parseFinite` downvalues change
+relative to the preceding observable stage; all Mathics adapters are unchanged.
+This is a definition comparison, separate
 from the earlier full MUnit run. The [Mathics CI workflow](../.github/workflows/mathics.yml)
 runs both package entry points on Linux and uploads complete per-shard
 receipts even when a case fails.
+
+To verify a complete set of downloaded portable shards against one immutable
+commit, use the independent [acceptance verifier](check_mathics_acceptance.py):
+
+```text
+python validation/check_mathics_acceptance.py --receipts EXTRACTED_ARTIFACTS --revision IMMUTABLE_COMMIT --output acceptance.json
+```
+
+It requires every maintained test ID exactly once in each layout, successful
+raw kernel protocol and zero exit statuses, and exact package, suite and
+runner hashes read directly from Git blobs. It rejects incomplete runs,
+duplicate or unknown cases, mixed sources, altered protocol fields and output
+paths that overwrite a receipt. Sixteen integrity tests cover those cases,
+including a dirty working tree that differs from the requested commit.
+Requirements-file hashes are distinguished from observed runtime versions;
+neither is a complete audit of installed dependencies. The historical
+multi-snapshot summary above remains separate from this acceptance check.
 
 The native comparison is reproducible with:
 

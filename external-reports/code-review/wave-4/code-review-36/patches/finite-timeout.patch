@@ -1,0 +1,21 @@
+--- a/validation/run_mathics_tests.py
++++ b/validation/run_mathics_tests.py
+@@ -20,6 +20,7 @@
+ import fnmatch
+ import hashlib
+ import json
++import math
+ import os
+ from pathlib import Path
+ import re
+@@ -186,8 +187,8 @@
+         for name, group in cases:
+             print(f"{group}\t{name}")
+         return 0
+-    if args.timeout <= 0:
+-        parser.error("--timeout must be positive")
++    if not math.isfinite(args.timeout) or args.timeout <= 0:
++        parser.error("--timeout must be finite and positive")
+     source = args.source.resolve()
+     if not source.is_file():
+         parser.error(f"Package source does not exist: {source}")

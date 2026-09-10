@@ -75,6 +75,30 @@ record returned-order checks, sided constants, and complete-argument reality,
 including an intermediate wrong result that final real-coefficient checking
 could not detect. C16's broader opaque-source regularity audit remains open.
 
+W3-10 is **focused verified — 207/0 across eight selected files**. The
+[baseline](../../validation/log-power-normalization-baseline.json) and
+[after-guard characterizations](../../validation/log-power-normalization-after-guard.json)
+each record 13 observations on Wolfram 15.0.1 Windows64, 55 kernel hashes,
+and unchanged sources during the run. They reproduce the false public depth
+and flat-coefficient formulas, then the applicable structured refusals;
+proved-real controls remain unchanged. The final `parseFinite` helper
+recursively proves positive monomial bases: constant factors must be positive
+and every nested power must have a proved-real exponent. This preserves
+reciprocal-coordinate forms such as `(1/u)^a` without erasing an unproved
+inner branch. The [normalization notes](LOG_POWER_NORMALIZATION.md) distinguish the
+exact-core admission defect from the wrong finite-expression witnesses.
+The [first focused pass](../../validation/log-power-normalization-first-pass.json)
+records 201 successes and 2 failures: the initial guard rejected a valid
+reciprocal-coordinate case, and an old inexact-input fixture expected an
+Automatic refusal despite supported native fallback. The recursive helper
+and explicit Package/native controls address those observations. The updated
+[21-case focused tests](../../src/Tests/ReviewLogPowerNormalization.wlt)
+and 186 existing cases in the [runner](../../validation/CheckLogPowerNormalization.wl)
+pass in the [completed second run](../../validation/log-power-normalization-tests.json),
+which records 65 source hashes and unchanged sources during execution.
+The constructive periodic coefficient API remains
+an open proposal, separate from this identity guard.
+
 Status meanings:
 
 - **Focused verified:** the implementation and a named current native test record
@@ -558,11 +582,14 @@ adds all 44 entries from reports 19–27 and the consolidated `W3-*` work items.
 
 ## Next priorities and acceptance records
 
-1. With W3-06's observable Taylor and real-input guards focused verified,
-   address W3-10's branch-safe logarithm normalization. Establish public fixtures
-   before claiming native reproduction of source-only reports.
+1. Preserve W3-10's recursive logarithm identity hypotheses and its 207/0
+   focused acceptance when parser consumers change. Its public baseline,
+   intermediate guard and first-pass failures remain separate evidence.
+   W3-06's observable Taylor and real-input guards remain focused verified.
 2. Resolve W3-01–W3-03 with one coherent option/default and positional-role
-   policy; retain explicit contracts and once-only evaluation. Track W3-04,
+   policy; the [request-resolution workplan](REQUEST_RESOLUTION.md) records
+   the source audit, proposed shared record and characterization matrix.
+   Retain explicit contracts and once-only evaluation. Track W3-04,
    W3-05 and W3-15's native storage/outcome/traversal proposals separately.
 3. Extend C14/C15's focused evidence when related paths change, then address target-chart correctness C18.
    Establish C16's source/admission boundary alongside native compatibility.

@@ -1,0 +1,176 @@
+{
+  "scope": "Independent Python oracles; NOT a Wolfram or Mathics package run",
+  "python": "3.13.5",
+  "sympy": "1.14.0",
+  "mpmath": "1.3.0",
+  "lambert_conversion": {
+    "intended_sympy": "LambertW(-1/10, -1)",
+    "intended_value": "-3.577152063957297218409391963511994880402",
+    "unpermuted_sympy": "LambertW(-1, -1/10)",
+    "unpermuted_value": "-0.3181315052047641353126542515876645172035 + 1.337235701430689408901162143193710612539*I",
+    "principal_unpermuted_0_E": "-oo",
+    "principal_correct_E_0": "1"
+  },
+  "limit_oracle": {
+    "left": "-1",
+    "right": "1",
+    "two_sided_real_limit": "does not exist (unequal one-sided limits)"
+  },
+  "exp_ratio_certificates": [
+    {
+      "interval": {
+        "lower": "7140853524338113406479/4722366482869645213696",
+        "upper": "446303345271132087905/295147905179352825856",
+        "width": "1/4722366482869645213696"
+      },
+      "certificate": {
+        "equation": "exp(x)/x = y",
+        "y": "3",
+        "domain": "x>1",
+        "strictly_increasing": "derivative = exp(x)*(x-1)/x^2 > 0",
+        "left_exp_upper_less_than_y_times_left": true,
+        "right_exp_lower_greater_than_y_times_right": true,
+        "bisections": 72,
+        "exact_sign_enclosures": 76,
+        "requested_width": "1/4722366482869645213696",
+        "width_met": true,
+        "decisions": "rational arithmetic only; existence by continuity, uniqueness by monotonicity"
+      },
+      "numerical_cross_check": "1.512134551657842473896739678072038704604"
+    },
+    {
+      "interval": {
+        "lower": "16892623010959913834611/4722366482869645213696",
+        "upper": "67570492043839655338447/18889465931478580854784",
+        "width": "3/18889465931478580854784"
+      },
+      "certificate": {
+        "equation": "exp(x)/x = y",
+        "y": "10",
+        "domain": "x>1",
+        "strictly_increasing": "derivative = exp(x)*(x-1)/x^2 > 0",
+        "left_exp_upper_less_than_y_times_left": true,
+        "right_exp_lower_greater_than_y_times_right": true,
+        "bisections": 74,
+        "exact_sign_enclosures": 79,
+        "requested_width": "1/4722366482869645213696",
+        "width_met": true,
+        "decisions": "rational arithmetic only; existence by continuity, uniqueness by monotonicity"
+      },
+      "numerical_cross_check": "3.577152063957297218409391963511994880402"
+    },
+    {
+      "interval": {
+        "lower": "61133632597181292476911/9444732965739290427392",
+        "upper": "244534530388725169907651/37778931862957161709568",
+        "width": "7/37778931862957161709568"
+      },
+      "certificate": {
+        "equation": "exp(x)/x = y",
+        "y": "100",
+        "domain": "x>1",
+        "strictly_increasing": "derivative = exp(x)*(x-1)/x^2 > 0",
+        "left_exp_upper_less_than_y_times_left": true,
+        "right_exp_lower_greater_than_y_times_right": true,
+        "bisections": 75,
+        "exact_sign_enclosures": 81,
+        "requested_width": "1/4722366482869645213696",
+        "width_met": true,
+        "decisions": "rational arithmetic only; existence by continuity, uniqueness by monotonicity"
+      },
+      "numerical_cross_check": "6.472775124394004694741057892724488037104"
+    }
+  ],
+  "hypergeometric_models": [
+    {
+      "upper": [],
+      "lower": [
+        "-1/2"
+      ],
+      "order": 4,
+      "radius": "1/4",
+      "coefficients": [
+        "1",
+        "-2",
+        "-2",
+        "-4/9",
+        "-2/45"
+      ],
+      "bound": "1/201600",
+      "polynomial_degree": null,
+      "exact_remainder_zero": false,
+      "ratio_start": 1,
+      "ratio_bound": "1/2"
+    },
+    {
+      "upper": [
+        "-2",
+        "1",
+        "1"
+      ],
+      "lower": [],
+      "order": 2,
+      "radius": "1/4",
+      "coefficients": [
+        "1",
+        "-2",
+        "4"
+      ],
+      "bound": "0",
+      "polynomial_degree": 2,
+      "exact_remainder_zero": true,
+      "ratio_start": null,
+      "ratio_bound": "0"
+    },
+    {
+      "upper": [
+        "1/3",
+        "2/3"
+      ],
+      "lower": [
+        "-1/2"
+      ],
+      "order": 4,
+      "radius": "1/4",
+      "coefficients": [
+        "1",
+        "-4/9",
+        "-80/81",
+        "-8960/6561",
+        "-98560/59049"
+      ],
+      "bound": "77/19683",
+      "polynomial_degree": null,
+      "exact_remainder_zero": false,
+      "ratio_start": 2,
+      "ratio_bound": "14/27"
+    }
+  ],
+  "resource_counts": [
+    {
+      "degree": 1000,
+      "input_support": 2,
+      "output_support": 2,
+      "dense_slots": 1001,
+      "slots_actually_allocated_in_this_test": 0
+    },
+    {
+      "degree": 1000000,
+      "input_support": 2,
+      "output_support": 2,
+      "dense_slots": 1000001,
+      "slots_actually_allocated_in_this_test": 0
+    },
+    {
+      "degree": 1000000000000,
+      "input_support": 2,
+      "output_support": 2,
+      "dense_slots": 1000000000001,
+      "slots_actually_allocated_in_this_test": 0
+    }
+  ],
+  "negative_controls": [
+    "Nonpositive integer lower parameter: regularization is not selected",
+    "Nonterminating divergent defining series is not an analytic Taylor model"
+  ]
+}

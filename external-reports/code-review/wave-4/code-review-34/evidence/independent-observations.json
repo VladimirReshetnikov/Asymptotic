@@ -1,0 +1,87 @@
+{
+  "evidence_kind": "Independent SymPy/mpmath/rational arithmetic; not Mathics or Wolfram execution",
+  "python": "3.13.5",
+  "sympy": "1.14.0",
+  "mpmath": "1.3.0",
+  "rational_certificates": [
+    {
+      "t": "1/3",
+      "w_lower": "-831304761155/549755813888",
+      "w_upper": "-1662609522309/1099511627776",
+      "x_lower": "549755813888/2493914283465",
+      "x_upper": "1099511627776/4987828566927",
+      "requested_bits": 40,
+      "log_terms": 17,
+      "exact_verifier": true,
+      "oracle": "-1.5121345516578424738967396780720387046036503851354"
+    },
+    {
+      "t": "1/10",
+      "w_lower": "-7866240577289/2199023255552",
+      "w_upper": "-15732481154575/4398046511104",
+      "x_lower": "1099511627776/39331202886445",
+      "x_upper": "2199023255552/78662405772875",
+      "requested_bits": 40,
+      "log_terms": 17,
+      "exact_verifier": true,
+      "oracle": "-3.5771520639572972184093919635119948804017962577931"
+    },
+    {
+      "t": "1/100",
+      "w_lower": "-7116891513251/1099511627776",
+      "w_upper": "-56935132106001/8796093022208",
+      "x_lower": "274877906944/177922287831275",
+      "x_upper": "2199023255552/1423378302650025",
+      "requested_bits": 40,
+      "log_terms": 17,
+      "exact_verifier": true,
+      "oracle": "-6.4727751243940046947410578927244880371043455902257"
+    },
+    {
+      "t": "1/100000",
+      "w_lower": "-249168700610581/17592186044416",
+      "w_upper": "-124584350305283/8796093022208",
+      "x_lower": "549755813888/778652189408065625",
+      "x_upper": "274877906944/389326094704009375",
+      "requested_bits": 40,
+      "log_terms": 17,
+      "exact_verifier": true,
+      "oracle": "-14.163600815810183009109556303610899577616330518933"
+    }
+  ],
+  "lambert_order_witness": {
+    "wrong_exact_principal": "-oo",
+    "wrong_argument_order_value": "-0.3181315052047641353126542515876645172035 + 1.337235701430689408901162143193710612539*I",
+    "correct_value": "-6.472775124394004694741057892724488037104",
+    "small_inverse_correct": "0.00154493239882734560172624674509",
+    "small_inverse_wrong": "0.00168376379087222910557029040196 + 0.00707754188784727616472845893076*I"
+  },
+  "limit_direction": {
+    "left": "-1",
+    "right": "1",
+    "two_sided_exists": false
+  },
+  "sparse_degree_counts_not_kernel_benchmarks": [
+    {
+      "degree": 100,
+      "dense_slots_required_by_CoefficientList": 101,
+      "nonzero_support": 2
+    },
+    {
+      "degree": 10000,
+      "dense_slots_required_by_CoefficientList": 10001,
+      "nonzero_support": 2
+    },
+    {
+      "degree": 100000,
+      "dense_slots_required_by_CoefficientList": 100001,
+      "nonzero_support": 2
+    }
+  ],
+  "workflow_path_matches": {
+    "validation/CheckMathicsDefinitions.wl": false,
+    "validation/build_standalone.py": false,
+    "validation/run_mathics_tests.py": true,
+    "validation/MathicsTests.wl": true
+  }
+}

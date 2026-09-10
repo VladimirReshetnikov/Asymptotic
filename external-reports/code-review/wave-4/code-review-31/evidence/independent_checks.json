@@ -1,0 +1,90 @@
+{
+  "Python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "Platform": "linux",
+  "WolframPackageExecution": false,
+  "MathicsPackageExecution": false,
+  "venv": {
+    "status": "observed",
+    "symlink": true,
+    "preserved": {
+      "executable": "/tmp/asymptotic-identity-kri9itgw/env/bin/python",
+      "prefix": "/tmp/asymptotic-identity-kri9itgw/env",
+      "base_prefix": "/usr",
+      "site": "/tmp/asymptotic-identity-kri9itgw/env/lib/python3.13/site-packages"
+    },
+    "production_resolve": {
+      "executable": "/usr/bin/python3.13",
+      "prefix": "/usr",
+      "base_prefix": "/usr",
+      "site": "/usr/local/lib/python3.13/dist-packages"
+    },
+    "venv_only_import_preserved_exit": 0,
+    "venv_only_import_resolved_exit": 1,
+    "resolved_import_stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from asymptotic_env_only_731 import value; print(value)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'asymptotic_env_only_731'",
+    "scope": "Python launcher mechanism; no Mathics installed"
+  },
+  "timeouts": [
+    {
+      "argument": "nan",
+      "original_guard_accepts": true,
+      "outcome": "ValueError",
+      "message": "cannot convert float NaN to integer"
+    },
+    {
+      "argument": "inf",
+      "original_guard_accepts": true,
+      "outcome": "OverflowError",
+      "message": "cannot convert float infinity to integer"
+    },
+    {
+      "argument": "1e100",
+      "original_guard_accepts": true,
+      "outcome": "OverflowError",
+      "message": "timestamp too large to convert to C PyTime_t"
+    }
+  ],
+  "affine": {
+    "claims": 966,
+    "rational_point_checks": 18354,
+    "unknown_preserved": 768,
+    "failures": 0,
+    "scope": "independent model of endpoint inequalities; not a Mathics run"
+  },
+  "taylor": {
+    "exact_coefficient_identities": 124,
+    "monomial_order_checks": 124,
+    "failures": 0,
+    "scope": "exact rational identities and degree bookkeeping; not native Series"
+  },
+  "stirling": {
+    "cutoff_rate_pairs": 1038,
+    "failures": 0,
+    "scope": "arithmetic of the stated Stirling tail exponent, not proof of a package result"
+  },
+  "search_operation_counts": [
+    {
+      "existing_rows": 10,
+      "appended_duplicates": 100,
+      "full_position_predicates": 1000,
+      "stop_after_first_predicates": 100
+    },
+    {
+      "existing_rows": 100,
+      "appended_duplicates": 100,
+      "full_position_predicates": 10000,
+      "stop_after_first_predicates": 100
+    },
+    {
+      "existing_rows": 1000,
+      "appended_duplicates": 100,
+      "full_position_predicates": 100000,
+      "stop_after_first_predicates": 100
+    },
+    {
+      "existing_rows": 10000,
+      "appended_duplicates": 100,
+      "full_position_predicates": 1000000,
+      "stop_after_first_predicates": 100
+    }
+  ]
+}

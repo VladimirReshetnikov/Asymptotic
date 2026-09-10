@@ -1,0 +1,668 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=0.91in,headheight=15pt]{geometry}
+\usepackage{fontspec}
+\setmainfont{TeXGyrePagella}
+\setsansfont{TeXGyreHeros}
+\setmonofont[Scale=0.86]{DejaVu Sans Mono}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,longtable,array,enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{listings,fancyhdr,titlesec,xurl,hyperref}
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,citecolor=MidnightBlue,
+ pdftitle={AsymptoticAnalysis: incremental audit and Mathics compatibility},
+ pdfauthor={Technical review prepared for Vladimir Reshetnikov}}
+\definecolor{CodeBackground}{gray}{0.965}
+\lstset{basicstyle=\ttfamily\small,backgroundcolor=\color{CodeBackground},
+ breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,
+ frame=single,rulecolor=\color{gray!35},framesep=5pt,xleftmargin=5pt,xrightmargin=5pt,
+ aboveskip=10pt,belowskip=10pt}
+\titleformat{\section}{\Large\sffamily\bfseries}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries}{\thesubsection}{0.65em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries}{\thesubsubsection}{0.65em}{}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlength{\emergencystretch}{3em}
+\setlist{itemsep=2pt,topsep=3pt,leftmargin=*}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily AsymptoticAnalysis: incremental technical audit}
+\fancyhead[R]{\small\sffamily 7d1bc832895c}
+\fancyfoot[C]{\small\thepage}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\snapshot}{\texttt{7d1bc832895cc90a9b2a978b7b7684acab908bd2}}
+\newcommand{\mathicssnapshot}{\texttt{f6a987e704313e37b2b46ed4fe0b61aab108b58a}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\begin{document}
+\begin{titlepage}
+\vspace*{0.6in}
+{\sffamily\large TECHNICAL REVIEW}\par
+\vspace{0.35in}
+{\sffamily\bfseries\Huge AsymptoticAnalysis}\par
+\vspace{0.15in}
+{\sffamily\LARGE Incremental code audit, Wolfram Language comparison, and Mathics compatibility}\par
+\vspace{0.5in}
+{\large Prepared for Vladimir Reshetnikov}\par
+September 9, 2026, Pacific daylight time\par
+\vspace{0.4in}
+\begin{tabular}{@{}ll@{}}
+Repository & \code{VladimirReshetnikov/Asymptotic}\\[5pt]
+Reviewed commit & \code{7d1bc832895c}\\[5pt]
+Mathics reference & Mathics3 10.0.1; SymPy 1.14.0\\[5pt]
+Review mode & Source analysis and independent executable oracles
+\end{tabular}
+\vfill
+\textbf{Principal result.} The most important new risks are in the semantic boundary between the package and Mathics, rather than in the already extensively reviewed power--log coefficient formulas. Two-argument Lambert functions can be misinterpreted during \emph{exact symbolic conversion}; the empty-list workaround misses a public coefficient-query path; and first-match searches lose short-circuit behavior in the compatibility layer.
+
+\textbf{Execution boundary.} Seven independent Python tests passed. No Wolfram or Mathics execution of the package, no full upstream suite, and no native performance benchmark were completed in this review. The accompanying kernel probes are explicitly unrun specifications, not test receipts.
+\end{titlepage}
+\tableofcontents
+\newpage
+
+\section{Assessment and priorities}
+
+The repository has developed into a substantial asymptotic-calculus package, not merely an inverse-series formula generator. Its central abstraction is a finite generalized expansion accompanied by a remainder description, a source/target coordinate convention, retained assumptions, and enough provenance to support selected refinement operations. It combines exact power--log jets with specialized logarithmic, Lambert, Gamma, Barnes, Fourier, exponential, and flat-sector engines. Ordinary arithmetic can preserve the expansion object rather than immediately discarding its error information. Explicit native backends occupy a separate result contract. These are meaningful architectural distinctions, especially for real irrational exponents and inverse problems with logarithmic coefficients.~\cite{repo,core,modules,native}
+
+The current snapshot must not be judged as though the first review's bugs were still present. The repository indexes 27 prior review packages across three waves and 167 attributed entries \emph{before deduplication}; these numbers are not counts of current defects. Its implementation register and wave-3 intake already record numerous correctness repairs and unresolved design issues. This article uses those registers as the exclusion list, and concentrates new findings on the recently added Mathics adaptation layer and the precise runtime boundaries that it creates.~\cite{reviews,register,intake}
+
+My overall assessment is therefore two-part. On the Wolfram kernel, the package is a technically interesting extension with a deliberately narrower real-analytic contract than the complete built-in asymptotics system. Existing unresolved findings should remain tracked under their existing identifiers. On Mathics, the implementation is much more developed than a superficial compatibility shim, but the present evidence does not establish complete compatibility. More importantly, a conservative symbolic admission policy does not by itself protect values that later cross an incompatible special-function bridge.
+
+The immediate order of work should be: isolate nonprincipal Lambert expressions from the defective bridge; cover caller-owned empty lists in public APIs; make load success an invariant of the portable test runner; restore first-match behavior on the actual hot search shape; and make implicit limit direction impossible in proof-critical adapter calls. The sparse-conversion and interrupted-loading issues discussed later are bounded advisories rather than newly reproduced public failures.
+
+\begin{longtable}{@{}P{0.07\linewidth}P{0.40\linewidth}P{0.17\linewidth}P{0.27\linewidth}@{}}
+\toprule
+ID & Finding & Priority & Evidence boundary\\
+\midrule\endhead
+F01 & Nonprincipal \code{ProductLog}: exact symbolic bridge reverses argument roles & High & Bridge source + executed SymPy stage; package call unrun\\
+F02 & Empty-list workaround excludes a public multi-index validation path & High & Missed call site proved from source; crash probe unrun\\
+F03 & Portable case selection can report success after \code{Get} returned \code{\$Failed} & Medium & Runner/suite control-flow proof; fault-injection probe unrun\\
+F04 & Adapter default \code{Limit} silently means from below & Medium, bounded & Primitive contract mismatch; no public wrong result established\\
+F05 & \code{FirstPosition} collects every match and runs all predicates & Medium & Algorithm and consumer identified; no kernel timing claim\\
+A01 & Sparse coefficient extraction becomes dense in polynomial degree & Advisory & Adapter allocation structure; public stress route not established\\
+A02 & Compatibility-context cleanup occurs only on successful loading & Advisory & Missing exceptional cleanup; interruption tests unrun\\
+\bottomrule
+\end{longtable}
+
+\section{Snapshot, scope, and evidence discipline}
+
+\subsection{What was actually inspected}
+
+All repository claims in this article refer to \snapshot. The commit timestamp is September 10, 2026 at 02:10:22 UTC, or September 9 at 19:10:22 Pacific daylight time. The date difference is a timezone conversion, not a second source snapshot. Mathics implementation claims are pinned separately to version 10.0.1 at \mathicssnapshot.~\cite{commit,mathics-tag}
+
+Inspection covered the repository and module indexes, the consolidated implementation register, the complete wave-3 intake, an original wave-3 review's own evidence description, the core jet and object implementation, native delegation, representative inverse and Fourier engines, all fifteen named Mathics compatibility modules encountered in the loader, compatibility documentation, the portable suite's entry and foundational cases, its Python runner, and its CI workflow. Large sources were read in bounded ranges. This is a targeted incremental audit across the architecture; it is not a claim that every line of every mathematical engine or all 27 historical articles was independently reread.~\cite{modules,register,intake,review23,compat,portable,runner,workflow}
+
+The exclusion process was deliberately wider than the new code inspection: the maintained register and intake consolidate the historical finding inventory, so an old issue does not become ``new'' merely because it was rediscovered through another call path. The novelty crosswalk in Section~\ref{sec:novelty} makes the closest overlaps explicit. Historical reports are used as records of what has already been said, not as evidence that an old defect persists in the present commit.
+
+\subsection{Four different kinds of evidence}
+
+\textbf{Source-confirmed} means that the relevant definition, dispatch choice, or allocation strategy is visible in the pinned code. For example, an installer that enumerates only private symbols demonstrably does not rewrite a public definition. It does not follow that every execution of that public definition crashes.
+
+\textbf{Independent execution} means that code in this archive ran outside the Wolfram/Mathics package. In particular, SymPy 1.14.0 was exercised directly with the exact argument tuples that the Mathics bridge supplies, and an independent rational Lambert enclosure algorithm was implemented and tested. These results establish the foreign-library stage and the mathematical reference values, not an end-to-end interpreter trace.
+
+\textbf{Predicted public manifestation} means a concrete package call is derived from source and supplied as a regression specification, but was not run. Such a call is useful for fixing and testing the issue, but its predicted output is not mislabeled an observed package result.
+
+\textbf{Repository-reported validation} means a receipt or status document maintained by the repository reports a result. Its commit, scope, and kernel remain attached to the claim. It is never merged into this review's independent test count.
+
+A native Wolfram evaluator request failed at the service layer, and the working environment did not have a usable Mathics installation. Consequently, no complete native comparison, package benchmark, or Mathics acceptance run was obtained. This limits coverage, but does not erase a source-level argument-order defect or an independently checkable mathematical counterexample.
+
+\section{The mathematical and implementation model}
+
+\subsection{Coordinates before coefficients}
+
+The basic real approach is represented through a positive local variable $u\to0^+$. At a finite endpoint it is a signed displacement; at an infinite endpoint it is a reciprocal magnitude. This removes ambiguity from powers $u^\alpha$ for real $\alpha$ and allows logarithms to be handled as real quantities. The original source endpoint, selected side, inverse target endpoint, and observable power still matter: a positive uniformizer is not permission to erase the original branch.~\cite{core,lambert,corepert}
+
+An ordinary jet is a sparse list
+\[
+ T=\{(\alpha_1,P_1(L)),\ldots,(\alpha_m,P_m(L))\},\qquad L=\log u,
+\]
+representing $\sum_j u^{\alpha_j}P_j(\log u)$. The exponents are exact real numbers; the coefficients in the ordinary layer are polynomials in $L$. Internal sorting and merging must distinguish mathematical equality of exponents from merely identical syntax. The current core includes grouped exact-weight normalization and cutoff-aware sparse multiplication, so those earlier issues are not new findings here.~\cite{core,register}
+
+The precision-tracked form is a triple
+\[
+ (T,P,D)\quad\rightsquigarrow\quad
+ \sum_{(\alpha,Q)\in T}u^\alpha Q(\log u)
+ +\OO\!\left(u^P(1+|\log u|)^D\right).
+\]
+A finite $P$ is a retained error frontier, not an extra known coefficient. The first ordering is by power: for fixed $a>0$ and finite $d$, $u^a|\log u|^d\to0$. Logarithmic degree matters when two errors share a power. This explains why complete blocks, rather than individual scalar monomials in the displayed answer, are the useful unit of many package operations.
+
+For example,
+\[
+ A=u^a A_0(\log u)+\OO(u^P|\log u|^D),\quad
+ B=u^b B_0(\log u)+\OO(u^Q|\log u|^E)
+\]
+produces cross-errors with powers $P+b$ and $Q+a$, with logarithmic degrees augmented by the opposite leading polynomial. Cancellation of the displayed leading terms must not cancel an unknown remainder. This is background for interpreting the representation, not a reissued finding about the already reviewed precision algebra.
+
+\subsection{Why generalized inverse coefficients are useful}
+
+For the elementary test family
+\[
+ f(x)=x+x^{1+\alpha},\qquad \alpha>0,
+\]
+write $g(y)=y\,v(y^\alpha)$ near $y=0^+$. Direct generalized reversion gives
+\begin{align*}
+ g(y)={}&y-y^{1+\alpha}+(1+\alpha)y^{1+2\alpha}\\
+ &-\frac{(1+\alpha)(2+3\alpha)}2y^{1+3\alpha}+\cdots.
+\end{align*}
+More generally, the coefficient of $y^{1+n\alpha}$ is
+\[
+ c_n=\frac{(-1)^n}{n!}\prod_{j=1}^{n-1}(1+n\alpha+j),\qquad n\ge1.
+\]
+The empty product at $n=1$ is one. These formulas make sense without forcing $\alpha$ onto a rational lattice. When several correction gaps are present, different multi-indices can yield the same exponent; complete-block collection is then mathematically necessary, not only a display preference.
+
+Logarithmic coefficients add a different requirement. For
+\[
+ f(x)=x+x^2\log x,
+\]
+letting $L=\log y$, substitution yields
+\begin{align*}
+ g(y)={}&y-y^2L+y^3(2L^2+L)\\
+ &-y^4\left(5L^3+\frac{11}{2}L^2+L\right)+\cdots.
+\end{align*}
+The accompanying Python check verifies that $g+g^2\log g-y$ has no terms of degree below five in the formal ring, using $\log g=L+\log(g/y)$. It is a coefficient oracle, not a proof that an arbitrary imported formal series has an analytic remainder. The package's coefficient-polynomial machinery is a natural way to express this calculation.
+
+\subsection{Specialized scales are different algebras}
+
+The code does not force every problem into the same ordinary power--log representation. Lambert inverses extract an exact leading expression and use a small reciprocal-logarithmic variable for a correction bracket. Exact-core perturbation retains an inverse core while expanding by marker degree. Gamma and Barnes inverses use specialized core and logarithmic coordinates. Fourier coefficients are finite sums of modes in $\log u$, with a source-power grading separate from frequency. Flat sectors carry an exponential scale in addition to an inner algebraic jet.~\cite{lambert,corepert,fourier,modules}
+
+These distinctions should remain visible in a comparison. A marker-degree truncation is not automatically sorted by target exponent. A frequency budget is not a license to truncate frequency support silently. A relative error on a bracket multiplied by a large exact prefactor is not the same as an absolute error on the complete expression. The current usage strings and object metadata already expose much of this structure. The outstanding issue in this review is not that all of these contracts should be redesigned, but that the Mathics boundary must preserve them after construction as well as during construction.
+
+\section{Comparison with built-in Wolfram Language}
+\label{sec:comparison}
+
+\subsection{Compare contracts, not only function names}
+
+The relevant built-in baseline is broader than \code{Series}. Wolfram documents Taylor, Laurent, selected fractional-power and logarithmic expansions, expansion at infinity, successive multivariate expansions, coefficient extraction, composition, and series reversion. \code{Asymptotic} supplies a broader asymptotic interface, while separate functions address equations, integrals, sums, products, differential equations, recurrences, and discrete limits.~\cite{wl-series,wl-inverse,wl-asymptotic,wl-guide,wl-discrete}
+
+The package is strongest where a real generalized inverse is represented as an inspectable object with its own block ordering, retained assumptions, remainder transport, and refinement recipe. It should not be described as the first system able to handle logarithms or non-Taylor asymptotics. Conversely, returning an ordinary native expression is not the same interface as maintaining a package-specific analytic error contract through subsequent operations.
+
+\begin{longtable}{@{}P{0.20\linewidth}P{0.35\linewidth}P{0.37\linewidth}@{}}
+\toprule
+Area & Built-in baseline & Package role and boundary\\
+\midrule\endhead
+Ordinary local series & \code{Series}, \code{SeriesData}; ordinary arithmetic, coefficients and composition & Considerable overlap. Package adds its own real-domain and error metadata.~\cite{wl-series,wl-data,core}\\[5pt]
+Rational fractional powers & \code{SeriesData} explicitly represents a rational exponent lattice & Package supports exact real weights without requiring one rational denominator. This is a representation distinction, not a claim that every native irrational-power expression fails.~\cite{wl-data,core}\\[5pt]
+Logarithmic coefficients & Native series can contain logarithmic or slower-growing coefficient expressions & Package treats complete polynomial-logarithmic blocks and an explicit logarithmic remainder degree.~\cite{wl-data,core}\\[5pt]
+Inverse series & \code{InverseSeries} operates on native series; other solvers cover broader equations & Package selects real endpoint branches and supports specialized generalized inverse scales.~\cite{wl-inverse,core,lambert}\\[5pt]
+General asymptotics & \code{Asymptotic} and the related built-in family & Package can delegate selected requests, but native output remains a distinct contract.~\cite{wl-asymptotic,native}\\[5pt]
+Exponential and special-function structure & Native functions may retain rapidly varying factors outside a \code{SeriesData} object & Package provides explicit prefactor/correction and inverse-core structures for selected families.~\cite{wl-data,modules}\\[5pt]
+Algebra on results & Native series support algebra and composition within their representation & Package transports its remainder descriptors through selected operations and keeps source/provenance information.~\cite{wl-data,core}\\[5pt]
+Numerical inverse assessment & Native numerical solvers supply roots and numerical diagnostics & Package distinguishes numerical comparisons from its restricted exact-rational interval certificates. Neither should be confused with the other.~\cite{core,compat}\\[5pt]
+Discrete asymptotics & \code{DiscreteAsymptotic} and discrete limit functions & Not interchangeable with a continuous real germ. Native delegation currently centers on \code{Series} and \code{Asymptotic}.~\cite{wl-discrete,native}\\[5pt]
+Breadth of mathematical problems & Built-in asymptotics include equations, integrals, products, sums, ODEs and recurrences & These are not all implemented by the package's own analytic engines. This is a scope comparison, not a newly discovered missing-feature list.~\cite{wl-guide,modules,intake}\\
+\bottomrule
+\end{longtable}
+
+\subsection{The order argument needs explicit alignment}
+
+For an ordinary Taylor example, the following two specifications are intended to retain the same powers:
+\begin{lstlisting}
+AsymptoticExpansion[Exp[x], {x, 0, 4}, "Backend" -> "Package"]
+Series[Exp[x], {x, 0, 3}]
+\end{lstlisting}
+The package cutoff is exclusive: retain powers less than four. The native order in the second call requests terms through degree three. Native \code{SeriesData} itself has its own exclusive exponent boundary internally; that does not make the public \code{Series} order argument identical to the package cutoff. For irrational weights or a prefactor/bracket representation, comparing only the integer arguments can be still more misleading.~\cite{core,wl-series,wl-data}
+
+Similarly, a requested number of package blocks is not necessarily the number of visible summands after expanding every logarithmic polynomial. A fair differential test first normalizes coordinate, branch, retained scale, and order convention, then compares coefficients and any compatible remainder statements. The earlier reviews already requested native differential testing. The additional point here is that an executable comparison must encode this alignment, rather than infer success from syntactically similar answers.
+
+\subsection{Native output is not a failed analytic object}
+
+The native path stores the native result and the held request rather than pretending that every returned expression carries the package's analytic remainder semantics. Several operations explicitly reject native objects when they require the package's analytic contract. That separation is correct in principle. It also means that an inert Mathics \code{System`Asymptotic} symbol is not an implemented native backend just because the name exists.~\cite{native,compat}
+
+One must distinguish three outcomes: a computed native expression, an unresolved native call, and a package failure with a mathematical or representational reason. A result object containing an unresolved call is not evidence that the requested asymptotic expansion was obtained. This audit does not repeat the existing native-status and option-dispatch findings; their historical identifiers should remain authoritative.~\cite{register,intake}
+
+\subsection{Discrete support needs a different approach set}
+
+A useful concrete design consequence of the built-in comparison is the approach set. The expressions $\sin(\pi n)$ and $0$ agree for integer $n$, but $\sin(\pi x)$ is not asymptotically zero on the continuous real ray. Thus a future discrete adapter cannot safely be represented by merely changing the backend label on a continuous expansion object. Its contract needs the approach set or filter, for example positive integers, possibly with residue-class data.
+
+This also prevents a tempting confusion with the existing Fourier engine. Frequencies in $\log u$ are not ordinary integer-sequence frequencies modulo $2\pi$. The new design requirement is to make the domain of approach an explicit conversion precondition. It is a sharper elaboration of the already recorded discrete/native extension opportunity, not a new claim that discrete asymptotics had been overlooked.~\cite{wl-discrete,register,fourier}
+
+\section{Mathics implementation: substantial progress, bounded evidence}
+
+\subsection{How the compatibility layer works}
+
+The main loader conditionally loads Mathics-only support. An adapter context is inserted while package definitions are parsed, so selected names resolve to package-owned alternatives. The adapter context is removed from the public context path after normal loading. Other late adapters rewrite particular package definitions or install Mathics-compatible arithmetic rules. The official Wolfram path does not intentionally replace its built-ins with these alternatives.~\cite{core,mathics-compat,mathics-lists,mathics-core}
+
+The implementation addresses genuine evaluator differences: scoped returns, association operations, held extraction, exact assumptions, simplification, finite derivative sums, negative-index assignment, empty-list mapping, and evaluation order in association construction. It also supplies selected defining-series expansions and a finite Stirling model where native support is missing. Some private proof attempts receive larger time budgets on Mathics, while explicit user deadlines are meant to retain their documented meaning.~\cite{compat,mathics-compat,mathics-simplify,mathics-special}
+
+The good design decision is locality: the workaround belongs to the package, not to global mutation of \code{System} definitions. The less obvious cost is that locality creates a coverage problem. A rewrite restricted to private DownValues does not reach public DownValues, compatibility-context functions, SubValues, or user-facing expressions that are evaluated later. F01 and F02 are concrete consequences of that boundary, not arguments for globally patching the interpreter.
+
+\subsection{What the repository's validation does and does not establish}
+
+The compatibility document explicitly states that complete compatibility is a goal and is not yet achieved. It lists focused examples in loading, ordinary inverse/forward calculations, arithmetic, retained refinement, held callables, selected special functions and inverse scales, exact rational certificates, and numerical smoke tests. It also says that a consolidated run of the final source snapshot is pending.~\cite{compat}
+
+The same document reports a Wolfram preservation run with 1,452 passes and the same 12 existing failures across 79 suites, matching 1,464 records against the untouched \code{6687962} baseline on Wolfram 15.0.1 for Windows. Later definition comparisons use later controls and compare 2,051 modular and 2,050 standalone package symbols, together with selected built-in state and behavior probes. The document carefully avoids relabeling those later definition comparisons as a complete rerun of the earlier test suite. This review preserves that distinction.~\cite{compat}
+
+The portable CI workflow is materially stronger than a single smoke script: it runs both modular and standalone entry points, divides cases into five groups of suites, starts fresh kernels for individual cases, and uses operating-system timeouts. The Python runner checks result markers, case identity, return codes, source stability, and diagnostics. These protections deserve credit. F03 is a narrow missing load invariant in this otherwise purposeful runner, not a claim that it has no validation discipline.~\cite{workflow,runner,portable}
+
+\subsection{Compatibility should be reported in layers}
+
+A useful acceptance matrix separates the following layers. This is an interpretation of the current implementation and a proposed reporting structure, not a claim that all cells have passed.
+
+\begin{longtable}{@{}P{0.19\linewidth}P{0.37\linewidth}P{0.35\linewidth}@{}}
+\toprule
+Layer & Current evidence or mechanism & Remaining acceptance question\\
+\midrule\endhead
+Load/evaluator & Scoped adapters; load/reload examples; modular/standalone paths & Is cleanup safe under interruption and partial failure?\\[4pt]
+Exact coefficient algebra & Selected polynomial, irrational-power and logarithmic examples & Do empty supports, aliased lists and symbolic-equality searches preserve semantics and budgets?\\[4pt]
+Proof/admission & Conservative realness and sign rules; selected affine and polynomial branch proofs & Are unresolved predicates distinguished from disproved ones, with explicit approach directions?\\[4pt]
+Special functions & Selected defining-series and Stirling adapters; principal Lambert normalization & Are all symbolic and numeric conversion directions branch-correct?\\[4pt]
+Operations and refinement & Focused arithmetic, flat, Fourier, and refinement examples & Does every supported composition of operations remain inside the admitted contract?\\[4pt]
+Numerical specialization & Limited principal Lambert and rational-root smoke evidence & Does evaluating a previously valid object cross an unsafe foreign-function bridge?\\[4pt]
+Certificates & Restricted exact rational examples and history updates & Do final numerical certificates use independent exact bounds, not a misleading backend value?\\[4pt]
+Presentation & Output-oriented workarounds and structured inspection advice & Does formatting preserve the object without executing or changing its meaning?\\
+\bottomrule
+\end{longtable}
+
+The proper present description is \emph{partial, actively engineered compatibility with identified supported examples}, not ``loads successfully, therefore compatible'' and not ``Mathics cannot be used at all.'' Unsupported proofs should fail conservatively; supported numerical specializations must also avoid silently returning a value for a different mathematical function.
+
+\section{F01: Lambert argument order is an exact symbolic defect}
+\label{sec:f01}
+
+\subsection{The precise bridge mismatch}
+
+Wolfram uses \code{ProductLog[k,z]} for branch $k$ at argument $z$. SymPy uses \code{LambertW(z,k)}. The retrieved Mathics 10.0.1 \code{ProductLog} class inherits the generic SymPy conversion behavior, sets its SymPy name to \code{LambertW}, and does not override argument preparation or reverse conversion. The base \code{prepare\_sympy} returns the elements unchanged, and the generic conversion calls the target function with that unchanged tuple. The generic reverse conversion likewise returns the elements without restoring Wolfram order.~\cite{mathics-productlog,mathics-builtin,sympy-elementary}
+
+Thus the conversion maps
+\[
+ \underbrace{\operatorname{ProductLog}(k,z)}_{\text{Wolfram: branch, argument}}
+ \longmapsto
+ \underbrace{\operatorname{LambertW}(k,z)}_{\text{SymPy: argument, branch}},
+\]
+when it should map to $\operatorname{LambertW}(z,k)$. A displayed round trip can conceal the problem: preserving the same printed tuple is not preserving the meaning of the tuple while it is inside the foreign system.
+
+The repository's compatibility documentation warns about incorrect argument order in the two-argument evaluator and says nonprincipal numerical evaluation remains unsupported. That warning is useful but too narrow. The defect exists before numerical evaluation: exact symbolic conversion already changes which argument is the branch selector.~\cite{compat,mathics-core}
+
+\subsection{Executed foreign-stage counterexamples}
+
+The independent checks ran the following exact calls in SymPy 1.14.0:
+\begin{lstlisting}
+LambertW(0, E)       # unchanged tuple for ProductLog[0,E]
+LambertW(E, 0)       # correctly reordered tuple
+LambertW(-1, -1/10)  # unchanged tuple, using exact Rational(1,10)
+LambertW(-1/10, -1)  # correct branch -1 at argument -1/10
+\end{lstlisting}
+The first pair gives $-\infty$ versus $1$. For the second pair, numerical evaluation of the exact SymPy expressions gives approximately
+\begin{align*}
+ \operatorname{LambertW}(-1,-1/10)
+   &=-0.3181315052047641+1.3372357014306894\,i,\\
+ W_{-1}(-1/10)&=-3.5771520639572972.
+\end{align*}
+These numbers are recorded in \code{evidence/independent-checks.json}. They are results of the foreign-library stage, not captured Mathics outputs.
+
+The distinction extends to differentiation. Differentiating \code{LambertW(-1,y)} with respect to $y$ asks for a derivative in the branch slot and remains a derivative object in the independent check. Differentiating the correct \code{LambertW(y,-1)} gives the ordinary analytic derivative
+\[
+ \frac{d}{dy}W_{-1}(y)=\frac{W_{-1}(y)}{y(1+W_{-1}(y))}.
+\]
+This demonstrates why checking one floating-point value does not exhaust the affected contract. Simplification, differentiation, and other symbolic consumers must see the same mathematical argument convention.
+
+\subsection{The numerical dispatcher has a separate limitation}
+
+The base Mathics \code{MPMathFunction} has \code{nargs = \{1\}}. The retrieved \code{ProductLog} class does not override this. In the inexact path, the base numeric function lookup rejects unsupported arities; in the exact path it first tries SymPy conversion. Consequently, the description ``the two-argument numeric evaluator always computes the wrong number'' is also too crude. A two-argument inexact request may remain unresolved, while an exact request can already have been misinterpreted by SymPy. A repair must address both paths.~\cite{mathics-productlog,mathics-builtin}
+
+\subsection{A package-generated exposure, not only raw user syntax}
+
+The package's late core adapter normalizes the principal branch to the safe one-argument \code{ProductLog[z]} form. For nonzero branches it passes through \code{System`ProductLog[branch,z]}. It rewrites selected inverse-core consumers, but it does not install a general branch-safe value representation.~\cite{mathics-core}
+
+Consider the real function
+\[
+ f(x)=-x\log x,\qquad 0<x<e^{-1}.
+\]
+It is strictly increasing there because $f'(x)=-\log x-1>0$, and its small-$x$ inverse is
+\[
+ x(y)=\exp(W_{-1}(-y))=-\frac{y}{W_{-1}(-y)},\qquad 0<y<e^{-1}.
+\]
+The exact-core constructor recognizes this affine-logarithmic form. With no perturbation, it should return the exact selected core rather than an approximate correction. A focused public regression is:
+\begin{lstlisting}
+s = AsymptoticCoreInverse[-x Log[x], 0, {x, 0}, {y, 0}];
+v = N[s[1/10], 40];
+(* Require a real v, 0 < v < 1/E, and -v Log[v] == 1/10
+   to the requested numerical tolerance. *)
+\end{lstlisting}
+The source path is \code{corePerturbationAutomaticInverse}, through the Mathics core adapter, into the expression stored in a \code{GeneralizedSeries} object. Numeric application of an ordinary object substitutes into its expression directly. There is no branch-safe specialization gate in that object application definition.~\cite{corepert,mathics-core,core}
+
+This end-to-end call was not run here. The source nevertheless identifies a concrete crossing: a package-generated nonprincipal expression can leave the constructor through a generic substitution/evaluation boundary. Calling nonprincipal evaluation ``unsupported'' does not make this crossing fail closed.
+
+\subsection{Fix the representation and both conversion directions}
+
+An upstream Mathics repair should reorder two-argument input before SymPy conversion, reverse that reordering on SymPy output, admit the correct two-argument numerical arity, and call mpmath with its own $(z,k)$ ordering. It must preserve one-argument principal expressions and validate the branch convention. A patch that changes only \code{prepare\_sympy} is incomplete: the reverse bridge would still print or reconstruct the tuple in the wrong Wolfram order.
+
+For the package, the immediate containment strategy is a package-owned opaque representation for unsupported nonprincipal branches, or an explicit failure at the supported specialization boundary. The opaque head must have deliberate derivative and evaluation rules; it must not be translated back to raw \code{System`ProductLog} before a known-unsafe simplifier sees it. Globally changing Mathics's \code{System} definitions is not necessary and would undermine the locality of the existing design.
+
+The regression matrix should include both real branches, exact and inexact arguments, symbolic differentiation, forward/reverse conversion, special values, behavior near $-1/e$, and evaluation after storage in a result object. Include an independent branch oracle; a round-trip test that compares only syntax can pass while both conversion directions preserve the same wrong interpretation.
+
+Section~\ref{sec:certificate} supplies a concrete independent $W_{-1}$ oracle based only on exact rational logarithm bounds. It is usable immediately for testing and as a reference for a future package-owned evaluator. It is not claimed to be an already integrated Mathics repair.
+
+\section{F02: public empty multi-indices bypass the Map workaround}
+\label{sec:f02}
+
+\subsection{The workaround's actual coverage}
+
+The repository documents a Mathics 10.0.1 defect in which mapping over a reused empty list can invalidate internal cached list properties, with a later nested numeric list raising a Python assertion. Its minimal example is an empty list, a map over that list, then reuse of that same list. The package installs \code{mathicsMap}, which returns an empty list directly in the exact two-argument empty-list case and delegates other cases to the native map.~\cite{mathics-lists,mathics-list-doc}
+
+The installation pass enumerates only names in \code{AsymptoticAnalysis`Private`*} and rewrites their DownValues. This is a precise, source-confirmed limitation. It does not rewrite the public context or the separate \code{AsymptoticAnalysis`Mathics`} context. Its documentation even describes the public-definition exclusion explicitly. That locality is not inherently wrong, but it is insufficient when a public definition itself contains the dangerous map.
+
+\subsection{A valid public argument reaches native Map}
+
+The public definition of \code{InverseExpansionCoefficient[model,k]} validates the multi-index using a mapped integer predicate:
+\begin{lstlisting}
+If[Length[k] =!= Length[model["Gaps"]] ||
+   !(And @@ (IntegerQ[#] && # >= 0 & /@ k)), ...]
+\end{lstlisting}
+This DownValue belongs to the public \code{InverseExpansionCoefficient} symbol, not to a private helper. Therefore the installer leaves its \code{Map} untouched.~\cite{core,mathics-lists}
+
+The empty multi-index is not malformed input. A monomial model has no correction gaps, so its zero-dimensional coefficient query legitimately uses \code{\{\}}. The focused regression is:
+\begin{lstlisting}
+model = PowerLogModel[x, {x, 0}];
+k = {};
+c = InverseExpansionCoefficient[model, k];
+{k, 2, 0}
+\end{lstlisting}
+The coefficient should be one and the final nested list should remain safe. The current validation evaluates the native map on the caller's empty list before entering the private coefficient machinery. The exact later crash location depends on evaluator aliasing and reuse, and was not observed in a kernel here. The missed dangerous operation is established; the supplied test determines its public manifestation.
+
+\subsection{Narrow repair and wider inventory}
+
+For this call site, the least intrusive change is an empty fast path:
+\begin{lstlisting}
+If[Length[k] =!= Length[model["Gaps"]] ||
+   !(k === {} || And @@ (IntegerQ[#] && # >= 0 & /@ k)), ...]
+\end{lstlisting}
+The length condition still rejects an empty index for a model with nonempty gaps. The short-circuit disjunction avoids mapping only where mapping has no work to do. It preserves the ordinary nonempty validation.
+
+The compatibility context has its own mapped lookup and key-selection helpers, also outside the private-only installer. They warrant the same call-site inventory. This does not justify a blind rewrite over arbitrary held payloads, object OwnValues, or all System definitions. Instead, maintain an explicit inventory of executable package-owned definitions and the value tables in which they live, and choose either local empty fast paths or an explicitly qualified safe mapper.
+
+The missing test dimension is \emph{post-call reuse}. A test that checks only \code{c["Coefficient"]} may overlook damage to an argument that is reused afterward. A stronger contract probe checks both the returned value and the usability of caller-owned inputs. This is especially relevant to a symbolic system whose expression implementation uses shared objects internally.
+
+\section{F03: a portable case can succeed after a failed load}
+\label{sec:f03}
+
+The portable suite records
+\begin{lstlisting}
+portableLoadResult = Check[Get[portableSource], $Failed];
+\end{lstlisting}
+but does not immediately terminate when this value is \code{\$Failed}. One selected case, \nolinkurl{loading-no-messages}, checks it. Other selected cases can execute and emit their own success records regardless of the load result. The Python runner correctly checks the selected result record, but it cannot infer a load invariant that the suite never emits or enforces.~\cite{portable,runner}
+
+A minimal fault-injection fixture is a valid text file whose content is simply \code{\$Failed}. The runner accepts it as an existing source file. Select the case \nolinkurl{primitive-check-is-unpolluted}, whose tested expression is \code{Check[1+1,\$Failed]} and whose expected value is two. That primitive can succeed even though \code{Get} explicitly returned failure. The bundle includes this fixture and the exact invocation recipe. The injection was not executed in Mathics here; the conclusion follows from the suite's independent top-level expressions.
+
+This is not a claim that the entire suite would pass after a failed load. The dedicated loading case should fail, and many package-dependent cases would fail or remain unresolved. The issue is that a focused case receipt can be labeled successful without its declared package setup succeeding. For debugging and incremental acceptance, a ``pass'' should imply that all required setup phases passed.
+
+The narrow fix is an unconditional load gate, placed as a separate top-level expression immediately after the existing load:
+\begin{lstlisting}
+If[portableLoadResult === $Failed,
+  Print["ASYMPTOTIC_PORTABLE_LOAD_ERROR"];
+  Exit[2]];
+\end{lstlisting}
+The existing runner treats exit code two as an error, so this already prevents success. A dedicated \code{LoadError} outcome would make diagnostics clearer. A small required-symbol check can also catch a nominally successful source that did not install the package, but the gate should not assume every legitimate \code{Get} returns \code{Null}.
+
+The separate-expression placement matters. The repository documents a Mathics interaction in which a previous \code{Print} in the same input evaluation can pollute \code{Check}. Diagnostics must follow the checked setup rather than be inserted into the same evaluation before it.~\cite{compat,portable}
+
+Negative-result tests need a complementary discipline. \code{TrueQ[unresolved]} is false; therefore ``the prover did not establish a forbidden statement'' can be true even when a helper is missing. Pair negative examples with positive controls and, where the contract requires a decision, record whether the underlying result was \code{True}, \code{False}, unresolved, or an explicit failure. This is an additional test-design consequence, not a claim that the chosen minimal failed-load fixture makes every negative case pass.
+
+\section{F04: default Limit direction changes the proposition being proved}
+\label{sec:f04}
+
+The Mathics simplification adapter declares its own \code{Limit} options with \code{Direction -> Automatic}, then translates \code{Automatic} to the numeric direction one, alongside the intended string translations from above and below. The result is a from-below limit whenever this adapter is called without an explicit direction.~\cite{mathics-simplify}
+
+Current Wolfram documentation gives \code{Reals} as the default direction for ordinary real two-sided limits. This distinction is mathematically observable on
+\[
+ h(t)=\frac{|t|}{t},\qquad t\to0.
+\]
+The limit from below is $-1$, the limit from above is $1$, and the two-sided limit does not exist. A local adapter replacing a two-sided request by a one-sided value has changed the proposition, not merely the syntax of its options.~\cite{wl-limit}
+
+The proposed primitive regression compares the adapter's default request with the two-sided contract. It is explicitly a \emph{primitive} compatibility issue: this review did not establish a public constructor that reaches this adapter with an omitted direction and then returns an incorrect expansion. Many proof-critical package calls may already specify a positive local approach. No blanket claim that source directions are reversed is warranted.
+
+There are two defensible fixes. One is to require every internal proof limit to carry an explicit approach direction, enforced by a source audit and regression inventory. The other is to implement the two-sided adapter contract: compute both sides independently and return a common result only after the required equality is established; differing sides imply no two-sided limit, while unresolved sides must remain unresolved. Infinite endpoints and parameter assumptions require their own admissible-direction checks rather than a universal numeric replacement.
+
+This finding is distinct from earlier source-versus-target direction metadata issues. It concerns a compatibility primitive's default semantics. The strongest practical recommendation is to make omission of direction impossible where a limit is being used as proof evidence, even when the present call sites happen to be safe.
+
+\section{F05: FirstPosition performs a complete Position search}
+\label{sec:f05}
+
+\subsection{Why the implementation is not operationally equivalent}
+
+The adapter implements \code{FirstPosition} by calculating
+\begin{lstlisting}
+positions = Position[expr, pattern, levels, Heads -> heads];
+If[positions === {}, ReleaseHold[default], First[positions]]
+\end{lstlisting}
+This yields the first member of the correct traversal's result list, but it searches the entire expression and materializes every matching position before returning. The issue is not traversal order. It is loss of short-circuiting and the execution of predicates that a first-match search need not reach.~\cite{mathics-compat,mathics-position}
+
+The package has a direct consumer: symbolic-mode \code{jetMerge} searches existing output buckets using a pattern condition involving \code{symbolicEqualQ}. That predicate may call symbolic simplification. Repeated terms that belong to the first bucket should be cheap to locate; the adapter instead tests the remaining buckets as well.~\cite{core}
+
+Suppose $m$ distinct buckets have already been built and $r$ subsequent rows all match the first bucket. On this workload, the first-match part of a short-circuit search uses approximately $r$ candidate predicates, while the complete-position adapter uses $rm$. This is not a claim that every input changes asymptotic complexity or that all symbolic merges are linear. It isolates the adapter-induced factor on a concrete workload with an early match. The archive records an operation-count model, not measured Mathics wall-clock timings.
+
+Predicate evaluation count can also matter semantically for effectful pattern tests, although the package's equality predicates should ordinarily be treated as mathematical computations. Expensive but pure predicates alone are sufficient to make this a performance defect worth fixing.
+
+\subsection{A tempting repair is unavailable in the pinned interpreter}
+
+In a system with the corresponding native form, asking \code{Position} for at most one match could preserve the desired behavior. However, the retrieved Mathics 10.0.1 \code{Position} implementation exposes an optional level specification and options, walks all selected levels, and appends every match; it does not implement the maximum-count form as a separate argument. Therefore simply changing the call to \code{Position[...,1,...]} is not a verified repair for this target.~\cite{mathics-position}
+
+A bounded specialization is more appropriate. The observed hot consumer uses a list, level specification \code{\{1\}}, and \code{Heads -> False}. A scan with a private unique catch tag can stop on the first match, then evaluate the held default only when no match exists. The archive contains a candidate definition and a predicate-count regression. Other level and head forms can retain the existing generic traversal until a fuller short-circuit walker is implemented and tested.
+
+Installation itself must respect Mathics's documented behavior when defining a replacement left-hand side while an old definition exists. Install the specialization and generic fallback from clean definitions during loading; do not assume an interactive late overwrite is automatically harmless. The code proposal is unrun in a kernel and is labeled accordingly.
+
+\section{Two bounded advisories, not reproduced public failures}
+
+\subsection{A01: dense polynomial conversion hidden inside a sparse adapter}
+
+The Mathics algebra adapter's univariate coefficient extraction uses \code{CoefficientList} and then selects nonzero entries. That can turn a sparse polynomial into a degree-sized intermediate. For $1+x^D$, the useful support has size two, but the intermediate coefficient list has $D+1$ slots. This follows from the representation choice, independently of benchmark hardware.~\cite{mathics-algebra}
+
+This article does not establish a public package request with arbitrarily large $D$ that reaches this exact adapter before a different budget or simplification path stops it. It therefore does not claim a reproduced denial of service or attach a speculative byte count. The advisory is a boundary audit: identify callers of the compatibility coefficient extractor, record their degree and support bounds, and avoid forcing sparse expressions through a dense representation when the output contract is sparse.
+
+A safe sparse converter would distinguish a compact monomial $x^D$ from a genuinely dense expansion such as $(1+x)^D$. Multiplication and powering need support-aware budgets \emph{before} allocating a large expansion. The old generic recommendation to split resource budgets is already in the register; the additional information here is the exact new compatibility call that can defeat a sparsity assumption.~\cite{register}
+
+\subsection{A02: interrupted loading can bypass context cleanup}
+
+The Mathics loader inserts the compatibility context while definitions are read and removes it at the end of the normal load path. The inspected path does not wrap the entire interval in exceptional cleanup. If evaluation is interrupted after insertion and before the final cleanup, that final statement is not executed. The same source also enters package/private contexts during loading.~\cite{core,mathics-compat}
+
+This is a static exception-safety concern, not a captured interrupted-kernel failure. Its possible consequence is broader than a partially installed function: subsequent user input could resolve names through a context intended only for package implementation. Unchanged \code{System} definitions do not prove that the user's name-resolution environment is unchanged.
+
+A loader test should inject interruption after each compatibility phase and check the caller's context, context path, subsequent name resolution, and ability to reload. A repair needs structured cleanup and a clear partial-load state. Restoring only the visible \code{\$ContextPath} list should not be assumed to unwind every internal \code{Begin}/\code{End} stack effect. The correct mechanism must be tested in both runtimes rather than supplied as an unverified one-line ``finally'' emulation.
+
+\section{An executable, exact-rational oracle for the lower Lambert branch}
+\label{sec:certificate}
+
+The companion \code{lambert\_minus\_one.py} addresses the practical testing need exposed by F01. It encloses $W_{-1}(-q)$ for rational $q$ satisfying $0<q<e^{-1}$, using only Python integer and \code{Fraction} arithmetic in its proof-producing computation. SymPy and mpmath are used only by the independent test file, not by the enclosure algorithm.
+
+\subsection{Replace the ill-behaved conversion boundary with a monotone equation}
+
+Set $w=-t$. The branch $w<-1$ corresponds to $t>1$, and
+\[
+ we^w=-q
+ \quad\Longleftrightarrow\quad
+ te^{-t}=q
+ \quad\Longleftrightarrow\quad
+ H_q(t):=t-\log t+\log q=0.
+\]
+For $t>1$,
+\[
+ H_q'(t)=1-\frac1t>0.
+\]
+Moreover, $H_q(1)=1+\log q<0$ precisely on the desired rational-input domain, and $H_q(t)\to+\infty$ as $t\to\infty$. Thus the root is unique. Certifying the sign of $H_q$ at two rational endpoints gives a certificate without evaluating Lambert W at all.
+
+\subsection{A rational logarithm enclosure}
+
+For rational $r>0$, write $r=2^k m$ with integer $k$ and $1\le m<2$. Put
+\[
+ a=\frac{m-1}{m+1},\qquad 0\le a<\frac13.
+\]
+The identity
+\[
+ \log m=2\operatorname{artanh}a
+ =2\sum_{j=0}^{N-1}\frac{a^{2j+1}}{2j+1}+R_N
+\]
+has the explicit tail bounds
+\[
+ 0\le R_N\le
+ \frac{2a^{2N+1}}{(2N+1)(1-a^2)}.
+\]
+Indeed, every omitted denominator is at least $2N+1$, and the remaining powers form a geometric series. The same formula at $m=2$ gives a bound for $\log2$ using $a=1/3$.
+
+To avoid accumulating enormous unrelated rational denominators in a long sum, the implementation rounds each nonnegative term outward onto the dyadic lattice $2^{-B}\mathbb Z$. For a rational term $p/d$, use
+\[
+ \frac{\lfloor2^B p/d\rfloor}{2^B}
+ \le\frac pd\le
+ \frac{\lceil2^B p/d\rceil}{2^B}.
+\]
+Add the outward-rounded tail to the upper endpoint. Combine with $k\log2$, reversing interval endpoint roles when $k<0$. Every rounding operation is integer division, so there is no assumed floating-point accuracy in the proof.
+
+\begin{proposition}
+Suppose rational endpoints $1\le a<b$ have certified bounds
+$\overline H_q(a)<0<\underline H_q(b)$. Then
+\[
+ W_{-1}(-q)\in[-b,-a],
+\]
+and the enclosed real branch value is unique.
+\end{proposition}
+\begin{proof}
+Continuity and the opposite endpoint signs imply a zero of $H_q$ in $(a,b)$. Strict positivity of $H_q'$ for $t>1$ gives uniqueness. The algebraic equivalence above maps this zero to the branch $w=-t<-1$. Negating the interval reverses its endpoints.
+\end{proof}
+
+The algorithm first certifies $H_q(1)<0$, doubles an upper endpoint until its sign is positive, and then bisects rationally. When an interval evaluation straddles zero, it increases the internal dyadic precision rather than guessing the sign. It stops when the root interval has width at most $10^{-d}$ for the requested $d$. Explicit resource limits raise \code{ProofBudgetExceeded}; they do not return an uncertified endpoint.
+
+\subsection{Executed checks and limitations}
+
+Seven independent Python tests passed. They include logarithm bounds for seven positive rationals, five lower-branch enclosures at 35-decimal-place absolute interval width, invalid-input and resource-exhaustion checks, the SymPy argument-order counterexamples, a formal logarithmic inverse coefficient check, and a first-match operation-count model. The five Lambert inputs were
+\[
+ q\in\left\{\frac1{10},\frac1{1000},10^{-30},\frac9{25},\frac{367879}{10^6}\right\}.
+\]
+The last value is close to the branch point but still on the admitted side. The test oracle used mpmath at 120 decimal digits and checked that its reference value lay inside the rational enclosure. The certificate itself consists of rational endpoints and strict rational bounds for their $H_q$ values; it does not depend on trusting that numerical oracle.
+
+This is a reference implementation, not a proof-assistant-verified program and not a complete complex Lambert implementation. It handles rational real inputs on the lower branch, not arbitrary symbolic parameters, the irrational branch endpoint as an exact input, or other complex branches. A Mathics integration still needs a representation and conversion policy. The algorithm provides a concrete independently checkable piece of that work without pretending the integration has already happened.
+
+\section{Development recommendations that follow from the new findings}
+
+\subsection{Treat compatibility adapters as a small semantic runtime}
+
+The compatibility layer is now large enough that a loose collection of substitutions is difficult to audit by inspection. The next useful step is not a new all-purpose intermediate representation, already proposed in prior reviews, but a much smaller \emph{adapter contract manifest}. For each adapter, record the foreign/runtime operation, supported call shapes, evaluation attributes, fallback behavior, rewritten consumers, expected rewrite count, and independent control probes.
+
+For example, the \code{ProductLog} entry needs separate input and output argument order, accepted arities, branch domain, derivative semantics, and specialization behavior. The \code{Map} entry needs empty-input alias reuse and an inventory of public/private/compatibility definitions. The \code{Limit} entry needs an approach direction. The \code{FirstPosition} entry needs its lazy default and short-circuit behavior, not just the returned index.
+
+Late DownValue rewrites should report whether their intended patterns were actually found. A refactoring can otherwise make a rewrite match zero sites without causing a load error. A successful Wolfram definition-preservation comparison cannot detect that failure: the Mathics-only transformation intentionally does not run on Wolfram. This is an additional acceptance dimension beyond preserving the native kernel's definitions.
+
+\subsection{Add mutation tests at the semantic boundary}
+
+A small, deliberately adversarial suite is more valuable here than a large set of another ordinary quadratic inverse. Inject these faults one at a time: reverse the Lambert tuple; omit its reverse conversion; bypass the principal normalization; disable one safe-map call site; force a failed package load; replace an early-exit search by full traversal; or remove an explicit limit direction. Each mutation should make a targeted probe fail.
+
+The important oracle question is independence. A test comparing the package against the same foreign conversion path can agree on the same wrong result. Use defining equations and selected real-branch intervals for Lambert values, exact coefficient identities for elementary inverse cases, input-reuse checks for alias-sensitive primitives, and phase-success markers for the runner. A mutation suite also exposes negative tests that pass because a helper remained unresolved rather than because a forbidden conclusion was rejected correctly.
+
+\subsection{Record semantic state at value boundaries}
+
+The current construction-time metadata is useful, but F01 shows that mathematical validity can be lost when a stored symbolic expression is specialized. A targeted improvement is to associate special-function payloads with a backend capability requirement: the exact expression can be retained symbolically, but numerical application must either use an admitted evaluator, return an explicit unsupported-evaluation failure, or produce a value together with an independently checked defining-equation and branch result.
+
+This recommendation is narrower than the earlier general request for checked numerical evaluation. It identifies a concrete capability dependency: nonprincipal Lambert input/output convention in Mathics. It also explains why a numerical check should not silently use the same defective evaluator for both the approximation and the supposed reference.
+
+\subsection{Budget observable work, not only final support}
+
+The current jet multiplication already prunes candidate products at a cutoff. The new performance work belongs at the compatibility boundary: first-match predicate counts, dense coefficient slots, conversion time, and proof attempts. These should be measured separately from the number of retained asymptotic terms.
+
+For F05, record candidate predicate counts and total simplifier calls on repeated early matches. For A01, record polynomial degree, nonzero support, and peak allocation before requesting a dense conversion. For special-function conversion, record whether a request was exact, inexact, or symbolic and whether it crossed SymPy or mpmath. Do not compare a cold Python interpreter startup with a warm Wolfram coefficient loop and call the ratio an algebraic speed difference.
+
+\subsection{Sequence the work with explicit acceptance gates}
+
+The first change set should contain F01 containment, F02's empty-index guard, and F03's load gate, with the associated focused regressions on both entry points. The second should add the bounded first-match specialization and audit all internal limit directions. The third should introduce the adapter manifest, rewrite-count checks, interruption tests, and sparse-conversion stress controls.
+
+Only after those gates should a broader compatibility claim be updated. The release record should name the exact source commit, interpreter/scanner/SymPy/Python versions, entry point, executed case set, and unresolved categories. Existing historical Wolfram preservation receipts should remain attached to their own snapshots rather than being promoted to evidence for later merged code.
+
+\section{Novelty crosswalk and exclusions}
+\label{sec:novelty}
+
+\begin{longtable}{@{}P{0.09\linewidth}P{0.32\linewidth}P{0.50\linewidth}@{}}
+\toprule
+Item & Closest prior material & Additional contribution here\\
+\midrule\endhead
+F01 & Mathics compatibility warning about nonprincipal numerical Lambert evaluation; D05/X05 on numerical checking/certification & Exact SymPy conversion, inherited numeric arity, reverse-bridge requirement, package-generated value path, and an executed independent rational lower-branch oracle.\\[5pt]
+F02 & New empty-list workaround and its documentation & Public \code{InverseExpansionCoefficient} is outside the private-only rewrite; valid empty multi-index plus post-call caller-input reuse.\\[5pt]
+F03 & V02 on earlier test-runner acceptance problems & Specific setup invariant missing in the newer portable suite; a selected primitive can pass after \code{Get} returned failure. Not a repeat of empty discovery or old aborted-suite accounting.\\[5pt]
+F04 & C18 and D06 on direction/coordinate conventions & Default semantics of the scoped Mathics \code{Limit} primitive; a two-sided proposition becomes a from-below request. No newly reproduced public metadata error claimed.\\[5pt]
+F05 & P08 on repeated proof and normalization work & Exact all-positions adapter mechanism, symbolic bucket-search consumer, early-match workload, and a bounded repair that avoids an unsupported Mathics \code{Position} form.\\[5pt]
+A01 & P06 on resource budgets; earlier dense-export findings & Identifies a separate Mathics coefficient-extraction conversion. Kept advisory because a public stress path was not established.\\[5pt]
+A02 & Normal load/reload isolation and definition-preservation checks & Exceptional exit between context insertion and cleanup; interruption and context-stack acceptance tests. No observed interrupted-kernel result claimed.\\[5pt]
+Discrete & Existing native/discrete extension proposals & Distinguishes continuous germs from integer-sequence filters and from log-Fourier modes; a conversion precondition, not a reissued feature request.\\
+\bottomrule
+\end{longtable}
+
+The article deliberately does not reissue the old optional \code{SeriesData} allocation bug, previously tracked remainder-degree and assumption-scope bugs, native option/default routing issues, the existing public coefficient-option override problem, generic association validation, old refinement precision problems, or the broad integration/complex-transseries/uniform-parameter wish list. Those remain in the repository's register with their established status.~\cite{register,intake}
+
+The anti-duplication claim is bounded: the consolidated registers, wave-3 intake, report index, and an original relevant review were inspected. This is not a declaration that every sentence in every historical PDF was compared mechanically. The new items are presented with their exact delta so a maintainer can merge them into the existing register without inflating the defect count.
+
+\section{Reproduction guide and archive contents}
+
+The article source is self-contained apart from standard TeX packages and installed fonts. Its PDF was generated from that source. The code directory contains the standalone exact-rational Lambert enclosure, its independent checks, a fresh-kernel probe runner, and the deliberate failed-load fixture. The patches directory contains focused edit proposals, not silently applied modifications. The evidence directory separates actual Python results from the explicit unrun kernel status and the source/novelty ledger.
+
+To reproduce the independent checks:
+\begin{lstlisting}
+python -m pip install -r code/requirements.txt
+python code/independent_checks.py
+python code/lambert_minus_one.py 1/10 --digits 35
+\end{lstlisting}
+The enclosure script itself requires only the Python standard library. The requirements are for independent SymPy/mpmath cross-checks.
+
+To execute the currently unrun Mathics probes against a local checkout:
+\begin{lstlisting}
+python code/run_probes.py --repo C:\src\Asymptotic \
+  --python C:\venv\Scripts\python.exe --entry modular
+python code/run_probes.py --repo C:\src\Asymptotic \
+  --python C:\venv\Scripts\python.exe --entry standalone
+\end{lstlisting}
+Use the repository's own pinned Mathics requirements for that interpreter environment. Backslashes above denote paths; on PowerShell put the command on one line or use its backtick continuation rather than a Unix trailing backslash. The \code{--wolfram wolfram.exe} option selects a local Wolfram executable instead. The probe runner performs no downloads and makes no source edits. A \code{Fail} on the pinned snapshot can be the expected characterization of an unfixed finding; it is not automatically a failure of the probe infrastructure.
+
+For F03 specifically, use the upstream runner with the supplied invalid source fixture and select \nolinkurl{primitive-check-is-unpolluted}. After the proposed load gate is applied, this invocation must produce an error, not a successful selected-case receipt. This probe concerns the upstream runner; the bundle's runner already enforces its own failed-load gate.
+
+Rebuild the article with three passes of XeLaTeX to settle the contents and table widths:
+\begin{lstlisting}
+cd article
+xelatex -interaction=nonstopmode -halt-on-error asymptotic-review.tex
+xelatex -interaction=nonstopmode -halt-on-error asymptotic-review.tex
+xelatex -interaction=nonstopmode -halt-on-error asymptotic-review.tex
+\end{lstlisting}
+No checksum files, font files, private account data, repository commits, or remote changes are part of this archive.
+
+\section{Conclusion}
+
+The package's principal contribution remains its explicit calculus of real generalized expansions and retained error information, especially for inverse functions outside a simple rational-power lattice. Native Wolfram functionality is broader, but breadth alone does not replace this representation and workflow. The correct development direction is complementary: retain the package's useful contracts, delegate only where the native contract is explicit, and avoid calling a different backend's unresolved or misinterpreted expression a completed calculation.
+
+For Mathics, the current engineering is substantial and its own documentation is appropriately cautious about completeness. The next correctness gains are concentrated at a few well-defined boundaries. Exact symbolic Lambert conversion needs a bidirectional repair or containment; public empty-list arguments need the same protection as private jets; a successful test must imply successful setup; and first-match and limit-direction semantics must not be weakened by apparently convenient adapters.
+
+Those changes have unusually good regression targets. They can be checked with small cases, explicit branch equations, observable predicate counts, and deliberate fault injection. The supplied rational $W_{-1}$ oracle and unrun kernel probes make the proposed work concrete without presenting an unexecuted Mathics integration as finished.
+
+\newpage
+\begin{thebibliography}{R99}
+\small
+\bibitem[R1]{repo} Vladimir Reshetnikov. \emph{Asymptotic repository, README}. Reviewed commit \code{7d1bc832895c}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/README.md}.
+\bibitem[R2]{commit} Repository commit metadata. \url{https://github.com/VladimirReshetnikov/Asymptotic/commit/7d1bc832895cc90a9b2a978b7b7684acab908bd2}.
+\bibitem[R3]{reviews} \emph{Code review reports index}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/external-reports/code-review/README.md}.
+\bibitem[R4]{register} \emph{Consolidated implementation status}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/development/CODE_REVIEW_STATUS.md}.
+\bibitem[R5]{intake} \emph{Wave-3 intake and attributed finding ledger}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/development/WAVE_3_INTAKE.md}.
+\bibitem[R6]{review23} \emph{Review 23: scope, findings, evidence, and unrun native probes}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/external-reports/code-review/wave-3/code-review-23/README.md}.
+\bibitem[R7]{core} \emph{Core package implementation}. In particular: bootstrap; \code{jetMerge}; precision triples; object application; public \code{InverseExpansionCoefficient}; final loader cleanup. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/AsymptoticAnalysis.wl}.
+\bibitem[R8]{modules} \emph{Kernel module map}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/README.md}.
+\bibitem[R9]{native} \emph{NativeCompatibility.wl}. Held request dispatch, native contracts and evaluation status. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/NativeCompatibility.wl}.
+\bibitem[R10]{lambert} \emph{LambertInverse.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/LambertInverse.wl}.
+\bibitem[R11]{corepert} \emph{CorePerturbation.wl}. Automatic inverse selection and exact-core construction. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/CorePerturbation.wl}.
+\bibitem[R12]{fourier} \emph{FourierCoefficients.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/FourierCoefficients.wl}.
+\bibitem[R13]{compat} \emph{Running AsymptoticAnalysis in Mathics3}. Supported examples, limitations and scoped preservation receipts. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/Mathics/COMPATIBILITY.md}.
+\bibitem[R14]{mathics-compat} \emph{MathicsCompatibility.wl}. Scoped evaluator, lookup, and first-position adapters. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsCompatibility.wl}.
+\bibitem[R15]{mathics-simplify} \emph{MathicsSimplification.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsSimplification.wl}.
+\bibitem[R16]{mathics-algebra} \emph{MathicsAlgebra.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsAlgebra.wl}.
+\bibitem[R17]{mathics-core} \emph{MathicsCoreFunctions.wl}. Principal Lambert normalization and nonprincipal passthrough. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsCoreFunctions.wl}.
+\bibitem[R18]{mathics-lists} \emph{MathicsLists.wl}. Private-only DownValue installer. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsLists.wl}.
+\bibitem[R19]{mathics-list-doc} \emph{Empty-list mapping in Mathics}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/Mathics/LISTS.md}.
+\bibitem[R20]{mathics-special} \emph{MathicsSpecialFunctions.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsSpecialFunctions.wl}.
+\bibitem[R21]{portable} \emph{MathicsTests.wl}. Setup and foundational portable cases, especially lines 1--110. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/validation/MathicsTests.wl}.
+\bibitem[R22]{runner} \emph{run\_mathics\_tests.py}. Case selection and strict per-process result protocol. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/validation/run_mathics_tests.py}.
+\bibitem[R23]{workflow} \emph{Mathics compatibility workflow}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/.github/workflows/mathics.yml}.
+\bibitem[M1]{mathics-tag} Mathics3. Version 10.0.1 reference. \url{https://github.com/Mathics3/mathics-core/tree/f6a987e704313e37b2b46ed4fe0b61aab108b58a}.
+\bibitem[M2]{mathics-productlog} Mathics3 10.0.1. \emph{Exponential integral and special functions}, \code{ProductLog} class. \url{https://github.com/Mathics3/mathics-core/blob/f6a987e704313e37b2b46ed4fe0b61aab108b58a/mathics/builtin/specialfns/expintegral.py}.
+\bibitem[M3]{mathics-builtin} Mathics3 10.0.1. \emph{Built-in base classes}, \code{SympyFunction} and \code{MPMathFunction}, particularly lines 738--858. \url{https://github.com/Mathics3/mathics-core/blob/f6a987e704313e37b2b46ed4fe0b61aab108b58a/mathics/core/builtin.py}.
+\bibitem[M4]{mathics-position} Mathics3 10.0.1. \emph{List element operations}, \code{Position} implementation, approximately lines 1278--1346. \url{https://github.com/Mathics3/mathics-core/blob/f6a987e704313e37b2b46ed4fe0b61aab108b58a/mathics/builtin/list/eol.py}.
+\bibitem[W1]{wl-series} Wolfram Research. \emph{Series}. Current documentation, accessed September 9, 2026. \url{https://reference.wolfram.com/language/ref/Series.html}.
+\bibitem[W2]{wl-data} Wolfram Research. \emph{SeriesData}. Current documentation. \url{https://reference.wolfram.com/language/ref/SeriesData.html}.
+\bibitem[W3]{wl-inverse} Wolfram Research. \emph{InverseSeries}. Current documentation. \url{https://reference.wolfram.com/language/ref/InverseSeries.html}.
+\bibitem[W4]{wl-asymptotic} Wolfram Research. \emph{Asymptotic}. Current documentation. \url{https://reference.wolfram.com/language/ref/Asymptotic.html}.
+\bibitem[W5]{wl-discrete} Wolfram Research. \emph{DiscreteAsymptotic}. Current documentation. \url{https://reference.wolfram.com/language/ref/DiscreteAsymptotic.html}.
+\bibitem[W6]{wl-guide} Wolfram Research. \emph{Asymptotics guide}. Current built-in function inventory. \url{https://reference.wolfram.com/language/guide/Asymptotics.html}.
+\bibitem[W7]{wl-limit} Wolfram Research. \emph{Limit}, default real direction and one-sided conventions. \url{https://reference.wolfram.com/language/ref/Limit.html}.
+\bibitem[S1]{sympy-elementary} SymPy. \emph{Elementary functions}, LambertW, version 1.14.0 documentation. \url{https://docs.sympy.org/latest/modules/functions/elementary.html#sympy.functions.elementary.exponential.LambertW}.
+\end{thebibliography}
+\end{document}

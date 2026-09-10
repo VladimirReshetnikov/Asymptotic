@@ -1,0 +1,94 @@
+{
+  "Scope": "Three serial strict LaTeX passes; source immutability checked. Visual rendering is a separate step.",
+  "Command": [
+    "pdflatex",
+    "-no-shell-escape",
+    "-interaction=nonstopmode",
+    "-halt-on-error",
+    "-file-line-error",
+    "asymptotic-inverse.tex"
+  ],
+  "Passes": [
+    {
+      "Pass": 1,
+      "ExitCode": 0,
+      "Seconds": 7.180772599996999,
+      "Log": "validation/log-power-normalization-pdf-pass-1.txt",
+      "LogSHA256": "2544dc63a3d41478251e2f13d1cded2fcc2418f0bc922decb809d39fcce2ed9d",
+      "Summary": [
+        "Output written on asymptotic-inverse.pdf (102 pages, 1219902 bytes)."
+      ],
+      "Warnings": [
+        "Package epstopdf Warning: Shell escape feature is not enabled.",
+        "LaTeX Warning: Reference `eq:winding-inverse' on page 40 undefined on input lin",
+        "LaTeX Warning: There were undefined references.",
+        "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.",
+        "Package rerunfilecheck Warning: File `asymptotic-inverse.out' has changed."
+      ]
+    },
+    {
+      "Pass": 2,
+      "ExitCode": 0,
+      "Seconds": 8.10086130000127,
+      "Log": "validation/log-power-normalization-pdf-pass-2.txt",
+      "LogSHA256": "9e13b1d50ab31a9c4995314422e131ab2efb720479f6599f439d9f897f74897e",
+      "Summary": [
+        "Output written on asymptotic-inverse.pdf (102 pages, 1220438 bytes)."
+      ],
+      "Warnings": [
+        "Package epstopdf Warning: Shell escape feature is not enabled.",
+        "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right."
+      ]
+    },
+    {
+      "Pass": 3,
+      "ExitCode": 0,
+      "Seconds": 7.080767799998284,
+      "Log": "validation/log-power-normalization-pdf-pass-3.txt",
+      "LogSHA256": "4c578a0b12f777274531596c24b22f590a284310600734f38639358f7ab6757c",
+      "Summary": [
+        "Output written on asymptotic-inverse.pdf (102 pages, 1220441 bytes)."
+      ],
+      "Warnings": [
+        "Package epstopdf Warning: Shell escape feature is not enabled."
+      ]
+    }
+  ],
+  "SourcesUnchangedDuringBuild": true,
+  "SourceSHA256": {
+    "docs/article/asymptotic-inverse.tex": "d339ddde51cc48b31c6d9470d6b08e464b2a5875d507c27ff651ec125d1fbc48",
+    "docs/article/sections/01-introduction.tex": "c334e0212e6a7555ed7e2e76770fc65851cc107925b6f4068138521a9b432d0c",
+    "docs/article/sections/02-scale.tex": "cad97938dcb8fcbed7b73dea49d0402223295f26a54a616645e4ade858c46c65",
+    "docs/article/sections/03-forward.tex": "f11afe40128834b574f84ffbf2611c8409cdf3e6f4ec7d4e7c99050bd9e277de",
+    "docs/article/sections/04-branch.tex": "97cb8bbfb95b8846a7941c2f1f1c16d2d62da79e5c15108e3b619a9033c9aeb6",
+    "docs/article/sections/05-lagrange.tex": "a5c6c892f16c5b3218ad4e2bc8fec196d87afbe1fe8ca899c0a74fb7a5cf8b9e",
+    "docs/article/sections/06-coefficients.tex": "9b3162adeade047da981868cf1cf5a68535aa3d475382d560e4565263a65fb54",
+    "docs/article/sections/07-convergence.tex": "84a60624d5c28ed692c1ab20a271bbdb67e69788db0a9d0db30b6e4efdcf0cfa",
+    "docs/article/sections/08-remainders.tex": "fd63995642ac758218ee4121b0ed966c081b2d62ef3d423b07e4acff01371fb5",
+    "docs/article/sections/09-transport.tex": "a24ab3caa62974d7291149b7a25e98ad4627fab3f33d6d9e49a15ae85bc49611",
+    "docs/article/sections/10-endpoints.tex": "0f0e918c0ad96709e90c1e98fe1de88407bff7ff0b04407a41184dd653c9f342",
+    "docs/article/sections/11-examples.tex": "e7e8285439ef6ffbac203c7ef393ee98e0b7bc5b950b64e21ef5d9f70df9c39f",
+    "docs/article/sections/12-boundaries.tex": "745326b9ea343429f616802168435d51ac9194d2cff0edfd3bd46a0107df006e",
+    "docs/article/sections/15-coordinates.tex": "f5a7fed3fd8ab28e0911c52040df8d1c330fee5a9fde14790fc105457a216719",
+    "docs/article/sections/16-incremental.tex": "5c57017f16b61bf4231c5bac90b5e2cd4d95252fa989ca05cc11b96f3875e0f1",
+    "docs/article/sections/17-calculus.tex": "05646f0f2c98c0a6a1a7fde396359bb90baf851e97f53e79299c11ef5671c121",
+    "docs/article/sections/18-core-perturbations.tex": "65f08c22e52f6c7a5be1045fc7b97823b1e9568eec448e58bd747bbc7100fc6d",
+    "docs/article/sections/19-certificates.tex": "320dda491c405af806d3da59b55db3e51bf6fd5fedbaf076b2ccdb3ea421ec63",
+    "docs/article/sections/20-logarithmic-scales.tex": "e4a98602fdaafd5625be88222f3c6fea0aec0d2a1ad72a4a69df68600aa07271",
+    "docs/article/sections/21-flat-sectors.tex": "bbf12e8f156dc108e6ae6c0ec15ebfeb89cbebd803aa0fe8994a3f1194f5dea1",
+    "docs/article/sections/22-fourier.tex": "651327654ce686e0fb4b3ec8424dcce78ca32ad4d73cfb7fae20757f0eac50b5",
+    "docs/article/sections/23-source-coordinates.tex": "d269eff6f56a550972c3e6630e30f9659c112d2bc02c884fc55471efdf36dc52",
+    "docs/article/sections/24-special-functions.tex": "d2a84e39d48b52788f90065f6c0946e558cdd256e0828bc71a7df3cba5500ef2",
+    "docs/article/sections/25-refinement-state.tex": "c918659147d1d239d3f74e0f89d2bcef1a0f1545abbfd57775cd196b1f0639c7",
+    "docs/article/sections/27-exponential-core.tex": "768c4df1ccb2c70d87e68e4455bf32000246dc92883641805c4df057d9a992ff",
+    "docs/article/sections/28-flat-sector-operations.tex": "a38db9c32048c7a166080c63e02a474bd572efc320ef2d006365ac0566ea275f",
+    "docs/article/sections/30-reciprocal-log-operations.tex": "dd3e87f274f5e363cf5c041586a86376a642513ba9f79e2f15f5e8269030c5ca",
+    "docs/article/sections/31-inverse-function-expressions.tex": "78674eb27cf7553c0ace41f4ddfb3cdc98c2a816166c1746768024301e40b7ec",
+    "docs/article/sections/32-exponential-normalization.tex": "c3a8b1dd14a1b0f229415e903bf73d4fd162f2ce8706fb2e3a4a2c9c11b7ee83",
+    "docs/article/sections/33-gamma-inverse.tex": "3b97049e709ab296033d7d5c82e825f9197b52f3fa678d7f0b1880d967d6cf53",
+    "docs/article/sections/34-barnes-inverse.tex": "7fd7324c7cfaaf51b193fa37a080c687126de4c677997162720dae80a13f8fa0",
+    "docs/article/sections/35-special-function-expansions.tex": "efc6b1c6e8bfe97bb4a91cd8267e1f7446c24b7a49bbecdbb8dd0e6eadfc43b9"
+  },
+  "PDFSHA256": "112cbe2caae05e1b52bc0c8dea0410ca51920bc81fcf461ee55790e42ec988b3",
+  "PDFBytes": 1220441
+}

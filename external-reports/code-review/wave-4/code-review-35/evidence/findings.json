@@ -1,0 +1,92 @@
+{
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "commit": "7d1bc832895cc90a9b2a978b7b7684acab908bd2",
+  "prior_review_count": 27,
+  "deduplication_scope": "Indexes, maintained consolidated statuses and complete finding crosswalks; not a full rereading of all 27 original articles",
+  "findings": [
+    {
+      "id": "N01",
+      "priority": "High",
+      "class": "Validation integrity",
+      "title": "Detected source drift forgotten after restoration",
+      "source": "validation/run_mathics_tests.py",
+      "mechanism": "write_report recomputes before == after rather than latching all earlier mismatches",
+      "evidence": "E1: actual byte-identical upstream Python runner with mock external protocol peer",
+      "new_contribution": "Detected interim invalidity is demonstrably erased by restoration; candidate latch is exercised with controls",
+      "adjacent_prior": "V01, V02; not zero-test acceptance",
+      "public_runtime_boundary": "No Wolfram or Mathics package execution",
+      "repair": "Monotone invalidity flag and observation history; later freeze executable closure",
+      "candidate_status": "Python patch executed in focused fixtures"
+    },
+    {
+      "id": "N02",
+      "priority": "Medium",
+      "class": "Input validation and JSON interchange",
+      "title": "Nonfinite timeout arguments pass validation",
+      "source": "validation/run_mathics_tests.py",
+      "mechanism": "NaN and positive infinity evade <= 0 and reach initial reporting/subprocess handling",
+      "evidence": "E1: nan/inf/0/-1 original and candidate CLI cases",
+      "new_contribution": "Concrete exception and invalid JSON-token behavior in the portable runner; finite-positive patch",
+      "adjacent_prior": "P06, V02 only broad resource/validation adjacency",
+      "public_runtime_boundary": "No asymptotic result alleged wrong",
+      "repair": "math.isfinite guard before process/report work",
+      "candidate_status": "Python patch executed in focused fixtures"
+    },
+    {
+      "id": "N03",
+      "priority": "Medium",
+      "class": "Availability and memory",
+      "title": "Sparse coefficient adapter materializes dense degree-sized list",
+      "source": "src/Kernel/MathicsAlgebra.wl; src/Kernel/MathicsInverseBranches.wl",
+      "mechanism": "CoefficientList precedes zero filtering, and polynomial realness check also scans dense coefficients",
+      "evidence": "S + E2: source deduction and exact sparse/dense reference models",
+      "new_contribution": "New Mathics coefficient/branch path, distinct from repaired optional native SeriesData export",
+      "adjacent_prior": "C01, C17, P06, P08",
+      "public_runtime_boundary": "No public out-of-memory event or Mathics benchmark reproduced",
+      "repair": "Already-expanded sparse fast path, bounded dense fallback, nonzero-coefficient realness checks",
+      "candidate_status": "Narrow WL candidate unexecuted; independent Python models executed"
+    },
+    {
+      "id": "N04",
+      "priority": "Medium",
+      "class": "Search work and memory",
+      "title": "FirstPosition retains all matching positions",
+      "source": "src/Kernel/MathicsCompatibility.wl",
+      "mechanism": "Unbounded Position then First; inspected Mathics 10.0.1 lacks native fourth-argument count overload",
+      "evidence": "S + E2: adapter/upstream source and exact cost models",
+      "new_contribution": "Specific first-match adapter overhead and correction to the obvious but unsupported one-line fix",
+      "adjacent_prior": "P08 general profiling",
+      "public_runtime_boundary": "No kernel speedup factor or global evaluation-count guarantee claimed",
+      "repair": "Upstream bounded Position or narrow package early-exit search with traversal-law tests",
+      "candidate_status": "No speculative full walker supplied"
+    },
+    {
+      "id": "N05",
+      "priority": "Medium",
+      "class": "Completeness and UX",
+      "title": "Seven trial radii fail arbitrarily small affine neighborhoods",
+      "source": "src/Kernel/MathicsInverseBranches.wl; src/Kernel/InverseFunctionExpressions.wl",
+      "mechanism": "Radii 2^-j for j=0..6 precede unavailable general Resolve fallback",
+      "evidence": "S + E2: constructive proof and exact rational families; U: public kernel probes",
+      "new_contribution": "Scale-dependent gap in new affine eventual proof path plus complete rational affine radius construction",
+      "adjacent_prior": "D02, X07; not W3-09 conditioned complex native policy",
+      "public_runtime_boundary": "Tiny-neighborhood public refusal is a prediction, not a runtime observation",
+      "repair": "Normalize admitted real rational affine clauses and construct exact positive radius",
+      "candidate_status": "WL candidate unexecuted; independent proof/reference checks executed"
+    },
+    {
+      "id": "N06",
+      "priority": "Medium",
+      "class": "Adapter semantic contract",
+      "title": "Omitted local Limit direction selects lower side",
+      "source": "src/Kernel/MathicsSimplification.wl",
+      "mechanism": "Local Automatic maps to +1, unlike current Wolfram Limit default Reals",
+      "evidence": "S + E2: documented contract and exact u/Abs[u] sided witness",
+      "new_contribution": "New local Mathics helper mismatch, not public backend option classification",
+      "adjacent_prior": "D06 only direction-policy adjacency",
+      "public_runtime_boundary": "Inspected inverse validator already passes -1 explicitly; no wrong public result established",
+      "repair": "Explicit consumer directions and conservative two-sided default with unresolved-result guards",
+      "candidate_status": "Separate bounded WL candidate unexecuted"
+    }
+  ]
+}
