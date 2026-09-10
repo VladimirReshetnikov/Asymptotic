@@ -1,0 +1,1360 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=23mm,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,longtable,tabularx,array,ragged2e}
+\usepackage{xcolor,listings,enumitem}
+\usepackage{xurl}
+\usepackage[colorlinks=true,linkcolor=blue!40!black,citecolor=blue!40!black,urlcolor=blue!40!black]{hyperref}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small AsymptoticAnalysis: incremental technical review}
+\fancyhead[R]{\small Snapshot \texttt{7d1bc832895c}}
+\fancyfoot[C]{\thepage}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5.5pt}
+\setlength{\emergencystretch}{2em}
+\renewcommand{\arraystretch}{1.18}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,
+ breaklines=true,breakatwhitespace=false,showstringspaces=false,
+ frame=single,rulecolor=\color{black!18},framesep=5pt,
+ xleftmargin=5pt,xrightmargin=5pt,aboveskip=9pt,belowskip=9pt,
+ commentstyle=\color{black!65},keywordstyle=\bfseries,
+ upquote=true}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\ev}[1]{\textbf{#1}}
+\newcommand{\OO}{\mathcal O}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\hypersetup{pdftitle={AsymptoticAnalysis: Incremental Review and Mathics Compatibility},
+ pdfauthor={OpenAI},pdfsubject={Repository audit at 7d1bc832895cc90a9b2a978b7b7684acab908bd2}}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\vspace*{15mm}
+{\color{blue!40!black}\Large SOFTWARE AND MATHEMATICAL RELIABILITY\par}
+\vspace{9mm}
+{\Huge\bfseries AsymptoticAnalysis\par}
+\vspace{4mm}
+{\LARGE Incremental repository review\par}
+\vspace{3mm}
+{\Large Native Wolfram Language comparison, Mathics compatibility,\par
+new findings, and reproducible repair candidates\par}
+\vspace{13mm}
+\begin{tabular}{@{}ll@{}}
+Repository & \code{VladimirReshetnikov/Asymptotic} \\
+Review snapshot & \code{7d1bc832895cc90a9b2a978b7b7684acab908bd2} \\
+Snapshot time & 10 September 2026, 02:10:22 UTC \\
+Local calendar date & 9 September 2026, 19:10:22 PDT \\
+Prior-review baseline & 27 packages, three waves; 167 attributed ledger entries
+\end{tabular}\par
+\vspace{11mm}
+\textbf{Principal result.} The portable test runner can forget a source change it
+already detected, then mark a changed-and-restored run as source-stable and exit
+successfully. This was reproduced by executing the byte-identical upstream
+Python runner against a controlled mock protocol peer. A candidate repair was
+checked against changed-source and unchanged-source controls.
+
+\textbf{Additional contributions.} A nonfinite timeout defect, two Mathics
+allocation/search bottlenecks, a scale-dependent gap in affine eventual-domain
+proofs, and a local limit-default mismatch are analyzed separately. Exact
+reference models, a bounded affine-radius construction, candidate primitives,
+and unexecuted Wolfram/Mathics probes accompany the article.
+
+\vfill
+\textbf{Evidence boundary.} No official Wolfram kernel or Mathics package run was
+completed in this review environment. Executed Python infrastructure tests,
+independent mathematical checks, source deductions, historical repository
+receipts, and unexecuted regression specifications are distinguished throughout.
+\end{titlepage}
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\section{Assessment and principal findings}
+
+The repository is more than a wrapper around ordinary power-series reversion.
+Its distinctive contribution is a family of explicit real asymptotic models:
+exact real powers, polynomial logarithmic coefficients, selected inverse
+branches, retained exact cores, several specialized scales, and structured
+remainder and provenance information. Native \code{Series} and
+\code{Asymptotic} results can also be retained, but deliberately have a different
+contract. The documented ambition to subsume those functions and
+\code{DiscreteAsymptotic} is a project requirement, not a description of
+completed coverage. A \code{DiscreteAsymptotic} backend is explicitly absent.
+\cite{guide,readme,native}
+
+The current Mathics effort is substantial. It addresses evaluator differences
+rather than merely checking whether a package file loads. Separate adapters
+handle control flow, associations, assumptions, held extraction, limited Taylor
+coefficients, selected special-function cores, and timing. These are meaningful
+improvements over a blanket ``Mathics unsupported'' assessment. Conversely,
+local compatibility definitions become part of the package's mathematical and
+operational trust boundary. Their defaults, allocation behavior, and proof
+completeness need independent tests. \cite{mathicsguide,mathicscompat,modulemap}
+
+\begin{longtable}{@{}P{0.09\linewidth}P{0.17\linewidth}P{0.47\linewidth}P{0.19\linewidth}@{}}
+\toprule
+ID & Priority / class & Finding & Evidence here \\
+\midrule
+\endhead
+N01 & High; validation integrity & A detected source mismatch is forgotten after restoration; final success can misstate source stability. & E1: original and candidate Python runners executed with a mock peer. \\
+N02 & Medium; runner input and interchange & \code{nan} and \code{inf} pass timeout validation, reach subprocess handling, and produce nonstandard numeric tokens in an initial JSON report. & E1: both arguments exercised; candidate rejects them before execution. \\
+N03 & Medium; availability / memory & Mathics sparse coefficient extraction constructs a full degree-sized coefficient list before discarding zeros. & S + E2; no large Mathics allocation attempted. \\
+N04 & Medium; avoidable work & The private \code{FirstPosition} computes and retains all matching positions. The obvious four-argument \code{Position} substitution is not supported by the inspected Mathics implementation. & S + E2; upstream Mathics source inspected. \\
+N05 & Medium; completeness / UX & Seven fixed radii cannot prove arbitrarily small, elementary affine deleted neighborhoods; equivalent germs become sensitive to coordinate scale. & S + E2; public package probes supplied but unrun. \\
+N06 & Medium; local semantic mismatch & Omitted direction in the Mathics \code{Limit} adapter becomes a lower-sided limit, unlike the current Wolfram two-sided real default. & S + exact mathematical witness; public reachability not established. \\
+\bottomrule
+\end{longtable}
+
+These are six different mechanisms, not six claims of wrong asymptotic
+coefficients. In particular, N03--N05 concern cost or refusal of valid requests;
+N06 is established at the private adapter boundary; and N01 concerns the
+reliability of a validation record. None demonstrates that a previously committed
+mathematical result is false or that a historical run actually suffered source
+drift.
+
+The practical development order is to repair the validation runner, validate the
+new adapter laws in both entry forms, and only then widen Mathics coverage. More
+formula families will not compensate for ambiguous execution provenance or a
+primitive that changes the problem being solved.
+
+\section{Snapshot, scope, and evidence discipline}
+
+\subsection{What was reviewed}
+
+The review pins the main-branch snapshot identified on the title page, including
+its modular source and generated-standalone loading design. The timestamp is on
+10 September in UTC but on 9 September in the user's Los Angeles time zone;
+there is no date inconsistency. Repository claims below refer to this commit,
+not an unversioned future \code{main}. \cite{commit,modulemap}
+
+Source inspection concentrated on the core forward/inverse interfaces, native
+routing, inverse-branch validation, Fourier coefficient machinery, the new
+Mathics adapter family, the portable test runner, and its CI workflow. The user
+guide, Mathics compatibility and callable notes, and review-maintenance
+registers supplied the wider architectural and coverage context. This is not a
+claim that every source line, every vendored mathematical article, or all 27
+review articles were independently re-audited. The source inventory in the
+archive records the actual scope.
+
+The earlier review collection is unusually extensive: three waves contain 27
+packages, with 167 attributed finding entries before overlap consolidation.
+The maintained implementation register and complete wave-3 intake were used as
+the duplication screen. Their current classifications were respected: a
+previously repaired defect was not reopened merely because an older report
+contains it. The latest review wave concerns snapshot \code{6687962}; the
+Mathics compatibility file examined here is absent at that baseline.
+\cite{reviewindex,status,intake}
+
+\subsection{Evidence labels}
+
+\ev{E1: executed infrastructure.} The upstream
+\path{validation/run_mathics_tests.py} was reconstructed from the pinned source
+and its Git blob identity was checked in memory against the connector's reported
+identity. The bytes match. That original runner, and a narrowly modified
+candidate, were executed in temporary fixture repositories. The external
+``kernel'' was a Python program implementing the runner's documented output
+protocol and explicitly identifying itself as a mock. These experiments test
+runner logic, not Wolfram Language evaluation.
+
+\ev{E2: executed independent reference checks.} Python integer and rational
+arithmetic verified sparse/dense coefficient equivalence on small cases, the
+affine-radius construction, its coordinate-rescaling witnesses, a polynomial
+inverse oracle, and abstract first-match cost models. These checks validate
+mathematics and reference algorithms, not the evaluation of the supplied
+Wolfram Language candidate file.
+
+\ev{S: source deduction.} An implementation mechanism or direct mathematical
+consequence is visible in the pinned source. When an upstream interpreter
+feature matters, the Mathics 10.0.1 implementation or current official Wolfram
+documentation is cited. A source-deduced public outcome is still labeled as a
+prediction until a real kernel produces it.
+
+\ev{U: unexecuted specification.} The archive's Wolfram Language probe script and
+candidate primitive definitions are prepared for fresh-kernel execution. They
+have not been validated in either mathematical runtime here.
+
+The connected Wolfram evaluator failed before a useful evaluation, and the
+local environment did not provide Mathics. Consequently there is no fresh
+package-wide pass count, no measured Wolfram-versus-Mathics speed ratio, and no
+claim of final-source acceptance. Historical repository receipts remain
+historical, scoped evidence. The Mathics compatibility guide itself distinguishes
+implemented adapters from complete, final-source acceptance. \cite{mathicsguide}
+
+\subsection{What was deliberately not rediscovered}
+
+The following adjacent topics already have owners in the review register. They
+are used only to explain contracts or distinguish the new mechanisms.
+\cite{status,intake}
+
+\begin{longtable}{@{}P{0.24\linewidth}P{0.34\linewidth}P{0.36\linewidth}@{}}
+\toprule
+Existing owner & Existing topic & Boundary of this article's contribution \\
+\midrule
+\endhead
+C01, C17; W3-04 & Dense native-series conversion, native index range, eager native normal form & N03 is the distinct Mathics polynomial-to-coefficient-rules path, not the repaired native export issue. \\
+P06, P08 & Resource taxonomy and repeated symbolic work & N03/N04 identify concrete new adapter allocations; N02 exercises a particular Python timeout parser. \\
+V01, V02 & Release evidence and legacy aggregate-runner integrity & N01 is a loss of an already observed mismatch in the newer portable Python runner, not zero-test acceptance. \\
+D01, D06; W3-01/02 & Order, direction, and option-resolution policy & N06 concerns the local Mathics \code{Limit} default; it is not another report of public backend option parsing. \\
+D02; W3-09 & Capability/failure distinctions and conditioned native routing & N05 uses a purely real affine condition and the package backend; the fixed-radius proof search is the new cause. \\
+C04, C05, C14, C15 & Logarithmic error degree, assumptions, equal weights, varying-parameter composition & The current fixes and residual boundaries remain the baseline; no duplicate defect claims are made. \\
+X01--X12 & Broader scales, integration, complex sectors, uniformity, systems, and solver adapters & These remain recorded development directions, not newly discovered missing features. \\
+\bottomrule
+\end{longtable}
+
+\section{Architecture and mathematical value}
+
+\subsection{A real local coordinate and an explicit error object}
+
+A useful way to understand the core is to separate a coordinate, a finite jet,
+and an error class. Near a finite endpoint the coordinate has the form
+\[
+ x=x_0+\sigma u,\qquad u\downarrow0,\qquad \sigma\in\{-1,1\},
+\]
+while infinite endpoints use a signed reciprocal coordinate. In the ordinary
+power-log case, a finite model is naturally written
+\[
+ J(u)=\sum_{\alpha<h}u^\alpha P_\alpha(\log u),
+ \qquad
+ f(u)-J(u)=\OO\!\left(u^\beta(1+|\log u|)^d\right).
+\]
+The supported exact exponents need not lie on one rational lattice. Terms at the
+same mathematical weight must be combined before deciding support, sign, or
+truncation. The repository's core and guide encode this distinction between a
+finite expression and its retained remainder data. \cite{core,guide}
+
+The leading power dominates every fixed logarithmic degree. This makes a
+source-power grading useful without pretending that logarithmic coefficients
+are constants. A support containing positive generators $\lambda_1,\ldots,
+\lambda_m$ is locally finite: a bound $k\cdot\lambda<H$ gives
+$0\leq k_i<H/\lambda_i$ for every nonnegative integer index. That elementary
+observation explains why finite target cutoffs can support exact irrational
+weights. It is not a claim that index enumeration is always inexpensive.
+
+The result object, \code{GeneralizedSeries}, is therefore more informative than
+its printed finite approximation. It can retain a source model, a chart,
+assumptions, branch data, an error description, and a refinement recipe.
+\code{Normal[s]} and numerical substitution into the stored expression do not
+by themselves consume or certify all that information. This distinction is
+already documented and is not a new complaint about unchecked numerical
+application. \cite{core,guide,status}
+
+\subsection{Forward engines and inverse construction}
+
+The forward path combines explicit algebraic operations with admitted Taylor,
+Laurent, or Puiseux information and specialized adapters. The inverse path
+recognizes leading monomial and logarithmic/exponential structures, uses
+Lagrange-type or Newton/grouped mechanisms where admitted, and transports the
+result to the requested source and target coordinates. Inverse expressions
+embedded in a larger calculation first require a selected real germ; a finite
+list of branch candidates is not treated as a completeness theorem.
+\cite{core,inverseexpr,branches,lambert}
+
+This is valuable for expressions whose natural output is not an ordinary
+integer-power series. For example, consider the mathematical model
+\[
+ f(u)=u\left(1+u^{\sqrt2}(1+\log u)+u^{\sqrt3}\right),\qquad u>0.
+\]
+Its derivative tends to $1$, so an increasing inverse germ exists near zero.
+Writing $f(u)=u+\eta(u)$ and solving $u=y-\eta(u)$ gives the first correction
+\[
+ f^{-1}(y)=y-y^{1+\sqrt2}(1+\log y)-y^{1+\sqrt3}
+ +\OO\!\left(y^{1+2\sqrt2}(1+|\log y|)^2\right).
+\]
+Indeed, $\eta(y)=\OO(y^{1+\sqrt2}(1+|\log y|))$ and
+$\eta'(y)=\OO(y^{\sqrt2}(1+|\log y|))$; the mean-value estimate for replacing
+$\eta(u)$ by $\eta(y)$ yields the stated remainder once $u/y\to1$.
+This is an illustrative target and independent derivation, not a recorded
+kernel output. It shows why explicit weight and logarithmic-error bookkeeping
+is useful even when a native system can also manipulate parts of the expression.
+
+\subsection{Specialized scales should remain distinguishable}
+
+The module structure includes logarithmic hierarchies, retained exact inverse
+cores, flat exponential sectors, Fourier-polynomial logarithmic coefficients,
+and selected Gamma/Barnes and other special-function families. Their order
+parameters need not mean the same thing: one cutoff may grade the positive
+local source variable, another the correction multiplying an exact prefactor,
+and another separate carrier components. An exact prefactor is not an omitted
+term and should not be expanded merely to make the output resemble a plain
+polynomial. \cite{modulemap,guide,lambert,fourier}
+
+The Fourier coefficient module, for example, stores finitely many exact
+frequencies together with polynomial amplitudes in $\log u$. It checks
+conjugacy for real-valued coefficients and treats a frequency budget as a
+resource constraint, not as permission to discard inconvenient modes. Its
+sorted source-weight multiplication and binary powering already exist. A
+proposal simply to add those named algorithms would not be incremental.
+\cite{fourier,status}
+
+\subsection{Three different kinds of validation}
+
+A formal residual identity checks the algebra of an admitted finite model.
+A high-precision numerical residual checks selected sample points and numerical
+conditioning. An inverse certificate additionally needs a proved interval,
+monotonicity or derivative information, and bounds applying to the function
+being certified. These claims are not interchangeable. The public API's
+separate residual, numerical-check, and certificate operations is a sound
+architectural direction, even though the existing register records important
+remaining scope and precision issues. \cite{guide,status}
+
+This review adds a fourth, operational prerequisite: the source identity of a
+validation run must itself be reliable. A correct finite residual produced from
+one source state does not establish that a receipt describes a different
+source state. N01 concerns this prerequisite rather than changing the
+mathematics of a residual or certificate.
+
+\section{Comparison with native Wolfram Language}
+
+\subsection{A fair comparison is not ``series versus transseries''}
+
+Native \code{Series} already handles selected negative and fractional powers,
+logarithms, infinite endpoints, and successive expansions in multiple variables.
+Its options include how unrecognized functions are treated analytically.
+Native functionality should therefore not be described as restricted to
+ordinary Taylor polynomials. \cite{wlseries}
+
+A \code{SeriesData} object provides a coefficient list on a rational-power
+index lattice, but native results can keep symbolic powers or rapidly varying
+factors outside that object. The representational advantage here is the
+package's explicit, unified handling of admitted real weights and error
+metadata---not an assertion that Wolfram Language cannot represent irrational
+powers or exponential prefactors at all. \cite{wlseriesdata}
+
+\code{InverseSeries} performs series reversion and is not limited to a
+nonzero linear leading term: the official examples include a quadratic-leading
+series. \code{AsymptoticSolve} also supplies asymptotic solutions to equations
+and systems, with real-valued solution selection available. Those are relevant
+comparators for inverse work; comparing only with \code{Series} understates
+the native baseline. \cite{wlinverseseries,wlasymptoticsolve}
+
+Native \code{Asymptotic} admits more than explicit elementary expressions,
+including integral and differential-equation forms, finite or infinite real or
+complex centers, and problem-inferred scales. Its documented asymptotic
+approximation contract is not identical to the package's explicit
+\code{PowerLogRemainder} representation. A wrapper may preserve a native result
+without having converted its evidence into a package analytic contract.
+\cite{wlasymptotic,native}
+
+\begin{longtable}{@{}P{0.21\linewidth}P{0.36\linewidth}P{0.37\linewidth}@{}}
+\toprule
+Task & Native baseline & Package position at the reviewed snapshot \\
+\midrule
+\endhead
+Ordinary local expansion & Mature \code{Series}/\code{SeriesData} algebra. & Custom exact real power-log path plus explicit and selected automatic native delegation. \\
+Irrational and logarithmic grading & Symbolic factors and slow coefficient functions can occur in native representations. & Admitted real weights, logarithmic coefficient polynomials, and explicit error grades share one custom model. \\
+Inverse expansions & \code{InverseSeries} and equation-based \code{AsymptoticSolve}; selected native special-function identities. & Specialized real inverse constructors, branch provenance, retained cores, and model-specific residual checks. \\
+Exponential and oscillatory forms & Native expressions can retain rapid factors; \code{Asymptotic} infers problem-dependent scales. & Explicit flat-sector and finite Fourier-logarithmic models, within their documented restrictions. \\
+Complex and multivariate problems & Native expansion/solver interfaces include such forms. & Native delegation can preserve eligible results; the custom analytic model is not a general complex or multivariate calculus. \\
+Discrete asymptotics & \code{DiscreteAsymptotic} is a separate native interface. & No implemented backend of that name; the guide treats complete subsumption as unfinished. \\
+Remainder and provenance operations & Formal/native objects and native asymptotic contracts. & Dedicated error metadata and refinement/certification interfaces for admitted custom models; native objects remain separate contracts. \\
+Mathics portability & The official Wolfram implementation is not present in Mathics simply because a symbol name exists. & A growing private compatibility layer; implementation and validation remain operation-, branch-, and runtime-specific. \\
+\bottomrule
+\end{longtable}
+\noindent Sources for the comparison: package guide and native dispatch
+\cite{guide,native}; native documentation
+\cite{wlseries,wlseriesdata,wlinverseseries,wlasymptotic,wlasymptoticsolve,wldiscrete};
+Mathics boundary \cite{mathicsguide}.
+
+\subsection{Match the requested and achieved order}
+
+For the branch of $x+x^2=y$ through zero,
+\[
+ x(y)=\frac{\sqrt{1+4y}-1}{2}
+ =y-y^2+2y^3-5y^4+\OO(y^5).
+\]
+The guide's package request with target cutoff $5$ retains powers strictly below
+$5$. An ordinary native series requested through degree $4$ is the matching
+comparison, not necessarily one requested with the same literal integer $5$.
+\cite{guide,wlseries}
+
+A precise native reversion specimen can start from an explicitly structured
+input, avoiding assumptions about whether a particular polynomial expansion is
+returned as a bare polynomial or a series object:
+\begin{lstlisting}
+InverseSeries[SeriesData[x, 0, {1, 1}, 1, 5, 1], y]
+\end{lstlisting}
+This is an unexecuted native comparison request. Its expected coefficients
+through degree four follow from the displayed exact inverse. The independent
+Python oracle checked the same Catalan-coefficient identity through degree
+$12$, not the execution of \code{InverseSeries}.
+
+For benchmarking, record the achieved exponent or error scale, endpoint,
+branch, parameter conditions, and whether a retained prefactor is expanded.
+Only compare timings after those objects match. The old register already asks
+for matched precision and cold/warm measurements; the new Mathics-specific
+addition is to record evaluator overhead, adapter selections, and refusal
+causes separately from mathematical coefficient work. \cite{status,mathicsguide}
+
+\subsection{Native delegation does not imply analytic certification}
+
+The source explicitly rejects some custom analytic operations on a native
+result and directs callers to its retained native value. That separation avoids
+inventing an analytic remainder merely because the outer head is
+\code{GeneralizedSeries}. Native backend selection, native outcome status, and
+package failure information are retained as distinct metadata. \cite{native}
+
+The user-facing implication is simple: success under a native backend should be
+read as success under that backend's contract. It is not evidence that the
+custom real branch analysis, remainder transport, or inverse certificate was
+performed. Likewise, a mathematically supported native operation on the Wolfram
+kernel may remain unresolved on Mathics. This limitation follows from the
+actual engine selected, not from a contradiction in the wrapper's result type.
+\cite{guide,mathicsguide}
+
+\section{N01: detected source drift can disappear from a successful receipt}
+\label{sec:runner-drift}
+
+\subsection{Mechanism and impact}
+
+The portable runner is designed carefully in several respects. Each selected
+case runs in a fresh process; complete, matching output records are required;
+process exit status is reconciled with the reported outcome; the suite text is
+copied to a temporary file; and reports are written through an atomic
+replacement. The process timeout terminates the process group or owned process
+tree rather than indiscriminately killing other kernels. These mechanisms are
+worth preserving. \cite{runner}
+
+The source-stability check, however, is not cumulative. At startup the runner
+records \code{before = fingerprints(source)}. Each call to its nested
+\code{write_report} obtains a new snapshot, then writes
+\code{SourcesUnchangedDuringRun: before == after}. The final return code uses
+that final boolean. Although intermediate reports are written after individual
+cases, their earlier source-mismatch result is not retained in memory.
+\cite{runner}
+
+Let $H_0$ be the initial fingerprint map and $H_i$ the map observed after case
+$i$. The current final acceptance predicate is essentially
+\[
+  \text{all cases successful}\quad\land\quad H_m=H_0.
+\]
+The intended sampled stability predicate is stronger:
+\[
+  \text{all cases successful}\quad\land\quad
+  \bigwedge_{i=1}^{m}(H_i=H_0).
+\]
+These are different even when every fingerprint operation itself works
+correctly. Restoration is not evidence that earlier cases used the initial
+sources.
+
+This is not merely the usual limitation that a file can change and change back
+between two observations. Here an observation actually detects the mismatch,
+and a later observation erases its effect on acceptance. A developer switching
+branches, rebuilding generated files, or temporarily editing modules during a
+long run could encounter this sequence accidentally. The fixture deliberately
+makes it deterministic; it does not establish that any published repository
+receipt was affected.
+
+\subsection{Executed reproduction against the original runner}
+
+The supplied \code{upstream/run_mathics_tests.py} is the retrieved runner,
+with its Git blob identity checked against the pinned upstream file. The
+fixture creates a disposable repository-shaped directory containing a suite
+with two IDs and a modular source with a sibling probe module. The external
+executable is a small Python protocol peer, explicitly identifying itself as a
+mock rather than a mathematical kernel.
+
+On the first case, the peer changes the sibling module and emits a successful
+protocol record. The runner then records a source mismatch. On the second case,
+the peer reads that interim report and the changed module, records both
+observations, restores the initial module bytes, and emits another success.
+The actual upstream runner performs its own fingerprinting, process launch,
+parsing, report writing, and final exit decision throughout this experiment.
+
+\begin{table}[htbp]
+\centering
+\begin{tabularx}{\linewidth}{@{}Yccc@{}}
+\toprule
+Scenario & Original exit & Candidate exit & Final stability, original / candidate \\
+\midrule
+Sources never changed & 0 & 0 & True / True \\
+Change persists through completion & 1 & 1 & False / False \\
+Change detected, then restored & 0 & 1 & True / False \\
+\bottomrule
+\end{tabularx}
+\caption{Executed Python-runner results. Mock protocol successes are not
+Wolfram or Mathics package test successes. Raw records are in
+\protect\code{evidence/runner_experiments.json}.}
+\end{table}
+
+In the restored-source case, the fixture also confirms that the interim report
+said the sources had changed and that the second peer read the changed module
+before restoration. Thus the result is not inferred solely from an exit code.
+The persistent-change control shows that the original runner already detects
+ordinary un-restored edits; the defect is specifically loss of historical
+invalidity.
+
+\subsection{Repair and remaining boundary}
+
+The candidate adds a monotone flag. Once a mismatch has been observed, it remains
+true for the lifetime of the run:
+\begin{lstlisting}
+source_drift_observed = False
+source_drift_observations = []
+
+# Inside write_report:
+nonlocal source_drift_observed
+if before != after:
+    source_drift_observed = True
+    # Record changed paths and the number of completed cases.
+
+# In the report:
+"SourcesUnchangedDuringRun": not source_drift_observed
+
+# The original final return-code test now consumes this cumulative value.
+\end{lstlisting}
+The implementation preserves a concise history of changed paths and adds
+\code{SourceCheckScope: "Boundary samples, not continuous monitoring"}.
+The exact patch and guarded patch generator are included. The original,
+unchanged-source behavior and persistent-change refusal remain intact in the
+executed controls.
+
+A latch is necessary but not sufficient for stronger provenance. It cannot
+observe edits that occur entirely between samples. The next step is to freeze
+all executable package inputs, not only the suite. For a modular entry point,
+copy its complete sibling module set into a private directory preserving the
+loader's relative paths. Invoke that entry point, retain the original-to-frozen
+path map, and treat changes to the original source tree as a separate invalidity
+condition. For the standalone entry, freeze the complete single file. Any
+capture script and launcher whose behavior affects the receipt should belong
+to the same frozen input set.
+
+This stronger design should not silently copy the entire repository: only the
+resolved executable dependency closure is needed. Nor should it claim that
+ordinary read-only permissions prevent every possible mutation by the owning
+process. State the threat and concurrency model. A reproducibility receipt
+should distinguish ``initial and final bytes agree,'' ``all sampled checks
+agree,'' and ``execution used a frozen source snapshot.''
+
+The new finding is adjacent to existing validation recommendations, but it is
+not the old aggregate runner's zero-test acceptance problem, nor a request to
+add CI that already exists. It identifies an executed false-positive acceptance
+path in the newer portable runner. \cite{status,workflow}
+
+\section{N02: nonfinite timeout values are accepted too late}
+\label{sec:timeout}
+
+The command-line parser reads \code{--timeout} using Python's \code{float}.
+The subsequent guard checks only \code{args.timeout <= 0}. Positive infinity
+and NaN pass that check: infinity is positive, and an ordered comparison with
+NaN is false. Both therefore reach report creation and subprocess timeout
+handling instead of producing a normal command-line diagnostic. \cite{runner}
+
+The actual upstream runner was exercised with \code{nan}, \code{inf},
+\code{0}, and \code{-1}. In this Linux/Python environment, the two nonfinite
+arguments resulted in unsuccessful execution with Python-level diagnostics;
+the initial report remained incomplete. Its timeout field contained the
+literal \code{NaN} or \code{Infinity}, respectively. The latter are accepted
+by Python's permissive JSON writer, but are not numbers in the JSON grammar.
+Interoperable JSON does not permit either token. \cite{jsonrfc}
+
+\begin{table}[htbp]
+\centering
+\begin{tabularx}{\linewidth}{@{}P{0.14\linewidth}Y Y@{}}
+\toprule
+Input & Original runner, executed & Candidate runner, executed \\
+\midrule
+\code{nan} & Exit 1; incomplete initial report contains \code{NaN}; exception-path diagnostics. & Exit 2; command-line refusal; no report created. \\
+\code{inf} & Exit 1; incomplete initial report contains \code{Infinity}; exception-path diagnostics. & Exit 2; command-line refusal; no report created. \\
+\code{0}, \code{-1} & Exit 2; correctly rejected. & Exit 2; correctly rejected. \\
+\bottomrule
+\end{tabularx}
+\caption{Timeout characterization with a disposable mock protocol peer.
+Absence of a peer marker does not prove that \code{Popen} was never called.}
+\end{table}
+
+The candidate requires a finite, positive number before computing fingerprints,
+writing a report, or invoking a subprocess:
+\begin{lstlisting}
+if not math.isfinite(args.timeout) or args.timeout <= 0:
+    parser.error("--timeout must be finite and positive")
+\end{lstlisting}
+This small change is included in the same patch as N01. A distinct follow-up
+would make JSON serialization explicitly strict, with \code{allow_nan=False},
+and provide a deliberate diagnostic if another report field unexpectedly
+contains a nonfinite number. That serializer change is recommended, not
+included in the tested patch; applying it without deciding how to report a
+serialization failure would merely move the exception.
+
+The issue is a validation and interchange defect, not evidence of an erroneous
+asymptotic formula. There is also no reason to infer that positive infinity
+provides a reliable ``unlimited'' mode across operating systems. An unlimited
+mode, if desired, should have an explicit representation and a separately
+documented execution policy rather than relying on exceptional floating-point
+values.
+
+\section{N03: the Mathics coefficient adapter destroys sparsity}
+\label{sec:sparsity}
+
+\subsection{Source-level cost}
+
+The Mathics-specific univariate \code{CoefficientRules} adapter obtains a dense
+\code{CoefficientList}, pairs each entry with its exponent, removes zero
+entries, and reverses the order. This implements a sparse-looking output by
+first materializing all intervening coefficients. \cite{mathicsalgebra}
+For
+\[
+ P_N(L)=1+L^N,
+\]
+the input and desired coefficient-rule output have two nonzero monomials,
+whereas the intermediate list has $N+1$ positions. The relevant native
+coefficient-list interface explicitly fills interior zeros and sizes the array
+by degree. \cite{wlcoefflist}
+
+In terms of support size $s$ and maximum degree $N$, a representation with
+$s=2$ has been converted to an $\Omega(N)$ allocation and traversal. A
+subsequent support limit cannot recover that work. This matters particularly
+for power-log algorithms: a high logarithmic degree may be encoded in a short
+expression even when only a few source-power blocks are requested.
+
+The polynomial-domain helper
+\nolinkurl{mathicsPolynomialFunctionDomain} also uses a dense
+\code{CoefficientList} to establish that every polynomial
+coefficient is an exact real constant. Implicit zero coefficients need not be
+materialized to establish that theorem. The sparse coefficient iterator could
+therefore serve both extraction and bounded real-domain admission.
+\cite{mathicsbranches}
+
+There are other dense coefficient-list consumers in the broader package,
+including Fourier polynomial normalization. Their existence should be included
+when profiling an end-to-end request, but is not claimed here as another new
+finding. In particular, the public request may encounter an earlier
+normalization or proof limit before reaching the new adapter. This review does
+not claim a measured public out-of-memory result. \cite{fourier,status}
+
+\subsection{A bounded candidate rather than an unsafe universal replacement}
+
+The accompanying \code{SparseMonomialRules} primitive admits an
+\emph{already expanded} sum of monomials in one symbol. Each factor must be
+independent of that symbol, the symbol itself, or a nonnegative integer power of
+it. It extracts exponents, groups equal integer exponents, combines
+coefficients, removes structural zeros, and sorts the retained support. It does
+not call \code{Expand} or allocate an array indexed by the largest exponent.
+
+For this admitted input syntax, the work is driven by the number of input
+factors and monomials, plus support grouping and sorting, rather than by the
+largest gap in the exponent set. Exact symbolic coefficient simplification is
+not assumed free. The candidate does not promise optimal complexity for
+Mathics' list-building primitives, but it removes the degree-sized intermediate
+array on this path.
+
+The restriction is essential. Calling an unrestricted \code{Expand} on
+\code{(1+L)^N} can itself create $N+1$ genuinely nonzero monomials; no sparse
+representation change eliminates that output size. Conversely, silently
+treating an unexpanded variable-dependent factor as a coefficient would be
+wrong. The candidate refuses such expressions and accepts an explicit input
+monomial budget. A production adapter could use this fast path and retain a
+separately budgeted fallback for small dense polynomials.
+
+The independent exact Python checks compare sparse aggregation with a dense
+oracle in 325 bounded cases. A separate symbolic degree-$10^9$ specimen records
+two nonzero output terms and the $1{,}000{,}000{,}001$ positions that the source
+algorithm would require. It does \emph{not} allocate the latter array and is not
+a Mathics memory benchmark. Wolfram/Mathics execution of the supplied primitive
+remains pending.
+
+\subsection{Acceptance obligations}
+
+A production change should be accepted only after testing zero and constant
+polynomials, repeated exponents, coefficient cancellation, exact irrational
+coefficients independent of the polynomial variable, rejected Laurent and
+nonpolynomial terms, and low-degree fallback equivalence. Test fixed support
+with increasing maximum degree separately from dense support with increasing
+degree. A real-domain consumer must check every retained coefficient and must
+not infer the reality of a symbolic coefficient from the fact that it is free
+of the expansion variable.
+
+This mechanism is distinct from the repaired optional \code{SeriesData}
+export allocation: the latter concerns rational source-exponent lattices and a
+native view of an existing series. N03 concerns coefficient algebra and
+Mathics branch admission before that export. Reusing the same word ``sparse''
+for both problems should not hide their different execution paths.
+\cite{status,mathicsalgebra}
+
+\section{N04: a first-match query materializes all matches}
+\label{sec:firstposition}
+
+The local \code{FirstPosition} adapter appropriately keeps a potentially
+stateful default held until no match exists. Its search helper nevertheless
+executes \code{Position[expr, pattern, levels, Heads -> heads]} without a
+result-count bound, retains the entire result, and then takes \code{First}.
+A tree with $m$ matching nodes therefore produces $m$ stored position vectors
+when the consumer needs only one. Even if the desired node occurs immediately,
+the full search is performed. \cite{mathicscompat}
+
+The avoidable output storage is at least proportional to the total length of
+all matching position vectors, not simply the depth of the first answer. A
+flat list with $n$ matching entries gives a transparent example: the current
+approach stores $n$ one-component positions; an early-exit search needs one.
+The accompanying flat-list reference models make this counting distinction
+explicit for four sizes through $100{,}000$. They are counting models, not
+measured kernel timing comparisons.
+
+\subsection{Why the obvious one-line repair is not established}
+
+In the Wolfram interface, \code{Position} can accept a maximum result count as
+a fourth positional argument. However, the inspected Mathics 10.0.1
+implementation declares the expression, pattern, optional level specification,
+and options, then traverses the tree and appends every match. It does not
+implement the corresponding maximum-count positional overload.
+\cite{wlposition,mathicsposition}
+
+Consequently, replacing the call with
+\code{Position[expr, pattern, levels, 1, Heads -> heads]} is not a verified
+Mathics fix. It could simply leave the expression unresolved. A compatibility
+review should inspect the receiving interpreter rather than propose a native
+Wolfram spelling on the assumption that it is portable.
+
+\subsection{Repair options and semantic constraints}
+
+The cleanest general repair is an upstream bounded \code{Position} operation
+that stops traversal as soon as enough matches have been found, together with
+an implementation-level regression proving bounded traversal. A package-local
+repair can instead provide narrow fast paths for the actual level patterns
+used by its consumers and conservatively delegate remaining cases. A complete
+private walker is possible but should be justified by the maintenance cost.
+
+The compatibility tests must preserve traversal order, root matching, levels
+specified by depth and negative depth, inclusion or exclusion of heads, and the
+lazy default. Do not trade a memory issue for a wrong position. Likewise, do
+not broaden a small internal adapter into an undocumented replacement for all
+native pattern-search forms. This article does not distribute a speculative
+walker and label it production-ready; the supplied probe exposes the current
+helper for later runtime characterization.
+
+This is a concrete new internal Mathics search cost, adjacent to but more
+specific than the earlier general profiling recommendation. It is not a claim
+that every package operation is dominated by \code{FirstPosition}, or that
+stateful pattern tests have a portable, guaranteed evaluation-count contract.
+\cite{status,mathicscompat}
+
+\section{N05: affine eventual-domain proofs depend on an arbitrary scale}
+\label{sec:affine}
+
+\subsection{The finite trial grid is not an affine completeness procedure}
+
+The Mathics branch adapter contains a useful exact interval test. For an affine
+expression, it examines the two endpoint values and can prove a relation
+throughout the intervening deleted interval. This is sound: each interior value
+is a strict convex combination of the endpoints. The problem is not that test,
+but how a radius is chosen when proving an eventual condition.
+\cite{mathicsbranches,mathicscallables}
+
+The override of \code{inverseFunctionEventually} first tries symbolic
+simplification under $u>0$, then tests radii $2^{-j}$ for $j=0,\ldots,6$.
+If no trial works, it invokes the older generic proof path. That path asks for
+an existential radius followed by a universal neighborhood condition using
+\code{Resolve}. General quantifier elimination is not supplied by the
+Mathics compatibility layer. \cite{mathicsbranches,inverseexpr,mathicsguide}
+
+Consider the elementary condition
+\[
+  0<u<\varepsilon,\qquad 0<\varepsilon<\frac1{64}.
+\]
+It is eventually true as $u\to0^+$, but no radius in the seven-element grid
+lies inside that neighborhood. The statement $u<\varepsilon$ is not true for
+all $u>0$, either. Thus neither unrestricted simplification under $u>0$ nor
+any of the seven explicit interval tests supplies the required proof. The
+remaining route depends on the unavailable general quantifier solver.
+
+The exact family in the reference checks uses $\varepsilon=2^{-p}$ for
+$p=1,\ldots,160$. Six members have an adequate radius in the grid and 154 do
+not. All 160 admit a radius constructed directly from their coefficients.
+These counts describe the independent exact model of the grid and the proposed
+radius rule; they are \emph{not} 160 executed package requests.
+
+\subsection{Predicted public symptom and why it is an availability defect}
+
+The forward public boundary calls \code{inverseFunctionEventually} to admit
+an approach condition. Its refusal tag is
+\code{IncompatibleTargetCondition}. The direct inverse boundary uses the
+same eventual proof mechanism and an analogous source-condition refusal.
+\cite{inverseexpr}
+A focused request for later runtime reproduction is:
+\begin{lstlisting}
+AsymptoticExpansion[
+  ConditionalExpression[x + x^2, 0 < x < 2^-100],
+  {x, 0, 4}, "Backend" -> "Package"]
+\end{lstlisting}
+The same request with upper endpoint $1$ is a useful control. Both describe the
+same polynomial germ at zero. Its exact forward expression is unchanged; its
+local inverse is
+\[
+ g(y)=\frac{\sqrt{1+4y}-1}{2}
+     =y-y^2+2y^3-5y^4+\OO(y^5).
+\]
+For either positive upper endpoint, $1+2x>0$ on a sufficiently small right
+neighborhood. There is no mathematical branch obstruction.
+
+The source predicts a proof-availability failure for the tiny neighborhood in
+the documented Mathics regime, not a wrong finite expansion or an unsound
+certificate. This review has not executed that public request. It is included
+in \code{tests/ProbeNewReview.wl} so that an actual kernel run can confirm the
+complete dispatch path, any intervening simplification, and the exact outcome.
+
+The distinction is important for UX. An unresolved proof is not a disproved
+condition. The current public failure wording can make a valid small
+neighborhood appear incompatible. Within a documented bounded affine class,
+shrinking a positive neighborhood should not turn a successful germ into a
+failure merely because the new endpoint lies below a fixed trial grid.
+
+\subsection{An exact constructive radius}
+
+The following elementary lemma eliminates the arbitrary grid for rational
+affine conjunctions. It uses only exact arithmetic and sign tests.
+
+\begin{lemma}[A sign-preserving affine neighborhood]
+Let $a,b\in\mathbb Q$, and let $L(u)=a+bu$. If $a\ne0$ and $b\ne0$, define
+$r=\min(1,|a|/(2|b|))$. Then $L(u)$ has the sign of $a$ for every
+$0<u<r$. If $b=0$, its sign is constant. If $a=0$, its sign for $u>0$ is the
+sign of $b$, with $L\equiv0$ when both vanish.
+\end{lemma}
+\begin{proof}
+In the nonzero case, $|bu|<|a|/2$, so $L(u)$ cannot reach or cross zero and
+has the sign of $a$. The two remaining cases follow by direct substitution.
+\end{proof}
+
+\begin{proposition}[Finite affine conjunctions]
+For a finite set of rational affine clauses
+\[
+ a_i+b_i u\ \mathrel{\bowtie_i}\ 0,
+ \qquad \bowtie_i\in\{<,\le,>,\ge,=,\ne\},
+\]
+the local signs in the lemma decide eventual truth of every clause. If all
+clauses are eventually true, the minimum of their positive sign-preserving
+radii, with a cap of $1$, proves the entire conjunction on a positive deleted
+interval.
+\end{proposition}
+\begin{proof}
+A strict positive or negative relation requires the corresponding nonzero
+local sign. A non-strict relation also permits zero; equality requires the
+identically zero affine polynomial; inequality requires a nonzero local sign.
+These conditions are necessary and sufficient in the neighborhood from the
+lemma. A finite minimum of positive rational numbers remains positive and
+simultaneously preserves every established sign.
+\end{proof}
+
+For $u<\varepsilon$, write $\varepsilon-u>0$. The construction gives
+$r=\min(1,\varepsilon/2)$, with no lower scale threshold. Bounds need not be
+optimal; they only need to be positive and proved. A positive rational change
+of coordinate alters the radius but does not destroy the existence of one.
+
+The supplied \code{AffineRadius} primitive implements precisely this rational
+clause API. It is not a parser for arbitrary Wolfram logical expressions and
+not a replacement for \code{Reduce}. Unsupported symbolic coefficients or
+relation forms receive a distinct failure. A production integration should
+normalize admitted ordered operands only after establishing their realness,
+then call the radius constructor; it must not cancel a shared unknown complex
+offset in an inequality.
+
+In addition to the 160-member family, independent exact tests examine 600
+random finite rational conjunctions. The construction proves 124 of them, and
+an endpoint oracle checks the whole proposed interval for each proved case.
+Twenty-five positive coordinate rescalings are also checked. This is evidence
+for the mathematical construction, not execution of its Wolfram Language
+translation.
+
+\subsection{How to integrate without weakening the existing branch contract}
+
+Use the constructive radius as another bounded proof path before general
+quantifier elimination. Retain its explicit radius and normalized clauses as
+proof metadata. A failed rational sign test may establish local falsity for the
+admitted clause; a failed parse or unproved symbolic sign must remain
+inconclusive. Do not convert either into global nonexistence of an inverse.
+
+The branch validator must still check the function's real domain, target
+limit, approach side, and local derivative sign. The new radius proves only a
+neighborhood condition. The existing distinction between a condition radius
+and a quantitative asymptotic-error threshold remains valid and should not be
+blurred. \cite{branches,mathicscallables}
+
+This proposal is deliberately narrower than the earlier parameter-case and
+branch-discovery roadmaps. It closes a concrete scale-dependent hole in the
+new Mathics affine proof path, using a complete elementary procedure for that
+limited input class.
+
+\section{N06: the local limit adapter changes the default question}
+\label{sec:limit}
+
+The current Wolfram \code{Limit} interface defaults to a real two-sided
+approach at a finite real point, expressed as \code{Direction -> Reals}.
+Explicit right and left approaches correspond to \code{-1} and \code{1},
+respectively. The Mathics compatibility adapter instead declares
+\code{Direction -> Automatic} and maps that default to \code{1}, selecting
+only the lower side. \cite{wllimit,mathicssimplify}
+
+The mathematical distinction is witnessed without a computer algebra system:
+\[
+ h(u)=\frac{u}{|u|},\qquad
+ \lim_{u\to0^-}h(u)=-1,\qquad
+ \lim_{u\to0^+}h(u)=1.
+\]
+There is no two-sided real limit. A helper that returns the lower-sided value
+for an omitted direction has answered a different question. This is an
+established mismatch in the inspected private adapter's contract; the
+particular Mathics evaluation of this witness was not run here.
+
+Crucially, this does \emph{not} establish a current wrong public inverse
+result. The inspected branch-validation call already specifies
+\code{Direction -> -1} explicitly when taking a limit in its positive local
+coordinate. That call is not affected by the omitted-direction default.
+A consumer audit is needed before assigning public reachability or a higher
+severity. \cite{branches}
+
+\subsection{A conservative bounded policy}
+
+For a finite endpoint, an adapter can compute the two explicit one-sided
+limits. It should accept a common value only after establishing equality and
+resolving the computations. If the results differ or remain unresolved, return
+a structured ``two-sided limit not established'' result. Distinguish this from
+a proof that the limit does not exist: inability to establish equality is not
+disequality.
+
+The accompanying \code{ConservativeRealLimit} candidate accepts structurally
+identical resolved values, deliberately sacrificing some completeness. It
+passes explicit supported one-sided directions through, and treats the two
+signed infinite endpoints using the corresponding approach from the real
+axis. It does not claim complex-path limits, general directional vectors, or
+all native option behavior.
+
+This is a demonstration primitive, not an installed override. Integrating its
+failure result requires auditing every private consumer's resolvedness checks:
+a new \code{Failure} object must not accidentally be treated as a finite limit
+or passed to a branch proof. Consumers that truly need $u\to0^+$ should say so
+explicitly and avoid a redundant two-sided computation. The focused tests
+should include continuous controls, jumps, opposite signed infinities,
+unevaluated limits, equal-but-not-structurally-identical results, and explicit
+one-sided requests.
+
+\section{Mathics compatibility: what the current layer establishes}
+\label{sec:mathics}
+
+\subsection{A versioned compatibility target, not a binary label}
+
+The compatibility guide identifies Mathics3 10.0.1, scanner 10.0.1, SymPy 1.14.0,
+and Python 3.11 as its development environment. Those versions define the
+relevant target here; this article does not assert that they are the newest
+available releases. The guide explicitly leaves consolidated final-source
+acceptance pending and separates focused examples from full public-interface
+coverage. \cite{mathicsguide}
+
+The central architectural choice is sensible: compile selected package calls
+against a temporary, isolated compatibility context, remove that context from
+the public search path after loading, and leave ordinary Wolfram execution on
+its original path. Some missing public input names are established as inert
+system symbols; their existence is not an implementation of the associated
+function. Reload behavior is separately handled because Mathics can evaluate
+old definitions while new left-hand sides are installed.
+\cite{mathicscompat,modulemap,core}
+
+\begin{longtable}{@{}P{0.23\linewidth}P{0.37\linewidth}P{0.32\linewidth}@{}}
+\toprule
+Area & Inspected support & Remaining interpretation / obligation \\
+\midrule
+\endhead
+Control flow and associations & Scoped return tags, lookup and membership helpers, local update operations, held defaults. & Preserve nested scopes and callback effects; a helper is not full emulation of every native overload. \cite{mathicscompat} \\
+Held callables & Wrapped extraction preserves selected parts while the interpreter performs actual function application. & Test assigned formal symbols, nesting, slot arity and capture avoidance; do not replace this with textual substitution. \cite{mathicscalls,mathicscallables} \\
+Realness and signs & Bounded exact consequences of conjunctions; ordered predicates screened for real operands. & No general quantifier elimination or complete algebraic decision procedure. Unproved signs must remain unresolved. \cite{mathicsassumptions,mathicssimplify} \\
+Polynomial branches & Exact-real polynomial domain rule and affine interval / convexity proofs. & N03's degree allocation and N05's fixed-radius completeness gap need targeted repairs. \cite{mathicsbranches} \\
+Taylor and special functions & Finite defining series for selected zero-centered monomial arguments; selected Stirling and exact-core adapters. & Not arbitrary special-function continuation, simultaneous parameter asymptotics, or unlimited defining-series expansion. \cite{mathicstaylor,mathicsspecial} \\
+Exact algebra & Some unavailable normalization retains exact symbolic forms instead of approximating them. & Exact retention is good, but does not supply every equivalence proof or algebraic canonical form. \cite{mathicscompat} \\
+Lambert cores & Selected principal-branch construction sites use the one-argument form of \code{ProductLog}. & Nonprincipal numerical evaluation remains a documented limitation; symbolic construction alone is not numerical compatibility. \cite{mathicscore,mathicsguide} \\
+Native delegation & Requests can preserve the interpreter's native output separately from an analytic package result. & An inert \code{Asymptotic} or unsupported native option does not satisfy the Wolfram coverage target. \cite{native,mathicsguide} \\
+Numerical checks and certificates & The guide records selected smoke checks and exact rational certificate examples. & No new numerical-accuracy or certificate acceptance is established in this review. \cite{mathicsguide} \\
+Formatting and performance budgets & Runtime-specific formatting and private proof-time allowances; larger iteration budget is an explicit session setting. & Output appearance, evaluator iterations, process deadline and mathematical support budgets remain distinct. \cite{mathicsguide,mathicstime} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Do not equate expression construction with correct numerical use}
+
+The principal Lambert workaround is a useful example of the distinction.
+Selected constructors rewrite the principal branch to its one-argument
+\code{ProductLog} spelling before the problematic two-argument numerical path
+can see numeric data. The inspected Mathics source connects \code{ProductLog}
+to the numerical Lambert function without a corresponding explicit
+branch/argument-order adapter in that class. The repository consequently
+limits its numerical claim and documents nonprincipal evaluation as unsupported.
+\cite{mathicscore,mathicsproductlog,mathicsguide}
+
+This is not presented as another newly discovered defect: the limitation is
+already documented in the new Mathics material. The development implication is
+that compatibility tests should separate a symbolic constructor, its
+\code{Normal} expression, numerical substitution of that expression, and a
+package numerical-check function. Success at the first stage cannot stand in
+for the others. A future private numerical wrapper should preserve branch
+identity and precision and be checked against an independent defining equation
+and branch inequalities, not only a decimal value.
+
+Similarly, the documented \code{s[value]} operation is ordinary substitution
+into the finite expression, not a certified evaluation. The earlier review
+register already discusses a separate checked evaluator. This article does not
+repeat that proposal as a fresh API bug. \cite{guide,status}
+
+\subsection{What existing validation does and does not prove}
+
+The repository has a Mathics CI matrix with modular and standalone entries,
+five grouped selections, Python 3.11, fresh-process portable tests, and a
+per-case timeout. It also has standalone-source freshness checking. Thus a
+recommendation merely to ``add Mathics CI'' would be stale. \cite{workflow}
+
+The compatibility guide additionally describes native definition comparisons
+and historical Wolfram preservation runs. Their value is that they check
+concrete recorded properties against specific controls. Definition equality,
+a selected behavior probe, and a historical full run are different evidence
+populations; none establishes a new complete run at this review's snapshot.
+N01 concerns the portable runner's cumulative source check and must not be
+imputed automatically to a different capture/comparison tool.
+\cite{mathicsguide,runner}
+
+No working Wolfram or Mathics runtime was obtained during this review.
+The attempted Wolfram connector calls failed at the service/network layer,
+not with mathematical errors from the package. The current source was inspected
+through the GitHub connector; the complete repository was not executed or
+exhaustively line-audited. The experimental claims in this article are limited
+to the exact Python runner and independent reference tests actually supplied
+and run.
+
+\section{Development priorities that follow from the new findings}
+\label{sec:roadmap}
+
+\subsection{First repair the evidence-producing infrastructure}
+
+N01 should precede relying on new portable acceptance receipts: it is small,
+reproduced, and affects how results are attributed to sources. Integrate the
+cumulative-invalidity patch, retain the restored-source fixture, and require
+that the final exit code agree with the latched receipt. Add N02's finite
+positive timeout validation in the same infrastructure change. These repairs
+do not require a mathematical kernel to test.
+
+Next, freeze the complete executable source closure and record the actual
+frozen entry point passed to the kernel. The current runner's command metadata
+starts from the unfrozen command while execution substitutes the frozen suite;
+that is understandable implementation history, but a future receipt should
+make original and executed paths explicit rather than force a reader to infer
+the substitution. This is a refinement to N01's provenance design, not a
+separate defect count. \cite{runner}
+
+The central invariant should be monotone evidence:
+\[
+  \text{a run once invalidated by observed drift cannot become valid by
+  restoration.}
+\]
+A completion flag, number of successful cases, source-stability flag, and
+runtime-exception status should remain independently inspectable. Avoid
+summarizing them as one ambiguous ``passed'' field.
+
+\subsection{Then close bounded adapter gaps with semantic laws}
+
+N05 has an unusually favorable cost-benefit ratio. The admitted rational affine
+class has a short proof and a complete constructive procedure; no general
+symbolic inequality solver is needed. Integrate the radius constructor with
+proper real-operand admission and distinct unsupported/inconclusive results.
+Retain the successful interval and clauses. This expands useful Mathics
+coverage without weakening any branch theorem.
+
+For N06, first inventory all internal \code{Limit} consumers and make intended
+positive-local-coordinate directions explicit. Only then change the omitted
+direction policy. Test the adapter's contract independently of public branch
+selection, so that an explicitly one-sided branch test cannot accidentally be
+used to ``verify'' a two-sided default.
+
+For N03, introduce a sparse fast path with a bounded dense fallback and connect
+it to consumers that only need nonzero coefficients. For N04, seek an upstream
+early-exit position primitive or implement only the demonstrably needed subset.
+Do not add an untested generic tree walker merely to make an adapter look
+feature-complete.
+
+\begin{longtable}{@{}P{0.20\linewidth}P{0.38\linewidth}P{0.34\linewidth}@{}}
+\toprule
+Acceptance law & Positive controls & Negative / boundary controls \\
+\midrule
+\endhead
+Provenance invalidity is monotone & Stable inputs and normal protocol success. & Change-and-restore, persistent edits, changed suite, interrupted run. \\
+Timeouts are finite positive durations & Small positive rational and decimal values. & NaN, infinities, zero, negative values, malformed text. \\
+Sparse work follows support & Two monomials at widely separated degrees; cancellation. & Unexpanded dense products; nonpolynomial factors; budget exhaustion before expansion. \\
+First-match search stops when justified & Early and late first match with matching order. & No match, root/head matches, negative levels, held default effects. \\
+Affine germs survive shrinking & Arbitrarily small rational neighborhoods and positive coordinate changes. & Truly false local relation, nonreal operands, unsupported symbolic signs. \\
+Limit directions are preserved & Explicit left/right and continuous two-sided controls. & Jump, unresolved side, unequal sides, unsupported direction. \\
+\bottomrule
+\end{longtable}
+
+These laws are a more precise addition than another generic request for more
+unit tests. Their examples should be generated across scales and syntax forms,
+with expected values coming from elementary mathematics or an independent
+reference model. Runtime agreement is useful, but agreement between two paths
+sharing the same flawed helper is not independent evidence.
+
+\subsection{Profile the new adapters at the correct granularity}
+
+For N03, measure constructor time, maximum resident memory, and coefficient
+positions allocated while holding support fixed and increasing degree. Then
+hold degree fixed and increase true support. Record whether the sparse path,
+dense fallback, or refusal was selected. A benchmark that changes both support
+and degree cannot identify which cost was removed.
+
+For N04, vary first-match position and total match count independently. Record
+traversed nodes and retained positions inside a controlled implementation, not
+only wall-clock time. Tiny cases can be dominated by interpreter startup;
+large held trees can be dominated by input construction. Measure those phases
+separately.
+
+For N05, compare the number of exact sign checks and the available input class
+before comparing speed. The major improvement is that the method proves
+valid small neighborhoods at all; treating an unsupported proof as a fast
+successful computation would invert the performance conclusion.
+
+The existing CI uses a 35-minute job deadline and a 300-second individual-case
+timeout. Those limits are not contradictory, but they bound different things:
+a sequence of several worst-case cases can exhaust a shard even when each case
+respects its own deadline. Use recorded per-case costs to balance grouped
+selections and retain partial results on deadline exhaustion. This is a
+consequence of the inspected configuration, not an observation of a failed CI
+run. \cite{workflow}
+
+No speedup factor is asserted in this article. The supplied evidence counts
+operations or demonstrates runner behavior; it does not measure the package
+under Mathics, and no honest Wolfram/Mathics speed ratio follows from it.
+
+\subsection{Handle the existing feature roadmap without claiming novelty}
+
+The repository's larger targets remain valuable: full native input coverage,
+\code{DiscreteAsymptotic} delegation, and the broader vendored asymptotics
+program. The guide explicitly marks these as requirements rather than
+completed implementations. The older register already records integration,
+uniform parameter asymptotics, complex sectors, additional exponential grades,
+and coupled systems. Repeating that list as new missing features would not
+advance this audit. \cite{guide,status}
+
+The incremental recommendation is instead an implementation discipline for
+those targets. For each new family, record four separate outcomes: mathematical
+admission, symbolic construction, supported operations on the result, and
+numerical/certified evaluation. Make the runtime-specific adapter used at each
+stage visible in a diagnostic record. A feature can then be incomplete in
+Mathics at its numerical stage without falsely being called absent at its
+symbolic stage, or complete because one example printed successfully.
+
+A native backend extension must also preserve native order, conditions,
+branch information, and unresolved results without silently promoting them to
+a custom analytic theorem. The current native contract separation provides an
+appropriate starting point; its already-recorded routing/default issues should
+remain owned by their existing work items. \cite{native,intake}
+
+\section{Artifacts, reproduction, and interpretation of results}
+\label{sec:artifacts}
+
+\subsection{What is included}
+
+The archive contains the complete article source and compiled PDF, the exact
+upstream Python runner with its license, a guarded patch generator, a unified
+diff, the generated candidate runner, a separate Wolfram Language candidate
+package, diagnostic kernel probes, independent exact Python tests, and raw
+JSON records from the executed tests. The machine-readable novelty ledger
+links each new finding to its source and adjacent historical work items.
+
+The Wolfram Language candidate file does not modify the user's package or
+install replacements for \code{System} symbols. Its separate context is
+\code{AsymptoticReview`}. It provides three narrow mechanisms:
+\code{SparseMonomialRules}, \code{AffineRadius}, and
+\code{ConservativeRealLimit}. Their admitted domains and unexecuted status are
+part of the deliverable, not omitted qualifications.
+
+\subsection{Re-running the executed experiments}
+
+From the archive's root directory, the two Python programs reproduce the
+infrastructure and reference checks:
+\begin{lstlisting}
+python -S tests/runner_experiments.py
+python -S tests/exact_reference_checks.py
+\end{lstlisting}
+They use the standard library. The runner fixture was checked on Linux with
+Python 3.13.5 and uses a POSIX executable protocol peer; it is not claimed to be
+a Windows-tested fixture. Its temporary repository directories are isolated
+from the user's checkout. The exact-reference script does not require a
+mathematical kernel.
+
+The runner experiment has 14 scenarios: original and candidate variants for
+three source-stability cases and four invalid-timeout cases. Its overall
+assertions check \emph{expected characterizations}, so some successful
+experiment assertions correspond to intentional failure exits of the tested
+runner. Do not read ``assertions passed'' as ``the original implementation is
+correct.'' Likewise, the exact reference cases are not new package test-suite
+passes.
+
+\subsection{Applying the candidate infrastructure patch}
+
+The patch generator refuses an unexpected upstream Git blob and refuses to
+write over its input. This prevents accidental patching of an evolved runner
+with a stale string-replacement recipe. A typical invocation is:
+\begin{lstlisting}
+python -S code/patch_portable_runner.py \
+  /path/to/checkout/validation/run_mathics_tests.py \
+  /path/to/disposable/validation/run_mathics_tests.py \
+  --diff /path/to/candidate.patch
+\end{lstlisting}
+The output belongs in a repository-shaped \code{validation} directory with
+\code{MathicsTests.wl} and the appropriate source tree. Running the bundled
+\code{code/run_mathics_tests_candidate.py} directly from its archive directory
+would give the original runner the wrong neighboring suite and repository
+root. The test fixture creates the necessary layout automatically.
+
+The candidate is a reviewed repair proposal with focused Python evidence, not
+an upstream commit or a completed production integration. No repository writes
+were performed through the connector.
+
+\subsection{Running the pending kernel probes}
+
+Set \code{ASYMPTOTIC_REVIEW_SOURCE} to the absolute path of the pinned modular
+or standalone package entry. Optionally set
+\code{ASYMPTOTIC_REVIEW_CANDIDATES} to the absolute path of
+\code{code/ReviewPrimitives.wl}. Then run
+\code{tests/ProbeNewReview.wl} in a fresh mathematical kernel. Example launch
+forms, with executable locations adapted to the installation, are:
+\begin{lstlisting}
+mathics --quiet --no-readline --file tests/ProbeNewReview.wl
+WolframKernel -noinit -script tests/ProbeNewReview.wl
+\end{lstlisting}
+The script streams the package load before subsequent package expressions. Its
+observations must be read individually; it is not a self-declared acceptance
+suite. In particular, the tiny-domain public outcome in N05 must first be
+observed before being promoted from a source prediction to a runtime finding.
+
+Run modular and standalone entries separately, retain complete messages and
+runtime versions, and distinguish original-source characterization from
+candidate-source acceptance. Successful primitive tests alone do not establish
+that every public consumer is correctly wired to a candidate. A Mathics proof
+failure may be a coverage gap, while an exception or inert expression may be an
+evaluator-compatibility defect; the report should not collapse those outcomes.
+
+\subsection{Limits of this audit}
+
+This is an incremental, evidence-bounded review, not a certification of the
+whole repository. The existing reviews were deduplicated through their indexes,
+complete consolidated finding crosswalks, and maintained implementation status;
+this article does not claim a full rereading of all 27 original articles.
+The current source inspection followed the new findings through selected
+consumers and examined the principal contracts and module map. No complete
+package execution, full-suite acceptance, end-to-end performance benchmark, or
+fresh interval-certificate validation was obtained.
+
+The unavailable mathematical runtime prevents claiming a reproduced public
+Mathics result for N03--N06. It does not prevent proving the affine-radius
+lemma, demonstrating the adapter's allocation mechanism, comparing documented
+limit contracts, or executing the actual Python infrastructure. Keeping these
+boundaries explicit makes the results usable rather than making them stronger
+than the evidence.
+
+\section{Conclusion}
+
+The strongest new defect is in evidence production: the portable runner can
+forget a detected source mismatch and issue a successful final receipt after
+restoration. A small, exercised patch makes invalidity cumulative and rejects
+nonfinite timeout inputs early. Those changes should be the first integration
+step.
+
+The Mathics findings identify a productive second step. Sparse coefficient
+extraction and first-match search should not allocate work proportional to
+irrelevant degree gaps or all later matches. Affine eventual-domain proofs can
+be made independent of an arbitrary seven-radius grid using an exact
+constructive argument. Omitted limit directions should preserve the question
+being asked, while callers that intentionally use a positive local coordinate
+should remain explicitly one-sided.
+
+The package's mathematical value lies in its admitted real models, inverse
+branches, structured scales, and retained error information, not in a claim
+that native Wolfram Language lacks sophisticated asymptotics. Its Mathics layer
+is already substantial, but the correct unit of compatibility is a versioned
+operation with a preserved contract and corresponding evidence. New coverage
+should be built on those precise units, rather than inferred from loading,
+printed expressions, or historical pass totals.
+
+\appendix
+\section{Source map and audit scope}
+
+All package references below are pinned to the review commit unless explicitly
+identified as historical or upstream Mathics sources. The included CSV source
+inventory gives the same paths and the purpose of inspection. Large modules
+were inspected in relevant ranges; listing a module is not a claim that every
+line or every public route was exhaustively checked.
+
+\begin{longtable}{@{}P{0.42\linewidth}P{0.52\linewidth}@{}}
+\toprule
+Source / group & Use in this review \\
+\midrule
+\endhead
+\nolinkurl{README.md}; \nolinkurl{src/Documentation/UserGuide.md} & Public feature and coverage targets, order conventions, loading, native and Mathics boundaries. \cite{readme,guide} \\
+\nolinkurl{docs/development/CODE_REVIEW_STATUS.md}; \nolinkurl{WAVE_3_INTAKE.md} & Deduplication, completed-fix baseline, complete attributed finding crosswalks, proposal ownership. \cite{status,intake} \\
+\nolinkurl{src/Kernel/AsymptoticAnalysis.wl}; \nolinkurl{NativeCompatibility.wl} & Entry, exactness and coordinate conventions, forward/native importer paths, object access, backend separation. \cite{core,native} \\
+\nolinkurl{InverseFunctionExpressions.wl}; \nolinkurl{InverseFunctionBranches.wl} & Eventual-condition admission, public consumers, branch validation, explicit limit direction. \cite{inverseexpr,branches} \\
+\nolinkurl{LambertInverse.wl}; \nolinkurl{FourierCoefficients.wl} & Specialized scale examples, existing algorithms and consumer context. \cite{lambert,fourier} \\
+\nolinkurl{MathicsCompatibility.wl}; \nolinkurl{MathicsAlgebra.wl} & Scoped control flow, associations, first-position search, dense coefficient-rule path. \cite{mathicscompat,mathicsalgebra} \\
+\nolinkurl{MathicsAssumptions.wl}; \nolinkurl{MathicsSimplification.wl} & Realness/sign proof boundaries, simplification safety, local default limit. \cite{mathicsassumptions,mathicssimplify} \\
+\nolinkurl{MathicsInverseBranches.wl} & Polynomial real-domain proof, affine interval test, seven-radius eventual search. \cite{mathicsbranches} \\
+\nolinkurl{MathicsCalls.wl}; \nolinkurl{MathicsTaylor.wl}; \nolinkurl{MathicsSpecialFunctions.wl}; \nolinkurl{MathicsCoreFunctions.wl}; \nolinkurl{MathicsTimeBudget.wl} & Held evaluation, bounded special-function coverage, numerical and timing boundaries. \cite{mathicscalls,mathicstaylor,mathicsspecial,mathicscore,mathicstime} \\
+\nolinkurl{validation/run_mathics_tests.py}; \nolinkurl{.github/workflows/mathics.yml} & Entire runner retrieved and exercised with a mock peer; workflow grouping and timeout configuration inspected. \cite{runner,workflow} \\
+Mathics3 10.0.1 \nolinkurl{mathics/builtin/list/eol.py}; \nolinkurl{mathics/builtin/specialfns/expintegral.py} & Upstream implementation of bounded/unbounded position queries and Lambert numerical dispatch. \cite{mathicsposition,mathicsproductlog} \\
+\bottomrule
+\end{longtable}
+
+\section{Finding record format}
+
+The novelty ledger assigns each item a severity, evidence type, source mechanism,
+nearby historical owner, and explicit new contribution. The raw experiment
+records deliberately include unsuccessful original behavior, candidate behavior,
+and controls. The article and ledger do not relabel source-only predictions as
+executed kernel observations. Future updates should add runtime records and
+integration revisions rather than overwrite these historical evidence
+boundaries.
+
+\begin{thebibliography}{99}
+\small
+\bibitem{sourcepolicy} Source policy. Package links are pinned to the reviewed Git revision. Mathics implementation links use tag 10.0.1. Native interface claims use official documentation retrieved during the review. Paths in the archive refer to supplied artifacts, not external acceptance receipts.
+\bibitem{commit} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/commit/7d1bc832895cc90a9b2a978b7b7684acab908bd2}{\nolinkurl{Commit 7d1bc832895cc90a9b2a978b7b7684acab908bd2}}.
+\bibitem{readme} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/README.md}{\nolinkurl{README.md}}.
+\bibitem{guide} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Documentation/UserGuide.md}{\nolinkurl{src/Documentation/UserGuide.md}}.
+\bibitem{modulemap} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/README.md}{\nolinkurl{src/Kernel/README.md}}.
+\bibitem{reviewindex} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/external-reports/code-review/README.md}{\nolinkurl{external-reports/code-review/README.md}}.
+\bibitem{status} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/development/CODE_REVIEW_STATUS.md}{\nolinkurl{docs/development/CODE_REVIEW_STATUS.md}}.
+\bibitem{intake} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/development/WAVE_3_INTAKE.md}{\nolinkurl{docs/development/WAVE_3_INTAKE.md}}.
+\bibitem{core} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/AsymptoticAnalysis.wl}{\nolinkurl{src/Kernel/AsymptoticAnalysis.wl}}.
+\bibitem{native} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/NativeCompatibility.wl}{\nolinkurl{src/Kernel/NativeCompatibility.wl}}.
+\bibitem{inverseexpr} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/InverseFunctionExpressions.wl}{\nolinkurl{src/Kernel/InverseFunctionExpressions.wl}}.
+\bibitem{branches} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/InverseFunctionBranches.wl}{\nolinkurl{src/Kernel/InverseFunctionBranches.wl}}.
+\bibitem{lambert} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/LambertInverse.wl}{\nolinkurl{src/Kernel/LambertInverse.wl}}.
+\bibitem{fourier} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/FourierCoefficients.wl}{\nolinkurl{src/Kernel/FourierCoefficients.wl}}.
+\bibitem{mathicsguide} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/Mathics/COMPATIBILITY.md}{\nolinkurl{docs/Mathics/COMPATIBILITY.md}}.
+\bibitem{mathicscallables} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/Mathics/CALLABLES.md}{\nolinkurl{docs/Mathics/CALLABLES.md}}.
+\bibitem{mathicscompat} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsCompatibility.wl}{\nolinkurl{src/Kernel/MathicsCompatibility.wl}}.
+\bibitem{mathicsalgebra} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsAlgebra.wl}{\nolinkurl{src/Kernel/MathicsAlgebra.wl}}.
+\bibitem{mathicsassumptions} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsAssumptions.wl}{\nolinkurl{src/Kernel/MathicsAssumptions.wl}}.
+\bibitem{mathicssimplify} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsSimplification.wl}{\nolinkurl{src/Kernel/MathicsSimplification.wl}}.
+\bibitem{mathicsbranches} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsInverseBranches.wl}{\nolinkurl{src/Kernel/MathicsInverseBranches.wl}}.
+\bibitem{mathicscalls} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsCalls.wl}{\nolinkurl{src/Kernel/MathicsCalls.wl}}.
+\bibitem{mathicstaylor} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsTaylor.wl}{\nolinkurl{src/Kernel/MathicsTaylor.wl}}.
+\bibitem{mathicsspecial} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsSpecialFunctions.wl}{\nolinkurl{src/Kernel/MathicsSpecialFunctions.wl}}.
+\bibitem{mathicscore} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsCoreFunctions.wl}{\nolinkurl{src/Kernel/MathicsCoreFunctions.wl}}.
+\bibitem{mathicstime} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsTimeBudget.wl}{\nolinkurl{src/Kernel/MathicsTimeBudget.wl}}.
+\bibitem{runner} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/validation/run_mathics_tests.py}{\nolinkurl{validation/run_mathics_tests.py}}.
+\bibitem{workflow} Asymptotic contributors. \href{https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/.github/workflows/mathics.yml}{\nolinkurl{.github/workflows/mathics.yml}}.
+\bibitem{mathicsposition} Mathics3 project. Version 10.0.1, \href{https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/builtin/list/eol.py}{\nolinkurl{mathics/builtin/list/eol.py}}.
+\bibitem{mathicsproductlog} Mathics3 project. Version 10.0.1, \href{https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/builtin/specialfns/expintegral.py}{\nolinkurl{mathics/builtin/specialfns/expintegral.py}}.
+\bibitem{wlseries} Wolfram Research. \href{https://reference.wolfram.com/language/ref/Series.html}{\textit{Series}}. Wolfram Language Documentation.
+\bibitem{wlseriesdata} Wolfram Research. \href{https://reference.wolfram.com/language/ref/SeriesData.html}{\textit{SeriesData}}. Wolfram Language Documentation.
+\bibitem{wlinverseseries} Wolfram Research. \href{https://reference.wolfram.com/language/ref/InverseSeries.html}{\textit{InverseSeries}}. Wolfram Language Documentation.
+\bibitem{wlasymptotic} Wolfram Research. \href{https://reference.wolfram.com/language/ref/Asymptotic.html}{\textit{Asymptotic}}. Wolfram Language Documentation.
+\bibitem{wlasymptoticsolve} Wolfram Research. \href{https://reference.wolfram.com/language/ref/AsymptoticSolve.html}{\textit{AsymptoticSolve}}. Wolfram Language Documentation.
+\bibitem{wldiscrete} Wolfram Research. \href{https://reference.wolfram.com/language/ref/DiscreteAsymptotic.html}{\textit{DiscreteAsymptotic}}. Wolfram Language Documentation.
+\bibitem{wlcoefflist} Wolfram Research. \href{https://reference.wolfram.com/language/ref/CoefficientList.html}{\textit{CoefficientList}}. Wolfram Language Documentation.
+\bibitem{wlposition} Wolfram Research. \href{https://reference.wolfram.com/language/ref/Position.html}{\textit{Position}}. Wolfram Language Documentation.
+\bibitem{wllimit} Wolfram Research. \href{https://reference.wolfram.com/language/ref/Limit.html}{\textit{Limit}}. Wolfram Language Documentation.
+\bibitem{jsonrfc} T. Bray, ed. \textit{The JavaScript Object Notation (JSON) Data Interchange Format}. RFC 8259 (2017), \href{https://www.rfc-editor.org/rfc/rfc8259.html#section-6}{Section 6: Numbers}.
+\end{thebibliography}
+\end{document}

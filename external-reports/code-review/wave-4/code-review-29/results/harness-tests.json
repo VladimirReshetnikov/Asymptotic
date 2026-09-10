@@ -1,0 +1,121 @@
+{
+  "Python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "Platform": "linux",
+  "TestsRun": 6,
+  "Failures": 0,
+  "Errors": 0,
+  "Scope": "Byte-identical upstream runner and candidate patch, with fake kernels only",
+  "Observations": [
+    {
+      "Case": "custom-dependency-root",
+      "ChangeDetected": true
+    },
+    {
+      "Case": "finite-timeout-control",
+      "Patched": false,
+      "Succeeded": 2,
+      "FakeKernel": true
+    },
+    {
+      "Case": "finite-timeout-control",
+      "Patched": true,
+      "Succeeded": 2,
+      "FakeKernel": true
+    },
+    {
+      "Case": "fixture-byte-identity",
+      "Verified": true,
+      "Bytes": 12692
+    },
+    {
+      "Case": "init-loader-source-change",
+      "Patched": false,
+      "ChangeDetected": false
+    },
+    {
+      "Case": "init-loader-source-change",
+      "Patched": true,
+      "ChangeDetected": true
+    },
+    {
+      "Case": "interrupt-during-first-case",
+      "Patched": false,
+      "FakeKernelActuallyStarted": true,
+      "RunComplete": false,
+      "Executed": 0,
+      "NotRun": 2,
+      "Started": null,
+      "NotStarted": null,
+      "Outcomes": [],
+      "ExitCode": -2
+    },
+    {
+      "Case": "interrupt-during-first-case",
+      "Patched": true,
+      "FakeKernelActuallyStarted": true,
+      "RunComplete": false,
+      "Executed": 1,
+      "NotRun": 1,
+      "Started": 1,
+      "NotStarted": 1,
+      "Outcomes": [
+        "Interrupted"
+      ],
+      "ExitCode": 1
+    },
+    {
+      "Case": "nonfinite-timeout",
+      "Input": "nan",
+      "Patched": false,
+      "ExitCode": 1,
+      "ReportCreated": true,
+      "Output": "Running alpha ...\n",
+      "Error": "Traceback (most recent call last):\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 256, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 241, in main\n    result = run_case(frozen_command, source, test_id, group, args.timeout, Path(temporary))\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 115, in run_case\n    captured, _ = process.communicate(timeout=timeout)\n                  ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 1222, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 2128, in _communicate\n    ready = selector.select(timeout)\n  File \"/usr/lib/python3.13/selectors.py\", line 395, in select\n    timeout = math.ceil(timeout * 1e3)\nValueError: cannot convert float NaN to integer\n"
+    },
+    {
+      "Case": "nonfinite-timeout",
+      "Input": "nan",
+      "Patched": true,
+      "ExitCode": 2,
+      "ReportCreated": false,
+      "Output": "",
+      "Error": "usage: patched.py [-h] [--python PYTHON | --wolfram EXECUTABLE]\n                  [--source SOURCE] [--dependency-root DEPENDENCY_ROOT]\n                  [--case CASE] [--group GROUP] [--timeout TIMEOUT]\n                  [--output OUTPUT] [--list]\npatched.py: error: --timeout must be finite and positive, and at most 86400 seconds\n"
+    },
+    {
+      "Case": "nonfinite-timeout",
+      "Input": "inf",
+      "Patched": false,
+      "ExitCode": 1,
+      "ReportCreated": true,
+      "Output": "Running alpha ...\n",
+      "Error": "Traceback (most recent call last):\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 256, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 241, in main\n    result = run_case(frozen_command, source, test_id, group, args.timeout, Path(temporary))\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 115, in run_case\n    captured, _ = process.communicate(timeout=timeout)\n                  ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 1222, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 2128, in _communicate\n    ready = selector.select(timeout)\n  File \"/usr/lib/python3.13/selectors.py\", line 395, in select\n    timeout = math.ceil(timeout * 1e3)\nOverflowError: cannot convert float infinity to integer\n"
+    },
+    {
+      "Case": "nonfinite-timeout",
+      "Input": "inf",
+      "Patched": true,
+      "ExitCode": 2,
+      "ReportCreated": false,
+      "Output": "",
+      "Error": "usage: patched.py [-h] [--python PYTHON | --wolfram EXECUTABLE]\n                  [--source SOURCE] [--dependency-root DEPENDENCY_ROOT]\n                  [--case CASE] [--group GROUP] [--timeout TIMEOUT]\n                  [--output OUTPUT] [--list]\npatched.py: error: --timeout must be finite and positive, and at most 86400 seconds\n"
+    },
+    {
+      "Case": "nonfinite-timeout",
+      "Input": "1e300",
+      "Patched": false,
+      "ExitCode": 1,
+      "ReportCreated": true,
+      "Output": "Running alpha ...\n",
+      "Error": "Traceback (most recent call last):\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 256, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 241, in main\n    result = run_case(frozen_command, source, test_id, group, args.timeout, Path(temporary))\n  File \"/tmp/audit-harness-oxhwvin5/validation/original.py\", line 115, in run_case\n    captured, _ = process.communicate(timeout=timeout)\n                  ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 1222, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/subprocess.py\", line 2128, in _communicate\n    ready = selector.select(timeout)\n  File \"/usr/lib/python3.13/selectors.py\", line 398, in select\n    fd_event_list = self._selector.poll(timeout)\nOverflowError: timestamp too large to convert to C PyTime_t\n"
+    },
+    {
+      "Case": "nonfinite-timeout",
+      "Input": "1e300",
+      "Patched": true,
+      "ExitCode": 2,
+      "ReportCreated": false,
+      "Output": "",
+      "Error": "usage: patched.py [-h] [--python PYTHON | --wolfram EXECUTABLE]\n                  [--source SOURCE] [--dependency-root DEPENDENCY_ROOT]\n                  [--case CASE] [--group GROUP] [--timeout TIMEOUT]\n                  [--output OUTPUT] [--list]\npatched.py: error: --timeout must be finite and positive, and at most 86400 seconds\n"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+--- a/validation/run_mathics_tests.py
++++ b/validation/run_mathics_tests.py
+@@ -20,6 +20,7 @@
+ import fnmatch
+ import hashlib
+ import json
++import math
+ import os
+ from pathlib import Path
+ import re
+@@ -186,8 +187,8 @@
+         for name, group in cases:
+             print(f"{group}\t{name}")
+         return 0
+-    if args.timeout <= 0:
+-        parser.error("--timeout must be positive")
++    if not math.isfinite(args.timeout) or args.timeout <= 0:
++        parser.error("--timeout must be finite and positive")
+     source = args.source.resolve()
+     if not source.is_file():
+         parser.error(f"Package source does not exist: {source}")
+@@ -204,9 +205,19 @@
+     before = fingerprints(source)
+     suite_snapshot = SUITE.read_bytes()
+     results = []
++    source_drift_observed = False
++    source_drift_observations = []
+ 
+     def write_report(complete: bool) -> dict:
++        nonlocal source_drift_observed
+         after = fingerprints(source)
++        if before != after:
++            source_drift_observed = True
++            changed = sorted(key for key in before.keys() | after.keys()
++                             if before.get(key) != after.get(key))
++            observation = {"Executed": len(results), "ChangedPaths": changed}
++            if not source_drift_observations or source_drift_observations[-1] != observation:
++                source_drift_observations.append(observation)
+         succeeded = sum(result["Outcome"] == "Success" for result in results)
+         report = {
+             "Runtime": runtime_name, "Command": command,
+@@ -216,7 +227,10 @@
+             "FullPackageSuiteRun": False, "RunComplete": complete, "Selected": len(cases),
+             "TestSuiteSnapshotSHA256": hashlib.sha256(suite_snapshot).hexdigest(),
+             "Executed": len(results), "Succeeded": succeeded, "Failed": len(results) - succeeded,
+-            "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": before == after,
++            "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": not source_drift_observed,
++            "SourceDriftObserved": source_drift_observed,
++            "SourceDriftObservations": source_drift_observations,
++            "SourceCheckScope": "Boundary samples, not continuous monitoring",
+             "TestedSourcesSHA256": before, "Results": results,
+         }
+         if before != after:

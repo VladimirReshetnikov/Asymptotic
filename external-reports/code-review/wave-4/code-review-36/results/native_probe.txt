@@ -1,0 +1,21 @@
+One official Wolfram Language evaluator call returned successfully during this review.
+Reported kernel: 15.0.0 for Linux x86 (64-bit) (May 6, 2026).
+
+Submitted code:
+{$Version, FirstPosition[{1,2},_Integer],
+ Catch[FirstPosition[{1,2}, _?(If[#==2,Throw["late"]];True&),
+ Missing["None"], {1}, Heads->False]],
+ Catch[First[Position[{1,2},
+ _?(If[#==2,Throw["late"]];True&), {1}, Heads->False]]]}
+
+Returned result:
+{"15.0.0 for Linux x86 (64-bit) (May 6, 2026)", {1}, {1}, {1}}
+
+The probe did NOT establish a callback/side-effect difference between FirstPosition
+and Position followed by First. No such semantic defect is asserted in the article.
+The all-match materialization issue is a separate static cost analysis.
+
+Other evaluator attempts returned network/502 errors, including a stronger counter
+probe and an attempted source import. The repository package was NOT loaded or
+executed by the reviewer in either Wolfram Language or Mathics. Historical package
+validation counts quoted in the article belong to repository records, not this run.

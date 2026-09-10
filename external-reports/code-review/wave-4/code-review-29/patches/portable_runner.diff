@@ -1,0 +1,121 @@
+--- a/validation/run_mathics_tests.py
++++ b/validation/run_mathics_tests.py
+@@ -20,6 +20,7 @@
+ import fnmatch
+ import hashlib
+ import json
++import math
+ import os
+ from pathlib import Path
+ import re
+@@ -43,12 +44,16 @@
+     return cases
+ 
+ 
+-def fingerprints(source: Path) -> dict[str, str]:
++def fingerprints(source: Path, dependency_roots: tuple[Path, ...] = ()) -> dict[str, str]:
+     files = {source, SUITE, Path(__file__).resolve()}
+-    if source.name == "AsymptoticAnalysis.wl" and source.parent.name == "Kernel":
++    if source.name in {"AsymptoticAnalysis.wl", "init.m"} and source.parent.name == "Kernel":
+         # --source can select a relocated modular tree, including an untouched
+         # Wolfram baseline. Its sibling modules are part of the tested input.
+         files.update(source.parent.glob("*.wl"))
++        files.update(source.parent.glob("*.m"))
++    for root in dependency_roots:
++        files.update(path for path in root.rglob("*")
++                     if path.is_file() and path.suffix in {".wl", ".m"})
+     return {
+         path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path):
+         hashlib.sha256(path.read_bytes()).hexdigest()
+@@ -124,6 +129,11 @@
+             captured, _ = process.communicate(timeout=10)
+             output = as_text(captured)
+             result = {"Outcome": "Timeout", "ExitCode": process.returncode}
++        except KeyboardInterrupt:
++            stop_process_tree(process)
++            captured, _ = process.communicate(timeout=10)
++            output = as_text(captured)
++            result = {"Outcome": "Interrupted", "ExitCode": process.returncode}
+         except BaseException:
+             stop_process_tree(process)
+             process.communicate(timeout=10)
+@@ -165,6 +175,8 @@
+     runtime.add_argument("--wolfram", metavar="EXECUTABLE", help="Run the identical suite in an official kernel")
+     parser.add_argument("--source", type=Path, default=ROOT / "src/Kernel/AsymptoticAnalysis.wl",
+                         help="Package entry file; pass AsymptoticAnalysis.wl for the generated single file")
++    parser.add_argument("--dependency-root", action="append", type=Path, default=[],
++                        help="Additional source trees for a custom loader; repeat as needed")
+     parser.add_argument("--case", action="append", default=[], help="Test ID or shell wildcard; repeat to select several")
+     parser.add_argument("--group", action="append", default=[], help="Select groups (see --list); repeat to select several")
+     parser.add_argument("--timeout", type=float, default=180, help="Hard seconds per fresh kernel, including startup (default: 180)")
+@@ -186,8 +198,8 @@
+         for name, group in cases:
+             print(f"{group}\t{name}")
+         return 0
+-    if args.timeout <= 0:
+-        parser.error("--timeout must be positive")
++    if not math.isfinite(args.timeout) or not 0 < args.timeout <= 86400:
++        parser.error("--timeout must be finite and positive, and at most 86400 seconds")
+     source = args.source.resolve()
+     if not source.is_file():
+         parser.error(f"Package source does not exist: {source}")
+@@ -201,12 +213,20 @@
+             executable = str(Path(executable).resolve())
+         command = [executable, "-m", "mathics", "--quiet", "--no-readline", "--file", str(SUITE)]
+         runtime_name = "Mathics"
+-    before = fingerprints(source)
++    dependency_roots = tuple(root.resolve() for root in args.dependency_root)
++    if any(not root.is_dir() for root in dependency_roots):
++        parser.error("Each --dependency-root must be an existing directory")
++    before = fingerprints(source, dependency_roots)
++    coverage = ("ExplicitDependencyRoots" if dependency_roots else
++                "CanonicalModular" if source.parent.name == "Kernel" and
++                source.name in {"AsymptoticAnalysis.wl", "init.m"} else
++                "EntryFileOnly")
+     suite_snapshot = SUITE.read_bytes()
+     results = []
++    active_test = None
+ 
+     def write_report(complete: bool) -> dict:
+-        after = fingerprints(source)
++        after = fingerprints(source, dependency_roots)
+         succeeded = sum(result["Outcome"] == "Success" for result in results)
+         report = {
+             "Runtime": runtime_name, "Command": command,
+@@ -218,6 +238,12 @@
+             "Executed": len(results), "Succeeded": succeeded, "Failed": len(results) - succeeded,
+             "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": before == after,
+             "TestedSourcesSHA256": before, "Results": results,
++            "DependencyCoverage": coverage,
++            "DependencyRoots": [str(root) for root in dependency_roots],
++            "Started": len(results) + int(active_test is not None),
++            "Completed": len(results),
++            "NotStarted": len(cases) - len(results) - int(active_test is not None),
++            "ActiveTest": active_test,
+         }
+         if before != after:
+             report["SourcesSHA256AfterRun"] = after
+@@ -237,15 +263,21 @@
+         # original-source fingerprints still invalidate a changed-source run.
+         frozen_command = command[:-1] + [str(frozen_suite)]
+         for test_id, group in cases:
++            active_test = {"TestID": test_id, "Group": group,
++                           "StartedUTC": datetime.now(timezone.utc).isoformat(),
++                           "State": "StartedWithoutResult"}
++            write_report(False)
+             print(f"Running {test_id} ...", flush=True)
+             result = run_case(frozen_command, source, test_id, group, args.timeout, Path(temporary))
+             results.append(result)
++            active_test = None
+             write_report(False)
+             print(f"  {result['Outcome']} ({result['ElapsedSeconds']:.3f}s)", flush=True)
+-            if result["Outcome"] == "LaunchError":
++            if result["Outcome"] in {"LaunchError", "Interrupted"}:
+                 # Repeating an absent executable cannot provide additional evidence.
+                 break
+-    report = write_report(True)
++    report = write_report(len(results) == len(cases) and
++                          not any(r["Outcome"] == "Interrupted" for r in results))
+     succeeded = report["Succeeded"]
+     print(f"Succeeded: {succeeded}; failed: {report['Failed']}; not run: {report['NotRun']}", flush=True)
+     print(f"Report: {args.output.resolve()}", flush=True)

@@ -1,0 +1,147 @@
+{
+  "commit": "7d1bc832895cc90a9b2a978b7b7684acab908bd2",
+  "historical_screening": {
+    "index_reports": 27,
+    "index_attributed_entries_before_deduplication": 167,
+    "read_in_full": [
+      "docs/development/WAVE_3_INTAKE.md",
+      "external-reports/code-review/README.md"
+    ],
+    "read_register_ranges": "Consolidated status register, including correctness, performance, API, extensions and crosswalks",
+    "original_review_consulted": "external-reports/code-review/wave-3/code-review-23/README.md",
+    "all_historical_articles_reread": false
+  },
+  "findings": [
+    {
+      "id": "F01",
+      "priority": "High",
+      "title": "Symbolic ProductLog bridge swaps argument roles",
+      "evidence": "Source-confirmed bridge; direct SymPy stage executed; public core invocation unrun",
+      "sources": [
+        {
+          "path": "src/Kernel/MathicsCoreFunctions.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsCoreFunctions.wl"
+        },
+        {
+          "path": "src/Kernel/CorePerturbation.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/CorePerturbation.wl"
+        },
+        {
+          "path": "src/Kernel/AsymptoticAnalysis.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/AsymptoticAnalysis.wl"
+        }
+      ],
+      "closest_prior_material": "Sharper than numerical-only Mathics warning; closest old D05/X05",
+      "new_delta": "Bidirectional symbolic conversion, numeric arity, differentiation and stored-object specialization"
+    },
+    {
+      "id": "F02",
+      "priority": "High",
+      "title": "Public empty multi-index reaches unprotected Map",
+      "evidence": "Missed call site confirmed; predicted alias/cache manifestation unrun",
+      "sources": [
+        {
+          "path": "src/Kernel/MathicsLists.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsLists.wl"
+        },
+        {
+          "path": "src/Kernel/AsymptoticAnalysis.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/AsymptoticAnalysis.wl"
+        },
+        {
+          "path": "docs/Mathics/LISTS.md",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/docs/Mathics/LISTS.md"
+        }
+      ],
+      "closest_prior_material": "New call-site gap in the documented private-only workaround",
+      "new_delta": "Public DownValue and valid zero-dimensional multi-index, followed by caller-owned-list reuse"
+    },
+    {
+      "id": "F03",
+      "priority": "Medium",
+      "title": "Selected portable case can pass after failed Get",
+      "evidence": "Setup/selection control-flow proof; fixture invocation unrun",
+      "sources": [
+        {
+          "path": "validation/MathicsTests.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/validation/MathicsTests.wl"
+        },
+        {
+          "path": "validation/run_mathics_tests.py",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/validation/run_mathics_tests.py"
+        }
+      ],
+      "closest_prior_material": "Adjacent V02 is older runner accounting, not this portable setup invariant",
+      "new_delta": "Existing-file fixture returning $Failed plus primitive-check-is-unpolluted"
+    },
+    {
+      "id": "F04",
+      "priority": "Medium-bounded",
+      "title": "Implicit scoped Limit selects from-below",
+      "evidence": "Primitive source mismatch; no public incorrect expansion established",
+      "sources": [
+        {
+          "path": "src/Kernel/MathicsSimplification.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsSimplification.wl"
+        }
+      ],
+      "closest_prior_material": "Not C18 source/target endpoint metadata",
+      "new_delta": "Default proposition differs on Abs[t]/t; require explicit proof directions"
+    },
+    {
+      "id": "F05",
+      "priority": "Medium",
+      "title": "FirstPosition eagerly collects all matches",
+      "evidence": "Source-confirmed algorithm and symbolic-merge consumer; operation-count model, not timing",
+      "sources": [
+        {
+          "path": "src/Kernel/MathicsCompatibility.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsCompatibility.wl"
+        },
+        {
+          "path": "src/Kernel/AsymptoticAnalysis.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/AsymptoticAnalysis.wl"
+        }
+      ],
+      "closest_prior_material": "Sharper mechanism than generic P08 proof caching",
+      "new_delta": "Early-match workload and a level-one specialization; pinned Mathics lacks Position maximum-count form"
+    },
+    {
+      "id": "A01",
+      "priority": "Advisory",
+      "title": "Sparse coefficient conversion materializes degree-sized list",
+      "evidence": "Source risk; public stress route not established",
+      "sources": [
+        {
+          "path": "src/Kernel/MathicsAlgebra.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsAlgebra.wl"
+        }
+      ],
+      "closest_prior_material": "Explicit delta from P06 and old optional SeriesData export allocation",
+      "new_delta": "Compatibility conversion has support-two input but degree-plus-one intermediate"
+    },
+    {
+      "id": "A02",
+      "priority": "Advisory",
+      "title": "Interrupted load can bypass compatibility-context cleanup",
+      "evidence": "Static exception-safety gap; interruption tests unrun",
+      "sources": [
+        {
+          "path": "src/Kernel/AsymptoticAnalysis.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/AsymptoticAnalysis.wl"
+        },
+        {
+          "path": "src/Kernel/MathicsCompatibility.wl",
+          "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/7d1bc832895cc90a9b2a978b7b7684acab908bd2/src/Kernel/MathicsCompatibility.wl"
+        }
+      ],
+      "closest_prior_material": "Additional failure-path dimension beyond normal load/reload preservation",
+      "new_delta": "Name resolution may change without modifying System definitions"
+    }
+  ],
+  "mathics_upstream_sources": [
+    "https://github.com/Mathics3/mathics-core/blob/f6a987e704313e37b2b46ed4fe0b61aab108b58a/mathics/builtin/specialfns/expintegral.py",
+    "https://github.com/Mathics3/mathics-core/blob/f6a987e704313e37b2b46ed4fe0b61aab108b58a/mathics/core/builtin.py",
+    "https://github.com/Mathics3/mathics-core/blob/f6a987e704313e37b2b46ed4fe0b61aab108b58a/mathics/builtin/list/eol.py"
+  ]
+}

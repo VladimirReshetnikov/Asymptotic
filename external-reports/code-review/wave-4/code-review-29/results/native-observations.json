@@ -1,0 +1,30 @@
+{
+  "RecordType": "Manual faithful transcription of successful connector results; not an exported kernel log",
+  "Kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "Commit": "7d1bc832895cc90a9b2a978b7b7684acab908bd2",
+  "SuccessfulPackageProbe": {
+    "Source": "Pinned standalone downloaded by URLDownload in remote Wolfram kernel",
+    "SourceBytes": 664603,
+    "GetResult": "Null",
+    "PublicNamesCount": 38,
+    "Input": "AsymptoticAnalysis`AsymptoticExpansion[Exp[x], {x,0,4}, \"Backend\"->\"Package\"]",
+    "Normal": "1+x+x^2/2+x^3/6",
+    "Remainder": "PowerLogRemainder[x,4,0]"
+  },
+  "NativeControls": {
+    "Limit[Sign[x],x->0]": "Indeterminate",
+    "Limit[Sign[x],x->0,Direction->Automatic]": "Indeterminate",
+    "Limit[Sign[x],x->0,Direction->1]": "-1",
+    "Limit[Sign[x],x->0,Direction->-1]": "1",
+    "DirectionInOptionsLimit": "Reals"
+  },
+  "OtherSuccessfulCalls": "Two imports of source text for inspection, not package tests",
+  "Limitations": [
+    "Initial and later Wolfram connector failures (network/HTTP 502).",
+    "No local Mathics installation; package installation failed at network resolution.",
+    "No full repository checkout; source read through GitHub connector.",
+    "No full upstream suite run.",
+    "No native Gamma prototype benchmark, adapter characterization, or candidate Wolfram patch execution.",
+    "The included native_smoke.wls is a reconstructed reproducibility script, not the file used in the successful connector calls."
+  ]
+}

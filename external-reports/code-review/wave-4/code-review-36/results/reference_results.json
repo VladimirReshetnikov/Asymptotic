@@ -1,0 +1,107 @@
+{
+  "repository_commit": "7d1bc832895cc90a9b2a978b7b7684acab908bd2",
+  "evidence_kind": "independent Python exact models and synthetic validation fixtures",
+  "package_executed": false,
+  "mathics_executed": false,
+  "python": "3.13.5",
+  "tests_run": 20,
+  "failures": 0,
+  "errors": 0,
+  "frontier": [
+    {
+      "cutoff": 16,
+      "gaps": [
+        1,
+        2
+      ],
+      "inside_indices": 72,
+      "membership_queries": 144,
+      "full_scan_comparisons": 1096,
+      "peak_boundary_keys": 17,
+      "layers": 16,
+      "insertions": 88,
+      "scope": "exact structural operation count; not Mathics timing"
+    },
+    {
+      "cutoff": 32,
+      "gaps": [
+        1,
+        2
+      ],
+      "inside_indices": 272,
+      "membership_queries": 544,
+      "full_scan_comparisons": 8464,
+      "peak_boundary_keys": 33,
+      "layers": 32,
+      "insertions": 304,
+      "scope": "exact structural operation count; not Mathics timing"
+    },
+    {
+      "cutoff": 64,
+      "gaps": [
+        1,
+        2
+      ],
+      "inside_indices": 1056,
+      "membership_queries": 2112,
+      "full_scan_comparisons": 66592,
+      "peak_boundary_keys": 65,
+      "layers": 64,
+      "insertions": 1120,
+      "scope": "exact structural operation count; not Mathics timing"
+    },
+    {
+      "cutoff": 128,
+      "gaps": [
+        1,
+        2
+      ],
+      "inside_indices": 4160,
+      "membership_queries": 8320,
+      "full_scan_comparisons": 528448,
+      "peak_boundary_keys": 129,
+      "layers": 128,
+      "insertions": 4288,
+      "scope": "exact structural operation count; not Mathics timing"
+    }
+  ],
+  "affine_certificate": {
+    "coefficients": [
+      "1/1024",
+      "-1"
+    ],
+    "valuation": 0,
+    "leading": "1/1024",
+    "tail_l1": "1",
+    "radius": "1/2048",
+    "sign": 1
+  },
+  "terminating_pfq_3f0": [
+    "1",
+    "-6",
+    "24"
+  ],
+  "terminating_pfq_negative_lower": [
+    "1",
+    "4",
+    "-8"
+  ],
+  "dense_coefficient_slots": [
+    {
+      "degree": 100,
+      "support": 2,
+      "dense_slots": 101
+    },
+    {
+      "degree": 10000,
+      "support": 2,
+      "dense_slots": 10001
+    },
+    {
+      "degree": 1000000,
+      "support": 2,
+      "dense_slots": 1000001
+    }
+  ],
+  "native_runtime_scope": "One basic Wolfram evaluator call succeeded; package not loaded. See native_probe.txt."
+}

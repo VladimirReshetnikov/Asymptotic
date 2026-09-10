@@ -1,0 +1,72 @@
+{
+  "revision": "513917b5b387152256b14ac76d92dd30cd13a11d",
+  "findings": [
+    {
+      "id": "F1",
+      "title": "Detected source mutation can be forgotten after restoration",
+      "status": "Reproduced against pinned Python runner with protocol-only fake kernel",
+      "artifact": "runner_experiments.json",
+      "nearest_prior_items": [
+        "V01",
+        "V02"
+      ],
+      "repair": "Sticky flag tested; full frozen-source input selection still needed"
+    },
+    {
+      "id": "F2",
+      "title": "Renaming modular source directory removes sibling monitoring",
+      "status": "Reproduced against pinned Python runner with relocated-source fixture",
+      "artifact": "runner_experiments.json",
+      "nearest_prior_items": [
+        "V01",
+        "V02"
+      ],
+      "repair": "Explicit modular/standalone source set; proposed immutable staging tested on synthetic Git repository"
+    },
+    {
+      "id": "F3",
+      "title": "Nonprincipal Lambert exact-core numerical capability hazard",
+      "status": "Current source trace and independently executed SymPy conversion countermodel; complete public Mathics call unexecuted",
+      "artifact": "mathematical_oracles.json",
+      "nearest_prior_items": [
+        "D05",
+        "X05",
+        "Existing Mathics ProductLog warning"
+      ],
+      "repair": "Capability refusal or tested real lower-branch evaluator; rational prototype is not integrated"
+    },
+    {
+      "id": "F4",
+      "title": "Sparse coefficient adapter makes degree-sized intermediate; first-position materializes all matches",
+      "status": "Source-established complexity; no package timing or large allocation experiment",
+      "artifact": "mathematical_oracles.json",
+      "nearest_prior_items": [
+        "P06",
+        "P08"
+      ],
+      "repair": "Unexecuted sparse WL candidate; budget expansion independently"
+    },
+    {
+      "id": "F5",
+      "title": "Private Mathics Limit omitted-direction mismatch",
+      "status": "Source-established helper contract mismatch; public wrong-result reachability unconfirmed",
+      "artifact": "mathematical_oracles.json",
+      "nearest_prior_items": [
+        "D06",
+        "W3-06"
+      ],
+      "repair": "Explicit positive-local-side helper or genuine two-sided semantics, not merely flip left to right"
+    },
+    {
+      "id": "F6",
+      "title": "Broader bounded defining Taylor family with exact tails",
+      "status": "Constructive extension, not a wrong-result claim; rational coefficients and tail bounds executed",
+      "artifact": "mathematical_oracles.json",
+      "nearest_prior_items": [
+        "X12",
+        "Existing special-function coverage"
+      ],
+      "repair": "Negative nonintegral lower parameters and terminating rank-excess; preserve pole/regularization refusals"
+    }
+  ]
+}
