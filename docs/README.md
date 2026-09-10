@@ -10,11 +10,12 @@ Wolfram reference page.
 | Learn the theory, hypotheses, and proofs | [Mathematical article (PDF)](article/asymptotic-inverse.pdf) · [LaTeX source and build instructions](article/README.md) |
 | Load and use the package | [User guide (HTML)](../src/Documentation/UserGuide.html) · [Markdown source](../src/Documentation/UserGuide.md) |
 | Rebuild the guide or inspect its examples | [Guide build instructions](../src/Documentation/README.md) · [Examples](../src/Examples/README.md) |
-| Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients · [Wolfram evaluation notes](WOLFRAM-NOTES.md) |
-| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Eighteen code review packages in two waves](../external-reports/code-review/README.md) |
+| Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients · [Wolfram evaluation notes](WOLFRAM-NOTES.md) · [Mathics evaluation notes](MATHICS-NOTES.md) |
+| Use the package in Mathics3 | [Compatibility and validation guide](Mathics/COMPATIBILITY.md) · [Exact assumptions](Mathics/ASSUMPTIONS.md) · [Callable branch proofs](Mathics/CALLABLES.md) |
+| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Code review packages](../external-reports/code-review/README.md) |
 | Check what was actually validated | [Validation record](../validation/README.md), with focused test results and artifact-specific build and review evidence |
 | Explore related asymptotic and inverse theory | [Vendored ProveIt article catalog](../vendor/proveit/README.md), with TeX/PDF sources, reading lists, and provenance |
-| Read submitted research and reviews | [External reports](../external-reports/README.md): nine original proposals and eighteen later code reviews |
+| Read submitted research and reviews | [External reports](../external-reports/README.md): original proposals and subsequent code reviews |
 
 The [native compatibility plan](development/NATIVE_COMPATIBILITY.md) records
 the accepted requirement to cover every input successfully handled by built-in

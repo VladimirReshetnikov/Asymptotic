@@ -1,5 +1,53 @@
 # Review and validation record
 
+## Mathics compatibility
+
+The [Mathics compatibility guide](../docs/Mathics/COMPATIBILITY.md) records
+installation, exact proof boundaries, evaluator differences, and tested
+features. The portable suite runs each case in a fresh Mathics or official
+Wolfram kernel; it checks exact coefficients, remainder metadata, source
+immutability where relevant, and explicit failure contracts. Two callable
+cases deliberately record different runtime contracts because Wolfram
+evaluates their `InverseFunction` before package dispatch.
+
+```text
+python -m pip install -r validation/requirements-mathics.txt
+python validation/run_mathics_tests.py --timeout 300
+python validation/run_mathics_tests.py --source AsymptoticAnalysis.wl --timeout 300
+python validation/run_mathics_tests.py --wolfram wolfram.exe
+python -m unittest discover -s validation -p test_mathics_runner.py
+python -m unittest discover -s validation -p test_standalone.py
+```
+
+Use Python 3.11 in an isolated environment for Mathics; `--python` selects its
+interpreter when the runner itself uses another Python. `--list` enumerates
+cases and `--case` or `--group` selects focused runs. JSON reports include
+source hashes, exact actual/expected output, diagnostics, process timeouts,
+and the explicit Mathics iteration setting. Incomplete or changed-source
+runs are not acceptance records.
+
+[mathics-wolfram-preservation.json](mathics-wolfram-preservation.json) keeps
+full original-suite outcomes and native symbol-definition comparisons
+separate. It records the unchanged original 1,452 passes and 12 failures,
+as well as subsequent definition comparisons against updated upstream
+controls. Consult each stage's source hashes before attributing it to a
+later commit. The [Mathics CI workflow](../.github/workflows/mathics.yml)
+runs both package entry points on Linux and uploads complete per-shard
+receipts even when a case fails.
+
+The native comparison is reproducible with:
+
+```text
+python validation/check_mathics_definitions.py --baseline BASELINE_REPOSITORY --candidate . --wolfram wolfram.exe --output native-definitions.json --captures .venv/native-captures
+```
+
+The baseline may be an extracted Git archive. Both entry points are checked
+by default (`--form` can restrict the run). The runner copies immutable
+inputs, checks ten definition fields, caller/package contexts, load/reload
+stability and selected builtins, and retains source hashes. Only absolute
+source-directory strings are normalized. A deliberate changed-downvalue
+fixture verifies that the checker rejects a real mismatch.
+
 ## Native `SeriesData` integer and order-span limits
 
 The [focused C17 acceptance](review-native-index-range-tests.json) passes

@@ -168,6 +168,7 @@ tested features, interpreter settings, and remaining limitations.
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
 | [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/README.md) | The two motivating questions, original online sources, and saved snapshots. |
 | [docs/WOLFRAM-NOTES.md](docs/WOLFRAM-NOTES.md) | Development notes on Wolfram Language behavior. |
+| [docs/MATHICS-NOTES.md](docs/MATHICS-NOTES.md) | Verified Mathics evaluator gotchas, package workarounds, and checking rules. |
 
 When changing the kernel sources, regenerate the standalone file with
 `python validation/build_standalone.py`. The
