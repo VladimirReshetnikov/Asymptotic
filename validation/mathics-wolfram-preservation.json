@@ -1,5 +1,5 @@
 {
-  "RecordedAt": "2026-09-10T02:22:41.603974+00:00",
+  "RecordedAt": "2026-09-10T02:35:42.832285+00:00",
   "Scope": "Fresh official Wolfram kernels: historical full-suite and definition comparisons on the original frozen package, followed by separate native definition, context, load/reload, and builtin-isolation comparisons against each independently updated upstream control.",
   "BaselineCommit": "6687962f3c858a4f93623cfc496f33e35c6763d4",
   "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
@@ -429,8 +429,8 @@
     "AdditionalCasesSucceeded": 17,
     "AdditionalCasesFailed": 0,
     "LaterBoundaryAndFamilyCasesValidated": 17,
-    "DistinctCasesValidatedAgainstOriginalPackage": 98,
-    "Scope": "The previous 77 cases described in PriorScopeThrough77Cases, plus 12 public-operation cases and one empty-list Map primitive case, followed by four direct-export and four held-assumption cases, have validated native expectations against the original package in separate fresh-kernel batches. This is not one all-passing 98-case native invocation; explicit runtime-specific assertions do not claim equal outputs between Wolfram and Mathics.",
+    "DistinctCasesValidatedAgainstOriginalPackage": 101,
+    "Scope": "The previous 77 cases described in PriorScopeThrough77Cases, plus 12 public-operation cases and one empty-list Map primitive case, four direct-export and four held-assumption cases, and three retained-state/request/recipe refinement cases have validated native expectations against the original package in separate fresh-kernel batches. The inverse/model assumptions fixture was revalidated after removing an unsupported inverse-only option. This is not one all-passing 101-case native invocation; explicit runtime-specific assertions do not claim equal outputs between Wolfram and Mathics.",
     "GuardedAffineRealnessCase": {
       "TestID": "assumptions-affine-proofs-require-real-operands",
       "Succeeded": 1,
@@ -482,6 +482,46 @@
         "assumptions-inline-inverse-and-model-preserve-composite"
       ],
       "SourcesUnchangedDuringRun": true
+    },
+    "CorrectedInverseAssumptionsFixture": {
+      "TestID": "assumptions-inline-inverse-and-model-preserve-composite",
+      "Correction": "Remove the unsupported inverse-only Backend option; the expected UnprovedRealCoefficient failures remain unchanged.",
+      "Succeeded": 1,
+      "Failed": 0,
+      "TestSuiteSHA256": "5f2302c918c871c9030d95ebea473c720d2ab5985ac3319df08331add1e570f1",
+      "SourcesUnchangedDuringRun": true
+    },
+    "FinalRefinementCases": {
+      "BaselineCommit": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+      "Succeeded": 3,
+      "Failed": 0,
+      "TestSuiteSHA256": "227d2d0ab8ca6f5f7e26df409ba2e4b00547740cb78f0f6f46c7db0979dfa541",
+      "TestIDs": [
+        "operations-newton-inverse-and-retained-refinement",
+        "operations-refinement-additional-blocks-request",
+        "operations-refinement-replays-product-recipe"
+      ],
+      "SourcesUnchangedDuringRun": true,
+      "ObservedResults": [
+        {
+          "TestID": "operations-newton-inverse-and-retained-refinement",
+          "Outcome": "Success",
+          "ActualOutput": "{0, \"Newton\", 0, 7, \"RetainedNewtonState\", True, True}",
+          "ExpectedOutput": "{0, \"Newton\", 0, 7, \"RetainedNewtonState\", True, True}"
+        },
+        {
+          "TestID": "operations-refinement-additional-blocks-request",
+          "Outcome": "Success",
+          "ActualOutput": "{5, True, True, 0}",
+          "ExpectedOutput": "{5, True, True, 0}"
+        },
+        {
+          "TestID": "operations-refinement-replays-product-recipe",
+          "Outcome": "Success",
+          "ActualOutput": "{0, 5, \"ReplayOperationRecipe\", Missing[\"ReplayNotInstrumented\"]}",
+          "ExpectedOutput": "{0, 5, \"ReplayOperationRecipe\", Missing[\"ReplayNotInstrumented\"]}"
+        }
+      ]
     }
   },
   "EvidenceLimits": "The recorded tests, captured definitions, context comparisons, load/reload checks, and selected builtin probes provide evidence for preservation on Wolfram 15.0.1 at the specifically attributed snapshots. They do not prove every possible observable behavior or validate every input or Wolfram version. The original full-suite comparison retains its 12 pre-existing failures; it was not rerun after the independent upstream implementation changes.",
@@ -1422,7 +1462,13 @@
     },
     "FullSuiteRerunOnThisUpstreamRevision": false,
     "EvidenceLimit": "This stage provides evidence from exact native definitions, contexts, load/reload observations, and selected builtin isolation checks on Wolfram 15.0.1. It does not prove all observable behavior or apply the historical full-suite counts to these later upstream sources.",
-    "Passed": true
+    "Passed": true,
+    "SubsequentPublicationVerification": [
+      {
+        "Commit": "c50ff6bd4042661eac76fcb5575f8a7b482c1a06",
+        "PackageSourceHashesMatchCapturedCandidate": true
+      }
+    ]
   },
   "HeldAssumptionOriginalOracleProbe": {
     "BaselineCommit": "6687962f3c858a4f93623cfc496f33e35c6763d4",

@@ -34,10 +34,27 @@ and reject interpreter diagnostics as well as compare exact coefficients.
 The late module
 [`MathicsCoreFunctions.wl`](../../src/Kernel/MathicsCoreFunctions.wl) also
 normalizes package-created principal Lambert values from `ProductLog[0, z]`
-to the equivalent `ProductLog[z]`. Mathics 10 passes the two-argument form
-to its numerical library in the wrong argument order; for example,
+to the equivalent `ProductLog[z]`. Mathics 10 lacks a numerical implementation
+for the two-argument form, and its conversion to SymPy uses Wolfram's argument
+order instead of SymPy's order; for example,
 `N[ProductLog[0, E]]` can return `-Infinity`. The package normalizes its four
 construction sites before numerical specialization, while retaining ordinary
 `System` heads in the returned expressions. Native interpreter definitions
 are unchanged. Symbolic nonprincipal branches remain explicit, but this
 adapter does not supply their missing reliable numerical evaluation.
+
+Nonprincipal formulas remain available symbolically, including exact
+`s[value]` substitution. Applying native Mathics `N` afterward can leave some
+`ProductLog` terms unresolved while producing incorrect complex values for
+surrounding functions. For example,
+`N[Log[-ProductLog[-1, -1/100]], 30]` produces a nonreal value in the tested
+interpreter, although the real lower branch makes that logarithm real.
+Evaluate such numerical formulas in the official Wolfram kernel. The package
+does not replace native `ProductLog` or `N`.
+
+The checked lower-branch core example
+`AsymptoticCoreInverse[x Log[x], x^2, {x, 0}, {y, 1}]` retains the correct exact
+formula at `y = -1/100`. Its `InverseNumericalCheck` returns a conservative
+failure when Mathics cannot establish the recorded branch condition; it does
+not report a successful numerical comparison. This one check does not
+establish every nonprincipal special-inverse numerical path.

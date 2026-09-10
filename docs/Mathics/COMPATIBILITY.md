@@ -25,7 +25,7 @@ reproducible evaluator gotchas in the same form as the Wolfram notes.
 | Assumptions and inverse branches | Conservative exact rules cover selected polynomial and affine-domain proofs. | Extend unresolved domains and sign/uniqueness proofs without weakening branch hypotheses. |
 | Native backends and special functions | Coverage depends on the interpreter's available functions and package adapters. | Close missing functionality and parameter-range gaps; an inert native symbol is not compatibility. |
 | Numerical checks, certificates, and display | Selected smoke checks and exact rational certificate examples are available. | Establish feature-specific numerical accuracy, certificate behavior, and usable front-end presentation. |
-| Consolidated acceptance | Focused evidence is available; the consolidated final-source run described below is pending. | Complete reproducible runs against unchanged modular and standalone sources and compare public behavior with the Wolfram control. |
+| Consolidated acceptance | 98 distinct portable cases have successful evidence in each layout across three recorded snapshots; the full current-source Linux matrix is pending. | Complete reproducible runs against unchanged modular and standalone sources and compare public behavior with the Wolfram control. |
 
 The limitations below describe remaining work, not a permanently reduced
 Mathics feature target. Until a proof or operation is supported, a clear
@@ -165,8 +165,10 @@ checks reject the original forms.
 * **Fourier and exact cores:** bounded coefficient rules and trigonometric
   identities preserve inverse coefficients and sector metadata. Principal
   Lambert expressions are normalized to one-argument `ProductLog` before
-  numerical specialization, avoiding Mathics' incorrect argument order in
-  the two-argument evaluator. Numerical nonprincipal Lambert evaluation
+  numerical specialization, avoiding Mathics' unsupported two-argument
+  numerical form and incorrect argument order when converting it to SymPy.
+  Exact nonprincipal formulas remain available; applying native Mathics `N`
+  to them can produce incorrect surrounding values. Numerical nonprincipal Lambert evaluation
   remains unsupported; see [algebra and core-function details](ALGEBRA.md).
 * **Time budgets:** internal symbolic proof attempts receive four times their
   Wolfram wall-clock allowance because Mathics interpretation is slower.
@@ -193,9 +195,15 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-Focused live checks establish the following examples. A consolidated run of
-the final source snapshot is pending; individual examples do not establish
-every parameter range of a family.
+The [API inventory](API-COVERAGE.md) maps all 38 exported symbols to exact
+portable cases and remaining input/option gaps. The
+[receipt summary](../../validation/mathics-test-coverage.json) records 98
+distinct cases with successful evidence in each package layout across three
+source snapshots. The two earlier full runs each retain their 76/77 outcome
+and a separately validated correction of an exact-normalization assertion;
+the later batches cover additional operations and held assumptions. This is
+not a single full run of the current source. The full Linux matrix remains
+pending. Individual examples do not establish every parameter range of a family.
 
 | Area | Checked behavior |
 | --- | --- |

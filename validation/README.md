@@ -81,6 +81,34 @@ for known implementation and acceptance gaps.
 
 ## Documentation quality and coverage register
 
+The [merged documentation receipt](documentation-deep-review-2026-09-09.json)
+incorporates `origin/main` through `41ac72d`, including observable admission
+and held Mathics membership assumptions. The [merged example run](documentation-examples-2026-09-09-merged.json)
+passes **39/39** with unchanged source hashes during execution. Both HTML
+references were regenerated and checked in desktop and narrow browser layouts.
+The 101-page article completed three strict LaTeX passes without overflowing
+boxes or unresolved references; every page was rendered and visually reviewed.
+The Gamma polynomial equation now stays on one page. Source hashes, retained
+build logs, and representative browser screenshots distinguish this review
+from the earlier 99-page and 100-page artifacts.
+
+The [deeper example pass](documentation-examples-2026-09-09-premerge.json)
+passes **39/39 selected checks in Wolfram 15.0.1** against the recorded
+pre-merge source hashes based on `699a973`. It retains the previous 31
+worked-example checks, derives the public API inventory dynamically (currently
+38 usage symbols), and adds seven native routing, cutoff, and optional-export
+checks. The runner checks load success, complete execution, source stability,
+and receipt export separately. These are selected documentation examples;
+they do not establish full package or Mathics acceptance.
+
+The [initial run](documentation-examples-2026-09-09-initial.json) records
+38 passes and one incorrect new expectation: literal complex input is refused
+as `InexactInput` before the later `UnprovedRealCoefficient` check. Only the
+expectation changed. The [initial runner source](documentation-deep-review-2026-09-09/CheckDocumentation-initial.wl)
+is preserved with its matching hash. The result properties reference is a
+separate constructor-source audit; it does not claim executable coverage of
+every property row.
+
 The [September 9 documentation receipt](documentation-quality-2026-09-09.json)
 records the source and artifact hashes for the documentation-quality milestone.
 It covers the unified three-goal register, the full 48-root vendored source
@@ -113,6 +141,37 @@ Wolfram kernel; it checks exact coefficients, remainder metadata, source
 immutability where relevant, and explicit failure contracts. Two callable
 cases deliberately record different runtime contracts because Wolfram
 evaluates their `InverseFunction` before package dispatch.
+
+The [public API inventory](../docs/Mathics/API-COVERAGE.md) maps all 38 exports
+to representative cases. The [receipt summary](mathics-test-coverage.json)
+records **98 distinct cases with successful Mathics evidence in each layout,
+across three explicitly identified package snapshots**. Three further
+refinement cases now also pass in the modular package and original Wolfram;
+their standalone checks are still running. The maintained suite contains 101 cases.
+
+| Snapshot | Modular evidence | Standalone evidence |
+| --- | --- | --- |
+| 53 modules | [Full 77-case run](mathics-modular-tests.json): 76 passes, one exact-normalization failure; [corrected assertion](mathics-modular-normalization-tests.json): 1 pass on identical package hashes. | [Full 77-case run](mathics-standalone-tests.json): the same 76/1 result; [corrected assertion](mathics-standalone-normalization-tests.json): 1 pass on identical artifact bytes. |
+| 54 modules, empty-list mapping protection | [13 additional cases](mathics-modular-api-tests.json), all pass. | [13 additional cases](mathics-standalone-api-tests.json), all pass. |
+| 55 modules, held inline-assumption protection | [8 additional cases](mathics-modular-final-api-tests.json), all pass. | [8 additional cases and 5 repeated loading checks](mathics-standalone-final-tests.json), all pass. |
+
+The first failing fixture used `Expand` where Mathics required `Simplify` to
+recognize the same exact zero. Its corrected oracle also passes the untouched
+Wolfram package. The summary preserves the original failure and counter values;
+it does not rewrite either full run as 77/77 or claim one full 98-case run on
+the last snapshot. The full Linux matrix for the current package is pending.
+
+Regenerate that explicitly scoped summary with:
+
+```text
+python validation/summarize_mathics_tests.py --reconcile validation/mathics-modular-tests.json validation/mathics-modular-normalization-tests.json --reconcile validation/mathics-standalone-tests.json validation/mathics-standalone-normalization-tests.json --supplemental validation/mathics-modular-api-tests.json --supplemental validation/mathics-standalone-api-tests.json --supplemental validation/mathics-modular-final-api-tests.json --supplemental validation/mathics-standalone-final-tests.json --output validation/mathics-test-coverage.json
+```
+
+Reconciliation requires identical package hashes and successful targeted
+corrections for every original failing case. The summarizer rejects incomplete,
+drifting, or inconsistent receipts and retains the distinct supplemental
+snapshots. Six focused tests check these evidence boundaries, relative
+modular paths, and protection against overwriting an input receipt.
 
 ```text
 python -m pip install -r validation/requirements-mathics.txt

@@ -1,8 +1,8 @@
 # Maintaining the documentation
 
 Start with the [coverage targets](development/COVERAGE_TARGETS.md), the
-[implementation register](development/CODE_REVIEW_STATUS.md), and the recent
-Git log. A package capability, a mathematical theorem, a passing example,
+[implementation register](development/CODE_REVIEW_STATUS.md), the
+[recent changes](CHANGES.md), and the Git log. A package capability, a mathematical theorem, a passing example,
 and a project goal are different claims. Keep their scope explicit when
 updating any format.
 
@@ -11,6 +11,7 @@ updating any format.
 | Change | Maintained source | Output or related documentation |
 | --- | --- | --- |
 | Public syntax, options, result properties, or examples | [UserGuide.md](../src/Documentation/UserGuide.md) | Regenerate [UserGuide.html](../src/Documentation/UserGuide.html); update the relevant [executable examples](../src/Examples/README.md). |
+| Result-family metadata, missing values, or accessor behavior | [ResultReference.md](../src/Documentation/ResultReference.md) | Regenerate [ResultReference.html](../src/Documentation/ResultReference.html) with the same builder and keep guide summaries consistent. |
 | Guide typography or responsive layout | [UserGuide.css](../src/Documentation/UserGuide.css) | Regenerate HTML and inspect desktop and narrow layouts. |
 | Mathematical hypotheses, statements, proofs, or notation | [Article master](article/asymptotic-inverse.tex) and its included sections | Rebuild and visually inspect [the PDF](article/asymptotic-inverse.pdf). Keep software syntax in the user guide. |
 | Runtime or coverage status | [Coverage register](development/COVERAGE_TARGETS.md), [native deviations](development/NATIVE_COMPATIBILITY.md), and [Mathics status](Mathics/COMPATIBILITY.md) | Keep the root README, documentation index, and guide introductions consistent with the detailed records. |
@@ -19,8 +20,10 @@ updating any format.
 
 ## Check links, generated HTML, and mathematical references
 
-The guide builder requires Python and Pandoc on `PATH`. Its generated HTML
-contains the stylesheet and needs no external assets or JavaScript. Pandoc's
+The guide builder requires Python and Pandoc on `PATH`. It builds both the
+user guide and result properties reference, with shared styling and HTML links
+between them. Each generated page contains the stylesheet and needs no external
+assets or JavaScript. Pandoc's
 HTML template can change between versions; the current artifact was generated
 with **Pandoc 3.9.0.2**. If a different version changes the output, review that
 diff together with the source instead of bypassing the freshness check.
@@ -71,3 +74,7 @@ When other worktrees are active, review their committed changes and incoming
 `origin/main` updates. Resolve source conflicts first; regenerate HTML or the
 standalone package from the merged sources, and rebuild a conflicted PDF
 from resolved LaTeX. Keep the final validation tied to those merged artifacts.
+Add a concise entry to [recent changes](CHANGES.md) for user-visible capabilities
+or migration requirements. Link the actual implementation commit separately
+from any later acceptance receipt; describe what a test checked instead of
+implying that an old pass establishes current or complete coverage.

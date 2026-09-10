@@ -1,4 +1,4 @@
-"""Build the standalone user guide and check its local links and API anchors.
+"""Build the standalone guide/reference and check their links and API anchors.
 
 Requires Pandoc on PATH; uses only the Python standard library.
 Run from any directory: python validation/build_user_guide.py
@@ -18,6 +18,8 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "src" / "Documentation"
+PAGES = {"UserGuide": "AsymptoticAnalysis User Guide",
+         "ResultReference": "AsymptoticAnalysis Result Properties"}
 
 
 class Document(HTMLParser):
@@ -34,45 +36,73 @@ class Document(HTMLParser):
             self.links.append(values["href"])
 
 
-def build(check: bool = False) -> dict:
-    command = ["pandoc", "UserGuide.md", "--from=gfm", "--to=html5",
+def render(name: str, title: str) -> str:
+    command = ["pandoc", f"{name}.md", "--from=gfm", "--to=html5",
                "--standalone", "--section-divs", "--toc", "--toc-depth=2",
                "--embed-resources", "--css=UserGuide.css",
-               "--metadata=pagetitle:AsymptoticAnalysis User Guide",
+               f"--metadata=pagetitle:{title}",
                "--metadata=lang:en"]
     rendered = subprocess.run(command, cwd=DOCS, check=True, capture_output=True,
                               encoding="utf-8").stdout.replace("\r\n", "\n")
     rendered = rendered.replace("</head>", '<link rel="icon" href="data:,">\n</head>')
-    document = Document()
-    document.feed(rendered)
-    duplicate_ids = [name for name, count in Counter(document.ids).items() if count > 1]
-    errors = [f"Duplicate anchor: {name}" for name in duplicate_ids]
-    for href in document.links:
-        url = urlsplit(href)
-        if url.scheme or url.netloc:
-            continue
-        if not url.path:
-            if url.fragment and unquote(url.fragment) not in document.ids:
-                errors.append(f"Missing anchor: {href}")
-        elif not (DOCS / unquote(url.path)).exists():
-            errors.append(f"Missing local destination: {href}")
+    # Keep Markdown sources navigable on GitHub while the generated pair links
+    # to readable HTML siblings, including their exact section fragments.
+    for sibling in PAGES:
+        rendered = re.sub(r'(href=")' + re.escape(sibling) + r'\.md(?=[#?\"])',
+                          rf'\g<1>{sibling}.html', rendered)
+    return rendered
+
+
+def build(check: bool = False) -> dict:
+    rendered = {name: render(name, title) for name, title in PAGES.items()}
+    documents = {}
+    for name, html in rendered.items():
+        document = Document()
+        document.feed(html)
+        documents[name] = document
+    errors = []
+    for name, document in documents.items():
+        errors.extend(f"{name}: duplicate anchor: {anchor}"
+                      for anchor, count in Counter(document.ids).items() if count > 1)
+        for href in document.links:
+            url = urlsplit(href)
+            if url.scheme or url.netloc:
+                continue
+            path = unquote(url.path)
+            destination = document if not path else None
+            for sibling in documents:
+                if path == f"{sibling}.html":
+                    destination = documents[sibling]
+                    break
+            if destination is not None:
+                if url.fragment and unquote(url.fragment) not in destination.ids:
+                    errors.append(f"{name}: missing anchor: {href}")
+            elif not (DOCS / path).exists():
+                errors.append(f"{name}: missing local destination: {href}")
     kernel = "\n".join(path.read_text(encoding="utf-8") for path in
                        sorted((ROOT / "src" / "Kernel").rglob("*.wl")))
     public = sorted(set(re.findall(r"^(?:AsymptoticAnalysis`)?([A-Za-z][A-Za-z0-9]*)::usage\s*=", kernel, re.M)))
     for symbol in public:
-        if document.ids.count(symbol) != 1:
+        if documents["UserGuide"].ids.count(symbol) != 1:
             errors.append(f"Public symbol needs one reference anchor: {symbol}")
     if errors:
         raise SystemExit("\n".join(errors))
-    target = DOCS / "UserGuide.html"
-    if check:
-        if target.read_text(encoding="utf-8") != rendered:
-            raise SystemExit("UserGuide.html differs from its Markdown/CSS sources; rebuild it.")
-    else:
-        target.write_text(rendered, encoding="utf-8", newline="\n")
-    result = {"PublicSymbols": len(public), "Anchors": len(document.ids),
-              "Links": len(document.links), "BrokenLocalLinks": 0,
+    for name, html in rendered.items():
+        target = DOCS / f"{name}.html"
+        if check:
+            if not target.exists() or target.read_text(encoding="utf-8") != html:
+                errors.append(f"{name}.html differs from its Markdown/CSS sources; rebuild it.")
+        else:
+            target.write_text(html, encoding="utf-8", newline="\n")
+    if errors:
+        raise SystemExit("\n".join(errors))
+    guide = documents["UserGuide"]
+    result = {"PublicSymbols": len(public), "Anchors": len(guide.ids),
+              "Links": len(guide.links), "BrokenLocalLinks": 0,
               "DuplicateAnchors": 0, "GeneratedHTMLMatchesSources": True}
+    result["ReferenceDocuments"] = {
+        f"{name}.html": {"Anchors": len(doc.ids), "Links": len(doc.links)}
+        for name, doc in documents.items() if name != "UserGuide"}
     print(result)
     return result
 

@@ -1,14 +1,17 @@
 \section{Remainders after a cutoff}
 \label{sec:remainders}
 
-\subsection{Exponent cutoff: the first omitted block}
+\subsection{Exponent cutoff and the first possible omitted weight}
 
 Let the target cutoff be an exponent $q$ of the local variable of the result, exclusive. In terms of weights, with $r$ the observable power, a block $z^{r+\sigma}C(L)$ has exponent $(r+\sigma)/|p|$ in the local variable of $y$ (Section~\ref{sec:endpoints}), so the retained set is
 \begin{equation}
  I_H=\{\bk\in\N^m:\bk\cdot\bdelta<H\},\qquad H=|p|\,q-r ,
  \label{eq:IH}
 \end{equation}
-a finite downward-closed set (Lemma~\ref{lem:finite}). Set $C^{(r)}_0=1$. When $H>0$ its \emph{one-step boundary} is
+a finite downward-closed set (Lemma~\ref{lem:finite}). This set depends on
+the admissible weights, before coefficient cancellation: every index at a
+retained weight is included even if its coefficient vanishes. Set
+$C^{(r)}_0=1$. When $H>0$ its \emph{one-step boundary} is
 \begin{equation}
  \partial I_H=\{\bk+e_i:\bk\in I_H,\ 1\le i\le m\}\setminus I_H ,
  \label{eq:boundary}
@@ -22,7 +25,10 @@ also finite. When $H\le0$, $I_H$ is empty and we define its boundary to be $\{0\
 
 \begin{lemma}
 \label{lem:frontier}
-$\sigma_*=\min(S\setminus[0,H))$, and every multi-index of weight $\sigma_*$ lies in $\partial I_H$. Thus the complete coefficient at the first omitted weight is obtained from the boundary alone.
+$\sigma_*=\min\{\sigma\in S:\sigma\ge H\}$, and every multi-index
+of weight $\sigma_*$ lies in $\partial I_H$. Thus the complete coefficient
+at the first \emph{possible} omitted weight is obtained from the boundary
+alone, whether or not that coefficient is zero.
 \end{lemma}
 \begin{proof}
 For $H\le0$ the assertion is immediate, with $\sigma_*=0$. For $H>0$, let $\bnu\notin I_H$ have weight $\sigma$. Along a path from $0$ to $\bnu$ that increases one coordinate at a time, the weights increase strictly, and the first point outside $I_H$ is a boundary point of weight $\le\sigma$; hence $\sigma_*\le\sigma$, so $\sigma_*$ is the least weight outside $[0,H)$. If $\sigma=\sigma_*$ the first point outside $I_H$ has weight exactly $\sigma_*$ by minimality, and no later point on the path can have the same weight, so $\bnu$ is that boundary point.
@@ -36,29 +42,85 @@ Let $G^{(r)}_H=z^r\sum_{\bk\in I_H}z^{\bk\cdot\bdelta}C^{(r)}_{\bk}(L)$. Then, a
  =\OO\bigl(z^{r+\sigma_*}\M(z)^{k_*}\bigr).
  \label{eq:remainder}
 \end{equation}
-If $C^{(r)}_{\sigma_*}\ne0$ the bound is attained by its top logarithm; if $C^{(r)}_{\sigma_*}=0$ (a resonant cancellation) the remainder is $\oo(z^{r+\sigma_*})$, and the true order is that of the next nonzero block, which the theorem does not identify.
+If $C^{(r)}_{\sigma_*}\ne0$ the bound is attained by its top logarithm.
+If $C^{(r)}_{\sigma_*}=0$, the remainder is
+$\oo(z^{r+\sigma_*})$. Its first nonzero block, if one exists, occurs at
+a later weight and is not identified by this first boundary calculation.
 \end{theorem}
 \begin{proof}
-By Theorem~\ref{thm:convergence}, $g^r\in\mathcal E$ with the bound \eqref{eq:coefficient-bound}, and the omitted multi-indices are those of weight $\ge\sigma_*$ by Lemma~\ref{lem:frontier}; Lemma~\ref{lem:tail} (refined form) gives the claim.
+If $H\le0$, the retained sum is empty and $\sigma_*=0$.
+The branch equivalence $g\sim z$ gives
+$g^r=z^r(1+\oo(1))$, proving the claim with $C^{(r)}_0=1$.
+For $H>0$, Theorem~\ref{thm:convergence} gives $g^r\in\mathcal E$
+with the bound \eqref{eq:coefficient-bound}. The omitted multi-indices
+have weights at least $\sigma_*$ by Lemma~\ref{lem:frontier}, so the
+refined form of Lemma~\ref{lem:tail} applies. When the complete boundary
+coefficient is zero, its displayed leading contribution disappears, leaving
+the stated little-$o$ estimate.
 \end{proof}
+
+The distinction is between the semigroup $S$ of possible weights and the
+actual support $\{\sigma\in S:C^{(r)}_\sigma\ne0\}$. A vanishing
+coefficient can result from cancellation between indices, from a zero
+factor in the coefficient formula, or from $r=0$, when $g^r=1$ and there
+is no subsequent nonzero block. If all remaining coefficients are proved
+zero, convergence establishes an exact finite expression. A finite run of
+zero coefficients alone supplies no such proof.
 
 \begin{corollary}[In the variable of the result]
 \label{cor:remainder-y}
-With $w$ the local variable of $y$ ($w=|y-y_0|$ for finite $y_0$, $w=1/|y|$ for infinite $y_0$),
+With $w$ the local variable of the target ($w=|y-y_0|$ for $p>0$,
+and $w=1/|y|$ for $p<0$),
 \[
  g(y)^r-G^{(r)}_H(y)=\OO\bigl(w^{(r+\sigma_*)/|p|}\,\M(w)^{k_*}\bigr),\qquad\frac{r+\sigma_*}{|p|}\ge q ,
 \]
 since $z=(w/|a|)^{1/p}$ for $p>0$, $z=(|a|w)^{1/|p|}$ for $p<0$, and $\M(z)\asymp\M(w)$.
 \end{corollary}
 
-For a pure monomial ($m=0$), the inverse observable is exactly $z^r$: the tail is zero if this term is retained and equals $z^r$ otherwise. The pair $\bigl((r+\sigma_*)/|p|,k_*\bigr)$ specifies the remainder class in the target coordinate, while $z^{r+\sigma_*}C^{(r)}_{\sigma_*}$ is its complete first omitted block. If that coefficient vanishes, a sharper order requires computing further weights or proving that the remaining series terminates.
+For a pure monomial ($m=0$), the inverse observable is exactly $z^r$: the tail is zero if this term is retained and equals $z^r$ otherwise. With correction gaps present, the pair $\bigl((r+\sigma_*)/|p|,k_*\bigr)$ specifies a valid remainder class in the target coordinate, while $z^{r+\sigma_*}C^{(r)}_{\sigma_*}$ is the complete contribution at its first possible omitted weight. If that coefficient vanishes, a sharper order requires computing further weights or proving that the remaining series terminates.
 
 \begin{example}[Resonances]
 For $f=x+x^2+x^3$ the gaps are $1$ and $2$; at weight $2$ the indices $(2,0)$ and $(0,1)$ contribute $2$ and $-1$, at weight $3$ the indices $(3,0)$ and $(1,1)$ contribute $-5$ and $+5$, so
 \[
  g(y)=y-y^2+y^3+0\cdot y^4-4y^5+14y^6-30y^7+33y^8+\cdots ,
 \]
-The coarse boundary estimate at cutoff $4$ is $\OO(y^4)$; summing the weight-$3$ coefficients improves it to $\OO(y^5)$. For $f=x+x^2+2x^3$ the block at $y^3$ cancels instead. The cancellation concerns the sum of all contributions at an exactly equal weight, not each multi-index separately.
+At target cutoff $q=4$ one has $H=3$ and $\sigma_*=3$.
+The coarse estimate is $\OO(y^4)$; summing the complete weight-$3$
+layer shows that the error is $\oo(y^4)$. To obtain its next order,
+include that zero layer in the retained index set and form the new boundary.
+At weight $4$, the indices $(4,0)$, $(2,1)$ and $(0,2)$ contribute
+$14$, $-21$ and $3$, respectively. Thus
+\[
+ g(y)-(y-y^2+y^3)=-4y^5+\OO(y^6).
+\]
+Discarding a zero layer without generating its successors would miss
+$(4,0)$ in this calculation. For $f=x+x^2+2x^3$ the block at $y^3$
+cancels instead. The cancellation concerns the sum of all contributions
+at an exactly equal weight, not each multi-index separately.
+\end{example}
+
+\begin{example}[An infinite target and a zero coefficient without resonance]
+Let $f(u)=u^{-2}(1+u)$ with $u\to0^+$, so $a=1$, $p=-2$ and
+the sole correction gap is $\delta=1$. The positive local inverse and
+target coordinate are
+\[
+ g(y)=\frac{1+\sqrt{1+4y}}{2y}
+      =\frac w2+w^{1/2}\sqrt{1+\frac w4},\qquad w=\frac1y\to0^+.
+\]
+The convergent binomial expansion gives
+\[
+ g(y)=w^{1/2}+\frac w2+\frac{w^{3/2}}8
+                   -\frac{w^{5/2}}{128}+\OO(w^{7/2}).
+\]
+For the observable $r=1$ and target cutoff $q=2$, one has
+$H=|p|q-r=3$. The first possible omitted weight $\sigma_*=3$
+would contribute at target exponent $2$, but its coefficient is zero.
+There is only one index of each weight here; the zero comes from a factor
+in \eqref{eq:master}, not from resonance. The first nonzero omitted term
+has weight $4$ and target exponent $5/2$, with coefficient $-1/128$.
+This example also shows why a negative leading source power leaves the
+correction gaps positive and converts them to target gaps by division by
+$|p|$.
 \end{example}
 
 \begin{example}[The log example]
@@ -79,7 +141,9 @@ When the exponents are symbolic (Section~\ref{sec:boundaries}) their order may b
 
 \begin{theorem}[Remainder after a depth cutoff]
 \label{thm:depth}
-Let $G^{(r)}_{\le N}=z^r\sum_{|\bk|\le N}z^{\bk\cdot\bdelta}C^{(r)}_{\bk}(L)$, $\delta_*=\min_i\delta_i$ and $d_*=\max_i\deg B_i$. Then
+Let $N\in\N$ and $m\ge1$, and put
+$G^{(r)}_{\le N}=z^r\sum_{|\bk|\le N}z^{\bk\cdot\bdelta}C^{(r)}_{\bk}(L)$,
+$\delta_*=\min_i\delta_i$ and $d_*=\max_i\deg B_i$. Then
 \begin{equation}
  g(y)^r-G^{(r)}_{\le N}(y)=\OO\bigl(z^{r+(N+1)\delta_*}\M(z)^{(N+1)d_*}\bigr).
  \label{eq:depth-remainder}
@@ -89,4 +153,14 @@ Let $G^{(r)}_{\le N}=z^r\sum_{|\bk|\le N}z^{\bk\cdot\bdelta}C^{(r)}_{\bk}(L)$, $
 The omitted terms have $|\bk|\ge N+1$; use \eqref{eq:coefficient-bound} and the count $m^n$ of multi-indices of degree $n$ exactly as in the proof of Lemma~\ref{lem:tail}.
 \end{proof}
 
-Depth truncation retains every block of exponent below $r+(N+1)\delta_*$, but it may also retain blocks above that bound while omitting smaller ones when several gaps are present: for $f=x+x^2+x^4$ depth $1$ gives $y-y^2-y^4$ although the omitted depth-two term $2y^3$ dominates $y^4$. The remainder \eqref{eq:depth-remainder} is nevertheless correct as stated.
+Depth truncation determines every complete coefficient strictly below
+exponent $r+(N+1)\delta_*$. At or beyond that boundary it may retain
+terms while omitting larger ones, and a retained coefficient can still
+receive contributions from higher depths. For $f=x+x^2+x^4$, depth $1$
+gives $y-y^2-y^4$, whereas the inverse begins
+$y-y^2+2y^3-6y^4+\OO(y^5)$. Thus the displayed $y^4$ term is both
+smaller than the omitted $2y^3$ term and only part of the true coefficient
+at $y^4$. The depth remainder $\OO(y^3)$ is nevertheless correct.
+Depth is an inclusive bound on $|\bk|$; it is neither an exponent cutoff
+nor a count of resolved nonzero blocks. For $m=0$ there are no correction
+indices and the inverse observable is the exact monomial $z^r$.
