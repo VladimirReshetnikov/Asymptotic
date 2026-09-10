@@ -41,7 +41,8 @@ thirty-five packages in five waves:
 [reports 28–31, 33–36](../../external-reports/code-review/wave-4/README.md), and
 [reports 37–39, 42–45](../../external-reports/code-review/wave-5/README.md). Ten
 packages whose entries were implemented or duplicated elsewhere are listed in the
-[retirement register](../../external-reports/code-review/README.md#retired-review-packages).
+[retirement register](../../external-reports/code-review/README.md#retired-review-packages),
+each with a tombstone page in place of its removed directory.
 The maintained
 [code review status](CODE_REVIEW_STATUS.md) consolidates findings, links current
 implementation evidence, and keeps pending repairs separate from deferred API

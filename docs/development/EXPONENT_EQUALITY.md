@@ -39,7 +39,7 @@ Report 13 inspected revision
 Its selected native observations recorded Wolfram Language 15.0.0 on Linux.
 These were historical transcriptions of selected calls, not a current
 checkout's aggregate test report. The package has since been
-[retired](../../external-reports/code-review/README.md#retired-review-packages),
+[retired](../../external-reports/code-review/wave-2/code-review-13.md),
 because C14, C07 and C21 are focused verified and its remaining C12 component
 is carried by report 6; the current evidence for this item is the baseline and
 acceptance record linked above, not the historical transcription.

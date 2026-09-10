@@ -4,9 +4,10 @@ These seven retained review packages examine AsymptoticInverse 1.8.0 and documen
 their source coverage, findings, evidence, and development proposals. Reviews 1
 and 4–6, 8 and 9 use the [07a9781 snapshot](https://github.com/VladimirReshetnikov/Asymptotic/tree/07a9781212beb2eeb9ff16aa625b50ac27974078);
 review 7 uses [75de875](https://github.com/VladimirReshetnikov/Asymptotic/tree/75de8756175911cd8830704fd1a3406c1022f018).
-All are dated September 9, 2026. Reviews 2 and 3 were
-[retired](../README.md#retired-review-packages) after their defect findings were
-implemented and their remaining entries were found to duplicate retained packages.
+All are dated September 9, 2026. Reviews [2](code-review-2.md) and
+[3](code-review-3.md) were [retired](../README.md#retired-review-packages) after
+their defect findings were implemented and their remaining entries were found to
+duplicate retained packages; their tombstones record the full disposition.
 
 Findings and proposed patches refer to those pinned snapshots. Their inclusion here does not establish that a finding still applies, or that a proposed fix is implemented and verified in the current checkout. The execution column summarizes each package's own records.
 

@@ -7,10 +7,11 @@ All are dated September 9, 2026. They compare additional findings and sharper
 evidence with the [wave-1 reviews](../wave-1/README.md) and the maintained
 finding register as it stood at that snapshot. Their novelty ledgers describe
 the extent of that comparison; it is not a claim that every reviewer reread
-or independently verified every earlier article. Reports 10 and 12–14 were
+or independently verified every earlier article. Reports [10](code-review-10.md), [12](code-review-12.md),
+[13](code-review-13.md) and [14](code-review-14.md) were
 [retired](../README.md#retired-review-packages): their defect findings are
 implemented and verified, and their remaining entries duplicate retained
-packages.
+packages. Each tombstone records the full disposition.
 
 Findings, candidate patches and proposed extensions refer to the pinned
 revision. Their inclusion does not establish that a finding still applies,

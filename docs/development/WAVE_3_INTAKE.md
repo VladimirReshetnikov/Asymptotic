@@ -81,7 +81,7 @@ W3-02's equivalent-key cases, or W3-09's conditional-source policy.**
 | [23](../../external-reports/code-review/wave-3/code-review-23/README.md) — 4 | N01 → W3-10; N02 → W3-01; N03 → W3-11; N04 → W3-05. |
 | [24](../../external-reports/code-review/wave-3/code-review-24/README.md) — 4 | N01 → W3-01; N02 → W3-02; N03 → W3-12; F01 → W3-13. |
 | [25](../../external-reports/code-review/wave-3/code-review-25/README.md) — 6 | N01, N02 → W3-06; N03 → W3-01; N04 → W3-14; N05 → W3-02; N06 → W3-04. |
-| [26](../../external-reports/code-review/README.md#retired-review-packages) — 4, package retired | N1 → W3-01; N2, N3 → W3-02; P-N1 → W3-04. Every entry is also carried by a retained report, so nothing here is lost. |
+| [26](../../external-reports/code-review/wave-3/code-review-26.md) — 4, package retired | N1 → W3-01; N2, N3 → W3-02; P-N1 → W3-04. Every entry is also carried by a retained report, so nothing here is lost. |
 | [27](../../external-reports/code-review/wave-3/code-review-27/README.md) — 5 | N01 → W3-01; N02 → W3-02; N03 → W3-03; N04 → W3-15; N05 → W3-16. |
 
 ## Proposals and implementation decisions

@@ -15,9 +15,11 @@ different collections with separate numbering, source snapshots, and evidence.
 
 The thirty-five retained code reviews are separate from the nine original
 proposals. Ten further packages were retired once every entry they carried was
-implemented, settled, or restated by a retained report; the
-[retirement register](code-review/README.md#retired-review-packages) records
-what each one contributed and where its open entries are still carried.
+implemented, settled, or restated by a retained report. A tombstone page stands
+where each removed directory was, and the
+[retirement register](code-review/README.md#retired-review-packages) links them
+and records what each package contributed and where its open entries are still
+carried.
 The [code review index](code-review/README.md) explains the reviewed revisions
 and evidence categories. For current implementation decisions, use the
 [maintained status register](../docs/development/CODE_REVIEW_STATUS.md), which

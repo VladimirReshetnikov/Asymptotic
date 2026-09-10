@@ -60,6 +60,7 @@ class DocumentationLinksTests(unittest.TestCase):
             root = Path(directory)
             examples = ["docs/Mathics/NEW.md", "docs/development/NEW.md",
                         "external-reports/code-review/wave-4/README.md",
+                        "external-reports/code-review/wave-4/code-review-32.md",
                         "external-reports/code-review/wave-4/code-review-28/README.md",
                         "docs/mathematica.stackexchange.com/question/snapshot.md"]
             for name in examples:
@@ -67,9 +68,11 @@ class DocumentationLinksTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
             found = maintained_pages(root)
-            for name in examples[:3]:
+            # A retirement tombstone is maintained; the supplied package beside
+            # it is a source archive and stays out.
+            for name in examples[:4]:
                 self.assertIn(root / name, found)
-            for name in examples[3:]:
+            for name in examples[4:]:
                 self.assertNotIn(root / name, found)
 
 

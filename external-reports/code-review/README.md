@@ -55,21 +55,26 @@ and verified in the register, settled as a decision, or restated by a retained
 package. Retirement removes a redundant copy of an obligation, never the
 obligation itself: each open item below is still carried by the retained
 reports named in its row, and the register keeps the consolidated statement of
-the work. The removed directories remain in Git history at
-`2396cb6` and earlier.
+the work.
+
+A tombstone page stands where each removed directory was — `wave-N/code-review-NN.md`,
+linked from the first column below. It records the package's title, pinned
+snapshot, supplied evidence, licensing, the disposition of every entry it
+carried, and the commands that read the original files. The directories
+themselves remain unedited in Git history at `2396cb6` and earlier.
 
 | Retired | Wave | Implemented or settled entries | Remaining entries, and where they are still carried |
 | --- | --- | --- | --- |
-| 2 | 1 | F01 → C04, F02 → C02, F03 → C03, F04 → C01 | F05 → C08 (reports 5, 6, 9, 18); F06 → P04 (5, 9); F07 → X01 (5, 7). Roadmap proposals X02, X03, X06 and X08 keep their other cited sources. |
-| 3 | 1 | F01 → C02, F02 → C01, F03 → C03, F04 → C05 | F05 → P04 (5, 9). The X04 proposal now cites report 16's derivative-tail entries. |
-| 10 | 2 | N01 → C05 | N02 → P06 (1, 4, 6, 8, 16). |
-| 12 | 2 | N01 → C05, N02 → C07, N03 → C17 | N02's C13 component (reports 4, 7) and its B01 component (11, 18). |
-| 13 | 2 | A1 → C14, A2 → C07, A3 → C21 | A1's C12 component (report 6, the register's cited source); A2's B01 component (11, 18). |
-| 14 | 2 | N01 → C15, N02 → C20, N03 → C21, N05 → C22 (truncation) | N04 → D01 (reports 1, 4, 6, 7, 16) and D02 (1, 4, 6, 7); C22's arithmetic transport stays open under the retained C22 record. |
-| 26 | 3 | — | Every entry restates W3-01 (19, 20, 21, 23, 24, 25, 27), W3-02 (19, 20, 21, 24, 25, 27) or W3-04 (19, 20, 25). Its alias-default alternative is preserved in the wave-3 intake alongside report 20's. |
-| 32 | 4 | T01 → W4-10 | M01 → W4-01 (28–30, 33, 34); M02/M03 → W4-03 (28, 35, 36); D-P06 → W4-07 (30, 33–36); D-V01 → W4-12 (28–30, 34, 35); L01 → W4-05 (28–31, 33–35); G01 → W4-08 (28, 30, 36). |
-| 40 | 5 | — | ABS-01 duplicates 37 F01; ABS-02 duplicates 42 N01. |
-| 41 | 5 | — | ABS-01 duplicates 37 F01. Its complex-modulus reference algorithm and the Hermitian pairing count are recorded in the [mathematical article](../../docs/article/sections/03-forward.tex) and the wave-5 index. |
+| [2](wave-1/code-review-2.md) | 1 | F01 → C04, F02 → C02, F03 → C03, F04 → C01 | F05 → C08 (reports 5, 6, 9, 18); F06 → P04 (5, 9); F07 → X01 (5, 7). Roadmap proposals X02, X03, X06 and X08 keep their other cited sources. |
+| [3](wave-1/code-review-3.md) | 1 | F01 → C02, F02 → C01, F03 → C03, F04 → C05 | F05 → P04 (5, 9). The X04 proposal now cites report 16's derivative-tail entries. |
+| [10](wave-2/code-review-10.md) | 2 | N01 → C05 | N02 → P06 (1, 4, 6, 8, 16). |
+| [12](wave-2/code-review-12.md) | 2 | N01 → C05, N02 → C07, N03 → C17 | N02's C13 component (reports 4, 7) and its B01 component (11, 18). |
+| [13](wave-2/code-review-13.md) | 2 | A1 → C14, A2 → C07, A3 → C21 | A1's C12 component (report 6, the register's cited source); A2's B01 component (11, 18). |
+| [14](wave-2/code-review-14.md) | 2 | N01 → C15, N02 → C20, N03 → C21, N05 → C22 (truncation) | N04 → D01 (reports 1, 4, 6, 7, 16) and D02 (1, 4, 6, 7); C22's arithmetic transport stays open under the retained C22 record. |
+| [26](wave-3/code-review-26.md) | 3 | — | Every entry restates W3-01 (19, 20, 21, 23, 24, 25, 27), W3-02 (19, 20, 21, 24, 25, 27) or W3-04 (19, 20, 25). Its alias-default alternative is preserved in the wave-3 intake alongside report 20's. |
+| [32](wave-4/code-review-32.md) | 4 | T01 → W4-10 | M01 → W4-01 (28–30, 33, 34); M02/M03 → W4-03 (28, 35, 36); D-P06 → W4-07 (30, 33–36); D-V01 → W4-12 (28–30, 34, 35); L01 → W4-05 (28–31, 33–35); G01 → W4-08 (28, 30, 36). |
+| [40](wave-5/code-review-40.md) | 5 | — | ABS-01 duplicates 37 F01; ABS-02 duplicates 42 N01. |
+| [41](wave-5/code-review-41.md) | 5 | — | ABS-01 duplicates 37 F01. Its complex-modulus reference algorithm and the Hermitian pairing count are recorded in the [mathematical article](../../docs/article/sections/03-forward.tex) and the wave-5 index. |
 
 Every open or partial work item still has at least one retained report: the
 crosswalk was checked item by item before the removals, and no item lost its

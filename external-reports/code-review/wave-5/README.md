@@ -9,8 +9,8 @@ for reports 37, 38, 43, 44 and 45, and
 for reports 39 and 42. Each novelty ledger states how far its author compared
 the findings with the earlier waves and the maintained register.
 
-Reports 40 and 41 were [retired](../README.md#retired-review-packages) as
-duplicates: three packages independently reported the same signed-real
+Reports [40](code-review-40.md) and [41](code-review-41.md) were
+[retired](../README.md#retired-review-packages) as duplicates: three packages independently reported the same signed-real
 `Abs` shortcut, and the observable derivative-contract finding was reported
 twice. The surviving copies are named in the overlap table below.
 
@@ -37,8 +37,8 @@ this wave is consolidated.
 
 | Obligation | Retained source | Duplicates removed or still present |
 | --- | --- | --- |
-| Signed-real `Abs` shortcut accepts nonreal retained coefficients | [37 F01](code-review-37/README.md) | Reported identically by retired 40 ABS-01 and 41 ABS-01. Report 37's witnesses use `a^2 == -1` rather than a literal `I`, so they pass the package's input screen. Both witnesses are now reproduced on the current source in the [three-case characterization](../../../validation/wave5-modulus-witness.json). |
-| `Abs` of a pure remainder keeps an unproved classical derivative contract | [42 N01](code-review-42/README.md) | Reported identically by retired 40 ABS-02, with the same `f(x) = x + x^2 Sin[Log[x]]` cusp family. |
+| Signed-real `Abs` shortcut accepts nonreal retained coefficients | [37 F01](code-review-37/README.md) | Reported identically by retired [40 ABS-01](code-review-40.md) and [41 ABS-01](code-review-41.md). Report 37's witnesses use `a^2 == -1` rather than a literal `I`, so they pass the package's input screen. Both witnesses are now reproduced on the current source in the [three-case characterization](../../../validation/wave5-modulus-witness.json). |
+| `Abs` of a pure remainder keeps an unproved classical derivative contract | [42 N01](code-review-42/README.md) | Reported identically by retired [40 ABS-02](code-review-40.md), with the same `f(x) = x + x^2 Sin[Log[x]]` cusp family. |
 | Repeated affine classification on nested nonlinear subtrees | [39 N02](code-review-39/README.md) | [42 N02](code-review-42/README.md) states the same defect with an equivalent count. Both packages carry unique findings, so neither was retired; count the obligation once. |
 | Truncation transport after C22 | [39 N01](code-review-39/README.md) and [42 N03](code-review-42/README.md) | Different mechanisms in the same new code: a dropped companion field versus repeated membership queries. Not duplicates. |
 

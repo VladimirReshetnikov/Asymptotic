@@ -44,7 +44,8 @@ implemented and verified below, settled as a decision, or restated by a retained
 report; the register keeps their attributions and the retirement table names the
 retained package that still carries each open obligation. Retiring a copy does
 not close an item, and the entry counts above still describe what arrived.
-References of the form `[Rn]` for a retired package resolve to that table.
+References of the form `[Rn]` for a retired package resolve to that package's
+tombstone page, which records the disposition of each of its entries.
 Thirty-five packages are retained across five waves.
 
 The [wave-4 intake](WAVE_4_INTAKE.md) maps every report-local entry from
@@ -709,26 +710,26 @@ Passing an unrelated historical suite, a source-only model, or a patched review
 fixture alone does not close an item in the current package.
 
 [R1]: ../../external-reports/code-review/wave-1/code-review-1/evidence/findings.csv
-[R2]: ../../external-reports/code-review/README.md#retired-review-packages
-[R3]: ../../external-reports/code-review/README.md#retired-review-packages
+[R2]: ../../external-reports/code-review/wave-1/code-review-2.md
+[R3]: ../../external-reports/code-review/wave-1/code-review-3.md
 [R4]: ../../external-reports/code-review/wave-1/code-review-4/evidence/findings.json
 [R5]: ../../external-reports/code-review/wave-1/code-review-5/evidence/findings.json
 [R6]: ../../external-reports/code-review/wave-1/code-review-6/evidence/findings.csv
 [R7]: ../../external-reports/code-review/wave-1/code-review-7/evidence/findings.csv
 [R8]: ../../external-reports/code-review/wave-1/code-review-8/evidence/findings.csv
 [R9]: ../../external-reports/code-review/wave-1/code-review-9/README.md#findings
-[R10]: ../../external-reports/code-review/README.md#retired-review-packages
+[R10]: ../../external-reports/code-review/wave-2/code-review-10.md
 [R11]: ../../external-reports/code-review/wave-2/code-review-11/evidence/findings-delta.json
-[R12]: ../../external-reports/code-review/README.md#retired-review-packages
-[R13]: ../../external-reports/code-review/README.md#retired-review-packages
-[R14]: ../../external-reports/code-review/README.md#retired-review-packages
+[R12]: ../../external-reports/code-review/wave-2/code-review-12.md
+[R13]: ../../external-reports/code-review/wave-2/code-review-13.md
+[R14]: ../../external-reports/code-review/wave-2/code-review-14.md
 [R15]: ../../external-reports/code-review/wave-2/code-review-15/evidence/findings.csv
 [R16]: ../../external-reports/code-review/wave-2/code-review-16/evidence/findings.csv
 [R17]: ../../external-reports/code-review/wave-2/code-review-17/evidence/novelty_matrix.json
 [R18]: ../../external-reports/code-review/wave-2/code-review-18/evidence/novelty_ledger.json
 [R18-validation]: ../../external-reports/code-review/wave-2/code-review-18/evidence/patch_validation.json
-[R2-article]: ../../external-reports/code-review/README.md#retired-review-packages
-[R3-article]: ../../external-reports/code-review/README.md#retired-review-packages
+[R2-article]: ../../external-reports/code-review/wave-1/code-review-2.md
+[R3-article]: ../../external-reports/code-review/wave-1/code-review-3.md
 [R4-article]: ../../external-reports/code-review/wave-1/code-review-4/article.tex
 [R5-article]: ../../external-reports/code-review/wave-1/code-review-5/article/asymptotic-audit.tex
 [R6-article]: ../../external-reports/code-review/wave-1/code-review-6/article/article.tex

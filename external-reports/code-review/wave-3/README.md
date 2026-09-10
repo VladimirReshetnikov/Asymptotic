@@ -5,10 +5,10 @@ AsymptoticAnalysis at the
 [6687962 snapshot](https://github.com/VladimirReshetnikov/Asymptotic/tree/6687962f3c858a4f93623cfc496f33e35c6763d4).
 All are dated September 9, 2026. Their novelty ledgers compare the findings
 with the earlier eighteen reports and maintained register at that snapshot;
-the scope of each comparison is stated by its author. Report 26 was
-[retired](../README.md#retired-review-packages): each of its entries restates
-W3-01, W3-02 or W3-04, which retained packages already carry, and its alias
-policy alternative is preserved in the intake.
+the scope of each comparison is stated by its author. Report
+[26](code-review-26.md) was [retired](../README.md#retired-review-packages):
+each of its entries restates W3-01, W3-02 or W3-04, which retained packages
+already carry, and its alias policy alternative is preserved in the intake.
 
 The [maintained wave-3 intake](../../../docs/development/WAVE_3_INTAKE.md)
 maps all 44 attributed ledger entries and consolidates implementation and

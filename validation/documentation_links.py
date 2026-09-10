@@ -45,6 +45,9 @@ def maintained_pages(root: Path) -> list[Path]:
         "external-reports/original-proposals/COMPARISON.md",
         "external-reports/code-review/README.md", "vendor/README.md", "vendor/proveit/README.md"))
     pages.update((root / "external-reports" / "code-review").glob("wave-*/README.md"))
+    # Retirement tombstones beside a wave index are maintained pages; the
+    # supplied package directories next to them remain source archives.
+    pages.update((root / "external-reports" / "code-review").glob("wave-*/code-review-*.md"))
     return sorted(pages)
 
 
