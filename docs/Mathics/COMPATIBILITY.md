@@ -248,11 +248,13 @@ and the subsequent matching full rerun instead of discarding that evidence.
 
 Independent review fixes were subsequently merged from `origin/main`.
 Native definition comparisons separately record the `021c584` review merge
-and the later `350c70f` and `a55df16` controls. The latest comparison uses
-`ac91e66`, including its independent observable-series chart and real-domain
-repairs, as the control for the merged 55-module Mathics candidate at
-`ffe08b1`. The earlier 54-module and held inline-assumption comparisons are
-retained separately. All 2,059 modular and 2,058 standalone package symbols
+and the later `350c70f`, `a55df16` and `ac91e66` controls. The latest comparison
+uses `a76c0b5`, including its independent principal-logarithm real-exponent
+guard, as the control for the merged 55-module Mathics candidate at
+`9fd7669`. Relative to the preceding capture, only the private `parseFinite`
+downvalues change; every Mathics adapter hash is unchanged. The earlier
+54-module, held inline-assumption and observable comparisons are retained
+separately. All 2,059 modular and 2,058 standalone package symbols
 match across attributes, options, own/down/up/sub/numeric/default/format
 values, messages, and contexts. Six System builtins, including `Map`, retain
 their definitions before loading, after loading, and after reloading; eight

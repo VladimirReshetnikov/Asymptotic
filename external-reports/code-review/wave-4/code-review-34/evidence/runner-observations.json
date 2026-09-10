@@ -1,0 +1,389 @@
+{
+  "evidence_kind": "Python runner tests, fake protocol processes; not WL package execution",
+  "observations": [
+    {
+      "mode": "sticky-change",
+      "timeout": "5",
+      "candidate": true,
+      "exit_code": 1,
+      "intermediate_checkpoint": {
+        "SourcesUnchangedDuringRun": false
+      },
+      "report": {
+        "RunComplete": true,
+        "Selected": 2,
+        "Executed": 2,
+        "Succeeded": 2,
+        "Failed": 0,
+        "NotRun": 0,
+        "SourcesUnchangedDuringRun": false,
+        "SnapshotMatchedAtCheckpoints": true
+      },
+      "results": [
+        {
+          "TestID": "case-one",
+          "Outcome": "Success",
+          "ActualOutput": "changed source"
+        },
+        {
+          "TestID": "case-two",
+          "Outcome": "Success",
+          "ActualOutput": "restored source"
+        }
+      ],
+      "exception": null,
+      "stderr_last_lines": []
+    },
+    {
+      "mode": "sleep",
+      "timeout": "nan",
+      "candidate": true,
+      "exit_code": 2,
+      "intermediate_checkpoint": null,
+      "report": null,
+      "results": [],
+      "exception": null,
+      "stderr_last_lines": [
+        "                            [--source SOURCE] [--case CASE] [--group GROUP]",
+        "                            [--timeout TIMEOUT] [--output OUTPUT] [--list]",
+        "run_mathics_tests.py: error: --timeout must be finite and in (0, 86400] seconds"
+      ]
+    },
+    {
+      "mode": "sleep",
+      "timeout": "inf",
+      "candidate": true,
+      "exit_code": 2,
+      "intermediate_checkpoint": null,
+      "report": null,
+      "results": [],
+      "exception": null,
+      "stderr_last_lines": [
+        "                            [--source SOURCE] [--case CASE] [--group GROUP]",
+        "                            [--timeout TIMEOUT] [--output OUTPUT] [--list]",
+        "run_mathics_tests.py: error: --timeout must be finite and in (0, 86400] seconds"
+      ]
+    },
+    {
+      "mode": "sleep",
+      "timeout": "1e100",
+      "candidate": true,
+      "exit_code": 2,
+      "intermediate_checkpoint": null,
+      "report": null,
+      "results": [],
+      "exception": null,
+      "stderr_last_lines": [
+        "                            [--source SOURCE] [--case CASE] [--group GROUP]",
+        "                            [--timeout TIMEOUT] [--output OUTPUT] [--list]",
+        "run_mathics_tests.py: error: --timeout must be finite and in (0, 86400] seconds"
+      ]
+    },
+    {
+      "mode": "sleep",
+      "timeout": "0",
+      "candidate": true,
+      "exit_code": 2,
+      "intermediate_checkpoint": null,
+      "report": null,
+      "results": [],
+      "exception": null,
+      "stderr_last_lines": [
+        "                            [--source SOURCE] [--case CASE] [--group GROUP]",
+        "                            [--timeout TIMEOUT] [--output OUTPUT] [--list]",
+        "run_mathics_tests.py: error: --timeout must be finite and in (0, 86400] seconds"
+      ]
+    },
+    {
+      "mode": "sleep",
+      "timeout": "-1",
+      "candidate": true,
+      "exit_code": 2,
+      "intermediate_checkpoint": null,
+      "report": null,
+      "results": [],
+      "exception": null,
+      "stderr_last_lines": [
+        "                            [--source SOURCE] [--case CASE] [--group GROUP]",
+        "                            [--timeout TIMEOUT] [--output OUTPUT] [--list]",
+        "run_mathics_tests.py: error: --timeout must be finite and in (0, 86400] seconds"
+      ]
+    },
+    {
+      "mode": "frozen-suite-change",
+      "timeout": "5",
+      "candidate": true,
+      "exit_code": 1,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": false,
+        "Selected": 2,
+        "Executed": 1,
+        "Succeeded": 1,
+        "Failed": 0,
+        "NotRun": 1,
+        "SourcesUnchangedDuringRun": true,
+        "SnapshotMatchedAtCheckpoints": false
+      },
+      "results": [
+        {
+          "TestID": "case-one",
+          "Outcome": "Success",
+          "ActualOutput": "changed frozen suite"
+        }
+      ],
+      "exception": null,
+      "stderr_last_lines": []
+    },
+    {
+      "mode": "control",
+      "timeout": "5",
+      "candidate": true,
+      "exit_code": 0,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": true,
+        "Selected": 2,
+        "Executed": 2,
+        "Succeeded": 2,
+        "Failed": 0,
+        "NotRun": 0,
+        "SourcesUnchangedDuringRun": true,
+        "SnapshotMatchedAtCheckpoints": true
+      },
+      "results": [
+        {
+          "TestID": "case-one",
+          "Outcome": "Success",
+          "ActualOutput": "CONTROL"
+        },
+        {
+          "TestID": "case-two",
+          "Outcome": "Success",
+          "ActualOutput": "CONTROL"
+        }
+      ],
+      "exception": null,
+      "stderr_last_lines": []
+    },
+    {
+      "mode": "control",
+      "timeout": "5",
+      "candidate": false,
+      "exit_code": 0,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": true,
+        "Selected": 2,
+        "Executed": 2,
+        "Succeeded": 2,
+        "Failed": 0,
+        "NotRun": 0,
+        "SourcesUnchangedDuringRun": true
+      },
+      "results": [
+        {
+          "TestID": "case-one",
+          "Outcome": "Success",
+          "ActualOutput": "CONTROL"
+        },
+        {
+          "TestID": "case-two",
+          "Outcome": "Success",
+          "ActualOutput": "CONTROL"
+        }
+      ],
+      "exception": null,
+      "stderr_last_lines": []
+    },
+    {
+      "mode": "sticky-change",
+      "timeout": "5",
+      "candidate": false,
+      "exit_code": 0,
+      "intermediate_checkpoint": {
+        "SourcesUnchangedDuringRun": false
+      },
+      "report": {
+        "RunComplete": true,
+        "Selected": 2,
+        "Executed": 2,
+        "Succeeded": 2,
+        "Failed": 0,
+        "NotRun": 0,
+        "SourcesUnchangedDuringRun": true
+      },
+      "results": [
+        {
+          "TestID": "case-one",
+          "Outcome": "Success",
+          "ActualOutput": "changed source"
+        },
+        {
+          "TestID": "case-two",
+          "Outcome": "Success",
+          "ActualOutput": "restored source"
+        }
+      ],
+      "exception": null,
+      "stderr_last_lines": []
+    },
+    {
+      "mode": "frozen-suite-change",
+      "timeout": "5",
+      "candidate": false,
+      "exit_code": 0,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": true,
+        "Selected": 2,
+        "Executed": 2,
+        "Succeeded": 2,
+        "Failed": 0,
+        "NotRun": 0,
+        "SourcesUnchangedDuringRun": true
+      },
+      "results": [
+        {
+          "TestID": "case-one",
+          "Outcome": "Success",
+          "ActualOutput": "changed frozen suite"
+        },
+        {
+          "TestID": "case-two",
+          "Outcome": "Success",
+          "ActualOutput": "MUTATED SUITE"
+        }
+      ],
+      "exception": null,
+      "stderr_last_lines": []
+    },
+    {
+      "mode": "protocol-error",
+      "timeout": "5",
+      "candidate": false,
+      "exit_code": 1,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": true,
+        "Selected": 2,
+        "Executed": 2,
+        "Succeeded": 0,
+        "Failed": 2,
+        "NotRun": 0,
+        "SourcesUnchangedDuringRun": true
+      },
+      "results": [
+        {
+          "TestID": "case-one",
+          "Outcome": "ProtocolError"
+        },
+        {
+          "TestID": "case-two",
+          "Outcome": "ProtocolError"
+        }
+      ],
+      "exception": null,
+      "stderr_last_lines": []
+    },
+    {
+      "mode": "sleep",
+      "timeout": "nan",
+      "candidate": false,
+      "exit_code": 1,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": false,
+        "Selected": 2,
+        "Executed": 0,
+        "Succeeded": 0,
+        "Failed": 0,
+        "NotRun": 2,
+        "SourcesUnchangedDuringRun": true
+      },
+      "results": [],
+      "exception": "ValueError",
+      "stderr_last_lines": [
+        "  File \"/usr/lib/python3.13/selectors.py\", line 395, in select",
+        "    timeout = math.ceil(timeout * 1e3)",
+        "ValueError: cannot convert float NaN to integer"
+      ]
+    },
+    {
+      "mode": "sleep",
+      "timeout": "inf",
+      "candidate": false,
+      "exit_code": 1,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": false,
+        "Selected": 2,
+        "Executed": 0,
+        "Succeeded": 0,
+        "Failed": 0,
+        "NotRun": 2,
+        "SourcesUnchangedDuringRun": true
+      },
+      "results": [],
+      "exception": "OverflowError",
+      "stderr_last_lines": [
+        "  File \"/usr/lib/python3.13/selectors.py\", line 395, in select",
+        "    timeout = math.ceil(timeout * 1e3)",
+        "OverflowError: cannot convert float infinity to integer"
+      ]
+    },
+    {
+      "mode": "sleep",
+      "timeout": "1e100",
+      "candidate": false,
+      "exit_code": 1,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": false,
+        "Selected": 2,
+        "Executed": 0,
+        "Succeeded": 0,
+        "Failed": 0,
+        "NotRun": 2,
+        "SourcesUnchangedDuringRun": true
+      },
+      "results": [],
+      "exception": "OverflowError",
+      "stderr_last_lines": [
+        "  File \"/usr/lib/python3.13/selectors.py\", line 398, in select",
+        "    fd_event_list = self._selector.poll(timeout)",
+        "OverflowError: timestamp too large to convert to C PyTime_t"
+      ]
+    },
+    {
+      "mode": "persistent-change",
+      "timeout": "5",
+      "candidate": false,
+      "exit_code": 1,
+      "intermediate_checkpoint": null,
+      "report": {
+        "RunComplete": true,
+        "Selected": 2,
+        "Executed": 2,
+        "Succeeded": 2,
+        "Failed": 0,
+        "NotRun": 0,
+        "SourcesUnchangedDuringRun": false
+      },
+      "results": [
+        {
+          "TestID": "case-one",
+          "Outcome": "Success",
+          "ActualOutput": "changed source"
+        },
+        {
+          "TestID": "case-two",
+          "Outcome": "Success",
+          "ActualOutput": "changed source"
+        }
+      ],
+      "exception": null,
+      "stderr_last_lines": []
+    }
+  ]
+}

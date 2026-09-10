@@ -1,0 +1,81 @@
+{
+  "Runtime": "Mathics",
+  "Command": [
+    "/opt/hostedtoolcache/Python/3.11.16/x64/bin/python3.11",
+    "-m",
+    "mathics",
+    "--quiet",
+    "--no-readline",
+    "--file",
+    "/home/runner/work/Asymptotic/Asymptotic/validation/MathicsTests.wl"
+  ],
+  "UTC": "2026-09-10T02:16:16.349547+00:00",
+  "Source": "/home/runner/work/Asymptotic/Asymptotic/AsymptoticAnalysis.wl",
+  "PerCaseTimeoutSeconds": 300.0,
+  "FreshKernelPerCase": true,
+  "MathicsIterationLimitConfiguredBySuite": 1000000,
+  "FullPackageSuiteRun": false,
+  "RunComplete": false,
+  "Selected": 20,
+  "TestSuiteSnapshotSHA256": "21471710d887c3607784e19aaf72213b2b9300dbaabb0c4343085aad6085c3bb",
+  "Executed": 4,
+  "Succeeded": 4,
+  "Failed": 0,
+  "NotRun": 16,
+  "SourcesUnchangedDuringRun": true,
+  "TestedSourcesSHA256": {
+    "AsymptoticAnalysis.wl": "e9ef993412d8dae0f7388b9e239f7db8c7eb6edd0af5216193434b29ba28be2d",
+    "validation/MathicsTests.wl": "21471710d887c3607784e19aaf72213b2b9300dbaabb0c4343085aad6085c3bb",
+    "validation/run_mathics_tests.py": "7b9d49e591a44e387c1253d01f41af1aaec713d722573a1ace0f3cb03052f185"
+  },
+  "Results": [
+    {
+      "Kernel": "Mathics3 10.0.1 Running on linux CPython 3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "loading-no-messages",
+      "Group": "loading",
+      "ElapsedSeconds": 9.815,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on linux CPython 3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\nTrue\nASYMPTOTIC_PORTABLE_ACTUAL_END\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\nTrue\nASYMPTOTIC_PORTABLE_EXPECTED_END\nASYMPTOTIC_PORTABLE_RESULT\tloading-no-messages\tSuccess\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on linux CPython 3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{\"Global`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, True, {}}",
+      "ExpectedOutput": "{\"Global`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, True, {}}",
+      "ExitCode": 0,
+      "TestID": "loading-public-context",
+      "Group": "loading",
+      "ElapsedSeconds": 9.388,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on linux CPython 3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\n{\"Global`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, True, {}}\nASYMPTOTIC_PORTABLE_ACTUAL_END\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\n{\"Global`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, True, {}}\nASYMPTOTIC_PORTABLE_EXPECTED_END\nASYMPTOTIC_PORTABLE_RESULT\tloading-public-context\tSuccess\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on linux CPython 3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{\"AsymptoticCoreInverse\", \"AsymptoticExpand\", \"AsymptoticExpansion\", \"AsymptoticExponentialCoreInverse\", \"AsymptoticFlatInverse\", \"AsymptoticFourierInverse\", \"AsymptoticInverse\", \"AsymptoticLogarithmicInverse\", \"AsymptoticSpecialInverse\", \"FlatSeriesDifferentiate\", \"FlatSeriesMultiply\", \"FlatSeriesObservable\", \"FlatSeriesTruncate\", \"FourierInverseCoefficient\", \"FourierInverseResidual\", \"GeneralizedSeries\", \"InverseCertificate\", \"InverseExpansionCoefficient\", \"InverseNumericalCheck\", \"InverseResidual\", \"LogarithmicInverseResidual\", \"PerturbativeInverse\", \"PowerLogModel\", \"PowerLogRemainder\", \"ReciprocalLogCompose\", \"ReciprocalLogDifferentiate\", \"SeriesAdd\", \"SeriesCompose\", \"SeriesDifferentiate\", \"SeriesExp\", \"SeriesLog\", \"SeriesMultiply\", \"SeriesNormalize\", \"SeriesObservable\", \"SeriesPower\", \"SeriesRefine\", \"SeriesTruncate\", \"SpecialInverseNumericalCheck\"}",
+      "ExpectedOutput": "{\"AsymptoticCoreInverse\", \"AsymptoticExpand\", \"AsymptoticExpansion\", \"AsymptoticExponentialCoreInverse\", \"AsymptoticFlatInverse\", \"AsymptoticFourierInverse\", \"AsymptoticInverse\", \"AsymptoticLogarithmicInverse\", \"AsymptoticSpecialInverse\", \"FlatSeriesDifferentiate\", \"FlatSeriesMultiply\", \"FlatSeriesObservable\", \"FlatSeriesTruncate\", \"FourierInverseCoefficient\", \"FourierInverseResidual\", \"GeneralizedSeries\", \"InverseCertificate\", \"InverseExpansionCoefficient\", \"InverseNumericalCheck\", \"InverseResidual\", \"LogarithmicInverseResidual\", \"PerturbativeInverse\", \"PowerLogModel\", \"PowerLogRemainder\", \"ReciprocalLogCompose\", \"ReciprocalLogDifferentiate\", \"SeriesAdd\", \"SeriesCompose\", \"SeriesDifferentiate\", \"SeriesExp\", \"SeriesLog\", \"SeriesMultiply\", \"SeriesNormalize\", \"SeriesObservable\", \"SeriesPower\", \"SeriesRefine\", \"SeriesTruncate\", \"SpecialInverseNumericalCheck\"}",
+      "ExitCode": 0,
+      "TestID": "loading-public-symbols",
+      "Group": "loading",
+      "ElapsedSeconds": 9.234,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on linux CPython 3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\n{\"AsymptoticCoreInverse\", \"AsymptoticExpand\", \"AsymptoticExpansion\", \"AsymptoticExponentialCoreInverse\", \"AsymptoticFlatInverse\", \"AsymptoticFourierInverse\", \"AsymptoticInverse\", \"AsymptoticLogarithmicInverse\", \"AsymptoticSpecialInverse\", \"FlatSeriesDifferentiate\", \"FlatSeriesMultiply\", \"FlatSeriesObservable\", \"FlatSeriesTruncate\", \"FourierInverseCoefficient\", \"FourierInverseResidual\", \"GeneralizedSeries\", \"InverseCertificate\", \"InverseExpansionCoefficient\", \"InverseNumericalCheck\", \"InverseResidual\", \"LogarithmicInverseResidual\", \"PerturbativeInverse\", \"PowerLogModel\", \"PowerLogRemainder\", \"ReciprocalLogCompose\", \"ReciprocalLogDifferentiate\", \"SeriesAdd\", \"SeriesCompose\", \"SeriesDifferentiate\", \"SeriesExp\", \"SeriesLog\", \"SeriesMultiply\", \"SeriesNormalize\", \"SeriesObservable\", \"SeriesPower\", \"SeriesRefine\", \"SeriesTruncate\", \"SpecialInverseNumericalCheck\"}\nASYMPTOTIC_PORTABLE_ACTUAL_END\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\n{\"AsymptoticCoreInverse\", \"AsymptoticExpand\", \"AsymptoticExpansion\", \"AsymptoticExponentialCoreInverse\", \"AsymptoticFlatInverse\", \"AsymptoticFourierInverse\", \"AsymptoticInverse\", \"AsymptoticLogarithmicInverse\", \"AsymptoticSpecialInverse\", \"FlatSeriesDifferentiate\", \"FlatSeriesMultiply\", \"FlatSeriesObservable\", \"FlatSeriesTruncate\", \"FourierInverseCoefficient\", \"FourierInverseResidual\", \"GeneralizedSeries\", \"InverseCertificate\", \"InverseExpansionCoefficient\", \"InverseNumericalCheck\", \"InverseResidual\", \"LogarithmicInverseResidual\", \"PerturbativeInverse\", \"PowerLogModel\", \"PowerLogRemainder\", \"ReciprocalLogCompose\", \"ReciprocalLogDifferentiate\", \"SeriesAdd\", \"SeriesCompose\", \"SeriesDifferentiate\", \"SeriesExp\", \"SeriesLog\", \"SeriesMultiply\", \"SeriesNormalize\", \"SeriesObservable\", \"SeriesPower\", \"SeriesRefine\", \"SeriesTruncate\", \"SpecialInverseNumericalCheck\"}\nASYMPTOTIC_PORTABLE_EXPECTED_END\nASYMPTOTIC_PORTABLE_RESULT\tloading-public-symbols\tSuccess\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on linux CPython 3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{True, \"Global`\", {}, {}}",
+      "ExpectedOutput": "{True, \"Global`\", {}, {}}",
+      "ExitCode": 0,
+      "TestID": "loading-reload",
+      "Group": "loading",
+      "ElapsedSeconds": 15.6,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on linux CPython 3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\n{True, \"Global`\", {}, {}}\nASYMPTOTIC_PORTABLE_ACTUAL_END\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\n{True, \"Global`\", {}, {}}\nASYMPTOTIC_PORTABLE_EXPECTED_END\nASYMPTOTIC_PORTABLE_RESULT\tloading-reload\tSuccess\n"
+    }
+  ]
+}

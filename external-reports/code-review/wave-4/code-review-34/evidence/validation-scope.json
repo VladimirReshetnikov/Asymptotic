@@ -1,0 +1,50 @@
+{
+  "reviewed_repository": "VladimirReshetnikov/Asymptotic",
+  "reviewed_commit": "7d1bc832895cc90a9b2a978b7b7684acab908bd2",
+  "review_date_pacific": "2026-09-09",
+  "article_pdf_pages": 32,
+  "prior_review_screen": {
+    "reports": 27,
+    "indexed_entries": 167,
+    "basis": [
+      "docs/development/CODE_REVIEW_STATUS.md",
+      "docs/development/WAVE_3_INTAKE.md"
+    ],
+    "all_prior_pdfs_read_line_by_line": false
+  },
+  "runtime": {
+    "python": "3.13.5",
+    "platform": "Linux",
+    "sympy": "1.14.0",
+    "mpmath": "1.3.0"
+  },
+  "executed": {
+    "runner_unittest_methods": 10,
+    "independent_unittest_methods": 9,
+    "synthetic_staging_unittest_methods": 3,
+    "total_passing_unittest_methods": 22,
+    "runner_children": "Synthetic protocol processes, explicitly not Wolfram or Mathics kernels",
+    "certificate_checks": "Exact rational endpoint sign and interval-width verification, with separate mpmath containment controls"
+  },
+  "not_executed": [
+    "Wolfram package suite",
+    "Mathics package suite",
+    "ProductLog candidate Mathics integration",
+    "WL sparse helper",
+    "WL characterization driver",
+    "Kernel timing or peak-memory benchmarks"
+  ],
+  "runtime_attempts": {
+    "wolfram": "Connected evaluator call failed to connect; no successful evaluation",
+    "mathics": "Unavailable locally; network-isolated installation attempt failed"
+  },
+  "claim_limits": [
+    "Public Mathics wrong-output trace for R1 not established in this runtime",
+    "Public reachability for R6 remains unestablished",
+    "R5 costs are structural, not measured performance improvements",
+    "Runner snapshot repair validates observed checkpoints, not absence of between-checkpoint ABA edits",
+    "Historical source receipts are not promoted to final-source acceptance"
+  ],
+  "source_scope": "All 15 Mathics adapters; complete runner/workflow; targeted shared consumers and tagged Mathics interpreter methods",
+  "checksum_files_included": false
+}

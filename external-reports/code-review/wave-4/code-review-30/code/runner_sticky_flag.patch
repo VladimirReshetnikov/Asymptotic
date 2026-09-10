@@ -1,0 +1,24 @@
+--- a/validation/run_mathics_tests.py
++++ b/validation/run_mathics_tests.py
+@@ -204,9 +204,12 @@
+     before = fingerprints(source)
+     suite_snapshot = SUITE.read_bytes()
+     results = []
++    sources_unchanged = True
+ 
+     def write_report(complete: bool) -> dict:
++        nonlocal sources_unchanged
+         after = fingerprints(source)
++        sources_unchanged = sources_unchanged and before == after
+         succeeded = sum(result["Outcome"] == "Success" for result in results)
+         report = {
+             "Runtime": runtime_name, "Command": command,
+@@ -216,7 +219,7 @@
+             "FullPackageSuiteRun": False, "RunComplete": complete, "Selected": len(cases),
+             "TestSuiteSnapshotSHA256": hashlib.sha256(suite_snapshot).hexdigest(),
+             "Executed": len(results), "Succeeded": succeeded, "Failed": len(results) - succeeded,
+-            "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": before == after,
++            "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": sources_unchanged,
+             "TestedSourcesSHA256": before, "Results": results,
+         }
+         if before != after:
