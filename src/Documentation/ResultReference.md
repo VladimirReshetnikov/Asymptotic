@@ -4,7 +4,7 @@ Use this reference when inspecting an expansion, comparing result families,
 or writing code that consumes their metadata. The [user guide](UserGuide.md#GeneralizedSeries)
 provides worked examples; this page describes the property dispatch and
 constructor layouts inspected at commit
-`699a9739bd8b53e5a7483172e7597f83ef2d9076`. This is a source audit, not a new
+`41ac72d52f654465e2ce62e081326df70e5f4d26`. This is a source audit, not a new
 Wolfram or Mathics execution record. Complete native-input and Mathics
 coverage remain the goals recorded in the [coverage register](../../docs/development/COVERAGE_TARGETS.md).
 

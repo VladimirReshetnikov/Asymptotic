@@ -69,6 +69,7 @@ for the remaining coverage gaps, including the absent `DiscreteAsymptotic` backe
 | Preserve logarithmic remainder degrees at native-series boundaries | A tail with a positive logarithmic degree is not exported as a stronger plain-power analytic bound. | [Native remainder contracts](development/NATIVE_SERIES_REMAINDERS.md) · [implementation](https://github.com/VladimirReshetnikov/Asymptotic/commit/232aab4) |
 | Bound optional dense `SeriesData` export and its integer indices | A sparse analytic result remains usable when the optional native representation would allocate too much memory or overflow native index/order-span fields. | [Native view](../src/Documentation/UserGuide.md#native-series-remainder-view) · [index repair](https://github.com/VladimirReshetnikov/Asymptotic/commit/6195452) |
 | Repair certificate accuracy planning | Relative targets, precision retries, enclosure width, and achieved accuracy have separate recorded outcomes; obtaining an enclosure does not itself mean the requested accuracy was met. | [Certificates](../src/Documentation/UserGuide.md#InverseCertificate) · [implementation](https://github.com/VladimirReshetnikov/Asymptotic/commit/01b18ab) |
+| Validate observable Taylor information and the actual approach to its center | A native Taylor result must cover the requested coefficients in the correct chart. Exact-center inputs use the point value; punctured inputs use an admitted sided germ. A real constant term alone does not prove the complete substituted argument is real. | [Observable contracts and known limits](development/OBSERVABLE_INGRESS.md) · [implementation](https://github.com/VladimirReshetnikov/Asymptotic/commit/8427715) |
 
 ### Mathics compatibility work
 
@@ -87,6 +88,15 @@ splitting streamed Mathics bootstrap statements
 Private empty-list maps avoid a Mathics cache-corruption path while preserving
 native behavior for other mapping forms
 ([list repair](https://github.com/VladimirReshetnikov/Asymptotic/commit/776fe8d)).
+
+Held analytic entry points also protect explicit membership conditions in
+syntactic `Assumptions` options before Mathics evaluates those conditions
+([input-assumption repair](https://github.com/VladimirReshetnikov/Asymptotic/commit/c50ff6b)).
+This preserves the supplied condition on those paths; it cannot recover a
+caller value that already evaluated to `False`. The
+[input-assumption contract](Mathics/INPUT-ASSUMPTIONS.md) documents that boundary,
+and the [API coverage inventory](Mathics/API-COVERAGE.md) separates the portable
+case inventory from completed execution evidence.
 
 These are compatibility milestones, not full Mathics acceptance. Consult the
 [current Mathics status](Mathics/COMPATIBILITY.md), [evaluator notes](MATHICS-NOTES.md),

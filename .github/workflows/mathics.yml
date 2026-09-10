@@ -4,17 +4,25 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/Kernel/**'
+      - 'src/Kernel/*.wl'
+      - 'src/Kernel/*.m'
       - 'AsymptoticAnalysis.wl'
-      - 'validation/*mathics*'
+      - 'validation/*mathics*.py'
       - 'validation/MathicsTests.wl'
+      - 'validation/requirements-mathics.txt'
+      - 'validation/build_standalone.py'
+      - 'validation/test_standalone.py'
       - '.github/workflows/mathics.yml'
   pull_request:
     paths:
-      - 'src/Kernel/**'
+      - 'src/Kernel/*.wl'
+      - 'src/Kernel/*.m'
       - 'AsymptoticAnalysis.wl'
-      - 'validation/*mathics*'
+      - 'validation/*mathics*.py'
       - 'validation/MathicsTests.wl'
+      - 'validation/requirements-mathics.txt'
+      - 'validation/build_standalone.py'
+      - 'validation/test_standalone.py'
       - '.github/workflows/mathics.yml'
   workflow_dispatch:
 

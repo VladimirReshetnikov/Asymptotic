@@ -1,5 +1,68 @@
 # Review and validation record
 
+## Observable Taylor information, approach sides, and real arguments
+
+After the final sync through immutable `main` revision `b4c2a2d`, the
+[repeated six-file native run](observable-ingress-main-sync-tests.json)
+again passes **131/131**. This revision adds the guarded Mathics input-assumption
+adapter and a 55-module standalone. These new source hashes distinguish the
+latest acceptance from the earlier 54-module records below.
+The [repeated local loading run](observable-ingress-main-sync-loading-tests.json)
+also passes **95/95 in five fresh kernels**. All 63 focused-test input hashes
+and 61 loading hashes match the final committed package and harness files.
+The final guide is fresh, and the documentation checker passes across 47
+maintained Markdown pages with no broken local links or mathematical references.
+
+The [six-file native acceptance](observable-ingress-tests.json) passes
+**131 tests with zero failures**, including 29 new cases in
+[ReviewObservableIngress.wlt](../src/Tests/ReviewObservableIngress.wlt).
+The run uses sources incorporating immutable `main` revision
+`7d1bc832895cc90a9b2a978b7b7684acab908bd2` and verifies source immutability.
+The [contract notes](../docs/development/OBSERVABLE_INGRESS.md) explain returned
+Taylor order, logarithmic boundary degrees, sided constants, exact points,
+and complete-argument reality. This focused selection preserves nearby unit
+precision, coefficient cancellation, recurrence and coordinate/calculus cases.
+
+The [nine-observation baseline](observable-ingress-baseline.json) describes
+unchanged `a55df16` sources. The [complex-input first pass](observable-reality-first-pass.json)
+describes a later intermediate implementation with separate source hashes;
+it reproduces a wrong real result from a complex inner path. Neither record
+is a passing acceptance suite. The repair's real-axis-only provider test
+also establishes an independent constant-error witness when an imaginary
+displacement is discarded from the retained inner jet.
+
+The [local loading record](observable-ingress-loading-tests.json) passes
+**95 checks in five fresh kernels**, covering the isolated standalone,
+modular entry, `init.m`, `Needs` and paclet loading, including reloads and
+the sided observable case in each mode. The merged standalone contains
+54 modules; native loads keep the Mathics adapter definitions inactive.
+
+The 14 standalone-builder, 14 portable-runner, three native-capture isolation,
+and five documentation-link Python tests pass. An initial invocation used
+the nonexistent pattern `test_run_mathics_tests.py` and ran zero tests; the
+corrected `test_mathics_runner.py` invocation supplies the 14-test result.
+These tool tests do not establish Mathics feature acceptance. The full
+package suite remains skipped.
+
+The documentation-only merge through `699a9739` left every
+recorded input unchanged: all 62 focused-test hashes, 60 loading hashes and
+32 TeX-source hashes matched commit `34d9287`. The original baseline's
+53 kernel hashes independently match `a55df16`. At that checkpoint the generated guide
+matched its Markdown/CSS sources; the documentation checker validated 45
+maintained Markdown pages, 1,631 local links, 210 fragments, and 331 mathematical
+labels with no missing references. The two coverage-index links missing in
+the earlier incoming commit resolve after the latest merge.
+
+The [merged PDF build](observable-ingress-merge-pdf-build.json) records exactly
+three serial strict LaTeX passes and the final 100-page artifact. The
+[render record](observable-ingress-merge-pdf-layout.json) records rendering of
+all pages, zero text-outside-page geometry findings, and visual inspection of
+contact pages 1–12, 43–54 and 97–100 plus full page 47. Other pages were rendered
+but were not visually inspected in this checkpoint. The earlier
+[99-page build](observable-ingress-pdf-build.json) and
+[layout record](observable-ingress-pdf-layout.json) belong to the pre-merge
+article. Both build histories retain their own source and artifact hashes.
+
 This page preserves evidence from individual source snapshots. A historical
 passing count does not validate today's checkout. The project-wide
 [coverage targets](../docs/development/COVERAGE_TARGETS.md) remain open;
@@ -17,6 +80,17 @@ for known implementation and acceptance gaps.
 | Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
 
 ## Documentation quality and coverage register
+
+The [merged documentation receipt](documentation-deep-review-2026-09-09.json)
+incorporates `origin/main` through `41ac72d`, including observable admission
+and held Mathics membership assumptions. The [merged example run](documentation-examples-2026-09-09-merged.json)
+passes **39/39** with unchanged source hashes during execution. Both HTML
+references were regenerated and checked in desktop and narrow browser layouts.
+The 101-page article completed three strict LaTeX passes without overflowing
+boxes or unresolved references; every page was rendered and visually reviewed.
+The Gamma polynomial equation now stays on one page. Source hashes, retained
+build logs, and representative browser screenshots distinguish this review
+from the earlier 99-page and 100-page artifacts.
 
 The [deeper example pass](documentation-examples-2026-09-09-premerge.json)
 passes **39/39 selected checks in Wolfram 15.0.1** against the recorded

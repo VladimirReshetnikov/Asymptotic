@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): d063314b1d7ae687aac781aeb54685b9952aa5c50b644041e55c7555aaaa81f5 *)
+   Source SHA256 (UTF-8/LF): eacccbfa6eb64d6e82b8870d4cb54d4f5a14e04d50cc9bc1cb98a0a420a22ead *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -2032,7 +2032,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): eebae3475bccd69500a5e6846cbc07a3579bd924922c43d610a10ff178a7cbf7 *)
+   Source SHA256 (UTF-8/LF): 9256520b4e979cab89989428b57e27ac8f7fe8aacab9c46861c7894cf8b889b4 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2273,7 +2273,70 @@ seriesIndependentJet[e_, d_, cut_, limit_] := Module[{u, rule},
   If[cut === Infinity, fwd[e /. rule, u, d["LogVariable"], seriesAss[d] /. rule, cut, limit],
     forwardJet[e /. rule, u, d["LogVariable"], seriesAss[d] /. rule, cut, limit]]];
 
-seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d["LogVariable"], ass = seriesAss[d], j, parts, c, u, native, n, cf, res, sign, lc},
+(* Check the returned chart and known coefficient interval, independently of
+   the order requested from Series. This preserves the existing analytic
+   source-admission contract; formal SeriesData alone is not its proof. *)
+seriesObservableTaylorData[h_, c_, sign_, n_, ass_] := Module[{u = Unique["v$"], native},
+  native = Quiet[Series[h[c + sign u], {u, 0, n}, Assumptions -> ass && u > 0]];
+  If[! MatchQ[native, _SeriesData] || Length[native] =!= 6 || ! ListQ[native[[3]]],
+    fail["UnsupportedObservable", "The observable must have a regular Taylor expansion at the limiting argument."]];
+  If[native[[1]] =!= u || native[[2]] =!= 0,
+    fail["InvalidObservableNativeChart", "The observable Taylor result must use the requested local variable at zero.",
+      <|"ExpectedVariable" -> u, "ExpectedCenter" -> 0, "NativeResult" -> native|>]];
+  If[! IntegerQ[native[[4]]] || ! IntegerQ[native[[5]]] || native[[4]] < 0 ||
+      native[[5]] < native[[4]] || native[[6]] =!= 1 || ! FreeQ[native[[3]], u],
+    fail["UnsupportedObservable", "The observable must have a regular Taylor expansion at the limiting argument."]];
+  If[native[[5]] < n,
+    fail["InsufficientObservableNativeOrder", "The observable Taylor result does not cover the required coefficients.",
+      <|"RequiredExclusiveOrder" -> n, "NativeExclusiveOrder" -> native[[5]], "NativeResult" -> native|>]];
+  native];
+
+seriesObservableTaylorCoefficient[native_, k_] := (
+  If[k >= native[[5]],
+    fail["InsufficientObservableNativeOrder", "The requested observable coefficient is beyond the returned Taylor endpoint.",
+      <|"CoefficientOrder" -> k, "NativeExclusiveOrder" -> native[[5]]|>]];
+  If[k >= native[[4]] && k - native[[4]] + 1 <= Length[native[[3]]],
+    native[[3, k - native[[4]] + 1]], 0]);
+
+seriesObservableIncrementSign[rows_, precision_, ell_, ass_] := Module[{lc},
+  If[rows === {} || ! less[jetValuation[rows], precision], Return[0, Module]];
+  lc = rows[[1, 2]];
+  lc = (-1)^polyDegree[lc, ell] Coefficient[lc, ell, polyDegree[lc, ell]];
+  Which[provablyPositive[lc, ass], 1, provablyNegative[lc, ass], -1, True, 0]];
+
+(* A real-axis Taylor bound needs a real complete argument, even when an
+   imaginary term is beyond the retained jet. Rename the formal input value
+   without renaming assumptions about the actual expansion coordinate. *)
+seriesObservableArgumentRealQ[argument_, x_, input_, d_] := Module[
+  {value = Unique["observableValue$"], u = Unique["observableDomain$"], expression,
+   ass = seriesAss[d], ell = d["LogVariable"], parameters, parts, center, sign, charts},
+  expression = argument /. x -> value;
+  If[TrueQ[Quiet[TimeConstrained[
+      FullSimplify[Element[expression, Reals], ass && Element[value, Reals]], 2, False]]],
+    Return[True, Module]];
+  (* A shrinking value neighborhood with the source coordinate fixed would
+     not prove a uniform bound on their joint path. The global proof above
+     is sufficient in that case; this local fallback deliberately refuses. *)
+  If[! FreeQ[expression, d["Variable"]], Return[False, Module]];
+  parameters = DeleteDuplicates[Cases[expression,
+    p_Symbol /; p =!= value && ! NumericQ[p], {0, Infinity}]];
+  If[! TrueQ[Quiet[TimeConstrained[
+      AllTrue[parameters, TrueQ[FullSimplify[Element[#, Reals], ass]] &], 2, False]]],
+    Return[False, Module]];
+  parts = splitJet[input[[1]]];
+  If[parts[[1]] === {} && FreeQ[parts[[2]], ell],
+    center = parts[[2]];
+    If[! FreeQ[center, d["Variable"]], Return[False, Module]];
+    sign = seriesObservableIncrementSign[parts[[3]], input[[2]], ell, ass];
+    charts = If[sign === 0, {center, center + u, center - u}, {center + sign u}],
+    sign = seriesObservableIncrementSign[input[[1]], input[[2]], ell, ass];
+    If[sign === 0, Return[False, Module]];
+    charts = {sign/u}];
+  And @@ (TrueQ[Quiet[TimeConstrained[
+      logarithmicRealCondition[Element[expression /. value -> #, Reals], ass, <|"u" -> u|>],
+      2, False]]] & /@ charts)];
+
+seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d["LogVariable"], ass = seriesAss[d], j, parts, c, native, opposite, n, cf, res, sign, c0, point, compatible},
   Which[inverseFunctionApplicationQ[e], inverseFunctionJetApply[e, x, input, d, cut, limit],
     FreeQ[e, x], seriesIndependentJet[e, d, cut, limit], e === x, input,
     h === Plus, Fold[pAdd[#1, seriesJetApply[#2, x, input, d, cut, limit], ell, ass] &, pConst[0, ell, ass], List @@ e],
@@ -2286,24 +2349,41 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
       j = seriesJetApply[e[[1]], x, input, d, cut, limit]; parts = splitJet[j[[1]]];
       If[parts[[1]] =!= {} || ! FreeQ[parts[[2]], ell] || ! less[0, j[[2]]],
         fail["UnsupportedObservable", "A general analytic observable needs an argument tending to a finite constant."]];
-      c = parts[[2]]; u = Unique["v$"];
+      c = parts[[2]];
+      (* An exact point uses the point value. A punctured germ instead uses
+         its Taylor constant, which can differ at a jump discontinuity. *)
+      If[parts[[3]] === {} && j[[2]] === Infinity, Return[pConst[h[c], ell, ass], Module]];
+      If[! seriesObservableArgumentRealQ[e[[1]], x, input, d],
+        fail["UnprovedObservableArgument", "A real-sided observable Taylor expansion requires its complete argument to be proved real on the input germ.",
+          <|"Argument" -> e[[1]], "InputVariable" -> x|>]];
       n = If[parts[[3]] === {}, 1, Max[1, Ceiling[minOf[cut, j[[2]]]/jetValuation[parts[[3]]]]]];
       If[n > limit, fail["ResourceLimit", "Observable Taylor expansion exceeded MaxTerms."]];
-      sign = 1;
-      If[parts[[3]] =!= {},
-        lc = parts[[3, 1, 2]];
-        lc = (-1)^polyDegree[lc, ell] Coefficient[lc, ell, polyDegree[lc, ell]];
-        If[provablyNegative[lc, ass], sign = -1]];
-      native = Quiet[Series[h[c + sign u], {u, 0, n}, Assumptions -> ass && u > 0]];
-      If[! MatchQ[native, _SeriesData] || native[[4]] < 0 || native[[6]] =!= 1 || ! FreeQ[native[[3]], u],
-        fail["UnsupportedObservable", "The observable must have a regular Taylor expansion at the limiting argument."]];
+      sign = seriesObservableIncrementSign[parts[[3]], j[[2]], ell, ass];
+      native = seriesObservableTaylorData[h, c, If[sign === 0, 1, sign], n, ass];
+      c0 = seriesObservableTaylorCoefficient[native, 0];
+      If[sign === 0,
+        opposite = seriesObservableTaylorData[h, c, -1, n, ass];
+        point = h[c];
+        (* An uncertain side can include visits to the center. With no
+           retained increment only the common O(displacement) bound is used;
+           otherwise both sides must supply the same Taylor polynomial. *)
+        compatible = TimeConstrained[
+          zeroQ[c0 - point, ass] && zeroQ[c0 - seriesObservableTaylorCoefficient[opposite, 0], ass] &&
+            (parts[[3]] === {} || And @@ Table[
+              zeroQ[seriesObservableTaylorCoefficient[native, k] -
+                (-1)^k seriesObservableTaylorCoefficient[opposite, k], ass], {k, 1, n - 1}]),
+          2, False];
+        If[! TrueQ[compatible], fail["UnprovedObservableApproach",
+          "The input has no proved side and the observable has no compatible Taylor bound on both sides and at the limiting point.",
+          <|"LimitingArgument" -> c, "PositiveGermConstant" -> c0,
+            "NegativeGermConstant" -> seriesObservableTaylorCoefficient[opposite, 0], "PointValue" -> point|>]]];
       (* The completed observable is checked by seriesMake after collection;
          separate analytic summands can have cancelling imaginary parts. *)
-      cf = Function[k, If[k >= native[[4]] && k - native[[4]] + 1 <= Length[native[[3]]], native[[3, k - native[[4]] + 1]], 0]];
-      If[parts[[3]] === {}, Return[{jetMerge[{{0, h[c]}}, ell, ass], j[[2]], j[[3]]}, Module]];
+      cf = Function[k, seriesObservableTaylorCoefficient[native, k]];
+      If[parts[[3]] === {}, Return[{jetMerge[{{0, c0}}, ell, ass], j[[2]], j[[3]]}, Module]];
       If[sign === -1, parts[[3]] = jetScale[parts[[3]], -1, ell, ass]];
       res = pUnitSeries[parts[[3]], j[[2]], j[[3]], cf, cut, ell, ass, limit];
-      pAdd[pConst[h[c], ell, ass], res, ell, ass],
+      pAdd[pConst[c0, ell, ass], res, ell, ass],
     True, fail["UnsupportedObservable", "This observable is not in the supported algebra of regular unary analytic functions, powers, logarithms and exponentials."]]];
 
 AsymptoticAnalysis`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : OptionsPattern[]] := catch[Block[
@@ -8865,6 +8945,14 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\nDownValues[fwdAnalytic] = {};",
 "\nfwdAnalytic[LogGamma, {rows_List, precision_, degree_}, e_, u_, ell_, ass_, cutoff_, limit_] /;\n    mathicsGrowingPositiveJetQ[rows, ell, ass] := Module[\n  {argument = First[e], rate = -rows[[1, 1]], count, model, result},\n  If[cutoff === Infinity,\n    fail[\"InfiniteSeries\", \"The Gamma logarithm requires a finite Poincare working order.\"]];\n  count = Max[0, Ceiling[(cutoff/rate + 1)/2] - 1];\n  If[count + 1 > limit,\n    fail[\"ResourceLimit\", \"The Stirling Bernoulli tail exceeds MaxTerms.\"]];\n  model = (argument - 1/2) Log[argument] - argument + Log[2 Pi]/2 +\n    Total[Table[BernoulliB[2 k]/(2 k (2 k - 1) argument^(2 k - 1)), {k, 1, count}]];\n  result = fwd[model, u, ell, ass, cutoff, limit];\n  pAdd[result, {{}, (2 count + 1) rate, 0}, ell, ass]];",
 "\nDownValues[fwdAnalytic] = Join[DownValues[fwdAnalytic], $mathicsOriginalFwdAnalytic];"
+}]];
+If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
+"(* BEGIN SOURCE: src/Kernel/MathicsInputAssumptions.wl\n   Source SHA256 (UTF-8/LF): c82eea58c4a6d0a89488cd65c3b60949426cda821222bdfd3415842b1da6363e *)\n(* Mathics' native Element rules can weaken a symbolic membership condition:\n   Element[Sin[a],Reals] becomes Element[a,Reals], although a=Pi/2+I is a\n   counterexample to that equivalence. The package's held public entries can\n   preserve an inline assumption before ordinary option evaluation reaches\n   those rules. Already evaluated caller values cannot be reconstructed.\n\n   The private catch boundary is held and is entered by the analytic paths\n   before option evaluation. Literal explicit native backend calls bypass\n   it. Keep the established assumption scope and exception behavior in the\n   original held delegate; change only membership heads inside syntactic\n   Assumptions rule values. Position and ReplacePart operate on held trees,\n   so immediate and delayed option programs retain their evaluation count. *)\n\nClearAll[mathicsProtectInputAssumptions];",
+"\nmathicsProtectInputAssumptions[held_HoldComplete] := If[\n  FreeQ[held, System`Element], held, System`Module[\n  {options, heads, positions},\n  options = Position[held,\n    HoldPattern[Rule[Assumptions, _] | RuleDelayed[Assumptions, _]],\n    {0, Infinity}, Heads -> False];\n  If[options === {}, held,\n  heads = Position[held, System`Element, {0, Infinity}, Heads -> True];\n  positions = Select[heads, Function[position,\n    Or @@ (Function[option,\n      Length[position] >= Length[option] + 1 &&\n        Take[position, Length[option] + 1] === Append[option, 2]] /@ options)]];\n  ReplacePart[held, (# -> AsymptoticAnalysis`Mathics`Element) & /@ positions]]]];",
+"\n\nIf[DownValues[mathicsOriginalInputCatch] === {},\n  SetAttributes[mathicsOriginalInputCatch, HoldAll];\n  DownValues[mathicsOriginalInputCatch] = DownValues[catch] /.\n    catch -> mathicsOriginalInputCatch];",
+"\nClear[catch];",
+"\nSetAttributes[catch, HoldAll];",
+"\ncatch[body_] := Replace[mathicsProtectInputAssumptions[HoldComplete[body]],\n  HoldComplete[protected_] :> mathicsOriginalInputCatch[protected]];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "(* BEGIN SOURCE: src/Kernel/MathicsLists.wl\n   Source SHA256 (UTF-8/LF): 1a05f146c5d7a1d26aa8d6d8cedb7b2e87524c9236ab2001a1105e44e896f962 *)\n(* Mathics 10.0.1 Map[f, emptyList] can corrupt that list's cached element\n   properties. Reusing it in a nested numeric list then raises a Python\n   AssertionError. For example, without this package:\n     b = {}; f /@ b; {b, 2, 0}\n   Mapping at the default first level of an empty list has no applications\n   of f and returns an empty list. Bypass only that exact case. Other inputs,\n   explicit levels, Heads options, and invalid arguments retain native Map.\n\n   This late adapter changes references in package-private definitions only;\n   the interpreter and System`Map definitions are untouched. *)\n\nClearAll[mathicsMap, mathicsInstallMap];",
