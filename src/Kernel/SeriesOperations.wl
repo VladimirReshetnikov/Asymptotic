@@ -536,14 +536,21 @@ seriesTransportRemainderBound[s : GeneralizedSeries[a_Association], d_, result :
     Return[result, Module]];
   ell = d["LogVariable"]; w = d["ScaleVariable"]; p = d["Prefactor"];
   before = d["Jet"][[1]]; after = r["SeriesRepresentation"]["Jet"][[1]];
-  removed = Select[before, ! MemberQ[after, #] &];
+  (* A cutoff keeps a prefix of the ordered rows, so the discarded rows are
+     the suffix; membership queries are needed only if the rows were
+     reordered (wave-5 report 42 N03). *)
+  removed = If[Length[after] <= Length[before] && Take[before, Length[after]] === after,
+    Drop[before, Length[after]], Select[before, ! MemberQ[after, #] &]];
   If[! SubsetQ[before, after], Return[result, Module]];
   (* Dirichlet scales use w = E^(-S) with exponents Log[n]; present the
      discarded integer powers as n^(-S), the constructor's own form. *)
   discarded = p seriesJetExpression[{removed, r["RemainderPower"], r["RemainderLogDegree"]}, w, ell] /.
     (E^u_)^Log[n_Integer?Positive] :> n^u;
+  (* A no-op truncation keeps every bound field, including the discarded
+     part recorded by an earlier transport (wave-5 report 39 N01). *)
   keys = {"AbsoluteRemainderBound", "RemainderBoundConditions", "RemainderLowerBound",
-    "RemainderBoundConstant", "ForwardRemainderContract", "FirstOmittedInteger", "FiniteSourceExpansion"};
+    "RemainderBoundConstant", "ForwardRemainderContract", "FirstOmittedInteger", "FiniteSourceExpansion",
+    "TruncationDiscardedPart"};
   If[removed === {}, Return[GeneralizedSeries[Join[r, KeyTake[a, keys]]], Module]];
   retained = KeyTake[a, {"AbsoluteRemainderBound", "RemainderBoundConditions"}];
   transported = <|"AbsoluteRemainderBound" -> a["AbsoluteRemainderBound"] + Abs[discarded],

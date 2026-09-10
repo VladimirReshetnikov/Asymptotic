@@ -61,7 +61,18 @@ records the current state; this table maps the wave's entries to it.
 | --- | --- |
 | 37 F01 (with retired 40 ABS-01, 41 ABS-01) | **Implemented.** The forward modulus applies the sign rule only to provably real retained coefficients and otherwise uses the article's norm-square construction on the real coordinate; the logarithmic witness is refused as leaving the power-log scale. Pinned in [ReviewModulusReality.wlt](../../../src/Tests/ReviewModulusReality.wlt) and the [wave-5 modulus run](../../../validation/wave5-modulus-tests.json). |
 | 42 N01 (with retired 40 ABS-02) | **Implemented.** A modulus of a nonzero remainder records `RemainderDerivativeOrder -> 0`; report 42's differentiated pure-remainder chain now refuses a further derivative. |
-| 37 F02, F03; 38 N1, N2; 39 N01–N03; 42 N02, N03; 43 F01–F03, E01; 44 T01–T04, P01, Q01; 45 N01 | Open; unprocessed review material as described above. |
+| 37 F02 | **Implemented.** A zeroth power requires a retained leading coefficient provably nonzero on the parameter domain; a pure remainder is refused. |
+| 37 F03 | **Implemented.** The Gamma/Barnes zeroth-power path forwards the validated cutoff to the constant result instead of a literal `1`. |
+| 38 N1 | **Implemented** for exact numeric polynomial sources: the numerical check isolates the endpoint-incident monotone component and takes the unique equation root inside it, or refuses; the cubic witness now returns the selected-branch value `1/4`. Nonpolynomial sources keep the solver's root and report the component as unverified. |
+| 38 N2 | **Implemented.** The Gamma/LogGamma adapters return `"TransformedDerivativeLowerBound"`, a scaled `"OriginalDerivativeLowerBound"` for the stored original function, and a scope record. |
+| 39 N01, 42 N03 | **Implemented.** A no-op truncation keeps `"TruncationDiscardedPart"`; discarded rows are the suffix of the ordered rows when the retained rows are a prefix. |
+| 39 N03 | **Implemented** in the acceptance verifier: a recorded first source mismatch is rejected; the reference-set comparison already establishes that the selected entry is fingerprinted. |
+| 43 F01 | **Implemented.** `InverseExpansionCoefficient` on a result object returns `"SourceOrientation"`, `"ObservableCoefficient"`, `"AdditiveOffset"` and `"ContributionExpression"` beside the unchanged local coefficient. |
+| 43 F02 | **Implemented.** `PowerLogModel` returns `"ModelOffset"` and `"TargetLimit"` beside the legacy `"Limit"`. |
+| 43 F03 | **Implemented** on both kernels: a perturbative core containing the source symbol is refused. |
+| 44 T01 | **Implemented.** The historical summarizer refuses to reconcile receipts with different test-suite snapshots. |
+| 45 N01 | **Implemented.** The Mathics exact-seed exception verifies exact rationals by substitution. |
+| 39 N02, 42 N02; 43 E01; 44 T02–T04, P01, Q01 | Open: repeated affine recognition on nested subtrees, the polynomial monotonicity certificate proposal, and the POSIX permission, per-pass recorder, concurrent-builder, build-freshness and phase-error items. |
 
 ## Evidence boundary
 

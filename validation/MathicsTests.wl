@@ -535,6 +535,17 @@ portableTest["numerical-local-coordinate-huge-offset", "numerical",
       TrueQ[Abs[c["RootResidual"]] < 10^-8] && TrueQ[c["Ratio"] < 10]],
   True];
 
+(* Wave-5 report 45 N01: an exact rational the seed denotes exactly is
+   verified by exact substitution and accepted as the reference root on
+   Mathics, where FindRoot cannot supply the requested precision; the
+   official kernel reaches the same exact root through its solver. *)
+portableTest["numerical-exact-rational-seed", "numerical",
+  Module[{x, y, s, c}, s = AsymptoticInverse[x, {x, 0}, {y, 2}];
+    c = InverseNumericalCheck[s, 1/2, WorkingPrecision -> 20];
+    {AssociationQ[c], AssociationQ[c] && TrueQ[c["LocalRoot"] == 1/2],
+      AssociationQ[c] && TrueQ[c["Error"] == 0]}],
+  {True, True, True}];
+
 (* These contracts explicitly distinguish an unavailable Mathics precision
    from an official-kernel high-precision result. Both branches execute the
    public numerical check and verify its actual result. *)
@@ -547,13 +558,15 @@ portableTest["numerical-noninteger-quadratic-precision", "numerical",
         TrueQ[Abs[c["ReferenceRoot"] - Sqrt[2]] < 10^-25]]],
   True];
 
+(* The exact root 1/3 is denoted exactly by the seed and proved by exact
+   substitution, so both kernels return it at the requested precision; the
+   Mathics refusal for a root that is not exact remains covered by
+   numerical-noninteger-quadratic-precision (wave-5 report 45 N01). *)
 portableTest["numerical-rational-root-precision", "numerical",
   Module[{x, y, s, c}, s = AsymptoticInverse[3 x, {x, 0}, {y, 2}];
     c = InverseNumericalCheck[s, 1, WorkingPrecision -> 30];
-    If[StringContainsQ[$Version, "Mathics"],
-      MatchQ[c, Failure["MathicsNumericalPrecisionUnavailable", _Association]],
-      AssociationQ[c] && TrueQ[Precision[c["ReferenceRoot"]] >= 25] &&
-        TrueQ[Abs[c["ReferenceRoot"] - 1/3] < 10^-25]]],
+    AssociationQ[c] && TrueQ[Precision[c["ReferenceRoot"]] >= 25] &&
+      TrueQ[Abs[c["ReferenceRoot"] - 1/3] < 10^-25]],
   True];
 
 portableTest["numerical-machine-capability-is-usable", "numerical",

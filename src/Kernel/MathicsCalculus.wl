@@ -7,8 +7,8 @@
 DownValues[PerturbativeInverse] = {};
 PerturbativeInverse[phi_, h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] :=
   System`Module[{hy},
-    If[x === y || ! FreeQ[h, y],
-      Failure["InvalidVariables", <|"MessageTemplate" -> "Use distinct symbols; h must not contain y."|>],
+    If[x === y || ! FreeQ[h, y] || ! FreeQ[phi, x],
+      Failure["InvalidVariables", <|"MessageTemplate" -> "Use distinct symbols; h must not contain y and phi must not contain x."|>],
       hy = h /. x -> phi;
       phi + Total[System`Table[(-1)^k/k! D[D[phi, y] hy^k, {y, k - 1}], {k, 1, n}]]]];
 PerturbativeInverse[h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] :=

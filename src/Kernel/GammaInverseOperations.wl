@@ -21,7 +21,10 @@ gammaInverseSeriesPower[s : GeneralizedSeries[a_Association], k_, cut_, limit_] 
   If[k === 0,
     direction = Which[a["Limit"] === Infinity || a["Limit"] === -Infinity, Automatic,
       provablyPositive[a["TargetScale"], ass], "FromAbove", True, "FromBelow"];
-    result = forwardCore[1, y, a["Limit"], 1, Assumptions -> ass,
+    (* The constant is exact at every cutoff; the validated request is still
+       forwarded instead of a literal one so the finite view records the
+       cutoff that was asked for (wave-5 report 37 F03). *)
+    result = forwardCore[1, y, a["Limit"], If[cut === Automatic, 1, cut], Assumptions -> ass,
       Direction -> direction, "MaxTerms" -> limit];
     If[FailureQ[result], Return[result, Module]];
     representation = seriesData[result, limit];

@@ -109,7 +109,15 @@ specialGamma[fam_, x_, endpoint_, y_, depth_, ass_, direction_, modelTerms_, off
     "ForwardRemainderBound" -> alpha x^-rho,
     "ForwardDerivativeRemainderBound" -> rho alpha x^(-rho - 1),
     "ForwardBoundConditions" -> x > 0,
-    "OriginalDerivativeLowerBound" -> Log[x] - 1/(2 x) - 1/(12 x^2),
+    (* The Stirling bound Log[x] - 1/(2x) - 1/(12x^2) <= PolyGamma[0, x] is a
+       lower bound for the derivative of LogGamma in the transformed target
+       equation. The stored original function is offset + scale f[x], so the
+       bound for the original equation carries the scale, and for Gamma the
+       factor Gamma[x]; each field names its scope (wave-5 report 38 N2). *)
+    "TransformedDerivativeLowerBound" -> Log[x] - 1/(2 x) - 1/(12 x^2),
+    "OriginalDerivativeLowerBound" -> Abs[scale] If[fam === "Gamma", Gamma[x], 1] (Log[x] - 1/(2 x) - 1/(12 x^2)),
+    "DerivativeLowerBoundScope" -> <|"TransformedDerivativeLowerBound" -> "D[LogGamma[x], x] in the transformed target equation, valid for x > 0",
+      "OriginalDerivativeLowerBound" -> "Abs[D[" <> ToString[original, InputForm] <> ", x]] on the source branch x > 2"|>,
     "ForwardRemainderContract" -> <|"Type" -> "StirlingPoincareWithFirstNeglectedTermBound",
       "ConvergentForwardSeries" -> False, "BoundAppliesTo" -> "LogGamma in the transformed target equation",
       "Reference" -> "https://dlmf.nist.gov/5.11.ii", "InputRemainderPair" -> {rho, 0},

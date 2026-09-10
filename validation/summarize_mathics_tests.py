@@ -88,6 +88,12 @@ def read_receipt(path: Path) -> dict:
 def reconcile(full: dict, correction: dict) -> dict:
     if full["PackageSourcesSHA256"] != correction["PackageSourcesSHA256"]:
         raise ValueError("Cannot reconcile results from different package sources")
+    # Test IDs are labels, not the predicates they name: a rerun that passes
+    # the same ID under an edited suite is supplemental evidence, not an
+    # automatic correction of the earlier failure (wave-5 report 44 T01).
+    if full.get("TestSuiteSnapshotSHA256") != correction.get("TestSuiteSnapshotSHA256"):
+        raise ValueError("Cannot reconcile results from different test-suite snapshots; "
+                         "record the rerun as supplemental evidence instead")
     unresolved = set(full["FailedTestIDs"]) - set(correction["SuccessfulTestIDs"])
     if correction["FailedTestIDs"] or unresolved:
         raise ValueError(f"Correction did not resolve every original failure: {sorted(unresolved)}")

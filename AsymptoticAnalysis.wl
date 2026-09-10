@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 5281b74572ed5760146c9cad6237ebb465f19e0f87dcc6306eff181c1a665f9c *)
+   Source SHA256 (UTF-8/LF): c4101675a4d7626fd25eea21edafb87fda251dada10030847ad7c6fc9171d788 *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -626,6 +626,15 @@ fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, 
   If[! (NumericQ[r] && exactQ[r]), fail["SymbolicExponent", "Exponents must be exact numbers.", <|"Exponent" -> r|>]];
   If[! TrueQ[Simplify[Element[r, Reals]]], fail["ComplexExponent", "Only real exponents are supported.", <|"Exponent" -> r|>]];
   rr = If[algebraicRealQ[r], RootReduce[r], r];
+  (* F^0 = 1 only where F is nonzero. A pure remainder gives no such proof,
+     and a symbolic leading coefficient must be proved nonzero on the
+     parameter domain: a x with only a real vanishes identically at a = 0
+     (wave-5 report 37 F02). *)
+  If[rr === 0,
+   If[T === {}, fail["IndeterminatePower", "A zeroth power requires a known nonzero leading term."]];
+   If[! TrueQ[Simplify[Coefficient[T[[1, 2]], ell, polyDegree[T[[1, 2]], ell]] != 0, ass]],
+    fail["UnprovedNonvanishing", "A zeroth power requires the leading coefficient to be provably nonzero on the parameter domain.",
+     <|"Coefficient" -> T[[1, 2]], "Assumptions" -> ass|>]]];
   If[IntegerQ[rr] && rr >= 0, Return[pIntegerPower[{T, P, D}, rr, ell, ass, limit], Module]];
   If[T === {},
    If[P =!= Infinity && ! IntegerQ[rr],
@@ -998,7 +1007,17 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
      fail["UnprovedRealCoefficient", "All coefficients must be provably real under the assumptions.", <|"Polynomial" -> q|>]], {q, polys}];
   If[symbolic,
    Do[If[! TrueQ[Simplify[d > 0, ass]], fail["UnprovedPositiveGap", "A power gap could not be proved positive.", <|"Gap" -> d|>]], {d, deltas}]];
-  <|"Limit" -> y0, "LeadingCoefficient" -> a, "LeadingPower" -> p, "Gaps" -> deltas,
+  (* "Limit" is the baseline extracted by normalization, which for a pole
+     (p < 0) is 0 rather than the analytic limit; "ModelOffset" names that
+     baseline and "TargetLimit" the analytic endpoint of the admitted
+     approach, unresolved when the leading sign is unproved (wave-5 report
+     43 F02). The legacy key is kept for its internal consumers. *)
+  <|"Limit" -> y0, "ModelOffset" -> y0,
+    "TargetLimit" -> Which[TrueQ[Simplify[p > 0, ass]], y0,
+      TrueQ[Simplify[p < 0, ass]] && provablyPositive[a, ass], Infinity,
+      TrueQ[Simplify[p < 0, ass]] && provablyNegative[a, ass], -Infinity,
+      True, Missing["Unresolved", "LeadingSign"]],
+    "LeadingCoefficient" -> a, "LeadingPower" -> p, "Gaps" -> deltas,
     "Polynomials" -> polys, "LogVariable" -> ell, "Variable" -> u, "Rows" -> rows,
     "Symbolic" -> symbolic, "Assumptions" -> ass|>];
 
@@ -1497,7 +1516,10 @@ lambertNumericalCheck[a_Association, yv_, wp_] := numericalInverseEvidence[a, yv
 (* ------------------------------------------------------------------ *)
 
 PerturbativeInverse[phi_, h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] := Module[{hy},
-  If[x === y || ! FreeQ[h, y], Return[Failure["InvalidVariables", <|"MessageTemplate" -> "Use distinct symbols; h must not contain y."|>]]];
+  (* The core inverse is a function of the target alone; a core containing
+     the source symbol would survive elimination and yield a formally
+     successful but structurally invalid result (wave-5 report 43 F03). *)
+  If[x === y || ! FreeQ[h, y] || ! FreeQ[phi, x], Return[Failure["InvalidVariables", <|"MessageTemplate" -> "Use distinct symbols; h must not contain y and phi must not contain x."|>]]];
   hy = h /. x -> phi;
   phi + Sum[(-1)^k/k! D[D[phi, y] hy^k, {y, k - 1}], {k, 1, n}]];
 PerturbativeInverse[h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] := PerturbativeInverse[y, h, {x, y}, n];
@@ -1569,8 +1591,28 @@ InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : Opt
     If[! exactRealQ[power] || power === 0,
      Return[Failure["InvalidOption", <|"MessageTemplate" -> "Power must be a nonzero exact real number.",
        "Power" -> power|>], Module]];
-    InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
-     k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -power, power]]]];
+    inverseCoefficientOriented[a, power,
+     InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
+      k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -power, power]]]]];
+
+(* The normalized coefficient describes the positive local coordinate; the
+   represented observable is sigma^r times that contribution, where sigma is
+   the source orientation of the chart, and a finite endpoint is added once
+   for power one. The oriented fields make that reconstruction explicit
+   (wave-5 report 43 F01); "Coefficient" and "Meaning" are unchanged. *)
+inverseCoefficientOriented[a_, power_, c_] := Module[{sigma, y, y0, lead, p, v, contribution},
+  If[! AssociationQ[c], Return[c, Module]];
+  sigma = Which[a["ExpansionPoint"] === -Infinity, -1, a["ExpansionPoint"] === Infinity, 1,
+    Lookup[a, "Direction", "FromAbove"] === "FromBelow", -1, True, 1];
+  y = a["Variable"]; y0 = Lookup[a["Model"], "Limit", 0];
+  lead = a["Model"]["LeadingCoefficient"]; p = a["Model"]["LeadingPower"];
+  v = If[MemberQ[{Infinity, -Infinity}, y0], y, y - y0];
+  contribution = sigma^power (v/lead)^c["Exponent"] (c["Coefficient"] /. \[FormalL] -> Log[v/lead]/p);
+  Join[c, <|"LocalCoefficient" -> c["Coefficient"], "SourceOrientation" -> sigma,
+    "ObservableCoefficient" -> sigma^power c["Coefficient"],
+    "AdditiveOffset" -> If[power === 1 && ! MemberQ[{Infinity, -Infinity}, a["ExpansionPoint"]], a["ExpansionPoint"], 0],
+    "ContributionExpression" -> contribution,
+    "ObservableMeaning" -> "The represented observable (x - x0)^Power, or x^Power at an infinite endpoint, is AdditiveOffset plus the sum of ContributionExpression over all multi-indices: SourceOrientation^Power (v/a)^Exponent Coefficient[Log[v/a]/p] with v the target minus its finite limit. AdditiveOffset is added once per expansion, not per coefficient."|>]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
@@ -2145,7 +2187,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 39d2827226ba3245bc43cda3883c0b6d7c30496f758eaf0ac5ac3cc81606fa39 *)
+   Source SHA256 (UTF-8/LF): 7df047f5768c58c9ce4f376e8dee6abc4a414da9f0b534eb198b61d41971456b *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2684,14 +2726,21 @@ seriesTransportRemainderBound[s : GeneralizedSeries[a_Association], d_, result :
     Return[result, Module]];
   ell = d["LogVariable"]; w = d["ScaleVariable"]; p = d["Prefactor"];
   before = d["Jet"][[1]]; after = r["SeriesRepresentation"]["Jet"][[1]];
-  removed = Select[before, ! MemberQ[after, #] &];
+  (* A cutoff keeps a prefix of the ordered rows, so the discarded rows are
+     the suffix; membership queries are needed only if the rows were
+     reordered (wave-5 report 42 N03). *)
+  removed = If[Length[after] <= Length[before] && Take[before, Length[after]] === after,
+    Drop[before, Length[after]], Select[before, ! MemberQ[after, #] &]];
   If[! SubsetQ[before, after], Return[result, Module]];
   (* Dirichlet scales use w = E^(-S) with exponents Log[n]; present the
      discarded integer powers as n^(-S), the constructor's own form. *)
   discarded = p seriesJetExpression[{removed, r["RemainderPower"], r["RemainderLogDegree"]}, w, ell] /.
     (E^u_)^Log[n_Integer?Positive] :> n^u;
+  (* A no-op truncation keeps every bound field, including the discarded
+     part recorded by an earlier transport (wave-5 report 39 N01). *)
   keys = {"AbsoluteRemainderBound", "RemainderBoundConditions", "RemainderLowerBound",
-    "RemainderBoundConstant", "ForwardRemainderContract", "FirstOmittedInteger", "FiniteSourceExpansion"};
+    "RemainderBoundConstant", "ForwardRemainderContract", "FirstOmittedInteger", "FiniteSourceExpansion",
+    "TruncationDiscardedPart"};
   If[removed === {}, Return[GeneralizedSeries[Join[r, KeyTake[a, keys]]], Module]];
   retained = KeyTake[a, {"AbsoluteRemainderBound", "RemainderBoundConditions"}];
   transported = <|"AbsoluteRemainderBound" -> a["AbsoluteRemainderBound"] + Abs[discarded],
@@ -5096,7 +5145,7 @@ AsymptoticAnalysis`FourierInverseCoefficient[___] := Failure["InvalidArguments",
 (* END SOURCE: src/Kernel/FourierCoefficients.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SpecialFunctionAdapters.wl
-   Source SHA256 (UTF-8/LF): 4f805279e9661731594cef6b7b9187f58782f8bd64dc8041f6f9860e85c2ac7d *)
+   Source SHA256 (UTF-8/LF): 11a54e9e9510fe0a94e3245d0af4b3572aad511aefd014822fed885f444dddf4 *)
 (* Real special-function adapters with explicit forward-model provenance.
    Finite Poincare models are never labelled convergent exact forward data. *)
 
@@ -5208,7 +5257,15 @@ specialGamma[fam_, x_, endpoint_, y_, depth_, ass_, direction_, modelTerms_, off
     "ForwardRemainderBound" -> alpha x^-rho,
     "ForwardDerivativeRemainderBound" -> rho alpha x^(-rho - 1),
     "ForwardBoundConditions" -> x > 0,
-    "OriginalDerivativeLowerBound" -> Log[x] - 1/(2 x) - 1/(12 x^2),
+    (* The Stirling bound Log[x] - 1/(2x) - 1/(12x^2) <= PolyGamma[0, x] is a
+       lower bound for the derivative of LogGamma in the transformed target
+       equation. The stored original function is offset + scale f[x], so the
+       bound for the original equation carries the scale, and for Gamma the
+       factor Gamma[x]; each field names its scope (wave-5 report 38 N2). *)
+    "TransformedDerivativeLowerBound" -> Log[x] - 1/(2 x) - 1/(12 x^2),
+    "OriginalDerivativeLowerBound" -> Abs[scale] If[fam === "Gamma", Gamma[x], 1] (Log[x] - 1/(2 x) - 1/(12 x^2)),
+    "DerivativeLowerBoundScope" -> <|"TransformedDerivativeLowerBound" -> "D[LogGamma[x], x] in the transformed target equation, valid for x > 0",
+      "OriginalDerivativeLowerBound" -> "Abs[D[" <> ToString[original, InputForm] <> ", x]] on the source branch x > 2"|>,
     "ForwardRemainderContract" -> <|"Type" -> "StirlingPoincareWithFirstNeglectedTermBound",
       "ConvergentForwardSeries" -> False, "BoundAppliesTo" -> "LogGamma in the transformed target equation",
       "Reference" -> "https://dlmf.nist.gov/5.11.ii", "InputRemainderPair" -> {rho, 0},
@@ -5498,7 +5555,7 @@ AsymptoticAnalysis`AsymptoticExponentialCoreInverse[___] := Failure["InvalidArgu
 (* END SOURCE: src/Kernel/ExponentialCorePerturbation.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NumericalInverseChecks.wl
-   Source SHA256 (UTF-8/LF): 15a7ab4f26f407662f7fd499e5b9a291fbf4402d40b433eb8aa29d6722df6b08 *)
+   Source SHA256 (UTF-8/LF): c04427b0d30cab4e988e755dbe4a2a3a773f898acb2283f85e19c308326a1d38 *)
 (* Numerical evidence for inverse objects and their power observables.
    Exact target substitution precedes numerical evaluation so large offsets
    do not erase the small target distance. This is not certification. *)
@@ -5529,9 +5586,50 @@ numericalSourceDomainCheck[a_, root_, target_, wp_, chart_: None] := Module[{x, 
    not lost by rounding two large absolute values and subtracting them; the
    full source value is reconstructed only for presentation, with enough
    digits to show the displacement. *)
+(* Endpoint-component reference for an exact numeric polynomial equation
+   g(u) - target = 0 in the local displacement u > 0. The component incident
+   to the endpoint is (0, u1) where u1 is the least positive critical point of
+   g, or the whole ray without one; the equation's real roots inside it are
+   isolated exactly and the unique one is returned. Returns
+   {"Verified", root, {0, u1}, message} or {"Refused", None, {0, u1}, data};
+   {"Unverified", None, "NotPolynomial", None} leaves the numerical root as
+   found. *)
+numericalEndpointComponent[equation_, u_, localRoot_, wp_] := Module[
+  {g, coefficients, critical, upper, roots, inside, real},
+  g = Expand[equation];
+  If[! PolynomialQ[g, u], Return[{"Unverified", None, "NotPolynomial", None}, Module]];
+  coefficients = CoefficientList[g, u];
+  If[! (And @@ (NumericQ[#] && exactQ[#] & /@ coefficients)) || ! (And @@ (TrueQ[Im[#] == 0] & /@ coefficients)),
+    Return[{"Unverified", None, "NotExactNumericPolynomial", None}, Module]];
+  real = Function[values, Select[values, TrueQ[Im[N[#, wp + 10]] == 0] && TrueQ[N[#, wp + 10] > 0] &]];
+  critical = numericalPolynomialRoots[D[g, u], u];
+  If[critical === $Failed, Return[{"Unverified", None, "CriticalPointsUnresolved", None}, Module]];
+  critical = real[critical];
+  upper = If[critical === {}, Infinity, First[Sort[critical, N[#1, wp + 10] < N[#2, wp + 10] &]]];
+  roots = numericalPolynomialRoots[g, u];
+  If[roots === $Failed, Return[{"Unverified", None, "RootsUnresolved", None}, Module]];
+  roots = real[roots];
+  inside = Select[roots, upper === Infinity || TrueQ[N[#, wp + 10] < N[upper, wp + 10]] &];
+  Which[Length[inside] === 1,
+    {"Verified", N[First[inside], wp + 10], {0, upper}, "Unique equation root inside the endpoint-incident monotone component."},
+   inside === {},
+    {"Refused", None, {0, upper}, <|"Reason" -> "NoRootInEndpointComponent", "EndpointComponent" -> {0, upper},
+      "NumericalRoot" -> localRoot, "Explanation" -> "The equation has no root on the monotone source component incident to the endpoint; the numerical root found belongs to another branch."|>},
+   True,
+    {"Refused", None, {0, upper}, <|"Reason" -> "AmbiguousEndpointComponent", "EndpointComponent" -> {0, upper},
+      "RootsInComponent" -> Length[inside]|>}]];
+
+(* Exact roots of a numeric polynomial as a list, or $Failed when the solver
+   returns anything but a list of substitution rules. *)
+numericalPolynomialRoots[g_, u_] := Module[{solutions},
+  If[FreeQ[g, u], Return[{}, Module]];
+  solutions = Quiet[Check[Solve[g == 0, u], $Failed]];
+  If[! MatchQ[solutions, {{_Rule} ...}], Return[$Failed, Module]];
+  u /. solutions];
+
 numericalInverseEvidence[a_, target_, wp_] := Module[
  {x, y, u, power, endpoint, side, shift, finite, domain, localApproximate, approximate,
-  localSeed, localEquation, localRoot, root, observed, error, scale, remainder, gap},
+  localSeed, localEquation, localRoot, root, observed, error, scale, remainder, gap, component},
  If[! IntegerQ[wp] || wp < 10,
   fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
  If[! NumericQ[target] || (! exactQ[target] && Precision[target] < wp),
@@ -5562,6 +5660,14 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
  If[localRoot === $Failed || ! finiteNumericQ[localRoot], fail["RootNotFound", "The original equation did not converge from the expansion seed."]];
  If[! TrueQ[Im[localRoot] == 0] || ! TrueQ[localRoot > 0],
   fail["OutsideBranch", "The numerical root is outside the selected original source branch."]];
+ (* A root on the selected side need not lie on the inverse branch incident
+    to the endpoint: the approximation can itself be an exact root of another
+    monotone component. For an exact numeric polynomial source the endpoint
+    component is bounded by the first positive critical point; the root is
+    taken inside it, or the check refuses (wave-5 report 38 N1). *)
+ component = numericalEndpointComponent[localEquation, u, localRoot, wp];
+ If[component[[1]] === "Refused", fail["OutsideBranch", component[[3]], component[[4]]]];
+ If[component[[1]] === "Verified", localRoot = component[[2]]];
  root = shift + side localRoot;
  numericalSourceDomainCheck[a, root, target, wp, {u, shift + side u, localRoot}];
  (* Extra presentation digits so that the reconstructed absolute source
@@ -5585,6 +5691,7 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
       (wave-6 reports 48 N3, 51 N02 and 54 N04). *)
    "LocalCoordinate" -> "x = SourceOffset + SourceSide u with u > 0. LocalRoot is always the positive source displacement u. LocalApproximation approximates u for Power 1 and (SourceSide u)^Power otherwise; LocalReferenceObservable is that observable at the recovered root.",
    "SourceDomainChecked" -> inverseEvidenceSourceDomain[a, x], "SourceDomainVerified" -> True,
+   "EndpointComponent" -> component[[3]], "BranchComponentVerified" -> (component[[1]] === "Verified"),
    (* A positive test rather than an equality test: Mathics treats a
       low-precision 10^-12 as equal to 0, which made every ratio Indeterminate. *)
    "Ratio" -> If[TrueQ[scale > 0], error/scale, Indeterminate],
@@ -7262,7 +7369,7 @@ barnesInverseResidual[a_Association, h_, limit_] := Module[
 (* END SOURCE: src/Kernel/BarnesInverseChecks.wl *)
 
 (* BEGIN SOURCE: src/Kernel/GammaInverseOperations.wl
-   Source SHA256 (UTF-8/LF): c449679dd9b8686a15fb985c5e6304a492ed350bddbcedcd12b66af98e484062 *)
+   Source SHA256 (UTF-8/LF): 777b505667126b2c88c11fb64d69f3b7cfb838bba02be08a61a224de0daaab69 *)
 (* A power of an inverse-Gamma observable is another observable of the
    same source root. Replaying its exact defining equation determines the
    coefficients, while the operand's error still caps output precision. *)
@@ -7286,7 +7393,10 @@ gammaInverseSeriesPower[s : GeneralizedSeries[a_Association], k_, cut_, limit_] 
   If[k === 0,
     direction = Which[a["Limit"] === Infinity || a["Limit"] === -Infinity, Automatic,
       provablyPositive[a["TargetScale"], ass], "FromAbove", True, "FromBelow"];
-    result = forwardCore[1, y, a["Limit"], 1, Assumptions -> ass,
+    (* The constant is exact at every cutoff; the validated request is still
+       forwarded instead of a literal one so the finite view records the
+       cutoff that was asked for (wave-5 report 37 F03). *)
+    result = forwardCore[1, y, a["Limit"], If[cut === Automatic, 1, cut], Assumptions -> ass,
       Direction -> direction, "MaxTerms" -> limit];
     If[FailureQ[result], Return[result, Module]];
     representation = seriesData[result, limit];
@@ -9301,8 +9411,8 @@ nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module
 (* END SOURCE: src/Kernel/NativeCompatibility.wl *)
 
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsCalculus.wl\n   Source SHA256 (UTF-8/LF): 5bfd1ceabc69951213036ebb83d9d2539763735aac5043dafc3de067f874d384 *)\n(* Loaded only by Mathics, after the ordinary analytic engines.\n   Mathics sends a symbolic Sum body to SymPy before substituting a finite\n   iterator. Derivative orders and Part indices must already be integers\n   when evaluated. Table binds those indices first and Total performs the\n   same exact finite sum; the official kernel retains its original code. *)\n\nDownValues[PerturbativeInverse] = {};",
-"\nPerturbativeInverse[phi_, h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] :=\n  System`Module[{hy},\n    If[x === y || ! FreeQ[h, y],\n      Failure[\"InvalidVariables\", <|\"MessageTemplate\" -> \"Use distinct symbols; h must not contain y.\"|>],\n      hy = h /. x -> phi;\n      phi + Total[System`Table[(-1)^k/k! D[D[phi, y] hy^k, {y, k - 1}], {k, 1, n}]]]];",
+"(* BEGIN SOURCE: src/Kernel/MathicsCalculus.wl\n   Source SHA256 (UTF-8/LF): 191c12fa1737c88e5adfaef014f1ce5840e8749ac7fe5b255e69e77af8c349c6 *)\n(* Loaded only by Mathics, after the ordinary analytic engines.\n   Mathics sends a symbolic Sum body to SymPy before substituting a finite\n   iterator. Derivative orders and Part indices must already be integers\n   when evaluated. Table binds those indices first and Total performs the\n   same exact finite sum; the official kernel retains its original code. *)\n\nDownValues[PerturbativeInverse] = {};",
+"\nPerturbativeInverse[phi_, h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] :=\n  System`Module[{hy},\n    If[x === y || ! FreeQ[h, y] || ! FreeQ[phi, x],\n      Failure[\"InvalidVariables\", <|\"MessageTemplate\" -> \"Use distinct symbols; h must not contain y and phi must not contain x.\"|>],\n      hy = h /. x -> phi;\n      phi + Total[System`Table[(-1)^k/k! D[D[phi, y] hy^k, {y, k - 1}], {k, 1, n}]]]];",
 "\nPerturbativeInverse[h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] :=\n  PerturbativeInverse[y, h, {x, y}, n];",
 "\nPerturbativeInverse[___] := Failure[\"InvalidArguments\", <|\"MessageTemplate\" ->\n  \"Use PerturbativeInverse[phi, h, {x, y}, n] or PerturbativeInverse[h, {x, y}, n].\"|>];",
 "\n\nlogarithmicEuler[e_, levels_] := -Total[System`Table[\n  D[e, levels[[j]]]/(Times @@ Take[levels, j - 1]), {j, Length[levels]}]];"
@@ -9360,9 +9470,9 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\ncatch[body_] := Replace[mathicsProtectInputAssumptions[HoldComplete[body]],\n  HoldComplete[protected_] :> mathicsOriginalInputCatch[protected]];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsNumerical.wl\n   Source SHA256 (UTF-8/LF): 52e0b64a97788703a3917b43a0bcec9245390e4479915c42d4cda7b46bb6a828 *)\n(* Loaded late, only on Mathics. Mathics 10's FindRoot evaluates its seed\n   and Newton updates at machine precision even when WorkingPrecision is\n   supplied. Do not label such a root as a higher-precision comparison.\n   An unchanged integer seed may instead be promoted to an exact root when\n   direct substitution proves an exact polynomial equation. No digits are\n   added to an approximate root and no nearby rational root is guessed. *)\n\nClearAll[mathicsNumericalFindRoot, mathicsNumericalExactIntegerSeed];",
+"(* BEGIN SOURCE: src/Kernel/MathicsNumerical.wl\n   Source SHA256 (UTF-8/LF): fbe5ebfb58863ca9d9e83229c4f05349a76aac299297246f48fd2b42a38bff34 *)\n(* Loaded late, only on Mathics. Mathics 10's FindRoot evaluates its seed\n   and Newton updates at machine precision even when WorkingPrecision is\n   supplied. Do not label such a root as a higher-precision comparison.\n   An unchanged integer seed may instead be promoted to an exact root when\n   direct substitution proves an exact polynomial equation. No digits are\n   added to an approximate root and no nearby rational root is guessed. *)\n\nClearAll[mathicsNumericalFindRoot, mathicsNumericalExactIntegerSeed];",
 "\n\nSetAttributes[mathicsNumericalExactIntegerSeed, HoldAllComplete];",
-"\nmathicsNumericalExactIntegerSeed[held_HoldComplete, variable_Symbol, seed_] :=\n  Block[{variable}, Module[{candidate, polynomial},\n    If[! NumericQ[seed] || ! TrueQ[Im[seed] == 0], Return[$Failed, Module]];\n    candidate = Round[seed];\n    If[! IntegerQ[candidate] || ! (SameQ[seed, candidate] ||\n        SameQ[seed, N[candidate, Precision[seed]]]), Return[$Failed, Module]];\n    If[! MatchQ[held, HoldComplete[Equal[_, _]]], Return[$Failed, Module]];\n    polynomial = ReleaseHold[held /. HoldPattern[Equal[left_, right_]] :>\n      (left - right)];\n    If[! exactQ[polynomial] || ! FreeQ[polynomial, Indeterminate | _DirectedInfinity] ||\n        ! PolynomialQ[polynomial, variable], Return[$Failed, Module]];\n    If[SameQ[polynomial /. variable -> candidate, 0], candidate, $Failed]]];",
+"\nmathicsNumericalExactIntegerSeed[held_HoldComplete, variable_Symbol, seed_] :=\n  Block[{variable}, Module[{candidate, polynomial},\n    If[! NumericQ[seed] || ! TrueQ[Im[seed] == 0], Return[$Failed, Module]];\n    (* The exact candidate is the integer or rational the seed denotes\n       exactly; anything else, including a rounded 1/3, is verified below by\n       exact substitution and fails there (wave-5 report 45 N01). *)\n    candidate = Which[IntegerQ[seed] || Head[seed] === Rational, seed,\n      SameQ[seed, N[Round[seed], Precision[seed]]], Round[seed],\n      True, Rationalize[seed, 0]];\n    If[! (IntegerQ[candidate] || Head[candidate] === Rational), Return[$Failed, Module]];\n    If[! MatchQ[held, HoldComplete[Equal[_, _]]], Return[$Failed, Module]];\n    polynomial = ReleaseHold[held /. HoldPattern[Equal[left_, right_]] :>\n      (left - right)];\n    If[! exactQ[polynomial] || ! FreeQ[polynomial, Indeterminate | _DirectedInfinity] ||\n        ! PolynomialQ[polynomial, variable], Return[$Failed, Module]];\n    If[SameQ[polynomial /. variable -> candidate, 0], candidate, $Failed]]];",
 "\n\nSetAttributes[mathicsNumericalFindRoot, HoldAll];",
 "\nmathicsNumericalFindRoot[equation_, {variable_Symbol, start_}, options___] :=\n  Module[{goal, seed, exact, result, root, precision},\n    goal = PrecisionGoal /. {options};\n    seed = start;\n    exact = mathicsNumericalExactIntegerSeed[HoldComplete[equation], variable, seed];\n    If[exact =!= $Failed, Return[{variable -> exact}, Module]];\n    If[NumericQ[goal] && TrueQ[goal > N[MachinePrecision]],\n      fail[\"MathicsNumericalPrecisionUnavailable\",\n        \"Mathics FindRoot cannot supply the requested reference-root precision. No high-precision numerical comparison was produced.\",\n        <|\"RequestedPrecisionGoal\" -> goal, \"AvailablePrecision\" -> N[MachinePrecision],\n          \"ExactIntegerSeedVerified\" -> False|>]];\n    result = System`FindRoot[equation, {variable, seed}, options];\n    If[NumericQ[goal] && ListQ[result] && Length[result] === 1 &&\n        MatchQ[First[result], _Rule],\n      root = variable /. result;\n      If[NumericQ[root],\n        precision = N[Precision[root]];\n        If[! TrueQ[precision >= goal],\n          fail[\"MathicsNumericalPrecisionUnavailable\",\n            \"Mathics FindRoot returned fewer reference-root digits than requested. No high-precision numerical comparison was produced.\",\n            <|\"RequestedPrecisionGoal\" -> goal, \"ReturnedPrecision\" -> precision|>]]]];\n    result];",
 "\n\n(* These are the five package-owned numerical consumers of FindRoot.\n   Symbolic construction, direct exact special-inverse evaluation, and\n   caller uses of System`FindRoot keep their existing dispatch. *)\nScan[(DownValues[#] = DownValues[#] /. System`FindRoot -> mathicsNumericalFindRoot) &,\n  {numericalInverseEvidence, coordinateNumericalCheck, sourceCoordinateNumericalCheck,\n   gammaInverseNumerical, specialNumerical}];",

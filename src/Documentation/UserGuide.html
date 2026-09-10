@@ -3604,7 +3604,15 @@ exact real numeric value. Supported varying exponents use the real
 logarithm and exponential calculus. <code>SeriesPower[s, r, h]</code>
 supplies an explicit cutoff. Noninteger and varying powers require the
 appropriate positive-base branch. Reciprocal powers can reduce absolute
-precision.</p>
+precision. The zeroth power is the constant <code>1</code> only where
+the base is nonzero: it requires a retained leading term whose
+coefficient is provably nonzero on the parameter domain, so
+<code>a x + x^2</code> with merely real <code>a</code> returns
+<code>Failure[&quot;UnprovedNonvanishing&quot;, ...]</code> while
+<code>a &gt; 0</code> or <code>a != 0</code> gives <code>1</code>, and a
+pure remainder returns <code>Failure[&quot;IndeterminatePower&quot;, ...]</code>.
+On a Gamma or Barnes inverse the requested cutoff is recorded on the
+constant result.</p>
 <p>A pure remainder does not establish the sign needed for a noninteger
 power. This also applies to powers nested inside an observable: for
 example, <code>SeriesObservable[s, 1 + Sqrt[z], z]</code> returns
@@ -3938,6 +3946,24 @@ check[&quot;Error&quot;]</code></pre>
 <code>&quot;Power&quot;</code>. <code>&quot;Error&quot;</code> compares that observable with
 the finite approximation. <code>&quot;ExactInverse&quot;</code> is a compatibility
 alias for the numerical reference root.</p>
+<p>A root on the selected source side need not lie on the inverse branch
+incident to the endpoint: the finite approximation can itself be an
+exact root of another monotone component, so an equation residual of
+zero would hide a nonzero branch error. For an exact numeric polynomial
+source the checker isolates the endpoint-incident component
+<code>(0, u1)</code>, with <code>u1</code> the least positive critical
+point of the local equation or <code>Infinity</code>, takes the unique
+equation root inside it, and reports <code>&quot;EndpointComponent&quot;</code>
+and <code>&quot;BranchComponentVerified&quot; -&gt; True</code>; it returns
+<code>Failure[&quot;OutsideBranch&quot;, ...]</code> with
+<code>&quot;Reason&quot; -&gt; &quot;NoRootInEndpointComponent&quot;</code> when the
+equation has no root there. For <code>x + 8 x^2 - 16 x^3</code> at
+target <code>1/2</code> the approximation <code>1/2</code> is a root of
+the other component and the selected branch value is <code>1/4</code>,
+which is what the check now returns, with
+<code>&quot;Error&quot; -&gt; 1/4</code>. A nonpolynomial or parameter-dependent
+source keeps the solver&#39;s root and reports
+<code>&quot;BranchComponentVerified&quot; -&gt; False</code>.</p>
 <p>The ordinary checker solves in the local source coordinate
 <code>x = SourceOffset + SourceSide u</code>, with <code>u &gt; 0</code>
 on the selected side; at an infinite endpoint the offset is
@@ -3977,10 +4003,12 @@ precision is machine precision</a>. Increasing the request or applying
 that solver path. The package&#39;s Mathics-only adapter now rejects
 unavailable reference-root precision with
 <code>Failure[&quot;MathicsNumericalPrecisionUnavailable&quot;, ...]</code> and
-checks the precision of delegated roots. An unchanged integer seed is
+checks the precision of delegated roots. A seed that denotes an exact
+integer or rational, such as <code>1/2</code> or <code>1/3</code>, is
 accepted exactly only when direct substitution proves the exact
-polynomial equation. The ordinary official-kernel checker retains its
-behavior described above.</p>
+polynomial equation; no other seed is rounded to a nearby rational. The
+ordinary official-kernel checker retains its behavior described
+above.</p>
 <p>The recorded Mathics <a href="../../validation/mathics-modular-tests.json"><code>numerical-exact-quadratic-inverse</code>
 smoke check</a> establishes its exact-root example, not general
 high-precision accuracy. See <a href="../../docs/Mathics/NUMERICAL.md">Mathics numerical contracts</a>
@@ -4224,6 +4252,20 @@ is outside this model constructor&#39;s scope.</p>
 <code>&quot;LeadingCoefficient&quot;</code>, <code>&quot;Gaps&quot;</code>,
 <code>&quot;Polynomials&quot;</code>, and <code>&quot;LogVariable&quot;</code> to identify
 the correction variables used by a coefficient request.</p>
+<p>The model separates two quantities that the legacy
+<code>&quot;Limit&quot;</code> field conflated. <code>&quot;ModelOffset&quot;</code> (also
+still returned as <code>&quot;Limit&quot;</code>) is the baseline extracted by
+normalization: the constant term when the leading power is positive, and
+<code>0</code> for a pole, where a finite constant stays in the
+correction rows. <code>&quot;TargetLimit&quot;</code> is the analytic limit of the
+source on the admitted approach: the baseline when the leading power is
+positive, <code>Infinity</code> or <code>-Infinity</code> for a pole
+with a provably positive or negative leading coefficient, and
+<code>Missing[&quot;Unresolved&quot;, &quot;LeadingSign&quot;]</code> when that sign is
+unproved. For <code>1/x + 7</code> at <code>x -&gt; 0</code> the offset
+is <code>0</code>, the Laurent constant is <code>7</code>, and the
+target limit is <code>Infinity</code>: three different quantities. An
+inverse object&#39;s own <code>&quot;Limit&quot;</code> is the target endpoint.</p>
 <p><a id="InverseExpansionCoefficient"></a></p>
 </section>
 <section id="inverseexpansioncoefficient" class="level3">
@@ -4267,6 +4309,23 @@ negative or noninteger entry returns
 inherited <code>&quot;Assumptions&quot;</code>. A multi-index contribution is not
 necessarily a complete displayed block: several contributions can have
 the same weight.</p>
+<p><code>&quot;Coefficient&quot;</code> describes the positive local coordinate.
+For a result object the query also returns the chart needed to read it
+as part of the represented observable: <code>&quot;SourceOrientation&quot;</code>
+is <code>-1</code> for a source approached from below or tending to
+<code>-Infinity</code> and <code>1</code> otherwise,
+<code>&quot;ObservableCoefficient&quot;</code> is
+<code>SourceOrientation^Power</code> times the local coefficient,
+<code>&quot;AdditiveOffset&quot;</code> is the finite source endpoint for power
+<code>1</code> and <code>0</code> otherwise, and
+<code>&quot;ContributionExpression&quot;</code> is the contribution in the target
+variable. The observable is the additive offset, added once per
+expansion, plus the sum of the contribution expressions over the
+retained multi-indices. For
+<code>AsymptoticInverse[x, {x, 0}, {y, 2}, Direction -&gt; &quot;FromBelow&quot;]</code>
+the local coefficient is <code>1</code> while the contribution is
+<code>y</code>; for an even power the orientation factor is
+<code>1</code> and the two coefficients agree.</p>
 <p><a id="PerturbativeInverse"></a></p>
 </section>
 <section id="perturbativeinverse" class="level3">
@@ -4274,7 +4333,11 @@ the same weight.</p>
 <p><code>PerturbativeInverse[phi, h, {x, y}, n]</code> generates
 perturbation formulas using an exact inverse core <code>phi</code>.
 <code>PerturbativeInverse[h, {x, y}, n]</code> uses the identity core.
-It has no options.</p>
+It has no options. The core must be an expression in the target
+<code>y</code> alone and the perturbation must not contain
+<code>y</code>; a core containing the source symbol <code>x</code> is
+refused with <code>Failure[&quot;InvalidVariables&quot;, ...]</code> rather than
+producing a formula in which the eliminated symbol survives.</p>
 <p>This function returns a formula. It does not attach asymptotic
 ordering or a remainder contract. Use an exact-core constructor when the
 supported problem requires those properties.</p>

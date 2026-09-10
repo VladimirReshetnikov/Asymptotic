@@ -1189,6 +1189,25 @@ operation, expanded-input, observable, envelope, logarithmic-scale and
 callable-expansion suites that share the forward `Abs` path. The
 characterization below records the behaviour before this repair.
 
+The wave's contract entries are covered by the [ten-file run](wave5-contract-tests.json)
+from [CheckWave5Contracts.wl](CheckWave5Contracts.wl), which passes **187/187**
+with unchanged sources: eight new cases in
+[ReviewWave5Contracts.wlt](../src/Tests/ReviewWave5Contracts.wlt) pin the
+zeroth-power nonvanishing proof (37 F02), the forwarded Gamma zeroth-power
+cutoff (37 F03), the oriented coefficient fields on both sides, both infinite
+endpoints, a translated endpoint and an even power (43 F01), the model offset
+and target limit (43 F02), the perturbative core guard (43 F03), report 38's
+cubic witness with the selected-branch root `1/4` and error `1/4` beside a
+control and a nonpolynomial source (38 N1), the scoped adapter bounds (38 N2),
+and the no-op truncation companion field (39 N01, 42 N03). The Python
+evidence tests pass with the acceptance verifier's drift guard (39 N03) and
+the summarizer's suite-identity guard (44 T01). The Mathics `numerical` group,
+now including `numerical-exact-rational-seed` (45 N01), passes **7/7** on the
+[modular](mathics-modular-wave5-numerical-tests.json) and
+[standalone](mathics-standalone-wave5-numerical-tests.json) layouts; the
+existing `numerical-rational-root-precision` case now expects the exact root
+on both kernels instead of a Mathics precision refusal.
+
 The [five-case characterization](wave5-modulus-witness.json) from
 [ProbeModulusReality.wl](ProbeModulusReality.wl) reproduces the wave-5 modulus
 finding that three separate reports raised. On Wolfram 15.0.1 for Windows, with

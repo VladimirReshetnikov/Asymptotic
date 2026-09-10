@@ -149,6 +149,13 @@ def validate_shard(report: dict, reference: dict) -> dict:
     parts = source.replace("\\", "/").split("/")
     require(parts[-1] == ENTRY, "Unexpected package entry filename")
     layout = "modular" if len(parts) >= 2 and parts[-2] == "Kernel" else "standalone"
+    # A receipt that records a first observed source mismatch contradicts its
+    # own source-stability claim even when the content was later restored
+    # (wave-5 report 39 N03). The selected entry's membership among the
+    # fingerprinted inputs is established by the exact reference-set
+    # comparison below, which names every expected input of the layout.
+    require(report.get("FirstObservedSourceDriftSHA256") is None,
+            "A recorded first source mismatch contradicts the source-stability claim")
     sources = canonical_sources(report.get("TestedSourcesSHA256"))
     requirements_checks = []
     if REQUIREMENTS in sources:

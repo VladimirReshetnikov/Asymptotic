@@ -2314,7 +2314,7 @@ Most explicit operations below accept `"Cutoff" -> Automatic` and `"MaxTerms" ->
 <a id="SeriesPower"></a>
 ### SeriesPower
 
-`SeriesPower[s, r]` takes a power using the same dispatch and remainder rules as `s^r`. A fixed exponent must be an exact real numeric value. Supported varying exponents use the real logarithm and exponential calculus. `SeriesPower[s, r, h]` supplies an explicit cutoff. Noninteger and varying powers require the appropriate positive-base branch. Reciprocal powers can reduce absolute precision.
+`SeriesPower[s, r]` takes a power using the same dispatch and remainder rules as `s^r`. A fixed exponent must be an exact real numeric value. Supported varying exponents use the real logarithm and exponential calculus. `SeriesPower[s, r, h]` supplies an explicit cutoff. Noninteger and varying powers require the appropriate positive-base branch. Reciprocal powers can reduce absolute precision. The zeroth power is the constant `1` only where the base is nonzero: it requires a retained leading term whose coefficient is provably nonzero on the parameter domain, so `a x + x^2` with merely real `a` returns `Failure["UnprovedNonvanishing", ...]` while `a > 0` or `a != 0` gives `1`, and a pure remainder returns `Failure["IndeterminatePower", ...]`. On a Gamma or Barnes inverse the requested cutoff is recorded on the constant result.
 
 A pure remainder does not establish the sign needed for a noninteger power.
 This also applies to powers nested inside an observable: for example,
@@ -2577,6 +2577,8 @@ check["Error"]
 
 `"ReferenceRoot"` is the numerical source root. `"ReferenceObservable"` is the source observable requested by `"Power"`. `"Error"` compares that observable with the finite approximation. `"ExactInverse"` is a compatibility alias for the numerical reference root.
 
+A root on the selected source side need not lie on the inverse branch incident to the endpoint: the finite approximation can itself be an exact root of another monotone component, so an equation residual of zero would hide a nonzero branch error. For an exact numeric polynomial source the checker isolates the endpoint-incident component `(0, u1)`, with `u1` the least positive critical point of the local equation or `Infinity`, takes the unique equation root inside it, and reports `"EndpointComponent"` and `"BranchComponentVerified" -> True`; it returns `Failure["OutsideBranch", ...]` with `"Reason" -> "NoRootInEndpointComponent"` when the equation has no root there. For `x + 8 x^2 - 16 x^3` at target `1/2` the approximation `1/2` is a root of the other component and the selected branch value is `1/4`, which is what the check now returns, with `"Error" -> 1/4`. A nonpolynomial or parameter-dependent source keeps the solver's root and reports `"BranchComponentVerified" -> False`.
+
 The ordinary checker solves in the local source coordinate `x = SourceOffset + SourceSide u`, with `u > 0` on the selected side; at an infinite endpoint the offset is `0`. The exact endpoint is substituted symbolically before any numerical evaluation, so a small displacement at a huge source origin, such as `(x - 10^100) + (x - 10^100)^2` at `x -> 10^100`, is solved, tested against the branch and compared at full working precision. `"LocalRoot"` is always the positive displacement `u` at the recovered root. `"LocalApproximation"` approximates `u` for `"Power" -> 1` and the signed observable `(SourceSide u)^p` otherwise; `"LocalReferenceObservable"` is that observable at the recovered root, and `"ObservablePower"` records `p`. `"Error"`, `"ForwardResidual"` and `"RootResidual"` are computed locally. `"ReferenceRoot"`, `"Approximation"` and `"ApproximationSourceRoot"` reconstruct absolute source values with enough extra digits to show the displacement, so their `Precision` can exceed `WorkingPrecision` at a large offset. With a zero offset every field agrees with the direct computation.
 
 Use exact targets or targets with sufficient input precision. Exact target offsets are subtracted before numerical evaluation. The operation also supports the admitted transformed, logarithmic, Fourier, flat, core, and special inverse families. Its output is numerical evidence, not an interval certificate.
@@ -2594,8 +2596,9 @@ Increasing the request or applying `N[root, digits]` afterward does not recover
 digits lost by that solver path. The package's Mathics-only adapter now rejects
 unavailable reference-root precision with
 `Failure["MathicsNumericalPrecisionUnavailable", ...]` and checks the precision
-of delegated roots. An unchanged integer seed is accepted exactly only when
-direct substitution proves the exact polynomial equation. The ordinary
+of delegated roots. A seed that denotes an exact integer or rational, such as
+`1/2` or `1/3`, is accepted exactly only when direct substitution proves the
+exact polynomial equation; no other seed is rounded to a nearby rational. The ordinary
 official-kernel checker retains its behavior described above.
 
 The recorded Mathics
@@ -2687,6 +2690,8 @@ in the [Mathics API inventory](../../docs/Mathics/API-COVERAGE.md).
 
 Inspect `"LeadingPower"`, `"LeadingCoefficient"`, `"Gaps"`, `"Polynomials"`, and `"LogVariable"` to identify the correction variables used by a coefficient request.
 
+The model separates two quantities that the legacy `"Limit"` field conflated. `"ModelOffset"` (also still returned as `"Limit"`) is the baseline extracted by normalization: the constant term when the leading power is positive, and `0` for a pole, where a finite constant stays in the correction rows. `"TargetLimit"` is the analytic limit of the source on the admitted approach: the baseline when the leading power is positive, `Infinity` or `-Infinity` for a pole with a provably positive or negative leading coefficient, and `Missing["Unresolved", "LeadingSign"]` when that sign is unproved. For `1/x + 7` at `x -> 0` the offset is `0`, the Laurent constant is `7`, and the target limit is `Infinity`: three different quantities. An inverse object's own `"Limit"` is the target endpoint.
+
 <a id="InverseExpansionCoefficient"></a>
 ### InverseExpansionCoefficient
 
@@ -2708,10 +2713,12 @@ coefficient["Coefficient"]
 
 Give one nonnegative integer per model gap. A model with no gaps accepts the empty multi-index `{}`. A wrong dimension or a negative or noninteger entry returns `Failure["InvalidMultiIndex", ...]`. Returned fields include `"Weight"`, `"Exponent"`, `"Coefficient"`, `"UniformizerExponent"`, and the inherited `"Assumptions"`. A multi-index contribution is not necessarily a complete displayed block: several contributions can have the same weight.
 
+`"Coefficient"` describes the positive local coordinate. For a result object the query also returns the chart needed to read it as part of the represented observable: `"SourceOrientation"` is `-1` for a source approached from below or tending to `-Infinity` and `1` otherwise, `"ObservableCoefficient"` is `SourceOrientation^Power` times the local coefficient, `"AdditiveOffset"` is the finite source endpoint for power `1` and `0` otherwise, and `"ContributionExpression"` is the contribution in the target variable. The observable is the additive offset, added once per expansion, plus the sum of the contribution expressions over the retained multi-indices. For `AsymptoticInverse[x, {x, 0}, {y, 2}, Direction -> "FromBelow"]` the local coefficient is `1` while the contribution is `y`; for an even power the orientation factor is `1` and the two coefficients agree.
+
 <a id="PerturbativeInverse"></a>
 ### PerturbativeInverse
 
-`PerturbativeInverse[phi, h, {x, y}, n]` generates perturbation formulas using an exact inverse core `phi`. `PerturbativeInverse[h, {x, y}, n]` uses the identity core. It has no options.
+`PerturbativeInverse[phi, h, {x, y}, n]` generates perturbation formulas using an exact inverse core `phi`. `PerturbativeInverse[h, {x, y}, n]` uses the identity core. It has no options. The core must be an expression in the target `y` alone and the perturbation must not contain `y`; a core containing the source symbol `x` is refused with `Failure["InvalidVariables", ...]` rather than producing a formula in which the eliminated symbol survives.
 
 This function returns a formula. It does not attach asymptotic ordering or a remainder contract. Use an exact-core constructor when the supported problem requires those properties.
 

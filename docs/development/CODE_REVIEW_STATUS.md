@@ -141,6 +141,35 @@ neighbouring suites pass in the
 [CheckWave5Modulus](../../validation/CheckWave5Modulus.wl); see the
 [validation record](../../validation/README.md#wave-5-modulus-witnesses-on-nonreal-retained-coefficients).
 
+The wave's contract entries followed, pinned in
+[ReviewWave5Contracts.wlt](../../src/Tests/ReviewWave5Contracts.wlt) and the
+[wave-5 contract run](../../validation/wave5-contract-tests.json) from
+[CheckWave5Contracts](../../validation/CheckWave5Contracts.wl). A zeroth power
+now requires a retained leading coefficient provably nonzero on the parameter
+domain and refuses a pure remainder (37 F02); the Gamma/Barnes zeroth-power path
+forwards the validated cutoff (37 F03). `InverseNumericalCheck` isolates the
+endpoint-incident monotone component of an exact numeric polynomial source and
+takes the unique equation root inside it, so report 38's cubic witness returns
+the selected-branch value `1/4` with error `1/4` instead of the remote root
+`1/2` with error zero; nonpolynomial sources report the component as
+unverified (38 N1). The Gamma/LogGamma adapters return a transformed and a
+scaled original derivative lower bound with a scope record (38 N2). A no-op
+truncation keeps the transported discarded part and discarded rows are taken
+as the suffix of the ordered rows (39 N01, 42 N03). `InverseExpansionCoefficient`
+on a result object returns the source orientation, the observable coefficient,
+the once-per-expansion additive offset and the contribution in the target
+variable beside the unchanged local coefficient (43 F01); `PowerLogModel`
+separates `"ModelOffset"` from `"TargetLimit"` (43 F02); and
+`PerturbativeInverse` refuses a core containing the source symbol on both
+kernels (43 F03). The acceptance verifier rejects a receipt that records a
+first source mismatch (39 N03), the historical summarizer refuses to reconcile
+receipts with different test-suite snapshots (44 T01), and the Mathics
+exact-seed exception verifies exact rationals by substitution (45 N01), with
+the portable case `numerical-exact-rational-seed` on both layouts. Still open
+in wave 5: the repeated affine recognition on nested subtrees (39 N02, 42 N02),
+43's polynomial monotonicity certificate proposal, and 44's POSIX permission,
+per-pass recorder, concurrent-builder, freshness and phase-error items.
+
 Wave 6 supplied reports 46–55 at `8cee870`, all ten retained and indexed in the
 [wave-6 index](../../external-reports/code-review/wave-6/README.md). **It has no
 consolidated intake either**, so its entries are outside the 231 counted above

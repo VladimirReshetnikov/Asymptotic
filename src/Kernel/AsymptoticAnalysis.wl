@@ -504,6 +504,15 @@ fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, 
   If[! (NumericQ[r] && exactQ[r]), fail["SymbolicExponent", "Exponents must be exact numbers.", <|"Exponent" -> r|>]];
   If[! TrueQ[Simplify[Element[r, Reals]]], fail["ComplexExponent", "Only real exponents are supported.", <|"Exponent" -> r|>]];
   rr = If[algebraicRealQ[r], RootReduce[r], r];
+  (* F^0 = 1 only where F is nonzero. A pure remainder gives no such proof,
+     and a symbolic leading coefficient must be proved nonzero on the
+     parameter domain: a x with only a real vanishes identically at a = 0
+     (wave-5 report 37 F02). *)
+  If[rr === 0,
+   If[T === {}, fail["IndeterminatePower", "A zeroth power requires a known nonzero leading term."]];
+   If[! TrueQ[Simplify[Coefficient[T[[1, 2]], ell, polyDegree[T[[1, 2]], ell]] != 0, ass]],
+    fail["UnprovedNonvanishing", "A zeroth power requires the leading coefficient to be provably nonzero on the parameter domain.",
+     <|"Coefficient" -> T[[1, 2]], "Assumptions" -> ass|>]]];
   If[IntegerQ[rr] && rr >= 0, Return[pIntegerPower[{T, P, D}, rr, ell, ass, limit], Module]];
   If[T === {},
    If[P =!= Infinity && ! IntegerQ[rr],
@@ -876,7 +885,17 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
      fail["UnprovedRealCoefficient", "All coefficients must be provably real under the assumptions.", <|"Polynomial" -> q|>]], {q, polys}];
   If[symbolic,
    Do[If[! TrueQ[Simplify[d > 0, ass]], fail["UnprovedPositiveGap", "A power gap could not be proved positive.", <|"Gap" -> d|>]], {d, deltas}]];
-  <|"Limit" -> y0, "LeadingCoefficient" -> a, "LeadingPower" -> p, "Gaps" -> deltas,
+  (* "Limit" is the baseline extracted by normalization, which for a pole
+     (p < 0) is 0 rather than the analytic limit; "ModelOffset" names that
+     baseline and "TargetLimit" the analytic endpoint of the admitted
+     approach, unresolved when the leading sign is unproved (wave-5 report
+     43 F02). The legacy key is kept for its internal consumers. *)
+  <|"Limit" -> y0, "ModelOffset" -> y0,
+    "TargetLimit" -> Which[TrueQ[Simplify[p > 0, ass]], y0,
+      TrueQ[Simplify[p < 0, ass]] && provablyPositive[a, ass], Infinity,
+      TrueQ[Simplify[p < 0, ass]] && provablyNegative[a, ass], -Infinity,
+      True, Missing["Unresolved", "LeadingSign"]],
+    "LeadingCoefficient" -> a, "LeadingPower" -> p, "Gaps" -> deltas,
     "Polynomials" -> polys, "LogVariable" -> ell, "Variable" -> u, "Rows" -> rows,
     "Symbolic" -> symbolic, "Assumptions" -> ass|>];
 
@@ -1342,7 +1361,10 @@ lambertNumericalCheck[a_Association, yv_, wp_] := numericalInverseEvidence[a, yv
 (* ------------------------------------------------------------------ *)
 
 PerturbativeInverse[phi_, h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] := Module[{hy},
-  If[x === y || ! FreeQ[h, y], Return[Failure["InvalidVariables", <|"MessageTemplate" -> "Use distinct symbols; h must not contain y."|>]]];
+  (* The core inverse is a function of the target alone; a core containing
+     the source symbol would survive elimination and yield a formally
+     successful but structurally invalid result (wave-5 report 43 F03). *)
+  If[x === y || ! FreeQ[h, y] || ! FreeQ[phi, x], Return[Failure["InvalidVariables", <|"MessageTemplate" -> "Use distinct symbols; h must not contain y and phi must not contain x."|>]]];
   hy = h /. x -> phi;
   phi + Sum[(-1)^k/k! D[D[phi, y] hy^k, {y, k - 1}], {k, 1, n}]];
 PerturbativeInverse[h_, {x_Symbol, y_Symbol}, n_Integer?NonNegative] := PerturbativeInverse[y, h, {x, y}, n];
@@ -1414,8 +1436,28 @@ InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : Opt
     If[! exactRealQ[power] || power === 0,
      Return[Failure["InvalidOption", <|"MessageTemplate" -> "Power must be a nonzero exact real number.",
        "Power" -> power|>], Module]];
-    InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
-     k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -power, power]]]];
+    inverseCoefficientOriented[a, power,
+     InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
+      k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -power, power]]]]];
+
+(* The normalized coefficient describes the positive local coordinate; the
+   represented observable is sigma^r times that contribution, where sigma is
+   the source orientation of the chart, and a finite endpoint is added once
+   for power one. The oriented fields make that reconstruction explicit
+   (wave-5 report 43 F01); "Coefficient" and "Meaning" are unchanged. *)
+inverseCoefficientOriented[a_, power_, c_] := Module[{sigma, y, y0, lead, p, v, contribution},
+  If[! AssociationQ[c], Return[c, Module]];
+  sigma = Which[a["ExpansionPoint"] === -Infinity, -1, a["ExpansionPoint"] === Infinity, 1,
+    Lookup[a, "Direction", "FromAbove"] === "FromBelow", -1, True, 1];
+  y = a["Variable"]; y0 = Lookup[a["Model"], "Limit", 0];
+  lead = a["Model"]["LeadingCoefficient"]; p = a["Model"]["LeadingPower"];
+  v = If[MemberQ[{Infinity, -Infinity}, y0], y, y - y0];
+  contribution = sigma^power (v/lead)^c["Exponent"] (c["Coefficient"] /. \[FormalL] -> Log[v/lead]/p);
+  Join[c, <|"LocalCoefficient" -> c["Coefficient"], "SourceOrientation" -> sigma,
+    "ObservableCoefficient" -> sigma^power c["Coefficient"],
+    "AdditiveOffset" -> If[power === 1 && ! MemberQ[{Infinity, -Infinity}, a["ExpansionPoint"]], a["ExpansionPoint"], 0],
+    "ContributionExpression" -> contribution,
+    "ObservableMeaning" -> "The represented observable (x - x0)^Power, or x^Power at an infinite endpoint, is AdditiveOffset plus the sum of ContributionExpression over all multi-indices: SourceOrientation^Power (v/a)^Exponent Coefficient[Log[v/a]/p] with v the target minus its finite limit. AdditiveOffset is added once per expansion, not per coefficient."|>]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)

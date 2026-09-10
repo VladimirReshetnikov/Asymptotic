@@ -28,9 +28,50 @@ numericalSourceDomainCheck[a_, root_, target_, wp_, chart_: None] := Module[{x, 
    not lost by rounding two large absolute values and subtracting them; the
    full source value is reconstructed only for presentation, with enough
    digits to show the displacement. *)
+(* Endpoint-component reference for an exact numeric polynomial equation
+   g(u) - target = 0 in the local displacement u > 0. The component incident
+   to the endpoint is (0, u1) where u1 is the least positive critical point of
+   g, or the whole ray without one; the equation's real roots inside it are
+   isolated exactly and the unique one is returned. Returns
+   {"Verified", root, {0, u1}, message} or {"Refused", None, {0, u1}, data};
+   {"Unverified", None, "NotPolynomial", None} leaves the numerical root as
+   found. *)
+numericalEndpointComponent[equation_, u_, localRoot_, wp_] := Module[
+  {g, coefficients, critical, upper, roots, inside, real},
+  g = Expand[equation];
+  If[! PolynomialQ[g, u], Return[{"Unverified", None, "NotPolynomial", None}, Module]];
+  coefficients = CoefficientList[g, u];
+  If[! (And @@ (NumericQ[#] && exactQ[#] & /@ coefficients)) || ! (And @@ (TrueQ[Im[#] == 0] & /@ coefficients)),
+    Return[{"Unverified", None, "NotExactNumericPolynomial", None}, Module]];
+  real = Function[values, Select[values, TrueQ[Im[N[#, wp + 10]] == 0] && TrueQ[N[#, wp + 10] > 0] &]];
+  critical = numericalPolynomialRoots[D[g, u], u];
+  If[critical === $Failed, Return[{"Unverified", None, "CriticalPointsUnresolved", None}, Module]];
+  critical = real[critical];
+  upper = If[critical === {}, Infinity, First[Sort[critical, N[#1, wp + 10] < N[#2, wp + 10] &]]];
+  roots = numericalPolynomialRoots[g, u];
+  If[roots === $Failed, Return[{"Unverified", None, "RootsUnresolved", None}, Module]];
+  roots = real[roots];
+  inside = Select[roots, upper === Infinity || TrueQ[N[#, wp + 10] < N[upper, wp + 10]] &];
+  Which[Length[inside] === 1,
+    {"Verified", N[First[inside], wp + 10], {0, upper}, "Unique equation root inside the endpoint-incident monotone component."},
+   inside === {},
+    {"Refused", None, {0, upper}, <|"Reason" -> "NoRootInEndpointComponent", "EndpointComponent" -> {0, upper},
+      "NumericalRoot" -> localRoot, "Explanation" -> "The equation has no root on the monotone source component incident to the endpoint; the numerical root found belongs to another branch."|>},
+   True,
+    {"Refused", None, {0, upper}, <|"Reason" -> "AmbiguousEndpointComponent", "EndpointComponent" -> {0, upper},
+      "RootsInComponent" -> Length[inside]|>}]];
+
+(* Exact roots of a numeric polynomial as a list, or $Failed when the solver
+   returns anything but a list of substitution rules. *)
+numericalPolynomialRoots[g_, u_] := Module[{solutions},
+  If[FreeQ[g, u], Return[{}, Module]];
+  solutions = Quiet[Check[Solve[g == 0, u], $Failed]];
+  If[! MatchQ[solutions, {{_Rule} ...}], Return[$Failed, Module]];
+  u /. solutions];
+
 numericalInverseEvidence[a_, target_, wp_] := Module[
  {x, y, u, power, endpoint, side, shift, finite, domain, localApproximate, approximate,
-  localSeed, localEquation, localRoot, root, observed, error, scale, remainder, gap},
+  localSeed, localEquation, localRoot, root, observed, error, scale, remainder, gap, component},
  If[! IntegerQ[wp] || wp < 10,
   fail["InvalidOption", "WorkingPrecision must be an integer of at least 10 digits."]];
  If[! NumericQ[target] || (! exactQ[target] && Precision[target] < wp),
@@ -61,6 +102,14 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
  If[localRoot === $Failed || ! finiteNumericQ[localRoot], fail["RootNotFound", "The original equation did not converge from the expansion seed."]];
  If[! TrueQ[Im[localRoot] == 0] || ! TrueQ[localRoot > 0],
   fail["OutsideBranch", "The numerical root is outside the selected original source branch."]];
+ (* A root on the selected side need not lie on the inverse branch incident
+    to the endpoint: the approximation can itself be an exact root of another
+    monotone component. For an exact numeric polynomial source the endpoint
+    component is bounded by the first positive critical point; the root is
+    taken inside it, or the check refuses (wave-5 report 38 N1). *)
+ component = numericalEndpointComponent[localEquation, u, localRoot, wp];
+ If[component[[1]] === "Refused", fail["OutsideBranch", component[[3]], component[[4]]]];
+ If[component[[1]] === "Verified", localRoot = component[[2]]];
  root = shift + side localRoot;
  numericalSourceDomainCheck[a, root, target, wp, {u, shift + side u, localRoot}];
  (* Extra presentation digits so that the reconstructed absolute source
@@ -84,6 +133,7 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
       (wave-6 reports 48 N3, 51 N02 and 54 N04). *)
    "LocalCoordinate" -> "x = SourceOffset + SourceSide u with u > 0. LocalRoot is always the positive source displacement u. LocalApproximation approximates u for Power 1 and (SourceSide u)^Power otherwise; LocalReferenceObservable is that observable at the recovered root.",
    "SourceDomainChecked" -> inverseEvidenceSourceDomain[a, x], "SourceDomainVerified" -> True,
+   "EndpointComponent" -> component[[3]], "BranchComponentVerified" -> (component[[1]] === "Verified"),
    (* A positive test rather than an equality test: Mathics treats a
       low-precision 10^-12 as equal to 0, which made every ratio Indeterminate. *)
    "Ratio" -> If[TrueQ[scale > 0], error/scale, Indeterminate],

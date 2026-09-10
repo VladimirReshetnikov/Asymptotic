@@ -16,13 +16,16 @@ comparison evidence. Delegated roots are also checked for sufficient returned
 precision. This is an explicit compatibility limitation: arbitrary-precision
 reference-root computation remains available in the official Wolfram kernel.
 
-There is one exact exception. An unchanged integer seed can be recognized as
-an exact root by direct substitution into an exact polynomial equation. The
-adapter checks that the seed represents that integer without changing its
-value, proves the substituted polynomial is exactly zero, and returns the
-integer as the reference root before the consumer's requested numerical
-conversion. It does not rationalize an approximation or add precision to
-unverified digits.
+There is one exact exception. A seed that denotes an exact integer or
+rational can be recognized as an exact root by direct substitution into an
+exact polynomial equation. The adapter takes the integer the seed equals, or
+otherwise the rational the seed denotes exactly (`Rationalize[seed, 0]`, which
+returns `1/2` for `0.5` and `1/3` for a forty-digit `0.333...`), proves the
+substituted polynomial is exactly zero, and returns that number as the
+reference root before the consumer's requested numerical conversion. A seed
+whose rational reading does not satisfy the equation exactly, such as an
+approximation of `Sqrt[2]`, is refused as before; no precision is added to
+unverified digits (wave-5 report 45 N01).
 
 For example, after loading the package in a separate input:
 
@@ -35,11 +38,12 @@ InverseNumericalCheck[s, 2, WorkingPrecision -> 30]
 
 The first check verifies the exact seed `2` and returns its reference root at
 30-digit precision. The second needs the irrational reference root `Sqrt[2]`
-and returns the explicit Mathics precision failure. Similarly, the inverse of
-`3 x` at target `1` refuses precision 30, while a request with
-`WorkingPrecision -> 10` succeeds with a machine root meeting its precision
-goal. These are bounded examples, not a guarantee for every low-precision
-input, convergence condition, or special inverse family.
+and returns the explicit Mathics precision failure. The inverse of `3 x` at
+target `1` now returns the exact root `1/3` at precision 30 through the
+rational-seed exception, and a request with `WorkingPrecision -> 10` succeeds
+with a machine root meeting its precision goal. These are bounded examples,
+not a guarantee for every low-precision input, convergence condition, or
+special inverse family.
 
 ## Logarithms of small products
 

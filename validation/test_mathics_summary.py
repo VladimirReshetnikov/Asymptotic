@@ -39,6 +39,16 @@ class SummaryEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "different package"):
             reconcile(self.full, self.correction)
 
+    def test_changed_test_suite_cannot_be_reconciled(self):
+        # Same package bytes, same test ID, different suite snapshot: the rerun
+        # checked a different proposition and is supplemental evidence only.
+        self.full["TestSuiteSnapshotSHA256"] = "suite-a"
+        self.correction["TestSuiteSnapshotSHA256"] = "suite-b"
+        with self.assertRaisesRegex(ValueError, "different test-suite snapshots"):
+            reconcile(self.full, self.correction)
+        self.correction["TestSuiteSnapshotSHA256"] = "suite-a"
+        self.assertEqual(reconcile(self.full, self.correction)["CorrectedTestIDs"], ["b"])
+
     def test_partial_correction_does_not_erase_unresolved_failure(self):
         self.correction["SuccessfulTestIDs"] = ["a"]
         with self.assertRaisesRegex(ValueError, "every original failure"):

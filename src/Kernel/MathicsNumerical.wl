@@ -11,9 +11,13 @@ SetAttributes[mathicsNumericalExactIntegerSeed, HoldAllComplete];
 mathicsNumericalExactIntegerSeed[held_HoldComplete, variable_Symbol, seed_] :=
   Block[{variable}, Module[{candidate, polynomial},
     If[! NumericQ[seed] || ! TrueQ[Im[seed] == 0], Return[$Failed, Module]];
-    candidate = Round[seed];
-    If[! IntegerQ[candidate] || ! (SameQ[seed, candidate] ||
-        SameQ[seed, N[candidate, Precision[seed]]]), Return[$Failed, Module]];
+    (* The exact candidate is the integer or rational the seed denotes
+       exactly; anything else, including a rounded 1/3, is verified below by
+       exact substitution and fails there (wave-5 report 45 N01). *)
+    candidate = Which[IntegerQ[seed] || Head[seed] === Rational, seed,
+      SameQ[seed, N[Round[seed], Precision[seed]]], Round[seed],
+      True, Rationalize[seed, 0]];
+    If[! (IntegerQ[candidate] || Head[candidate] === Rational), Return[$Failed, Module]];
     If[! MatchQ[held, HoldComplete[Equal[_, _]]], Return[$Failed, Module]];
     polynomial = ReleaseHold[held /. HoldPattern[Equal[left_, right_]] :>
       (left - right)];

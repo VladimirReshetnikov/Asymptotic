@@ -191,6 +191,13 @@ class AcceptanceTests(unittest.TestCase):
                 with patch.object(self, "reports", reports), self.assertRaises(ValueError):
                     self.verify()
 
+    def test_recorded_first_source_drift_contradicts_stability_claim(self):
+        self.reports[0]["FirstObservedSourceDriftSHA256"] = {"src/Kernel/Helper.wl": "0" * 64}
+        with self.assertRaisesRegex(ValueError, "first source mismatch"):
+            self.verify()
+        self.reports[0]["FirstObservedSourceDriftSHA256"] = None
+        self.verify()
+
     def test_optional_requirements_hash_is_verified_or_rejected(self):
         self.reports[0]["RequirementsSHA256"] = self.reference["FilesSHA256"][acceptance.REQUIREMENTS]
         self.assertEqual(self.verify()["RequirementsEvidence"], {"Verified": 1, "NotRecorded": 3})

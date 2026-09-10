@@ -405,6 +405,33 @@ endpoint/approach and the <strong>target</strong> limit separately.
 Ordered arithmetic can omit these top-level fields.</td>
 </tr>
 <tr>
+<td><code>&quot;Model&quot;</code> (<code>&quot;ModelOffset&quot;</code>,
+<code>&quot;TargetLimit&quot;</code>, <code>&quot;Limit&quot;</code>,
+<code>&quot;LeadingCoefficient&quot;</code>, <code>&quot;LeadingPower&quot;</code>,
+<code>&quot;Gaps&quot;</code>, <code>&quot;Polynomials&quot;</code>)</td>
+<td>The normalized forward model retained by an ordinary inverse and
+returned by <code>PowerLogModel</code>. <code>&quot;ModelOffset&quot;</code>, also
+returned as the legacy <code>&quot;Limit&quot;</code>, is the baseline extracted
+by normalization and is <code>0</code> for a pole;
+<code>&quot;TargetLimit&quot;</code> is the analytic limit on the admitted
+approach, a signed infinity for a pole with a proved leading sign, or
+<code>Missing[&quot;Unresolved&quot;, &quot;LeadingSign&quot;]</code>.</td>
+</tr>
+<tr>
+<td><code>InverseExpansionCoefficient</code> fields
+<code>&quot;LocalCoefficient&quot;</code>, <code>&quot;SourceOrientation&quot;</code>,
+<code>&quot;ObservableCoefficient&quot;</code>, <code>&quot;AdditiveOffset&quot;</code>,
+<code>&quot;ContributionExpression&quot;</code>,
+<code>&quot;ObservableMeaning&quot;</code></td>
+<td>On a result object, the chart needed to read a normalized local
+coefficient as part of the represented observable: the orientation sign
+of the source chart, the coefficient multiplied by
+<code>SourceOrientation^Power</code>, the finite endpoint added once for
+power one, and the contribution in the target variable.
+<code>&quot;Coefficient&quot;</code> and <code>&quot;Meaning&quot;</code> keep the local
+reading.</td>
+</tr>
+<tr>
 <td><code>&quot;SourceDomain&quot;</code>, <code>&quot;TargetDomain&quot;</code>,
 <code>&quot;Branch&quot;</code></td>
 <td>Retained domain conditions and branch description where supplied. A
@@ -1294,6 +1321,18 @@ Gamma bounds apply to the transformed LogGamma equation, not directly to
 Gamma values.</td>
 </tr>
 <tr>
+<td><code>&quot;TransformedDerivativeLowerBound&quot;</code>,
+<code>&quot;OriginalDerivativeLowerBound&quot;</code>,
+<code>&quot;DerivativeLowerBoundScope&quot;</code></td>
+<td>Gamma/LogGamma adapters: the Stirling lower bound
+<code>Log[x] - 1/(2 x) - 1/(12 x^2)</code> for the derivative of
+<code>LogGamma</code> in the transformed equation, the bound for the
+absolute derivative of the stored original
+<code>offset + scale f[x]</code> (scaled, and multiplied by
+<code>Gamma[x]</code> for the Gamma family) on the source branch
+<code>x &gt; 2</code>, and the sentences naming each scope.</td>
+</tr>
+<tr>
 <td><code>&quot;PositiveTailExpression&quot;</code>, <code>&quot;SourceSign&quot;</code>,
 <code>&quot;NormalizedTailPolynomial&quot;</code>,
 <code>&quot;NormalizedTailRemainderBound&quot;</code>,
@@ -1397,6 +1436,16 @@ recovered root, and <code>&quot;ObservablePower&quot;</code> records the power.
 Absolute-coordinate fields reconstruct
 <code>SourceOffset + SourceSide u</code> with extra presentation
 digits.</td>
+</tr>
+<tr>
+<td><code>&quot;EndpointComponent&quot;</code>,
+<code>&quot;BranchComponentVerified&quot;</code></td>
+<td>Ordinary numerical check: the endpoint-incident monotone component
+<code>{0, u1}</code> of an exact numeric polynomial source, bounded by
+its least positive critical point or <code>Infinity</code>, inside which
+the unique equation root was taken; <code>&quot;NotPolynomial&quot;</code> or
+<code>&quot;NotExactNumericPolynomial&quot;</code> with <code>False</code> when
+the solver&#39;s root was kept without that verification.</td>
 </tr>
 <tr>
 <td><code>&quot;AbsoluteRemainderBound&quot;</code>,

@@ -31,6 +31,25 @@ behaviour is unchanged. See the
 [implementation register](development/CODE_REVIEW_STATUS.md) (wave-5 reports
 37 F01 and 42 N01).
 
+### Wave-5 contract repairs
+
+`SeriesPower[s, 0]` and `s^0` require a retained leading coefficient that is
+provably nonzero on the parameter domain and refuse a pure remainder; on a
+Gamma or Barnes inverse the requested cutoff is recorded. `InverseNumericalCheck`
+selects, for an exact numeric polynomial source, the unique equation root on
+the monotone component incident to the endpoint and reports
+`"EndpointComponent"` and `"BranchComponentVerified"`, so an approximation that
+is itself an exact root of another branch no longer produces a zero error.
+`InverseExpansionCoefficient` on a result object returns `"SourceOrientation"`,
+`"ObservableCoefficient"`, `"AdditiveOffset"` and `"ContributionExpression"`;
+`PowerLogModel` returns `"ModelOffset"` and `"TargetLimit"` beside the legacy
+`"Limit"`; `PerturbativeInverse` refuses a core containing the source symbol;
+the Gamma/LogGamma adapters name the scope of their derivative lower bounds;
+and a no-op `SeriesTruncate` keeps `"TruncationDiscardedPart"`. On Mathics an
+exact rational seed such as `1/2` is verified by substitution instead of being
+refused. See the [implementation register](development/CODE_REVIEW_STATUS.md)
+(wave-5 reports 37, 38, 39, 42, 43, 45).
+
 ### Wave-6 public-boundary repairs
 
 Seven public behaviours reported by the sixth review wave changed.
