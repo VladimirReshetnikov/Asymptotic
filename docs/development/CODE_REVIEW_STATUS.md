@@ -48,8 +48,9 @@ merged from `68b8e1e70731998c5bc1533be1bec0f5b507acd7` without editing them.
 Current source inspection does not turn their historical or unrun witnesses
 into current native reproductions.
 
-W3-06 now has independently reproduced native failures and an implementation
-awaiting focused acceptance. The [observable Taylor notes](OBSERVABLE_INGRESS.md)
+W3-06 now has independently reproduced native failures and
+[131/0 focused native acceptance](../../validation/observable-ingress-tests.json).
+The [observable Taylor notes](OBSERVABLE_INGRESS.md)
 record returned-order checks, sided constants, and complete-argument reality,
 including an intermediate wrong result that final real-coefficient checking
 could not detect. C16's broader opaque-source regularity audit remains open.

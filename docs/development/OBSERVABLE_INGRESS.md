@@ -6,8 +6,9 @@ W3-06 consolidates the generic observable findings in
 and [report 25, N01/N02](../../external-reports/code-review/wave-3/code-review-25/evidence/novelty_ledger.json).
 See the [wave-3 intake](WAVE_3_INTAKE.md) and
 [review register](CODE_REVIEW_STATUS.md) for current implementation status.
-The implementation is present for focused validation; acceptance is pending
-at the time of writing. The full suite is not being run.
+The implementation passes [131 focused native tests](../../validation/observable-ingress-tests.json)
+after incorporating immutable `main` revision
+`7d1bc832895cc90a9b2a978b7b7684acab908bd2`. The full suite was not run.
 
 ## Reproduced baseline and independent counterexamples
 
@@ -151,10 +152,12 @@ remain separate from the package's analytic error contract.
 ## Focused validation
 
 [`ReviewObservableIngress.wlt`](../../src/Tests/ReviewObservableIngress.wlt)
-contains the focused repair tests. The expected acceptance receipt is
-`validation/observable-ingress-tests.json`; no passing result is asserted
-until that run is completed and inspected. Adjacent ordinary observable,
-nonlinear logarithmic-degree, coefficient-reality, assumption-replay, and
-composition tests are needed to check preservation of their existing contracts.
+contains 29 passing repair tests. The [six-file acceptance](../../validation/observable-ingress-tests.json)
+records 131 successes, zero failures, and unchanged sources on Wolfram 15.0.1
+for 64-bit Windows. The selection includes ordinary observable arithmetic,
+nonlinear logarithmic degrees, coefficient reality, recurrence termination,
+and coordinate/calculus controls. The real-axis-only fixture independently
+establishes its native constant expansion and off-axis values before checking
+refusal when an imaginary displacement is hidden in the input tail.
 The [user guide](../../src/Documentation/UserGuide.md#SeriesObservable)
 documents the public examples and failure meanings.

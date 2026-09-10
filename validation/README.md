@@ -1,5 +1,38 @@
 # Review and validation record
 
+## Observable Taylor information, approach sides, and real arguments
+
+The [six-file native acceptance](observable-ingress-tests.json) passes
+**131 tests with zero failures**, including 29 new cases in
+[ReviewObservableIngress.wlt](../src/Tests/ReviewObservableIngress.wlt).
+The run uses sources incorporating immutable `main` revision
+`7d1bc832895cc90a9b2a978b7b7684acab908bd2` and verifies source immutability.
+The [contract notes](../docs/development/OBSERVABLE_INGRESS.md) explain returned
+Taylor order, logarithmic boundary degrees, sided constants, exact points,
+and complete-argument reality. This focused selection preserves nearby unit
+precision, coefficient cancellation, recurrence and coordinate/calculus cases.
+
+The [nine-observation baseline](observable-ingress-baseline.json) describes
+unchanged `a55df16` sources. The [complex-input first pass](observable-reality-first-pass.json)
+describes a later intermediate implementation with separate source hashes;
+it reproduces a wrong real result from a complex inner path. Neither record
+is a passing acceptance suite. The repair's real-axis-only provider test
+also establishes an independent constant-error witness when an imaginary
+displacement is discarded from the retained inner jet.
+
+The [local loading record](observable-ingress-loading-tests.json) passes
+**95 checks in five fresh kernels**, covering the isolated standalone,
+modular entry, `init.m`, `Needs` and paclet loading, including reloads and
+the sided observable case in each mode. The merged standalone contains
+54 modules; native loads keep the Mathics adapter definitions inactive.
+
+The 14 standalone-builder, 14 portable-runner, three native-capture isolation,
+and four documentation-link Python tests pass. An initial invocation used
+the nonexistent pattern `test_run_mathics_tests.py` and ran zero tests; the
+corrected `test_mathics_runner.py` invocation supplies the 14-test result.
+These tool tests do not establish Mathics feature acceptance. The full
+package suite remains skipped.
+
 ## Mathics compatibility
 
 The [Mathics compatibility guide](../docs/Mathics/COMPATIBILITY.md) records
