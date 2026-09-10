@@ -2,6 +2,17 @@
 
 ## Exact exponent collection, composition scope, and native search
 
+The published checkpoint is `243ceff`, which also merges the subsequent
+Mathics-only changes from `main` revision `73c23e0`. Its
+[second-sync checks](review-mathics-sync-artifacts.json) pass **32/32 in two
+fresh Wolfram kernels**, exercising modular and repository-root standalone
+loading, reloads, adapter isolation and the three review repairs. Those two
+loads used files in the checkout; they were not an isolated-file fixture.
+The [published GitHub acceptance](review-published-loading-tests.json) separately
+passes **16/16 in a fresh kernel** using `Get[URLDownload[...]]` with the immutable
+`243ceff` URL and an explicit reload. The remote bytes match the rebuilt
+standalone before and after the run. No local HTTP server was started.
+
 The fixes are recorded at `5b2b6cd`. Before publication, upstream `main`
 advanced to `b6df7a1`, adding the Mathics-only evaluator adapters. The modular
 sources merged directly; the generated standalone conflict was resolved by
