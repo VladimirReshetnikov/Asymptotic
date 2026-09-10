@@ -91,12 +91,12 @@ VerificationTest[
 VerificationTest[
  Module[{x, a, model, c}, model = Assuming[Element[a, Reals], PowerLogModel[x + Abs[a] x^2, {x, 0}]];
   c = Assuming[a > 0, InverseExpansionCoefficient[model, {1}]];
-  {c["Assumptions"], c["Coefficient"] /. a -> -2}],
- {Element[a, Reals], -2}, TestID -> "review-coefficient-model-retains-stored-assumptions"]
+  {c["Assumptions"] === Element[a, Reals], c["Coefficient"] /. a -> -2}],
+ {True, -2}, TestID -> "review-coefficient-model-retains-stored-assumptions"]
 
 VerificationTest[
  Module[{x, y, alpha, s, c}, s = AsymptoticInverse[x + x^alpha, {x, 0}, {y, 3},
     "Truncation" -> "Depth", Assumptions -> alpha > 1];
   c = InverseExpansionCoefficient[s, {1}];
-  {Simplify[c["Weight"], alpha > 1], c["Coefficient"], Simplify[c["Exponent"], alpha > 1]}],
- {alpha - 1, -1, alpha}, TestID -> "review-coefficient-symbolic-depth-model-remains-admitted"]
+  {Simplify[c["Weight"] - (alpha - 1), alpha > 1], c["Coefficient"], Simplify[c["Exponent"] - alpha, alpha > 1]}],
+ {0, -1, 0}, TestID -> "review-coefficient-symbolic-depth-model-remains-admitted"]

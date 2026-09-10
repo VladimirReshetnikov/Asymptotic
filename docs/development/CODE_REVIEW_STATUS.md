@@ -85,6 +85,12 @@ lexical launcher selection (W4-10/W4-11), latches observed source drift
 (part of W4-13). Complete executed-source coverage and freezing, mandatory
 load admission, output caps and interruption records remain pending.
 
+W3-08 now has [99/0 focused native acceptance](../../validation/inverse-coefficient-model-tests.json).
+The [coefficient-model note](INVERSE_COEFFICIENT_MODELS.md) records the four
+message-emitting unsupported object families, the capability check, preserved
+ordinary coefficients and special refusal tags, and the first-pass fixture
+corrections. C09's separate option precedence issue remains open.
+
 W3-06 now has independently reproduced native failures and
 [131/0 focused native acceptance](../../validation/observable-ingress-main-sync-tests.json).
 The [observable Taylor notes](OBSERVABLE_INGRESS.md)

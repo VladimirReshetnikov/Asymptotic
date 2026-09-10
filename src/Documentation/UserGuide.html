@@ -4105,6 +4105,15 @@ association describing the exact contribution of one ordinary inverse
 multi-index. A <code>PowerLogModel</code> association may replace
 <code>s</code>; for that form, <code>&quot;Power&quot; -&gt; 1</code> selects the
 observable.</p>
+<p>The result must retain an ordinary inverse coefficient model. Forward
+expansions, derived results without that model, exact-core expansions,
+and Fourier inverses return
+<code>Failure[&quot;UnsupportedCoefficientModel&quot;, ...]</code> without
+emitting messages. The query does not construct an inverse model from a
+forward expansion. Native results retain their
+<code>&quot;NativeSeriesContract&quot;</code> refusal; logarithmic-scale inverses
+retain <code>&quot;Unsupported&quot;</code> and expose their coefficients through
+<code>&quot;Terms&quot;</code>.</p>
 <p>The coefficient query inherits the model&#39;s assumptions and ignores
 later ambient assumptions:</p>
 <pre class="wolfram"><code>Clear[x, a];
@@ -4114,13 +4123,15 @@ coefficient = Assuming[a &gt; 0,
   InverseExpansionCoefficient[model, {1}]];
 coefficient[&quot;Coefficient&quot;]
 (* -Abs[a] *)</code></pre>
-<p>Give one nonnegative integer per model gap. Returned fields include
+<p>Give one nonnegative integer per model gap. A model with no gaps
+accepts the empty multi-index <code>{}</code>. A wrong dimension or a
+negative or noninteger entry returns
+<code>Failure[&quot;InvalidMultiIndex&quot;, ...]</code>. Returned fields include
 <code>&quot;Weight&quot;</code>, <code>&quot;Exponent&quot;</code>,
 <code>&quot;Coefficient&quot;</code>, <code>&quot;UniformizerExponent&quot;</code>, and the
 inherited <code>&quot;Assumptions&quot;</code>. A multi-index contribution is not
 necessarily a complete displayed block: several contributions can have
-the same weight. Lambert expansions expose their coefficients through
-<code>&quot;Terms&quot;</code> instead.</p>
+the same weight.</p>
 <p><a id="PerturbativeInverse"></a></p>
 </section>
 <section id="perturbativeinverse" class="level3">

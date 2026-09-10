@@ -65,6 +65,17 @@ for local, offline, and commit-pinned forms.
   parsed alongside `Get` can resolve an exported symbol in the global context before
   the package context is on `$ContextPath`.
 
+## Missing model fields and coefficient queries
+
+An association lookup for a missing key produces `Missing["KeyAbsent", key]`.
+Passing that result to `Join` does not validate a result object's capability:
+it emits `Join::incpt` before the public query can report a useful refusal.
+`InverseExpansionCoefficient` now checks its ordinary inverse model before
+reading or augmenting it. A forward `GeneralizedSeries` is a valid package
+object but need not carry this model. The
+[coefficient-model note](development/INVERSE_COEFFICIENT_MODELS.md) records the
+native reproduction and the preserved empty-index and infinity cases.
+
 ## Control flow
 
 - `Return[expr]` inside `Do`, `While`, `Table`, ... returns from the *loop*, not

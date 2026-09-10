@@ -46,5 +46,5 @@ VerificationTest[
  {1, 2}, TestID -> "coefficient-distinguishes-target-and-uniformizer-exponents"]
 
 VerificationTest[
- Module[{x}, And @@ (FailureQ[AsymptoticExpansion[x, {x, 0, #}]] & /@ {I, 1.5})],
+ Module[{x}, And @@ (FailureQ[AsymptoticExpansion[x, {x, 0, #}, "Backend" -> "Package"]] & /@ {I, 1.5})],
  True, TestID -> "forward-rejects-nonreal-and-inexact-cutoffs"]

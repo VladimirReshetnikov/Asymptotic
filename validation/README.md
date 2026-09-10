@@ -16,6 +16,23 @@ for known implementation and acceptance gaps.
 | Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
 | Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
 
+## Inverse coefficient model admission
+
+The [five-file native run](inverse-coefficient-model-tests.json) passes
+**99/99**: 16 new capability tests and 83 existing inverse, expanded-input,
+assumption, and native-presentation controls. The
+[eleven-case baseline](inverse-coefficient-model-baseline.json) reproduces
+four unsupported object families emitting `Join::incpt`; the
+[repaired probes](inverse-coefficient-model-after-fix.json) return specific,
+message-free refusals and preserve ordinary coefficients. The
+[first focused result](inverse-coefficient-model-first-pass.json), committed
+at `4f42d22`, retains its 96/3 outcome and exact tested inputs. Two lexical-symbol
+expectations and an old implicit-Automatic cutoff fixture were corrected
+before the accepted run. See the [contract note](../docs/development/INVERSE_COEFFICIENT_MODELS.md)
+for model admission, negative leading powers, and the distinct pending C09
+option-precedence issue. The [local loading receipt](inverse-coefficient-model-loading-tests.json)
+separately records fresh-kernel entry-point checks. No full suite was run.
+
 ## Wave-4 integration and merged artifacts
 
 The first [runner-integrity check](wave4-runner-integrity-tests.json) passes

@@ -25,6 +25,7 @@ Use another entry script when its explicit selection matches the change:
 
 | Coverage | Entry script |
 | --- | --- |
+| Inverse coefficient model admission, ordinary coefficients, stored assumptions and native contracts | [CheckInverseCoefficientModel.wl](../../validation/CheckInverseCoefficientModel.wl) |
 | Fourier coefficient termination, public residual budgets and convolution controls | [CheckFourierTermination.wl](../../validation/CheckFourierTermination.wl) |
 | Principal-log normalization and symbolic-depth, core, flat-sector and assumption consumers | [CheckLogPowerNormalization.wl](../../validation/CheckLogPowerNormalization.wl) |
 | Observable Taylor endpoints, sided constants and complete-argument reality, with calculus neighbors | [CheckObservableIngress.wl](../../validation/CheckObservableIngress.wl) |
