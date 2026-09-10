@@ -1,0 +1,47 @@
+{
+  "Scope": "Baseline Git-blob provenance, current selected native/loading input equality, and article source/build/render equality; no full suite or broad benchmark claim.",
+  "BaselineRevision": "cc1b06c72b0576074666825bea9e9b6e0db0cfee",
+  "BaselineMatchingKernelHashes": 55,
+  "BeforeAndAfterObservations": 17,
+  "ProbeHashesMatch": true,
+  "CurrentReceipts": [
+    {
+      "Receipt": "fourier-termination-tests.json",
+      "MatchingInputHashes": 61,
+      "Succeeded": 68,
+      "Failed": 0
+    },
+    {
+      "Receipt": "fourier-termination-loading-tests.json",
+      "MatchingInputHashes": 61,
+      "Succeeded": 105,
+      "Failed": 0
+    }
+  ],
+  "PreviousLogarithmMilestone": [
+    {
+      "Receipt": "log-power-normalization-tests.json",
+      "MatchingInputHashes": 65,
+      "Revision": "cc1b06c72b0576074666825bea9e9b6e0db0cfee"
+    },
+    {
+      "Receipt": "log-power-normalization-loading-tests.json",
+      "MatchingInputHashes": 61,
+      "Revision": "cc1b06c72b0576074666825bea9e9b6e0db0cfee"
+    },
+    {
+      "Receipt": "log-power-normalization-pdf-build.json",
+      "MatchingInputHashes": 32,
+      "Revision": "cc1b06c72b0576074666825bea9e9b6e0db0cfee"
+    }
+  ],
+  "ArticleSourcesMatched": 32,
+  "ArticlePassLogsMatched": 3,
+  "PDFSHA256": "a7daf5e0c5274e6646e27f54decd234966034db68acc5abc59d40f6bef453f29",
+  "PDFBytes": 1222325,
+  "RenderedPages": 102,
+  "TextOutsidePage": 0,
+  "StandaloneSHA256": "ae69abab204ae99f4943cd9d4733bbc91c7eae82c14a2d33d68f055c601a110d",
+  "FullPackageSuiteRun": false,
+  "MathicsFeatureSuiteRun": false
+}

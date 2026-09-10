@@ -4535,7 +4535,7 @@ AsymptoticAnalysis`FlatSeriesDifferentiate[___] := Failure["InvalidArguments", <
 (* END SOURCE: src/Kernel/FlatSectorOperations.wl *)
 
 (* BEGIN SOURCE: src/Kernel/FourierCoefficients.wl
-   Source SHA256 (UTF-8/LF): baa06b557ee128dfc36edfaecddd02f862e47e620132c70a91f1c4abfb0a6e05 *)
+   Source SHA256 (UTF-8/LF): 0d2351bf891ccce10c3a62ed07c5e2847ad8c90cdd08f2fcdd23fda4f62e615b *)
 (* Finite Fourier-polynomial coefficient algebra in L = Log[u].
    A coefficient is {{omega,P_omega(L)},...}, representing
    Sum[P_omega(L) Exp[I omega L]]. Source weights remain separate. *)
@@ -4668,13 +4668,17 @@ fourierComposeBlock[u_, power_, modes_, cutoff_, ell_, ass_, limit_, frequencyLi
   If[u === {}, Return[answer, Module]];
   If[! less[0, u[[1, 1]]], fail["NonSmallJet", "Fourier unit composition needs positive source-weight valuation."]];
   While[True,
-   If[k >= limit, fail["ResourceLimit", "Fourier unit composition exceeded MaxTerms iterations."]];
-   product = fourierJetMul[product, u, cutoff, ell, ass, limit, frequencyLimit];
-   If[product === {}, Break[]];
+   (* Positive valuation makes exhausted support permanent. The homogeneous
+      recurrence likewise stays zero after complete coefficient cancellation;
+      establish both facts before spending a further product budget. *)
+   If[! less[product[[1, 1]] + u[[1, 1]], cutoff], Break[]];
    coefficient = fourierScale[fourierAdd[fourierEuler[coefficient, ell, ass, frequencyLimit],
        fourierScale[coefficient, power - k, ell, ass, frequencyLimit], ell, ass, frequencyLimit],
      1/(k + 1), ell, ass, frequencyLimit];
    If[coefficient === {}, Break[]];
+   If[k >= limit, fail["ResourceLimit", "Fourier unit composition exceeded MaxTerms iterations."]];
+   product = fourierJetMul[product, u, cutoff, ell, ass, limit, frequencyLimit];
+   If[product === {}, Break[]];
    answer = fourierJetAdd[answer, fourierJetMul[product, {{0, coefficient}}, cutoff, ell, ass, limit, frequencyLimit],
      cutoff, ell, ass, limit, frequencyLimit]; k++];
   answer];

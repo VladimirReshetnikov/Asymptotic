@@ -2868,6 +2868,31 @@ A leading oscillatory coefficient without an eventual nonzero sign is outside th
 
 `FourierInverseResidual[s]` checks the finite Fourier equation at its stored relative source-weight cutoff. `FourierInverseResidual[s, h]` supplies another relative cutoff. Its option is `"MaxTerms" -> 20000`.
 
+Check a polynomial source using an explicit residual-work budget:
+
+```wolfram
+s = AsymptoticFourierInverse[
+  x + x^2, {x, 0}, {y, 7}, "MaxTerms" -> 7];
+check = FourierInverseResidual[s, Automatic, "MaxTerms" -> 7];
+{check["ZeroBelowCutoff"], check["ResidualBlocks"], check["RelativeCutoff"]}
+```
+
+```wolfram
+{True, {}, 6}
+```
+
+The composition stops when every remaining source weight is outside the
+exclusive cutoff or its complete Fourier coefficient is identically zero.
+Products needed for retained contributions still obey the resource limits.
+An integer exponent alone does not imply termination when a coefficient
+contains a nonzero frequency or a logarithmic amplitude.
+
+`"ZeroBelowCutoff" -> True` checks the stored finite forward equation below
+the reported relative cutoff. Unspecified `"InputRemainder"` terms are not
+composed, and this result is not a numerical root certificate. See the
+[Fourier termination notes](../../docs/development/FOURIER_TERMINATION.md)
+for the before/after characterization and validation scope.
+
 <a id="FourierInverseCoefficient"></a>
 ### FourierInverseCoefficient
 

@@ -1,5 +1,41 @@
 # Review and validation record
 
+## Fourier composition stops before unused products
+
+The [four-file native run](fourier-termination-tests.json) passes **68/68**
+on Wolfram 15.0.1: 19 new [termination tests](../src/Tests/ReviewFourierTermination.wlt),
+22 Fourier regressions, 11 Fourier convolution/refactoring checks, and 16
+ordinary recurrence controls. All 61 recorded input hashes stayed unchanged.
+The [17-observation baseline](fourier-termination-baseline.json) matches
+the 55-module snapshot at `cc1b06c`; the [same probes after the fix](fourier-termination-after-fix.json)
+preserve genuine resource failures while repairing the terminating cases.
+Both probe runs check source and probe immutability and record no timeouts.
+
+The public residual witness now succeeds with an explicit `"MaxTerms" -> 7`
+and reports empty residual blocks below relative cutoff six. Its baseline
+failed while forming an unnecessary square with ten retained pairs; the
+required quadratic composition uses six retained pairs. These exact counts
+and the availability repair do not establish a general timing improvement.
+See [the Fourier termination note](../docs/development/FOURIER_TERMINATION.md)
+for complete-coefficient identities, positive-valuation stopping, and the
+distinction from the earlier ordinary-engine P03 repair.
+
+The [loading check](fourier-termination-loading-tests.json) passes **105/105
+in five fresh kernels**, with 21 cases in each local standalone, modular,
+`init.m`, `Needs`, and paclet mode. It records 61 unchanged input hashes and
+starts no HTTP server. The updated 55-module standalone matches its sources.
+The full package and Mathics feature suites remain skipped.
+
+The [article build](fourier-termination-pdf-build.json) records exactly three
+serial strict LaTeX passes, all 32 TeX hashes and the final 102-page PDF.
+The [render record](fourier-termination-pdf-layout.json) records all pages
+rendered, zero text-outside-page findings, and visual inspection of pages
+1–6, 61–72, and 97–102 on contact sheets plus full page 68. Other pages were
+rendered but not visually inspected at this checkpoint. The
+[artifact audit](fourier-termination-artifacts.json) checks current input
+and PDF equality and preserves the preceding logarithm milestone against
+its committed revision rather than relabeling its receipts as current.
+
 ## Principal-logarithm normalization and positive nested bases
 
 The [eight-file native run](log-power-normalization-tests.json) passes

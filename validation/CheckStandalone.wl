@@ -38,6 +38,12 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"],
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[Module[{x, y, s, residual},
+    s = AsymptoticFourierInverse[x + x^2, {x, 0}, {y, 7}, "MaxTerms" -> 7];
+    residual = FourierInverseResidual[s, Automatic, "MaxTerms" -> 7];
+    AssociationQ[residual] && residual["ZeroBelowCutoff"] === True &&
+      residual["ResidualBlocks"] === {} && residual["RelativeCutoff"] === 6],
+    True, TestID -> "loading-fourier-termination-avoids-unneeded-overbudget-product"],
   VerificationTest[Module[{x, y, a, refused, real},
     refused = AsymptoticInverse[x + x^2 Log[x^a]^2, {x, 0}, {y, 1},
       "Truncation" -> "Depth", Assumptions -> a^2 == -1];
