@@ -12,16 +12,15 @@ function names, including `AsymptoticInverse`, are unchanged. The
 [loading guide](src/Documentation/UserGuide.md#loading-fixed-versions)
 also explains how to load revisions from before the package rename.
 
-The current development target is complete input coverage of the built-in
-Wolfram `Series` and `Asymptotic` functions, including native-supported cases
-outside the existing real expansion models. Native delegation, the
+Current work implements the reviewed correctness, interface, performance,
+and documentation recommendations. Native delegation, the
 `AsymptoticExpand` alias, and automatic routing for native specifications,
 options and selected representation failures are implemented. Successful
 package calls keep their existing cutoff and block-count conventions; native
-results record native order semantics. Complete coverage remains a development
-target, with further routing and input-matrix work recorded in the
-[native compatibility plan](docs/development/NATIVE_COMPATIBILITY.md), alongside
-the required interfaces, result semantics, and validation boundaries.
+results record native order semantics. The
+[native compatibility plan](docs/development/NATIVE_COMPATIBILITY.md) records
+remaining routing and input-coverage questions, result semantics, and validation
+boundaries. Complete built-in input coverage is not established.
 
 ## Documentation
 
@@ -29,7 +28,7 @@ the required interfaces, result semantics, and validation boundaries.
 | --- | --- |
 | **[Mathematical article (PDF)](docs/article/asymptotic-inverse.pdf)** · [LaTeX source](docs/article/asymptotic-inverse.tex) | Definitions, theorems, proofs, mathematical examples, and the hypotheses behind each scale and error estimate. |
 | **[User guide (HTML)](src/Documentation/UserGuide.html)** · [Markdown source](src/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
-| **[Code review reports](external-reports/code-review/README.md)** | Eighteen reports in two waves: [reports 1–9](external-reports/code-review/wave-1/README.md) and [reports 10–18](external-reports/code-review/wave-2/README.md), with pinned revisions, mathematical and engineering findings, evidence, regression candidates, and proposed patches. |
+| **[Code review reports](external-reports/code-review/README.md)** | Twenty-seven reports in three waves: [reports 1–9](external-reports/code-review/wave-1/README.md), [reports 10–18](external-reports/code-review/wave-2/README.md), and [reports 19–27](external-reports/code-review/wave-3/README.md), with pinned revisions, findings, evidence, regression candidates, and proposed patches. |
 | **[Vendored ProveIt articles](vendor/proveit/README.md)** | A revision-pinned TeX/PDF library on asymptotic expansions, transseries, q-analogs, combinatorial sequences, and their interpolated inverses, with topic reading lists and build provenance. |
 
 The article is independent of software syntax. The guide follows the
@@ -163,7 +162,7 @@ tested features, interpreter settings, and remaining limitations.
 | [docs/article/](docs/article/README.md) | Mathematical article and its build instructions. |
 | [docs/](docs/README.md) | Reading paths and links between mathematical, user, and contributor documentation. |
 | [docs/development/](docs/development/README.md) | Current review status, implementation plans, gotcha notes, and preserved historical engineering chapters. |
-| [external-reports/](external-reports/README.md) | Nine original research proposals and eighteen later code reviews, with articles, evidence, comparisons, and provenance. |
+| [external-reports/](external-reports/README.md) | Nine original research proposals and twenty-seven later code reviews, with articles, evidence, comparisons, and provenance. |
 | [vendor/](vendor/README.md) | Revision-pinned ProveIt articles on asymptotic expansions and inverses, with TeX, PDFs, topic reading lists, and upstream build provenance. |
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
 | [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/README.md) | The two motivating questions, original online sources, and saved snapshots. |
@@ -181,18 +180,20 @@ and [Documentation/README.md](src/Documentation/README.md).
 ## Development status
 
 The [implementation register](docs/development/CODE_REVIEW_STATUS.md) maps
-findings from both review waves to completed fixes, focused evidence, and
+findings from all three review waves to completed fixes, focused evidence, and
 outstanding work. Begin there when choosing a repair; a supplied report or
 patch describes its pinned snapshot, not necessarily today's behavior.
 
-`AsymptoticExpand` is a held alias of `AsymptoticExpansion`. Both currently use
-the package engines under `"Backend" -> Automatic`; `"Package"` explicitly
-selects that same path. Explicit `"Series"` and `"Asymptotic"` modes are
-implemented with [130 passing focused checks](validation/native-compatibility-tests.json)
-across eight selected files, with no failures. The
-[compatibility plan](docs/development/NATIVE_COMPATIBILITY.md) tracks required
-automatic fallback and remaining coverage evidence. Existing analytic
-special-function tests do not validate this new native result contract.
+`AsymptoticExpand` is a held alias of `AsymptoticExpansion`. `Automatic`
+retains successful analytic package requests and routes admitted native
+specifications, native options, and selected representation failures to
+compatible native backends. `"Package"` disables that routing. Explicit
+`"Series"` and `"Asymptotic"` modes preserve the selected native result and
+its contract. The [compatibility plan](docs/development/NATIVE_COMPATIBILITY.md)
+records remaining coverage and evaluation questions; the
+[validation record](validation/README.md) identifies each focused run's
+source snapshot and scope. The [wave-3 intake](docs/development/WAVE_3_INTAKE.md)
+consolidates the latest findings and proposals for implementation.
 
 For a change, update the applicable source, guide, mathematical hypotheses,
 and [development notes](docs/development/README.md). Run the relevant focused

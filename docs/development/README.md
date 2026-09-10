@@ -15,17 +15,27 @@ The maintained reader-facing documentation consists of the
 [mathematical article](../article/asymptotic-inverse.pdf) and the
 [package user guide](../../src/Documentation/UserGuide.html).
 
-The [code review library](../../external-reports/code-review/README.md) contains eighteen
-packages in two waves: [reports 1–9](../../external-reports/code-review/wave-1/README.md) and
-[reports 10–18](../../external-reports/code-review/wave-2/README.md). The maintained
+The [code review library](../../external-reports/code-review/README.md) contains twenty-seven
+packages in three waves: [reports 1–9](../../external-reports/code-review/wave-1/README.md),
+[reports 10–18](../../external-reports/code-review/wave-2/README.md), and
+[reports 19–27](../../external-reports/code-review/wave-3/README.md). The maintained
 [code review status](CODE_REVIEW_STATUS.md) consolidates findings, links current
 implementation evidence, and keeps pending repairs separate from deferred API
 and research proposals. The wave indexes record each package's pinned snapshot
 and distinguish executed native observations from independent models and
 unrun regression specifications.
+The [wave-3 intake](WAVE_3_INTAKE.md) maps all 44 new attributed ledger entries
+and consolidates their proposals. There are 167 identified entries across
+the reports before overlapping findings are grouped; they are not 167
+distinct current defects. Current work implements and documents the reviewed
+recommendations, with each repair tied to its own focused validation.
 
-The [native compatibility plan](NATIVE_COMPATIBILITY.md) records the required
-expansion-API coverage of built-in `Series` and `Asymptotic`, including formal,
+[Periodic peer-work reviews](PEER_REVIEWS.md) record inspections of other
+worktrees and incoming `main` changes, with committed work distinguished from
+pending changes and source review separated from executed validation.
+
+The [native compatibility plan](NATIVE_COMPATIBILITY.md) records the
+expansion-API coverage investigation for built-in `Series` and `Asymptotic`, including formal,
 complex and multivariable results. Explicit native backends and the held
 `AsymptoticExpand` alias are implemented, with
 [130 passed, zero failed focused checks](../../validation/native-compatibility-tests.json)
@@ -35,7 +45,8 @@ failures to a compatible native backend. Successful package requests retain
 their existing analytic contract, cutoff and block-count semantics. The
 [automatic focused runner](../../validation/CheckNativeAutomatic.wl) checks
 routing, evaluation, constraints, and adjacent inverse entry paths. Complete
-native coverage remains required work in the register.
+native coverage remains unestablished; the register and intake identify the
+specific interface and correctness work being implemented.
 The [native result contracts](NATIVE_RESULT_CONTRACTS.md) explain preserved
 native output, held request metadata, option conflicts, and the absence of
 an independently proved analytic remainder.

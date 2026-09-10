@@ -8,9 +8,11 @@ standalone evidence at checkpoint `01b18ab` predates this rename. Earlier
 passing counts likewise apply to their recorded source snapshots, not to new
 path/context hashes after the rename.
 
-Updated September 9, 2026. This register consolidates the **123 identified finding
-entries in all eighteen [review packages](../../external-reports/code-review/README.md)** into shared
-work items. It also records substantive roadmap proposals separately. It is a
+Updated September 9, 2026. This register and the linked wave-3 intake consolidate
+**167 identified finding entries in all twenty-seven
+[review packages](../../external-reports/code-review/README.md)** into shared
+work items: 123 entries from waves 1–2 and 44 from wave 3. They also record
+substantive roadmap proposals separately. This is a
 work map, not a claim that every recommendation is a defect or an accepted API
 change.
 
@@ -36,6 +38,16 @@ not new reproductions against this checkout. The separately recorded
 use Wolfram 15.0.1 Windows and unchanged sources; they are not an acceptance suite.
 See the [wave-2 index](../../external-reports/code-review/wave-2/README.md).
 
+Wave 3 adds reports 19–27, all pinned to
+`6687962f3c858a4f93623cfc496f33e35c6763d4`. Their **44 ledger entries and
+unnumbered proposals are included in scope** and mapped in the
+[wave-3 intake](WAVE_3_INTAKE.md). That document records every local finding
+ID, current source evidence, overlapping earlier work, policy alternatives,
+and focused acceptance obligations. The supplied 166 payload files were
+merged from `68b8e1e70731998c5bc1533be1bec0f5b507acd7` without editing them.
+Current source inspection does not turn their historical or unrun witnesses
+into current native reproductions.
+
 Status meanings:
 
 - **Focused verified:** the implementation and a named current native test record
@@ -57,22 +69,28 @@ the separately identified wave-2 characterization probes.
 
 ## Correctness and information preservation
 
-### Required native expansion coverage
+### Native expansion compatibility review stream
 
-The updated user objective requires the package's expansion functionality to
-handle every input successfully handled by built-in `Series` or `Asymptotic`,
-with a different result form permitted. This is an accepted requirement, not
-an optional extension or a claim about complete current coverage. The public
-function `AsymptoticExpansion` now also has the held alias `AsymptoticExpand`.
+The updated user objective is to implement recommendations from all three
+review waves and keep the mathematical article, user guide and development
+notes current. The earlier native input-superset objective produced B01–B04
+and the compatibility matrix. They remain a design/comparison target;
+concrete native-interface findings in the reviews now drive this work stream.
+The public function `AsymptoticExpansion` also has the held alias
+`AsymptoticExpand`. Complete native coverage is not established.
 
 | ID | Required work and acceptance boundary |
 | --- | --- |
-| B01 | **Partial — automatic routing and compatible second-backend search focused verified.** Native delegation precedes real-coordinate admission and has no special-function whitelist. `Automatic` retains successful package results and searches compatible native backends for admitted native routes. Remaining admission gaps include scalar native term goals, protected Direction/conditional inputs, nested inactive outputs, and the complete coverage argument. The accepted full input-superset scope remains open. |
+| B01 | **Partial — automatic routing and compatible second-backend search focused verified.** Native delegation precedes real-coordinate admission and has no special-function whitelist. `Automatic` retains successful package results and searches compatible native backends for admitted native routes. Explicit scalar rule goals `Automatic` and nonpositive integers now have 15 new cases in a 116/0 focused run. Configured defaults, option identity/roles, callable overprotection, conditioned inputs and native outcome handling remain wave-3 obligations W3-01–W3-05/W3-09. |
 | B02 | **Automatic policy focused verified.** Held alias, explicit backend selection, native options and native order conventions are implemented. Automatic native results identify native order and routing reason, retaining the package failure when applicable. Callables, inverse/conditional sources and explicit direction/branch/budget options stay on the package path. `"Package"` rejects native-only options instead of silently ignoring them. |
 | B03 | **Native representation focused verified.** `Kind`/`Scale` `"Native"` preserves the complete native result, held request and syntactic specifications, ambient context and runtime provenance. Analytic remainder and exactness remain missing; `Normal` applies native normalization and can retain infinite expressions. Analytic operations refuse to infer a remainder theorem. Further analytic promotion and native operations remain separate work; coordinate with C06, C07, C13 and C16. |
-| B04 | **Partial — focused comparisons recorded.** Nine selected files pass 179 tests on Wolfram 15.0.1 Windows with unchanged sources, including 16 new backend-search cases. Separate bounded differential probes reproduce R17 N4's selected native `x^x`, Zeta and quadratic inverse calculations. These records support only their stated cases; broader matrix coverage and the structural argument for full Automatic coverage remain required. |
+| B04 | **Partial — focused comparisons recorded.** The earlier nine-file search selection passes 179 tests; the latest five-file rule-goal selection passes 116, including 15 new cases, on Wolfram 15.0.1 Windows with unchanged sources. These overlapping populations are not one combined acceptance count. Separate bounded probes reproduce R17 N4's selected native `x^x`, Zeta and quadratic inverse calculations. The wave-3 differential-catalog and equivalent-request proposals remain open. |
 
 Implementation: [NativeCompatibility.wl](../../src/Kernel/NativeCompatibility.wl).
+Latest rule-goal evidence: [116/0 acceptance](../../validation/native-rule-goal-tests.json)
+and [five-file runner](../../validation/CheckNativeRuleGoals.wl). Explicit
+package constraints and triple cutoffs are unchanged; this does not close
+configured-default or equivalent-key findings in wave 3.
 The merged-source [425/0 acceptance](../../validation/review-normalization-merge-tests.json)
 rechecks the union of normalization/scope and native-search cases plus package
 identity after integrating `main` revision `b6df7a1`'s Mathics-only bootstrap.
@@ -94,8 +112,8 @@ See [result contracts](NATIVE_RESULT_CONTRACTS.md) and the
 [remaining compatibility plan](NATIVE_COMPATIBILITY.md). No full-suite or
 complete-superset claim follows from this milestone.
 
-Native-supported complex and formal cases in B01–B03 are required even where
-the broader custom complex-sector research proposal X09 remains separate.
+Native-supported complex and formal cases in B01–B03 remain distinct from
+the broader custom complex-sector research proposal X09.
 
 ### C01 — Bound optional native `SeriesData` allocation
 
@@ -446,7 +464,8 @@ observations, and include peak memory and unchanged controls.
 
 These are explicit **scope decisions**, not defects in a documented unsupported
 case. They remain visible for future work but are not prerequisites for closing
-C01–C23. Required native coverage B01–B04 is not deferred here. Each additional
+C01–C23 or the wave-3 intake. Native compatibility review items B01–B04 remain
+tracked above. Each additional
 custom extension needs a finite admitted domain, independent
 coefficient oracles, remainder/branch obligations, and refusal cases.
 
@@ -467,10 +486,12 @@ coefficient oracles, remainder/branch obligations, and refusal cases.
 
 ## Complete finding crosswalk
 
-Every identified ledger/README finding appears below, including the two named
+Every wave-1/2 ledger/README finding appears below, including the two named
 deltas in report 18. A finding spanning several
 contracts maps to more than one item; duplicate reports do not multiply the
 number of required fixes. Unnumbered roadmap proposals are covered above.
+The [complete wave-3 crosswalk](WAVE_3_INTAKE.md#complete-wave-3-finding-crosswalk)
+adds all 44 entries from reports 19–27 and the consolidated `W3-*` work items.
 
 | Review | Finding → register item |
 | --- | --- |
@@ -495,22 +516,25 @@ number of required fixes. Unnumbered roadmap proposals are covered above.
 
 ## Next priorities and acceptance records
 
-1. Complete B01–B03's required automatic native routing and coverage argument,
-   preserving the implemented explicit native result contracts without giving
-   formal/complex output an unproved real analytic interpretation. Current
-   real-model repairs remain scoped to that model.
-2. Extend C14/C15's focused evidence when related paths change, then address target-chart correctness C18.
+1. Address wave-3 W3-06's observable Taylor precision/sided-germ obligations
+   and W3-10's branch-safe logarithm normalization. Establish public fixtures
+   before claiming native reproduction of source-only reports.
+2. Resolve W3-01–W3-03 with one coherent option/default and positional-role
+   policy; retain explicit contracts and once-only evaluation. Track W3-04,
+   W3-05 and W3-15's native storage/outcome/traversal proposals separately.
+3. Extend C14/C15's focused evidence when related paths change, then address target-chart correctness C18.
    Establish C16's source/admission boundary alongside native compatibility.
-3. Retain the focused acceptance boundaries for C01–C07 and P03; extend their
+4. Retain the focused acceptance boundaries for C01–C07 and P03; extend their
    evidence with wave-2 witnesses where applicable. C17 adds a distinct native
    index constraint beyond C01's dense-allocation bound.
-4. Establish C08's achieved-precision postcondition; then replace the fixed
+5. Establish C08's achieved-precision postcondition, including W3-07's exact
+   zero-demand case; then replace the fixed
    margins with backward demand planning. Address P01–P03 as bounded resource
    fixes, followed by measured P04/P05 work.
-5. Address C20–C23, C09/C10, D04/D08 and V02 with focused contract checks.
+6. Address C20–C23, C09/C10, D04/D08, V02 and remaining W3 items with focused contract checks.
    Resolve D10's lower-cutoff refinement policy separately from a soundness fix.
-   Required native input coverage is not deferred with the optional research
-   proposals; preserve that distinction when prioritizing extensions.
+   Keep concrete native-interface defects separate from optional mathematical
+   research when evaluating the recorded proposals.
 
 For each completed item, record the implementation revision, exact source hashes,
 focused tests and kernel, independent oracle, relevant benchmark/control results,

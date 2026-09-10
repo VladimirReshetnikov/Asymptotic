@@ -208,7 +208,24 @@ s = Quiet[AsymptoticExpansion[{Exp[x], Sin[x]}, x -> 0,
 {"Series", {1, x}, {{"Asymptotic", "Unresolved"}, {"Series", "Computed"}}}
 ```
 
-This uses native term-goal semantics. A package analytic request such as `AsymptoticExpansion[Exp[x], x -> 0, SeriesTermGoal -> 0]` still returns `Failure["InvalidCutoff", ...]`.
+This uses native term-goal semantics. Scalar rule requests also admit an
+explicit `SeriesTermGoal -> Automatic` or a nonpositive integer. The native
+`Series` result for `Exp[x]` at zero has finite part `1` with goal `0` or
+`Automatic`, and an empty finite part with a negative goal. These results
+retain their native remainder and exactness contracts.
+
+```wolfram
+s = Quiet[AsymptoticExpand[Exp[x], x -> 0, SeriesTermGoal -> 0]];
+{s["NativeBackend"], Normal[s]}
+(* {"Series", 1} *)
+```
+
+An explicit package analytic request such as
+`AsymptoticExpansion[Exp[x], x -> 0, SeriesTermGoal -> 0, "Backend" -> "Package"]`
+still returns `Failure["InvalidCutoff", ...]`. Explicit package direction,
+branch and resource options remain binding. Triple specifications retain
+their existing cutoff behavior; this rule-form admission does not reinterpret
+a cutoff as a native order.
 
 ### Basic Examples
 
