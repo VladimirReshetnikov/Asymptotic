@@ -24,17 +24,48 @@ certReciprocal[{lo_, hi_}, ctx_] := (
   If[lo <= 0 <= hi, certFail["IntervalSingularity", "An interval reciprocal contains zero.",
     <|"UnprovedCondition" -> (hi < 0 || lo > 0), "ArgumentEnclosure" -> {lo, hi}|>]];
   certRoundInterval[{1/hi, 1/lo}, ctx]);
-certIntegerPower[a_, n_Integer, ctx_] := Module[{base = a, power = Abs[n], answer = {1, 1}},
+(* t^n is monotone on each side of zero and, for odd n, across it, so the
+   exact range of an interval power is attained at the endpoints. Each
+   endpoint is raised by directed binary powering; multiplying independent
+   copies of a zero-crossing interval instead loses the endpoint geometry,
+   so an odd power of {-1/4, 1} was enclosed by {-1, 1} rather than
+   {-1/64, 1} and a strictly positive derivative could not be separated from
+   zero (wave-6 reports 53 N01 and 54 N01). *)
+certPointPower[q_, power_Integer, ctx_] := Module[{base = {q, q}, p = power, answer = {1, 1}},
+  While[p > 0,
+   If[OddQ[p], answer = certMul[answer, base, ctx]];
+   p = Quotient[p, 2];
+   If[p > 0, base = certRoundInterval[Sort[base^2], ctx]]];
+  answer];
+certIntegerPower[a_, n_Integer, ctx_] := Module[{base = a, power = Abs[n], lower, upper},
   If[power > 100000, certFail["CertificateResourceLimit", "The integer power exceeds the certificate arithmetic budget."]];
   If[n < 0, base = certReciprocal[base, ctx]];
-  While[power > 0,
-   If[OddQ[power], answer = certMul[answer, base, ctx]];
-   power = Quotient[power, 2];
-   If[power > 0,
-    (* Squaring a real interval is tighter than multiplying independent copies. *)
-    base = certRoundInterval[If[base[[1]] <= 0 <= base[[2]],
-       {0, Max[base[[1]]^2, base[[2]]^2]}, Sort[base^2]], ctx]]];
-  answer];
+  If[power === 0, Return[{1, 1}, Module]];
+  lower = certPointPower[base[[1]], power, ctx];
+  upper = certPointPower[base[[2]], power, ctx];
+  Which[OddQ[power], {lower[[1]], upper[[2]]},
+   base[[1]] <= 0 <= base[[2]], {0, Max[lower[[2]], upper[[2]]]},
+   True, {Min[lower[[1]], upper[[1]]], Max[lower[[2]], upper[[2]]]}]];
+
+(* Exact rational powers p/q of a nonnegative base use integer q-th roots on
+   the dyadic grid, so an admitted algebraic root does not inherit the
+   exponential magnitude budget of Exp[(p/q) Log[base]] (report 53 N02). *)
+certIntegerRoot[m_Integer, q_Integer] := Module[{r},
+  If[m <= 0, Return[0, Module]];
+  r = Floor[N[m^(1/q), Max[20, Ceiling[IntegerLength[m]/q] + 10]]];
+  While[r^q > m, r--];
+  While[(r + 1)^q <= m, r++];
+  r];
+certRationalRoot[{lo_, hi_}, q_Integer, ctx_] := Module[{scale = 2^ctx["Bits"], lower, upper, m},
+  lower = certIntegerRoot[Floor[lo scale^q], q];
+  m = Ceiling[hi scale^q]; upper = certIntegerRoot[m, q];
+  If[upper^q < m, upper++];
+  {lower/scale, upper/scale}];
+certRationalPower[base_, r_Rational, ctx_] := Module[{p = Numerator[r], q = Denominator[r]},
+  If[base[[1]] < 0 || (base[[1]] === 0 && p < 0),
+   certFail["IntervalDomain", "A rational power needs a nonnegative base on the certificate interval, and a positive base for a negative exponent.",
+    <|"UnprovedCondition" -> If[p < 0, base[[1]] > 0, base[[1]] >= 0], "ArgumentEnclosure" -> base|>]];
+  certIntegerPower[certRationalRoot[base, q, ctx], p, ctx]];
 
 certExpPoint[q_?certRationalQ, ctx_] := Module[{z, reductions = 0, n, sum, tail, answer},
   If[q === 0, Return[{1, 1}, Module]];
@@ -137,6 +168,8 @@ certEnclose[expression_, x_Symbol, interval_, ctx_] := Module[{args, base, expon
     certExp[certEnclose[expression[[2]], x, interval, ctx], ctx],
    Head[expression] === Power && IntegerQ[expression[[2]]],
     certIntegerPower[certEnclose[expression[[1]], x, interval, ctx], expression[[2]], ctx],
+   Head[expression] === Power && Head[expression[[2]]] === Rational,
+    certRationalPower[certEnclose[expression[[1]], x, interval, ctx], expression[[2]], ctx],
    Head[expression] === Power,
     base = certEnclose[expression[[1]], x, interval, ctx];
     exponent = certEnclose[expression[[2]], x, interval, ctx];
@@ -149,7 +182,10 @@ certEnclose[expression_, x_Symbol, interval_, ctx_] := Module[{args, base, expon
        <|"UnprovedCondition" -> (base[[1]] > 0), "ArgumentEnclosure" -> base|>]];
      certExp[certMul[exponent, certLog[base, ctx], ctx], ctx]],
    True, certFail["UnsupportedEnclosure", "The exact interval evaluator does not support this expression.",
-     <|"Expression" -> expression, "SupportedOperations" -> {"Rational constants", "Plus", "Times", "Power on a positive base", "Exp", "Log"}|>]]];
+     <|"Expression" -> expression, "SupportedOperations" -> {"Rational constants", "Plus", "Times", "Integer powers",
+        "Rational powers of a nonnegative base", "Power on a positive base", "Exp", "Log"},
+       (* No arithmetic precision makes an unsupported expression supported. *)
+       "ArithmeticRetryable" -> False|>]]];
 
 (* Conditions may use an explicitly named source symbol or a legacy local
    coordinate. Normalize both to the source variable used by the equation.
@@ -257,7 +293,11 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
    leftResidual, rightResidual, endpointBracket = False},
   If[! certSourceInterval[a, interval, x, ctx],
    certFail["OutsideBranch", "The certificate interval is not proved to lie on the selected source side.",
-    <|"Interval" -> interval, "ExpansionPoint" -> a["ExpansionPoint"], "Direction" -> a["Direction"]|>]];
+    <|"Interval" -> interval, "ExpansionPoint" -> a["ExpansionPoint"], "Direction" -> a["Direction"],
+      (* Against a rational or infinite endpoint this comparison is exact, so
+         doubling the arithmetic order cannot change it (report 53 N03). *)
+      "ArithmeticRetryable" -> If[certRationalQ[a["ExpansionPoint"]] ||
+         MemberQ[{Infinity, -Infinity}, a["ExpansionPoint"]], False, Automatic]|>]];
   domain = inverseEvidenceSourceDomain[a, x];
   If[! TrueQ[certPositiveCondition[domain, x, interval, ctx]],
    certFail["OutsideBranch", "The retained source-domain condition is not proved on the whole closed verification interval.",
@@ -412,6 +452,14 @@ AsymptoticAnalysis`InverseCertificate[GeneralizedSeries[a_Association], yv_, opt
       "Outcome" -> If[AssociationQ[result], "Certified", result[[1]]]|>];
    If[FailureQ[result] && TrueQ[Lookup[result[[2]], "DefinitiveNoRoot", False]],
     Return[Failure[result[[1]], Join[result[[2]], <|"History" -> history|>]], Module]];
+   (* A failure that no arithmetic precision can repair ends the refinement
+      instead of being retried at every doubled order and then reported as
+      budget exhaustion. *)
+   If[FailureQ[result] && Lookup[result[[2]], "ArithmeticRetryable", Automatic] === False,
+    Return[Failure[result[[1]], Join[result[[2]], <|"History" -> history,
+       "StoppingReason" -> "NonRefinableArithmeticFailure", "Refinements" -> iteration,
+       "AccuracyGoalReached" -> False|>,
+      If[AssociationQ[best], <|"BestCertificate" -> best|>, <||>]]], Module]];
    If[AssociationQ[result],
     lowerMagnitude = If[result["RootEnclosure"][[1]] <= 0 <= result["RootEnclosure"][[2]], 0,
       Min[Abs[result["RootEnclosure"]]]];

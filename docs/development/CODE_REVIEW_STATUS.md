@@ -141,7 +141,7 @@ index counts each obligation once instead. The
 [ProbeWave6Witnesses](../../validation/ProbeWave6Witnesses.wl) reproduces four of
 its witnesses on the current source with unchanged sources during the run.
 
-Seven wave-6 public-boundary entries are now **focused verified — 181/0 across
+Seven wave-6 public-boundary entries are now **focused verified — 183/0 across
 ten selected files** in the
 [wave-6 boundary run](../../validation/wave6-boundaries-tests.json) from
 [CheckWave6Boundaries](../../validation/CheckWave6Boundaries.wl), with the seven
@@ -179,13 +179,36 @@ before cross-references are scanned, and links resolving outside the checkout
 are rejected (47 N02, 47 N03, 51 N03); the
 [thirteen Python tests](../../validation/test_documentation_links.py) pass.
 
-Still open from wave 6: the certificate interval geometry and retry policy
-(53 N01–N03, 54 N01), the Mathics inline-assumption protector's rewrite of held
-`Element` data and its missed inline source conditions (49 N1, 51 N01, 54 N02),
-the machine-sign logarithm split guard in the Mathics numerical recovery
-(48 N2, 54 N03), the Mathics prover reuse inside P08 (47 N01), the flat-tail
-candidate population inside P06 (48 P1), the D01 cutoff/term-goal policy that
-55 N02 selects, and the Lerch and Zeta extension proposals (49 E1/E2, 50 E1/E2).
+The certificate and Mathics entries followed. `InverseCertificate`'s interval
+powers are the range of the endpoint powers, so an odd power across zero keeps
+its sign structure and the reported quartic derivative on `{-1/4, 1}` is
+enclosed by `{15/16, 5}` instead of `{0, 5}` (53 N01, 54 N01); rational powers
+of a nonnegative base use exact dyadic roots instead of the exponential budget
+(53 N02); and a failure that no precision can repair — the exact source-side
+comparison against a rational or infinite endpoint, or an unsupported
+expression — stops the refinement with
+`"StoppingReason" -> "NonRefinableArithmeticFailure"` (53 N03). These are
+pinned in [CertificateRegressions.wlt](../../src/Tests/CertificateRegressions.wlt)
+and covered by the certificate runners named in the
+[validation record](../../validation/README.md#wave-6-certificate-and-mathics-repairs).
+The Mathics inline-assumption protector now rewrites only applied
+`Element[_, _]` heads inside `Assumptions` values and inline
+`ConditionalExpression` conditions, leaves bare `Element` data and held-data
+barriers untouched (49 N1, 51 N01, 54 N02), and the numerical logarithm split
+is authorized by an exact positive grammar rather than a machine sign (48 N2,
+54 N03); see the [input-assumption](../Mathics/INPUT-ASSUMPTIONS.md) and
+[numerical](../Mathics/NUMERICAL.md) notes and the new portable cases. Fixing
+49's witness also exposed that parameter-only clauses of an inline
+`ConditionalExpression` were demanded of the approach and refused on both
+kernels; `splitApproachInput` now classifies them as parameter assumptions,
+as the guide already stated.
+
+The three entries governed by existing items followed under their own rules:
+the cutoff/term-goal policy 55 N02 selects is recorded under D01, the
+flat-tail candidate population 48 P1 describes under P06, and the Mathics
+prover reuse 47 N01 describes under P08, each with the evidence its row
+names. Still open from wave 6 are only the Lerch and Zeta extension proposals
+(49 E1/E2, 50 E1/E2) under X04/X05.
 
 Two wave-6 entries are **not** new obligations. Report 55's N02 restates
 retained report 16's N04, which this register already carries under D01 as the
@@ -566,7 +589,7 @@ nested option list and a delayed rule return the same coefficient as the string
 spelling, the first occurrence wins, and an inexact or zero power is refused
 with `InvalidOption`. The
 [wave-6 boundary regression](../../src/Tests/ReviewWave6Boundaries.wlt) pins
-all six spellings and both refusals in the 181/0
+all six spellings and both refusals in the 183/0
 [focused run](../../validation/wave6-boundaries-tests.json).
 
 ### C10 — Include the target offset in residual normalization labels
@@ -666,9 +689,9 @@ current package.
 | P03 | **Focused verified.** The homogeneous Euler recurrence stops before multiplying another power once its coefficient polynomial is proved zero. Its 16 [regressions](../../src/Tests/ReviewRecurrenceTermination.wlt) cover finite products, logarithmic coefficients, valid assumption-dependent termination, validation order and required-versus-futile resource use. Four baseline resource failures now pass in the [196-test acceptance](../../validation/review-unit-arithmetic-tests.json). Generic coefficient generators still permit isolated zeros. | [R4 A03][R4], [R8 F05][R8]; core `jetComposeBlock`. |
 | P04 | **Pending — source inspected.** Grouped and Newton routes still construct the direct multi-index region/frontier. Separate method-specific coefficient scheduling from complete-weight/frontier certification. Test collisions, irrational gaps, cancellation, term goals, and exact termination before considering a priority queue or automatic strategy selection. | [R2 F06][R2], [R3 F05][R3], [R5 F03][R5], [R9 F03][R9]; [core constructor](../../src/Kernel/AsymptoticAnalysis.wl), [refinement state](../../src/Kernel/RefinementState.wl). |
 | P05 | **Pending — source inspected.** `logCanon` unconditionally factors exact integer/rational logarithm arguments. Bound optional canonicalization and retain opaque exact logarithms when that budget is exhausted. Test equality/zero detection and reproducibility as well as runtime. | [R5 F06][R5], [R6 A05][R6]; core `logCanon`, `coefCanon`, `polyCanon`. |
-| P06 | **Decision / pending.** Separate output support, candidate products, recursion/depth, frequencies, dense positions, coefficient size, and symbolic proof work. Preflight expensive expansion/allocation and preserve local failure ordering. A shared request budget should report the exhausted resource; replacing every limit with one counter is not the proposal. | [R1 A06][R1], [R4 A06][R4], [R6 A06][R6], [R8 F06][R8]; [kernel modules](../../src/Kernel/). |
+| P06 | **Decision / pending; one lane closed.** Separate output support, candidate products, recursion/depth, frequencies, dense positions, coefficient size, and symbolic proof work. Preflight expensive expansion/allocation and preserve local failure ordering. A shared request budget should report the exhausted resource; replacing every limit with one counter is not the proposal. Wave-6 report 48 P1's lane is done: the flat-product tail collector records every omitted candidate as a grade with a held bound and evaluates only the least-grade bounds, so the quadratic population of deeper pair envelopes is enumerated but never materialized; the selected candidates and the combined bound are unchanged, which the [flat graded-tail run](../../validation/wave6-flat-graded-tails-tests.json) checks against C23's regressions. | [R1 A06][R1], [R4 A06][R4], [R6 A06][R6], [R8 F06][R8], wave-6 48 P1; [kernel modules](../../src/Kernel/). |
 | P07 | **Profiling required.** Measure nested recipe/provenance size and cache retention before introducing shared immutable nodes, compact serialization, or cache elision. Bound caches by meaningful cost and preserve branch/refinement evidence when removing optional state. Reported exponential history growth is structural, not a measured current workload. | [R1 A13][R1], [R4 A04][R4], [R7 R02][R7]; [SeriesOperations](../../src/Kernel/SeriesOperations.wl), [RefinementState](../../src/Kernel/RefinementState.wl). |
-| P08 | **Profiling required.** Profile repeated `Expand`/normalization, native powers and analytic calls, coefficient recurrences, proof queries, and rebuild/replay work. Prefer bounded request-local reuse over a global cache. Only keep optimizations with identical coefficients, domains, errors, and meaningful matched measurements. | [R6 A16][R6], [R7 R02][R7]; [NativeSpecialFunctions](../../src/Kernel/NativeSpecialFunctions.wl), [GammaInverse](../../src/Kernel/GammaInverse.wl), and report roadmap discussions. |
+| P08 | **Profiling required; proof-query lane done.** Profile repeated `Expand`/normalization, native powers and analytic calls, coefficient recurrences, proof queries, and rebuild/replay work. Prefer bounded request-local reuse over a global cache. Only keep optimizations with identical coefficients, domains, errors, and meaningful matched measurements. The Mathics realness/sign provers (wave-6 report 47 N01) now reuse results within one `mathicsAssumptionSimplify` entry through a memo keyed by query and fact table and discarded afterwards; the [matched measurements](../../validation/wave6-prover-memo-measurements.json) record identical proof results with body evaluations of 1191 → 30, 1789 → 34, 4862 → 44 and 18084 → 76 on four nested walker queries, and no change on the linear nested-`Sin` family. These are evaluation counts in a Wolfram kernel loading the prover module, not Mathics timings. | [R6 A16][R6], [R7 R02][R7], wave-6 47 N01; [NativeSpecialFunctions](../../src/Kernel/NativeSpecialFunctions.wl), [GammaInverse](../../src/Kernel/GammaInverse.wl), [MathicsAssumptions](../../src/Kernel/MathicsAssumptions.wl), and report roadmap discussions. |
 
 Already implemented mechanisms must remain the baseline: sparse sorted-product
 pruning, binary integer powering, Fourier weight pruning, grouped Lagrange,
@@ -682,7 +705,7 @@ observations, and include peak memory and unchanged controls.
 
 | ID | Current status / decision to make | References |
 | --- | --- | --- |
-| D01 | **Decision.** Normalize requests internally by coordinate, absolute/relative cutoff, complete-weight or carrier term goal, and achieved error. Keep existing syntax compatible. Do not imply a single cutoff exists for arbitrary composite envelopes. | [R1 A07][R1], [R4 A08][R4], [R6 A09][R6], [R7 E02][R7]; [user guide](../../src/Documentation/UserGuide.md). |
+| D01 | **Decision; cutoff/term-goal combination settled.** Normalize requests internally by coordinate, absolute/relative cutoff, complete-weight or carrier term goal, and achieved error. Keep existing syntax compatible. Do not imply a single cutoff exists for arbitrary composite envelopes. The policy report 16 N04 asked for is now uniform: an explicit cutoff and `SeriesTermGoal` are two independent reasons to stop retaining the next block, whichever comes first, as the ordinary constructor already did; the Zeta and Lerch defining-sum constructors previously treated them as alternatives, and Zeta refused a cheap one-term request on the work its cutoff alone would need. Report 55 N02's three-edit candidate was applied, an active goal caps the Zeta preflight, and the [Dirichlet regression](../../src/Tests/DirichletSpecialFunctions.wlt) `dirichlet-explicit-cutoff-and-term-goal-stop-independently` pins both constructors with no-goal controls. | [R1 A07][R1], [R4 A08][R4], [R6 A09][R6], [R7 E02][R7], [R16 N04][R16]; [user guide](../../src/Documentation/UserGuide.md). |
 | D02 | **Decision.** Specify a small shared result/scale contract and capability discovery, including error evidence and derivative-contract order. Preserve unsupported versus undecidable versus disproved outcomes and report selected adapter/method/fallback. Avoid a broad registry refactor before concrete duplicated contracts are settled. | [R1 A12][R1], [R4 A08][R4], [R6 A11][R6], [R7 E02][R7]; [operation dispatch](../../src/Kernel/SeriesOperations.wl), [automatic arithmetic](../../src/Kernel/SeriesArithmetic.wl). |
 | D03 | **Decision.** Add versioned saved-object import/migration if persistence is supported. The public rename to `GeneralizedSeries` is already documented; a compatibility alias was intentionally not exported. Validate migration rather than textually rewriting arbitrary code. | [R1 A08][R1], [R6 A11][R6], [R7 E02][R7], [R8 F08][R8]; guide and C11. |
 | D04 | **Focused verified — interval required.** `InverseCertificate` keeps `"Interval" -> Automatic` as the option default but treats an omitted interval as its own refusal: `Failure["InvalidInterval", ...]` with `"Reason" -> "IntervalNotSupplied"` states that no interval is inferred from asymptotic constants. Malformed endpoints return the same tag with `"Reason" -> "MalformedInterval"` and the offending `"Interval"`. Verified bracketing is not implemented; the [certificate regressions](../../src/Tests/CertificateRegressions.wlt) pass 34/34 on Wolfram 15.0.1 and the portable case `certificate-omitted-interval-diagnostic` covers both kernels. | [R1 A09][R1], [R6 A13][R6], [R7 E04][R7], [R8 F10][R8]; [InverseCertificates](../../src/Kernel/InverseCertificates.wl), [CertificateRegressions](../../src/Tests/CertificateRegressions.wlt). |

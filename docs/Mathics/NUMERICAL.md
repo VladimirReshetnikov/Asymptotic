@@ -49,11 +49,21 @@ about `10^-17`; `N[Log[Sqrt[2]/10^16], 40]` evaluates while
 `N[Log[Sqrt[2]/10^17], 40]` does not, and `N[Log[Sqrt[Pi]] + Log[10^-20], 40]`
 evaluates. The same late adapter therefore also redirects `N` in the five
 numerical consumers: when an evaluation returns `Indeterminate`, it retries
-with every `Log` of a product whose factors are all numerically positive
-rewritten as the sum of their logarithms, and otherwise returns the first
-value unchanged. The rewrite is valid for positive real factors, which is
-the real-branch situation in which these logarithmic target coordinates
-arise; it is not applied to products with a nonpositive or nonnumeric factor.
+with every `Log` of a product whose factors an exact positive grammar proves
+positive rewritten as the sum of their logarithms, and otherwise returns the
+first value unchanged. The rewrite is valid for positive real factors, which
+is the real-branch situation in which these logarithmic target coordinates
+arise. The grammar admits positive integers and rationals, the named positive
+constants (`Pi`, `E`, `EulerGamma`, `Catalan`, `GoldenRatio`, `Degree`,
+`Glaisher`, `Khinchin`), sums and products of admitted factors, integer and
+rational powers of admitted factors, `E` to an exact rational power, and the
+logarithm of a rational above `1`. A machine-precision sign is not used: it
+rounds an exact rational below the double underflow threshold, such as
+`10^-400`, to zero and would block a valid split, and it can round an exactly
+negative factor such as `Pi - 314159265358979323847/10^20` to a positive
+number and would license a false principal-branch identity. Any other factor
+leaves the logarithm unsplit; the portable case
+`numerical-log-split-uses-exact-positive-factors` pins the grammar.
 Values that still contain `Indeterminate` are rejected by the consumers'
 finite-value guards instead of reaching a realness comparison, which would
 abort the Mathics evaluator.

@@ -61,6 +61,17 @@ domains still use the native interpreter. The adapter cannot reconstruct a
 user expression that Mathics already transformed before it entered the
 package.
 
+The realness and sign provers are mutually recursive and reach the same
+subquery along several branches, so their work grew exponentially with the
+nesting of a query. Each entry into the assumption walker now keeps one memo,
+keyed by the query and the fact table derived from the assumptions: a proved
+answer is reused at any depth, an unresolved answer is reused only at depths
+no larger than the one that produced it, and the memo is discarded when the
+entry returns. Nothing is shared across requests or assumption contexts. The
+[matched measurements](../../validation/wave6-prover-memo-measurements.json)
+record identical proof results with body evaluations reduced from thousands
+to tens on nested queries.
+
 The implementation is in
 [`MathicsAssumptions.wl`](../../src/Kernel/MathicsAssumptions.wl).
 The portable regression suite exercises positive local coordinates,

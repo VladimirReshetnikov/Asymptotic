@@ -58,6 +58,58 @@ VerificationTest[
    AsymptoticAnalysis`Private`certIntegerPower[{1, 2}, -2, ctx]}],
  {{0, 9}, {-8, -1}, {1/4, 1}}, TestID -> "certificate-integer-powers-preserve-sign-and-zero-crossings"]
 
+(* Wave-6 reports 53 N01 and 54 N01: an odd power is monotone across zero, so
+   the enclosure is the endpoint range, not a product of independent copies. *)
+VerificationTest[
+ Module[{ctx = <|"Bits" -> 48, "SeriesOrder" -> 20, "ExponentMagnitudeLimit" -> 10000|>, t},
+  {AsymptoticAnalysis`Private`certIntegerPower[{-1/4, 1}, 3, ctx],
+   AsymptoticAnalysis`Private`certIntegerPower[{-1, 1/4}, 3, ctx],
+   AsymptoticAnalysis`Private`certIntegerPower[{-1/4, 1}, 4, ctx],
+   AsymptoticAnalysis`Private`certIntegerPower[{-3, -2}, 4, ctx],
+   AsymptoticAnalysis`Private`certIntegerPower[{2, 3}, 0, ctx],
+   AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certIntegerPower[{-3, 2}, -3, ctx]][[1]],
+   AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certEnclose[1 + 4 t^3, t, {-1/4, 1}, ctx]]}],
+ {{-1/64, 1}, {-1, 1/64}, {0, 1}, {16, 81}, {1, 1}, "IntervalSingularity", {15/16, 5}},
+ TestID -> "certificate-odd-interval-powers-keep-the-endpoint-range-across-zero"]
+
+VerificationTest[
+ Module[{x, y, s, c},
+  s = AsymptoticInverse[(x - 1)^4/4 + x/16, {x, 2/3}, {y, 3}, Direction -> "FromAbove"];
+  c = InverseCertificate[s, 1/16, "Interval" -> {3/4, 2}, "Center" -> 1, "EnclosureOrder" -> 2,
+    "MaxRefinements" -> 0, "RefineExpansion" -> False];
+  {c["Certified"], c["RootEnclosure"], c["DerivativeLowerBound"]}],
+ {True, {1, 1}, 3/64}, TestID -> "certificate-quartic-derivative-is-separated-from-zero-at-an-exact-center"]
+
+(* Report 53 N02: rational powers of a nonnegative base use exact dyadic roots
+   instead of Exp[(p/q) Log[base]] and its exponent magnitude budget. *)
+VerificationTest[
+ Module[{ctx = <|"Bits" -> 48, "SeriesOrder" -> 20, "ExponentMagnitudeLimit" -> 10000|>, t, big, small, negative, zero, refused},
+  big = AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certEnclose[t^(1/2), t, {2^39998, 2^40002}, ctx]];
+  small = AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certEnclose[t^(3/2), t, {1/4, 4}, ctx]];
+  negative = AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certEnclose[t^(-1/2), t, {1/4, 4}, ctx]];
+  zero = AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certEnclose[t^(1/3), t, {0, 8}, ctx]];
+  refused = AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certEnclose[t^(1/2), t, {-1, 4}, ctx]];
+  {big[[1]] <= 2^19999 && 2^20001 <= big[[2]] && big[[2]] - big[[1]] < 2^20001 - 2^19999 + 1,
+   small, negative, zero, refused[[1]], refused[[2]]["ArgumentEnclosure"]}],
+ {True, {1/8, 8}, {1/2, 2}, {0, 2}, "IntervalDomain", {-1, 4}},
+ TestID -> "certificate-rational-powers-use-exact-roots-without-the-exponential-budget"]
+
+(* Report 53 N03: a failure no arithmetic precision can repair ends the
+   refinement at once instead of being retried at every doubled order. *)
+VerificationTest[
+ Module[{x, y, s, side, unsupported, control},
+  s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+  side = InverseCertificate[s, 6, "Interval" -> {-3, -1}, "Center" -> -2];
+  unsupported = InverseCertificate[AsymptoticInverse[x + Sin[x], {x, 0}, {y, 3}], 1/2,
+    "Interval" -> {1/10, 1/2}, "Center" -> 1/4];
+  control = InverseCertificate[s, 6, "Interval" -> {1, 3}, "Center" -> 21/10];
+  {side[[1]], side[[2]]["StoppingReason"], Length[side[[2]]["History"]], side[[2]]["ArithmeticRetryable"],
+   unsupported[[1]], unsupported[[2]]["StoppingReason"], Length[unsupported[[2]]["History"]],
+   control["Certified"], control["AccuracyGoalReached"]}],
+ {"OutsideBranch", "NonRefinableArithmeticFailure", 1, False,
+  "UnsupportedEnclosure", "NonRefinableArithmeticFailure", 1, True, True},
+ TestID -> "certificate-non-refinable-failures-stop-before-the-refinement-budget"]
+
 VerificationTest[
  Module[{x, y, s, c},
   s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];

@@ -2269,7 +2269,15 @@ Dirichlet series for <code>Zeta</code>, rather than a series in
 <code>Log[n] &lt; h</code>. A cutoff of zero therefore retains no finite
 terms and has a nonzero order-one remainder. The number of terms grows
 exponentially with <code>h</code>; <code>SeriesTermGoal</code> gives
-direct control over the count, subject to <code>&quot;MaxTerms&quot;</code>.</p>
+direct control over the count, subject to <code>&quot;MaxTerms&quot;</code>. When
+both are given they stop independently, whichever comes first, as in
+every other constructor:
+<code>AsymptoticExpansion[Zeta[x], {x, Infinity, Log[4]}, SeriesTermGoal -&gt; 1]</code>
+returns the constant <code>1</code> with first omitted integer
+<code>2</code>, and an active goal also caps the work a large cutoff
+would otherwise request, so <code>SeriesTermGoal -&gt; 1</code> with the
+cutoff <code>10^6</code> succeeds under a small <code>&quot;MaxTerms&quot;</code>.
+The same rule applies to the <code>LerchPhi</code> blocks below.</p>
 <p>The argument may be a real affine expression <code>S = a x + b</code>
 tending to positive infinity as <code>x</code> tends to either real
 infinity:</p>
@@ -2654,8 +2662,11 @@ remainders require a separate source-coordinate transport contract.</p>
 <code>Function</code> scoping. A defined function symbol is accepted
 when its application produces a supported scalar body.</p>
 <p>An inner <code>ConditionalExpression</code> restricts the original
-source. An outer condition restricts the expansion variable.
-Parameter-only assumptions remain parameter assumptions. Native
+source. An outer condition restricts the expansion variable through its
+clauses that mention that variable; its parameter-only clauses, such as
+<code>a &gt; 0</code> in
+<code>ConditionalExpression[x + a x^2, a &gt; 0]</code>, are parameter
+assumptions, exactly as in the <code>Assumptions</code> option. Native
 evaluation of an inverse to <code>ArcSin</code>, a radical, or another
 closed form retains that closed form&#39;s branch.</p>
 <p>If an unevaluated inverse operator admits more than one source
@@ -3975,7 +3986,16 @@ rational root enclosure, and certified error bounds. Rational affine
 subexpressions of the equation are evaluated exactly before interval
 rounding, so a large translation of the source coordinate does not
 consume certificate precision; other subexpressions use outward rational
-enclosures.</p>
+enclosures. The evaluator supports rational constants, sums, products,
+integer powers, rational powers of a nonnegative base, real powers of a
+positive base, <code>Exp</code> and <code>Log</code>. An integer power
+of an interval is the range of the endpoint powers, so an odd power
+across zero keeps its sign structure and a derivative such as
+<code>1 + 4 x^3</code> on <code>{-1/4, 1}</code> is enclosed by
+<code>{15/16, 5}</code> rather than <code>{0, 5}</code>. A rational
+power <code>p/q</code> uses exact dyadic <code>q</code>-th roots instead
+of <code>Exp[(p/q) Log[base]]</code>, so an algebraic root of a huge
+base does not consume the exponential magnitude budget.</p>
 <table>
 <thead>
 <tr>
@@ -4141,7 +4161,13 @@ equal keys retain the earlier certificate. The first component is
 <code>0</code> when no accuracy goal was requested.
 <code>&quot;BestCertificateCriterion&quot;</code> names these three
 comparisons.</p>
-<p>An exhausted retry budget returns
+<p>A failure that no arithmetic precision can repair — a verification
+interval on the wrong side of a rational or infinite expansion point, or
+an equation outside the evaluator&#39;s supported operations — ends the
+refinement at once with
+<code>&quot;StoppingReason&quot; -&gt; &quot;NonRefinableArithmeticFailure&quot;</code> and
+<code>&quot;ArithmeticRetryable&quot; -&gt; False</code> instead of being retried
+at every doubled order. An exhausted retry budget returns
 <code>Failure[&quot;AccuracyNotReached&quot;, ...]</code> if a valid certificate
 was found, retaining it as <code>&quot;BestCertificate&quot;</code>. Its
 <code>&quot;EnclosureOrder&quot;</code> can differ from the final attempted order.

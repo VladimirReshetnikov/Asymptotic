@@ -883,6 +883,70 @@ portableTest["operations-refinement-replays-product-recipe", "operations",
       r["RefinementStatistics"]["NewCoefficientEvaluations"]}],
   {0, 5, "ReplayOperationRecipe", Missing["ReplayNotInstrumented"]}];
 
+(* Wave-6 reports 51 N01 and 54 N02: the Mathics inline-assumption protector
+   rewrites only applied membership heads inside Assumptions values and
+   ConditionalExpression conditions. A bare Element symbol that a delayed
+   option program compares as data keeps its identity, so the program selects
+   the same branch on both kernels and the public coefficient is 1. *)
+portableTest["assumptions-protector-keeps-held-element-data", "assumptions",
+  Module[{x, a, saved}, saved = HoldComplete[System`Element];
+    PowerLogModel[a x, {x, 0},
+      Assumptions :> If[HoldComplete[System`Element] === saved, a == 1, a == 2]]["LeadingCoefficient"]],
+  1];
+
+(* Each branch checks actual rewrite results: the Mathics branch runs the
+   protector on held trees, the Wolfram branch checks the same held trees
+   against the native primitive semantics the protector must preserve. *)
+portableTest["assumptions-protector-rewrites-only-membership-heads-in-regions", "assumptions",
+  Module[{a, x, saved, data, membership, conditional, barrier, outside, protect},
+    saved = HoldComplete[System`Element];
+    data = HoldComplete[Rule[Assumptions, If[HoldComplete[System`Element] === saved, a > 0, a < 0]]];
+    membership = HoldComplete[Rule[Assumptions, System`Element[Sin[a], Reals]]];
+    conditional = HoldComplete[f[ConditionalExpression[x, System`Element[Log[a], Reals]], {x, 0, 2}]];
+    barrier = HoldComplete[Rule[Assumptions, If[Hold[System`Element[a, Reals]] === saved, a > 0, a < 0]]];
+    outside = HoldComplete[f[System`Element[a, Reals], Rule[Assumptions, a > 0]]];
+    If[StringContainsQ[$Version, "Mathics"],
+      protect = AsymptoticAnalysis`Private`mathicsProtectInputAssumptions;
+      {protect[data] === data,
+        protect[membership] === HoldComplete[Rule[Assumptions, AsymptoticAnalysis`Mathics`Element[Sin[a], Reals]]],
+        protect[conditional] === HoldComplete[f[ConditionalExpression[x, AsymptoticAnalysis`Mathics`Element[Log[a], Reals]], {x, 0, 2}]],
+        protect[barrier] === barrier, protect[outside] === outside},
+      {Position[data, HoldPattern[System`Element[_, _]], {0, Infinity}, Heads -> False] === {},
+        Position[membership, HoldPattern[System`Element[_, _]], {0, Infinity}, Heads -> False] === {{1, 2}},
+        Position[conditional, HoldPattern[System`Element[_, _]], {0, Infinity}, Heads -> False] === {{1, 1, 2}},
+        Position[barrier, _Hold, {1, Infinity}, Heads -> False] === {{1, 2, 1, 1}},
+        Position[outside, HoldPattern[Rule[Assumptions, _]], {0, Infinity}, Heads -> False] === {{1, 2}}}]],
+  {True, True, True, True, True}];
+
+(* Report 49 N1: a parameter-only clause of an inline ConditionalExpression is
+   a parameter assumption, not an approach condition, on both kernels; a
+   membership predicate that neither kernel can reduce to the coefficient's
+   realness is retained in the refusal rather than dropped or rewritten. *)
+portableTest["assumptions-inline-parameter-condition-is-a-parameter-assumption", "assumptions",
+  Module[{x, a, positive, unproved},
+    positive = AsymptoticExpansion[ConditionalExpression[x + a x^2, a > 0], {x, 0, 3}, "Backend" -> "Package"];
+    unproved = AsymptoticExpansion[ConditionalExpression[x + a x^2, Element[Log[a], Reals]], {x, 0, 3}, "Backend" -> "Package"];
+    {MatchQ[positive, _GeneralizedSeries], positive["Assumptions"] === (a > 0),
+      Simplify[Normal[positive] - (x + a x^2)],
+      MatchQ[unproved, Failure["UnprovedRealCoefficient", _Association]],
+      MatchQ[unproved[[2]]["Assumptions"], _[Log[a], Reals]]}],
+  {True, True, 0, True, True}];
+
+(* Reports 48 N2 and 54 N03: the Mathics numerical logarithm recovery splits
+   Log[a b] only for factors an exact positive grammar proves positive. The
+   Wolfram branch checks the same signs exactly. *)
+portableTest["numerical-log-split-uses-exact-positive-factors", "numerical",
+  Module[{samples, tiny},
+    tiny = 314159265358979323847/10^20;
+    samples = {Sqrt[Pi], 10^-400, Sqrt[2] + Sqrt[3] - Sqrt[5 + 2 Sqrt[6] + 10^-30], -1, Pi - tiny, E^(-3), Log[2], 2 Pi Sqrt[3], 0};
+    If[StringContainsQ[$Version, "Mathics"],
+      Join[AsymptoticAnalysis`Private`mathicsNumericalPositiveFactorQ /@ samples,
+        {AsymptoticAnalysis`Private`mathicsNumericalSplitLogs[Log[Sqrt[Pi] 10^-400]] === Log[Sqrt[Pi]] + Log[10^-400],
+          AsymptoticAnalysis`Private`mathicsNumericalSplitLogs[Log[(Pi - tiny) 10^-400]] === Log[(Pi - tiny) 10^-400],
+          FreeQ[AsymptoticAnalysis`Private`mathicsNumericalN[Log[Sqrt[Pi] 10^-400], 30], Indeterminate]}],
+      Join[TrueQ[Positive[#]] & /@ samples, {True, True, True}]]],
+  {True, True, False, False, False, True, True, True, False, True, True, True}];
+
 (* A typo in the Python/WL test selection must never look like an empty pass. *)
 Print["No portable test matched: ", portableSelection];
 Exit[2];

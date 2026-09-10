@@ -100,6 +100,16 @@ flatOpsTruncateData[d0_, h_, limit_] := Module[{d = d0, jets, ell = d0["LogVaria
    whole bound and lose 2N+1 algebraic orders on a depth-N inverse square. *)
 flatOpsGrade[d_] := Lookup[d, "SectorTailGrade",
   If[d["SectorTail"][[1]] === Infinity, Infinity, d["SectorDepth"] + 1]];
+(* Evaluate the held bounds of the least-grade candidates only. A held
+   candidate's bound is finite by construction: jets at the recorded indices
+   are not exact zeros and infinite tails are never recorded, so the least
+   grade over the held population equals the least grade over the finite
+   evaluated population. *)
+flatOpsLeastGradeCandidates[candidates_List] := Module[{finite, least},
+  finite = Select[candidates, #[[1]] =!= Infinity &];
+  If[finite === {}, Return[{}, Module]];
+  least = Min[finite[[All, 1]]];
+  {#[[1]], ReleaseHold[#[[2]]]} & /@ Select[finite, #[[1]] == least &]];
 flatOpsGradedTail[candidates_List] := Module[{finite, least},
   finite = Select[candidates, #[[2, 1]] =!= Infinity && #[[1]] =!= Infinity &];
   If[finite === {}, Return[{{Infinity, 0}, Infinity}, Module]];
@@ -124,20 +134,29 @@ flatOpsMultiplyData[a0_, b0_, limit_] := Module[
      found; deeper omitted pairs contribute envelope products only. *)
   convolution = Table[flatOpsZero[ell, ass], {n + 1}];
   first = flatOpsZero[ell, ass];
+  (* Candidates are recorded as {grade, held bound} and only those of the
+     least finite grade are evaluated, since only they enter the tail. The
+     selected set and the combined bound are exactly those of evaluating
+     every candidate first; the quadratic population of deeper pair
+     envelopes is enumerated but not materialized (wave-6 report 48 P1). *)
   Do[Which[i + j - 2 <= n,
       term = pMul[aj[[i]], bj[[j]], ell, ass, limit];
       convolution[[i + j - 1]] = pAdd[convolution[[i + j - 1]], term, ell, ass],
      i + j - 2 == n + 1,
       first = pAdd[first, pMul[aj[[i]], bj[[j]], ell, ass, limit], ell, ass],
      True,
-      AppendTo[candidates, {i + j - 2, flatOpsBoundProduct[aBounds[[i]], bBounds[[j]]]}]],
+      AppendTo[candidates, {i + j - 2, With[{p = aBounds[[i]], q = bBounds[[j]]}, Hold[flatOpsBoundProduct[p, q]]]}]],
     {i, aIndices}, {j, bIndices}];
-  If[! flatOpsExactZeroQ[first], AppendTo[candidates, {n + 1, flatOpsJetBound[first, ell]}]];
+  If[! flatOpsExactZeroQ[first], AppendTo[candidates, {n + 1, With[{p = first}, Hold[flatOpsJetBound[p, ell]]]}]];
   (* An input tail sits at its recorded grade, which can exceed its depth+1. *)
-  Do[AppendTo[candidates, {flatOpsGrade[a] + j - 1, flatOpsBoundProduct[a["SectorTail"], bBounds[[j]]]}], {j, bIndices}];
-  Do[AppendTo[candidates, {flatOpsGrade[b] + i - 1, flatOpsBoundProduct[b["SectorTail"], aBounds[[i]]]}], {i, aIndices}];
-  AppendTo[candidates, {flatOpsGrade[a] + flatOpsGrade[b], flatOpsBoundProduct[a["SectorTail"], b["SectorTail"]]}];
-  {tail, grade} = flatOpsGradedTail[candidates];
+  If[a["SectorTail"][[1]] =!= Infinity && flatOpsGrade[a] =!= Infinity,
+    Do[AppendTo[candidates, {flatOpsGrade[a] + j - 1, With[{p = a["SectorTail"], q = bBounds[[j]]}, Hold[flatOpsBoundProduct[p, q]]]}], {j, bIndices}]];
+  If[b["SectorTail"][[1]] =!= Infinity && flatOpsGrade[b] =!= Infinity,
+    Do[AppendTo[candidates, {flatOpsGrade[b] + i - 1, With[{p = b["SectorTail"], q = aBounds[[i]]}, Hold[flatOpsBoundProduct[p, q]]]}], {i, aIndices}]];
+  If[a["SectorTail"][[1]] =!= Infinity && b["SectorTail"][[1]] =!= Infinity &&
+      flatOpsGrade[a] =!= Infinity && flatOpsGrade[b] =!= Infinity,
+    AppendTo[candidates, {flatOpsGrade[a] + flatOpsGrade[b], With[{p = a["SectorTail"], q = b["SectorTail"]}, Hold[flatOpsBoundProduct[p, q]]]}]];
+  {tail, grade} = flatOpsGradedTail[flatOpsLeastGradeCandidates[candidates]];
   data = Join[a, <|"SectorDepth" -> n, "SectorJets" -> convolution, "SectorTail" -> tail,
     "SectorTailGrade" -> grade,
     "InnerCutoff" -> Automatic, "DerivativeContract" -> (TrueQ[a["DerivativeContract"]] && TrueQ[b["DerivativeContract"]]),

@@ -41,11 +41,36 @@ with its atom, scaling the retained coefficients and absolute tail bound and
 recording `"AffineCoefficients"`; see the
 [Zeta section](../src/Documentation/UserGuide.md#zeta-dirichlet-expansions).
 The [focused run](../validation/README.md#wave-6-public-boundary-repairs)
-passes 181/181 across ten files, and the
+passes 183/183 across ten files, and the
 [implementation register](development/CODE_REVIEW_STATUS.md) records the
 repaired wave-6 entries. The documentation checker's gates now survive
 `python -O`, ignore TeX comments, and reject links that resolve outside the
 checkout.
+
+`InverseCertificate` encloses an integer power of an interval by the range of
+its endpoint powers, so odd powers across zero keep their sign structure;
+rational powers of a nonnegative base use exact dyadic roots instead of
+`Exp[(p/q) Log[base]]` and its exponent budget; and a failure no precision can
+repair stops the refinement with
+`"StoppingReason" -> "NonRefinableArithmeticFailure"`. On both kernels a
+parameter-only clause of an inline `ConditionalExpression`, such as
+`ConditionalExpression[x + a x^2, a > 0]`, is now a parameter assumption
+instead of an approach condition that was refused. On Mathics the
+inline-assumption protector rewrites only applied `Element[_, _]` heads inside
+`Assumptions` values and inline conditions, leaving a bare `Element` symbol
+held as data untouched, and the numerical logarithm split is authorized by an
+exact positive grammar rather than a machine-precision sign; see the
+[input-assumption](Mathics/INPUT-ASSUMPTIONS.md) and
+[numerical](Mathics/NUMERICAL.md) notes.
+
+An explicit cutoff and `SeriesTermGoal` now stop the `Zeta` and `LerchPhi`
+defining-sum expansions independently, whichever comes first, as every other
+constructor already did; `AsymptoticExpansion[Zeta[x], {x, Infinity, Log[4]},
+SeriesTermGoal -> 1]` returns the single constant term with first omitted
+integer `2`, and a small goal no longer lets a large cutoff exhaust
+`"MaxTerms"` on work it does not perform. `FlatSeriesMultiply` evaluates only
+the least-grade omitted-tail candidates, with unchanged results, and the
+Mathics realness and sign provers reuse proof results within one entry call.
 
 ### Certificate interval diagnostics, runner gates, and license metadata
 

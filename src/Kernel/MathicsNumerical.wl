@@ -59,9 +59,26 @@ Scan[(DownValues[#] = DownValues[#] /. System`FindRoot -> mathicsNumericalFindRo
    comes back Indeterminate, retry with logarithms of products whose factors
    are all numerically positive split into sums; other logarithms and every
    successful first evaluation are left unchanged. *)
-ClearAll[mathicsNumericalN, mathicsNumericalSplitLog, mathicsNumericalSplitLogs];
+ClearAll[mathicsNumericalN, mathicsNumericalSplitLog, mathicsNumericalSplitLogs,
+  mathicsNumericalPositiveFactorQ];
+(* Splitting Log[a b] into Log[a] + Log[b] is a branch identity that needs
+   every factor positive. A machine-precision sign is not such a proof: an
+   exact rational below the double underflow threshold rounds to zero and
+   blocks a valid split, and an exactly negative factor can round to a
+   positive machine number and license a false one (wave-6 reports 48 N2 and
+   54 N03). Only this exact positive grammar authorizes the split; any other
+   factor leaves the logarithm unsplit. *)
+mathicsNumericalPositiveFactorQ[e_] := Which[
+  IntegerQ[e] || Head[e] === Rational, TrueQ[e > 0],
+  MemberQ[{Pi, E, EulerGamma, Catalan, GoldenRatio, Degree, System`Glaisher, System`Khinchin}, e], True,
+  Head[e] === Times || Head[e] === Plus, And @@ (mathicsNumericalPositiveFactorQ /@ List @@ e),
+  Head[e] === Power && (IntegerQ[e[[2]]] || Head[e[[2]]] === Rational),
+    mathicsNumericalPositiveFactorQ[e[[1]]],
+  Head[e] === Power && e[[1]] === E && (IntegerQ[e[[2]]] || Head[e[[2]]] === Rational), True,
+  Head[e] === Log && Length[e] === 1 && (IntegerQ[e[[1]]] || Head[e[[1]]] === Rational), TrueQ[e[[1]] > 1],
+  True, False];
 mathicsNumericalSplitLog[factors_List] :=
-  If[And @@ (TrueQ[N[#] > 0] & /@ factors), Total[Log /@ factors], Log[Times @@ factors]];
+  If[And @@ (mathicsNumericalPositiveFactorQ /@ factors), Total[Log /@ factors], Log[Times @@ factors]];
 (* Log[p_Times] with List @@ p: in Mathics, Times[factors__] binds the
    whole product to a single sequence element, so it never splits. The
    factors are processed first, so Log[-Log[c r]] still splits its inner

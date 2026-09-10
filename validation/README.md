@@ -1063,9 +1063,9 @@ scope of each entry and which ones are now implemented.
 ## Wave-6 public-boundary repairs
 
 The [ten-file run](wave6-boundaries-tests.json) from
-[CheckWave6Boundaries.wl](CheckWave6Boundaries.wl) passes **181/181** on
+[CheckWave6Boundaries.wl](CheckWave6Boundaries.wl) passes **183/183** on
 Wolfram 15.0.1 for Windows with all kernel, suite and runner hashes unchanged
-during execution. Its seven new cases in
+during execution. Its nine new cases in
 [ReviewWave6Boundaries.wlt](../src/Tests/ReviewWave6Boundaries.wlt) pin the
 repairs; the other nine files are the coefficient, exponential-core,
 numerical-check, Fourier, observable, Dirichlet, expanded-input,
@@ -1111,6 +1111,57 @@ inverse-function and observable-ingress suites that share the changed code.
   numerical errors at `x = 10` stay inside the transported absolute bounds.
   `SeriesTermGoal -> 3` for `Zeta[x] - 1` returns the two nonconstant terms.
   Products with the variable and sums of two atoms are still refused.
+
+## Wave-6 certificate and Mathics repairs
+
+- **Certificate interval geometry, rational powers and the retry policy**
+  (reports 53 N01–N03, 54 N01). Four new cases in
+  [CertificateRegressions.wlt](../src/Tests/CertificateRegressions.wlt) pin
+  the endpoint-range power `{-1/4, 1}^3 = {-1/64, 1}`, the enclosure
+  `{15/16, 5}` of `1 + 4 t^3` on `{-1/4, 1}`, report 54's public quartic
+  certificate at an exact center with derivative lower bound `3/64`, the
+  exact-root enclosure of `t^(1/2)` on `{2^39998, 2^40002}` and of
+  `t^(3/2)`, `t^(-1/2)` and `t^(1/3)`, and the immediate
+  `NonRefinableArithmeticFailure` stop for a wrong-side interval and an
+  unsupported equation. The
+  [certificate-interval run](wave6-certificate-interval-tests.json) from
+  [CheckCertificateInterval.wl](CheckCertificateInterval.wl) passes **50/50**
+  and the [certificate-accuracy run](wave6-certificate-accuracy-tests.json)
+  from [CheckReviewCertificateAccuracy.wl](CheckReviewCertificateAccuracy.wl)
+  passes **66/66**, both with unchanged sources; the historical receipts of
+  those runners are preserved. A first accuracy pass recorded **65/1**: the
+  early return omitted `"AccuracyGoalReached" -> False`, which the existing
+  unsupported-enclosure test reads, and the field was added.
+- **Mathics protector and logarithm split** (reports 49 N1, 51 N01, 54 N02,
+  48 N2, 54 N03). Four new portable cases in
+  [MathicsTests.wl](MathicsTests.wl) check the public held-`Element` witness
+  (coefficient `1` on both kernels), the protector's region and barrier rules
+  against a native-primitive oracle on Wolfram, the inline parameter
+  condition on both kernels, and the exact positive grammar against exact
+  `Positive` on Wolfram. The `assumptions` and `numerical` groups pass on
+  Mathics 10.0.1 in the [modular](mathics-modular-wave6-protector-tests.json)
+  and [standalone](mathics-standalone-wave6-protector-tests.json) layouts;
+  each **20/20**, with the memoized provers below in place; the
+  [input-assumption notes](../docs/Mathics/INPUT-ASSUMPTIONS.md) describe
+  the boundary.
+- **Cutoff and term goal in the defining-sum constructors** (report 16 N04
+  under D01, selected by report 55 N02). The Zeta and Lerch constructors now
+  stop at whichever of an explicit cutoff and `SeriesTermGoal` comes first,
+  and an active goal caps the Zeta preflight. The new Dirichlet regression
+  `dirichlet-explicit-cutoff-and-term-goal-stop-independently` and the two
+  existing cutoff tests, which now pass `Automatic` as their goal, run inside
+  the wave-6 boundary run above.
+- **Flat-tail candidates evaluated lazily** (report 48 P1 inside P06). The
+  [five-file run](wave6-flat-graded-tails-tests.json) from
+  [CheckFlatGradedTails.wl](CheckFlatGradedTails.wl) passes **82/82**: C23's
+  graded-tail regressions, the flat-sector operation and regression suites,
+  extended integration and normal-expression suites are unchanged, so the
+  least-grade selection and the combined bound are the same as before.
+- **Prover reuse** (report 47 N01 inside P08). The
+  [matched measurements](wave6-prover-memo-measurements.json) record
+  identical proof results with body evaluations of 1191 → 30, 1789 → 34,
+  4862 → 44 and 18084 → 76 on four nested walker queries in a Wolfram kernel
+  loading the prover module; they are evaluation counts, not Mathics timings.
 
 The documentation checker was repaired at the same time (reports 47 N02, 47
 N03 and 51 N03): its gates are explicit `require` calls that survive

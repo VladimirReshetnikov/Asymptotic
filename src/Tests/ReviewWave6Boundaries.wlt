@@ -84,6 +84,22 @@ VerificationTest[
  {True, 0, "Factored", "Observable", True, "IncompatibleObservableCondition", True, True, True},
  TestID -> "conditional-exact-observables-reach-the-exact-route-after-the-condition-is-proved"]
 
+(* Report 49 N1: parameter-only clauses of an inline ConditionalExpression are
+   parameter assumptions; only clauses in the variable are approach conditions. *)
+VerificationTest[
+ Module[{x, a, positive, mixed, unproved, control},
+  positive = AsymptoticExpansion[ConditionalExpression[x + a x^2, a > 0], {x, 0, 3}, "Backend" -> "Package"];
+  mixed = AsymptoticExpansion[ConditionalExpression[x + a x^2, a > 0 && x < 1], {x, 0, 3}, "Backend" -> "Package"];
+  unproved = AsymptoticExpansion[ConditionalExpression[x + a x^2, Element[Log[a], Reals]], {x, 0, 3}, "Backend" -> "Package"];
+  control = AsymptoticExpansion[ConditionalExpression[x + a x^2, x > 1], {x, 0, 3}, "Backend" -> "Package"];
+  {MatchQ[positive, _GeneralizedSeries], positive["Assumptions"] === (a > 0), Simplify[Normal[positive] - (x + a x^2)],
+   positive["Function"] === (x + a x^2),
+   MatchQ[mixed, _GeneralizedSeries], mixed["Assumptions"] === (a > 0), mixed["Function"] === ConditionalExpression[x + a x^2, x < 1],
+   unproved[[1]], unproved[[2]]["Assumptions"] === Element[Log[a], Reals],
+   control[[1]]}],
+ {True, True, 0, True, True, True, True, "UnprovedRealCoefficient", True, "IncompatibleTargetCondition"},
+ TestID -> "inline-parameter-conditions-become-parameter-assumptions-instead-of-approach-conditions"]
+
 VerificationTest[
  Module[{x, atom, shifted, scaled, lerch, goal},
   atom = AsymptoticExpansion[Zeta[x], {x, Infinity, 2}, "Backend" -> "Package"];

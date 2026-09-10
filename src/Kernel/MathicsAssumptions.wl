@@ -11,6 +11,10 @@ ClearAll[AsymptoticAnalysis`Mathics`Element,
   AsymptoticAnalysis`Mathics`mathicsSignsWithinQ,
   AsymptoticAnalysis`Mathics`mathicsRealProof,
   AsymptoticAnalysis`Mathics`mathicsSignProof,
+  AsymptoticAnalysis`Mathics`mathicsRealProofBody,
+  AsymptoticAnalysis`Mathics`mathicsSignProofBody,
+  AsymptoticAnalysis`Mathics`mathicsProofMemoized,
+  AsymptoticAnalysis`Mathics`$mathicsProofMemo,
   AsymptoticAnalysis`Mathics`mathicsRelationProof,
   AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify];
 SetAttributes[Element, HoldAll];
@@ -77,7 +81,30 @@ mathicsKnownSigns[e_, facts_] := Module[{sets, reciprocal, signs},
 mathicsSignsWithinQ[signs_, permitted_List] := ListQ[signs] && signs =!= {} &&
   Complement[signs, permitted] === {};
 
-mathicsRealProof[e_, facts_, depth_Integer] := Module[{head = Head[e], arguments, signs, base, exponent},
+(* Request-local reuse of proof results. The mutually recursive provers reach
+   the same subquery along several branches (a sum's sign proof asks for the
+   realness and the sign of each term, a power asks for both of its base),
+   so the work grows exponentially with nesting. A memo is scoped to one
+   entry call, keyed by the query and its fact table: a proved answer at any
+   depth is a proof, and an unresolved answer at depth d stays unresolved at
+   every depth up to d. Nothing is kept across requests (wave-6 report 47 N01
+   inside P08's bounded request-local lane). *)
+$mathicsProofMemo = None;
+mathicsProofMemoized[kind_, e_, facts_, depth_Integer, body_] := Module[{key, cached, result},
+  If[$mathicsProofMemo === None, Return[body[e, facts, depth], Module]];
+  key = {kind, e, facts};
+  cached = $mathicsProofMemo[key];
+  If[MatchQ[cached, {_Integer, _}] && (cached[[2]] =!= None || cached[[1]] >= depth),
+    Return[cached[[2]], Module]];
+  result = body[e, facts, depth];
+  $mathicsProofMemo[key] = {depth, result};
+  result];
+mathicsRealProof[e_, facts_, depth_Integer] :=
+  mathicsProofMemoized["Real", e, facts, depth, mathicsRealProofBody];
+mathicsSignProof[e_, facts_, depth_Integer] :=
+  mathicsProofMemoized["Sign", e, facts, depth, mathicsSignProofBody];
+
+mathicsRealProofBody[e_, facts_, depth_Integer] := Module[{head = Head[e], arguments, signs, base, exponent},
   If[depth <= 0, Return[None, Module]];
   If[e === System`Glaisher, Return[True, Module]];
   If[Or @@ (SameQ[#, e] & /@ facts[[1]]), Return[True, Module]];
@@ -106,7 +133,7 @@ mathicsRealProof[e_, facts_, depth_Integer] := Module[{head = Head[e], arguments
     If[head === Log && mathicsSignsWithinQ[signs, {-1, 0}], Return[False, Module]]];
   None];
 
-mathicsSignProof[e_, facts_, depth_Integer] := Module[
+mathicsSignProofBody[e_, facts_, depth_Integer] := Module[
   {known, head = Head[e], sets, base, exponent, signs, result},
   If[depth <= 0, Return[None, Module]];
   If[e === System`Glaisher, Return[{1}, Module]];
@@ -153,13 +180,17 @@ mathicsRelationProof[left_, head_, right_, facts_] := Module[{signs, accepted},
   Which[mathicsSignsWithinQ[signs, accepted], True,
     ListQ[signs] && signs =!= {} && Intersection[signs, accepted] === {}, False, True, None]];
 
-mathicsAssumptionSimplify[expression_, assumptions_] := Module[{facts, walk},
+mathicsAssumptionSimplify[expression_, assumptions_] := Module[{facts, walk, memo},
   (* Direct Taylor-admission calls also reach this walker. Do not let its
      Factor/Together path convert retained ProductLog[k,z] through Mathics'
      incorrect SymPy argument order. Leave the proof unresolved. *)
   If[! FreeQ[{expression, assumptions}, HoldPattern[System`ProductLog[_, _]]],
     Return[expression, Module]];
   facts = mathicsAssumptionFacts[assumptions];
+  (* One memo per entry call; nested entries with other assumptions are
+     separated by the fact table inside the key. *)
+  If[$mathicsProofMemo === None,
+    Return[Block[{$mathicsProofMemo = memo}, mathicsAssumptionSimplify[expression, assumptions]], Module]];
   walk[e_] := Module[{head = Head[e], value, proof, signs, base, results},
     If[AtomQ[e], Return[e, Module]];
     If[MemberQ[{Element, System`Element}, head] && Length[e] === 2 && e[[2]] === Reals,

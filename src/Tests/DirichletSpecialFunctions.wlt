@@ -39,8 +39,8 @@ VerificationTest[Module[{x, s},
   TestID -> "dirichlet-zeta-five-terms-include-one-and-use-exponential-coordinate"]
 
 VerificationTest[Module[{x, strict, above},
-  strict = dirichletExpandAt[Zeta[x], x, Infinity, Log[4]];
-  above = dirichletExpandAt[Zeta[x], x, Infinity, Log[4] + 1/100];
+  strict = dirichletExpandAt[Zeta[x], x, Infinity, Log[4], Automatic];
+  above = dirichletExpandAt[Zeta[x], x, Infinity, Log[4] + 1/100, Automatic];
   {dirichletEqual[strict, 1 + 2^-x + 3^-x, x > 1], strict["FirstOmittedInteger"],
     dirichletEqual[above, 1 + 2^-x + 3^-x + 4^-x, x > 1], above["FirstOmittedInteger"]}],
   {True, 4, True, 5}, TestID -> "dirichlet-zeta-explicit-cutoff-is-exclusive-at-logarithmic-weights"]
@@ -75,9 +75,26 @@ VerificationTest[Module[{x, s, error, upper, lower},
   True, TestID -> "dirichlet-zeta-actual-defining-sum-tail-satisfies-independent-integral-bounds"]
 
 VerificationTest[Module[{x},
-  MatchQ[dirichletExpandAt[Zeta[x], x, Infinity, Log[100], 3, True, 20],
+  MatchQ[dirichletExpandAt[Zeta[x], x, Infinity, Log[100], Automatic, True, 20],
     Failure["ResourceLimit", _Association]]],
   True, TestID -> "dirichlet-zeta-large-cutoff-fails-before-exponential-enumeration"]
+
+(* Report 16 N04 under D01, selected by report 55 N02: an explicit cutoff and a
+   term goal stop independently, whichever comes first, as in the ordinary
+   constructor; an active goal also caps the cutoff preflight. *)
+VerificationTest[Module[{x, zeta, cheap, lerch, zetaControl, lerchControl},
+  zeta = dirichletExpandAt[Zeta[x], x, Infinity, Log[4], 1];
+  cheap = dirichletExpandAt[Zeta[x], x, Infinity, 10^6, 1, True, 100];
+  lerch = dirichletExpandAt[LerchPhi[1/2, 1, x], x, Infinity, 4, 1];
+  zetaControl = dirichletExpandAt[Zeta[x], x, Infinity, Log[4], Automatic];
+  lerchControl = dirichletExpandAt[LerchPhi[1/2, 1, x], x, Infinity, 4, Automatic];
+  {Normal[zeta], zeta["ReturnedTermCount"], zeta["RequestedTermGoal"], zeta["FirstOmittedInteger"],
+    Normal[cheap], cheap["FirstOmittedInteger"],
+    dirichletEqual[lerch, 2/x, x > 0], lerch["ReturnedTermCount"], lerch["RemainderPower"],
+    zetaControl["ReturnedTermCount"], lerchControl["ReturnedTermCount"],
+    dirichletExpandAt[Zeta[x], x, Infinity, Log[4], 5]["ReturnedTermCount"]}],
+  {1, 1, 1, 2, 1, 2, True, 1, 2, 3, 3, 3},
+  TestID -> "dirichlet-explicit-cutoff-and-term-goal-stop-independently"]
 
 VerificationTest[Module[{x},
   {dirichletExpandAt[Zeta[-x], x], dirichletExpandAt[Zeta[x^2], x],

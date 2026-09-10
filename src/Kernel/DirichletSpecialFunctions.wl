@@ -83,9 +83,14 @@ dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, 
     count = goal;
     If[count > limit, fail["ResourceLimit", "The Zeta Dirichlet term goal exceeds MaxTerms."]],
     (* Log[n]<cut is exclusive. Binary search avoids enumerating exp(cut)
-       candidates, and the initial comparison rejects excessive requests. *)
-    If[less[Log[limit + 1], cut], fail["ResourceLimit", "The Zeta exponential-coordinate cutoff exceeds MaxTerms."]];
-    low = 0; high = limit + 1;
+       candidates, and the initial comparison rejects excessive requests.
+       An explicit cutoff and a term goal are two independent reasons to stop,
+       as in the ordinary constructor: an active goal caps the search and a
+       cutoff-based refusal applies only when no goal keeps the retained count
+       within the budget (report 16 N04 under D01; report 55 N02). *)
+    If[less[Log[limit + 1], cut] && (goal === Automatic || goal > limit),
+      fail["ResourceLimit", "The Zeta exponential-coordinate cutoff exceeds MaxTerms."]];
+    low = 0; high = If[goal === Automatic, limit + 1, Min[limit, goal] + 1];
     While[high - low > 1,
       middle = Quotient[low + high, 2];
       If[less[Log[middle], cut], low = middle, high = middle]];
@@ -152,7 +157,8 @@ dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_,
     If[k > limit, fail["ResourceLimit", "The Lerch nonzero-moment search exceeds MaxTerms."]];
     coefficient = dirichletLerchCoefficient[z, s, k, ass, limit];
     If[! zeroQ[coefficient, ass],
-      If[If[cut === Automatic, Length[rows] >= goal, ! less[s + k, cut]],
+      (* The cutoff and the goal stop independently, whichever comes first. *)
+      If[(cut =!= Automatic && ! less[s + k, cut]) || (goal =!= Automatic && Length[rows] >= goal),
         frontier = {s + k, coefficient, k}; Break[]];
       AppendTo[rows, {s + k, coefficient}]; dirichletSpecialBudget[rows, limit]];
     k++];

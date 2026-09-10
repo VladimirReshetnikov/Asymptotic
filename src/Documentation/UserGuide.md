@@ -1329,7 +1329,7 @@ s = AsymptoticExpansion[Zeta[x], {x, Infinity, Log[4]}];
 {1 + 2^-x + 3^-x, Exp[-x], Log[4]}
 ```
 
-A cutoff `h` retains precisely the integers with `Log[n] < h`. A cutoff of zero therefore retains no finite terms and has a nonzero order-one remainder. The number of terms grows exponentially with `h`; `SeriesTermGoal` gives direct control over the count, subject to `"MaxTerms"`.
+A cutoff `h` retains precisely the integers with `Log[n] < h`. A cutoff of zero therefore retains no finite terms and has a nonzero order-one remainder. The number of terms grows exponentially with `h`; `SeriesTermGoal` gives direct control over the count, subject to `"MaxTerms"`. When both are given they stop independently, whichever comes first, as in every other constructor: `AsymptoticExpansion[Zeta[x], {x, Infinity, Log[4]}, SeriesTermGoal -> 1]` returns the constant `1` with first omitted integer `2`, and an active goal also caps the work a large cutoff would otherwise request, so `SeriesTermGoal -> 1` with the cutoff `10^6` succeeds under a small `"MaxTerms"`. The same rule applies to the `LerchPhi` blocks below.
 
 The argument may be a real affine expression `S = a x + b` tending to positive infinity as `x` tends to either real infinity:
 
@@ -1680,7 +1680,7 @@ AsymptoticExpansion[
 
 Named parameters, named parameter lists, and slots follow ordinary `Function` scoping. A defined function symbol is accepted when its application produces a supported scalar body.
 
-An inner `ConditionalExpression` restricts the original source. An outer condition restricts the expansion variable. Parameter-only assumptions remain parameter assumptions. Native evaluation of an inverse to `ArcSin`, a radical, or another closed form retains that closed form's branch.
+An inner `ConditionalExpression` restricts the original source. An outer condition restricts the expansion variable through its clauses that mention that variable; its parameter-only clauses, such as `a > 0` in `ConditionalExpression[x + a x^2, a > 0]`, are parameter assumptions, exactly as in the `Assumptions` option. Native evaluation of an inverse to `ArcSin`, a radical, or another closed form retains that closed form's branch.
 
 If an unevaluated inverse operator admits more than one source branch, supply an explicit selection:
 
@@ -2608,7 +2608,7 @@ supported examples and remaining precision limits, and
 <a id="InverseCertificate"></a>
 ### InverseCertificate
 
-`InverseCertificate[s, y1, "Interval" -> {lo, hi}]` attempts to certify a unique real source root in a verification interval. Successful output is an association with a rational center, rational root enclosure, and certified error bounds. Rational affine subexpressions of the equation are evaluated exactly before interval rounding, so a large translation of the source coordinate does not consume certificate precision; other subexpressions use outward rational enclosures.
+`InverseCertificate[s, y1, "Interval" -> {lo, hi}]` attempts to certify a unique real source root in a verification interval. Successful output is an association with a rational center, rational root enclosure, and certified error bounds. Rational affine subexpressions of the equation are evaluated exactly before interval rounding, so a large translation of the source coordinate does not consume certificate precision; other subexpressions use outward rational enclosures. The evaluator supports rational constants, sums, products, integer powers, rational powers of a nonnegative base, real powers of a positive base, `Exp` and `Log`. An integer power of an interval is the range of the endpoint powers, so an odd power across zero keeps its sign structure and a derivative such as `1 + 4 x^3` on `{-1/4, 1}` is enclosed by `{15/16, 5}` rather than `{0, 5}`. A rational power `p/q` uses exact dyadic `q`-th roots instead of `Exp[(p/q) Log[base]]`, so an algebraic root of a huge base does not consume the exponential magnitude budget.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
@@ -2664,7 +2664,7 @@ c = InverseCertificate[s, 1/10, "Interval" -> {1/20, 1/5},
 
 When several valid attempts are available, the best certificate is selected lexicographically by `"AccuracyComparisonKey"`; equal keys retain the earlier certificate. The first component is `Infinity` when the sufficient tolerance is zero and `0` when no accuracy goal was requested. `"BestCertificateCriterion"` names these three comparisons.
 
-An exhausted retry budget returns `Failure["AccuracyNotReached", ...]` if a valid certificate was found, retaining it as `"BestCertificate"`. Its `"EnclosureOrder"` can differ from the final attempted order. The failure records `"StoppingReason" -> "RefinementBudgetExhausted"`, `"FinalEnclosureOrder"`, `"EnclosureOrderLimit"`, and the retry counts. These distinguish the retry budget from the order cap. A fixed center with a proved positive accuracy floor can return `Failure["AccuracyFloor", ...]`, containing both `"BestCertificate"` and the `"AccuracyFloorCertificate"` that proves the obstruction.
+A failure that no arithmetic precision can repair — a verification interval on the wrong side of a rational or infinite expansion point, or an equation outside the evaluator's supported operations — ends the refinement at once with `"StoppingReason" -> "NonRefinableArithmeticFailure"` and `"ArithmeticRetryable" -> False` instead of being retried at every doubled order. An exhausted retry budget returns `Failure["AccuracyNotReached", ...]` if a valid certificate was found, retaining it as `"BestCertificate"`. Its `"EnclosureOrder"` can differ from the final attempted order. The failure records `"StoppingReason" -> "RefinementBudgetExhausted"`, `"FinalEnclosureOrder"`, `"EnclosureOrderLimit"`, and the retry counts. These distinguish the retry budget from the order cap. A fixed center with a proved positive accuracy floor can return `Failure["AccuracyFloor", ...]`, containing both `"BestCertificate"` and the `"AccuracyFloorCertificate"` that proves the obstruction.
 
 The certificate concerns the stored explicit equation within the supplied interval. It does not establish a global inverse branch or enclose unspecified terms represented only by an input remainder. All retained source conditions must hold throughout the closed verification interval. A strict source condition therefore also constrains its endpoints.
 

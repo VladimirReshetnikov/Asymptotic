@@ -151,8 +151,11 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   below about `10^-17`, although `N[Log[c] + Log[r], n]` and the machine
   precision `N[Log[c r]]` evaluate. A tail target `Erfc[x] = 10^-20` reaches
   this form through `Log[Sqrt[Pi] y]`. The Mathics numerical adapter retries
-  a failed evaluation with logarithms of positive products split into sums;
-  see [NUMERICAL.md](Mathics/NUMERICAL.md).
+  a failed evaluation with logarithms of products split into sums when an
+  exact positive grammar proves every factor positive; a machine-precision
+  sign is not a branch proof, since it rounds `10^-400` to zero and can round
+  an exactly negative factor to a positive number. See
+  [NUMERICAL.md](Mathics/NUMERICAL.md).
 - The explicit `Erfc`, `LogGamma`, `Gamma` and `LambertThreshold` adapters of
   `AsymptoticSpecialInverse` exceed the default `$IterationLimit` of 4096 and
   need the raised session limit; each then takes roughly one to one and a
@@ -195,10 +198,13 @@ unadapted interpreter. Package-owned workarounds do not redefine its
 - Inline option values need protection as well as internal proof questions.
   Mathics rewrites `Element[Sin[a], Reals]` to `Element[a, Reals]`, although
   `a = Pi/2 + I` satisfies the first condition and violates the second. The
-  held analytic boundary preserves membership heads inside inline immediate,
-  delayed, and nested `Assumptions` rules before option evaluation. It keeps
-  side effects under the original once-only option resolution. A value
-  already rewritten in caller-side evaluation cannot be reconstructed. See
+  held analytic boundary preserves applied membership heads inside inline
+  immediate, delayed, and nested `Assumptions` rules and inside inline
+  `ConditionalExpression` conditions before option evaluation. It keeps
+  side effects under the original once-only option resolution, leaves a bare
+  `Element` symbol that an option program holds as data untouched, and does
+  not descend below `Hold`-family barriers. A value already rewritten in
+  caller-side evaluation cannot be reconstructed. See
   [INPUT-ASSUMPTIONS.md](Mathics/INPUT-ASSUMPTIONS.md) for the precise boundary.
 - Native symbolic `Element[Log[a], Reals]` can lose the logarithm's positive
   domain before assumptions are considered. Internal realness questions

@@ -639,12 +639,18 @@ localCoordinate[x_, x0_, direction_] := Module[{dir = direction, u = Unique["u$"
 
 (* Only peel outer conditions and split top-level assumption conjuncts.
    Held scopes and nested conditional expressions retain their own meaning. *)
+(* Parameter-only clauses of the Assumptions option and of an outer
+   ConditionalExpression alike are parameter assumptions; only clauses that
+   mention the variable are approach conditions that must hold eventually.
+   An inline parameter predicate such as a > 0 or Element[Log[a], Reals] was
+   previously demanded of the approach and refused (wave-6 report 49 N1). *)
 splitApproachInput[f_, x_, ass_] := Module[{body = f, condition = True, clauses},
   While[Head[body] === ConditionalExpression,
     condition = condition && body[[2]]; body = body[[1]]];
-  clauses = If[Head[ass] === And, List @@ ass, {ass}];
+  clauses = Join[If[Head[ass] === And, List @@ ass, {ass}],
+    If[Head[condition] === And, List @@ condition, {condition}]];
   {body, And @@ Select[clauses, FreeQ[#, x] &],
-    condition && And @@ Select[clauses, ! FreeQ[#, x] &]}];
+    And @@ Select[clauses, ! FreeQ[#, x] &]}];
 
 (* ------------------------------------------------------------------ *)
 (* Forward expansion: public                                            *)

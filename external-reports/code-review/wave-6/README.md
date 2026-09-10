@@ -96,12 +96,17 @@ records the current state; this table only maps the wave's entries to it.
 | 52 N1, N2, N3 | **Implemented**, with the variable guard placed in the shared chart and the ordinary inverse constructor as report 52 staged it, the optional cutoff restricted to non-option arguments, and the exact observable routes dispatched after the condition is proved. |
 | 55 N01 | **Implemented** in the Dirichlet dispatcher itself rather than through arithmetic, so the affine result keeps the atom's cutoff, remainder and transported bound. |
 | 47 N02, 47 N03, 51 N03 | **Implemented** in the documentation checker: optimization-proof gates, comment masking and checkout containment. |
-| 53 N01–N03, 54 N01 | Open: certificate interval geometry, rational powers and the retry policy. |
-| 49 N1, 51 N01, 54 N02; 48 N2, 54 N03; 47 N01 | Open: the Mathics protector, the numerical logarithm split guard and prover reuse. None has been run on Mathics. |
-| 55 N02 | Selects a D01 policy; not a new obligation (see above). |
-| 48 P1; 49 E1, E2; 50 E1, E2 | Inside P06, P08 and the X04/X05 proposals; governed by those items. |
+| 53 N01, 54 N01 | **Implemented.** Integer interval powers are the range of the endpoint powers, so odd powers across zero keep their sign structure; both witnesses are pinned, including 54's public quartic certificate at an exact center. |
+| 53 N02 | **Implemented.** Rational powers of a nonnegative base use exact dyadic roots; the `2^39998`–`2^40002` square-root witness no longer meets the exponential magnitude budget. |
+| 53 N03 | **Implemented** as the report's fragment proposed: only the exact source-side comparison against a rational or infinite endpoint and an unsupported expression are classified non-retryable; other refusals keep the existing retries. |
+| 49 N1, 51 N01, 54 N02 | **Implemented** jointly: protected regions are `Assumptions` values and inline `ConditionalExpression` conditions, only applied `Element[_, _]` heads are rewritten, and held-data barriers are respected. The parameter-only clauses of an inline condition are now parameter assumptions on both kernels, which 49's witness also needed. Run on Mathics 10.0.1 through the portable suite. |
+| 48 N2, 54 N03 | **Implemented** with 54's exact positive grammar, extended with named constants, sums, `E` to a rational power and logarithms of rationals above `1`, so 48's publicly reachable form `Log[Sqrt[Pi] 10^-400]` splits. Run on Mathics 10.0.1. |
+| 47 N01 | **Implemented** inside P08's bounded request-local lane: one memo per `mathicsAssumptionSimplify` entry, keyed by query and fact table, with matched before/after evaluation counts and identical proof results recorded in the register. |
+| 55 N02 | **Applied** as the D01 policy: cutoff and `SeriesTermGoal` stop independently in both defining-sum constructors, and an active goal caps the Zeta preflight. Recorded under D01, not as a new item. |
+| 48 P1 | **Implemented** inside P06's lane: least-grade candidates are evaluated lazily; the selected set and bound are unchanged. |
+| 49 E1, E2; 50 E1, E2 | Inside the X04/X05 proposals; governed by those items. |
 
-Evidence for the implemented rows is the 181/0
+Evidence for the implemented rows is the 183/0
 [wave-6 boundary run](../../../validation/wave6-boundaries-tests.json) and the
 Python documentation tests, described in the
 [validation record](../../../validation/README.md#wave-6-public-boundary-repairs).

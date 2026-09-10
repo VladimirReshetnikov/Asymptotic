@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): d134fc673bb465e344bbe62608930814ea0fee683afef6d34088bf46a6eb957c *)
+   Source SHA256 (UTF-8/LF): c17b456e9447eed3650c93a9e87f755197311d0fd666084c978e8f1ec7c5c57f *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -214,8 +214,8 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\n\nEnd[];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsAssumptions.wl\n   Source SHA256 (UTF-8/LF): 45e86cc44483aa0fd64750bea59f57a6fced0f77f46d7af50890a8d6b1eac024 *)\n(* Conservative finite-real and sign consequences of explicit assumptions.\n   This is not quantifier elimination or a replacement for Reduce. Unknown\n   facts stay unknown; no numerical samples or PowerExpand identities are\n   used. Loaded only by the Mathics bootstrap, before the analytic modules. *)\n\nBegin[\"AsymptoticAnalysis`Mathics`\"];",
-"\nClearAll[AsymptoticAnalysis`Mathics`Element,\n  AsymptoticAnalysis`Mathics`mathicsAssumptionAtoms,\n  AsymptoticAnalysis`Mathics`mathicsAssumptionFacts,\n  AsymptoticAnalysis`Mathics`mathicsKnownSigns,\n  AsymptoticAnalysis`Mathics`mathicsSignsWithinQ,\n  AsymptoticAnalysis`Mathics`mathicsRealProof,\n  AsymptoticAnalysis`Mathics`mathicsSignProof,\n  AsymptoticAnalysis`Mathics`mathicsRelationProof,\n  AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify];",
+"(* BEGIN SOURCE: src/Kernel/MathicsAssumptions.wl\n   Source SHA256 (UTF-8/LF): 99bfc03ca29e18f90bf7bb2aff9e008f10a555ba5f6286e6964ebecd072bb7e4 *)\n(* Conservative finite-real and sign consequences of explicit assumptions.\n   This is not quantifier elimination or a replacement for Reduce. Unknown\n   facts stay unknown; no numerical samples or PowerExpand identities are\n   used. Loaded only by the Mathics bootstrap, before the analytic modules. *)\n\nBegin[\"AsymptoticAnalysis`Mathics`\"];",
+"\nClearAll[AsymptoticAnalysis`Mathics`Element,\n  AsymptoticAnalysis`Mathics`mathicsAssumptionAtoms,\n  AsymptoticAnalysis`Mathics`mathicsAssumptionFacts,\n  AsymptoticAnalysis`Mathics`mathicsKnownSigns,\n  AsymptoticAnalysis`Mathics`mathicsSignsWithinQ,\n  AsymptoticAnalysis`Mathics`mathicsRealProof,\n  AsymptoticAnalysis`Mathics`mathicsSignProof,\n  AsymptoticAnalysis`Mathics`mathicsRealProofBody,\n  AsymptoticAnalysis`Mathics`mathicsSignProofBody,\n  AsymptoticAnalysis`Mathics`mathicsProofMemoized,\n  AsymptoticAnalysis`Mathics`$mathicsProofMemo,\n  AsymptoticAnalysis`Mathics`mathicsRelationProof,\n  AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify];",
 "\nSetAttributes[Element, HoldAll];",
 "\n(* Preserve the original symbolic realness question. Mathics' native Element\n   can otherwise replace Element[Log[a],Reals] by Element[a,Reals], losing the\n   positive-domain requirement before the assumptions are considered. *)\nElement[e_, Reals] /; NumericQ[e] &&\n    MemberQ[{True, False}, System`Element[e, Reals]] := System`Element[e, Reals];",
 "\nElement[e_, domain_] /; domain =!= Reals := System`Element[e, domain];",
@@ -223,10 +223,14 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\n\nmathicsAssumptionFacts[ass_] := Module[{real = {}, constraints = {}, add, relation, atoms},\n  add[value_, signs_List] := Module[{v = value, s = signs},\n    If[Head[v] === Times && Length[v] === 2 && First[v] === -1,\n      v = -v; s = -s];\n    AppendTo[constraints, {v, Sort[s]}]];\n  relation[left_, head_, right_] := Module[{delta, signs},\n    If[! FreeQ[{left, right}, _DirectedInfinity | Indeterminate], Return[Null, Module]];\n    If[MemberQ[{Less, LessEqual, Greater, GreaterEqual}, head],\n      real = Join[real, {left, right}]];\n    delta = left - right;\n    signs = Switch[head, Less, {-1}, LessEqual, {-1, 0}, Greater, {1},\n      GreaterEqual, {0, 1}, Equal, {0}, _, {-1, 0, 1}];\n    If[head =!= Unequal, add[delta, signs]];\n    (* A finite numeric endpoint also supplies useful weaker sign bounds. *)\n    If[NumericQ[right] && TrueQ[System`Element[right, Reals]],\n      Which[MemberQ[{Greater, GreaterEqual}, head] && TrueQ[right > 0], add[left, {1}],\n        head === Greater && right === 0, add[left, {1}],\n        head === GreaterEqual && right === 0, add[left, {0, 1}],\n        MemberQ[{Less, LessEqual}, head] && TrueQ[right < 0], add[left, {-1}],\n        head === Less && right === 0, add[left, {-1}],\n        head === LessEqual && right === 0, add[left, {-1, 0}]]];\n    If[NumericQ[left] && ! NumericQ[right],\n      relation[right, Switch[head, Less, Greater, LessEqual, GreaterEqual,\n        Greater, Less, GreaterEqual, LessEqual, _, head], left]]];\n  atoms = mathicsAssumptionAtoms[ass];\n  Do[Which[\n    MemberQ[{Element, System`Element}, Head[atom]] && Length[atom] === 2 &&\n      MemberQ[{Reals, Rationals, Integers}, atom[[2]]],\n      real = Join[real, If[Head[atom[[1]]] === Alternatives || ListQ[atom[[1]]],\n        List @@ atom[[1]], {atom[[1]]}]],\n    MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal, Unequal}, Head[atom]],\n      Scan[relation[#[[1]], Head[atom], #[[2]]] &, Partition[List @@ atom, 2, 1]],\n    Head[atom] === Inequality,\n      Scan[relation[#[[1]], #[[2]], #[[3]]] &, Partition[List @@ atom, 3, 2]]],\n    {atom, atoms}];\n  {DeleteDuplicates[real], constraints}];",
 "\n\nmathicsKnownSigns[e_, facts_] := Module[{sets, reciprocal, signs},\n  sets = Last /@ Select[facts[[2]], SameQ[First[#], e] &];\n  If[sets =!= {}, Return[Fold[Intersection, First[sets], Rest[sets]], Module]];\n  (* Canonical evaluation distributes 1/(a b) into a^-1 b^-1. A proved\n     nonzero real product still proves its reciprocal real with the same\n     sign, without requiring either individual factor to be real. *)\n  If[MemberQ[{Times, Power}, Head[e]],\n    reciprocal = 1/e;\n    sets = Last /@ Select[facts[[2]], SameQ[First[#], reciprocal] &];\n    If[sets =!= {},\n      signs = Fold[Intersection, First[sets], Rest[sets]];\n      If[signs =!= {} && ! MemberQ[signs, 0], Return[signs, Module]]]];\n  None];",
 "\nmathicsSignsWithinQ[signs_, permitted_List] := ListQ[signs] && signs =!= {} &&\n  Complement[signs, permitted] === {};",
-"\n\nmathicsRealProof[e_, facts_, depth_Integer] := Module[{head = Head[e], arguments, signs, base, exponent},\n  If[depth <= 0, Return[None, Module]];\n  If[e === System`Glaisher, Return[True, Module]];\n  If[Or @@ (SameQ[#, e] & /@ facts[[1]]), Return[True, Module]];\n  signs = mathicsKnownSigns[e, facts];\n  If[ListQ[signs] && signs =!= {}, Return[True, Module]];\n  If[NumericQ[e],\n    signs = System`Element[e, Reals];\n    If[signs === True || signs === False, Return[signs, Module]]];\n  If[MemberQ[{Plus, Times, Alternatives}, head],\n    arguments = mathicsRealProof[#, facts, depth - 1] & /@ List @@ e;\n    Return[If[And @@ (TrueQ /@ arguments), True, None], Module]];\n  If[head === Power,\n    base = e[[1]]; exponent = e[[2]];\n    If[! TrueQ[mathicsRealProof[exponent, facts, depth - 1]], Return[None, Module]];\n    signs = mathicsSignProof[base, facts, depth - 1];\n    If[mathicsSignsWithinQ[signs, {1}], Return[True, Module]];\n    If[IntegerQ[exponent] && TrueQ[mathicsRealProof[base, facts, depth - 1]] &&\n      (exponent >= 0 || mathicsSignsWithinQ[signs, {-1, 1}]), Return[True, Module]];\n    If[TrueQ[exponent > 0] && mathicsSignsWithinQ[signs, {0, 1}], Return[True, Module]];\n    Return[None, Module]];\n  If[Length[e] === 1 && MemberQ[{Sin, Cos, Sinh, Cosh, Tanh, ArcTan, Abs}, head],\n    Return[If[TrueQ[mathicsRealProof[e[[1]], facts, depth - 1]], True, None], Module]];\n  If[Length[e] === 1 && MemberQ[{Log, Gamma, LogGamma, System`BarnesG, System`LogBarnesG}, head],\n    signs = mathicsSignProof[e[[1]], facts, depth - 1];\n    If[mathicsSignsWithinQ[signs, {1}], Return[True, Module]];\n    If[head === Log && mathicsSignsWithinQ[signs, {-1, 0}], Return[False, Module]]];\n  None];",
-"\n\nmathicsSignProof[e_, facts_, depth_Integer] := Module[\n  {known, head = Head[e], sets, base, exponent, signs, result},\n  If[depth <= 0, Return[None, Module]];\n  If[e === System`Glaisher, Return[{1}, Module]];\n  known = mathicsKnownSigns[e, facts];\n  If[known =!= None, Return[known, Module]];\n  If[NumericQ[e] && TrueQ[System`Element[e, Reals]],\n    Return[Which[TrueQ[e > 0], {1}, TrueQ[e < 0], {-1}, TrueQ[e == 0], {0}, True, None], Module]];\n  If[head === Plus || head === Times,\n    sets = mathicsSignProof[#, facts, depth - 1] & /@ List @@ e;\n    If[! And @@ (ListQ[#] && # =!= {} & /@ sets), Return[None, Module]];\n    If[head === Times,\n      result = {1}; Do[result = DeleteDuplicates[Flatten[Outer[Times, result, s]]], {s, sets}];\n      Return[Sort[result], Module]];\n    If[And @@ (mathicsSignsWithinQ[#, {0, 1}] & /@ sets),\n      Return[If[MemberQ[sets, {1}], {1}, {0, 1}], Module]];\n    If[And @@ (mathicsSignsWithinQ[#, {-1, 0}] & /@ sets),\n      Return[If[MemberQ[sets, {-1}], {-1}, {-1, 0}], Module]];\n    Return[{-1, 0, 1}, Module]];\n  If[head === Power,\n    base = e[[1]]; exponent = e[[2]]; signs = mathicsSignProof[base, facts, depth - 1];\n    If[mathicsSignsWithinQ[signs, {1}] && TrueQ[mathicsRealProof[exponent, facts, depth - 1]],\n      Return[{1}, Module]];\n    If[IntegerQ[exponent] && ListQ[signs] && signs =!= {} &&\n      (exponent >= 0 || ! MemberQ[signs, 0]),\n      Return[Sort[DeleteDuplicates[Sign[#^exponent] & /@ signs]], Module]];\n    If[TrueQ[exponent > 0] && mathicsSignsWithinQ[signs, {0, 1}] &&\n      TrueQ[mathicsRealProof[exponent, facts, depth - 1]], Return[signs, Module]]];\n  If[Length[e] === 1 && head === Abs && TrueQ[mathicsRealProof[e[[1]], facts, depth - 1]],\n    signs = mathicsSignProof[e[[1]], facts, depth - 1];\n    Return[If[mathicsSignsWithinQ[signs, {-1, 1}], {1}, {0, 1}], Module]];\n  If[Length[e] === 1 && head === Cosh && TrueQ[mathicsRealProof[e[[1]], facts, depth - 1]],\n    Return[{1}, Module]];\n  If[Length[e] === 1 && MemberQ[{Gamma, System`BarnesG}, head] &&\n    mathicsSignsWithinQ[mathicsSignProof[e[[1]], facts, depth - 1], {1}], Return[{1}, Module]];\n  If[TrueQ[mathicsRealProof[e, facts, depth - 1]], {-1, 0, 1}, None]];",
+"\n\n(* Request-local reuse of proof results. The mutually recursive provers reach\n   the same subquery along several branches (a sum's sign proof asks for the\n   realness and the sign of each term, a power asks for both of its base),\n   so the work grows exponentially with nesting. A memo is scoped to one\n   entry call, keyed by the query and its fact table: a proved answer at any\n   depth is a proof, and an unresolved answer at depth d stays unresolved at\n   every depth up to d. Nothing is kept across requests (wave-6 report 47 N01\n   inside P08's bounded request-local lane). *)\n$mathicsProofMemo = None;",
+"\nmathicsProofMemoized[kind_, e_, facts_, depth_Integer, body_] := Module[{key, cached, result},\n  If[$mathicsProofMemo === None, Return[body[e, facts, depth], Module]];\n  key = {kind, e, facts};\n  cached = $mathicsProofMemo[key];\n  If[MatchQ[cached, {_Integer, _}] && (cached[[2]] =!= None || cached[[1]] >= depth),\n    Return[cached[[2]], Module]];\n  result = body[e, facts, depth];\n  $mathicsProofMemo[key] = {depth, result};\n  result];",
+"\nmathicsRealProof[e_, facts_, depth_Integer] :=\n  mathicsProofMemoized[\"Real\", e, facts, depth, mathicsRealProofBody];",
+"\nmathicsSignProof[e_, facts_, depth_Integer] :=\n  mathicsProofMemoized[\"Sign\", e, facts, depth, mathicsSignProofBody];",
+"\n\nmathicsRealProofBody[e_, facts_, depth_Integer] := Module[{head = Head[e], arguments, signs, base, exponent},\n  If[depth <= 0, Return[None, Module]];\n  If[e === System`Glaisher, Return[True, Module]];\n  If[Or @@ (SameQ[#, e] & /@ facts[[1]]), Return[True, Module]];\n  signs = mathicsKnownSigns[e, facts];\n  If[ListQ[signs] && signs =!= {}, Return[True, Module]];\n  If[NumericQ[e],\n    signs = System`Element[e, Reals];\n    If[signs === True || signs === False, Return[signs, Module]]];\n  If[MemberQ[{Plus, Times, Alternatives}, head],\n    arguments = mathicsRealProof[#, facts, depth - 1] & /@ List @@ e;\n    Return[If[And @@ (TrueQ /@ arguments), True, None], Module]];\n  If[head === Power,\n    base = e[[1]]; exponent = e[[2]];\n    If[! TrueQ[mathicsRealProof[exponent, facts, depth - 1]], Return[None, Module]];\n    signs = mathicsSignProof[base, facts, depth - 1];\n    If[mathicsSignsWithinQ[signs, {1}], Return[True, Module]];\n    If[IntegerQ[exponent] && TrueQ[mathicsRealProof[base, facts, depth - 1]] &&\n      (exponent >= 0 || mathicsSignsWithinQ[signs, {-1, 1}]), Return[True, Module]];\n    If[TrueQ[exponent > 0] && mathicsSignsWithinQ[signs, {0, 1}], Return[True, Module]];\n    Return[None, Module]];\n  If[Length[e] === 1 && MemberQ[{Sin, Cos, Sinh, Cosh, Tanh, ArcTan, Abs}, head],\n    Return[If[TrueQ[mathicsRealProof[e[[1]], facts, depth - 1]], True, None], Module]];\n  If[Length[e] === 1 && MemberQ[{Log, Gamma, LogGamma, System`BarnesG, System`LogBarnesG}, head],\n    signs = mathicsSignProof[e[[1]], facts, depth - 1];\n    If[mathicsSignsWithinQ[signs, {1}], Return[True, Module]];\n    If[head === Log && mathicsSignsWithinQ[signs, {-1, 0}], Return[False, Module]]];\n  None];",
+"\n\nmathicsSignProofBody[e_, facts_, depth_Integer] := Module[\n  {known, head = Head[e], sets, base, exponent, signs, result},\n  If[depth <= 0, Return[None, Module]];\n  If[e === System`Glaisher, Return[{1}, Module]];\n  known = mathicsKnownSigns[e, facts];\n  If[known =!= None, Return[known, Module]];\n  If[NumericQ[e] && TrueQ[System`Element[e, Reals]],\n    Return[Which[TrueQ[e > 0], {1}, TrueQ[e < 0], {-1}, TrueQ[e == 0], {0}, True, None], Module]];\n  If[head === Plus || head === Times,\n    sets = mathicsSignProof[#, facts, depth - 1] & /@ List @@ e;\n    If[! And @@ (ListQ[#] && # =!= {} & /@ sets), Return[None, Module]];\n    If[head === Times,\n      result = {1}; Do[result = DeleteDuplicates[Flatten[Outer[Times, result, s]]], {s, sets}];\n      Return[Sort[result], Module]];\n    If[And @@ (mathicsSignsWithinQ[#, {0, 1}] & /@ sets),\n      Return[If[MemberQ[sets, {1}], {1}, {0, 1}], Module]];\n    If[And @@ (mathicsSignsWithinQ[#, {-1, 0}] & /@ sets),\n      Return[If[MemberQ[sets, {-1}], {-1}, {-1, 0}], Module]];\n    Return[{-1, 0, 1}, Module]];\n  If[head === Power,\n    base = e[[1]]; exponent = e[[2]]; signs = mathicsSignProof[base, facts, depth - 1];\n    If[mathicsSignsWithinQ[signs, {1}] && TrueQ[mathicsRealProof[exponent, facts, depth - 1]],\n      Return[{1}, Module]];\n    If[IntegerQ[exponent] && ListQ[signs] && signs =!= {} &&\n      (exponent >= 0 || ! MemberQ[signs, 0]),\n      Return[Sort[DeleteDuplicates[Sign[#^exponent] & /@ signs]], Module]];\n    If[TrueQ[exponent > 0] && mathicsSignsWithinQ[signs, {0, 1}] &&\n      TrueQ[mathicsRealProof[exponent, facts, depth - 1]], Return[signs, Module]]];\n  If[Length[e] === 1 && head === Abs && TrueQ[mathicsRealProof[e[[1]], facts, depth - 1]],\n    signs = mathicsSignProof[e[[1]], facts, depth - 1];\n    Return[If[mathicsSignsWithinQ[signs, {-1, 1}], {1}, {0, 1}], Module]];\n  If[Length[e] === 1 && head === Cosh && TrueQ[mathicsRealProof[e[[1]], facts, depth - 1]],\n    Return[{1}, Module]];\n  If[Length[e] === 1 && MemberQ[{Gamma, System`BarnesG}, head] &&\n    mathicsSignsWithinQ[mathicsSignProof[e[[1]], facts, depth - 1], {1}], Return[{1}, Module]];\n  If[TrueQ[mathicsRealProof[e, facts, depth - 1]], {-1, 0, 1}, None]];",
 "\n\nmathicsRelationProof[left_, head_, right_, facts_] := Module[{signs, accepted},\n  If[! MemberQ[{Equal, Unequal}, head] &&\n    ! (TrueQ[mathicsRealProof[left, facts, 24]] && TrueQ[mathicsRealProof[right, facts, 24]]),\n    Return[None, Module]];\n  signs = mathicsSignProof[left - right, facts, 24];\n  accepted = Switch[head, Less, {-1}, LessEqual, {-1, 0}, Greater, {1},\n    GreaterEqual, {0, 1}, Equal, {0}, Unequal, {-1, 1}, _, {}];\n  Which[mathicsSignsWithinQ[signs, accepted], True,\n    ListQ[signs] && signs =!= {} && Intersection[signs, accepted] === {}, False, True, None]];",
-"\n\nmathicsAssumptionSimplify[expression_, assumptions_] := Module[{facts, walk},\n  (* Direct Taylor-admission calls also reach this walker. Do not let its\n     Factor/Together path convert retained ProductLog[k,z] through Mathics'\n     incorrect SymPy argument order. Leave the proof unresolved. *)\n  If[! FreeQ[{expression, assumptions}, HoldPattern[System`ProductLog[_, _]]],\n    Return[expression, Module]];\n  facts = mathicsAssumptionFacts[assumptions];\n  walk[e_] := Module[{head = Head[e], value, proof, signs, base, results},\n    If[AtomQ[e], Return[e, Module]];\n    If[MemberQ[{Element, System`Element}, head] && Length[e] === 2 && e[[2]] === Reals,\n      proof = mathicsRealProof[e[[1]], facts, 24];\n      Return[If[proof === True || proof === False, proof, e], Module]];\n    If[! MemberQ[{And, Or, Not}, head] && Head[head] === Symbol &&\n      Intersection[Attributes[head], {HoldAll, HoldAllComplete, HoldFirst, HoldRest}] =!= {}, Return[e, Module]];\n    value = Map[walk, e]; head = Head[value];\n    If[MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal, Unequal}, head],\n      results = mathicsRelationProof[#[[1]], head, #[[2]], facts] & /@\n        If[head === Unequal, Subsets[List @@ value, {2}], Partition[List @@ value, 2, 1]];\n      If[And @@ (TrueQ /@ results), Return[True, Module]];\n      If[MemberQ[results, False], Return[False, Module]]];\n    If[MatchQ[value, Power[_, Rational[1, 2]]],\n      base = value[[1]];\n      If[! MatchQ[base, Power[_, 2]] && LeafCount[base] <= 200 &&\n          NumericQ[Denominator[Together[base]]],\n        proof = System`Factor[base];\n        If[Expand[proof - base] === 0, base = proof]];\n      If[MatchQ[base, Power[_, 2]],\n        base = base[[1]]; signs = mathicsSignProof[base, facts, 24];\n        Which[mathicsSignsWithinQ[signs, {0, 1}], Return[base, Module],\n          mathicsSignsWithinQ[signs, {-1, 0}], Return[-base, Module],\n          TrueQ[mathicsRealProof[base, facts, 24]], Return[Abs[base], Module]]]];\n    If[head === Abs && Length[value] === 1,\n      base = value[[1]]; signs = mathicsSignProof[base, facts, 24];\n      If[mathicsSignsWithinQ[signs, {0, 1}], Return[base, Module]];\n      If[mathicsSignsWithinQ[signs, {-1, 0}], Return[-base, Module]]];\n    value];\n  walk[expression]];",
+"\n\nmathicsAssumptionSimplify[expression_, assumptions_] := Module[{facts, walk, memo},\n  (* Direct Taylor-admission calls also reach this walker. Do not let its\n     Factor/Together path convert retained ProductLog[k,z] through Mathics'\n     incorrect SymPy argument order. Leave the proof unresolved. *)\n  If[! FreeQ[{expression, assumptions}, HoldPattern[System`ProductLog[_, _]]],\n    Return[expression, Module]];\n  facts = mathicsAssumptionFacts[assumptions];\n  (* One memo per entry call; nested entries with other assumptions are\n     separated by the fact table inside the key. *)\n  If[$mathicsProofMemo === None,\n    Return[Block[{$mathicsProofMemo = memo}, mathicsAssumptionSimplify[expression, assumptions]], Module]];\n  walk[e_] := Module[{head = Head[e], value, proof, signs, base, results},\n    If[AtomQ[e], Return[e, Module]];\n    If[MemberQ[{Element, System`Element}, head] && Length[e] === 2 && e[[2]] === Reals,\n      proof = mathicsRealProof[e[[1]], facts, 24];\n      Return[If[proof === True || proof === False, proof, e], Module]];\n    If[! MemberQ[{And, Or, Not}, head] && Head[head] === Symbol &&\n      Intersection[Attributes[head], {HoldAll, HoldAllComplete, HoldFirst, HoldRest}] =!= {}, Return[e, Module]];\n    value = Map[walk, e]; head = Head[value];\n    If[MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal, Unequal}, head],\n      results = mathicsRelationProof[#[[1]], head, #[[2]], facts] & /@\n        If[head === Unequal, Subsets[List @@ value, {2}], Partition[List @@ value, 2, 1]];\n      If[And @@ (TrueQ /@ results), Return[True, Module]];\n      If[MemberQ[results, False], Return[False, Module]]];\n    If[MatchQ[value, Power[_, Rational[1, 2]]],\n      base = value[[1]];\n      If[! MatchQ[base, Power[_, 2]] && LeafCount[base] <= 200 &&\n          NumericQ[Denominator[Together[base]]],\n        proof = System`Factor[base];\n        If[Expand[proof - base] === 0, base = proof]];\n      If[MatchQ[base, Power[_, 2]],\n        base = base[[1]]; signs = mathicsSignProof[base, facts, 24];\n        Which[mathicsSignsWithinQ[signs, {0, 1}], Return[base, Module],\n          mathicsSignsWithinQ[signs, {-1, 0}], Return[-base, Module],\n          TrueQ[mathicsRealProof[base, facts, 24]], Return[Abs[base], Module]]]];\n    If[head === Abs && Length[value] === 1,\n      base = value[[1]]; signs = mathicsSignProof[base, facts, 24];\n      If[mathicsSignsWithinQ[signs, {0, 1}], Return[base, Module]];\n      If[mathicsSignsWithinQ[signs, {-1, 0}], Return[-base, Module]]];\n    value];\n  walk[expression]];",
 "\n\nEnd[];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
@@ -757,12 +761,18 @@ localCoordinate[x_, x0_, direction_] := Module[{dir = direction, u = Unique["u$"
 
 (* Only peel outer conditions and split top-level assumption conjuncts.
    Held scopes and nested conditional expressions retain their own meaning. *)
+(* Parameter-only clauses of the Assumptions option and of an outer
+   ConditionalExpression alike are parameter assumptions; only clauses that
+   mention the variable are approach conditions that must hold eventually.
+   An inline parameter predicate such as a > 0 or Element[Log[a], Reals] was
+   previously demanded of the approach and refused (wave-6 report 49 N1). *)
 splitApproachInput[f_, x_, ass_] := Module[{body = f, condition = True, clauses},
   While[Head[body] === ConditionalExpression,
     condition = condition && body[[2]]; body = body[[1]]];
-  clauses = If[Head[ass] === And, List @@ ass, {ass}];
+  clauses = Join[If[Head[ass] === And, List @@ ass, {ass}],
+    If[Head[condition] === And, List @@ condition, {condition}]];
   {body, And @@ Select[clauses, FreeQ[#, x] &],
-    condition && And @@ Select[clauses, ! FreeQ[#, x] &]}];
+    And @@ Select[clauses, ! FreeQ[#, x] &]}];
 
 (* ------------------------------------------------------------------ *)
 (* Forward expansion: public                                            *)
@@ -3417,7 +3427,7 @@ AsymptoticAnalysis`AsymptoticCoreInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: src/Kernel/CorePerturbation.wl *)
 
 (* BEGIN SOURCE: src/Kernel/InverseCertificates.wl
-   Source SHA256 (UTF-8/LF): 33a303e14eef1e97d95abb3db3df788f3db1d7c5fb213f62ec68517f23878b66 *)
+   Source SHA256 (UTF-8/LF): aa726de90a2bf05881d56463774ab7d8e1f41e8054435094b06dd87b6a70f586 *)
 (* Exact rational residual certificates. Decimal arithmetic is used only to
    choose a center; every successful proof uses rational interval endpoints. *)
 
@@ -3444,17 +3454,48 @@ certReciprocal[{lo_, hi_}, ctx_] := (
   If[lo <= 0 <= hi, certFail["IntervalSingularity", "An interval reciprocal contains zero.",
     <|"UnprovedCondition" -> (hi < 0 || lo > 0), "ArgumentEnclosure" -> {lo, hi}|>]];
   certRoundInterval[{1/hi, 1/lo}, ctx]);
-certIntegerPower[a_, n_Integer, ctx_] := Module[{base = a, power = Abs[n], answer = {1, 1}},
+(* t^n is monotone on each side of zero and, for odd n, across it, so the
+   exact range of an interval power is attained at the endpoints. Each
+   endpoint is raised by directed binary powering; multiplying independent
+   copies of a zero-crossing interval instead loses the endpoint geometry,
+   so an odd power of {-1/4, 1} was enclosed by {-1, 1} rather than
+   {-1/64, 1} and a strictly positive derivative could not be separated from
+   zero (wave-6 reports 53 N01 and 54 N01). *)
+certPointPower[q_, power_Integer, ctx_] := Module[{base = {q, q}, p = power, answer = {1, 1}},
+  While[p > 0,
+   If[OddQ[p], answer = certMul[answer, base, ctx]];
+   p = Quotient[p, 2];
+   If[p > 0, base = certRoundInterval[Sort[base^2], ctx]]];
+  answer];
+certIntegerPower[a_, n_Integer, ctx_] := Module[{base = a, power = Abs[n], lower, upper},
   If[power > 100000, certFail["CertificateResourceLimit", "The integer power exceeds the certificate arithmetic budget."]];
   If[n < 0, base = certReciprocal[base, ctx]];
-  While[power > 0,
-   If[OddQ[power], answer = certMul[answer, base, ctx]];
-   power = Quotient[power, 2];
-   If[power > 0,
-    (* Squaring a real interval is tighter than multiplying independent copies. *)
-    base = certRoundInterval[If[base[[1]] <= 0 <= base[[2]],
-       {0, Max[base[[1]]^2, base[[2]]^2]}, Sort[base^2]], ctx]]];
-  answer];
+  If[power === 0, Return[{1, 1}, Module]];
+  lower = certPointPower[base[[1]], power, ctx];
+  upper = certPointPower[base[[2]], power, ctx];
+  Which[OddQ[power], {lower[[1]], upper[[2]]},
+   base[[1]] <= 0 <= base[[2]], {0, Max[lower[[2]], upper[[2]]]},
+   True, {Min[lower[[1]], upper[[1]]], Max[lower[[2]], upper[[2]]]}]];
+
+(* Exact rational powers p/q of a nonnegative base use integer q-th roots on
+   the dyadic grid, so an admitted algebraic root does not inherit the
+   exponential magnitude budget of Exp[(p/q) Log[base]] (report 53 N02). *)
+certIntegerRoot[m_Integer, q_Integer] := Module[{r},
+  If[m <= 0, Return[0, Module]];
+  r = Floor[N[m^(1/q), Max[20, Ceiling[IntegerLength[m]/q] + 10]]];
+  While[r^q > m, r--];
+  While[(r + 1)^q <= m, r++];
+  r];
+certRationalRoot[{lo_, hi_}, q_Integer, ctx_] := Module[{scale = 2^ctx["Bits"], lower, upper, m},
+  lower = certIntegerRoot[Floor[lo scale^q], q];
+  m = Ceiling[hi scale^q]; upper = certIntegerRoot[m, q];
+  If[upper^q < m, upper++];
+  {lower/scale, upper/scale}];
+certRationalPower[base_, r_Rational, ctx_] := Module[{p = Numerator[r], q = Denominator[r]},
+  If[base[[1]] < 0 || (base[[1]] === 0 && p < 0),
+   certFail["IntervalDomain", "A rational power needs a nonnegative base on the certificate interval, and a positive base for a negative exponent.",
+    <|"UnprovedCondition" -> If[p < 0, base[[1]] > 0, base[[1]] >= 0], "ArgumentEnclosure" -> base|>]];
+  certIntegerPower[certRationalRoot[base, q, ctx], p, ctx]];
 
 certExpPoint[q_?certRationalQ, ctx_] := Module[{z, reductions = 0, n, sum, tail, answer},
   If[q === 0, Return[{1, 1}, Module]];
@@ -3557,6 +3598,8 @@ certEnclose[expression_, x_Symbol, interval_, ctx_] := Module[{args, base, expon
     certExp[certEnclose[expression[[2]], x, interval, ctx], ctx],
    Head[expression] === Power && IntegerQ[expression[[2]]],
     certIntegerPower[certEnclose[expression[[1]], x, interval, ctx], expression[[2]], ctx],
+   Head[expression] === Power && Head[expression[[2]]] === Rational,
+    certRationalPower[certEnclose[expression[[1]], x, interval, ctx], expression[[2]], ctx],
    Head[expression] === Power,
     base = certEnclose[expression[[1]], x, interval, ctx];
     exponent = certEnclose[expression[[2]], x, interval, ctx];
@@ -3569,7 +3612,10 @@ certEnclose[expression_, x_Symbol, interval_, ctx_] := Module[{args, base, expon
        <|"UnprovedCondition" -> (base[[1]] > 0), "ArgumentEnclosure" -> base|>]];
      certExp[certMul[exponent, certLog[base, ctx], ctx], ctx]],
    True, certFail["UnsupportedEnclosure", "The exact interval evaluator does not support this expression.",
-     <|"Expression" -> expression, "SupportedOperations" -> {"Rational constants", "Plus", "Times", "Power on a positive base", "Exp", "Log"}|>]]];
+     <|"Expression" -> expression, "SupportedOperations" -> {"Rational constants", "Plus", "Times", "Integer powers",
+        "Rational powers of a nonnegative base", "Power on a positive base", "Exp", "Log"},
+       (* No arithmetic precision makes an unsupported expression supported. *)
+       "ArithmeticRetryable" -> False|>]]];
 
 (* Conditions may use an explicitly named source symbol or a legacy local
    coordinate. Normalize both to the source variable used by the equation.
@@ -3677,7 +3723,11 @@ certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownR
    leftResidual, rightResidual, endpointBracket = False},
   If[! certSourceInterval[a, interval, x, ctx],
    certFail["OutsideBranch", "The certificate interval is not proved to lie on the selected source side.",
-    <|"Interval" -> interval, "ExpansionPoint" -> a["ExpansionPoint"], "Direction" -> a["Direction"]|>]];
+    <|"Interval" -> interval, "ExpansionPoint" -> a["ExpansionPoint"], "Direction" -> a["Direction"],
+      (* Against a rational or infinite endpoint this comparison is exact, so
+         doubling the arithmetic order cannot change it (report 53 N03). *)
+      "ArithmeticRetryable" -> If[certRationalQ[a["ExpansionPoint"]] ||
+         MemberQ[{Infinity, -Infinity}, a["ExpansionPoint"]], False, Automatic]|>]];
   domain = inverseEvidenceSourceDomain[a, x];
   If[! TrueQ[certPositiveCondition[domain, x, interval, ctx]],
    certFail["OutsideBranch", "The retained source-domain condition is not proved on the whole closed verification interval.",
@@ -3832,6 +3882,14 @@ AsymptoticAnalysis`InverseCertificate[GeneralizedSeries[a_Association], yv_, opt
       "Outcome" -> If[AssociationQ[result], "Certified", result[[1]]]|>];
    If[FailureQ[result] && TrueQ[Lookup[result[[2]], "DefinitiveNoRoot", False]],
     Return[Failure[result[[1]], Join[result[[2]], <|"History" -> history|>]], Module]];
+   (* A failure that no arithmetic precision can repair ends the refinement
+      instead of being retried at every doubled order and then reported as
+      budget exhaustion. *)
+   If[FailureQ[result] && Lookup[result[[2]], "ArithmeticRetryable", Automatic] === False,
+    Return[Failure[result[[1]], Join[result[[2]], <|"History" -> history,
+       "StoppingReason" -> "NonRefinableArithmeticFailure", "Refinements" -> iteration,
+       "AccuracyGoalReached" -> False|>,
+      If[AssociationQ[best], <|"BestCertificate" -> best|>, <||>]]], Module]];
    If[AssociationQ[result],
     lowerMagnitude = If[result["RootEnclosure"][[1]] <= 0 <= result["RootEnclosure"][[2]], 0,
       Min[Abs[result["RootEnclosure"]]]];
@@ -4446,7 +4504,7 @@ AsymptoticAnalysis`AsymptoticFlatInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: src/Kernel/FlatSectors.wl *)
 
 (* BEGIN SOURCE: src/Kernel/FlatSectorOperations.wl
-   Source SHA256 (UTF-8/LF): 6455c1ee9e6232d90d6a4e9b09d04e5c38dcdd4a3433c9066c758abaa9e75940 *)
+   Source SHA256 (UTF-8/LF): f1c1c46b285b26a5772c089f57c24937a3970a681b09c5d779fa0c0bced31b8f *)
 (* Two independent truncations: inclusive exponential degree and exclusive
    inner power. A discarded inner coefficient remains in its own sector. *)
 
@@ -4549,6 +4607,16 @@ flatOpsTruncateData[d0_, h_, limit_] := Module[{d = d0, jets, ell = d0["LogVaria
    whole bound and lose 2N+1 algebraic orders on a depth-N inverse square. *)
 flatOpsGrade[d_] := Lookup[d, "SectorTailGrade",
   If[d["SectorTail"][[1]] === Infinity, Infinity, d["SectorDepth"] + 1]];
+(* Evaluate the held bounds of the least-grade candidates only. A held
+   candidate's bound is finite by construction: jets at the recorded indices
+   are not exact zeros and infinite tails are never recorded, so the least
+   grade over the held population equals the least grade over the finite
+   evaluated population. *)
+flatOpsLeastGradeCandidates[candidates_List] := Module[{finite, least},
+  finite = Select[candidates, #[[1]] =!= Infinity &];
+  If[finite === {}, Return[{}, Module]];
+  least = Min[finite[[All, 1]]];
+  {#[[1]], ReleaseHold[#[[2]]]} & /@ Select[finite, #[[1]] == least &]];
 flatOpsGradedTail[candidates_List] := Module[{finite, least},
   finite = Select[candidates, #[[2, 1]] =!= Infinity && #[[1]] =!= Infinity &];
   If[finite === {}, Return[{{Infinity, 0}, Infinity}, Module]];
@@ -4573,20 +4641,29 @@ flatOpsMultiplyData[a0_, b0_, limit_] := Module[
      found; deeper omitted pairs contribute envelope products only. *)
   convolution = Table[flatOpsZero[ell, ass], {n + 1}];
   first = flatOpsZero[ell, ass];
+  (* Candidates are recorded as {grade, held bound} and only those of the
+     least finite grade are evaluated, since only they enter the tail. The
+     selected set and the combined bound are exactly those of evaluating
+     every candidate first; the quadratic population of deeper pair
+     envelopes is enumerated but not materialized (wave-6 report 48 P1). *)
   Do[Which[i + j - 2 <= n,
       term = pMul[aj[[i]], bj[[j]], ell, ass, limit];
       convolution[[i + j - 1]] = pAdd[convolution[[i + j - 1]], term, ell, ass],
      i + j - 2 == n + 1,
       first = pAdd[first, pMul[aj[[i]], bj[[j]], ell, ass, limit], ell, ass],
      True,
-      AppendTo[candidates, {i + j - 2, flatOpsBoundProduct[aBounds[[i]], bBounds[[j]]]}]],
+      AppendTo[candidates, {i + j - 2, With[{p = aBounds[[i]], q = bBounds[[j]]}, Hold[flatOpsBoundProduct[p, q]]]}]],
     {i, aIndices}, {j, bIndices}];
-  If[! flatOpsExactZeroQ[first], AppendTo[candidates, {n + 1, flatOpsJetBound[first, ell]}]];
+  If[! flatOpsExactZeroQ[first], AppendTo[candidates, {n + 1, With[{p = first}, Hold[flatOpsJetBound[p, ell]]]}]];
   (* An input tail sits at its recorded grade, which can exceed its depth+1. *)
-  Do[AppendTo[candidates, {flatOpsGrade[a] + j - 1, flatOpsBoundProduct[a["SectorTail"], bBounds[[j]]]}], {j, bIndices}];
-  Do[AppendTo[candidates, {flatOpsGrade[b] + i - 1, flatOpsBoundProduct[b["SectorTail"], aBounds[[i]]]}], {i, aIndices}];
-  AppendTo[candidates, {flatOpsGrade[a] + flatOpsGrade[b], flatOpsBoundProduct[a["SectorTail"], b["SectorTail"]]}];
-  {tail, grade} = flatOpsGradedTail[candidates];
+  If[a["SectorTail"][[1]] =!= Infinity && flatOpsGrade[a] =!= Infinity,
+    Do[AppendTo[candidates, {flatOpsGrade[a] + j - 1, With[{p = a["SectorTail"], q = bBounds[[j]]}, Hold[flatOpsBoundProduct[p, q]]]}], {j, bIndices}]];
+  If[b["SectorTail"][[1]] =!= Infinity && flatOpsGrade[b] =!= Infinity,
+    Do[AppendTo[candidates, {flatOpsGrade[b] + i - 1, With[{p = b["SectorTail"], q = aBounds[[i]]}, Hold[flatOpsBoundProduct[p, q]]]}], {i, aIndices}]];
+  If[a["SectorTail"][[1]] =!= Infinity && b["SectorTail"][[1]] =!= Infinity &&
+      flatOpsGrade[a] =!= Infinity && flatOpsGrade[b] =!= Infinity,
+    AppendTo[candidates, {flatOpsGrade[a] + flatOpsGrade[b], With[{p = a["SectorTail"], q = b["SectorTail"]}, Hold[flatOpsBoundProduct[p, q]]]}]];
+  {tail, grade} = flatOpsGradedTail[flatOpsLeastGradeCandidates[candidates]];
   data = Join[a, <|"SectorDepth" -> n, "SectorJets" -> convolution, "SectorTail" -> tail,
     "SectorTailGrade" -> grade,
     "InnerCutoff" -> Automatic, "DerivativeContract" -> (TrueQ[a["DerivativeContract"]] && TrueQ[b["DerivativeContract"]]),
@@ -8369,7 +8446,7 @@ specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] :
 (* END SOURCE: src/Kernel/ParameterizedSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/DirichletSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 2991d65307bdfeb6773d68f2bd4e426c9e6e73679b23c65df3ec6740002b8f73 *)
+   Source SHA256 (UTF-8/LF): 470835372ff1010568385b574343c431ec157873683ca63e93261d020aace3ac *)
 (* Two convergent defining sums supply expansions unavailable from native
    Series. All parameters are fixed on the target approach. Zeta uses the
    exponential coordinate exp(-S); Lerch uses the reciprocal argument 1/a.
@@ -8455,9 +8532,14 @@ dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, 
     count = goal;
     If[count > limit, fail["ResourceLimit", "The Zeta Dirichlet term goal exceeds MaxTerms."]],
     (* Log[n]<cut is exclusive. Binary search avoids enumerating exp(cut)
-       candidates, and the initial comparison rejects excessive requests. *)
-    If[less[Log[limit + 1], cut], fail["ResourceLimit", "The Zeta exponential-coordinate cutoff exceeds MaxTerms."]];
-    low = 0; high = limit + 1;
+       candidates, and the initial comparison rejects excessive requests.
+       An explicit cutoff and a term goal are two independent reasons to stop,
+       as in the ordinary constructor: an active goal caps the search and a
+       cutoff-based refusal applies only when no goal keeps the retained count
+       within the budget (report 16 N04 under D01; report 55 N02). *)
+    If[less[Log[limit + 1], cut] && (goal === Automatic || goal > limit),
+      fail["ResourceLimit", "The Zeta exponential-coordinate cutoff exceeds MaxTerms."]];
+    low = 0; high = If[goal === Automatic, limit + 1, Min[limit, goal] + 1];
     While[high - low > 1,
       middle = Quotient[low + high, 2];
       If[less[Log[middle], cut], low = middle, high = middle]];
@@ -8524,7 +8606,8 @@ dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_,
     If[k > limit, fail["ResourceLimit", "The Lerch nonzero-moment search exceeds MaxTerms."]];
     coefficient = dirichletLerchCoefficient[z, s, k, ass, limit];
     If[! zeroQ[coefficient, ass],
-      If[If[cut === Automatic, Length[rows] >= goal, ! less[s + k, cut]],
+      (* The cutoff and the goal stop independently, whichever comes first. *)
+      If[(cut =!= Automatic && ! less[s + k, cut]) || (goal =!= Automatic && Length[rows] >= goal),
         frontier = {s + k, coefficient, k}; Break[]];
       AppendTo[rows, {s + k, coefficient}]; dirichletSpecialBudget[rows, limit]];
     k++];
@@ -9231,22 +9314,23 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\nDownValues[fwdAnalytic] = Join[DownValues[fwdAnalytic], $mathicsOriginalFwdAnalytic];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsInputAssumptions.wl\n   Source SHA256 (UTF-8/LF): c82eea58c4a6d0a89488cd65c3b60949426cda821222bdfd3415842b1da6363e *)\n(* Mathics' native Element rules can weaken a symbolic membership condition:\n   Element[Sin[a],Reals] becomes Element[a,Reals], although a=Pi/2+I is a\n   counterexample to that equivalence. The package's held public entries can\n   preserve an inline assumption before ordinary option evaluation reaches\n   those rules. Already evaluated caller values cannot be reconstructed.\n\n   The private catch boundary is held and is entered by the analytic paths\n   before option evaluation. Literal explicit native backend calls bypass\n   it. Keep the established assumption scope and exception behavior in the\n   original held delegate; change only membership heads inside syntactic\n   Assumptions rule values. Position and ReplacePart operate on held trees,\n   so immediate and delayed option programs retain their evaluation count. *)\n\nClearAll[mathicsProtectInputAssumptions];",
-"\nmathicsProtectInputAssumptions[held_HoldComplete] := If[\n  FreeQ[held, System`Element], held, System`Module[\n  {options, heads, positions},\n  options = Position[held,\n    HoldPattern[Rule[Assumptions, _] | RuleDelayed[Assumptions, _]],\n    {0, Infinity}, Heads -> False];\n  If[options === {}, held,\n  heads = Position[held, System`Element, {0, Infinity}, Heads -> True];\n  positions = Select[heads, Function[position,\n    Or @@ (Function[option,\n      Length[position] >= Length[option] + 1 &&\n        Take[position, Length[option] + 1] === Append[option, 2]] /@ options)]];\n  ReplacePart[held, (# -> AsymptoticAnalysis`Mathics`Element) & /@ positions]]]];",
+"(* BEGIN SOURCE: src/Kernel/MathicsInputAssumptions.wl\n   Source SHA256 (UTF-8/LF): 77facd132248995eaa63ea48956d2b3a288db38c43651b18009379a5e3111aad *)\n(* Mathics' native Element rules can weaken a symbolic membership condition:\n   Element[Sin[a],Reals] becomes Element[a,Reals], although a=Pi/2+I is a\n   counterexample to that equivalence. The package's held public entries can\n   preserve an inline assumption before ordinary option evaluation reaches\n   those rules. Already evaluated caller values cannot be reconstructed.\n\n   The private catch boundary is held and is entered by the analytic paths\n   before option evaluation. Literal explicit native backend calls bypass\n   it. Keep the established assumption scope and exception behavior in the\n   original held delegate; change only membership heads inside the protected\n   regions. Position and ReplacePart operate on held trees, so immediate and\n   delayed option programs retain their evaluation count.\n\n   Protected regions are the value of a syntactic Assumptions rule and the\n   condition of an inline ConditionalExpression, whose live predicate the\n   native rules would otherwise rewrite before the package reads it (wave-6\n   report 49 N1). Inside a region only an applied two-argument membership\n   head Element[_, _] is replaced: a bare Element symbol is caller data whose\n   identity an option program may test, and anything below a held-data\n   barrier (Hold, HoldComplete, HoldForm, Defer, HoldPattern, Verbatim,\n   Unevaluated) is left as written (reports 51 N01 and 54 N02). *)\n\nClearAll[mathicsProtectInputAssumptions];",
+"\nmathicsProtectInputAssumptions[held_HoldComplete] := If[\n  FreeQ[held, System`Element], held, System`Module[\n  {regions, heads, opaque, positions, below},\n  regions = Join[\n    (Append[#, 2] &) /@ Position[held,\n      HoldPattern[Rule[Assumptions, _] | RuleDelayed[Assumptions, _]],\n      {0, Infinity}, Heads -> False],\n    (Append[#, 2] &) /@ Position[held,\n      HoldPattern[ConditionalExpression[_, _]], {0, Infinity}, Heads -> False]];\n  If[regions === {}, held,\n  heads = (Append[#, 0] &) /@ Position[held,\n    HoldPattern[System`Element[_, _]], {0, Infinity}, Heads -> False];\n  opaque = Position[held,\n    _HoldComplete | _Hold | _HoldForm | _Defer | _HoldPattern | _Verbatim | _Unevaluated,\n    {1, Infinity}, Heads -> False];\n  below[position_, prefix_] := Length[position] >= Length[prefix] &&\n    Take[position, Length[prefix]] === prefix;\n  positions = Select[heads, Function[position,\n    (Or @@ (below[position, #] & /@ regions)) &&\n      ! (Or @@ (below[position, #] & /@ opaque))]];\n  ReplacePart[held, (# -> AsymptoticAnalysis`Mathics`Element) & /@ positions]]]];",
 "\n\nIf[DownValues[mathicsOriginalInputCatch] === {},\n  SetAttributes[mathicsOriginalInputCatch, HoldAll];\n  DownValues[mathicsOriginalInputCatch] = DownValues[catch] /.\n    catch -> mathicsOriginalInputCatch];",
 "\nClear[catch];",
 "\nSetAttributes[catch, HoldAll];",
 "\ncatch[body_] := Replace[mathicsProtectInputAssumptions[HoldComplete[body]],\n  HoldComplete[protected_] :> mathicsOriginalInputCatch[protected]];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsNumerical.wl\n   Source SHA256 (UTF-8/LF): 0b2fa82207759926f20130ee8b56678f4ae2adb40bddad9064e282a987680ff5 *)\n(* Loaded late, only on Mathics. Mathics 10's FindRoot evaluates its seed\n   and Newton updates at machine precision even when WorkingPrecision is\n   supplied. Do not label such a root as a higher-precision comparison.\n   An unchanged integer seed may instead be promoted to an exact root when\n   direct substitution proves an exact polynomial equation. No digits are\n   added to an approximate root and no nearby rational root is guessed. *)\n\nClearAll[mathicsNumericalFindRoot, mathicsNumericalExactIntegerSeed];",
+"(* BEGIN SOURCE: src/Kernel/MathicsNumerical.wl\n   Source SHA256 (UTF-8/LF): 52e0b64a97788703a3917b43a0bcec9245390e4479915c42d4cda7b46bb6a828 *)\n(* Loaded late, only on Mathics. Mathics 10's FindRoot evaluates its seed\n   and Newton updates at machine precision even when WorkingPrecision is\n   supplied. Do not label such a root as a higher-precision comparison.\n   An unchanged integer seed may instead be promoted to an exact root when\n   direct substitution proves an exact polynomial equation. No digits are\n   added to an approximate root and no nearby rational root is guessed. *)\n\nClearAll[mathicsNumericalFindRoot, mathicsNumericalExactIntegerSeed];",
 "\n\nSetAttributes[mathicsNumericalExactIntegerSeed, HoldAllComplete];",
 "\nmathicsNumericalExactIntegerSeed[held_HoldComplete, variable_Symbol, seed_] :=\n  Block[{variable}, Module[{candidate, polynomial},\n    If[! NumericQ[seed] || ! TrueQ[Im[seed] == 0], Return[$Failed, Module]];\n    candidate = Round[seed];\n    If[! IntegerQ[candidate] || ! (SameQ[seed, candidate] ||\n        SameQ[seed, N[candidate, Precision[seed]]]), Return[$Failed, Module]];\n    If[! MatchQ[held, HoldComplete[Equal[_, _]]], Return[$Failed, Module]];\n    polynomial = ReleaseHold[held /. HoldPattern[Equal[left_, right_]] :>\n      (left - right)];\n    If[! exactQ[polynomial] || ! FreeQ[polynomial, Indeterminate | _DirectedInfinity] ||\n        ! PolynomialQ[polynomial, variable], Return[$Failed, Module]];\n    If[SameQ[polynomial /. variable -> candidate, 0], candidate, $Failed]]];",
 "\n\nSetAttributes[mathicsNumericalFindRoot, HoldAll];",
 "\nmathicsNumericalFindRoot[equation_, {variable_Symbol, start_}, options___] :=\n  Module[{goal, seed, exact, result, root, precision},\n    goal = PrecisionGoal /. {options};\n    seed = start;\n    exact = mathicsNumericalExactIntegerSeed[HoldComplete[equation], variable, seed];\n    If[exact =!= $Failed, Return[{variable -> exact}, Module]];\n    If[NumericQ[goal] && TrueQ[goal > N[MachinePrecision]],\n      fail[\"MathicsNumericalPrecisionUnavailable\",\n        \"Mathics FindRoot cannot supply the requested reference-root precision. No high-precision numerical comparison was produced.\",\n        <|\"RequestedPrecisionGoal\" -> goal, \"AvailablePrecision\" -> N[MachinePrecision],\n          \"ExactIntegerSeedVerified\" -> False|>]];\n    result = System`FindRoot[equation, {variable, seed}, options];\n    If[NumericQ[goal] && ListQ[result] && Length[result] === 1 &&\n        MatchQ[First[result], _Rule],\n      root = variable /. result;\n      If[NumericQ[root],\n        precision = N[Precision[root]];\n        If[! TrueQ[precision >= goal],\n          fail[\"MathicsNumericalPrecisionUnavailable\",\n            \"Mathics FindRoot returned fewer reference-root digits than requested. No high-precision numerical comparison was produced.\",\n            <|\"RequestedPrecisionGoal\" -> goal, \"ReturnedPrecision\" -> precision|>]]]];\n    result];",
 "\n\n(* These are the five package-owned numerical consumers of FindRoot.\n   Symbolic construction, direct exact special-inverse evaluation, and\n   caller uses of System`FindRoot keep their existing dispatch. *)\nScan[(DownValues[#] = DownValues[#] /. System`FindRoot -> mathicsNumericalFindRoot) &,\n  {numericalInverseEvidence, coordinateNumericalCheck, sourceCoordinateNumericalCheck,\n   gammaInverseNumerical, specialNumerical}];",
-"\n\n(* Mathics 10 returns Indeterminate from an arbitrary-precision N of\n   Log[c r] when c is an irrational constant and the rational r is below\n   about 10^-17, although N[Log[c] + Log[r]] evaluates. A tail target such as\n   Erfc[x] = 10^-20 reaches exactly this form. When a numerical evaluation\n   comes back Indeterminate, retry with logarithms of products whose factors\n   are all numerically positive split into sums; other logarithms and every\n   successful first evaluation are left unchanged. *)\nClearAll[mathicsNumericalN, mathicsNumericalSplitLog, mathicsNumericalSplitLogs];",
-"\nmathicsNumericalSplitLog[factors_List] :=\n  If[And @@ (TrueQ[N[#] > 0] & /@ factors), Total[Log /@ factors], Log[Times @@ factors]];",
+"\n\n(* Mathics 10 returns Indeterminate from an arbitrary-precision N of\n   Log[c r] when c is an irrational constant and the rational r is below\n   about 10^-17, although N[Log[c] + Log[r]] evaluates. A tail target such as\n   Erfc[x] = 10^-20 reaches exactly this form. When a numerical evaluation\n   comes back Indeterminate, retry with logarithms of products whose factors\n   are all numerically positive split into sums; other logarithms and every\n   successful first evaluation are left unchanged. *)\nClearAll[mathicsNumericalN, mathicsNumericalSplitLog, mathicsNumericalSplitLogs,\n  mathicsNumericalPositiveFactorQ];",
+"\n(* Splitting Log[a b] into Log[a] + Log[b] is a branch identity that needs\n   every factor positive. A machine-precision sign is not such a proof: an\n   exact rational below the double underflow threshold rounds to zero and\n   blocks a valid split, and an exactly negative factor can round to a\n   positive machine number and license a false one (wave-6 reports 48 N2 and\n   54 N03). Only this exact positive grammar authorizes the split; any other\n   factor leaves the logarithm unsplit. *)\nmathicsNumericalPositiveFactorQ[e_] := Which[\n  IntegerQ[e] || Head[e] === Rational, TrueQ[e > 0],\n  MemberQ[{Pi, E, EulerGamma, Catalan, GoldenRatio, Degree, System`Glaisher, System`Khinchin}, e], True,\n  Head[e] === Times || Head[e] === Plus, And @@ (mathicsNumericalPositiveFactorQ /@ List @@ e),\n  Head[e] === Power && (IntegerQ[e[[2]]] || Head[e[[2]]] === Rational),\n    mathicsNumericalPositiveFactorQ[e[[1]]],\n  Head[e] === Power && e[[1]] === E && (IntegerQ[e[[2]]] || Head[e[[2]]] === Rational), True,\n  Head[e] === Log && Length[e] === 1 && (IntegerQ[e[[1]]] || Head[e[[1]]] === Rational), TrueQ[e[[1]] > 1],\n  True, False];",
+"\nmathicsNumericalSplitLog[factors_List] :=\n  If[And @@ (mathicsNumericalPositiveFactorQ /@ factors), Total[Log /@ factors], Log[Times @@ factors]];",
 "\n(* Log[p_Times] with List @@ p: in Mathics, Times[factors__] binds the\n   whole product to a single sequence element, so it never splits. The\n   factors are processed first, so Log[-Log[c r]] still splits its inner\n   logarithm although its own factor -1 is negative. *)\nmathicsNumericalSplitLogs[expr_] := expr /. Log[product_Times] :>\n  mathicsNumericalSplitLog[mathicsNumericalSplitLogs /@ (List @@ product)];",
 "\nmathicsNumericalN[expr_, precision_] := Module[{value = N[expr, precision], split},\n  If[FreeQ[value, Indeterminate], Return[value, Module]];\n  split = mathicsNumericalSplitLogs[expr];\n  If[split === expr, value, N[split, precision]]];",
 "\nmathicsNumericalN[expr_] := mathicsNumericalN[expr, MachinePrecision];",
