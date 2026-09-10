@@ -1,0 +1,101 @@
+{
+  "provenance": "Selected, manually transcribed fields from successful remote Wolfram responses; not a raw MUnit log.",
+  "baseline_point": {
+    "input": "certLogPoint[1-2^-200, ctx]",
+    "ctx": {
+      "SeriesOrder": 2,
+      "Bits": 48,
+      "ExponentMagnitudeLimit": 10000
+    },
+    "display": [
+      "-0.00185185185185332557011861354112625122",
+      "0.00185185185185332557011861354112625122"
+    ],
+    "crosses_zero": true,
+    "display_digits_requested": 10,
+    "exact_primitive_interval_returned": false
+  },
+  "baseline_public_A": {
+    "head": "Failure",
+    "tag": "ResidualBracketOutsideInterval",
+    "certified": false,
+    "derivative_lower_bound": "1",
+    "refinements": 0
+  },
+  "reciprocal_only_public_A": {
+    "certified": true,
+    "contains_root": true,
+    "certified_error_display": "4.421718300208355648198e-75",
+    "requested_display_precision": 12,
+    "relative_primitive_width_display": "7.10542735760100185871124e-15",
+    "anchor_count": 1
+  },
+  "baseline_affine": {
+    "input": "certLogExpression[1+x,x,{2^-200,2^-200},ctx]",
+    "display": [
+      "0",
+      "7.10542735760100185871124e-15"
+    ],
+    "display_digits_requested": 12
+  },
+  "baseline_public_B": {
+    "head": "Failure",
+    "tag": "ResidualBracketOutsideInterval",
+    "certified": false,
+    "residual_enclosure": [
+      "-2^-200",
+      "2^-47"
+    ],
+    "derivative_lower_bound": "140737488355327/140737488355328",
+    "refinements": 0
+  },
+  "combined_candidate": {
+    "anchor_counts": [
+      1,
+      1
+    ],
+    "affine_relative_width_display": "3.55271367880050092935562e-15",
+    "A_certified": true,
+    "B_certified": true,
+    "A_root_contained": true,
+    "B_root_contained": true,
+    "A_error_display": "4.421718300208355648198e-75",
+    "B_error_display": "2.210859150104193533198e-75",
+    "requested_display_precision": 12
+  },
+  "controls": {
+    "nonlinear_fallback_identical": true,
+    "positive_product_with_negative_factor_identical": true,
+    "domain_tags_before_after": [
+      "IntervalDomain",
+      "IntervalDomain",
+      "IntervalDomain",
+      "IntervalDomain"
+    ],
+    "exact_one_before_after": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "centered_ratio_at_root": [
+      0,
+      0
+    ]
+  },
+  "other_native_control": {
+    "lookup_missing_defaults_shared_per_call": true,
+    "lookup_results": [
+      "{7,1,1}",
+      "1",
+      "{1,1}",
+      "1"
+    ],
+    "disposition": "suspected semantic defect rejected; not a finding"
+  },
+  "presentation_warning": "N[Log[1+2^-200],12] in the baseline-B batch emitted N::meprec with the default $MaxExtraPrecision=50. That displayed decimal is not used as a 12-digit truth oracle. Exact symbolic targets were passed to the package."
+}

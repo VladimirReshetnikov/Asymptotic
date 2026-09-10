@@ -1,0 +1,22 @@
+[
+  {
+    "id": "F01",
+    "title": "Below-one logarithm range reduction loses relative precision",
+    "classification": "avoidable certificate refusal and precision/performance defect; no false certificate",
+    "source": "src/Kernel/InverseCertificates.wl:54-72",
+    "baseline": "Wolfram 15.0.0 reproduced; case A fails ResidualBracketOutsideInterval",
+    "repair": "exact reciprocal reduction for 0<q<1 before dyadic range reduction",
+    "repair_status": "executed in temporary standalone copies; not integrated; Mathics unrun",
+    "nearest_prior": "C19/C20/P08 and wave-6 certificate precision reports; different operation and repair"
+  },
+  {
+    "id": "F02",
+    "title": "Affine logarithm arguments are rounded before the logarithm resolves their small scale",
+    "classification": "avoidable certificate refusal and precision/performance defect; no false certificate",
+    "source": "src/Kernel/InverseCertificates.wl:80-94,109-130",
+    "baseline": "Wolfram 15.0.0 reproduced; case B fails ResidualBracketOutsideInterval",
+    "repair": "pass exact rational affine endpoints directly to certLog",
+    "repair_status": "executed in temporary standalone copies; not integrated; Mathics unrun",
+    "nearest_prior": "C20 already computes affine ranges exactly; this loss occurs at the subsequent rounding boundary"
+  }
+]

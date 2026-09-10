@@ -1,0 +1,1186 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=0.9in,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage[table]{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{needspace,etoolbox}
+\usepackage{fancyhdr}
+\usepackage{xurl}
+\usepackage{hyperref}
+\definecolor{ink}{HTML}{18334D}
+\definecolor{muted}{HTML}{566879}
+\definecolor{wash}{HTML}{F2F5F7}
+\definecolor{linkblue}{HTML}{205F87}
+\hypersetup{colorlinks=true,linkcolor=ink,urlcolor=linkblue,citecolor=linkblue,
+  pdftitle={AsymptoticAnalysis: Incremental Audit of Logarithmic Certificate Precision},
+  pdfauthor={OpenAI},pdfsubject={Pinned-source review, exact interval proofs, native witnesses and candidate repairs}}
+\titleformat{\section}{\Large\sffamily\bfseries\color{ink}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries\color{ink}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries\color{ink}}{\thesubsubsection}{0.7em}{}
+\titlespacing*{\section}{0pt}{2.3ex plus .5ex}{1.2ex}
+\titlespacing*{\subsection}{0pt}{1.8ex plus .5ex}{.8ex}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{.55em}
+\setlength{\emergencystretch}{2em}
+\setcounter{tocdepth}{2}
+\pretocmd{\section}{\Needspace{6\baselineskip}}{}{}
+\clubpenalty=10000
+\widowpenalty=10000
+\setlist{itemsep=2pt,topsep=4pt,leftmargin=1.5em}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{muted} AsymptoticAnalysis \; / \; Incremental source audit}
+\fancyhead[R]{\small\sffamily\color{muted} 10 September 2026}
+\fancyfoot[L]{\small\sffamily\color{muted} Snapshot efa1aeec4845}
+\fancyfoot[R]{\small\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\lstset{basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{wash},
+  frame=single,rulecolor=\color{wash},framesep=6pt,xleftmargin=6pt,xrightmargin=6pt,
+  columns=fullflexible,keepspaces=true,showstringspaces=false,breaklines=true,
+  breakatwhitespace=false,tabsize=2,aboveskip=10pt,belowskip=10pt,
+  upquote=true}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\src}[1]{\texttt{\small\detokenize{#1}}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\I}{\mathcal I}
+\newcommand{\width}{\operatorname{wid}}
+\newcommand{\roundout}{\operatorname{out}}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\theoremstyle{remark}\newtheorem{remark}[proposition]{Remark}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\begin{document}
+\begin{titlepage}
+\vspace*{0.55in}
+{\sffamily\color{muted}\large PINNED-SOURCE TECHNICAL REVIEW\par}
+\vspace{0.35in}
+{\sffamily\bfseries\color{ink}\Huge AsymptoticAnalysis\par}
+\vspace{0.18in}
+{\sffamily\color{ink}\LARGE Logarithmic certificate precision\par}
+\vspace{0.22in}
+{\large Two independent losses of relative accuracy,\par
+native reproductions, proofs, and candidate repairs\par}
+\vspace{0.55in}
+{\renewcommand{\arraystretch}{1.22}
+\begin{tabularx}{\textwidth}{@{}p{1.18in}Y@{}}
+\toprule
+Repository & \url{https://github.com/VladimirReshetnikov/Asymptotic} \\
+Revision & \path{efa1aeec4845a9c35e140963a0333d0c9ec33b05} \\
+Review date & 10 September 2026 \\
+Native evidence & Wolfram Language 15.0.0, Linux x86-64; downloaded standalone \\
+Other evidence & Exact-rational Python models; 24 passing test methods \\
+Mathics boundary & Source analysis and supplied regressions; no Mathics execution \\
+\bottomrule
+\end{tabularx}}\par
+\vspace{0.16in}
+\textbf{Principal result.} Two distinct implementation choices discard relative
+accuracy around a logarithm's unit argument. The baseline safely refuses three
+exact-root certificate requests. Two small, independently tested changes make
+all three requests certify at the same enclosure order. No false certificate
+or incorrect expansion is alleged by these findings.
+
+\textbf{Novelty boundary.} This is an incremental review after six existing
+review waves. Known findings and their general roadmaps are excluded from the
+new work. The retained contribution is deliberately narrower than a claim of
+exhaustive verification of every repository file.
+\vfill
+{\small\color{muted}The archive contains the article source, candidate emitter,
+reproduction specifications, independent models, selected native observations,
+and explicit evidence limitations. Candidate code is not an upstream change.}
+\end{titlepage}
+
+\begin{abstract}
+This review investigates the current AsymptoticAnalysis implementation against
+its Wolfram and Mathics compatibility objective while screening out obligations
+already recorded in the repository's external reviews. Two new shortcomings
+remain after that screening. First, a positive rational just below one is
+reduced to a logarithm near two minus a separately enclosed logarithm of two;
+the resulting interval has an absolute uncertainty essentially unrelated to
+the tiny logarithm being computed. Second, an exactly computed rational affine
+argument of a logarithm is rounded near one before the logarithm is evaluated,
+losing the small displacement that determines the answer. These mechanisms
+are distinct: a four-variant, three-witness native experiment separates them.
+
+The proposed repairs use reciprocal reduction below one and preserve exact
+affine endpoints until after taking the logarithm. Their containment arguments
+are proved, their selected public consequences are reproduced on Wolfram
+15.0.0, and independent rational models pass 24 test methods. The article also
+develops a narrowly scoped, positivity-guarded logarithmic-ratio residual
+prototype. Mathics execution, canonical-source integration, a complete MUnit
+run, and performance benchmarking remain outside the executed evidence.
+\end{abstract}
+\tableofcontents
+\clearpage
+
+\section{Executive assessment}
+
+\subsection{What should change}
+The highest-value new work found in this audit is concentrated in
+\src{src/Kernel/InverseCertificates.wl}. The certificate engine is already
+careful about outward rounding, real domains, derivative separation, and
+existence evidence. The problems below are not failures of those safety
+checks. They make otherwise straightforward requests consume unnecessary
+precision or fail to produce a certificate at the requested resource
+settings. The inspected source is the pinned revision, not an inferred
+current branch state.\cite{source,certsource}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}p{.5in}Yp{1.46in}@{}}
+\toprule
+ID & New obligation & Evidence and priority \\
+\midrule
+F01 & Preserve relative precision when evaluating an exact rational logarithm
+just below one. Replace cancellation of two near-equal log enclosures by a
+single reciprocal reduction. & Native reproduction and repair; functional
+robustness/performance priority. \\
+F02 & Do not round an exact affine logarithm argument near one before applying
+the logarithm. Pass its exact range to the logarithm primitive. & Native
+reproduction and repair; functional robustness/performance priority. \\
+E01 & Explore a positive logarithmic-ratio residual that retains an exact
+zero at a known rational center. & New scoped development proposal;
+primitive checked, dispatcher integration unrun. \\
+\bottomrule
+\end{tabularx}
+\caption{Retained deltas. F01 and F02 are safe-refusal shortcomings, not
+unsound certificates. E01 is not counted as a demonstrated defect.}
+\end{table}
+
+For $\delta=2^{-200}$, the original low-order point enclosure of
+$\log(1-\delta)$ straddles zero with endpoint magnitude approximately
+$1.85\times10^{-3}$, although the logarithm has magnitude about
+$6.22\times10^{-61}$. Separately, evaluating $\log(1+x)$ at the exact point
+$x=\delta$ produces an enclosure approximately $[0,7.11\times10^{-15}]$.
+Both are valid enclosures; both are too wide for the deliberately small
+verification intervals in the public witnesses.
+
+The combined candidate certifies all three native witnesses at
+\code{"EnclosureOrder" -> 2} and \code{"MaxRefinements" -> 0}. In every
+successful row of the controlled comparison, the returned root interval
+contains the known exact root. The corresponding bounds on error of the
+\emph{supplied center} are about $4.42\times10^{-75}$ or
+$2.21\times10^{-75}$. They are not automatically error bounds for the stored
+finite asymptotic expression.
+
+\subsection{What this result does not establish}
+An enclosure-order option is a resource choice, not a promise that every
+problem must certify at that order. Thus a baseline refusal alone would be
+weak evidence of a bug. The stronger evidence is the identified loss mechanism,
+a family showing its scaling, a containment-preserving repair, and the
+same-resource native comparison. These justify treating the behavior as an
+avoidable numerical and coverage shortcoming without portraying a safe
+failure as an incorrect theorem.
+
+The successful candidate observations do not establish complete Wolfram
+compatibility, complete Mathics compatibility, or general superiority in every
+logarithm calculation. No default-setting benchmark was run. In particular,
+the report does not claim that ordinary adaptive defaults always fail for
+these moderate-size examples: increasing arithmetic work can recover some
+lost information. The issue is that substantially more work is then demanded
+for an avoidable representation choice.
+
+\section{Scope, provenance, and nonduplication}
+\subsection{Pinned source and execution boundary}
+The reviewed commit is
+\path{efa1aeec4845a9c35e140963a0333d0c9ec33b05}, committed on
+10 September 2026 at 19:09:04 UTC. Its root standalone package contains
+692,381 bytes. The remote native experiments downloaded this exact standalone
+to a temporary file and loaded it into a Wolfram Language kernel identifying
+itself as \code{15.0.0 for Linux x86 (64-bit) (May 6, 2026)}.
+The four-variant comparison reloaded temporary standalone copies within one
+kernel; it is not four independent environments. Other focused native probes
+were separate calls.\cite{source}
+
+A local repository clone and a local Mathics installation could not be
+obtained because the local environment's network access failed. The GitHub
+connector supplied source text, and the remote Wolfram evaluator supplied
+selected package executions. The remote service was intermittent: failed
+service calls are not counted as package failures, successful tests, or
+completed corpus scans.
+
+The following distinctions apply throughout:
+\begin{description}[style=nextline]
+\item[Native observation]
+A reported value came from a successful Wolfram call loading the pinned
+standalone or an explicitly identified temporary candidate.
+\item[Independent model]
+Python's \code{Fraction} arithmetic implements the small enclosure mechanism.
+It does not execute the repository and is not a Mathics simulation claim.
+\item[Proof]
+A mathematical argument establishes an enclosure or scaling property under
+stated exact-real hypotheses. It is not a machine-checked formalization.
+\item[Regression specification]
+A supplied WL/WLT file records desired behavior. Its existence is not evidence
+that the complete file or MUnit suite was executed.
+\end{description}
+
+No upstream files were modified. No canonical modular build, standalone
+freshness check, full package suite, complete new portable suite, or
+wall-clock performance benchmark was run. The code in the archive is a
+candidate and a reproduction aid, not a replacement release.
+
+\subsection{Breadth of inspection}
+The source inspection extended beyond the two retained findings. It covered
+public request and result definitions; substantial parts of the forward
+power-log jet arithmetic; the fixed-parameter special-function adapter; exact
+special-function identity normalization; real-domain guards; envelope
+arithmetic; selected Gamma, Dirichlet, and inverse-check paths; Mathics
+assumption, numerical, list, and compatibility adapters; and most of the
+certificate module. The fixed-parameter and identity modules were inspected
+particularly for lost branches, incorrect offsets, and finite identities
+mistaken for asymptotic truncations. No additional new defect in those paths
+was established by the performed analysis.\cite{kernel,specialparam,specialident}
+
+This is not a claim to have read every module line by line or to have
+verified all formulas reachable through native special functions. A broad
+search followed by a small retained set is preferable to padding the report
+with already-known or unverified defects. The useful deliverable here is a
+precise incremental contribution with runnable evidence.
+
+\subsection{How existing findings were excluded}
+The repository index records 45 retained packages across six review waves,
+with ten retired packages. Its count of 231 entries for waves 1--4 is a count
+of attributed report entries before consolidation, not 231 distinct current
+bugs. This audit used all six wave indexes and substantial portions of the
+maintained implementation register to screen candidate findings.\cite{reviews,status,wavefive,wavesix}
+
+A targeted additional text screen fetched twelve retained wave-2 TeX files
+and searched for the certificate logarithm helper names and near-one/log1p
+terms. That completed scan had no fetch failures and no matches. Larger
+attempted scans failed and are not claimed as completed. Not every retained
+article or PDF was individually reread. Consequently the defensible novelty
+claim is that these two mechanisms are absent from the inspected maintained
+crosswalks and targeted material, not a logically exhaustive proof that no
+sentence in the entire archive could be related.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}p{1.0in}YY@{}}
+\toprule
+Existing item & Previously recorded concern & Why the retained delta differs \\
+\midrule
+C19 & Certificate accuracy planning, progress, tolerances, and refinement. &
+F01 and F02 occur inside a single exact arithmetic attempt. They remain
+separable with adaptation disabled. \\
+C20 & Preserve cancellation when finding an affine range, especially with a
+large translated source coordinate. & F02 starts after that exact range has
+already been computed correctly. The later rounding before a logarithm
+loses a different small quantity. \\
+P08 & General profiling of proof and arithmetic work. & The new report gives
+a specific operation, a parameterized loss mechanism, and executed local
+repairs, not another generic profiling recommendation. \\
+Wave 6 & Mathics logarithm splitting authorized by rounded sign tests;
+interval-power geometry and budget behavior. & The new witnesses use the
+shared rational logarithm enclosure with positive exact inputs. No
+machine-sign split or interval power is involved. \\
+\bottomrule
+\end{tabularx}
+\caption{Nearest existing obligations are acknowledged, not restated as new
+findings. The archive contains a separate novelty crosswalk.}
+\end{table}
+
+The existing generic capability, native-backend, multiscale, certification,
+release, and provenance roadmaps are not repeated as new recommendations.
+The implementation plan below is restricted to the two repairs and their
+centered-residual extension.
+
+\section{The certificate arithmetic relevant to the findings}
+\subsection{Exact intervals and directed significant-bit rounding}
+Let an interval $[a,b]$ with rational endpoints represent a proved real
+inclusion. For a nonzero rational $q$, the code chooses
+\[
+ e=\lfloor\log_2|q|\rfloor,\qquad h=2^{e-B+1},
+\]
+where $B$ is the significant-bit budget. It rounds downward with
+$h\lfloor q/h\rfloor$ and upward with $h\lceil q/h\rceil$.
+Addition and multiplication compute exact rational endpoint expressions,
+then round outward. No floating-point sign test is used in this
+primitive.\cite{certsource}
+
+This arrangement protects inclusion. It does not retain dependence between
+separately enclosed occurrences of almost the same quantity. Nor does exact
+rational evaluation prior to one rounding step guarantee that a later
+ill-conditioned transformation will preserve useful relative accuracy.
+Those are the respective sources of F01 and F02.
+
+The public driver sets
+\begin{equation}\label{eq:bits}
+ B=4(n+10),
+\end{equation}
+where $n$ is \code{"EnclosureOrder"}. It accepts $2\le n\le2000$.
+The main witnesses intentionally use $n=2$, hence $B=48$, and zero
+refinements. They give an exact rational center strictly inside an exact
+rational interval, so the numerical seed path is not the cause of failure.
+
+\subsection{The existing logarithm formula}
+For $1\le q\le2$, set
+\[
+ u=\frac{q-1}{q+1},\qquad 0\le u\le\frac13.
+\]
+The classical identity
+\begin{equation}\label{eq:atanh}
+ \log q=2\sum_{k=0}^{\infty}\frac{u^{2k+1}}{2k+1}
+\end{equation}
+is the logarithmic form of the inverse hyperbolic tangent series.\cite{dlmf}
+The code retains $n$ terms and bounds the remaining positive tail:
+\begin{align}
+ S_n(q)&=2\sum_{k=0}^{n-1}\frac{u^{2k+1}}{2k+1},\label{eq:sum}\\
+ T_n(q)&=\frac{2u^{2n+1}}{(2n+1)(1-u^2)}.\label{eq:tail}
+\end{align}
+Indeed, for $k\ge n$ the denominator $2k+1$ is at least $2n+1$, so the
+remaining series is bounded by a geometric series. Thus
+\begin{equation}\label{eq:unitbound}
+ S_n(q)\le\log q\le S_n(q)+T_n(q).
+\end{equation}
+The final outward rounding preserves this enclosure.
+
+For a general positive rational, the original point routine takes
+$e=\lfloor\log_2q\rfloor$, $z=q/2^e\in[1,2)$, and combines independent
+enclosures using
+\begin{equation}\label{eq:reduction}
+ \log q=\log z+e\log2.
+\end{equation}
+The identity is correct. Its interval evaluation is the problem when the
+answer is a tiny difference of two quantities close to $\log2$.
+
+\subsection{Why a wide residual prevents certification}
+Suppose the verification interval is $I=[a,b]$, the candidate center is
+$c\in(a,b)$, the stored forward function is continuously differentiable on
+$I$, and the derivative has a fixed sign with $|f'|\ge\mu>0$ there. If the
+residual enclosure proves $|f(c)-y|\le\varepsilon$, the natural residual
+radius is $\varepsilon/\mu$.
+
+When the resulting symmetric bracket is contained in $I$, continuity and
+the derivative sign establish a root in that bracket. To see this in the
+increasing case, use
+\[
+ f(c-r)-y\le f(c)-y-\mu r\le0,\qquad
+ f(c+r)-y\ge f(c)-y+\mu r\ge0,
+\]
+with $r=\varepsilon/\mu$. The decreasing case is analogous. The code can
+also establish existence through separately enclosed endpoint residual
+signs. After existence is known, its signed derivative enclosure sharpens
+the root interval.\cite{certsource}
+
+A residual bound of size $10^{-3}$ or $10^{-15}$ cannot establish the desired
+local bracket inside an interval of width about $10^{-60}$ when the
+endpoint residuals are similarly overestimated. Refusing the certificate is
+then correct. Improving the arithmetic that supplied those bounds, rather
+than weakening existence or derivative checks, is the appropriate repair.
+
+\section{F01: near-one cancellation in the point logarithm}
+\subsection{Source mechanism}
+The relevant routine is \code{certLogPoint}, at canonical source lines
+61--72. After rejecting nonpositive arguments and returning an exact zero
+for one, it performs the binary range reduction in
+\eqref{eq:reduction}. There is no special treatment of a rational below
+one.\cite{certsource}
+
+Let $q=1-\delta$ with $0<\delta<1/2$. Then $e=-1$, so the implemented
+calculation is
+\begin{equation}\label{eq:badreduce}
+ \log(1-\delta)=\log(2-2\delta)-\log2.
+\end{equation}
+The intervals for the two logarithms are treated as independent, although
+they approach the same value as $\delta\to0^+$.
+
+\begin{proposition}[Fixed-order loss]\label{prop:loss}
+Before outward rounding, the interval produced by the two unit-log
+bounds in \eqref{eq:badreduce} tends to
+\[
+ [-T_n(2),T_n(2)]\quad\text{as }\delta\to0^+,
+\]
+where
+\begin{equation}\label{eq:tailtwo}
+ T_n(2)=\frac{3^{1-2n}}{4(2n+1)}>0.
+\end{equation}
+For every fixed $n$, sufficiently small positive $\delta$ therefore makes
+this enclosure straddle zero. Outward rounding cannot repair the sign loss.
+\end{proposition}
+\begin{proof}
+The lower and upper endpoints of the unrounded subtraction are
+\[
+ S_n(2-2\delta)-S_n(2)-T_n(2)
+\]
+and
+\[
+ S_n(2-2\delta)+T_n(2-2\delta)-S_n(2).
+\]
+Continuity of these finite rational expressions near two gives the stated
+limits. Substituting $u=1/3$ into \eqref{eq:tail} gives
+\eqref{eq:tailtwo}. Since the limiting lower endpoint is strictly negative
+and the limiting upper endpoint strictly positive, the crossing persists
+for sufficiently small $\delta$. Enlarging an interval by outward rounding
+cannot remove that crossing.
+\end{proof}
+
+For $n=2$, $T_2(2)=1/540$. The problem is not an algebraic identity error or
+inexact input: it remains in exact rational arithmetic with valid explicit
+tail bounds. At $q=1$ itself the exact-zero branch is used; the precision
+behavior is sharply different immediately below it.
+
+\subsection{Native witness A}
+The following is the mathematical core of the executed request. Load the
+pinned standalone in a separate input expression first; the archive's
+portable probe uses fully qualified package symbols.
+\begin{lstlisting}
+d = 2^-200;
+s = AsymptoticInverse[Log[x], {x, 1}, {y, 3},
+      Direction -> "FromBelow"];
+r = InverseCertificate[s, Log[1-d],
+      "Interval" -> {1-2d, 1-d/2}, "Center" -> 1-d,
+      "EnclosureOrder" -> 2, "MaxRefinements" -> 0];
+\end{lstlisting}
+The exact root is $x_*=1-d$. The interval lies strictly below the expansion
+point one and contains that root in its interior. On the interval,
+$f'(x)=1/x>1$. The native failure reported a derivative lower bound of one,
+so failure to separate the derivative from zero is not involved.
+
+The baseline returned
+\code{Failure["ResidualBracketOutsideInterval", ...]}. A separate call to
+the point logarithm primitive at the same order displayed approximately
+\[
+ [-0.00185185185185,\;0.00185185185185].
+\]
+That primitive's full exact interval was not returned in the successful
+native transcript. The independent rational model gives the exact endpoints
+\[
+ \pm\frac{65156244609}{35184372088832},
+\]
+whose numerical values agree with the displayed native result. These exact
+endpoints are model evidence, not an invented exact native transcript.
+
+The root was supplied exactly, and the symbolic target was \code{Log[1-d]}.
+No reference-root numerical solver, approximate target, or unproved
+asymptotic error constant is needed to explain the failure.
+
+\subsection{Candidate repair and inclusion proof}
+Insert the following line immediately after the existing exact-one case,
+with the existing positivity check retained:
+\begin{lstlisting}
+If[q < 1,
+  Return[certNeg[certLogPoint[1/q, ctx]], Module]];
+\end{lstlisting}
+All arguments to the added branch are positive exact rationals. If $q<1$,
+then $1/q>1$, so recursion occurs at most once. Arguments at least one
+continue through the original branch, including the exact result at one.
+
+\begin{proposition}[Reciprocal repair]
+If the original positive-input logarithm routine returns a containing
+interval $[L,U]$ at $1/q$, then the candidate interval $[-U,-L]$ contains
+$\log q$. For $q=1-\delta$ and $0<\delta<1/2$, the new unit-series variable is
+\begin{equation}\label{eq:smallu}
+ u'=\frac{\delta}{2-\delta}.
+\end{equation}
+At fixed $n$, its unrounded tail is $O(\delta^{2n+1})$.
+\end{proposition}
+\begin{proof}
+The positive-real identity $\log q=-\log(1/q)$ reverses the interval
+endpoints and proves inclusion. Since $1<1/(1-\delta)<2$, the binary
+exponent of the reciprocal is zero. Substitution into $(z-1)/(z+1)$ gives
+\eqref{eq:smallu}. Equation \eqref{eq:tail} then gives the stated tail order.
+\end{proof}
+
+Because $|\log(1-\delta)|\sim\delta$, the relative tail is
+$O(\delta^{2n})$. Outward rounding of the resulting small logarithm has
+absolute scale $O(\delta 2^{-B})$, rather than the scale of a number near
+$\log2$. This explains why the repair helps even though it does not increase
+the significant-bit budget.
+
+The proof establishes containment, not a claim that the new interval is
+narrower than the original for every positive rational far from one. Nor
+does it assert constant bit complexity: representing an input such as
+$1-2^{-m}$ already requires a number of bits growing with $m$.
+
+\subsection{Executed effect}
+The patch anchor matched the downloaded standalone exactly once. Loading a
+temporary copy with the inserted line changed witness A to a successful
+certificate. The returned root enclosure contained $1-2^{-200}$, and its
+bound on error of the supplied center was approximately
+$4.42\times10^{-75}$. The primitive's observed width divided by $2^{-200}$
+was about $7.11\times10^{-15}$; the exact independent model value is $2^{-47}$.
+
+This is a controlled improvement with the same input interval, center,
+enclosure order, and zero refinement budget. It is not an acceptance run of
+all certificates or a measurement of end-to-end speed.
+
+\section{F02: rounding an affine argument before its logarithm}
+\subsection{Where correct exact work is discarded}
+The package already contains \code{certAffinePair} and
+\code{certAffineRange}. They recognize rational affine trees built from
+constants, the source symbol, \code{Plus}, and \code{Times}, and compute an
+exact range. That existing mechanism is not missing and is not proposed
+again here.\cite{certsource,status}
+
+However, \code{certEnclose} rounds that exact affine range before returning
+it. The fallback in \code{certLogExpression} then applies
+\code{certLog} to the rounded argument. The loss occurs in the sequence
+\begin{equation}\label{eq:premature}
+ \text{exact affine range}
+ \;\longrightarrow\;\text{rounded range near 1}
+ \;\longrightarrow\;\text{logarithm enclosure}.
+\end{equation}
+The relevant source is the logarithm-expression helper at lines 80--94
+and the affine enclosure path at lines 109--130.
+
+For $x=\delta=2^{-200}$, the exact value of $1+x$ is available. At $B=48$
+its significant-bit grid near one has spacing $2^{-47}$, so outward rounding
+turns the point into $[1,1+2^{-47}]$. Taking a logarithm of that interval must
+include zero. Its width is governed by the precision near one, not by the
+size of $\log(1+\delta)$.
+
+\begin{proposition}[Information lost before a logarithm]\label{prop:affineloss}
+Let $B\ge2$, $h=2^{1-B}$, and $0<\delta<h$. The significant-bit outward
+rounding of the singleton $1+\delta$ is $[1,1+h]$. Every sound enclosure of
+the logarithm over that rounded interval contains both $0$ and
+$\log(1+h)$. Increasing only the accuracy of the subsequent logarithm
+calculation cannot recover the original singleton's information.
+\end{proposition}
+\begin{proof}
+All values in $[1,2)$ use exponent zero and grid $h$. For $0<\delta<h$, the
+downward grid neighbor is one and the upward grid neighbor is $1+h$.
+The logarithm is strictly increasing on the positive real axis, and its
+exact image of that rounded interval is $[0,\log(1+h)]$. Any sound enclosing
+interval must contain this image, irrespective of how accurately its
+endpoints are computed.
+\end{proof}
+
+This is distinct from F01. For an exact point just above one, the original
+point logarithm has binary exponent zero and does not subtract a logarithm
+of two. The loss in F02 happens before that otherwise favorable primitive
+receives its input.
+
+\subsection{Native witness B}
+\begin{lstlisting}
+d = 2^-200;
+s = AsymptoticInverse[Log[1+x], {x, 0}, {y, 3}];
+r = InverseCertificate[s, Log[1+d],
+      "Interval" -> {d/2, 2d}, "Center" -> d,
+      "EnclosureOrder" -> 2, "MaxRefinements" -> 0];
+\end{lstlisting}
+Here the exact inverse is $e^y-1$, the supplied root is $x_*=d$, and the
+package's retained finite expression was \code{y + y^2/2}. On the given
+positive interval, $f'(x)=1/(1+x)$ is positive and close to one.
+
+The baseline again returned
+\code{Failure["ResidualBracketOutsideInterval", ...]}. Its recorded
+residual enclosure was
+\[
+ [-2^{-200},\;2^{-47}],
+\]
+and its derivative lower bound was the positive rational
+\[
+ \frac{140737488355327}{140737488355328}.
+\]
+A primitive call displayed the logarithm enclosure
+$[0,7.105427357601\times10^{-15}]$ at the exact singleton source point.
+The interval is conservative, not incorrect, but its uncertainty is much
+larger than the verification interval.
+
+A separate decimal display of \code{N[Log[1+2^-200],12]} in that native batch
+emitted \code{N::meprec}. That display is not used as a twelve-digit oracle
+in this article. The package received an exact symbolic target, and the
+independent numerical controls use \code{mpmath.log1p} at sufficient
+precision. Confusing a display warning with an exact-certificate failure
+would obscure the actual mechanism.
+
+\subsection{Candidate repair}
+Before the existing special cases in \code{certLogExpression}, add:
+\begin{lstlisting}
+If[MemberQ[{Plus, Times}, Head[argument]],
+  candidate = certAffineRange[argument, x, interval];
+  If[ListQ[candidate],
+    Return[certLog[candidate, ctx], Module]]];
+\end{lstlisting}
+The existing \code{candidate} local is reused. The change does not ask for a
+new general symbolic solver. It consumes the exact range already supported
+by the package and delays rounding until the logarithm primitive has
+converted the near-unit argument into the small answer.
+
+\begin{proposition}[Exact affine logarithm range]
+Let $p(x)=ax+b$ with $a,b\in\Q$, let $I=[\ell,r]$ have rational endpoints,
+and let the exact range $J=p(I)$ be strictly positive. If the point-log
+routine encloses the logarithm of each endpoint of $J$, choosing its lower
+bound at $\min J$ and upper bound at $\max J$ encloses $\log p(x)$ for every
+$x\in I$.
+\end{proposition}
+\begin{proof}
+An affine function attains its extrema at interval endpoints; sorting
+$a\ell+b$ and $ar+b$ therefore gives its exact range, including when $a<0$.
+The logarithm is increasing on $(0,\infty)$. Its range is consequently
+$[\log\min J,\log\max J]$, which is enclosed by the specified point bounds.
+The existing \code{certLog} check rejects a nonpositive lower endpoint,
+so the repair does not discard the required domain condition.
+\end{proof}
+
+For a nonaffine argument, the recognizer returns failure and the original
+fallback remains available. For a positive product whose individual factors
+are negative, an exact affine range is sufficient: the repair does not need
+to assert real logarithms of those individual negative factors. This is not
+an unrestricted product-logarithm rewrite.
+
+\subsection{Executed effect and costs}
+The F02 anchor also matched exactly once in the full standalone. With this
+repair alone, witness B certified, its exact root was contained, and the
+center error bound was approximately $2.21\times10^{-75}$. The primitive's
+width divided by $2^{-200}$ was about $3.55\times10^{-15}$, with exact
+independent model value $2^{-48}$.
+
+For admitted affine expressions, exact endpoint construction was already
+performed by the old path; the candidate avoids throwing away that
+information before the logarithm. For a nonaffine \code{Plus} or
+\code{Times} argument, the new dispatch can perform an extra unsuccessful
+affine probe before the old path. Thus the repair is not advertised as a
+universal speedup. A future implementation should measure this specific
+additional work while retaining the mathematical invariant, rather than
+changing unrelated affine recognizer architecture as part of this patch.
+
+\section{Independent causes: the controlled native comparison}
+\subsection{A translated negative-side witness}
+The third witness is
+\begin{lstlisting}
+d = 2^-200;
+s = AsymptoticInverse[Log[1+x], {x, 0}, {y, 3},
+      Direction -> "FromBelow"];
+r = InverseCertificate[s, Log[1-d],
+      "Interval" -> {-2d, -d/2}, "Center" -> -d,
+      "EnclosureOrder" -> 2, "MaxRefinements" -> 0];
+\end{lstlisting}
+Call this witness C. It is the same equation as A after the exact coordinate
+translation $x_A=1+x_C$. The source interval and center are translated with
+it. However, the expression-tree path now computes the affine argument
+$1+x_C$, so both early rounding and below-one reduction can matter.
+
+This is an especially useful regression because it does not rely on comparing
+unrelated mathematical functions. A source coordinate change should not
+manufacture orders of magnitude of avoidable proof uncertainty.
+
+\subsection{Four full standalone variants}
+The controlled experiment loaded the baseline and three temporary source
+variants: reciprocal only, exact-affine logarithm only, and both. It evaluated
+A, B, and C under each variant. The complete matrix is stored in
+\src{evidence/native-matrix.json}; it is a selected transcription of a
+successful remote response, not a raw MUnit receipt.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Source variant & A: $\log x$ below 1 & B: $\log(1+x)$, $x>0$ & C: $\log(1+x)$, $x<0$ \\
+\midrule
+Baseline & Refused & Refused & Refused \\
+F01 only & Certified & Refused & Refused \\
+F02 only & Refused & Certified & Refused \\
+F01 and F02 & Certified & Certified & Certified \\
+\bottomrule
+\end{tabular}
+\caption{Twelve native public evaluations. Every refusal had tag
+\code{ResidualBracketOutsideInterval}; every certification contained the
+known exact root. The enclosure order and refinement budget were unchanged.}
+\label{tab:matrix}
+\end{table}
+
+The matrix establishes noninterchangeability. F01 alone does not recover the
+small affine displacement in B. F02 alone does not cure the below-one point
+reduction in A. For C, resolving only one loss leaves the other active.
+The combined result therefore supplies stronger evidence than testing each
+patch only on its own favorable example.
+
+The series constructions in the matrix were not regenerated for every variant;
+the changes target certificate arithmetic, and the same stored inputs were
+used. Reloading definitions in one kernel is useful for a controlled
+comparison but does not substitute for clean-kernel installation and modular
+loading checks before integration. Separate preliminary calls nevertheless
+also reproduced the individual baseline and candidate mechanisms.
+
+\subsection{Negative and fallback controls}
+Additional executed native controls compared the baseline and combined
+candidate. The nonlinear argument \code{1+x^2} on \code{{1,2}} produced an
+identical enclosure. The positive argument \code{-x} on \code{{-2,-1}} also
+produced an identical result. A logarithm of \code{1+x} over
+\code{{-2,0}} retained an \code{IntervalDomain} refusal, as did a point
+logarithm at zero. The value at one remained exactly \code{{0,0}}.
+
+These controls address concrete risks of the edits: bypassing a domain check,
+breaking the nonlinear fallback, or mishandling negative factors of a positive
+argument. They are not an exhaustive equivalence check of all old and new
+interval widths. A separate suspected lookup-default issue was dismissed by
+a native control showing the expected shared lazy default; it is not included
+as a third finding.
+
+\subsection{Conditioning versus representation}
+It would be inaccurate to say that $q\mapsto\log q$ is relatively
+well-conditioned near one: its relative condition number is
+$1/|\log q|$. The audit concerns an \emph{exact} rational $q$ whose small
+displacement is known. With that displacement as input, the maps
+\[
+ \delta\mapsto\log(1+\delta),\qquad
+ \delta\mapsto\log(1-\delta)
+\]
+have relative condition numbers tending to one as $\delta\to0$.
+The corresponding inverse-root derivatives in the witnesses are also close
+to one. The excessive uncertainty arises from changing that exact
+representation into separately rounded or separately enclosed large terms.
+
+A robust certificate engine should exploit exact structure when it is
+available, while remaining conservative when it is not. The proposed edits
+follow that principle without weakening any certified inclusion.
+
+\section{Quantifying the avoidable work}
+\subsection{A rational work model, not a benchmark}
+The archive includes exact models of the rounded primitive and a separate
+order-cost table. These calculations do not measure wall time, peak memory,
+actual adaptive iterations, or total package cost. They show how two known
+sources of uncertainty scale with $\delta=2^{-m}$.
+
+For F01, define a simple comparison threshold by requiring
+\begin{equation}\label{eq:proxy}
+ T_n(2)\le\frac{2^{-m}}8.
+\end{equation}
+The smallest such $n\ge2$ is an exact rational work proxy for reducing the
+near-$\log2$ tail to a fraction of the small target scale. It is not a
+necessary and sufficient certificate-success condition. The actual
+expression also contains the second tail, outward rounding, derivative
+bounds, and interval geometry.
+
+For F02, avoiding the particular rounded point interval
+$[1,1+2^{1-B}]$ at $1+2^{-m}$ requires at least
+\[
+ B\ge m+1.
+\]
+With the driver's rule \eqref{eq:bits}, this gives the lower bound
+\begin{equation}\label{eq:affineorder}
+ n\ge \max\left(2,\left\lceil\frac{m+1}{4}\right\rceil-10\right).
+\end{equation}
+This lower bound only removes the identified grid loss; it does not prove
+that all remaining certificate checks will succeed.
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{@{}rrr@{}}
+\toprule
+$m$ in $\delta=2^{-m}$ & Least $n$ satisfying \eqref{eq:proxy} & Grid lower bound \eqref{eq:affineorder} \\
+\midrule
+100 & 31 & 16 \\
+200 & 62 & 41 \\
+500 & 156 & 116 \\
+1000 & 314 & 241 \\
+10000 & 3152 & 2491 \\
+\bottomrule
+\end{tabular}
+\caption{Exact arithmetic work models, not kernel timings or measured retry
+counts. The last row is a theoretical scale example, not an executed
+10,000-bit public stress test.}
+\end{table}
+
+Since the driver caps $n$ at 2000, its largest $B$ is 8040. At $m=10000$,
+early rounding of $1+2^{-m}$ still loses the small displacement even at that
+cap. This identifies a precision obstacle in the original path, not a newly
+executed cap-level failure. The narrow candidate preserves the exact
+endpoints instead of attempting to hide the obstacle by raising a global cap.
+
+For F01, \eqref{eq:proxy} implies an order growing asymptotically like
+$m/(2\log_2 3)$ up to logarithmic corrections. With reciprocal reduction,
+the series variable itself is of order $2^{-m}$, so a fixed number of terms
+can already make the tail negligible relative to a fixed significant-bit
+rounding budget.
+
+\subsection{Representative exact-model widths}
+At $m=200$, $n=2$, and $B=48$, the independent model gives
+\begin{align*}
+ \frac{\width(\I_{\rm original}(\log(1-\delta)))}{\delta}
+   &\approx5.95\times10^{57},\\
+ \frac{\width(\I_{\rm reciprocal}(\log(1-\delta)))}{\delta}
+   &=2^{-47},\\
+ \frac{\width(\I_{\rm early\ round}(\log(1+\delta)))}{\delta}
+   &\approx1.14\times10^{46},\\
+ \frac{\width(\I_{\rm affine\ fused}(\log(1+\delta)))}{\delta}
+   &=2^{-48}.
+\end{align*}
+The CSV includes further scales from $m=20$ to $m=1000$. At smaller $m$, the
+affine input may already be adequately representable, and F02 need not
+improve the result. This is another reason not to advertise a universal
+improvement factor.
+
+The exact rational arithmetic still has input-size and intermediate-size
+costs. In particular, a denominator $2^{m}$ has a binary representation of
+length growing with $m$, and the finite rational powers in the unit-log
+series involve larger integers. The claim is elimination of an artificial
+need to increase \emph{series depth} with the small scale, not constant-time
+arithmetic on arbitrarily large inputs.
+
+\section{Wolfram 15 and Mathics3 implications}
+\subsection{What was verified on Wolfram}
+The main witnesses and edits were exercised on a real Wolfram 15.0.0 kernel,
+loading the complete downloaded standalone. The experiment therefore went
+beyond isolated helper transcription: public inverse objects were constructed
+and passed through the actual certificate driver. Both candidate text anchors
+were checked against the actual standalone, not merely against synthetic
+fixtures.
+
+The observations still have specific limits. They are selected remote
+responses, not a complete MUnit log. The provided eight-test WLT file was not
+executed as one \code{TestReport}. The candidate emitter was locally tested
+on fixtures; equivalent substitutions were applied to the actual standalone
+with Wolfram string operations. Neither successful mechanism implies the
+canonical module was rebuilt and that its generated distribution was
+revalidated.
+
+\subsection{Why the source finding matters to Mathics}
+The compatibility documentation targets Mathics3 10.0.1 with scanner 10.0.1,
+SymPy 1.14.0, and Python 3.11. It explicitly distinguishes selected portable
+acceptance from complete compatibility. The Mathics adapters isolate missing
+or differing evaluator behavior in package-owned contexts rather than
+patching global System functions.\cite{mathicscompat,mathicssite}
+
+The logarithm certificate routines under review are shared exact-rational
+code, rather than the separate Mathics numerical logarithm-splitting guard.
+Their mathematical loss mechanisms do not depend on a machine floating-point
+sign test. The candidate uses rational comparison, reciprocal construction,
+interval negation, and the existing affine recognizer. These are appropriate
+operations for a portable repair, but that source-level observation is not an
+execution result.
+
+There was no working Mathics kernel in this audit. Consequently the report
+makes no claim that the candidate loads, returns early correctly through the
+Mathics compatibility layer, meets its iteration budget, or produces exactly
+the observed Wolfram matrix in Mathics. The supplied portable cases provide a
+concrete acceptance target for that missing run.
+
+\subsection{A focused cross-runtime acceptance obligation}
+The proposed integration should execute the same A/B/C requests on both
+runtimes and both supported layouts. Record whether each output is an
+association or failure before reading numerical fields. On a successful
+certificate, assert at least \code{Certified === True}, exact root
+containment, and a center error bound below $\delta/8$. This prevents a
+missing field or unevaluated expression from silently turning a numerical
+comparison into a vacuous success.
+
+The first acceptance run should retain the same order and zero-refinement
+budget as the native evidence. Only afterward should adaptive defaults and
+larger scales be measured. This separates local arithmetic behavior from the
+already-existing driver's scheduling. The no-op exact-one, nonpositive-domain,
+positive-negative-factor, and nonlinear fallback controls should travel with
+the same patch.
+
+The repository warns that a command-line expression parsed before package
+loading can bind unfamiliar public symbols in the wrong context. The
+supplied reproduction recipe therefore loads the package before the probe
+as separate input expressions, and the probe uses fully qualified public
+names. Its Mathics iteration-limit adjustment is explicit and matches the
+repository's guidance; it is not an unannounced package-global change.
+\cite{mathicscompat}
+
+\section{E01: center-preserving logarithmic residuals}
+\subsection{A narrower next step than a general expression optimizer}
+F01 and F02 improve the logarithms supplied to the residual calculation.
+There is a further, optional opportunity: sometimes the exact relationship
+between the two logarithms in a residual can be retained instead of treating
+them independently.
+
+For strictly positive real $p$ and $q$,
+\begin{equation}\label{eq:logratio}
+ \log p-\log q=\log\left(\frac pq\right).
+\end{equation}
+This is an elementary real identity, not a new mathematical result. Its
+application here should be a narrow, explicit certificate operation with
+positivity obligations, not a global principal-log simplification rule.
+
+For $p(x)=ax+b$ with rational coefficients and positive rational $q$, the
+exact affine image of $p(x)/q$ can be passed to the logarithm routine. If an
+exact rational center $c$ satisfies $ac+b=q$, the ratio at $c$ is exactly
+one and its logarithm is exactly zero. Separate intervals for
+$\log(ac+b)$ and $\log q$ usually retain nonzero uncertainty even when both
+represent the same exact number.
+
+\begin{proposition}[Centered affine log-ratio enclosure]
+Let $a,b,q,\ell,r\in\Q$, $q>0$, $\ell\le r$, and
+$ax+b>0$ throughout $[\ell,r]$. Define
+\[
+ J=\operatorname{sort}\left\{\frac{a\ell+b}{q},
+                             \frac{ar+b}{q}\right\}.
+\]
+A containing logarithm interval for $J$ contains
+$\log(ax+b)-\log q$ throughout the source interval. At a singleton $c$ with
+$ac+b=q$, the existing exact-one rule produces the exact residual interval
+$[0,0]$.
+\end{proposition}
+\begin{proof}
+Division by positive $q$ preserves the positive affine image. Equation
+\eqref{eq:logratio} holds on that domain, and monotonicity of the logarithm
+then gives the enclosure. At the stated singleton the image is exactly
+$\{1\}$, whose logarithm is exactly zero.
+\end{proof}
+
+\subsection{Executed primitive, unintegrated proposal}
+With the combined candidate loaded, the following primitive was executed
+natively and returned \code{{0,0}}:
+\begin{lstlisting}
+certLogExpression[(1+x)/(1+2^-200), x,
+  {2^-200, 2^-200}, ctx]
+\end{lstlisting}
+The call used the actual private helper under its package context. It does
+not establish that the public certificate dispatcher rewrites the original
+residual to this ratio. That integration was neither implemented nor claimed.
+
+The archive's \src{code/LogRatioPrototype.wl} provides explicitly named
+rational and affine-ratio wrappers. The wrapper file itself was not executed
+as a separate Wolfram or Mathics program. Its corresponding centered primitive
+and the mathematical identity have the evidence stated above. It is a
+prototype for a narrowly guarded operation, not an installed repair.
+
+\subsection{Required guardrails}
+A future dispatcher integration should derive the ratio from retained
+positive-real data, not merely replace two syntactically matching
+\code{Log} nodes. Native evaluation may rewrite a negative logarithm or
+rearrange a rational target before the certificate routine sees it. A
+syntactic match that accidentally broadens to complex inputs would lose the
+real identity's hypotheses.
+
+A zero point residual does not waive source-domain, continuity, derivative,
+or root-containment obligations. An exact root does not by itself prove
+uniqueness over the supplied interval or identify a global inverse branch.
+The existing certificate checks must remain in charge of those claims.
+The extension should preserve the original equation and identify any
+transformed residual in its evidence, so an error bound is never silently
+reinterpreted in another variable.
+
+A sensible first implementation boundary is positive rational targets with
+rational affine logarithm arguments only. That boundary is sufficient to
+exercise exact centering, has an explicit proof, and avoids introducing a
+new general logarithmic normalization subsystem. More general positive
+expressions would require their own transformation and range contracts.
+
+\section{Tests, artifacts, and reproducibility}
+\subsection{Independent test population}
+The independent Python run passed 24 unittest methods: five basic arithmetic
+methods, thirteen logarithm/model methods, and six candidate-emitter fixture
+methods. Some methods loop over many exact cases; those subcases are not
+inflated into a package acceptance count. The actual output is retained in
+\src{evidence/python-tests.txt}.
+
+The exact model covers directed rounding for signed rationals, binary
+exponents, interval arithmetic, baseline and repaired point logarithms,
+affine transformations with positive and negative slopes, domain refusals,
+reciprocity, and the explicit unit-tail formula. Near-one families cover
+several small scales and series orders. A separate mean-value-radius model
+checks a consequence of valid residual intervals; it is not presented as a
+transcription of the entire certificate driver.
+
+High-precision mpmath checks are independent numerical containment controls,
+not proofs by themselves. One rational grid uses 180 decimal digits. The
+near-one controls use \code{log1p} with 450 digits, including
+$\delta=2^{-1000}$. Construction of the rational bounds never uses the
+mpmath values or machine floating-point signs. The proofs in this article
+supply the general inclusion arguments; numerical controls help detect
+implementation mistakes in the independent model.
+
+\subsection{Candidate emitter and application discipline}
+The emitter accepts the canonical certificate module or a standalone file,
+checks that each selected anchor occurs exactly once, and writes a new
+candidate file. It refuses in-place replacement, an existing destination,
+missing or repeated anchors, and repeat application. Its local tests use
+synthetic anchor fixtures. This is useful fail-closed behavior, but not proof
+of correct integration into an arbitrary later source revision.
+
+For example, from the archive root:
+\begin{lstlisting}
+python code/emit_candidate.py \
+  /path/to/repo/AsymptoticAnalysis.wl \
+  /tmp/AsymptoticAnalysis.audit.wl --mode both
+\end{lstlisting}
+The other modes, \code{reciprocal} and \code{affine}, reproduce the separate
+columns of the experiment. To integrate, apply the selected edits in a
+staging checkout to \src{src/Kernel/InverseCertificates.wl}, regenerate the
+standalone by the repository's maintained process, and execute the focused
+acceptance there. This review did not perform that modular build.
+
+\subsection{Native and portable reproduction}
+Use separate input expressions after selecting a baseline or candidate path:
+\begin{lstlisting}
+Get["/tmp/AsymptoticAnalysis.audit.wl"];
+Get["/path/to/audit/code/PortableLogCases.wl"];
+\end{lstlisting}
+The portable file contains three public witnesses and primitive observations.
+Its expected baseline and candidate outcomes are the Wolfram-observed matrix,
+not asserted Mathics results. The eight desired-contract MUnit cases can be
+run on a native kernel after loading the combined candidate:
+\begin{lstlisting}
+TestReport["/path/to/audit/code/ReviewLogPrecision.wlt"]
+\end{lstlisting}
+That complete WLT invocation was not executed in this audit. The archive
+retains this distinction even where its constituent cases correspond to
+successful individual native probes.
+
+From \src{code/}, the independent checks run with:
+\begin{lstlisting}
+python -m pip install -r requirements.txt
+python -m unittest -v test_reference
+\end{lstlisting}
+The recorded Python environment was 3.13.5 with mpmath 1.3.0. This environment
+is independent of the repository's documented Python 3.11 Mathics target;
+passing the Python model does not validate that target interpreter.
+
+\subsection{Evidence inventory}
+\begin{longtable}{@{}p{2.2in}p{4.05in}@{}}
+\toprule
+Artifact & Meaning \\
+\midrule
+\endfirsthead
+\toprule Artifact & Meaning \\ \midrule
+\endhead
+\path{evidence/scope.json} & Commit, runtime, completed work, and explicit
+execution limits. \\
+\path{evidence/findings.json} & Machine-readable descriptions of F01 and F02;
+no inflated bug or test totals. \\
+\path{evidence/native-matrix.json} & Selected transcription of the twelve
+controlled public evaluations. Displayed decimal mantissas do not imply more
+accuracy than the requested display precision. \\
+\path{evidence/native-observations.json} & Individual primitive/public results,
+negative controls, and the numerical-display warning. Not a raw MUnit log. \\
+\path{evidence/python-tests.txt} & Actual output of the 24-method independent
+model and fixture run. \\
+\path{evidence/model-samples.csv} & Rational-model widths, rendered numerically
+for comparison; not measured kernel timings. \\
+\path{evidence/order-cost-model.json} & Exact tail-threshold and grid-order
+models, including an explicitly theoretical large-scale row. \\
+\path{evidence/novelty-crosswalk.md} & Nearest existing obligations and the
+limits of the completed nonduplication screen. \\
+\bottomrule
+\end{longtable}
+
+The source excerpts and anchors derive from the repository under its MIT
+No Attribution license. The archive preserves that license and a provenance
+notice. It does not redistribute the entire upstream package or its
+historical review corpus.\cite{license}
+
+\section{Recommended integration sequence and conclusion}
+\subsection{Immediate scoped work}
+First, integrate F01 and F02 as separately reviewable changes to the canonical
+certificate module. Each has a small local mathematical obligation and an
+individual witness. The combined gate must include witness C; otherwise a
+translated version of the same logarithmic equation can remain obstructed
+after a seemingly successful partial repair.
+
+Second, run the supplied low-order cases in clean kernels on the intended
+Wolfram and Mathics versions, in modular and standalone layouts. Preserve
+exact source pinning and distinguish a script load failure, a structured
+refusal, an unevaluated result, and a certified association. The present
+native observations establish feasibility, not integration completion.
+
+Third, measure only the changed paths at matched certificate goals. Include
+admitted affine logarithms, nonaffine fallbacks, arguments away from one,
+positive products with negative factors, and invalid domains. Report rational
+operand sizes and achieved root widths alongside runtime. This measurement
+should decide whether an extra failed affine probe is material; it should
+not weaken the exact-endpoint invariant merely to reduce a dispatch count.
+
+Finally, treat E01 as a separate feature experiment. The centered-ratio
+primitive can preserve an exact point zero, but an integrated residual
+transformation requires positivity evidence, equation provenance, and all
+existing root checks. It should not delay the two smaller demonstrated
+repairs.
+
+\subsection{Final assessment}
+The newly identified weakness is not that the package uses floating-point
+arithmetic in its exact certificate proof. It does not in the primitives
+examined here. The weakness is that sound enclosure operations can discard
+valuable exact dependence and displacement information before the answer is
+formed. Two different interfaces inside the logarithm path do so, and the
+native matrix distinguishes them.
+
+The repairs are correspondingly targeted: turn a below-one logarithm into
+one well-scaled positive reciprocal logarithm, and move affine endpoint
+rounding across the logarithm only when the exact affine range and positive
+real domain justify it. The resulting public successes retain the safety
+checks that caused the original refusals. This is a concrete improvement in
+certificate reach and resource use, with explicit proofs and executable
+regressions, rather than a proposal to accept weaker evidence.
+
+The review's strongest conclusion is local and reproducible: on the pinned
+standalone in Wolfram 15.0.0, three exact-root requests that refused at the
+chosen fixed order certify after the combined changes, and every returned
+interval contains the known exact root. Complete Mathics acceptance and
+canonical-source integration remain to be demonstrated by the focused runs
+provided with this article.
+
+\clearpage
+\begin{thebibliography}{99}
+\small
+\bibitem{source} AsymptoticAnalysis contributors.
+\emph{Asymptotic repository}, revision
+\path{efa1aeec4845a9c35e140963a0333d0c9ec33b05}, 10 September 2026.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/tree/efa1aeec4845a9c35e140963a0333d0c9ec33b05}.
+
+\bibitem{certsource} AsymptoticAnalysis contributors.
+\emph{InverseCertificates.wl}, pinned canonical source. In particular,
+lines 8--18 (rounding), 54--72 (point logarithm), 80--130 (logarithm and affine
+range), 257--313 (certificate attempt), and 365--490 (driver).
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/InverseCertificates.wl}.
+
+\bibitem{kernel} AsymptoticAnalysis contributors.
+\emph{AsymptoticAnalysis.wl}, canonical kernel entry point and forward jet
+arithmetic, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/AsymptoticAnalysis.wl}.
+
+\bibitem{specialparam} AsymptoticAnalysis contributors.
+\emph{ParameterizedSpecialFunctions.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/ParameterizedSpecialFunctions.wl}.
+
+\bibitem{specialident} AsymptoticAnalysis contributors.
+\emph{SpecialFunctionIdentities.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/SpecialFunctionIdentities.wl}.
+
+\bibitem{reviews} AsymptoticAnalysis contributors.
+\emph{Code review reports: index, six wave indexes, and retirement register},
+same revision. Forty-five retained packages.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/README.md}.
+
+\bibitem{status} AsymptoticAnalysis contributors.
+\emph{Code review implementation status}, same revision. C19, C20, and P08
+are the nearest maintained obligations discussed in the novelty crosswalk.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/docs/development/CODE_REVIEW_STATUS.md}.
+
+\bibitem{wavefive} AsymptoticAnalysis contributors.
+\emph{Code review reports: wave 5}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/wave-5/README.md}.
+
+\bibitem{wavesix} AsymptoticAnalysis contributors.
+\emph{Code review reports: wave 6}, same revision. Reports 46--55, including
+its explicit overlap and evidence-boundary records.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/wave-6/README.md}.
+
+\bibitem{mathicscompat} AsymptoticAnalysis contributors.
+\emph{Running AsymptoticAnalysis in Mathics3}, pinned compatibility guide.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/docs/Mathics/COMPATIBILITY.md}.
+
+\bibitem{dlmf} NIST Digital Library of Mathematical Functions.
+\emph{Section 4.6: Power Series}, especially equation 4.6.4 for the odd
+logarithmic series. Consulted 10 September 2026.
+\url{https://dlmf.nist.gov/4.6}.
+
+\bibitem{logdoc} Wolfram Research.
+\emph{Log: Wolfram Language documentation}. Background on logarithm
+semantics and numerical evaluation; consulted 10 September 2026.
+\url{https://reference.wolfram.com/language/ref/Log.html}.
+
+\bibitem{mathicssite} Mathics3 project.
+\emph{Mathics3 official website}. Consulted 10 September 2026.
+The repository compatibility guide, not this general website, supplies the
+specific tested dependency target used in this report.
+\url{https://mathics.org/}.
+
+\bibitem{license} AsymptoticAnalysis contributors.
+\emph{MIT No Attribution License}, pinned repository license.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/LICENSE}.
+\end{thebibliography}
+\end{document}
