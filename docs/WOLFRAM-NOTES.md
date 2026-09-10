@@ -431,8 +431,24 @@ for local, offline, and commit-pinned forms.
   the exact-core probe retains the logarithm and has a different admission concern.
   The [logarithm normalization notes](development/LOG_POWER_NORMALIZATION.md)
   record the proof, affected consumers, structured after-guard refusals,
-  and pending focused suite acceptance;
+  and the completed 207/0 focused acceptance;
   this is separate from preserving a complex result in explicit native mode.
+- A homogeneous Fourier composition recurrence must test support exhaustion
+  and the next complete coefficient before forming its next product. For
+  `B = 1`, exponent one and `U = w + w^2`, the exact result is `1 + U`;
+  its unused square nevertheless has four candidate pairs below cutoff five.
+  The [current baseline](../validation/fourier-termination-baseline.json)
+  also reproduces a public residual failure with an explicit budget of seven;
+  the [after-fix probes](../validation/fourier-termination-after-fix.json)
+  record zero residual blocks at relative cutoff six. A zero must be a full
+  coefficient identity under retained assumptions, not a pointwise value.
+  Integer exponents do not terminate every Fourier/logarithmic amplitude:
+  `B = Exp[I L]` at exponent zero has no zero coefficient, and `B = L` at
+  exponent one has second coefficient `1/2`. Keep necessary pair/frequency
+  budgets and boundary logarithmic envelopes. The
+  [Fourier termination note](development/FOURIER_TERMINATION.md) separates
+  these characterizations from the completed 68/0 focused acceptance and
+  separate loading checks.
 - A generic observable must inspect the returned Taylor chart and exclusive
   endpoint, not only the order requested from `Series`. A truthful custom
   provider returning `u + O(u^2)` cannot justify coefficients beyond that

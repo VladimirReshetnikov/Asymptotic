@@ -4416,6 +4416,23 @@ outside this constructor&#39;s scope.</p>
 equation at its stored relative source-weight cutoff.
 <code>FourierInverseResidual[s, h]</code> supplies another relative
 cutoff. Its option is <code>&quot;MaxTerms&quot; -&gt; 20000</code>.</p>
+<p>Check a polynomial source using an explicit residual-work budget:</p>
+<pre class="wolfram"><code>s = AsymptoticFourierInverse[
+  x + x^2, {x, 0}, {y, 7}, &quot;MaxTerms&quot; -&gt; 7];
+check = FourierInverseResidual[s, Automatic, &quot;MaxTerms&quot; -&gt; 7];
+{check[&quot;ZeroBelowCutoff&quot;], check[&quot;ResidualBlocks&quot;], check[&quot;RelativeCutoff&quot;]}</code></pre>
+<pre class="wolfram"><code>{True, {}, 6}</code></pre>
+<p>The composition stops when every remaining source weight is outside
+the exclusive cutoff or its complete Fourier coefficient is identically
+zero. Products needed for retained contributions still obey the resource
+limits. An integer exponent alone does not imply termination when a
+coefficient contains a nonzero frequency or a logarithmic amplitude.</p>
+<p><code>&quot;ZeroBelowCutoff&quot; -&gt; True</code> checks the stored finite
+forward equation below the reported relative cutoff. Unspecified
+<code>&quot;InputRemainder&quot;</code> terms are not composed, and this result is
+not a numerical root certificate. See the <a href="../../docs/development/FOURIER_TERMINATION.md">Fourier termination
+notes</a> for the before/after characterization and validation
+scope.</p>
 <p><a id="FourierInverseCoefficient"></a></p>
 </section>
 <section id="fourierinversecoefficient" class="level3">

@@ -103,6 +103,21 @@ which records 65 source hashes and unchanged sources during execution.
 The constructive periodic coefficient API remains
 an open proposal, separate from this identity guard.
 
+W3-13's separate Fourier recurrence is **focused verified — 68/0 across four
+selected files**. The [17-observation baseline](../../validation/fourier-termination-baseline.json)
+and [after-fix probes](../../validation/fourier-termination-after-fix.json)
+record unchanged sources and reproduce the private terminating cases plus a
+public budget-seven residual that now has zero residual blocks at relative
+cutoff six. The [Fourier termination notes](FOURIER_TERMINATION.md) explain
+the support and complete-coefficient stopping proofs, preserved genuine
+resource failures, and the 19 new cases. The
+[completed acceptance](../../validation/fourier-termination-tests.json) includes
+22 Fourier regressions, 11 Fourier refactoring cases and 16 ordinary recurrence
+cases, with 61 stable input hashes. Separate
+[loading checks](../../validation/fourier-termination-loading-tests.json) pass
+105/0 in five fresh native kernels. The earlier ordinary P03 acceptance alone
+did not establish this separate path; the new records retain their own scope.
+
 Status meanings:
 
 - **Focused verified:** the implementation and a named current native test record

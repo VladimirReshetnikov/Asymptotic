@@ -65,6 +65,22 @@ $u=z(1+U)$, then
 This follows by Taylor expansion in the multiplicative increment; it holds
 for each exponential-polynomial mode as well as for their sum. Its use in
 the normalized forward equation independently checks the inverse coefficients.
+
+As in Lemma~\ref{lem:composition}, an identically zero complete coefficient
+is absorbing: if $Q_{k+1}=0$, then $\D Q_{k+1}=0$, so the homogeneous
+recurrence makes every later $Q_j$ zero. The identity must hold after equal
+frequencies and their full polynomial amplitudes have been combined, under
+the fixed parameter hypotheses; a zero at one value of $L$ is insufficient.
+Independently, if $\nu=\val U>0$, every term of $U^j$ has source weight at
+least $j\nu$. Hence $(k+1)\nu\ge H$ excludes all $Q_jU^j$ with $j\ge k+1$
+from the expansion at exclusive source-weight cutoff $H$. This removes
+their retained blocks, not their contribution to a remainder estimate:
+an omitted block at weight $H$ still needs its logarithmic envelope.
+An integer $\alpha$ alone does not imply termination. For $B=e^{iL}$ and
+$\alpha=0$, one has $Q_k=\binom{i}{k}e^{iL}\ne0$ for every $k\ge0$.
+Even a nonconstant zero-frequency amplitude can prevent termination:
+for $B=L$ and $\alpha=1$, $Q_1=L+1$ and $Q_2=1/2$.
+
 For a nonunit observable power, the residual first reconstructs the source
 unit by raising the observable unit to its reciprocal power.
 

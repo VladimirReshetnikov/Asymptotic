@@ -29,6 +29,11 @@ validation/review-normalization-pdf-pass-*.txt -whitespace
 validation/observable-ingress-pdf-pass-*.txt -whitespace
 validation/observable-ingress-merge-pdf-pass-*.txt -whitespace
 validation/log-power-normalization-pdf-pass-*.txt -whitespace
+validation/fourier-termination-pdf-pass-*.txt -whitespace
+validation/wave4-merge-pdf-pass-*.txt -whitespace
+
+# Preserve submitted Markdown hard breaks and patch context in wave-4 payloads.
+external-reports/code-review/wave-4/code-review-*/** -whitespace
 
 # Preserve checksummed arrival files whose submitted bytes contain trailing spaces.
 Analysis/FabiusFunction/docs/semi-formalized-research-frontiers/drafts/representations/Matrix_Dilated_Fabius_Rvachev_Frontier_Report/matrix_dilated_fabius_rvachev.tex -whitespace

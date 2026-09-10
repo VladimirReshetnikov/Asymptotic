@@ -102,6 +102,9 @@ monomial base and real exponents before coefficient validation. They record
 W3-10's native baseline, intermediate guard evidence and preserved first-pass
 failures, 207/0 focused acceptance, and the separate open periodic
 coefficient proposal.
+The [Fourier termination notes](FOURIER_TERMINATION.md) explain the separate
+W3-13/P03 loop repair, support and complete-coefficient stopping proofs,
+reproduced public budget-seven residual, and 68/0 focused acceptance.
 The [equal-exponent notes](EXPONENT_EQUALITY.md) describe exact mathematical
 collection before block counts, logarithmic frontier degrees and inverse
 enumeration, while preserving genuinely distinct close powers.
