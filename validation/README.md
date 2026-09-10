@@ -17,6 +17,27 @@ for known implementation and acceptance gaps.
 | Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
 | Interpret portable-runner guarantees and limits | [Portable validation contracts](../docs/Mathics/PORTABLE-VALIDATION.md) |
 
+## Inverse coefficient model admission
+
+The [five-file native run](inverse-coefficient-model-tests.json) passes
+**99/99**: 16 new capability tests and 83 existing inverse, expanded-input,
+assumption, and native-presentation controls. The
+[eleven-case baseline](inverse-coefficient-model-baseline.json) reproduces
+four unsupported object families emitting `Join::incpt`; the
+[repaired probes](inverse-coefficient-model-after-fix.json) return specific,
+message-free refusals and preserve ordinary coefficients. The
+[first focused result](inverse-coefficient-model-first-pass.json), committed
+at `4f42d22`, retains its 96/3 outcome and exact tested inputs. Two lexical-symbol
+expectations and an old implicit-Automatic cutoff fixture were corrected
+before the accepted run. See the [contract note](../docs/development/INVERSE_COEFFICIENT_MODELS.md)
+for model admission, negative leading powers, and the distinct pending C09
+option-precedence issue. The [local loading receipt](inverse-coefficient-model-loading-tests.json)
+separately records fresh-kernel entry-point checks. No full suite was run.
+After merging this branch into the wave-4 main line, the
+[merged five-file run](inverse-coefficient-model-merge-tests.json) again passes
+**99/99** on Wolfram 15.0.1 for Windows with unchanged sources; the standalone
+package was regenerated from the merged kernel and verified with `--check`.
+
 ## Wave-4 integration and merged artifacts
 
 The [documentation and runner merge audit](documentation-runner-merge-2026-09-09.json)

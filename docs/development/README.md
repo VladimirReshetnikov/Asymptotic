@@ -53,6 +53,10 @@ also discuss unnumbered proposals. Current work implements and documents
 the reviewed recommendations, with each repair tied to its own focused
 validation.
 
+The [inverse coefficient model note](INVERSE_COEFFICIENT_MODELS.md) records
+W3-08's message-free capability admission and 99/0 focused native checks,
+including empty multi-indices, infinity coordinates, and stored assumptions.
+
 The [request-resolution workplan](REQUEST_RESOLUTION.md) connects W3-01–W3-03
 and W3-15 through shared argument roles, effective defaults, and once-only
 option evaluation. Its design and characterization matrix remain pending

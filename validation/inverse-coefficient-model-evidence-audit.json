@@ -1,0 +1,39 @@
+{
+  "Scope": "Static audit of saved coefficient-model receipts and exact Git/current input bytes; not an additional kernel run.",
+  "Checks": [
+    {
+      "Receipt": "validation/inverse-coefficient-model-baseline.json",
+      "SourceCount": 55,
+      "ComparedWith": "1a183a8",
+      "HashesMatch": true
+    },
+    {
+      "Receipt": "validation/inverse-coefficient-model-after-fix.json",
+      "SourceCount": 55,
+      "ComparedWith": "4f42d22",
+      "HashesMatch": true
+    },
+    {
+      "Receipt": "validation/inverse-coefficient-model-first-pass.json",
+      "SourceCount": 62,
+      "ComparedWith": "4f42d22",
+      "HashesMatch": true
+    },
+    {
+      "Receipt": "validation/inverse-coefficient-model-tests.json",
+      "SourceCount": 62,
+      "ComparedWith": "working tree",
+      "HashesMatch": true
+    },
+    {
+      "Receipt": "validation/inverse-coefficient-model-loading-tests.json",
+      "SourceCount": 61,
+      "ComparedWith": "working tree",
+      "HashesMatch": true
+    }
+  ],
+  "FocusedSucceeded": 99,
+  "LoadingSucceeded": 105,
+  "FreshLoadingKernels": 5,
+  "FullPackageSuiteRun": false
+}

@@ -2684,6 +2684,8 @@ Inspect `"LeadingPower"`, `"LeadingCoefficient"`, `"Gaps"`, `"Polynomials"`, and
 
 `InverseExpansionCoefficient[s, {k1, k2, ...}]` returns an association describing the exact contribution of one ordinary inverse multi-index. A `PowerLogModel` association may replace `s`; for that form, `"Power" -> 1` selects the observable.
 
+The result must retain an ordinary inverse coefficient model. Forward expansions, derived results without that model, exact-core expansions, and Fourier inverses return `Failure["UnsupportedCoefficientModel", ...]` without emitting messages. The query does not construct an inverse model from a forward expansion. Native results retain their `"NativeSeriesContract"` refusal; logarithmic-scale inverses retain `"Unsupported"` and expose their coefficients through `"Terms"`.
+
 The coefficient query inherits the model's assumptions and ignores later ambient assumptions:
 
 ```wolfram
@@ -2696,7 +2698,7 @@ coefficient["Coefficient"]
 (* -Abs[a] *)
 ```
 
-Give one nonnegative integer per model gap. Returned fields include `"Weight"`, `"Exponent"`, `"Coefficient"`, `"UniformizerExponent"`, and the inherited `"Assumptions"`. A multi-index contribution is not necessarily a complete displayed block: several contributions can have the same weight. Lambert expansions expose their coefficients through `"Terms"` instead.
+Give one nonnegative integer per model gap. A model with no gaps accepts the empty multi-index `{}`. A wrong dimension or a negative or noninteger entry returns `Failure["InvalidMultiIndex", ...]`. Returned fields include `"Weight"`, `"Exponent"`, `"Coefficient"`, `"UniformizerExponent"`, and the inherited `"Assumptions"`. A multi-index contribution is not necessarily a complete displayed block: several contributions can have the same weight.
 
 <a id="PerturbativeInverse"></a>
 ### PerturbativeInverse
