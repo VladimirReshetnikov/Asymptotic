@@ -54,6 +54,8 @@ boundaries. Complete built-in input coverage is not established.
 | --- | --- |
 | **[Mathematical article (PDF)](docs/article/asymptotic-inverse.pdf)** · [LaTeX source](docs/article/asymptotic-inverse.tex) | Definitions, theorems, proofs, mathematical examples, and the hypotheses behind each scale and error estimate. |
 | **[User guide (HTML)](src/Documentation/UserGuide.html)** · [Markdown source](src/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
+| **[Result properties (HTML)](src/Documentation/ResultReference.html)** · [Markdown source](src/Documentation/ResultReference.md) | Family-specific metadata, missing values, exactness, native outcomes, and the meaning of object accessors. |
+| **[Recent development changes](docs/CHANGES.md)** | User-visible milestones and migration notes, with links to implementation commits and current coverage limits. |
 | **[Code review reports](external-reports/code-review/README.md)** | Twenty-seven reports in three waves: [reports 1–9](external-reports/code-review/wave-1/README.md), [reports 10–18](external-reports/code-review/wave-2/README.md), and [reports 19–27](external-reports/code-review/wave-3/README.md), with pinned revisions, findings, evidence, regression candidates, and proposed patches. |
 | **[Vendored ProveIt articles](vendor/proveit/README.md)** | A revision-pinned TeX/PDF library on asymptotic expansions, transseries, q-analogs, combinatorial sequences, and their interpolated inverses, with topic reading lists and build provenance. |
 

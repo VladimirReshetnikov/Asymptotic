@@ -42,6 +42,7 @@ contains definitions, theorems, and proofs; its
 | Choose package or native order semantics | [Native Expansion Backends](UserGuide.md#native-backend-expansions), [Automatic Selection](UserGuide.md#automatic-backend-routing) |
 | Check the complete coverage target and known deviations | [Known Deviations and Coverage Gaps](UserGuide.md#native-coverage-gaps), [Native Compatibility Plan](../../docs/development/NATIVE_COMPATIBILITY.md) |
 | Read an expansion and its remainder | [GeneralizedSeries](UserGuide.md#GeneralizedSeries), [Coordinates and Cutoffs](UserGuide.md#coordinates-and-cutoffs) |
+| Inspect properties across result families | [Result properties reference](ResultReference.md): stored keys, family-specific metadata, native results, and missing values |
 | Work with parameters and real branches | [Assumptions and Parameter Domains](UserGuide.md#assumption-context), [Real Coefficients](UserGuide.md#real-coefficients) |
 | Calculate with results or request more terms | [Series Arithmetic and Normalization](UserGuide.md#series-operations), [SeriesRefine](UserGuide.md#SeriesRefine) |
 | Expand special functions and selected inverses | [Other Special Functions](UserGuide.md#special-function-expansions), [Inverse Gamma and LogGamma](UserGuide.md#inverse-gamma-and-loggamma), [Inverse Barnes G](UserGuide.md#barnes-inverse-expansions) |
@@ -57,6 +58,9 @@ infinite sum; native order alone does not establish an analytic remainder.
 The available operations and cutoff meaning depend on the result's
 scale. Numerical comparisons and supported interval certificates are separate
 from its symbolic asymptotic remainder.
+The [result properties reference](ResultReference.md) distinguishes common
+accessors from the actual constructor-specific fields, including properties
+that are deliberately absent or contain `Missing` values.
 
 The optional [native `SeriesData` view](UserGuide.md#native-series-remainder-view)
 exports an existing analytic result when its remainder and index range permit
@@ -79,12 +83,15 @@ python validation/build_user_guide.py
 python validation/build_user_guide.py --check
 ```
 
-The canonical source is [UserGuide.md](UserGuide.md); the HTML is generated from
-it. The HTML embeds [UserGuide.css](UserGuide.css) and requires no external
-assets or JavaScript. The builder checks unique anchors, local link
-destinations, and reference coverage for every public symbol declared by
-the package. Open the HTML in a browser and inspect both wide and narrow
-layouts after changes. Commit Markdown, CSS, and generated HTML together.
+The canonical sources are [UserGuide.md](UserGuide.md) and
+[ResultReference.md](ResultReference.md); the builder generates
+[UserGuide.html](UserGuide.html) and [ResultReference.html](ResultReference.html).
+Both HTML pages embed [UserGuide.css](UserGuide.css) and require no external
+assets or JavaScript. The builder checks unique anchors and local links,
+including links between the generated pages, and verifies the user guide's
+reference coverage for every public symbol declared by the package. Open the
+HTML pages in a browser and inspect both wide and narrow layouts after changes.
+Commit Markdown, CSS, and generated HTML together.
 
 Focused native documentation examples are checked separately by
 [CheckDocumentation.wl](../../validation/CheckDocumentation.wl); this is not

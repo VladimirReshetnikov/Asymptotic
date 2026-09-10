@@ -18,6 +18,23 @@ for known implementation and acceptance gaps.
 
 ## Documentation quality and coverage register
 
+The [deeper example pass](documentation-examples-2026-09-09-premerge.json)
+passes **39/39 selected checks in Wolfram 15.0.1** against the recorded
+pre-merge source hashes based on `699a973`. It retains the previous 31
+worked-example checks, derives the public API inventory dynamically (currently
+38 usage symbols), and adds seven native routing, cutoff, and optional-export
+checks. The runner checks load success, complete execution, source stability,
+and receipt export separately. These are selected documentation examples;
+they do not establish full package or Mathics acceptance.
+
+The [initial run](documentation-examples-2026-09-09-initial.json) records
+38 passes and one incorrect new expectation: literal complex input is refused
+as `InexactInput` before the later `UnprovedRealCoefficient` check. Only the
+expectation changed. The [initial runner source](documentation-deep-review-2026-09-09/CheckDocumentation-initial.wl)
+is preserved with its matching hash. The result properties reference is a
+separate constructor-source audit; it does not claim executable coverage of
+every property row.
+
 The [September 9 documentation receipt](documentation-quality-2026-09-09.json)
 records the source and artifact hashes for the documentation-quality milestone.
 It covers the unified three-goal register, the full 48-root vendored source

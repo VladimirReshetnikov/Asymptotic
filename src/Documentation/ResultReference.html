@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AsymptoticAnalysis Result Properties</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root { color-scheme: light; --accent: #b34308; --link: #175a92; --line: #d9dfe5; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+body { margin: 0; background: #fff; color: #252a30; font: 16px/1.62 "Segoe UI", Arial, sans-serif; }
+body > section { max-width: 1080px; margin-left: 288px; padding: 2.7rem 4rem 5rem; }
+h1, h2, h3, h4 { line-height: 1.25; font-weight: 500; }
+h1 { color: var(--accent); font-size: 2.55rem; margin: 0 0 1.4rem; letter-spacing: -.035em; }
+h1::before { content: "PACKAGE DOCUMENTATION · WOLFRAM LANGUAGE"; display: block; color: #68717b; font-size: .69rem; letter-spacing: .12em; font-weight: 600; margin-bottom: 1.1rem; }
+h2 { color: var(--accent); border-top: 1px solid var(--line); padding-top: 1.25rem; margin-top: 3rem; font-size: 1.75rem; overflow-wrap: anywhere; }
+h3 { font-size: 1.27rem; margin-top: 2rem; }
+h4 { font-size: 1.05rem; font-weight: 650; margin-top: 1.8rem; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+p { margin: .8rem 0; }
+code { font: .87em/1.5 Consolas, "Cascadia Code", monospace; color: #343d49; }
+p code, li code, td code { background: #f2f4f6; padding: .08em .2em; border-radius: 2px; overflow-wrap: anywhere; }
+pre { border-left: 3px solid #c5cdd6; background: #f6f8fa; padding: 1rem 1.2rem; overflow-x: auto; margin: .6rem 0 1.25rem; }
+pre code { background: transparent; font-size: .88rem; white-space: pre; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.6rem; font-size: .9rem; table-layout: fixed; }
+th { background: #eef1f4; text-align: left; color: #444c56; font-weight: 600; }
+th, td { border-bottom: 1px solid var(--line); padding: .65rem .8rem; vertical-align: top; overflow-wrap: anywhere; }
+tr:nth-child(even) td { background: #fafbfc; }
+th:first-child { width: 35%; }
+table:has(th:nth-child(3)) th:nth-child(1) { width: 27%; }
+table:has(th:nth-child(3)) th:nth-child(2) { width: 19%; }
+table:has(th:nth-child(3)) th:nth-child(3) { width: 54%; }
+ul, ol { padding-left: 1.4rem; }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: #4d5660; }
+#TOC { position: fixed; inset: 0 auto 0 0; width: 288px; overflow: auto; background: #f5f6f8; border-right: 1px solid var(--line); padding: 2rem 1.45rem; font-size: .8rem; }
+#TOC::before { content: "AsymptoticAnalysis"; display: block; font-size: 1.15rem; color: var(--accent); font-weight: 600; margin-bottom: .3rem; }
+#TOC::after { content: "Custom package reference"; display: block; font-size: .72rem; color: #68717b; margin-top: 1.5rem; }
+#TOC ul { padding: 0; list-style: none; margin: 0; }
+#TOC > ul > li > a { display: block; color: #505a66; font-size: .75rem; margin-bottom: .9rem; }
+#TOC li li a { display: block; padding: .36rem 0; line-height: 1.3; overflow-wrap: anywhere; }
+#TOC li li li { display: none; }
+@media (max-width: 1050px) { body > section { padding: 2rem 2.2rem 4rem; margin-left: 250px; } #TOC { width: 250px; padding: 1.6rem 1.2rem; } }
+@media (max-width: 760px) { #TOC { position: static; width: auto; max-height: 19rem; border-bottom: 1px solid var(--line); } body > section { margin-left: 0; padding: 1.7rem 1.2rem 3rem; } h1 { font-size: 2rem; } h2 { font-size: 1.45rem; } pre { padding: .8rem; } table { font-size: .8rem; } th, td { padding: .5rem; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print { #TOC { display: none; } body { font-size: 10pt; } body > section { margin: 0; padding: 0; max-width: none; } h2, h3, h4 { break-after: avoid; } pre, tr { break-inside: avoid; } pre code { white-space: pre-wrap; } a { color: inherit; } }
+</style>
+<link rel="icon" href="data:,">
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#generalizedseries-result-properties" id="toc-generalizedseries-result-properties">GeneralizedSeries result
+properties</a>
+<ul>
+<li><a href="#read-an-object" id="toc-read-an-object">Read an
+object</a></li>
+<li><a href="#identify-the-result-family" id="toc-identify-the-result-family">Identify the result family</a></li>
+<li><a href="#frequently-used-properties" id="toc-frequently-used-properties">Frequently used properties</a></li>
+<li><a href="#ordinary-and-factored-forward-results" id="toc-ordinary-and-factored-forward-results">Ordinary and factored
+forward results</a></li>
+<li><a href="#ordinary-inverse-results" id="toc-ordinary-inverse-results">Ordinary inverse results</a></li>
+<li><a href="#lambert-logarithmic-results" id="toc-lambert-logarithmic-results">Lambert logarithmic
+results</a></li>
+<li><a href="#finite-logarithmic-hierarchies" id="toc-finite-logarithmic-hierarchies">Finite logarithmic
+hierarchies</a></li>
+<li><a href="#ordered-arithmetic-results" id="toc-ordered-arithmetic-results">Ordered arithmetic results</a></li>
+<li><a href="#composite-results" id="toc-composite-results">Composite
+results</a></li>
+<li><a href="#exact-core-marker-expansions" id="toc-exact-core-marker-expansions">Exact-core marker
+expansions</a></li>
+<li><a href="#exact-exponential-core-sectors" id="toc-exact-exponential-core-sectors">Exact exponential-core
+sectors</a></li>
+<li><a href="#finite-flat-sectors" id="toc-finite-flat-sectors">Finite
+flat sectors</a></li>
+<li><a href="#fourier-coefficient-results" id="toc-fourier-coefficient-results">Fourier coefficient
+results</a></li>
+<li><a href="#gamma-and-barnes-inverse-results" id="toc-gamma-and-barnes-inverse-results">Gamma and Barnes inverse
+results</a></li>
+<li><a href="#coordinate-transformations" id="toc-coordinate-transformations">Coordinate transformations</a></li>
+<li><a href="#explicit-special-inverse-adapters" id="toc-explicit-special-inverse-adapters">Explicit special inverse
+adapters</a></li>
+<li><a href="#forward-special-function-metadata" id="toc-forward-special-function-metadata">Forward special-function
+metadata</a></li>
+<li><a href="#native-results" id="toc-native-results">Native
+results</a></li>
+<li><a href="#optional-provenance-and-refinement-metadata" id="toc-optional-provenance-and-refinement-metadata">Optional provenance
+and refinement metadata</a></li>
+<li><a href="#missing-values-and-unavailable-views" id="toc-missing-values-and-unavailable-views">Missing values and
+unavailable views</a></li>
+</ul></li>
+</ul>
+</nav>
+<section id="generalizedseries-result-properties" class="level1">
+<h1>GeneralizedSeries result properties</h1>
+<p>Use this reference when inspecting an expansion, comparing result
+families, or writing code that consumes their metadata. The <a href="UserGuide.html#GeneralizedSeries">user guide</a> provides worked
+examples; this page describes the property dispatch and constructor
+layouts inspected at commit
+<code>699a9739bd8b53e5a7483172e7597f83ef2d9076</code>. This is a source
+audit, not a new Wolfram or Mathics execution record. Complete
+native-input and Mathics coverage remain the goals recorded in the <a href="../../docs/development/COVERAGE_TARGETS.md">coverage
+register</a>.</p>
+<section id="read-an-object" class="level2">
+<h2>Read an object</h2>
+<p>Successful expansion objects have the form
+<code>GeneralizedSeries[association]</code>. The association is
+family-specific: <strong>there is no universal list of populated
+properties</strong>. Inspect the actual object before relying on a
+field.</p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[Sin[x], {x, 0, 5}, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+s[&quot;Properties&quot;]
+Table[{key, s[key]}, {key, {&quot;Kind&quot;, &quot;Scale&quot;, &quot;Variable&quot;, &quot;Remainder&quot;}}]
+Normal[s]</code></pre>
+<table>
+<thead>
+<tr>
+<th>Expression</th>
+<th>Implemented behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>s[&quot;Properties&quot;]</code></td>
+<td>Returns the stored association&#39;s keys. This accessor is implemented
+separately and is not itself normally a stored key.</td>
+</tr>
+<tr>
+<td><code>s[&quot;name&quot;]</code></td>
+<td>Looks up that exact, case-sensitive string. An absent key returns
+<code>Missing[&quot;KeyAbsent&quot;, &quot;name&quot;]</code>; it does not raise a
+property-specific <code>Failure</code>.</td>
+</tr>
+<tr>
+<td><code>Normal[s]</code></td>
+<td>Returns the stored <code>&quot;Expression&quot;</code>. It does not return the
+remainder or validate an error bound.</td>
+</tr>
+<tr>
+<td><code>s[value]</code>, when <code>NumericQ[value]</code> is
+true</td>
+<td>Substitutes into the stored expression using
+<code>&quot;Variable&quot;</code>. This is finite-expression evaluation for
+analytic objects, not an inverse solve or interval certificate. It does
+not check <code>&quot;TargetDomain&quot;</code>. Native objects additionally
+require one recognized symbolic variable.</td>
+</tr>
+<tr>
+<td><code>InputForm[s]</code></td>
+<td>Exposes the object and its association rather than the usual
+mathematical display.</td>
+</tr>
+</tbody>
+</table>
+<p>A symbol such as <code>s[Scale]</code> is not a string-property
+lookup. A missing key and a present key containing
+<code>Missing[...]</code> are different: use
+<code>MemberQ[s[&quot;Properties&quot;], &quot;Scale&quot;]</code> to distinguish them.
+Nested associations are values, not additional top-level properties;
+inspect a contract with, for example, <code>s[&quot;MajorantContract&quot;]</code>
+before looking up its own keys.</p>
+<p>StandardForm and TraditionalForm normally display the analytic
+expression and its remainder without the object head. Native objects
+display <code>&quot;NativeResult&quot;</code>. The display retains an
+interpretation of the original object; changing displayed coefficients
+is not an operation that updates branch or precision metadata.
+Mathics/front-end box behavior can differ; inspect <code>Normal</code>,
+explicit properties, and InputForm when comparing runtimes.</p>
+<p>Source: <a href="../Kernel/AsymptoticAnalysis.wl">object access,
+evaluation, and formatting</a>, <a href="../Kernel/NativeCompatibility.wl">native numerical
+application</a>, and <a href="../Kernel/MathicsFormatting.wl">Mathics
+formatting adapters</a>.</p>
+</section>
+<section id="identify-the-result-family" class="level2">
+<h2>Identify the result family</h2>
+<p><code>&quot;Kind&quot;</code> describes the constructor/result role;
+<code>&quot;Scale&quot;</code> describes the representation. They are not always
+equal. In particular, an ordinary forward object has <strong>no stored
+<code>&quot;Scale&quot;</code> key</strong>, and an imported special-function
+result can have <code>&quot;Kind&quot; -&gt; &quot;Forward&quot;</code> with a
+<code>&quot;PowerLog&quot;</code>, <code>&quot;Factored&quot;</code>, or
+<code>&quot;Composite&quot;</code> scale.</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Scale</th>
+<th>What to inspect next</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Forward&quot;</code></td>
+<td>Absent for the ordinary constructor; <code>&quot;PowerLog&quot;</code>,
+<code>&quot;Factored&quot;</code>, or <code>&quot;Composite&quot;</code> on specialized
+paths</td>
+<td><a href="#ordinary-and-factored-forward-results">Ordinary and
+factored forward results</a>, then any special-function metadata.</td>
+</tr>
+<tr>
+<td><code>&quot;Inverse&quot;</code></td>
+<td><code>&quot;PowerLog&quot;</code></td>
+<td><a href="#ordinary-inverse-results">Ordinary inverse
+results</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;Inverse&quot;</code></td>
+<td><code>&quot;Logarithmic&quot;</code></td>
+<td><a href="#lambert-logarithmic-results">Lambert logarithmic
+results</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;Inverse&quot;</code></td>
+<td><code>&quot;Transformed&quot;</code></td>
+<td><a href="#coordinate-transformations">Coordinate
+transformations</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;LogarithmicInverse&quot;</code></td>
+<td><code>&quot;ReciprocalLogUnit&quot;</code>, <code>&quot;LeadingLogMonomial&quot;</code>,
+or <code>&quot;GeneralizedLogarithmicCoefficients&quot;</code></td>
+<td><a href="#finite-logarithmic-hierarchies">Finite logarithmic
+hierarchies</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;Derived&quot;</code></td>
+<td><code>&quot;PowerLog&quot;</code>, <code>&quot;Factored&quot;</code>, or
+<code>&quot;ReciprocalLogCalculus&quot;</code></td>
+<td><a href="#ordered-arithmetic-results">Ordered arithmetic
+results</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;Derived&quot;</code></td>
+<td><code>&quot;Composite&quot;</code></td>
+<td><a href="#composite-results">Composite results</a>. Specialized
+forward paths can also use this scale with kind
+<code>&quot;Forward&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;CoreInverse&quot;</code></td>
+<td><code>&quot;ExactCorePerturbation&quot;</code></td>
+<td><a href="#exact-core-marker-expansions">Exact-core marker
+expansions</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;ExponentialCoreInverse&quot;</code></td>
+<td><code>&quot;ExactExponentialCoreSectors&quot;</code></td>
+<td><a href="#exact-exponential-core-sectors">Exact exponential-core
+sectors</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;FlatInverse&quot;</code> or <code>&quot;FlatDerived&quot;</code></td>
+<td><code>&quot;FiniteFlatSectors&quot;</code></td>
+<td><a href="#finite-flat-sectors">Finite flat sectors</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;FourierInverse&quot;</code></td>
+<td><code>&quot;FourierPolynomialCoefficients&quot;</code></td>
+<td><a href="#fourier-coefficient-results">Fourier coefficient
+results</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;GammaInverse&quot;</code> or <code>&quot;BarnesGInverse&quot;</code></td>
+<td>The same string as the kind</td>
+<td><a href="#gamma-and-barnes-inverse-results">Gamma and Barnes inverse
+results</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;SpecialInverse&quot;</code></td>
+<td><code>&quot;SpecialFunction&quot;</code></td>
+<td><a href="#explicit-special-inverse-adapters">Explicit special
+inverse adapters</a>.</td>
+</tr>
+<tr>
+<td><code>&quot;Native&quot;</code></td>
+<td><code>&quot;Native&quot;</code></td>
+<td><a href="#native-results">Native results</a>. These do not carry a
+package analytic remainder.</td>
+</tr>
+</tbody>
+</table>
+<p>The mathematical coordinate is not determined by the scale name
+alone. For example, a Zeta Dirichlet expansion can use an ordered
+power-log representation in <code>Exp[-SourceArgument]</code>. Read
+<code>&quot;TermConvention&quot;</code> and the coordinate properties of the
+actual result.</p>
+</section>
+<section id="frequently-used-properties" class="level2">
+<h2>Frequently used properties</h2>
+<p>The first four rows are shared by the inspected constructor families.
+The remaining rows describe commonly encountered fields whose
+availability depends on the family and construction path.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Meaning and availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Kind&quot;</code></td>
+<td>Result role from the family table.</td>
+</tr>
+<tr>
+<td><code>&quot;Expression&quot;</code></td>
+<td>The value returned by <code>Normal</code>. Analytic constructors
+store the retained finite expression; native constructors store
+<code>Normal[NativeResult]</code> as computed during construction. The
+latter can be nonfinite or unresolved.</td>
+</tr>
+<tr>
+<td><code>&quot;Remainder&quot;</code></td>
+<td>The analytic error descriptor, possibly zero or a sum of scaled
+descriptors. Native results store
+<code>Missing[&quot;NativeContract&quot;]</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;Variable&quot;</code>, <code>&quot;Assumptions&quot;</code></td>
+<td>Expression variable and retained assumptions. Native
+<code>&quot;Variable&quot;</code> can be missing, and native
+<code>&quot;Assumptions&quot;</code> is <code>Missing[&quot;NativeContract&quot;]</code>;
+its ambient context is stored separately.</td>
+</tr>
+<tr>
+<td><code>&quot;Scale&quot;</code></td>
+<td>Representation identifier, when stored. Its absence on an ordinary
+forward result is expected.</td>
+</tr>
+<tr>
+<td><code>&quot;Terms&quot;</code>, <code>&quot;Blocks&quot;</code>,
+<code>&quot;TermConvention&quot;</code></td>
+<td>Human-facing terms, internal coefficient blocks, and their
+interpretation. Their shapes and exponent conventions differ by family.
+Some families have no <code>&quot;Blocks&quot;</code>; Composite and Native
+results have no common term table.</td>
+</tr>
+<tr>
+<td><code>&quot;RemainderVariable&quot;</code>, <code>&quot;RemainderPower&quot;</code>,
+<code>&quot;RemainderLogDegree&quot;</code></td>
+<td>Coordinate and order of a single power-log error component, where
+supplied. Prefactors, inverse logarithms, and separate sector errors can
+also be needed. These fields are not a universal replacement for
+<code>&quot;Remainder&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;RemainderScaleExpression&quot;</code></td>
+<td>An ordinary expression describing the asymptotic error scale. It
+generally has an unspecified constant and threshold; it is not by itself
+an explicit numerical upper bound. It is absent from an ordinary forward
+object and from a newly constructed ordinary inverse.</td>
+</tr>
+<tr>
+<td><code>&quot;FrontierTerm&quot;</code></td>
+<td>A computed first omitted contribution where available. It can be
+zero or <code>Missing[...]</code>. A zero coefficient alone does not
+prove the entire omitted tail vanishes.</td>
+</tr>
+<tr>
+<td><code>&quot;Cutoff&quot;</code>, <code>&quot;RequestedCutoff&quot;</code>,
+<code>&quot;Truncation&quot;</code></td>
+<td>Family-specific cutoff/request metadata. A cutoff may be an
+exponent, a different coordinate&#39;s exponent, or an explicit
+<code>Missing</code> value. Some families use <code>&quot;MarkerDepth&quot;</code>
+or <code>&quot;SectorDepth&quot;</code> instead. Names do not impose one
+cross-family convention.</td>
+</tr>
+<tr>
+<td><code>&quot;RequestedTermGoal&quot;</code>,
+<code>&quot;ReturnedTermCount&quot;</code></td>
+<td>Stored goal and actual retained block count on supporting paths.
+They are not populated universally. Special-function carrier counts can
+aggregate separate per-carrier selections.</td>
+</tr>
+<tr>
+<td><code>&quot;Function&quot;</code>, <code>&quot;Variables&quot;</code></td>
+<td>Retained source and, on many inverse results,
+<code>{sourceVariable, targetVariable}</code>. Arithmetic results
+generally use a recipe or representation instead of a single source
+function.</td>
+</tr>
+<tr>
+<td><code>&quot;ExpansionPoint&quot;</code>, <code>&quot;Direction&quot;</code>,
+<code>&quot;Limit&quot;</code></td>
+<td>Forward results record the expansion variable&#39;s endpoint and
+approach. Ordinary inverse results record the <strong>source</strong>
+endpoint/approach and the <strong>target</strong> limit separately.
+Ordered arithmetic can omit these top-level fields.</td>
+</tr>
+<tr>
+<td><code>&quot;SourceDomain&quot;</code>, <code>&quot;TargetDomain&quot;</code>,
+<code>&quot;Branch&quot;</code></td>
+<td>Retained domain conditions and branch description where supplied. A
+target coordinate condition is not automatically a global injectivity
+theorem. Their absence is not a declaration that every input value is
+allowed.</td>
+</tr>
+<tr>
+<td><code>&quot;Method&quot;</code>, <code>&quot;RequestedMethod&quot;</code></td>
+<td>Selected algorithm and requested method when recorded. Specialized
+constructors may record an internal algorithm name different from the
+requested method.</td>
+</tr>
+<tr>
+<td><code>&quot;RemainderDerivativeOrder&quot;</code></td>
+<td>Available derivative-order information where supplied. Zero does not
+authorize differentiating an arbitrary unknown error; infinity can
+represent support for every fixed derivative order, not a bound uniform
+in the order. Flat operations also use their separate analytic
+provenance.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesData&quot;</code></td>
+<td>Optional native dense view of an analytic result, often a
+<code>Missing</code> value. Native backend objects instead have
+<code>&quot;NativeResult&quot;</code> and do not store this key. See <a href="#missing-values-and-unavailable-views">missing values</a>.</td>
+</tr>
+</tbody>
+</table>
+<section id="exactness-fields-are-different-contracts" class="level3">
+<h3>Exactness fields are different contracts</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What it does and does not establish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Exact&quot;</code></td>
+<td>Where analytic constructors supply it, indicates that their returned
+remainder is zero under the retained contract. Many inverse constructors
+do not supply this key at all. Native results supply
+<code>Missing[&quot;NotEstablished&quot;]</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactModel&quot;</code></td>
+<td>Family-specific information about the forward/core model. An exact
+source model can still have an infinite inverse expansion and a nonzero
+truncation remainder. This is not a replacement for
+<code>&quot;Exact&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactInverse&quot;</code></td>
+<td>Exact-core marker and exponential-core constructors use this to
+record whether their final remainder is zero. It is not the same
+property as <code>&quot;ExactInverseExpression&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactInverseExpression&quot;</code>,
+<code>&quot;ExactObservableExpression&quot;</code></td>
+<td>A retained exact expression on supporting branches, or a
+family-specific <code>Missing</code> reason. Its availability does not
+mean the separately returned asymptotic truncation has zero
+remainder.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactTerminationCertificate&quot;</code></td>
+<td>Additional symbolic-composition evidence where exact termination was
+established; it can also be absent or <code>None</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactSourceEqualityVerified&quot;</code></td>
+<td>Special-function import evidence comparing the source with the
+constructed native expression before the final retained truncation.
+Consult the final remainder; this flag alone does not remove it.</td>
+</tr>
+<tr>
+<td><code>&quot;MajorantContract&quot;</code>, <code>&quot;ConvergenceContract&quot;</code>,
+<code>&quot;ForwardRemainderContract&quot;</code>,
+<code>&quot;AnalyticRemainderContract&quot;</code></td>
+<td>Structured statements with family-specific scope. A nested
+<code>&quot;NumericCertificate&quot; -&gt; False</code> explicitly distinguishes
+an asymptotic or analytic-existence contract from a numerical
+enclosure.</td>
+</tr>
+</tbody>
+</table>
+<p>Use the <a href="UserGuide.html#InverseResidual">checking APIs</a> for
+residual, numerical, and interval evidence. Their returned associations
+are separate objects; their fields are not automatically properties of
+the input <code>GeneralizedSeries</code>.</p>
+</section>
+</section>
+<section id="ordinary-and-factored-forward-results" class="level2">
+<h2>Ordinary and factored forward results</h2>
+<p>Source: <a href="../Kernel/AsymptoticAnalysis.wl">ordinary forward
+construction</a>, <a href="../Kernel/GammaForward.wl">factored
+Gamma/logarithmic construction</a>, and <a href="../Kernel/BarnesForward.wl">Barnes</a> and <a href="../Kernel/ExponentialForward.wl">elementary exponential</a>
+adapters.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Terms&quot;</code></td>
+<td>Ordinary forward pairs <code>{beta, coefficient}</code> contribute
+<code>w^beta coefficient</code>, with logarithms already substituted in
+the coefficient. <code>w</code> is the recorded local/remainder
+coordinate.</td>
+</tr>
+<tr>
+<td><code>&quot;Blocks&quot;</code>, <code>&quot;LogVariable&quot;</code>,
+<code>&quot;LocalVariable&quot;</code></td>
+<td>Internal rows and formal logarithmic/local symbols before the
+displayed coordinate substitution. Do not read a block exponent as an
+exponent of the original variable at infinity.</td>
+</tr>
+<tr>
+<td><code>&quot;Precision&quot;</code></td>
+<td>The source jet&#39;s <code>{power, logDegree}</code> precision.
+Truncation can introduce an earlier omitted term, so this pair need not
+equal the returned remainder&#39;s order.</td>
+</tr>
+<tr>
+<td><code>&quot;Prefactor&quot;</code>, <code>&quot;Offset&quot;</code>,
+<code>&quot;SeriesRepresentation&quot;</code>, <code>&quot;SeriesRecipe&quot;</code></td>
+<td>Factored forward results inherit ordered-arithmetic storage: the
+correction series is inside the prefactor and added to the offset. The
+ordinary constructor does not populate these fields.</td>
+</tr>
+<tr>
+<td><code>&quot;LogarithmicExpansion&quot;</code>,
+<code>&quot;LogarithmicFunction&quot;</code>, <code>&quot;ExpansionNature&quot;</code></td>
+<td>Retained logarithmic model, its source, and expansion classification
+on the factored logarithmic path.</td>
+</tr>
+<tr>
+<td><code>&quot;GammaFactors&quot;</code>, <code>&quot;GammaExpression&quot;</code>,
+<code>&quot;GammaPower&quot;</code></td>
+<td>Gamma-product normalization metadata when that adapter supplied it.
+<code>&quot;GammaPower&quot;</code> can be
+<code>Missing[&quot;NotSingleGamma&quot;]</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;BarnesFactors&quot;</code>, <code>&quot;BarnesExpression&quot;</code></td>
+<td>Barnes-product normalization metadata. This forward path also
+retains any <code>&quot;GammaFactors&quot;</code>; it does not add the inverse
+family&#39;s <code>&quot;BarnesPower&quot;</code> field.</td>
+</tr>
+<tr>
+<td><code>&quot;NormalizedExpression&quot;</code>, <code>&quot;Transformation&quot;</code>,
+<code>&quot;AsymptoticReference&quot;</code></td>
+<td>Optional source normalization and provenance metadata. Their
+presence depends on which transformation ran.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ordinary-inverse-results" class="level2">
+<h2>Ordinary inverse results</h2>
+<p>Source: <a href="../Kernel/AsymptoticAnalysis.wl">inverse
+construction</a> and <a href="../Kernel/RefinementState.wl">retained-state refinement</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;LeadingCoefficient&quot;</code>, <code>&quot;LeadingPower&quot;</code>,
+<code>&quot;Uniformizer&quot;</code></td>
+<td>Leading forward model and its inverse coordinate. For target
+displacement <code>v</code>, coefficient <code>a</code>, and source
+power <code>p</code>, the uniformizer is <code>(v/a)^(1/p)</code> on the
+selected real branch.</td>
+</tr>
+<tr>
+<td><code>&quot;Terms&quot;</code>, <code>&quot;Blocks&quot;</code>,
+<code>&quot;LogVariable&quot;</code></td>
+<td>Terms contain powers of <code>v/a</code> and substituted
+coefficients; blocks retain normalized source-weight corrections. The
+final expression also reconstructs the source endpoint and side. Follow
+<code>&quot;TermConvention&quot;</code>, especially for negative source powers or
+nonunit observables.</td>
+</tr>
+<tr>
+<td><code>&quot;Power&quot;</code></td>
+<td>Selected inverse observable, with source-coordinate conventions
+described in the guide. It is not the retained cutoff.</td>
+</tr>
+<tr>
+<td><code>&quot;Model&quot;</code>, <code>&quot;ForwardExpansion&quot;</code></td>
+<td>The parsed inverse coefficient model and the finite forward
+expression used by it. A forward result having <code>&quot;Terms&quot;</code> does
+not imply it has this inverse model.</td>
+</tr>
+<tr>
+<td><code>&quot;LocalVariable&quot;</code>, <code>&quot;LocalSubstitution&quot;</code>,
+<code>&quot;Variables&quot;</code></td>
+<td>Local source symbol, reconstruction rule, and source/target
+variables.</td>
+</tr>
+<tr>
+<td><code>&quot;InputRemainder&quot;</code>,
+<code>&quot;DeclaredInputRemainder&quot;</code></td>
+<td>Effective forward-model precision and the caller&#39;s declared input
+remainder. This uncertainty can cap the output cutoff even when more
+inverse coefficients could be generated formally.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactModel&quot;</code>,
+<code>&quot;ExactTerminationCertificate&quot;</code></td>
+<td>Model exactness and separate inverse-termination evidence. A newly
+constructed ordinary inverse has no <code>&quot;Exact&quot;</code> key.</td>
+</tr>
+<tr>
+<td><code>&quot;ComputationState&quot;</code></td>
+<td>Retained internal coefficient/enumeration state. Treat it as
+implementation provenance, not as a portable serialized API schema.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="lambert-logarithmic-results" class="level2">
+<h2>Lambert logarithmic results</h2>
+<p>Source: <a href="../Kernel/LambertInverse.wl">LambertInverse.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Prefactor&quot;</code>, <code>&quot;LogarithmicVariable&quot;</code>,
+<code>&quot;Terms&quot;</code>, <code>&quot;Cutoff&quot;</code></td>
+<td>Each pair contributes <code>Prefactor t^n C</code>, where
+<code>t</code> is the positive logarithmic coordinate. The cutoff is
+exclusive in the bracket exponent; finite source reconstruction can add
+an endpoint.</td>
+</tr>
+<tr>
+<td><code>&quot;LambertBranch&quot;</code>, <code>&quot;LambertArgument&quot;</code>,
+<code>&quot;LambertSign&quot;</code>, <code>&quot;LambertLogMagnitude&quot;</code></td>
+<td>Selected real Lambert branch and normalization data.</td>
+</tr>
+<tr>
+<td><code>&quot;LeadingCore&quot;</code>, <code>&quot;LeadingCoreOnly&quot;</code>,
+<code>&quot;BeyondLogarithmicOrders&quot;</code></td>
+<td>Leading solvable model, whether additional source terms remain, and
+those omitted higher-source-power terms. The latter are not silently
+asserted to be zero.</td>
+</tr>
+<tr>
+<td><code>&quot;CoreInverseExpression&quot;</code>,
+<code>&quot;CoreObservableExpression&quot;</code>,
+<code>&quot;ExactInverseExpression&quot;</code>,
+<code>&quot;ExactObservableExpression&quot;</code></td>
+<td>Exact core formulas versus exact full-source formulas; a missing
+closed form is represented by
+<code>Missing[&quot;NoClosedFormInverse&quot;]</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;LambertSeedExpression&quot;</code>, <code>&quot;CoreParameters&quot;</code>,
+<code>&quot;LambertCoreType&quot;</code></td>
+<td>Seed and classified core data for further
+checking/reconstruction.</td>
+</tr>
+<tr>
+<td><code>&quot;LambertCorrectionBlocks&quot;</code>,
+<code>&quot;LambertUnitPower&quot;</code>, <code>&quot;LambertResidualCutoff&quot;</code>,
+<code>&quot;LambertResidualCoefficients&quot;</code></td>
+<td>Normalized unit and residual-calculation metadata. These are
+internal-coordinate quantities, not an additional independent remainder
+theorem.</td>
+</tr>
+<tr>
+<td><code>&quot;LambertPolynomialLog&quot;</code>,
+<code>&quot;LambertLocalObservablePower&quot;</code>,
+<code>&quot;LambertLogDegree&quot;</code>, <code>&quot;LambertScaleFactor&quot;</code></td>
+<td>Polynomial-logarithmic core flag, local observable power, and
+normalization parameters used by the residual calculation.</td>
+</tr>
+<tr>
+<td><code>&quot;RemainderExplanation&quot;</code>,
+<code>&quot;TargetDomainMeaning&quot;</code></td>
+<td>Scope of logarithmic truncation and target-domain conditions.</td>
+</tr>
+<tr>
+<td><code>&quot;Model&quot;</code>, <code>&quot;SeriesData&quot;</code></td>
+<td>Both store <code>Missing[&quot;LogarithmicScale&quot;]</code>; the ordinary
+inverse coefficient-model/native-view contracts do not apply.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="finite-logarithmic-hierarchies" class="level2">
+<h2>Finite logarithmic hierarchies</h2>
+<p>Source: <a href="../Kernel/LogarithmicScales.wl">LogarithmicScales.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation and family boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;LogarithmicLevels&quot;</code>,
+<code>&quot;SourceLogarithmicLevels&quot;</code></td>
+<td>Number of represented logarithmic levels and, for logarithmic-unit
+constructors, their source-coordinate expressions.</td>
+</tr>
+<tr>
+<td><code>&quot;Prefactor&quot;</code>, <code>&quot;Offset&quot;</code>,
+<code>&quot;LogarithmicVariable&quot;</code>, <code>&quot;FormalVariable&quot;</code></td>
+<td>Unit-constructor coordinates for <code>&quot;ReciprocalLogUnit&quot;</code>
+and <code>&quot;LeadingLogMonomial&quot;</code>. Their exponent cutoff applies in
+the normalized logarithmic unit.</td>
+</tr>
+<tr>
+<td><code>&quot;CoefficientLevelSubstitutions&quot;</code>,
+<code>&quot;LeadingLocalApproximation&quot;</code></td>
+<td>Substitutions and leading approximation for unit construction.</td>
+</tr>
+<tr>
+<td><code>&quot;LogarithmicEquationData&quot;</code>,
+<code>&quot;LogarithmicUnitPolynomial&quot;</code>,
+<code>&quot;LogarithmicObservablePolynomial&quot;</code></td>
+<td>Retained normalized equation and finite implicit/observable
+polynomial calculations for the unit paths.</td>
+</tr>
+<tr>
+<td><code>&quot;CoefficientLevels&quot;</code>,
+<code>&quot;CoefficientLevelValues&quot;</code>,
+<code>&quot;NormalizedSourceWeightCutoff&quot;</code></td>
+<td>Generalized-logarithmic coefficient symbols, their target values,
+and the source-weight cutoff. This family uses a target-power cutoff,
+not the unit family&#39;s cutoff convention.</td>
+</tr>
+<tr>
+<td><code>&quot;PowerGaps&quot;</code>, <code>&quot;NormalizedCoefficients&quot;</code>,
+<code>&quot;CoefficientDegreeBounds&quot;</code>, <code>&quot;IndexRegion&quot;</code></td>
+<td>Generalized-logarithmic multi-index model and its finite
+coefficient/boundary data.</td>
+</tr>
+<tr>
+<td><code>&quot;BeyondLogarithmicOrders&quot;</code>,
+<code>&quot;BeyondLogarithmicRemainderScale&quot;</code></td>
+<td>Higher-source-power contributions on the unit paths and their
+separately retained bound scale.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesRepresentation&quot;</code></td>
+<td>A usable ordered representation for
+<code>&quot;ReciprocalLogUnit&quot;</code>;
+<code>Missing[&quot;NestedLogarithmicCoefficients&quot;]</code> for the
+leading-log unit path. The generalized coefficient constructor does not
+ordinarily supply it.</td>
+</tr>
+<tr>
+<td><code>&quot;TermGoalReached&quot;</code>, <code>&quot;TermSelection&quot;</code>,
+<code>&quot;TermGoalConstructionCalls&quot;</code></td>
+<td>Additional metadata only when a term-goal search ran. Exact
+termination can produce fewer blocks than requested, with separate
+termination evidence.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ordered-arithmetic-results" class="level2">
+<h2>Ordered arithmetic results</h2>
+<p>Source: <a href="../Kernel/SeriesOperations.wl">SeriesOperations.wl</a> and <a href="../Kernel/ReciprocalLogOperations.wl">ReciprocalLogOperations.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Offset&quot;</code>, <code>&quot;Prefactor&quot;</code>,
+<code>&quot;Terms&quot;</code>, <code>&quot;RemainderVariable&quot;</code></td>
+<td>The expression is the offset plus the prefactor times the ordered
+correction series. The remainder includes the absolute prefactor.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesRepresentation&quot;</code></td>
+<td>Nested representation containing the positive scale coordinate,
+formal logarithm, coefficient jet, assumptions, domain, and precision
+data needed by arithmetic.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesRecipe&quot;</code></td>
+<td>Retained operation recipe and operands, used when supported
+refinement needs to replay the construction.</td>
+</tr>
+<tr>
+<td><code>&quot;ReciprocalLogRepresentation&quot;</code>,
+<code>&quot;AnalyticRemainderContract&quot;</code>,
+<code>&quot;InputDomains&quot;</code></td>
+<td>Additional reciprocal-logarithmic arithmetic data and the
+holomorphic-unit derivative contract. These belong to
+<code>&quot;ReciprocalLogCalculus&quot;</code>, not every logarithmic result.</td>
+</tr>
+</tbody>
+</table>
+<p>An arithmetic result need not retain a constructor&#39;s
+<code>&quot;Function&quot;</code>, <code>&quot;ExpansionPoint&quot;</code>,
+<code>&quot;Direction&quot;</code>, or inverse <code>&quot;Model&quot;</code> as top-level
+properties. Use its representation and recipe for the supported
+operations; do not fill missing metadata by copying it from an unrelated
+operand.</p>
+</section>
+<section id="composite-results" class="level2">
+<h2>Composite results</h2>
+<p>Source: <a href="../Kernel/SeriesEnvelopeArithmetic.wl">SeriesEnvelopeArithmetic.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Expression&quot;</code>, <code>&quot;Remainder&quot;</code>,
+<code>&quot;RemainderScaleExpression&quot;</code></td>
+<td>Retained finite expression, sum of separate error descriptors, and
+corresponding asymptotic envelope. Unknown errors do not cancel merely
+because finite expressions cancel.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesApproach&quot;</code></td>
+<td>Nested target variable, endpoint, and direction data for the common
+approach.</td>
+</tr>
+<tr>
+<td><code>&quot;CompositeRecipe&quot;</code></td>
+<td>Retained construction/operation provenance.</td>
+</tr>
+<tr>
+<td><code>&quot;MajorantContract&quot;</code></td>
+<td>Composite asymptotic-envelope statement; not a numerical
+enclosure.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesData&quot;</code></td>
+<td><code>Missing[&quot;CompositeErrorScales&quot;]</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>The generic Composite constructor does <strong>not</strong> store
+<code>&quot;Terms&quot;</code>, <code>&quot;Blocks&quot;</code>, <code>&quot;Cutoff&quot;</code>,
+<code>&quot;RemainderPower&quot;</code>, <code>&quot;RemainderLogDegree&quot;</code>, or
+<code>&quot;RemainderVariable&quot;</code>. There is no single exponent ordering
+for its different error scales. A specialized forward wrapper can add
+metadata such as <code>&quot;NativeSectors&quot;</code> without creating a
+universal Composite term table.</p>
+</section>
+<section id="exact-core-marker-expansions" class="level2">
+<h2>Exact-core marker expansions</h2>
+<p>Source: <a href="../Kernel/CorePerturbation.wl">CorePerturbation.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Core&quot;</code>, <code>&quot;Perturbation&quot;</code>,
+<code>&quot;CoreInverse&quot;</code>, <code>&quot;CoreLocalInverse&quot;</code></td>
+<td>Exact chosen core, its perturbation, and source/local core
+inverses.</td>
+</tr>
+<tr>
+<td><code>&quot;CoreCertificate&quot;</code>, <code>&quot;CoreModel&quot;</code></td>
+<td>Core identity/branch evidence and parsed core model.</td>
+</tr>
+<tr>
+<td><code>&quot;ObservableExpression&quot;</code>,
+<code>&quot;ObservableConvention&quot;</code>,
+<code>&quot;CoreObservableExpression&quot;</code>,
+<code>&quot;LocalObservableExpression&quot;</code>,
+<code>&quot;LocalObservablePower&quot;</code></td>
+<td>Selected source observable and its local/core versions.</td>
+</tr>
+<tr>
+<td><code>&quot;Terms&quot;</code>, <code>&quot;MarkerTerms&quot;</code>,
+<code>&quot;LocalMarkerTerms&quot;</code>, <code>&quot;MarkerDepth&quot;</code></td>
+<td>Complete perturbation-marker coefficients through the inclusive
+depth. These are not exponent-sorted power-log blocks.</td>
+</tr>
+<tr>
+<td><code>&quot;FirstOmittedMarkerTerm&quot;</code>,
+<code>&quot;FirstOmittedMarkerDegree&quot;</code></td>
+<td>Next marker contribution and its degree; the majorant governs the
+complete tail even if this contribution vanishes.</td>
+</tr>
+<tr>
+<td><code>&quot;TruncationRemainderPair&quot;</code>,
+<code>&quot;InputRemainderPair&quot;</code>, <code>&quot;MajorantContract&quot;</code></td>
+<td>Separate truncation/input precision and the full-tail existence
+bound.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactInverse&quot;</code>, <code>&quot;Cutoff&quot;</code>,
+<code>&quot;SeriesData&quot;</code></td>
+<td>Final zero-remainder indicator; <code>Missing[&quot;MarkerDepth&quot;]</code>;
+and <code>Missing[&quot;ExactCoreMarkerScale&quot;]</code>, respectively.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="exact-exponential-core-sectors" class="level2">
+<h2>Exact exponential-core sectors</h2>
+<p>Source: <a href="../Kernel/ExponentialCorePerturbation.wl">ExponentialCorePerturbation.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;CoreInverse&quot;</code>, <code>&quot;CoreLocalInverse&quot;</code>,
+<code>&quot;CoreParameters&quot;</code>, <code>&quot;CoreCertificate&quot;</code></td>
+<td>Exact growing exponential core and its normalized inverse data.</td>
+</tr>
+<tr>
+<td><code>&quot;SourceShift&quot;</code>, <code>&quot;SourceCoordinate&quot;</code>,
+<code>&quot;LocalVariable&quot;</code>, <code>&quot;LocalSubstitution&quot;</code></td>
+<td>Shifted source chart and reconstruction.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactExponentialScale&quot;</code>, <code>&quot;SectorVariable&quot;</code>,
+<code>&quot;SectorVariableIdentity&quot;</code></td>
+<td>Exponential small parameter and its exact expression through the
+retained core inverse.</td>
+</tr>
+<tr>
+<td><code>&quot;Terms&quot;</code>, <code>&quot;Sectors&quot;</code>,
+<code>&quot;LocalSectorCoefficients&quot;</code>, <code>&quot;SectorDepth&quot;</code>,
+<code>&quot;FirstOmittedSector&quot;</code></td>
+<td>Exact zero core term and positive sectors through inclusive depth,
+plus the first omitted sector. Positive terms contribute their
+coefficient times <code>SectorVariable</code> to the sector degree.</td>
+</tr>
+<tr>
+<td><code>&quot;SectorRemainder&quot;</code>, <code>&quot;SectorRemainderScale&quot;</code>,
+<code>&quot;InputRemainderTerm&quot;</code>, <code>&quot;InputRemainderScale&quot;</code>,
+<code>&quot;InputRemainderContract&quot;</code></td>
+<td>Separate model-sector and transported unknown-input errors. More
+model sectors need not reduce an input-error floor.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactInverse&quot;</code>, <code>&quot;Truncation&quot;</code>,
+<code>&quot;SeriesData&quot;</code></td>
+<td>Final zero-remainder indicator;
+<code>&quot;ExponentialSectorDepth&quot;</code>; and
+<code>Missing[&quot;ExactExponentialCoreScale&quot;]</code>. This constructor has
+no ordinary <code>&quot;Cutoff&quot;</code> key.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="finite-flat-sectors" class="level2">
+<h2>Finite flat sectors</h2>
+<p>Source: <a href="../Kernel/FlatSectors.wl">FlatSectors.wl</a> and <a href="../Kernel/FlatSectorOperations.wl">FlatSectorOperations.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;CoreInverseCoordinate&quot;</code>, <code>&quot;FlatScale&quot;</code>,
+<code>&quot;ZeroSector&quot;</code></td>
+<td>Exact monomial core coordinate, exponential small parameter, and
+exact sector-zero expression.</td>
+</tr>
+<tr>
+<td><code>&quot;Terms&quot;</code>, <code>&quot;Sectors&quot;</code>,
+<code>&quot;SectorDepth&quot;</code></td>
+<td>Sector terms with inclusive degree cutoff. <code>&quot;Terms&quot;</code>
+includes sector zero; <code>&quot;Sectors&quot;</code> contains retained nonzero
+positive-sector coefficients.</td>
+</tr>
+<tr>
+<td><code>&quot;FirstOmittedSector&quot;</code></td>
+<td>Supplied by the inverse constructor. Derived flat arithmetic instead
+retains separate inner and sector errors.</td>
+</tr>
+<tr>
+<td><code>&quot;InnerCutoff&quot;</code>, <code>&quot;InnerRemainders&quot;</code>,
+<code>&quot;RetainedCoefficientPrecision&quot;</code>,
+<code>&quot;SectorRemainder&quot;</code></td>
+<td>Derived arithmetic metadata: exclusive inner power cutoff, each
+positive sector&#39;s coefficient error, and the complete omitted-sector
+error.</td>
+</tr>
+<tr>
+<td><code>&quot;FlatAnalyticRemainder&quot;</code>,
+<code>&quot;RemainderDerivativeOrder&quot;</code></td>
+<td>Specialized derivative provenance used by flat operations.</td>
+</tr>
+<tr>
+<td><code>&quot;FlatRepresentation&quot;</code>, <code>&quot;FlatRecipe&quot;</code></td>
+<td>Derived arithmetic state and recipe; absent from the original
+inverse constructor.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesData&quot;</code></td>
+<td>The inverse stores
+<code>Missing[&quot;IndependentFlatSectorTruncation&quot;]</code>; derived
+arithmetic stores
+<code>Missing[&quot;IndependentFlatSectorTruncations&quot;]</code>. Both
+deliberately decline a single native view.</td>
+</tr>
+</tbody>
+</table>
+<p>Neither constructor supplies a universal single
+<code>&quot;RemainderPower&quot;</code> for the whole flat result. Read the
+complete <code>&quot;Remainder&quot;</code> or its scale expression.</p>
+</section>
+<section id="fourier-coefficient-results" class="level2">
+<h2>Fourier coefficient results</h2>
+<p>Source: <a href="../Kernel/FourierCoefficients.wl">FourierCoefficients.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Terms&quot;</code>, <code>&quot;Blocks&quot;</code>,
+<code>&quot;FourierFrequencies&quot;</code></td>
+<td>Displayed target-power terms, internal source-weight blocks with
+finite Fourier-polynomial modes, and retained exact frequencies.</td>
+</tr>
+<tr>
+<td><code>&quot;MaxFrequencies&quot;</code></td>
+<td>Admission/resource budget, not a claim that additional frequencies
+were approximated away.</td>
+</tr>
+<tr>
+<td><code>&quot;CoefficientEnvelopes&quot;</code>,
+<code>&quot;CoefficientDegreeBounds&quot;</code></td>
+<td>Absolute coefficient envelopes and logarithmic degree bounds used to
+control oscillatory errors. Zeros of an oscillatory factor are not an
+error scale.</td>
+</tr>
+<tr>
+<td><code>&quot;LogVariable&quot;</code>, <code>&quot;LogarithmicValue&quot;</code>,
+<code>&quot;Uniformizer&quot;</code></td>
+<td>Formal logarithm, its target substitution, and inverse
+uniformizer.</td>
+</tr>
+<tr>
+<td><code>&quot;PowerGaps&quot;</code>, <code>&quot;NormalizedCoefficients&quot;</code>,
+<code>&quot;IndexRegion&quot;</code>,
+<code>&quot;NormalizedSourceWeightCutoff&quot;</code></td>
+<td>Finite inverse coefficient model and source-weight selection
+data.</td>
+</tr>
+<tr>
+<td><code>&quot;ConvergenceContract&quot;</code>, <code>&quot;InputRemainder&quot;</code>,
+<code>&quot;ExactModel&quot;</code></td>
+<td>Finite analytic-lift contract and separate supplied-source
+precision.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesData&quot;</code></td>
+<td><code>Missing[&quot;FourierCoefficientScale&quot;]</code>.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="gamma-and-barnes-inverse-results" class="level2">
+<h2>Gamma and Barnes inverse results</h2>
+<p>Source: <a href="../Kernel/GammaInverse.wl">GammaInverse.wl</a>, <a href="../Kernel/BarnesInverse.wl">BarnesInverse.wl</a>, and <a href="../Kernel/GammaInverseOperations.wl">GammaInverseOperations.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;CoreInverse&quot;</code>, <code>&quot;CoreLogExpression&quot;</code>,
+<code>&quot;CoreArgumentOffset&quot;</code>,
+<code>&quot;RootSeedExpression&quot;</code></td>
+<td>Retained Lambert core, its logarithmic coefficient coordinate, the
+Barnes/Gamma argument shift, and the reconstructed source seed. Gamma
+uses <code>Log[CoreInverse]</code>; Barnes uses
+<code>Log[CoreInverse] - 1</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;Terms&quot;</code>, <code>&quot;Blocks&quot;</code>,
+<code>&quot;CoefficientVariable&quot;</code>,
+<code>&quot;CoefficientSubstitution&quot;</code></td>
+<td>Each <code>{beta, C}</code> contributes
+<code>CoreInverse^(-beta) C</code> after the stored coefficient
+substitution. <code>C</code> is a complete polynomial in the formal
+inverse-logarithmic coefficient variable; do not truncate that
+polynomial as a separate term count.</td>
+</tr>
+<tr>
+<td><code>&quot;CoefficientFrontier&quot;</code>, <code>&quot;FrontierTerm&quot;</code></td>
+<td>First omitted coefficient block and its target expression.</td>
+</tr>
+<tr>
+<td><code>&quot;RemainderInverseLogPower&quot;</code></td>
+<td>Inverse-logarithmic power multiplying the inverse-core remainder. It
+supplements <code>&quot;RemainderPower&quot;</code>;
+<code>&quot;RemainderLogDegree&quot; -&gt; 0</code> does not mean the error has no
+inverse-log factor.</td>
+</tr>
+<tr>
+<td><code>&quot;Cutoff&quot;</code>, <code>&quot;RequestedCutoff&quot;</code></td>
+<td>On construction, <code>&quot;RequestedCutoff&quot;</code> preserves the
+incoming cutoff, including <code>Automatic</code>; <code>&quot;Cutoff&quot;</code>
+records the retained boundary chosen for a term goal or the explicit
+cutoff. Later operations can add their own requested/effective precision
+metadata.</td>
+</tr>
+<tr>
+<td><code>&quot;SourceScale&quot;</code>, <code>&quot;SourceOffset&quot;</code>,
+<code>&quot;TargetScale&quot;</code>, <code>&quot;TargetOffset&quot;</code>,
+<code>&quot;TargetCoordinateExpression&quot;</code></td>
+<td>Retained affine transformations and normalized target equation.</td>
+</tr>
+<tr>
+<td><code>&quot;GammaFamily&quot;</code>, <code>&quot;GammaPower&quot;</code> or
+<code>&quot;BarnesFamily&quot;</code>, <code>&quot;BarnesPower&quot;</code></td>
+<td>The selected function family and forward-function power. These are
+different from the inverse observable <code>&quot;Power&quot;</code>. Only the
+applicable family pair is stored.</td>
+</tr>
+<tr>
+<td><code>&quot;ModelTerms&quot;</code>, <code>&quot;ForwardRemainderContract&quot;</code>,
+<code>&quot;ExactTransformedFunction&quot;</code></td>
+<td>Finite Stirling/Barnes forward-model scope and original logarithmic
+equation. <code>&quot;Exact&quot;</code> and <code>&quot;ExactModel&quot;</code> are false
+in these constructors.</td>
+</tr>
+<tr>
+<td><code>&quot;GammaInverseOperation&quot;</code>,
+<code>&quot;BarnesGInverseOperation&quot;</code></td>
+<td>Optional power-operation provenance, including inherited and
+effective precision. Only the applicable operation key is added.</td>
+</tr>
+<tr>
+<td><code>&quot;SeriesData&quot;</code></td>
+<td><code>Missing[&quot;PolynomialInverseLogCoefficients&quot;]</code>.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="coordinate-transformations" class="level2">
+<h2>Coordinate transformations</h2>
+<p>Source: <a href="../Kernel/CoordinateInverse.wl">CoordinateInverse.wl</a> and <a href="../Kernel/SourceCoordinates.wl">SourceCoordinates.wl</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;CoordinateKind&quot;</code></td>
+<td><code>&quot;TargetLog&quot;</code>, <code>&quot;SourceExp&quot;</code>, or
+<code>&quot;SourceLog&quot;</code> on the inspected paths.</td>
+</tr>
+<tr>
+<td><code>&quot;CoordinateSeries&quot;</code>,
+<code>&quot;CoordinateSubstitution&quot;</code>,
+<code>&quot;TargetCoordinateExpression&quot;</code></td>
+<td>Underlying series and the exact target substitution. Consult that
+series&#39; term/cutoff convention for target-log transformations.</td>
+</tr>
+<tr>
+<td><code>&quot;TransformedFunction&quot;</code>,
+<code>&quot;Transformations&quot;</code></td>
+<td>Transformed forward source and recorded coordinate maps.</td>
+</tr>
+<tr>
+<td><code>&quot;ReconstructedSeries&quot;</code></td>
+<td>Source-coordinate paths retain the series after reconstruction
+separately from the chart inverse.</td>
+</tr>
+<tr>
+<td><code>&quot;SourceCoordinateVariable&quot;</code>,
+<code>&quot;SourceCoordinateEndpoint&quot;</code>,
+<code>&quot;SourceCoordinateDirection&quot;</code>,
+<code>&quot;SourceCoordinateExpression&quot;</code>,
+<code>&quot;SourceTransformExpression&quot;</code></td>
+<td>Source-chart data on <code>&quot;SourceExp&quot;</code> and
+<code>&quot;SourceLog&quot;</code> paths.</td>
+</tr>
+<tr>
+<td><code>&quot;ObservableToCoordinateVariable&quot;</code>,
+<code>&quot;ObservableToCoordinateExpression&quot;</code></td>
+<td>Reverse map used to interpret the reconstructed source observable in
+its chart.</td>
+</tr>
+<tr>
+<td><code>&quot;ExactSourceCertificate&quot;</code></td>
+<td>Optional source identity/composition evidence on a certified chart
+path.</td>
+</tr>
+</tbody>
+</table>
+<p>These wrappers retain and transform underlying metadata. The same key
+can describe the underlying chart rather than an ordinary target-power
+series; do not reconstruct a transformed result from
+<code>&quot;Terms&quot;</code> without its <code>&quot;TermConvention&quot;</code> and
+coordinate data.</p>
+</section>
+<section id="explicit-special-inverse-adapters" class="level2">
+<h2>Explicit special inverse adapters</h2>
+<p>Source: <a href="../Kernel/SpecialFunctionAdapters.wl">SpecialFunctionAdapters.wl</a>.
+These are distinct from the ordered Gamma/Barnes inverse families
+above.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation and availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Adapter&quot;</code></td>
+<td><code>&quot;Erfc&quot;</code>, <code>&quot;Gamma&quot;</code>, <code>&quot;LogGamma&quot;</code>,
+<code>&quot;LambertThreshold&quot;</code>, or
+<code>&quot;QuadraticThreshold&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;CoordinateSeries&quot;</code>,
+<code>&quot;CoordinateSubstitution&quot;</code>,
+<code>&quot;TargetCoordinateExpression&quot;</code></td>
+<td>Underlying inverse calculation and target normalization; further
+properties are inherited from that calculation.</td>
+</tr>
+<tr>
+<td><code>&quot;ForwardModel&quot;</code>, <code>&quot;TransformedFunction&quot;</code>,
+<code>&quot;ExactTransformedFunction&quot;</code>, <code>&quot;ModelTerms&quot;</code></td>
+<td>Finite model versus original transformed equation on the Erfc and
+Gamma/LogGamma paths.</td>
+</tr>
+<tr>
+<td><code>&quot;ForwardRemainderBound&quot;</code>,
+<code>&quot;ForwardDerivativeRemainderBound&quot;</code>,
+<code>&quot;ForwardBoundConditions&quot;</code>,
+<code>&quot;ForwardRemainderContract&quot;</code></td>
+<td>Explicit forward-model bounds where that adapter supplies them.
+Gamma bounds apply to the transformed LogGamma equation, not directly to
+Gamma values.</td>
+</tr>
+<tr>
+<td><code>&quot;PositiveTailExpression&quot;</code>, <code>&quot;SourceSign&quot;</code>,
+<code>&quot;NormalizedTailPolynomial&quot;</code>,
+<code>&quot;NormalizedTailRemainderBound&quot;</code>,
+<code>&quot;NormalizedTailDerivativeRemainderBound&quot;</code></td>
+<td>Erfc tail normalization and its error information.</td>
+</tr>
+<tr>
+<td><code>&quot;PhaseRemainderBound&quot;</code>,
+<code>&quot;PhaseDerivativeRemainderBound&quot;</code>,
+<code>&quot;PhaseBoundConditions&quot;</code></td>
+<td>Erfc logarithmic-phase bounds and their additional positivity
+condition.</td>
+</tr>
+<tr>
+<td><code>&quot;AccuracyFloor&quot;</code>, <code>&quot;AdapterCutoffMeaning&quot;</code>,
+<code>&quot;SwitchingContract&quot;</code></td>
+<td>Model-limited attainable order and adapter scope when supplied. This
+<code>&quot;AccuracyFloor&quot;</code> is model metadata, not a completed
+numerical certificate.</td>
+</tr>
+<tr>
+<td><code>&quot;ThresholdBranch&quot;</code>, <code>&quot;ThresholdTarget&quot;</code>,
+<code>&quot;ThresholdUniformizer&quot;</code>,
+<code>&quot;ExactInverseExpression&quot;</code>,
+<code>&quot;ExactForwardModel&quot;</code></td>
+<td>Threshold-adapter branch, target, ramified coordinate, and
+exact-source information. The quadratic branch field uses
+<code>Missing[&quot;QuadraticSourceDirection&quot;]</code>; source
+<code>&quot;Direction&quot;</code> selects that branch.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="forward-special-function-metadata" class="level2">
+<h2>Forward special-function metadata</h2>
+<p>These properties augment the forward/ordered/Composite result
+appropriate to the actual expansion. A property name containing
+<code>Native</code> does <strong>not</strong> make an analytic result a
+<code>&quot;Native&quot;</code>-kind result.</p>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;NativeSectors&quot;</code>, <code>&quot;NativeSeriesOrder&quot;</code>,
+<code>&quot;NativeSeriesBackend&quot;</code></td>
+<td>Analytic special-function import&#39;s exact carriers, amplitude blocks,
+working native order, and backend description. This path separately
+justifies the imported error.</td>
+</tr>
+<tr>
+<td><code>&quot;RealDomainProof&quot;</code>, <code>&quot;NormalizedExpression&quot;</code>,
+<code>&quot;ExactSourceEqualityVerified&quot;</code>,
+<code>&quot;AsymptoticReferences&quot;</code></td>
+<td>Real-domain admission, normalization, exact-source comparison, and
+references recorded by special-function import. A finite-point ordinary
+shortcut need not populate every import field.</td>
+</tr>
+<tr>
+<td><code>&quot;SpecialFunctionFamily&quot;</code>,
+<code>&quot;SpecialFunctionBackend&quot;</code>, <code>&quot;SourceArgument&quot;</code>,
+<code>&quot;ParameterScope&quot;</code></td>
+<td>Zeta/Lerch family, construction method, limiting argument, and
+fixed-parameter scope.</td>
+</tr>
+<tr>
+<td><code>&quot;AbsoluteRemainderBound&quot;</code>,
+<code>&quot;RemainderBoundConditions&quot;</code></td>
+<td>Explicit Zeta/Lerch forward tail bound and its conditions. These go
+beyond a bare big-O scale but are not an inverse interval
+certificate.</td>
+</tr>
+<tr>
+<td><code>&quot;FirstOmittedInteger&quot;</code>,
+<code>&quot;RemainderLowerBound&quot;</code></td>
+<td>Zeta&#39;s first omitted Dirichlet term index and positive tail lower
+bound.</td>
+</tr>
+<tr>
+<td><code>&quot;LerchParameters&quot;</code>, <code>&quot;FirstOmittedMoment&quot;</code>,
+<code>&quot;FiniteSourceExpansion&quot;</code>,
+<code>&quot;RemainderBoundConstant&quot;</code></td>
+<td>Lerch parameters, first omitted moment, finite-source flag, and
+bound constant. The omitted-moment value can be <code>None</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <a href="../Kernel/NativeSpecialFunctions.wl">NativeSpecialFunctions.wl</a>
+and <a href="../Kernel/DirichletSpecialFunctions.wl">DirichletSpecialFunctions.wl</a>.
+An operation that constructs a new generic arithmetic result need not
+retain the original special-function bound fields; recheck the resulting
+properties.</p>
+</section>
+<section id="native-results" class="level2">
+<h2>Native results</h2>
+<p>Source: <a href="../Kernel/NativeCompatibility.wl">NativeCompatibility.wl</a>. See
+the <a href="UserGuide.html#native-backend-expansions">native guide</a>
+and <a href="../../docs/development/NATIVE_RESULT_CONTRACTS.md">result
+contract</a> for request semantics and current coverage gaps.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Kind&quot;</code>, <code>&quot;Scale&quot;</code></td>
+<td>Both are <code>&quot;Native&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;NativeBackend&quot;</code>, <code>&quot;NativeResult&quot;</code></td>
+<td>Selected <code>&quot;Series&quot;</code> or <code>&quot;Asymptotic&quot;</code> backend
+and its complete returned expression.</td>
+</tr>
+<tr>
+<td><code>&quot;Expression&quot;</code></td>
+<td><code>Normal[NativeResult]</code> as computed during construction.
+<code>Normal[s]</code> returns this stored value; it does not invoke a
+new expansion. It can contain an infinite sum or unresolved native
+expression.</td>
+</tr>
+<tr>
+<td><code>&quot;Remainder&quot;</code>, <code>&quot;Assumptions&quot;</code></td>
+<td>Both are <code>Missing[&quot;NativeContract&quot;]</code>. No independent
+package analytic remainder or proof context is manufactured.</td>
+</tr>
+<tr>
+<td><code>&quot;Exact&quot;</code></td>
+<td><code>Missing[&quot;NotEstablished&quot;]</code>, even if the returned
+expression happens to be exact.</td>
+</tr>
+<tr>
+<td><code>&quot;RemainderContract&quot;</code></td>
+<td><code>&quot;NativeFormalOrder&quot;</code> for Series,
+<code>&quot;NativeAsymptotic&quot;</code> for Asymptotic.</td>
+</tr>
+<tr>
+<td><code>&quot;NativeEvaluationStatus&quot;</code></td>
+<td>Structural classification, in priority order: <code>&quot;Aborted&quot;</code>
+if <code>$Aborted</code> occurs; <code>&quot;Failed&quot;</code> if
+<code>$Failed</code> or a <code>Failure</code> occurs;
+<code>&quot;Unresolved&quot;</code> if a native Series/Asymptotic call remains;
+otherwise <code>&quot;Computed&quot;</code>. This is not a theorem that the
+requested expansion is complete or correct.</td>
+</tr>
+<tr>
+<td><code>&quot;NativeRequest&quot;</code>, <code>&quot;OriginalArguments&quot;</code></td>
+<td>Held delegated call and held original argument record. They preserve
+provenance; they are not instructions to evaluate the request again
+during inspection.</td>
+</tr>
+<tr>
+<td><code>&quot;ExpansionSpecifications&quot;</code></td>
+<td>Recognized specifications retained in held form.</td>
+</tr>
+<tr>
+<td><code>&quot;Variable&quot;</code></td>
+<td>The unique recognized expansion variable, or
+<code>Missing[&quot;MultipleOrUnresolvedVariables&quot;]</code>. In the latter
+case numerical application returns
+<code>Failure[&quot;NativeVariables&quot;, ...]</code>; substitute explicitly into
+<code>Normal[s]</code> or <code>&quot;NativeResult&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;AmbientAssumptions&quot;</code></td>
+<td>Captured ambient assumption context used for delegation. It is
+separate from the missing package analytic <code>&quot;Assumptions&quot;</code>
+contract.</td>
+</tr>
+<tr>
+<td><code>&quot;NativeKernelVersion&quot;</code>,
+<code>&quot;NativeSystemID&quot;</code></td>
+<td>Runtime identity for the delegated computation.</td>
+</tr>
+</tbody>
+</table>
+<p>Automatic native routing additionally supplies:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;BackendSelection&quot;</code>, <code>&quot;OrderConvention&quot;</code></td>
+<td><code>Automatic</code> and <code>&quot;Native&quot;</code>, respectively.</td>
+</tr>
+<tr>
+<td><code>&quot;BackendSelectionReason&quot;</code></td>
+<td>Routing reason such as <code>&quot;NativeSpecification&quot;</code>,
+<code>&quot;NativeOptions&quot;</code>, or
+<code>&quot;PackageRepresentation&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;PackageFailure&quot;</code></td>
+<td>Original analytic representation failure for a fallback, or
+<code>None</code> when no such failure initiated delegation.</td>
+</tr>
+<tr>
+<td><code>&quot;NativeAttempts&quot;</code></td>
+<td>Ordered list of nested attempt associations. Each stores
+<code>&quot;Backend&quot;</code>, <code>&quot;EvaluationStatus&quot;</code>, and a held
+<code>&quot;Request&quot;</code> or <code>Missing[&quot;NotDelegated&quot;]</code>. These
+nested fields are not additional properties of the outer result.</td>
+</tr>
+</tbody>
+</table>
+<p>Explicit native selection does not add the automatic-routing fields.
+The current search stops on a structurally computed result or an abort;
+it can try another compatible backend after a failed or unresolved
+result. The wrapper preserves a returned native outcome even when its
+status is failed or unresolved. Thus matching
+<code>_GeneralizedSeries</code> alone does not establish successful
+native computation.</p>
+<p>Native objects do not store analytic <code>&quot;Terms&quot;</code>,
+<code>&quot;Blocks&quot;</code>, <code>&quot;Cutoff&quot;</code>, <code>&quot;SeriesData&quot;</code>,
+or single remainder-order fields. Those queries return the ordinary
+absent-key <code>Missing</code> value. Package analytic operations
+refuse a native remainder contract where required; use
+<code>&quot;NativeResult&quot;</code> for native formal operations.</p>
+</section>
+<section id="optional-provenance-and-refinement-metadata" class="level2">
+<h2>Optional provenance and refinement metadata</h2>
+<table>
+<thead>
+<tr>
+<th>Properties</th>
+<th>Where they arise and how to read them</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;InverseFunctionSyntax&quot;</code>,
+<code>&quot;InverseFunctionBranch&quot;</code>, <code>&quot;SourceVariable&quot;</code>,
+<code>&quot;SourceDomain&quot;</code></td>
+<td>Callable/applied-inverse admission records. They supplement the
+selected inverse result.</td>
+</tr>
+<tr>
+<td><code>&quot;InverseFunctionExpression&quot;</code>,
+<code>&quot;InverseFunctionExpansionPoint&quot;</code>,
+<code>&quot;InverseFunctionExpansionDirection&quot;</code></td>
+<td>Original applied inverse expression and the request&#39;s expansion
+approach, distinct from an inverse result&#39;s source endpoint.</td>
+</tr>
+<tr>
+<td><code>&quot;InverseFunctionBranches&quot;</code>,
+<code>&quot;InverseFunctionProvenance&quot;</code></td>
+<td>Branch selections and records accumulated during expression
+construction or observable evaluation.</td>
+</tr>
+<tr>
+<td><code>&quot;OriginalExpression&quot;</code>,
+<code>&quot;ConditionalSourceReplay&quot;</code></td>
+<td>Conditional-source reconstruction data where retained.</td>
+</tr>
+<tr>
+<td><code>&quot;CompositionScope&quot;</code></td>
+<td>Optional exact-source replay record for composition involving a
+varying parameter. It records that an old fixed-parameter remainder was
+not simply transported as a uniform bound.</td>
+</tr>
+<tr>
+<td><code>&quot;RefinementStatistics&quot;</code>,
+<code>&quot;RefinementHistory&quot;</code></td>
+<td>Operation-specific counts and history added by supported refinement.
+They are not a mathematical error certificate or a uniform performance
+guarantee.</td>
+</tr>
+<tr>
+<td><code>&quot;RefinementRequest&quot;</code></td>
+<td>Nested additional-block request and outcome when that structured
+refinement path returns a new series. A numerical-tolerance refinement
+request instead returns a certificate association, not a
+<code>GeneralizedSeries</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Sources: <a href="../Kernel/InverseFunctionExpressions.wl">inverse-expression
+admission</a>, <a href="../Kernel/SeriesOperations.wl">composition and
+arithmetic refinement</a>, <a href="../Kernel/RefinementState.wl">retained inverse state</a>, and <a href="../Kernel/RefinementRequests.wl">structured refinement</a>.</p>
+</section>
+<section id="missing-values-and-unavailable-views" class="level2">
+<h2>Missing values and unavailable views</h2>
+<p>Absence is generally local to the requested representation or
+property. It does not invalidate the whole expansion or imply numerical
+zero.</p>
+<table>
+<thead>
+<tr>
+<th>Value or reason</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Missing[&quot;KeyAbsent&quot;, key]</code></td>
+<td>The property is not stored on this object.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;NativeContract&quot;]</code></td>
+<td>A native object has no package analytic remainder/assumption
+contract.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;NotEstablished&quot;]</code></td>
+<td>The native wrapper makes no exactness claim.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;Unknown&quot;]</code>,
+<code>Missing[&quot;NotComputed&quot;]</code></td>
+<td>Some constructors retain a valid error bound without a concrete
+first omitted term.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;NotAvailable&quot;]</code> in
+<code>&quot;SeriesData&quot;</code></td>
+<td>The optional ordinary export does not support this endpoint, side,
+or observable layout.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;Exact&quot;]</code> in <code>&quot;SeriesData&quot;</code></td>
+<td>The ordinary exporter deliberately omits a dense native series for
+an exact result. It is not an exactness failure.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;IrrationalExponents&quot;]</code></td>
+<td>The result cannot use that rational-index native export.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;LogarithmicRemainder&quot;, ...]</code></td>
+<td>Export would lose the logarithmic remainder factor.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;NativeSeriesDataRange&quot;, ...]</code></td>
+<td>Required indices, denominator, or order span exceed the runtime&#39;s
+native representation range.</td>
+</tr>
+<tr>
+<td><code>Missing[&quot;DenseSeriesDataLimit&quot;, ...]</code></td>
+<td>The optional dense coefficient view exceeds its allocation cap. The
+sparse result remains available.</td>
+</tr>
+<tr>
+<td>Family reasons such as <code>&quot;LogarithmicScale&quot;</code>,
+<code>&quot;SourceCoordinate&quot;</code>, <code>&quot;ExplicitCalculus&quot;</code>, or
+<code>&quot;CompositeErrorScales&quot;</code></td>
+<td>The family intentionally declines the ordinary native view or
+ordinary inverse model. Consult the family table instead of substituting
+a default value.</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="UserGuide.html#native-series-remainder-view">native-view
+guide</a> explains the export boundaries. The dispatch itself only
+returns stored values; operations such as inversion, refinement,
+composition, or numerical checking perform their own capability checks
+and can return <code>Failure</code> independently. Preserve the object
+and use those operations to change it. Editing its association directly
+does not recompute the coefficients, branch, or error contract.</p>
+</section>
+</section>
+</body>
+</html>

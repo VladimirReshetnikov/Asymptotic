@@ -485,6 +485,11 @@ options.</p>
 </section>
 <section id="native-expansion-backends" class="level2">
 <h2>Native Expansion Backends</h2>
+<p>Use an explicit native backend when a built-in&#39;s input and order
+conventions are required. Read <a href="#native-basic-examples">Basic
+Examples</a> for the loading and inspection pattern, <a href="#automatic-backend-routing">Automatic Selection</a> for routing,
+and <a href="#native-coverage-gaps">Known Deviations and Coverage
+Gaps</a> for the remaining work toward complete built-in coverage.</p>
 <p><a id="native-coverage-gaps"></a></p>
 <section id="known-deviations-and-coverage-gaps" class="level3">
 <h3>Known Deviations and Coverage Gaps</h3>
@@ -730,6 +735,7 @@ still returns <code>Failure[&quot;InvalidCutoff&quot;, ...]</code>. Explicit
 package direction, branch and resource options remain binding. Triple
 specifications retain their existing cutoff behavior; this rule-form
 admission does not reinterpret a cutoff as a native order.</p>
+<p><a id="native-basic-examples"></a></p>
 </section>
 <section id="basic-examples" class="level3">
 <h3>Basic Examples</h3>
@@ -791,7 +797,8 @@ nested orders, conditions, or infinite expressions.</td>
 </tr>
 <tr>
 <td><code>&quot;Expression&quot;</code></td>
-<td><code>Normal</code> applied to the native result; also returned by
+<td><code>Normal</code> applied to the native result during
+construction; this stored expression is returned by
 <code>Normal[s]</code>.</td>
 </tr>
 <tr>
@@ -1130,6 +1137,35 @@ Exponents and Complete Blocks</a>.</p>
 value and selected sign. Use <code>s[&quot;RemainderVariable&quot;]</code> to
 obtain the coordinate actually used; do not substitute <code>y</code>
 for it without checking the result.</p>
+<p><a id="choose-precision"></a></p>
+</section>
+<section id="choose-a-cutoff-or-a-block-count" class="level3">
+<h3>Choose a Cutoff or a Block Count</h3>
+<p>Use a cutoff when the power of the omitted error matters; use
+<code>SeriesTermGoal</code> when the number of displayed nonzero blocks
+matters. Fix the backend explicitly when comparing those conventions
+with a built-in order:</p>
+<pre class="wolfram"><code>Clear[x];
+powerCutoff = AsymptoticExpansion[Sin[x], {x, 0, 5},
+  &quot;Backend&quot; -&gt; &quot;Package&quot;];
+twoBlocks = AsymptoticExpansion[Sin[x], {x, 0},
+  SeriesTermGoal -&gt; 2, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+nativeOrder = AsymptoticExpansion[Sin[x], {x, 0, 5},
+  &quot;Backend&quot; -&gt; &quot;Series&quot;];
+{Normal[powerCutoff], Normal[twoBlocks], Normal[nativeOrder]}</code></pre>
+<pre class="wolfram"><code>{x - x^3/6, x - x^3/6, x - x^3/6 + x^5/120}</code></pre>
+<p>The package cutoff excludes the <code>x^5</code> block and records
+<code>powerCutoff[&quot;Remainder&quot;]</code> as
+<code>PowerLogRemainder[x, 5, 0]</code>. The two-block request happens
+to retain the same expression here; zeros at even powers do not count as
+blocks. Native <code>Series</code> includes the requested fifth order.
+Matching built-in order semantics across the complete public interface
+is still part of the <a href="#native-coverage-gaps">coverage
+work</a>.</p>
+<p>For an inverse or a specialized scale, first identify the coordinate
+and prefactor. The number <code>5</code> need not mean a power of the
+original input variable; the following table identifies the relevant
+precision parameter.</p>
 </section>
 <section id="cutoff-meanings-by-scale" class="level3">
 <h3>Cutoff Meanings by Scale</h3>
@@ -1459,16 +1495,19 @@ input using the former name must be updated.</p>
 <tbody>
 <tr>
 <td><code>Normal[s]</code></td>
-<td>Approximation without the package wrapper; for a native result,
-<code>Normal[s[&quot;NativeResult&quot;]]</code>, which need not be finite.</td>
+<td>The stored <code>&quot;Expression&quot;</code> without the package wrapper; a
+native result stores its construction-time normalization, which need not
+be finite.</td>
 </tr>
 <tr>
 <td><code>s[&quot;property&quot;]</code></td>
-<td>A stored property.</td>
+<td>A stored property, or <code>Missing[&quot;KeyAbsent&quot;, &quot;property&quot;]</code>
+when absent.</td>
 </tr>
 <tr>
 <td><code>s[&quot;Properties&quot;]</code></td>
-<td>Available property names.</td>
+<td>The keys stored in this particular result, rather than a universal
+list of supported fields.</td>
 </tr>
 <tr>
 <td><code>s[value]</code></td>
@@ -1528,8 +1567,9 @@ representation, including metadata.</td>
 </tr>
 <tr>
 <td><code>Normal[s]</code></td>
-<td>Ordinary Wolfram Language expression, with the remainder and series
-metadata dropped.</td>
+<td>Stored approximation expression; the package wrapper and its
+separate analytic remainder metadata are omitted. Native normalization
+follows the backend result.</td>
 </tr>
 </tbody>
 </table>
@@ -1649,6 +1689,13 @@ otherwise <code>Missing[...]</code>.</td>
 <code>s[&quot;Properties&quot;]</code> before relying on specialized metadata. Do
 not edit the underlying association to change a branch or precision
 claim.</p>
+<p>The <a href="ResultReference.html">result-property reference</a> groups
+the actual fields by representation and explains absent values,
+exactness, coordinates, and native metadata. For example, an ordinary
+forward result can omit <code>&quot;Scale&quot;</code>, and an ordinary inverse
+can record <code>&quot;ExactModel&quot;</code> without an <code>&quot;Exact&quot;</code>
+field. Those absences do not by themselves mean that construction
+failed.</p>
 <p>An arithmetic result with <code>&quot;Scale&quot; -&gt; &quot;Composite&quot;</code>
 retains a finite expression and separate error scales. It has no single
 remainder exponent or cutoff. See <a href="#composite-series-results">Composite Results</a>.</p>
