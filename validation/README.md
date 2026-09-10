@@ -1,5 +1,21 @@
 # Review and validation record
 
+This page preserves evidence from individual source snapshots. A historical
+passing count does not validate today's checkout. The project-wide
+[coverage targets](../docs/development/COVERAGE_TARGETS.md) remain open;
+consult the [native deviations](../docs/development/NATIVE_COMPATIBILITY.md),
+[Mathics status](../docs/Mathics/COMPATIBILITY.md), and
+[vendored article coverage](../docs/development/VENDORED_ASYMPTOTICS.md)
+for known implementation and acceptance gaps.
+
+| Task | Current instructions |
+| --- | --- |
+| Check documentation sources and generated artifacts | [Documentation maintenance](../docs/MAINTAINING.md) |
+| Select a Wolfram regression check | [Focused checks](#choose-a-focused-check) and [test guide](../src/Tests/README.md) |
+| Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
+| Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
+| Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
+
 ## Principal-logarithm normalization and positive nested bases
 
 The [eight-file native run](log-power-normalization-tests.json) passes
@@ -101,27 +117,12 @@ The [merged PDF build](observable-ingress-merge-pdf-build.json) records exactly
 three serial strict LaTeX passes and the final 100-page artifact. The
 [render record](observable-ingress-merge-pdf-layout.json) records rendering of
 all pages, zero text-outside-page geometry findings, and visual inspection of
-contact pages 1â€“12, 43â€“54 and 97â€“100 plus full page 47. Other pages were rendered
+contact pages 1–12, 43–54 and 97–100 plus full page 47. Other pages were rendered
 but were not visually inspected in this checkpoint. The earlier
 [99-page build](observable-ingress-pdf-build.json) and
 [layout record](observable-ingress-pdf-layout.json) belong to the pre-merge
 article. Both build histories retain their own source and artifact hashes.
 
-This page preserves evidence from individual source snapshots. A historical
-passing count does not validate today's checkout. The project-wide
-[coverage targets](../docs/development/COVERAGE_TARGETS.md) remain open;
-consult the [native deviations](../docs/development/NATIVE_COMPATIBILITY.md),
-[Mathics status](../docs/Mathics/COMPATIBILITY.md), and
-[vendored article coverage](../docs/development/VENDORED_ASYMPTOTICS.md)
-for known implementation and acceptance gaps.
-
-| Task | Current instructions |
-| --- | --- |
-| Check documentation sources and generated artifacts | [Documentation maintenance](../docs/MAINTAINING.md) |
-| Select a Wolfram regression check | [Focused checks](#choose-a-focused-check) and [test guide](../src/Tests/README.md) |
-| Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
-| Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
-| Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
 
 ## Documentation quality and coverage register
 
@@ -439,8 +440,8 @@ The standalone builder's 11 existing Python tests passed. The guide was
 regenerated and its links, unique anchors and coverage of all 38 public symbols
 checked. Its HTML was not visually reviewed in this milestone. The mathematical
 article completed three serial strict LaTeX passes, finishing at 98 pages.
-All pages were rendered; page 45 and contact sheets covering pages 43â€“54 and
-97â€“98 were visually inspected without clipping or overlap. All 98 pages passed
+All pages were rendered; page 45 and contact sheets covering pages 43–54 and
+97–98 were visually inspected without clipping or overlap. All 98 pages passed
 the text/page geometry check. The receipt records exact PDF, source and build-log
 hashes, including the first pass's temporary 94-page output before the table of
 contents stabilized. No cosmetic PDF changes were made.
@@ -598,7 +599,7 @@ symbols, 206 anchors, and 130 links. Browser visual review is incomplete:
 automatic approval review rejected launching the local documentation preview
 server with only `blocked by policy`. No new browser layout acceptance is
 claimed. The mathematical PDF was rebuilt in three serial strict LaTeX passes;
-all 97 pages were rendered and reviewed in layout overviews, with pages 10â€“11
+all 97 pages were rendered and reviewed in layout overviews, with pages 10–11
 inspected at full size. There were no overfull or underfull boxes. The build
 records the `epstopdf` warning that shell escape is disabled; no layout repair
 was needed. Sources, output hashes, and review scope are in the receipt.
@@ -763,7 +764,7 @@ The mathematical article adds a proof that a real-valued germ has real
 complete coefficients strictly below its error power. It does not infer a
 real source from a finite real prefix. The 96-page PDF was rebuilt with three
 strict serial LaTeX passes; all pages were rendered and reviewed in layout
-overviews, with pages 9â€“10 inspected at full size. No final LaTeX warnings or
+overviews, with pages 9–10 inspected at full size. No final LaTeX warnings or
 overfull/underfull boxes were reported. Standalone freshness, eleven Python
 builder tests and documentation consistency checks passed. Artifact hashes
 and the exact visual-review scope are in `review-real-coefficients-artifacts.json`.
@@ -1939,7 +1940,7 @@ is skipped when the next nonzero block is found.
 
 `benchmark-snapshot.json` records original-commit versus updated-algorithm
 measurements made during this review. All four computed results agreed.
-The three targeted fixtures improved by approximately 105â€“110 times. The
+The three targeted fixtures improved by approximately 105–110 times. The
 weighted-region fixture became approximately 1.75 times slower while gaining
 bounded boundary allocation and accurate budget enforcement. These results
 are fixture-specific and machine-dependent.

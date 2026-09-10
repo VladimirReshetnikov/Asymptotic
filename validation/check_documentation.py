@@ -14,9 +14,15 @@ import subprocess
 
 from build_user_guide import ROOT, build
 from documentation_links import check_local_links, maintained_pages
+from documentation_text import check_text_encoding
 
 
 def check() -> dict:
+    pages = maintained_pages(ROOT)
+    text_paths = pages + list((ROOT / "docs" / "article").rglob("*.tex"))
+    for extension in ("*.html", "*.css"):
+        text_paths += list((ROOT / "src" / "Documentation").glob(extension))
+    encoding = check_text_encoding(text_paths)
     guide = build(check=True)
     master = ROOT / "docs" / "article" / "asymptotic-inverse.tex"
     text = master.read_text(encoding="utf-8")
@@ -31,7 +37,7 @@ def check() -> dict:
     assert not set(references) - set(labels), "Missing mathematical references"
     assert not set(citations) - set(bibliography), "Missing bibliography entries"
     assert not re.search(r"\\wl\{|lstlisting|AsymptoticExpansion|PowerLogSeries|GeneralizedSeries|\.wl\b|sec:package|sec:reports", text), "Software content in the mathematical article"
-    links = check_local_links(maintained_pages(ROOT))
+    links = check_local_links(pages)
     # Keys are paths in the pinned historical commit, not the live docs/article
     # layout. Preserve them when current documentation is relocated.
     archived = {f"article/sections/{name}": f"docs/development/article-notes/{name}"
@@ -49,6 +55,7 @@ def check() -> dict:
               "MathematicalLabels": len(labels), "MathematicalReferences": len(references),
               "BibliographyEntries": len(bibliography), "MissingReferences": 0,
               "MissingCitations": 0, "DocumentationLinks": links,
+              "TextEncoding": encoding,
               "PreservedEngineeringFiles": len(archived),
               "FullPackageSuiteRun": False}
     print(json.dumps(result, indent=2))
