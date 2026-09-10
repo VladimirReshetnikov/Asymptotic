@@ -2259,7 +2259,7 @@ An explicit cutoff is unavailable for a composite result, because its errors may
 <a id="composite-series-results"></a>
 ### Composite Results
 
-When an arithmetic operation or a supported unary function cannot use one ordered coefficient scale, compatible operands can produce a result with `"Scale" -> "Composite"`. Its finite expression is retained, and its remainder keeps the separate input error scales. The operands must have the same expansion variable, endpoint, and real approach side, with compatible domains.
+When an arithmetic operation or a supported unary function cannot use one ordered coefficient scale, compatible operands can produce a result with `"Scale" -> "Composite"`. Its finite expression is retained, and its remainder keeps the separate input error scales. The operands must have the same expansion variable, endpoint, and real approach side, with compatible domains. The endpoint and side are derived from each operand's complete target chart: a stored `"SeriesApproach"` first, then the recorded target limit, with the retained target domain deciding the side before any isolated target scale or coefficient sign, so the reflected `Erfc` adapter approaches `2` from below and a negative quadratic curvature approaches its vertex value from below; a flat chart with a pole core tends to a signed infinity rather than to its finite offset.
 
 For example, Gamma and Barnes inverse expansions can be combined on their common positive target approach:
 
@@ -2512,6 +2512,8 @@ A quantitative forward tail bound survives truncation. When `s` carries `"Absolu
 | `SeriesRefine[s, <|"Target" -> y1, "TargetError" -> eps, "Interval" -> {lo, hi}|>]` | Numerical root certificate association. |
 | `SeriesRefine[s, <|"Target" -> y1, "RelativeError" -> tau, "Interval" -> {lo, hi}|>]` | Numerical certificate with a relative root-accuracy request. |
 
+A cutoff request retargets the result: `SeriesRefine[s, h]` with `h` below the current cutoff returns the valid coarser view at `h` while retaining the larger computation cache, so a later request for more terms does no new coefficient work, and a request at the current cutoff likewise recomputes nothing. This is a deliberate retargeting, not an error and not a wrong formula; use `SeriesTruncate[s, h]` to discard blocks without touching the retained state, and compare `s["Cutoff"]` with the request when a no-op is intended.
+
 Options are `"MaxTerms" -> 20000` and `"MaxRefinements" -> 128`. A tolerance request also accepts the options of [InverseCertificate](#InverseCertificate) as association keys. Do not mix `"AdditionalBlocks"` with a numerical request.
 
 Refinement preserves the original function, assumptions, selected branch, and declared input precision. It ignores later ambient `$Assumptions`, including when replaying a constructor or an operation recipe; see [Assumptions and Parameter Domains](#assumption-context). Exact terminating results can stop before an additional-block goal. A numerical request returns a certificate for the source root; it does not replace the symbolic remainder with a numerical tolerance.
@@ -2536,7 +2538,7 @@ A failed additional-block request can include `"BestExpansion"` in its failure d
 <a id="SeriesDifferentiate"></a>
 ### SeriesDifferentiate
 
-`SeriesDifferentiate[s]` differentiates once; `SeriesDifferentiate[s, n]` differentiates `n` times. Options are `"Cutoff" -> Automatic`, `"MaxTerms" -> 20000`, and `"RemainderDerivativeOrder" -> Automatic`.
+`SeriesDifferentiate[s]` differentiates once; `SeriesDifferentiate[s, n]` differentiates `n` times. Options are `"Cutoff" -> Automatic`, `"MaxTerms" -> 20000`, and `"RemainderDerivativeOrder" -> Automatic`. `SeriesDifferentiate[s, 0]` is `s` itself; with `"Cutoff" -> h` it is `SeriesTruncate[s, h]`, so a supplied cutoff is honoured rather than ignored.
 
 A value-only Big-O remainder does not establish a derivative remainder. Supply `"RemainderDerivativeOrder" -> n` only when the corresponding derivative bounds are known. Exact expressions and specialized analytic remainder contracts can supply the required information automatically.
 

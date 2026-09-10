@@ -58,3 +58,26 @@ VerificationTest[
  {{"IncompatibleObservableCondition", "IncompatibleObservableCondition", "IncompatibleObservableCondition", "IncompatibleObservableCondition"},
   "IncompatibleObservableCondition", True},
  TestID -> "membership-conditions-are-proved-only-on-exact-jets"]
+
+(* Report 62 CG-01: already-aligned operational conditions are not duplicated
+   by zero-series addition, scalar-zero addition or unit multiplication;
+   distinct parameter assumptions are kept and contradictory ones refused. *)
+VerificationTest[
+ Module[{x, a, b, s, z, chain, copies, scalarChain, unitChain, distinct, contradictory},
+  s = AsymptoticExpansion[x, {x, 0, 3}, "Backend" -> "Package"];
+  z = AsymptoticExpansion[0, {x, 0, 3}, "Backend" -> "Package"];
+  copies[r_] := Count[r["TargetDomain"], HoldPattern[x > 0], {0, Infinity}];
+  chain = NestList[SeriesAdd[#, z] &, s, 4];
+  scalarChain = NestList[SeriesAdd[#, 0] &, s, 4];
+  unitChain = NestList[SeriesMultiply[#, 1] &, s, 4];
+  distinct = SeriesAdd[AsymptoticExpansion[a x, {x, 0, 3}, "Backend" -> "Package", Assumptions -> a > 0],
+    AsymptoticExpansion[b x, {x, 0, 3}, "Backend" -> "Package", Assumptions -> b > 0]];
+  contradictory = SeriesAdd[AsymptoticExpansion[a x, {x, 0, 3}, "Backend" -> "Package", Assumptions -> a > 0],
+    AsymptoticExpansion[a x, {x, 0, 3}, "Backend" -> "Package", Assumptions -> a < 0]];
+  {Union[copies /@ chain], Union[copies /@ scalarChain], Union[copies /@ unitChain],
+   Union[Normal /@ Join[chain, scalarChain, unitChain]] === {x},
+   LeafCount[Last[chain]["TargetDomain"]] <= 3,
+   Simplify[Normal[distinct] - (a + b) x] === 0, distinct["Assumptions"] === (a > 0 && b > 0), distinct["TargetDomain"] === (x > 0),
+   contradictory[[1]]}],
+ {{1}, {1}, {1}, True, True, True, True, True, "IncompatibleDomains"},
+ TestID -> "binary-arithmetic-keeps-one-copy-of-each-aligned-operational-condition"]

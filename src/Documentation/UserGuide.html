@@ -3484,7 +3484,15 @@ one ordered coefficient scale, compatible operands can produce a result
 with <code>&quot;Scale&quot; -&gt; &quot;Composite&quot;</code>. Its finite expression is
 retained, and its remainder keeps the separate input error scales. The
 operands must have the same expansion variable, endpoint, and real
-approach side, with compatible domains.</p>
+approach side, with compatible domains. The endpoint and side are
+derived from each operand&#39;s complete target chart: a stored
+<code>&quot;SeriesApproach&quot;</code> first, then the recorded target limit,
+with the retained target domain deciding the side before any isolated
+target scale or coefficient sign, so the reflected <code>Erfc</code>
+adapter approaches <code>2</code> from below and a negative quadratic
+curvature approaches its vertex value from below; a flat chart with a
+pole core tends to a signed infinity rather than to its finite
+offset.</p>
 <p>For example, Gamma and Barnes inverse expansions can be combined on
 their common positive target approach:</p>
 <pre class="wolfram"><code>g = AsymptoticInverse[Gamma[x], {x, Infinity}, z,
@@ -3879,6 +3887,15 @@ hi}</td>
 </tr>
 </tbody>
 </table>
+<p>A cutoff request retargets the result:
+<code>SeriesRefine[s, h]</code> with <code>h</code> below the current
+cutoff returns the valid coarser view at <code>h</code> while retaining
+the larger computation cache, so a later request for more terms does no
+new coefficient work, and a request at the current cutoff likewise
+recomputes nothing. This is a deliberate retargeting, not an error and
+not a wrong formula; use <code>SeriesTruncate[s, h]</code> to discard
+blocks without touching the retained state, and compare
+<code>s[&quot;Cutoff&quot;]</code> with the request when a no-op is intended.</p>
 <p>Options are <code>&quot;MaxTerms&quot; -&gt; 20000</code> and
 <code>&quot;MaxRefinements&quot; -&gt; 128</code>. A tolerance request also
 accepts the options of <a href="#InverseCertificate">InverseCertificate</a> as association keys.
@@ -3914,7 +3931,10 @@ reaching an exact finite result.</p>
 <code>SeriesDifferentiate[s, n]</code> differentiates <code>n</code>
 times. Options are <code>&quot;Cutoff&quot; -&gt; Automatic</code>,
 <code>&quot;MaxTerms&quot; -&gt; 20000</code>, and
-<code>&quot;RemainderDerivativeOrder&quot; -&gt; Automatic</code>.</p>
+<code>&quot;RemainderDerivativeOrder&quot; -&gt; Automatic</code>.
+<code>SeriesDifferentiate[s, 0]</code> is <code>s</code> itself; with
+<code>&quot;Cutoff&quot; -&gt; h</code> it is <code>SeriesTruncate[s, h]</code>,
+so a supplied cutoff is honoured rather than ignored.</p>
 <p>A value-only Big-O remainder does not establish a derivative
 remainder. Supply <code>&quot;RemainderDerivativeOrder&quot; -&gt; n</code> only
 when the corresponding derivative bounds are known. Exact expressions

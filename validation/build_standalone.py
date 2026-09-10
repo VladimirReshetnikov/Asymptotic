@@ -136,7 +136,11 @@ def assemble() -> tuple[bytes, list[str]]:
         text = LOAD.sub(lambda match: inline(match[1])
                         if code[match.start():match.start() + 3] == "Get" else match[0], text)
         code = executable_text(text)
-        dependency = re.search(r'(?<![\w$])(?:Get|Needs|Import|OpenRead|ReadList|Read|BinaryRead|URLRead|URLExecute|URLDownload)\s*\[|\$(?:InputFileName|Input|kernelDirectory)\b', code)
+        # A conservative token gate: any spelling of a loading or file
+        # primitive - bracket call, prefix or postfix application, Apply, Map,
+        # a qualified System` name, or the bare symbol passed as an argument -
+        # is an unresolved dependency (W3-11). Strings and comments are masked.
+        dependency = re.search(r'(?<![\w$`])(?:System`)?(?:Get|Needs|Import|OpenRead|ReadList|Read|BinaryRead|URLRead|URLExecute|URLDownload)(?![\w$`])|\$(?:InputFileName|Input|kernelDirectory)\b', code)
         if dependency:
             raise ValueError(f"Unresolved load or file-dependent code in {name}: {dependency[0]}")
         return (f"(* BEGIN SOURCE: src/Kernel/{name}\n"

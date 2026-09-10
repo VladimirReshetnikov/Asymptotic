@@ -61,7 +61,20 @@ AsymptoticAnalysis`Mathics`Series[e_, spec_List] :=
    -1 approaches from above and +1 from below. *)
 Options[AsymptoticAnalysis`Mathics`Limit] =
   {Direction -> Automatic, Assumptions :> $Assumptions};
+(* An omitted or Automatic direction at a finite point is two-sided, as in
+   the official kernel: both one-sided limits are taken and must agree, and
+   disagreeing sides give Indeterminate rather than the value from one side
+   (W4-05). An unresolved side stays unresolved. *)
 AsymptoticAnalysis`Mathics`Limit[e_, spec_Rule, opts : OptionsPattern[]] :=
-  Block[{$Assumptions = OptionValue[Assumptions]},
-    System`Limit[e, spec, Direction -> Replace[OptionValue[Direction],
-      {"FromAbove" -> -1, "FromBelow" -> 1, Automatic -> 1}]]];
+  Block[{$Assumptions = OptionValue[Assumptions]}, System`Module[{direction = OptionValue[Direction], above, below},
+    Which[
+      MemberQ[{"FromAbove", -1}, direction], System`Limit[e, spec, Direction -> -1],
+      MemberQ[{"FromBelow", 1}, direction], System`Limit[e, spec, Direction -> 1],
+      MemberQ[{Infinity, -Infinity}, spec[[2]]], System`Limit[e, spec],
+      True,
+        above = System`Limit[e, spec, Direction -> -1];
+        below = System`Limit[e, spec, Direction -> 1];
+        Which[! FreeQ[{above, below}, System`Limit], System`Limit[e, spec],
+          above === below, above,
+          TrueQ[AsymptoticAnalysis`Mathics`Simplify[above == below]], above,
+          True, Indeterminate]]]];

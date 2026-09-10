@@ -119,3 +119,15 @@ VerificationTest[Module[{x, s}, s = SeriesDifferentiate[AsymptoticExpansion[x + 
 VerificationTest[Module[{x, s}, s = SeriesDifferentiate[AsymptoticExpansion[Sin[x], {x, 0, 3}], 1,
     "RemainderDerivativeOrder" -> 1]; FailureQ[SeriesRefine[s, 7]]],
   True, TestID -> "calculus-refinement-does-not-upgrade-a-declared-derivative-bound"]
+
+(* W3-14: the zeroth derivative is the object itself; a supplied cutoff is a
+   documented truncation of that object rather than an ignored option. *)
+VerificationTest[
+ Module[{x, s, zero, truncated},
+  s = AsymptoticExpansion[Exp[x], {x, 0, 5}, "Backend" -> "Package"];
+  zero = SeriesDifferentiate[s, 0];
+  truncated = SeriesDifferentiate[s, 0, "Cutoff" -> 3];
+  {zero === s, truncated["Cutoff"], Normal[truncated] === Normal[SeriesTruncate[s, 3]],
+   truncated["Remainder"] === SeriesTruncate[s, 3]["Remainder"], SeriesDifferentiate[s, 0, "Cutoff" -> 0.5][[1]]}],
+ {True, 3, True, True, "InvalidCutoff"},
+ TestID -> "zeroth-derivative-with-a-cutoff-truncates-instead-of-ignoring-it"]

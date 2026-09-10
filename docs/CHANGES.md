@@ -15,6 +15,19 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Composite target charts, minimum-precision refinement, and tooling
+
+The composite fallback derives an operand's target endpoint and approach side
+from its complete target chart: the reflected `Erfc` adapter now approaches
+`2` from below, a negative quadratic curvature approaches its vertex value from
+below, and a flat inverse with a pole core tends to a signed infinity instead
+of its finite offset (C18). `SeriesRefine[s, h]` with a lower cutoff is documented as deliberate
+retargeting that keeps the larger computation cache (D10). The
+standalone builder's dependency gate now flags every spelling of a loading
+primitive (W3-11). The vendored-PDF tooling preserves POSIX permissions on
+publication, captures the TeX recorder after every pass, and updates its
+ledger by a locked fresh-read merge (wave-5 report 44 T02–T04).
+
 ### Wave-7 contract repairs and arithmetic bound transport
 
 A composite `Sin[s]` or `Cos[s]` of an expansion with a nonzero remainder now
@@ -34,7 +47,7 @@ and `SeriesMultiply` now transport the explicit tail bound of `Zeta` and
 `LerchPhi` expansions, recording `"ArithmeticDiscardedPart"`, and the
 certificate evaluator memoizes its affine recognizer within one attempt. See
 the [implementation register](development/CODE_REVIEW_STATUS.md) (wave-7
-reports 56–61, C22, wave-5 reports 39 N02 and 42 N02).
+reports 56–62, C22, wave-5 reports 39 N02 and 42 N02).
 
 ### Modulus of nonreal expansions
 
@@ -97,7 +110,7 @@ with its atom, scaling the retained coefficients and absolute tail bound and
 recording `"AffineCoefficients"`; see the
 [Zeta section](../src/Documentation/UserGuide.md#zeta-dirichlet-expansions).
 The [focused run](../validation/README.md#wave-6-public-boundary-repairs)
-passes 184/184 across ten files, and the
+passes 185/185 across ten files, and the
 [implementation register](development/CODE_REVIEW_STATUS.md) records the
 repaired wave-6 entries. The documentation checker's gates now survive
 `python -O`, ignore TeX comments, and reject links that resolve outside the

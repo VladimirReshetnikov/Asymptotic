@@ -84,6 +84,9 @@ DeleteDuplicatesBy[items_List, function_] := First /@ GatherBy[items, function];
 SetAttributes[FirstPosition, HoldRest];
 FirstPosition[expr_, pattern_] :=
   firstPosition[expr, pattern, HoldComplete[Missing["NotFound"]], {0, Infinity}, True];
+(* A Heads option in the third slot is an option, not a default value (W4-06). *)
+FirstPosition[expr_, pattern_, Heads -> heads_] :=
+  firstPosition[expr, pattern, HoldComplete[Missing["NotFound"]], {0, Infinity}, heads];
 FirstPosition[expr_, pattern_, default_] :=
   firstPosition[expr, pattern, HoldComplete[default], {0, Infinity}, True];
 FirstPosition[expr_, pattern_, default_, levels_, opts : OptionsPattern[]] :=

@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import os
+import stat
 from pathlib import Path
 import re
 import sys
@@ -232,6 +233,12 @@ def sync_article(article: dict[str, Any], receipt: Any, manifest: dict[str, Any]
         current_pdf, current_token = read_stable(target)
         if current_token != token or current_pdf != before:
             raise SyncError("Upstream PDF changed concurrently; replacement was skipped")
+        # Atomic replacement adopts the temporary file's permissions. On POSIX,
+        # carry the existing target's access mode over so a 0644 or 0664 PDF
+        # is not republished with the temporary file's restrictive default
+        # (wave-5 report 44 T02). Windows ACLs are not modelled.
+        if os.name != "nt" and target.is_file() and not target.is_symlink():
+            os.chmod(temporary, stat.S_IMODE(target.stat().st_mode))
         os.replace(temporary, target)
         temporary = None
         result.update(status="changed_after_copy", resulting_upstream_sha256=None)

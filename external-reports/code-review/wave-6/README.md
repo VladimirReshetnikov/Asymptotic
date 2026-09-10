@@ -106,7 +106,7 @@ records the current state; this table only maps the wave's entries to it.
 | 48 P1 | **Implemented** inside P06's lane: least-grade candidates are evaluated lazily; the selected set and bound are unchanged. |
 | 49 E1, E2; 50 E1, E2 | Inside the X04/X05 proposals; governed by those items. |
 
-Evidence for the implemented rows is the 184/0
+Evidence for the implemented rows is the 185/0
 [wave-6 boundary run](../../../validation/wave6-boundaries-tests.json) and the
 Python documentation tests, described in the
 [validation record](../../../validation/README.md#wave-6-public-boundary-repairs).

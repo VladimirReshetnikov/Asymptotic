@@ -72,7 +72,9 @@ records the current state; this table maps the wave's entries to it.
 | 43 F03 | **Implemented** on both kernels: a perturbative core containing the source symbol is refused. |
 | 44 T01 | **Implemented.** The historical summarizer refuses to reconcile receipts with different test-suite snapshots. |
 | 45 N01 | **Implemented.** The Mathics exact-seed exception verifies exact rationals by substitution. |
-| 39 N02, 42 N02; 43 E01; 44 T02–T04, P01, Q01 | Open: repeated affine recognition on nested subtrees, the polynomial monotonicity certificate proposal, and the POSIX permission, per-pass recorder, concurrent-builder, build-freshness and phase-error items. |
+| 39 N02, 42 N02 | **Implemented.** The certificate evaluator memoizes its affine recognizer within one attempt; the depth-8 Horner tree costs fewer than 40 recognizer bodies instead of more than 300, with identical enclosures. |
+| 44 T02, T03, T04 | **Implemented.** PDF publication preserves the target's POSIX access mode; the builder captures the TeX recorder after every pass and keeps their union; the builds ledger is updated by a locked fresh-read merge, so independently launched builders no longer lose each other's entries. Covered by the [tooling tests](../../../validation/test_proveit_tooling.py). |
+| 43 E01; 44 P01, Q01 | Open: the polynomial monotonicity certificate proposal, the build-freshness policy adjacent to D07, and the unresolved phase-error question adjacent to C07 and C13. |
 
 ## Evidence boundary
 

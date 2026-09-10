@@ -135,7 +135,7 @@ Begin["`Private`"];
 (* Bind evaluator adapters only when loading in Mathics. The official Wolfram
    kernel continues to resolve every existing definition to System` symbols. *)
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsCompatibility.wl\n   Source SHA256 (UTF-8/LF): c5eaac433993ebff843f1590467469e91a52a72997f8532dd992358dc0e61c85 *)\n(* Mathics3 compatibility is isolated in its own context.  The official\n   Wolfram evaluator never adds this context to its search path, so the\n   streamed kernel sources retain their original System symbols there.\n   These are deliberately bounded helpers for the forms used by this package,\n   not replacements installed on Mathics' global System definitions. *)\n\nBegin[\"AsymptoticAnalysis`Mathics`\"];",
+"(* BEGIN SOURCE: src/Kernel/MathicsCompatibility.wl\n   Source SHA256 (UTF-8/LF): 82dd0f081c292a7b3c03a884e707e0fcdf40661fe534c24dcb694c74fe5dbcfc *)\n(* Mathics3 compatibility is isolated in its own context.  The official\n   Wolfram evaluator never adds this context to its search path, so the\n   streamed kernel sources retain their original System symbols there.\n   These are deliberately bounded helpers for the forms used by this package,\n   not replacements installed on Mathics' global System definitions. *)\n\nBegin[\"AsymptoticAnalysis`Mathics`\"];",
 "\n\nClearAll[AsymptoticAnalysis`Mathics`Module,\n  AsymptoticAnalysis`Mathics`Return,\n  AsymptoticAnalysis`Mathics`Lookup,\n  AsymptoticAnalysis`Mathics`FailureQ,\n  AsymptoticAnalysis`Mathics`MissingQ,\n  AsymptoticAnalysis`Mathics`KeyExistsQ,\n  AsymptoticAnalysis`Mathics`AssociateTo,\n  AsymptoticAnalysis`Mathics`KeyDrop,\n  AsymptoticAnalysis`Mathics`KeyTake,\n  AsymptoticAnalysis`Mathics`DeleteDuplicatesBy,\n  AsymptoticAnalysis`Mathics`FirstPosition,\n  AsymptoticAnalysis`Mathics`RootReduce,\n  AsymptoticAnalysis`Mathics`ToRadicals,\n  AsymptoticAnalysis`Mathics`Refine];",
 "\n\n$contextPathBeforeCompatibility = $ContextPath;",
 "\n$ContextPath = Prepend[DeleteCases[$ContextPath, \"AsymptoticAnalysis`Mathics`\"],\n  \"AsymptoticAnalysis`Mathics`\"];",
@@ -168,6 +168,7 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\nDeleteDuplicatesBy[items_List, function_] := First /@ GatherBy[items, function];",
 "\n\n(* Mathics FirstPosition compares exact expressions instead of matching its\n   pattern and does not accept Heads.  Position supports the required forms.\n   Keep a potentially effectful default held until there is no match. *)\nSetAttributes[FirstPosition, HoldRest];",
 "\nFirstPosition[expr_, pattern_] :=\n  firstPosition[expr, pattern, HoldComplete[Missing[\"NotFound\"]], {0, Infinity}, True];",
+"\n(* A Heads option in the third slot is an option, not a default value (W4-06). *)\nFirstPosition[expr_, pattern_, Heads -> heads_] :=\n  firstPosition[expr, pattern, HoldComplete[Missing[\"NotFound\"]], {0, Infinity}, heads];",
 "\nFirstPosition[expr_, pattern_, default_] :=\n  firstPosition[expr, pattern, HoldComplete[default], {0, Infinity}, True];",
 "\nFirstPosition[expr_, pattern_, default_, levels_, opts : OptionsPattern[]] :=\n  firstPosition[expr, pattern, HoldComplete[default], levels, OptionValue[Heads]];",
 "\nOptions[FirstPosition] = {Heads -> True};",
@@ -242,7 +243,7 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\nEnd[];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsSimplification.wl\n   Source SHA256 (UTF-8/LF): 45b457e81895bf5e5d9a21c36cc1cc51e7e800eb9b1ca5fee94dc00a71312323 *)\n(* Mathics 10's two-argument simplifiers call an expression-only operation on\n   the assumptions. Atomic True/False therefore raise a Python exception.\n   A list of assumptions has the same logical meaning and keeps evaluation\n   inside the kernel's supported representation. These definitions are only\n   selected through the Mathics context during package loading. *)\n\nClearAll[AsymptoticAnalysis`Mathics`Simplify,\n  AsymptoticAnalysis`Mathics`FullSimplify,\n  AsymptoticAnalysis`Mathics`Series,\n  AsymptoticAnalysis`Mathics`Limit,\n  AsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ,\n  AsymptoticAnalysis`Mathics`mathicsSimplify];",
+"(* BEGIN SOURCE: src/Kernel/MathicsSimplification.wl\n   Source SHA256 (UTF-8/LF): 181a2b74e661717c11161307736fae98b28bed04150ba9cd91a408a404cd704f *)\n(* Mathics 10's two-argument simplifiers call an expression-only operation on\n   the assumptions. Atomic True/False therefore raise a Python exception.\n   A list of assumptions has the same logical meaning and keeps evaluation\n   inside the kernel's supported representation. These definitions are only\n   selected through the Mathics context during package loading. *)\n\nClearAll[AsymptoticAnalysis`Mathics`Simplify,\n  AsymptoticAnalysis`Mathics`FullSimplify,\n  AsymptoticAnalysis`Mathics`Series,\n  AsymptoticAnalysis`Mathics`Limit,\n  AsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ,\n  AsymptoticAnalysis`Mathics`mathicsSimplify];",
 "\n\n(* Mathics can cancel an unknown complex offset in a real inequality before\n   checking its operands' domains (a+u>a becomes u>0). Keep unresolved\n   ordered predicates out of native simplification until every operand is\n   proved finite real. The exact assumption callback can still simplify\n   other parts and prove predicates directly. *)\nAsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ[e_, ass_] := Module[\n  {facts, predicates},\n  predicates = Cases[e, _Less | _LessEqual | _Greater | _GreaterEqual | _Inequality,\n    {0, Infinity}];\n  If[predicates === {}, Return[True, Module]];\n  facts = AsymptoticAnalysis`Mathics`mathicsAssumptionFacts[ass];\n  And @@ (Function[predicate,\n    And @@ (TrueQ[AsymptoticAnalysis`Mathics`mathicsRealProof[#, facts, 24]] & /@\n      If[Head[predicate] === Inequality, (List @@ predicate)[[1 ;; -1 ;; 2]],\n        List @@ predicate])] /@ predicates)];",
 "\nAsymptoticAnalysis`Mathics`mathicsSimplify[e_, ass_, simplifier_] := Module[{prepared},\n  (* Mathics sends ProductLog[k,z] to SymPy as LambertW[k,z], although\n     SymPy expects LambertW[z,k]. It can therefore turn a satisfiable exact\n     equality into False. Keep retained two-argument forms out of both the\n     assumption walker and native simplifier, including in assumptions.\n     Package-created principal values already use ProductLog[z]. Values\n     corrupted by caller-side evaluation cannot be reconstructed here. *)\n  If[! FreeQ[{e, ass}, HoldPattern[System`ProductLog[_, _]]],\n    Return[e, Module]];\n  prepared = AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[e, ass];\n  If[! AsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ[prepared, ass],\n    Return[prepared, Module]];\n  AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[simplifier[prepared, {ass}], ass]];",
 "\n\nAsymptoticAnalysis`Mathics`Simplify[e_] :=\n  AsymptoticAnalysis`Mathics`Simplify[e, $Assumptions];",
@@ -252,7 +253,7 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\n\n(* Mathics' Series does not accept Assumptions as an option. Retain the\n   assumptions as an evaluation scope for the package's local Taylor calls. *)\nAsymptoticAnalysis`Mathics`Series[e_, spec_List, Assumptions -> ass_] :=\n  AsymptoticAnalysis`Mathics`mathicsTaylorSeries[e, spec, ass];",
 "\nAsymptoticAnalysis`Mathics`Series[e_, spec_List] :=\n  AsymptoticAnalysis`Mathics`mathicsTaylorSeries[e, spec, $Assumptions];",
 "\n\n(* Direction strings and the Assumptions option are absent from Mathics'\n   Limit interface. The supported integer directions have the same meaning:\n   -1 approaches from above and +1 from below. *)\nOptions[AsymptoticAnalysis`Mathics`Limit] =\n  {Direction -> Automatic, Assumptions :> $Assumptions};",
-"\nAsymptoticAnalysis`Mathics`Limit[e_, spec_Rule, opts : OptionsPattern[]] :=\n  Block[{$Assumptions = OptionValue[Assumptions]},\n    System`Limit[e, spec, Direction -> Replace[OptionValue[Direction],\n      {\"FromAbove\" -> -1, \"FromBelow\" -> 1, Automatic -> 1}]]];"
+"\n(* An omitted or Automatic direction at a finite point is two-sided, as in\n   the official kernel: both one-sided limits are taken and must agree, and\n   disagreeing sides give Indeterminate rather than the value from one side\n   (W4-05). An unresolved side stays unresolved. *)\nAsymptoticAnalysis`Mathics`Limit[e_, spec_Rule, opts : OptionsPattern[]] :=\n  Block[{$Assumptions = OptionValue[Assumptions]}, System`Module[{direction = OptionValue[Direction], above, below},\n    Which[\n      MemberQ[{\"FromAbove\", -1}, direction], System`Limit[e, spec, Direction -> -1],\n      MemberQ[{\"FromBelow\", 1}, direction], System`Limit[e, spec, Direction -> 1],\n      MemberQ[{Infinity, -Infinity}, spec[[2]]], System`Limit[e, spec],\n      True,\n        above = System`Limit[e, spec, Direction -> -1];\n        below = System`Limit[e, spec, Direction -> 1];\n        Which[! FreeQ[{above, below}, System`Limit], System`Limit[e, spec],\n          above === below, above,\n          TrueQ[AsymptoticAnalysis`Mathics`Simplify[above == below]], above,\n          True, Indeterminate]]]];"
 }]];
 
 (* ------------------------------------------------------------------ *)
@@ -2187,7 +2188,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 95e296794145d7bb77dcaeb25a8813f629419fe6bc6ac3dd1f6e84f8510f9be7 *)
+   Source SHA256 (UTF-8/LF): d31b798796b87a6f06921dec392d9fbf6812b61544b29bb57fafe27af1bc56ca *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2797,7 +2798,9 @@ seriesDerivative[s_, n_, declared_, cut_, limit_] := Module[{d, contract, ell, a
   If[n =!= 0 || cut =!= Automatic, requireAnalyticSeries[s]];
   result = reciprocalLogDifferentiate[s, n, declared, cut, limit];
   If[result =!= $Failed, Return[result, Module]];
-  If[n === 0, Return[s, Module]];
+  (* The zeroth derivative is the object itself; a supplied cutoff is then a
+     documented truncation request rather than an ignored option (W3-14). *)
+  If[n === 0, Return[If[cut === Automatic, s, AsymptoticAnalysis`SeriesTruncate[s, cut, "MaxTerms" -> limit]], Module]];
   d = seriesData[s, limit]; contract = Lookup[d, "RemainderDerivativeOrder", 0];
   If[declared =!= Automatic,
     If[declared =!= Infinity && (! IntegerQ[declared] || declared < 0), fail["InvalidDerivativeContract", "RemainderDerivativeOrder must be a nonnegative integer or Infinity."]];
@@ -7596,7 +7599,7 @@ exponentialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] :
 (* END SOURCE: src/Kernel/ExponentialForward.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesEnvelopeArithmetic.wl
-   Source SHA256 (UTF-8/LF): c4f11c33ad61e884ef331908edc5edf3acb8ebd89a948ae54224f258ab5ab849 *)
+   Source SHA256 (UTF-8/LF): c0b233dd0e3502aed2bd4243299c5cd5a73fb256a62ffd83b08e1af3fd74edc8 *)
 (* Conservative arithmetic when no common ordered coefficient algebra applies.
    Each input denotes e + O(R), with R a nonnegative asymptotic envelope.
    Separate error summands are retained; cancellation of finite expressions
@@ -7657,6 +7660,14 @@ seriesEnvelopeLimit[e_, variable_, approach_, assumptions_, domain_: True] := Mo
   seriesEnvelopeTry[Limit[simplified /. substitution, u -> 0, Direction -> "FromAbove",
     Assumptions -> parameterAssumptions]]];
 
+seriesEnvelopeFlatEndpoint[chart_, offsetKey_, ass_] := Module[{power, coefficient},
+  power = Lookup[chart, "CorePower", Missing["CorePower"]];
+  coefficient = Lookup[chart, "CoreCoefficient", Missing["CoreCoefficient"]];
+  Which[MissingQ[power] || ! TrueQ[seriesEnvelopeTry[FullSimplify[power < 0, ass]]], Lookup[chart, offsetKey, Missing["UnknownEndpoint"]],
+    TrueQ[seriesEnvelopeTry[FullSimplify[coefficient > 0, ass]]], Infinity,
+    TrueQ[seriesEnvelopeTry[FullSimplify[coefficient < 0, ass]]], -Infinity,
+    True, Missing["UnknownEndpoint"]]];
+
 seriesEnvelopeApproach[a_, limit_] := Module[
   {stored, variable, point, direction = Automatic, ass, domain, coordinates, candidates,
    valid, coefficient, u, rule, endpoint, d},
@@ -7675,8 +7686,12 @@ seriesEnvelopeApproach[a_, limit_] := Module[
       direction = Lookup[a, "InverseFunctionExpansionDirection", Automatic]; a["InverseFunctionExpansionPoint"],
     Lookup[a, "Kind", ""] === "Forward", direction = Lookup[a, "Direction", Automatic]; a["ExpansionPoint"],
     KeyExistsQ[a, "Limit"], a["Limit"],
-    AssociationQ[Lookup[a, "FlatRepresentation", None]], a["FlatRepresentation"]["TargetOffset"],
-    Lookup[a, "Kind", ""] === "FlatInverse" && AssociationQ[Lookup[a, "Model", None]], a["Model"]["Offset"],
+    (* A flat chart y = offset + c u^p with p < 0 is a pole: the target tends
+       to a signed infinity, not to the offset (C18). *)
+    AssociationQ[Lookup[a, "FlatRepresentation", None]],
+      seriesEnvelopeFlatEndpoint[a["FlatRepresentation"], "TargetOffset", ass],
+    Lookup[a, "Kind", ""] === "FlatInverse" && AssociationQ[Lookup[a, "Model", None]],
+      seriesEnvelopeFlatEndpoint[a["Model"], "Offset", ass],
     True, Missing["UnknownEndpoint"]];
   If[MissingQ[point],
     (* Invert only a recorded independent coordinate, never the represented
@@ -7699,6 +7714,13 @@ seriesEnvelopeApproach[a_, limit_] := Module[
     fail["UnknownCompositeApproach", "The operand does not retain a recoverable target approach."]];
   If[MemberQ[{Infinity, -Infinity}, point],
     direction = If[point === Infinity, "FromBelow", "FromAbove"]];
+  (* The retained target domain decides the side before any isolated scale
+     or coefficient sign: the reflected Erfc adapter approaches 2 from below
+     under a positive target scale, and a negative quadratic curvature
+     reverses the side its coefficient would suggest (C18). *)
+  If[direction === Automatic && ! MissingQ[point],
+    If[TrueQ[seriesEnvelopeTry[FullSimplify[Implies[domain, variable > point], ass]]], direction = "FromAbove",
+      If[TrueQ[seriesEnvelopeTry[FullSimplify[Implies[domain, variable < point], ass]]], direction = "FromBelow"]]];
   If[direction === Automatic,
     coefficient = Lookup[a, "TargetScale", Lookup[a, "LeadingCoefficient",
       Lookup[seriesEnvelopeAssociation[a, "FlatRepresentation"], "CoreCoefficient",

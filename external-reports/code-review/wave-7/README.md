@@ -1,8 +1,8 @@
 # Code review reports: wave 7
 
-These six retained incremental review packages, numbered 56–61, examine
+These seven retained incremental review packages, numbered 56–62, examine
 AsymptoticAnalysis after the wave-6 repairs. All are dated September 10,
-2026. Five pin
+2026. Six pin
 [efa1aee](https://github.com/VladimirReshetnikov/Asymptotic/tree/efa1aeec4845a9c35e140963a0333d0c9ec33b05),
 the commit that indexed wave 6; report 57 pins
 [8f28084](https://github.com/VladimirReshetnikov/Asymptotic/tree/8f280847bf8fd1f6488834cadf1542867292ce10),
@@ -14,7 +14,9 @@ This wave has **no consolidated intake**. Its entries are not part of the 231
 attributed entries counted for waves 1–4. Reports 59 and 60 report the same
 component-validation defect of `AsymptoticCoreInverse` with different
 witnesses; both are retained because 60 alone executed public witnesses and
-59 alone carries the bootstrap-splitter finding.
+59 alone carries the bootstrap-splitter finding. Report 62, which arrived
+after the first six, reports the same duplicated-condition mechanism as 56
+N02 with its own growth measurements and witnesses; it is retained for those.
 
 | Package | Article | Retained findings | Supplied evidence and limits |
 | --- | --- | --- | --- |
@@ -24,6 +26,7 @@ witnesses; both are retained because 60 alone executed public witnesses and
 | [59 · Componentwise validation and standalone parsing](code-review-59/README.md) | [PDF](code-review-59/article/review.pdf) · [TeX](code-review-59/article/review.tex) | N01 `AsymptoticCoreInverse` validates `core + perturbation` and then consumes the components separately, so a target-dependent offset that cancels in the sum bypasses the fixed-data premise (a squared witness with `x + Abs[y]/2` and `-Abs[y]/2`); N02 the Mathics bootstrap splitter in the standalone builder counts only brackets, so a semicolon inside an association splits a statement. | 33 Python unittest methods over an exact model, a bootstrap lexer and emitter fixtures. **No Wolfram or Mathics package execution**; the public witness is source-predicted. |
 | [60 · Core-component validation audit](code-review-60/README.md) | [PDF](code-review-60/article/review.pdf) · [TeX](code-review-60/article/review.tex) | N01 the same component-validation defect, with two public witnesses for `x + 1/x = y` whose claimed errors are `O(y^-2)` and `O(y^-4)` while the true errors are `Θ(y^-1)`. | Both witnesses reproduced in Wolfram 15.0.0 Linux, a temporary patched standalone exhibiting the expected outcomes for five requests, and a 17-input native forward screen. No Mathics run, no full suite. |
 | [61 · Exact predicates and Hermitian coefficient arithmetic](code-review-61/README.md) | [PDF](code-review-61/article/asymptotic-review.pdf) · [TeX](code-review-61/article/asymptotic-review.tex) | N01 `inverseFunctionConditionOnJet` uses the finite coefficients of a truncated jet as an exact `Element[..., Reals]` proof, so a cancelled complex Taylor tail makes an everywhere-false condition look true at a low cutoff and `SeriesObservable` returns `1` with zero remainder; H01 an exact Hermitian half-spectrum prototype for Fourier-polynomial products. | Five low/high-cutoff pairs observed on Wolfram 15.0.0 ([observations](code-review-61/evidence/native-observations.json)); 12 Python methods. No Mathics run. |
+| [62 · Incremental source and runtime audit](code-review-62/README.md) | [PDF](code-review-62/article/audit.pdf) · [TeX](code-review-62/article/audit.tex) | CG-01 binary arithmetic duplicates already-aligned operational conditions: repeated addition of an independent zero series stores `2^(n+1) - 1` copies of `x > 0`, and repeated scalar-zero addition the sequence `3, 9, 27, 81`, while the finite expression stays `x`; removing only the second merge still leaves `2, 4, 8, 16`. | Wolfram 15.0.0 Linux observations of the growth sequences and of a candidate exercised by source substitution ([observations](code-review-62/evidence/native_observations.json)); 26 Python methods over Boolean/count models. No Mathics run, no full suite. |
 
 <a id="implementation-status"></a>
 ## Implementation status
@@ -34,7 +37,7 @@ records the current state; this table maps the wave's entries to it.
 | Entries | Status |
 | --- | --- |
 | 56 N01 | **Implemented** as the report's candidate: a composite `Sin` or `Cos` of a nonzero remainder requires a vanishing envelope and is refused with `UnprovedRealRemainder` otherwise; `Abs` keeps the complex Lipschitz bound. |
-| 56 N02 | **Implemented**: operand conditions are joined by structural idempotent conjunction in alignment and finalization. |
+| 56 N02, 62 CG-01 | **Implemented**: operand conditions are joined by structural idempotent conjunction in alignment and finalization, which is the stronger repair report 62 asks for; 62's zero-series, scalar-zero and unit-multiplication witnesses are pinned beside 56's self-addition. |
 | 57 N01 | **Implemented**: a charged affine constant above a positive atom tail order sets the remainder order to zero and enters the bound as a separate term. |
 | 58 G01 | **Implemented** as the supplied one-line patch. |
 | 59 N01, 60 N01 | **Implemented** as report 60's diff: the core and the perturbation are validated separately, so a target-dependent offset cancelling in the sum is refused. |
@@ -49,14 +52,15 @@ the [validation record](../../../validation/README.md#wave-7-contract-repairs).
 
 ## Evidence boundary
 
-Reports 56, 58 and 60 executed public calls in Wolfram 15.0.0; reports 57, 59
-and 61's public consequences were source-predicted or observed only through
+Reports 56, 58, 60 and 62 executed public calls in Wolfram 15.0.0; reports 57,
+59 and 61's public consequences were source-predicted or observed only through
 selected calls. **No package ran Mathics.** Independent Python counts are
 separate populations and must not be summed into an acceptance total.
 
 Package-specific licensing and notices are preserved:
-[57's code notice](code-review-57/CODE-NOTICE.md) and
-[59's licenses](code-review-59/licenses/). This index does not create a common
+[57's code notice](code-review-57/CODE-NOTICE.md),
+[59's licenses](code-review-59/licenses/), and
+[62's license](code-review-62/LICENSE) and [notice](code-review-62/NOTICE.md). This index does not create a common
 license for the wave.
 
 Return to the [review index](../README.md) or the

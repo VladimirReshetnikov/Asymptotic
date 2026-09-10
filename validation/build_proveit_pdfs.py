@@ -59,6 +59,44 @@ def write_json(path: Path, value: Any) -> None:
     temporary.replace(target)
 
 
+def update_builds(root: Path, builds: dict[str, Any], mutate: Any) -> dict[str, Any]:
+    """Apply one change to builds.json as a fresh-read merge under a lock.
+
+    Two builders launched independently each hold their own snapshot of the
+    ledger; writing a snapshot back atomically still discards the other
+    builder's entries. The ledger is therefore re-read under an exclusive lock
+    file, the change is applied to the fresh copy, and that copy is written;
+    the caller's dictionary is updated to the written state (wave-5 report
+    44 T04). A stale lock left by an interrupted builder is reported, not
+    removed.
+    """
+    path = destination_file(root, "builds.json")
+    lock = path.with_name(path.name + ".lock")
+    deadline = time.monotonic() + 60
+    while True:
+        try:
+            handle = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            break
+        except FileExistsError:
+            if time.monotonic() > deadline:
+                raise BuildError(f"Timed out waiting for {lock}; remove it only if no builder is running")
+            time.sleep(0.2)
+    try:
+        os.write(handle, str(os.getpid()).encode("ascii"))
+        os.close(handle)
+        fresh = read_builds(root)
+        mutate(fresh)
+        write_json(path, fresh)
+        builds.clear()
+        builds.update(fresh)
+        return builds
+    finally:
+        try:
+            lock.unlink()
+        except FileNotFoundError:
+            pass
+
+
 def read_builds(root: Path) -> dict[str, Any]:
     path = destination_file(root, "builds.json")
     data = json.loads(path.read_bytes()) if path.exists() else {"schema_version": 1, "regenerated_pdfs": {}}
@@ -268,6 +306,21 @@ def warnings(log: str) -> dict[str, int]:
     }
 
 
+def merge_pass_recorders(recorders: list[dict[str, Any]]) -> dict[str, Any]:
+    """Union of per-pass recorder observations, with the per-pass records kept."""
+    if not recorders:
+        raise BuildError("No pdflatex pass produced a recorder observation")
+    vendored = sorted({name for record in recorders for name in record["vendored_inputs"]})
+    runtime: dict[str, str] = {}
+    for record in recorders:
+        for item in record["runtime_inputs"]:
+            if runtime.setdefault(item["path"], item["sha256"]) != item["sha256"]:
+                raise BuildError(f"Runtime input changed between passes: {item['path']}")
+    return {"vendored_inputs": vendored,
+            "runtime_inputs": [{"path": name, "sha256": runtime[name]} for name in sorted(runtime)],
+            "pass_recorders": recorders}
+
+
 def recorder_inputs(path: Path, mirror: Path, cwd: Path) -> dict[str, Any]:
     """Record actual TeX inputs separately from the conservative manifest closure."""
     local, runtime = set(), set()
@@ -327,6 +380,7 @@ def build_one(article: dict[str, Any], plan: dict[str, Any], root: Path, manifes
         environment = dict(os.environ, TEXMFOUTPUT=str(output), openout_any="p")
         command = [executable, "-no-shell-escape", "-interaction=nonstopmode", "-halt-on-error",
                    "-file-line-error", "-recorder", "-output-directory=" + str(output), tex.name]
+        pass_recorders: list[dict[str, Any]] = []
         for number in range(1, 4):
             print(json.dumps({"article": pdf_name, "pass": number, "status": "running"}), flush=True)
             source_log = output / (tex.stem + ".log")
@@ -354,9 +408,14 @@ def build_one(article: dict[str, Any], plan: dict[str, Any], root: Path, manifes
             write_json(logs_dir / "attempt.json", attempt)
             if timed_out or returncode != 0 or not log_bytes:
                 raise BuildError(f"pdflatex pass {number} {'timed out' if timed_out else 'failed'}; see {console_name}")
+            # Each pass overwrites the recorder file, and an input read only
+            # by an earlier pass (a stale .aux, a table generated once) would
+            # be lost by reading the last file alone; capture every pass and
+            # keep the union for provenance (wave-5 report 44 T03).
+            pass_recorders.append({"pass": number, **recorder_inputs(output / (tex.stem + ".fls"), mirror, tex.parent)})
         generated = output / (tex.stem + ".pdf")
         pdf_check = inspect_pdf(generated, reader)
-        recorder = recorder_inputs(output / (tex.stem + ".fls"), mirror, tex.parent)
+        recorder = merge_pass_recorders(pass_recorders)
         if unexpected := set(recorder["vendored_inputs"]) - inputs.keys():
             raise BuildError(f"Recorder found inputs outside the declared compile closure: {sorted(unexpected)}")
         if source_inputs(article, root) != inputs:
@@ -375,18 +434,20 @@ def build_one(article: dict[str, Any], plan: dict[str, Any], root: Path, manifes
         if digest(staged) != receipt["sha256"]:
             raise BuildError("Staged PDF hash does not match the validated output")
         staged.replace(target)
-        builds["regenerated_pdfs"][pdf_name] = receipt
-        builds.setdefault("failed_builds", {}).pop(pdf_name, None)
-        write_json(root / "builds.json", builds)
+
+        def record_success(ledger: dict[str, Any]) -> None:
+            ledger["regenerated_pdfs"][pdf_name] = receipt
+            ledger.setdefault("failed_builds", {}).pop(pdf_name, None)
+
+        update_builds(root, builds, record_success)
         write_json(logs_dir / "attempt.json", receipt)
         succeeded = True
         print(json.dumps({"article": pdf_name, "status": "rebuilt", "sha256": receipt["sha256"],
                           "pages": pdf_check["page_count"], "warnings": receipt["warning_counts"]}), flush=True)
     except BaseException as error:
         attempt.update(failed_at=now(), status="failed", error=str(error))
-        builds.setdefault("failed_builds", {})[pdf_name] = attempt
         write_json(logs_dir / "attempt.json", attempt)
-        write_json(root / "builds.json", builds)
+        update_builds(root, builds, lambda ledger: ledger.setdefault("failed_builds", {}).__setitem__(pdf_name, attempt))
         raise
     finally:
         # Only the newly allocated, resolved child of the explicit temporary root

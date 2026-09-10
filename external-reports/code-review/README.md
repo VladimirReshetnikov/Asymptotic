@@ -1,6 +1,6 @@
 # Code review reports
 
-Fifty-one retained review packages are grouped into seven waves. Each wave index
+Fifty-two retained review packages are grouped into seven waves. Each wave index
 links the reports, articles, evidence, proposed patches, and package-specific
 reproduction instructions.
 
@@ -12,7 +12,7 @@ reproduction instructions.
 | [Wave 4](wave-4/README.md) | Eight incremental review packages: 28–31, 33–36 | AsymptoticAnalysis; snapshots `7d1bc83` and `513917b` | September 9, 2026 |
 | [Wave 5](wave-5/README.md) | Seven incremental review packages: 37–39, 42–45 | AsymptoticAnalysis; snapshots `8e85996` and `651f202` | September 10, 2026 |
 | [Wave 6](wave-6/README.md) | Ten incremental review packages: 46–55 | AsymptoticAnalysis; snapshot `8cee870` | September 10, 2026 |
-| [Wave 7](wave-7/README.md) | Six incremental review packages: 56–61 | AsymptoticAnalysis; snapshots `efa1aee` and `8f28084` | September 10, 2026 |
+| [Wave 7](wave-7/README.md) | Seven incremental review packages: 56–62 | AsymptoticAnalysis; snapshots `efa1aee` and `8f28084` | September 10, 2026 |
 
 The maintained [implementation status](../../docs/development/CODE_REVIEW_STATUS.md)
 consolidates the findings and links completed fixes to focused validation, while

@@ -17,66 +17,66 @@
 	"SuiteResults":[
 		{
 			"Suite":"ReviewWave7Contracts.wlt",
-			"Succeeded":5,
+			"Succeeded":6,
 			"Failed":0,
-			"Seconds":0.2275905
+			"Seconds":0.4776022
 		},
 		{
 			"Suite":"SeriesEnvelopeArithmetic.wlt",
 			"Succeeded":17,
 			"Failed":0,
-			"Seconds":0.8018895
+			"Seconds":2.7463247
 		},
 		{
 			"Suite":"SeriesEnvelopeFunctions.wlt",
 			"Succeeded":11,
 			"Failed":0,
-			"Seconds":1.4035312
+			"Seconds":1.2222754
 		},
 		{
 			"Suite":"EnvelopeRefactoring.wlt",
 			"Succeeded":5,
 			"Failed":0,
-			"Seconds":5.3659e-2
+			"Seconds":4.49371e-2
 		},
 		{
 			"Suite":"CorePerturbation.wlt",
 			"Succeeded":39,
 			"Failed":0,
-			"Seconds":0.3699524
+			"Seconds":0.3365054
 		},
 		{
 			"Suite":"CoreRefactoring.wlt",
 			"Succeeded":6,
 			"Failed":0,
-			"Seconds":0.2266709
+			"Seconds":0.2353384
 		},
 		{
 			"Suite":"SpecialFunctionRegressions.wlt",
 			"Succeeded":23,
 			"Failed":0,
-			"Seconds":3.6010962
+			"Seconds":2.9824642
 		},
 		{
 			"Suite":"InverseFunctionExpressions.wlt",
 			"Succeeded":27,
 			"Failed":0,
-			"Seconds":1.40870858e1
+			"Seconds":1.06270283e1
 		},
 		{
 			"Suite":"ReviewObservableIngress.wlt",
 			"Succeeded":29,
 			"Failed":0,
-			"Seconds":1.4185128
+			"Seconds":1.1062834
 		},
 		{
 			"Suite":"SeriesOperations.wlt",
-			"Succeeded":28,
+			"Succeeded":29,
 			"Failed":0,
-			"Seconds":0.7549086
+			"Seconds":0.7301874
 		}
 	],
-	"Succeeded":190,
+	"Succeeded":192,
 	"Failed":0,
 	"Results":[
 		{
@@ -102,6 +102,11 @@
 		{
 			"Suite":"ReviewWave7Contracts.wlt",
 			"TestID":"membership-conditions-are-proved-only-on-exact-jets",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewWave7Contracts.wlt",
+			"TestID":"binary-arithmetic-keeps-one-copy-of-each-aligned-operational-condition",
 			"Outcome":"Success"
 		},
 		{
@@ -1028,6 +1033,11 @@
 			"Suite":"SeriesOperations.wlt",
 			"TestID":"calculus-refinement-does-not-upgrade-a-declared-derivative-bound",
 			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"zeroth-derivative-with-a-cutoff-truncates-instead-of-ignoring-it",
+			"Outcome":"Success"
 		}
 	],
 	"SourcesUnchangedDuringRun":true,
@@ -1062,7 +1072,7 @@
 		"src\/Kernel\/MathicsCalculus.wl":"191c12fa1737c88e5adfaef014f1ce5840e8749ac7fe5b255e69e77af8c349c6",
 		"src\/Kernel\/MathicsCalls.wl":"92972e1cb515bfa95d27664c1c2fefdbdd7618b982f6b1932c43e8ef413f0c39",
 		"src\/Kernel\/MathicsCertificate.wl":"39d63b0414ff39d1fd89d546e5f06840fe603e36f41429417cc3f154279771b9",
-		"src\/Kernel\/MathicsCompatibility.wl":"c5eaac433993ebff843f1590467469e91a52a72997f8532dd992358dc0e61c85",
+		"src\/Kernel\/MathicsCompatibility.wl":"82dd0f081c292a7b3c03a884e707e0fcdf40661fe534c24dcb694c74fe5dbcfc",
 		"src\/Kernel\/MathicsCoreFunctions.wl":"7d1a26186c367ba43146b4af0504ead6eb7d8a3a8f6bc05c0fd5c59c170d3337",
 		"src\/Kernel\/MathicsFormatting.wl":"c0fe6dc19f67df7c3cae5f2f4f972acb0392472423b4103af0b3ec422a95df2c",
 		"src\/Kernel\/MathicsInputAssumptions.wl":"77facd132248995eaa63ea48956d2b3a288db38c43651b18009379a5e3111aad",
@@ -1070,7 +1080,7 @@
 		"src\/Kernel\/MathicsLists.wl":"523f9e8af7cdc30bd9897d69e379ddbe0b4d01a91193e78d5a76304d16cd7da0",
 		"src\/Kernel\/MathicsNumerical.wl":"fbe5ebfb58863ca9d9e83229c4f05349a76aac299297246f48fd2b42a38bff34",
 		"src\/Kernel\/MathicsRefinement.wl":"1f02dff6cad0e3c3d78d747daaac3fd950b82cb7a19f310c3bbf7dd3ca2b5551",
-		"src\/Kernel\/MathicsSimplification.wl":"45b457e81895bf5e5d9a21c36cc1cc51e7e800eb9b1ca5fee94dc00a71312323",
+		"src\/Kernel\/MathicsSimplification.wl":"181a2b74e661717c11161307736fae98b28bed04150ba9cd91a408a404cd704f",
 		"src\/Kernel\/MathicsSpecialFunctions.wl":"78ab28f9dcf8f87f2a22413ebc263788552333a91f485c2edc2e126a1030383b",
 		"src\/Kernel\/MathicsTaylor.wl":"e6324cb1e8cf5718e2bf160d26f6a6cae5b06ef16a4a5bc88aae97bc08068631",
 		"src\/Kernel\/MathicsTimeBudget.wl":"779416eb1646b55fb77ac7210de37b177916bcdcdf1f74c666ba02cd40c4a98f",
@@ -1082,13 +1092,13 @@
 		"src\/Kernel\/RefinementRequests.wl":"d07fd2048c224b6a147f0b3e9a8b913527b337174c52363018b83fd11bd9b41c",
 		"src\/Kernel\/RefinementState.wl":"57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
 		"src\/Kernel\/SeriesArithmetic.wl":"642401b840307a543801b5d121b26dac9c22e5daf1f756c74c840103625b73ef",
-		"src\/Kernel\/SeriesEnvelopeArithmetic.wl":"c4f11c33ad61e884ef331908edc5edf3acb8ebd89a948ae54224f258ab5ab849",
-		"src\/Kernel\/SeriesOperations.wl":"95e296794145d7bb77dcaeb25a8813f629419fe6bc6ac3dd1f6e84f8510f9be7",
+		"src\/Kernel\/SeriesEnvelopeArithmetic.wl":"c0b233dd0e3502aed2bd4243299c5cd5a73fb256a62ffd83b08e1af3fd74edc8",
+		"src\/Kernel\/SeriesOperations.wl":"d31b798796b87a6f06921dec392d9fbf6812b61544b29bb57fafe27af1bc56ca",
 		"src\/Kernel\/SourceCoordinates.wl":"92758cbbc06e63a99035735ee029074bda86e62414bf9c85a92ed6398e4478f0",
 		"src\/Kernel\/SpecialFunctionAdapters.wl":"41e95ad2af0f2d0a68fed8edaec65f42c4262efc0a68481cff760e8ce28192cf",
 		"src\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
 		"src\/Kernel\/SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c",
-		"src\/Tests\/ReviewWave7Contracts.wlt":"d5868393b0271306162370bff710a94ff58df5461d2e28acd716a98e91b621ef",
+		"src\/Tests\/ReviewWave7Contracts.wlt":"4757d75003539b187a0bb7ee435b118ae72c49e73279b6e4220f0388c0c197d3",
 		"src\/Tests\/SeriesEnvelopeArithmetic.wlt":"6f493a36c688a167ec0d3ec1bf3b2584ccef3735a075017985e64842c3062ed6",
 		"src\/Tests\/SeriesEnvelopeFunctions.wlt":"c9b9e0ebc46ae6b1d19fd3f70c31403223b4cfdb38d93bce9a312f6413ab57cd",
 		"src\/Tests\/EnvelopeRefactoring.wlt":"c348f976fc2feb14e39ea1a0f812653830c43a87f0fb7104eb53f187b29eb9b4",
@@ -1097,7 +1107,7 @@
 		"src\/Tests\/SpecialFunctionRegressions.wlt":"ca3eda096c3df0c8e66e8afe34b563a931e14869c7724f492e66ebbdfebe2ee4",
 		"src\/Tests\/InverseFunctionExpressions.wlt":"a8ee61f39a4bd740b6d4a1a982c0cdb9b84e68ea9e451f12083c8be3e0a376d2",
 		"src\/Tests\/ReviewObservableIngress.wlt":"f7f65703157fc979d02feae465bde4e8a2637b7ce86a604903e0e3834da78bf7",
-		"src\/Tests\/SeriesOperations.wlt":"ee279316731ae33ff614dc2f932e863424a83cb200c9ebacba781701b177243b",
+		"src\/Tests\/SeriesOperations.wlt":"f37525dc545952028827ebaa6a239d9f95597c1055544d67835a622f5dd22158",
 		"validation\/CheckWave7Contracts.wl":"3aaa06102dfdcf52bb05d8cbf6bda3fe0da3b96b6abf89f4600c5b2e37c6a9c0",
 		"validation\/FocusedTests.wl":"7e6157edcb33e21c4c5fde027186c6bf18255c90a5f250dc0c242e0975ba6a90"
 	}

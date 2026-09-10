@@ -19,64 +19,64 @@
 			"Suite":"ReviewWave6Boundaries.wlt",
 			"Succeeded":8,
 			"Failed":0,
-			"Seconds":0.283444
+			"Seconds":1.0307752
 		},
 		{
 			"Suite":"ReviewCoefficientPowerResidualLabel.wlt",
 			"Succeeded":3,
 			"Failed":0,
-			"Seconds":9.63283e-2
+			"Seconds":0.2201971
 		},
 		{
 			"Suite":"ExponentialCorePerturbation.wlt",
 			"Succeeded":21,
 			"Failed":0,
-			"Seconds":0.1220589
+			"Seconds":0.2274435
 		},
 		{
 			"Suite":"ReviewNumericalLocalCoordinate.wlt",
 			"Succeeded":6,
 			"Failed":0,
-			"Seconds":5.77831e-2
+			"Seconds":0.1176398
 		},
 		{
 			"Suite":"FourierRegressions.wlt",
 			"Succeeded":22,
 			"Failed":0,
-			"Seconds":1.1524418
+			"Seconds":1.2991491
 		},
 		{
 			"Suite":"SeriesOperations.wlt",
-			"Succeeded":28,
+			"Succeeded":29,
 			"Failed":0,
-			"Seconds":0.691457
+			"Seconds":0.5838278
 		},
 		{
 			"Suite":"DirichletSpecialFunctions.wlt",
 			"Succeeded":30,
 			"Failed":0,
-			"Seconds":0.4071376
+			"Seconds":0.3480248
 		},
 		{
 			"Suite":"ExpandedInputs.wlt",
 			"Succeeded":10,
 			"Failed":0,
-			"Seconds":0.2798328
+			"Seconds":0.3210195
 		},
 		{
 			"Suite":"InverseFunctionExpressions.wlt",
 			"Succeeded":27,
 			"Failed":0,
-			"Seconds":1.40367596e1
+			"Seconds":1.07140793e1
 		},
 		{
 			"Suite":"ReviewObservableIngress.wlt",
 			"Succeeded":29,
 			"Failed":0,
-			"Seconds":1.5271024
+			"Seconds":1.071031
 		}
 	],
-	"Succeeded":184,
+	"Succeeded":185,
 	"Failed":0,
 	"Results":[
 		{
@@ -517,6 +517,11 @@
 		{
 			"Suite":"SeriesOperations.wlt",
 			"TestID":"calculus-refinement-does-not-upgrade-a-declared-derivative-bound",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"zeroth-derivative-with-a-cutoff-truncates-instead-of-ignoring-it",
 			"Outcome":"Success"
 		},
 		{
@@ -1032,7 +1037,7 @@
 		"src\/Kernel\/MathicsCalculus.wl":"191c12fa1737c88e5adfaef014f1ce5840e8749ac7fe5b255e69e77af8c349c6",
 		"src\/Kernel\/MathicsCalls.wl":"92972e1cb515bfa95d27664c1c2fefdbdd7618b982f6b1932c43e8ef413f0c39",
 		"src\/Kernel\/MathicsCertificate.wl":"39d63b0414ff39d1fd89d546e5f06840fe603e36f41429417cc3f154279771b9",
-		"src\/Kernel\/MathicsCompatibility.wl":"c5eaac433993ebff843f1590467469e91a52a72997f8532dd992358dc0e61c85",
+		"src\/Kernel\/MathicsCompatibility.wl":"82dd0f081c292a7b3c03a884e707e0fcdf40661fe534c24dcb694c74fe5dbcfc",
 		"src\/Kernel\/MathicsCoreFunctions.wl":"7d1a26186c367ba43146b4af0504ead6eb7d8a3a8f6bc05c0fd5c59c170d3337",
 		"src\/Kernel\/MathicsFormatting.wl":"c0fe6dc19f67df7c3cae5f2f4f972acb0392472423b4103af0b3ec422a95df2c",
 		"src\/Kernel\/MathicsInputAssumptions.wl":"77facd132248995eaa63ea48956d2b3a288db38c43651b18009379a5e3111aad",
@@ -1040,7 +1045,7 @@
 		"src\/Kernel\/MathicsLists.wl":"523f9e8af7cdc30bd9897d69e379ddbe0b4d01a91193e78d5a76304d16cd7da0",
 		"src\/Kernel\/MathicsNumerical.wl":"fbe5ebfb58863ca9d9e83229c4f05349a76aac299297246f48fd2b42a38bff34",
 		"src\/Kernel\/MathicsRefinement.wl":"1f02dff6cad0e3c3d78d747daaac3fd950b82cb7a19f310c3bbf7dd3ca2b5551",
-		"src\/Kernel\/MathicsSimplification.wl":"45b457e81895bf5e5d9a21c36cc1cc51e7e800eb9b1ca5fee94dc00a71312323",
+		"src\/Kernel\/MathicsSimplification.wl":"181a2b74e661717c11161307736fae98b28bed04150ba9cd91a408a404cd704f",
 		"src\/Kernel\/MathicsSpecialFunctions.wl":"78ab28f9dcf8f87f2a22413ebc263788552333a91f485c2edc2e126a1030383b",
 		"src\/Kernel\/MathicsTaylor.wl":"e6324cb1e8cf5718e2bf160d26f6a6cae5b06ef16a4a5bc88aae97bc08068631",
 		"src\/Kernel\/MathicsTimeBudget.wl":"779416eb1646b55fb77ac7210de37b177916bcdcdf1f74c666ba02cd40c4a98f",
@@ -1052,8 +1057,8 @@
 		"src\/Kernel\/RefinementRequests.wl":"d07fd2048c224b6a147f0b3e9a8b913527b337174c52363018b83fd11bd9b41c",
 		"src\/Kernel\/RefinementState.wl":"57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
 		"src\/Kernel\/SeriesArithmetic.wl":"642401b840307a543801b5d121b26dac9c22e5daf1f756c74c840103625b73ef",
-		"src\/Kernel\/SeriesEnvelopeArithmetic.wl":"c4f11c33ad61e884ef331908edc5edf3acb8ebd89a948ae54224f258ab5ab849",
-		"src\/Kernel\/SeriesOperations.wl":"4045cb711d9db8eed27900d98d52987ea1bc6c57af8941bdbbf6c5203397e1e5",
+		"src\/Kernel\/SeriesEnvelopeArithmetic.wl":"c0b233dd0e3502aed2bd4243299c5cd5a73fb256a62ffd83b08e1af3fd74edc8",
+		"src\/Kernel\/SeriesOperations.wl":"d31b798796b87a6f06921dec392d9fbf6812b61544b29bb57fafe27af1bc56ca",
 		"src\/Kernel\/SourceCoordinates.wl":"92758cbbc06e63a99035735ee029074bda86e62414bf9c85a92ed6398e4478f0",
 		"src\/Kernel\/SpecialFunctionAdapters.wl":"41e95ad2af0f2d0a68fed8edaec65f42c4262efc0a68481cff760e8ce28192cf",
 		"src\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
@@ -1063,7 +1068,7 @@
 		"src\/Tests\/ExponentialCorePerturbation.wlt":"6601c3f983e82547d2e9b406b050ed921c21f5e0af6752221127df598abc87bb",
 		"src\/Tests\/ReviewNumericalLocalCoordinate.wlt":"81a34507fa431301b3036e3f2ea087b90477bb5533d0021a719029d9484df552",
 		"src\/Tests\/FourierRegressions.wlt":"8dbcfbd56ecf729fa003bae527dc4fc9be5fbb7825ca4593d5c1f101b75bd868",
-		"src\/Tests\/SeriesOperations.wlt":"ee279316731ae33ff614dc2f932e863424a83cb200c9ebacba781701b177243b",
+		"src\/Tests\/SeriesOperations.wlt":"f37525dc545952028827ebaa6a239d9f95597c1055544d67835a622f5dd22158",
 		"src\/Tests\/DirichletSpecialFunctions.wlt":"dde882003b9520fb4905a58e6e5e013bcf4549445f7a727a52d009c6f9918ff8",
 		"src\/Tests\/ExpandedInputs.wlt":"bd31f678abcfe00b1dd187a34174e31bb49d4cfe12df9e61f5633947bcc73854",
 		"src\/Tests\/InverseFunctionExpressions.wlt":"a8ee61f39a4bd740b6d4a1a982c0cdb9b84e68ea9e451f12083c8be3e0a376d2",

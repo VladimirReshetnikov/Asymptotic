@@ -89,6 +89,14 @@ class StandaloneBuilderTests(unittest.TestCase):
             'System`Get["Other.wl"];',
             'Get[FileNameJoin[{$kernelDirectory, "../Other.wl"}]];',
             'Get[FileNameJoin[{$kernelDirectory, "nested/Other.wl"}]];',
+            # W3-11: prefix, postfix, Apply, Map, qualified and bare spellings.
+            'Get @ "Other.wl";',
+            '"Other.wl" // Get;',
+            'Get @@ {"Other.wl"};',
+            'Get /@ {"Other.wl"};',
+            'Scan[Get, {"Other.wl"}];',
+            'System`Needs @ "Other`";',
+            'Map[Import, files];',
         ):
             with self.subTest(source=source):
                 self.entry(source + "\n")
@@ -114,6 +122,12 @@ class StandaloneBuilderTests(unittest.TestCase):
         self.write("Child.wl", "value = 2;\n")
         with self.assertRaisesRegex(ValueError, "Repeated or cyclic"):
             builder.assemble()
+
+    def test_identifiers_containing_dependency_names_are_not_flagged(self) -> None:
+        self.entry('GetValue[x_] := x; ReadListing = 1; myImport = 2; f[Getter] := Getter; "Get @ file" // Identity;\n')
+        data, sources = builder.assemble()
+        self.assertEqual(sources, ["AsymptoticAnalysis.wl"])
+        self.assertIn(b"GetValue[x_] := x", data)
 
     def test_dependency_text_in_nested_comments_and_strings_is_inert(self) -> None:
         text = (

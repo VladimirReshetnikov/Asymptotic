@@ -607,7 +607,9 @@ seriesDerivative[s_, n_, declared_, cut_, limit_] := Module[{d, contract, ell, a
   If[n =!= 0 || cut =!= Automatic, requireAnalyticSeries[s]];
   result = reciprocalLogDifferentiate[s, n, declared, cut, limit];
   If[result =!= $Failed, Return[result, Module]];
-  If[n === 0, Return[s, Module]];
+  (* The zeroth derivative is the object itself; a supplied cutoff is then a
+     documented truncation request rather than an ignored option (W3-14). *)
+  If[n === 0, Return[If[cut === Automatic, s, AsymptoticAnalysis`SeriesTruncate[s, cut, "MaxTerms" -> limit]], Module]];
   d = seriesData[s, limit]; contract = Lookup[d, "RemainderDerivativeOrder", 0];
   If[declared =!= Automatic,
     If[declared =!= Infinity && (! IntegerQ[declared] || declared < 0), fail["InvalidDerivativeContract", "RemainderDerivativeOrder must be a nonnegative integer or Infinity."]];

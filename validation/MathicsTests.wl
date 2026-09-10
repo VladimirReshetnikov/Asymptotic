@@ -100,6 +100,22 @@ portableTest["primitive-module-return-through-loop", "primitive",
 
 portableTest["primitive-check-is-unpolluted", "primitive", Check[1 + 1, $Failed], 2];
 
+(* W4-05: an omitted direction at a finite point is two-sided on both
+   kernels; disagreeing sides give Indeterminate, explicit sides their value.
+   W4-06: a Heads option in the third slot of FirstPosition is an option. *)
+portableTest["primitive-limit-automatic-direction-is-two-sided", "primitive",
+  Module[{u, limit}, limit = If[StringContainsQ[$Version, "Mathics"], AsymptoticAnalysis`Mathics`Limit, Limit];
+    {limit[Abs[u]/u, u -> 0], limit[Abs[u]/u, u -> 0, Direction -> "FromAbove"],
+      limit[Abs[u]/u, u -> 0, Direction -> "FromBelow"], limit[Sin[u]/u, u -> 0], limit[1/u, u -> Infinity]}],
+  {Indeterminate, 1, -1, 1, 0}];
+
+portableTest["primitive-firstposition-third-slot-heads-option", "primitive",
+  Module[{firstPosition, f, g},
+    firstPosition = If[StringContainsQ[$Version, "Mathics"], AsymptoticAnalysis`Mathics`FirstPosition, FirstPosition];
+    {firstPosition[f[g[1]], g, Heads -> False], firstPosition[f[g[1]], g], firstPosition[{3, 4}, 5, "absent"],
+      firstPosition[{3, 4, 4}, 4, Missing["NotFound"], {1}, Heads -> False]}],
+  {Missing["NotFound"], {1, 0}, "absent", {2}}];
+
 (* A retained symbolic branch value must not become an unconditional truth
    or falsehood through Mathics' reversed two-argument SymPy conversion.
    The branch point is kept in assumptions so caller-side evaluation cannot

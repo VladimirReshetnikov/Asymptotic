@@ -1019,15 +1019,37 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Composite target charts, refinement policy, and tooling
+
+The [eight-file run](composite-approach-tests.json) from
+[CheckCompositeApproach.wl](CheckCompositeApproach.wl) passes **129/129** with
+unchanged sources. Its three new cases in
+[ReviewCompositeApproach.wlt](../src/Tests/ReviewCompositeApproach.wlt) pin
+C18: the reflected Erfc adapter approaches `2` from below (and `3` from above
+under a negative target scale), a negative quadratic curvature approaches its
+vertex value from below, and flat inverses with a pole core tend to a signed
+infinity, beside direct, positive-curvature, regular, derived and ordinary
+inverse controls. The run also includes the refinement regressions that pin
+D10's decided semantics: a lower cutoff retargets the result and keeps the
+larger cache. A minimum-precision guard was tried in this session and
+rejected because those pinned cases failed. The
+[builder tests](test_standalone.py) cover the conservative dependency token
+gate (W3-11), and the [tooling tests](test_proveit_tooling.py) cover the
+per-pass recorder union and the locked fresh-read ledger merge (wave-5
+report 44 T03, T04); the POSIX permission preservation (T02) is a
+platform-conditional statement that the Windows host cannot exercise.
+
 ## Wave-7 contract repairs
 
 The [ten-file run](wave7-contract-tests.json) from
-[CheckWave7Contracts.wl](CheckWave7Contracts.wl) passes **190/190** on
-Wolfram 15.0.1 for Windows with unchanged sources. Its five new cases in
+[CheckWave7Contracts.wl](CheckWave7Contracts.wl) passes **192/192** on
+Wolfram 15.0.1 for Windows with unchanged sources. Its six new cases in
 [ReviewWave7Contracts.wlt](../src/Tests/ReviewWave7Contracts.wlt) pin report
 56's amplified complex tail (`Sin` and `Cos` refused with
 `UnprovedRealRemainder`, `Abs` and a vanishing envelope accepted), the
-idempotent conjunction after five self-additions, the reflected Erfc
+idempotent conjunction after five self-additions and, for report 62, after
+zero-series, scalar-zero and unit-multiplication chains with distinct and
+contradictory parameter controls, the reflected Erfc
 frontier sign against the direct adapter, the refusal of both report-60
 witnesses and report 59's squared witness beside a fixed-data control, and
 report 61's five low-cutoff predicate cases beside an exact control. Two
@@ -1036,7 +1058,7 @@ envelope now records the local complex-strip transport instead of a global
 Lipschitz constant, and an unresolved `O(1)` error is refused rather than
 bounded. Report 57's charged-constant case is pinned in the Dirichlet suite,
 which runs inside the [wave-6 boundary run](wave6-boundaries-tests.json)
-(**184/184**). The [standalone builder tests](test_standalone.py) cover
+(**185/185**). The [standalone builder tests](test_standalone.py) cover
 association delimiters in three spellings (59 N02).
 
 ## C22 arithmetic transport and the affine memo
@@ -1098,7 +1120,7 @@ scope of each entry and which ones are now implemented.
 ## Wave-6 public-boundary repairs
 
 The [ten-file run](wave6-boundaries-tests.json) from
-[CheckWave6Boundaries.wl](CheckWave6Boundaries.wl) passes **184/184** on
+[CheckWave6Boundaries.wl](CheckWave6Boundaries.wl) passes **185/185** on
 Wolfram 15.0.1 for Windows with all kernel, suite and runner hashes unchanged
 during execution. Its nine new cases (and the wave-7 Dirichlet constant case) in
 [ReviewWave6Boundaries.wlt](../src/Tests/ReviewWave6Boundaries.wlt) pin the

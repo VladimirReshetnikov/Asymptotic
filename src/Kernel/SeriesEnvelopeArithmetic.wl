@@ -58,6 +58,14 @@ seriesEnvelopeLimit[e_, variable_, approach_, assumptions_, domain_: True] := Mo
   seriesEnvelopeTry[Limit[simplified /. substitution, u -> 0, Direction -> "FromAbove",
     Assumptions -> parameterAssumptions]]];
 
+seriesEnvelopeFlatEndpoint[chart_, offsetKey_, ass_] := Module[{power, coefficient},
+  power = Lookup[chart, "CorePower", Missing["CorePower"]];
+  coefficient = Lookup[chart, "CoreCoefficient", Missing["CoreCoefficient"]];
+  Which[MissingQ[power] || ! TrueQ[seriesEnvelopeTry[FullSimplify[power < 0, ass]]], Lookup[chart, offsetKey, Missing["UnknownEndpoint"]],
+    TrueQ[seriesEnvelopeTry[FullSimplify[coefficient > 0, ass]]], Infinity,
+    TrueQ[seriesEnvelopeTry[FullSimplify[coefficient < 0, ass]]], -Infinity,
+    True, Missing["UnknownEndpoint"]]];
+
 seriesEnvelopeApproach[a_, limit_] := Module[
   {stored, variable, point, direction = Automatic, ass, domain, coordinates, candidates,
    valid, coefficient, u, rule, endpoint, d},
@@ -76,8 +84,12 @@ seriesEnvelopeApproach[a_, limit_] := Module[
       direction = Lookup[a, "InverseFunctionExpansionDirection", Automatic]; a["InverseFunctionExpansionPoint"],
     Lookup[a, "Kind", ""] === "Forward", direction = Lookup[a, "Direction", Automatic]; a["ExpansionPoint"],
     KeyExistsQ[a, "Limit"], a["Limit"],
-    AssociationQ[Lookup[a, "FlatRepresentation", None]], a["FlatRepresentation"]["TargetOffset"],
-    Lookup[a, "Kind", ""] === "FlatInverse" && AssociationQ[Lookup[a, "Model", None]], a["Model"]["Offset"],
+    (* A flat chart y = offset + c u^p with p < 0 is a pole: the target tends
+       to a signed infinity, not to the offset (C18). *)
+    AssociationQ[Lookup[a, "FlatRepresentation", None]],
+      seriesEnvelopeFlatEndpoint[a["FlatRepresentation"], "TargetOffset", ass],
+    Lookup[a, "Kind", ""] === "FlatInverse" && AssociationQ[Lookup[a, "Model", None]],
+      seriesEnvelopeFlatEndpoint[a["Model"], "Offset", ass],
     True, Missing["UnknownEndpoint"]];
   If[MissingQ[point],
     (* Invert only a recorded independent coordinate, never the represented
@@ -100,6 +112,13 @@ seriesEnvelopeApproach[a_, limit_] := Module[
     fail["UnknownCompositeApproach", "The operand does not retain a recoverable target approach."]];
   If[MemberQ[{Infinity, -Infinity}, point],
     direction = If[point === Infinity, "FromBelow", "FromAbove"]];
+  (* The retained target domain decides the side before any isolated scale
+     or coefficient sign: the reflected Erfc adapter approaches 2 from below
+     under a positive target scale, and a negative quadratic curvature
+     reverses the side its coefficient would suggest (C18). *)
+  If[direction === Automatic && ! MissingQ[point],
+    If[TrueQ[seriesEnvelopeTry[FullSimplify[Implies[domain, variable > point], ass]]], direction = "FromAbove",
+      If[TrueQ[seriesEnvelopeTry[FullSimplify[Implies[domain, variable < point], ass]]], direction = "FromBelow"]]];
   If[direction === Automatic,
     coefficient = Lookup[a, "TargetScale", Lookup[a, "LeadingCoefficient",
       Lookup[seriesEnvelopeAssociation[a, "FlatRepresentation"], "CoreCoefficient",
