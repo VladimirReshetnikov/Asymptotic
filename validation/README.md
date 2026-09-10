@@ -1019,6 +1019,47 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Wave-6 public witnesses
+
+The [four-case characterization](wave6-witness-probe.json) from
+[ProbeWave6Witnesses.wl](ProbeWave6Witnesses.wl) reproduces the wave-6 witnesses
+on the current source, on Wolfram 15.0.1 for Windows with all kernel source
+hashes recorded and unchanged during the run. Every verdict field is computed in
+the run from the returned value.
+
+- **Target-dependent `SourceShift` returns a false remainder** (reports 46 and
+  50 F1). `AsymptoticExponentialCoreInverse[Exp[x], 1, {x, Infinity}, {y, 1},
+  "SourceShift" -> -Abs[y]]` is accepted rather than refused. Its finite
+  expression is correct — `Log[y] - 1/y` under `y > 2` — but its remainder
+  carries the scale `Exp[-2 Abs[y]]/y^2`, while the exact inverse `Log[y-1]` has
+  true error `-1/(2 y^2) + O(y^-3)`. At `y = 20` the true error is
+  `1.29 * 10^-3` against a claimed scale of `1.06 * 10^-20`, so the reported
+  bound is **false**, not merely weak. This is a soundness defect in a public
+  route, and it is the highest-priority wave-6 finding.
+- **Coefficient-option keys corrupt the result after C09** (report 48 N1).
+  `InverseExpansionCoefficient[s, {1}, Power -> 2]` — the symbol key rather than
+  the string — returns a *successful* association whose `Exponent` is
+  `1 + "Power"` and whose `Coefficient` is `-"Power"`. Four other spellings
+  return numeric fields. `Power -> 2, "Power" -> 3` returns the string option's
+  value, so first-option precedence does not hold. C09 is recorded as focused
+  verified for explicit precedence, so this is a regression inside recently
+  closed work rather than a new area.
+- **One label covers two different quantities** (reports 48 N3, 51 N02, 54 N04).
+  For `"Power" -> 2` the checker returns `LocalRoot -> 2` and
+  `LocalApproximation -> 4`, and the run confirms `LocalRoot^2` equals
+  `LocalApproximation`: the first is the source coordinate, the second its
+  powered observable. The numerical values are correct; the single
+  `LocalCoordinate` label describing both is what the reports dispute.
+- **An accepted atom's affine translation is refused** (report 55 N01).
+  `Zeta[x]` expands, while `Zeta[x] - 1` fails with
+  `UnsupportedNativeCoefficient`. A coverage gap, not a false formula.
+
+This is a **characterization probe, not an acceptance suite**; no repair is
+applied, and the full package suite was not run. Wave 6 has no consolidated
+intake, so none of these entries is mapped to a work item yet; the
+[wave-6 index](../external-reports/code-review/wave-6/README.md) records their
+scope.
+
 ## Wave-5 modulus witnesses on nonreal retained coefficients
 
 The [five-case characterization](wave5-modulus-witness.json) from
