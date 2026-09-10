@@ -65,6 +65,10 @@ class PortableProtocolTests(unittest.TestCase):
         text = record().replace("\nactual\n", "\nfirst line\nλ + x²\n")
         self.assertEqual(runner.parse_output(text, "fixture", 0)["ActualOutput"], "first line\nλ + x²")
 
+    def test_effective_iteration_limit_is_recorded(self) -> None:
+        text = runner.PREFIX + "ITERATION_LIMIT\t1000000\n" + record()
+        self.assertEqual(runner.parse_output(text, "fixture", 0)["KernelIterationLimit"], 1000000)
+
 
 class PortableProcessTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -116,6 +120,28 @@ class PortableProcessTests(unittest.TestCase):
 
 
 class PortableReportTests(unittest.TestCase):
+    def test_running_cases_use_frozen_suite_bytes(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mathics-snapshot-test-") as temporary:
+            suite = Path(temporary) / "suite.wl"
+            suite.write_text("original complete suite", encoding="utf-8")
+            output = Path(temporary) / "report.json"
+            args = ["run_mathics_tests.py", "--source", str(suite), "--output", str(output)]
+
+            def execute(command, source, test_id, group, timeout, work):
+                frozen = Path(command[-1])
+                self.assertNotEqual(frozen, suite)
+                self.assertEqual(frozen.read_text(encoding="utf-8"), "original complete suite")
+                suite.write_text("changed during development", encoding="utf-8")
+                return {"Outcome": "Success", "TestID": test_id, "ElapsedSeconds": 0.1}
+
+            with patch.object(sys, "argv", args), patch.object(runner, "SUITE", suite), \
+                    patch.object(runner, "available_cases", return_value=[("first", "fixture"), ("second", "fixture")]), \
+                    patch.object(runner, "run_case", side_effect=execute), redirect_stdout(io.StringIO()):
+                self.assertEqual(runner.main(), 1)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(report["Succeeded"], 2)
+            self.assertFalse(report["SourcesUnchangedDuringRun"])
+
     def test_interrupted_run_preserves_completed_case_evidence(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mathics-report-test-") as temporary:
             output = Path(temporary) / "report.json"

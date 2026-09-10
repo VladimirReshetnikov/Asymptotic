@@ -27,8 +27,10 @@ If[StringQ[$Version] && StringContainsQ[$Version, "Mathics"], Block[{$seriesArit
   (* Reading Mathics UpValues can add HoldPattern wrappers.  Remove our own
      previous arithmetic rules structurally instead of relying on SameQ
      deduplication, so repeated Get does not accumulate duplicate rules. *)
+  mathicsPreviousRules = DeleteDuplicates[UpValues[GeneralizedSeries] //.
+    Verbatim[HoldPattern][Verbatim[HoldPattern][pattern_]] :> HoldPattern[pattern]];
   UpValues[GeneralizedSeries] = Join[
-    Select[UpValues[GeneralizedSeries],
+    Select[mathicsPreviousRules,
       FreeQ[#, HoldPattern[seriesArithmeticAutomatic[_HoldComplete]]] &],
     mathicsArithmeticRules];
   (* An explicit head avoids Mathics treating Pattern as the formatting tag. *)

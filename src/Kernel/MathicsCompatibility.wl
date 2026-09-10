@@ -104,6 +104,16 @@ If[StringQ[$Version] && StringContainsQ[$Version, "Mathics"],
   Scan[Symbol, {"System`SeriesTermGoal", "System`BarnesG", "System`LogBarnesG",
     "System`Asymptotic", "System`Failure", "System`FunctionDomain",
     "System`Reduce", "System`Resolve", "System`ForAll", "System`Exists",
-    "System`Inactive", "System`Activate", "System`Algebraics"}];
+    "System`Inactive", "System`Activate", "System`Algebraics",
+    "System`InverseFunction", "System`WorkingPrecision",
+    "System`BetaRegularized", "System`CosIntegral", "System`CoshIntegral",
+    "System`DawsonF", "System`EllipticTheta", "System`Erfi",
+    "System`GammaRegularized", "System`HurwitzZeta", "System`Hypergeometric0F1",
+    "System`Hypergeometric0F1Regularized", "System`Hypergeometric1F1Regularized",
+    "System`Hypergeometric2F1Regularized", "System`HypergeometricPFQRegularized",
+    "System`InverseGammaRegularized", "System`JacobiAmplitude", "System`JacobiCN",
+    "System`JacobiDN", "System`JacobiSN", "System`JacobiZeta", "System`LogIntegral",
+    "System`ParabolicCylinderD", "System`SinIntegral", "System`SinhIntegral",
+    "System`SpheroidalPS", "System`SpheroidalQS", "System`WhittakerM", "System`WhittakerW"}];
   $ContextPath = Prepend[DeleteCases[$ContextPath, "AsymptoticAnalysis`Mathics`"],
     "AsymptoticAnalysis`Mathics`"]];

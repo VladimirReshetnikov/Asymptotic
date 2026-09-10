@@ -67,6 +67,11 @@ def parse_output(output: str, test_id: str, returncode: int | None) -> dict:
               if line.startswith(PREFIX + "KERNEL\t")]
     if kernel:
         result["Kernel"] = kernel[-1]
+    iteration_limits = [line[len(PREFIX + "ITERATION_LIMIT\t"):] for line in lines
+                        if line.startswith(PREFIX + "ITERATION_LIMIT\t")]
+    if len(iteration_limits) == 1:
+        text_limit = iteration_limits[0]
+        result["KernelIterationLimit"] = int(text_limit) if text_limit.isdigit() else text_limit
     if returncode not in (0, 1):
         result["Outcome"] = "KernelError"
     elif len(records) != 1 or records[0][0] != test_id or len(records[0]) != 2:
@@ -194,6 +199,7 @@ def main() -> int:
         command = [executable, "-m", "mathics", "--quiet", "--no-readline", "--file", str(SUITE)]
         runtime_name = "Mathics"
     before = fingerprints(source)
+    suite_snapshot = SUITE.read_bytes()
     results = []
 
     def write_report(complete: bool) -> dict:
@@ -203,7 +209,9 @@ def main() -> int:
             "Runtime": runtime_name, "Command": command,
             "UTC": datetime.now(timezone.utc).isoformat(), "Source": str(source),
             "PerCaseTimeoutSeconds": args.timeout, "FreshKernelPerCase": True,
+            "MathicsIterationLimitConfiguredBySuite": 1000000 if runtime_name == "Mathics" else None,
             "FullPackageSuiteRun": False, "RunComplete": complete, "Selected": len(cases),
+            "TestSuiteSnapshotSHA256": hashlib.sha256(suite_snapshot).hexdigest(),
             "Executed": len(results), "Succeeded": succeeded, "Failed": len(results) - succeeded,
             "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": before == after,
             "TestedSourcesSHA256": before, "Results": results,
@@ -218,9 +226,16 @@ def main() -> int:
 
     write_report(False)
     with tempfile.TemporaryDirectory(prefix="asymptotic-portable-") as temporary:
+        frozen_suite = Path(temporary) / SUITE.name
+        frozen_suite.write_bytes(suite_snapshot)
+        # Mathics streams the input file. Replacing an open file during test
+        # development changes its byte offsets and can produce bogus syntax
+        # failures. Use immutable suite bytes for this invocation, while the
+        # original-source fingerprints still invalidate a changed-source run.
+        frozen_command = command[:-1] + [str(frozen_suite)]
         for test_id, group in cases:
             print(f"Running {test_id} ...", flush=True)
-            result = run_case(command, source, test_id, group, args.timeout, Path(temporary))
+            result = run_case(frozen_command, source, test_id, group, args.timeout, Path(temporary))
             results.append(result)
             write_report(False)
             print(f"  {result['Outcome']} ({result['ElapsedSeconds']:.3f}s)", flush=True)

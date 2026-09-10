@@ -10,6 +10,13 @@
    SPDX-License-Identifier: MIT
 *)
 
+(* Mathics can evaluate an existing private definition while reading the
+   left-hand side of its replacement. Clear implementation definitions before
+   a streamed reload so held dispatch patterns are installed from clean state.
+   The official Wolfram kernel keeps its established loading behavior. *)
+If[StringQ[$Version] && StringContainsQ[$Version, "Mathics"],
+  ClearAll["AsymptoticAnalysis`Private`*"]];
+
 BeginPackage["AsymptoticAnalysis`"];
 
 AsymptoticExpansion::usage =
@@ -112,6 +119,8 @@ $kernelDirectory = DirectoryName[$InputFileName];
 (* Bind evaluator adapters only when loading in Mathics. The official Wolfram
    kernel continues to resolve every existing definition to System` symbols. *)
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCompatibility.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCalls.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsAssumptions.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsSimplification.wl"}]]];
 
 (* ------------------------------------------------------------------ *)
@@ -1311,7 +1320,15 @@ Get[FileNameJoin[{$kernelDirectory, "ParameterizedSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "DirichletSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NativeSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NativeCompatibility.wl"}]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCalculus.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCertificate.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsSpecialFunctions.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsFormatting.wl"}]]];
 
 End[];
 EndPackage[];
+
+(* Mathics EndPackage retains contexts inserted while the package loads. Keep
+   the adapters private to already-parsed package definitions. *)
+If[StringContainsQ[$Version, "Mathics"],
+  $ContextPath = DeleteCases[$ContextPath, "AsymptoticAnalysis`Mathics`"]];
