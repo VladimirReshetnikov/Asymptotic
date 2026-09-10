@@ -1,0 +1,684 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=0.86in,headheight=15pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype,amsmath,amssymb,amsthm}
+\usepackage{booktabs,longtable,array,tabularx}
+\usepackage{enumitem,listings,xcolor,xurl,hyperref,fancyhdr}
+\hypersetup{colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!45!black,citecolor=blue!45!black,
+ pdftitle={AsymptoticAnalysis after eighteen reviews: a differential audit},
+ pdfauthor={Independent technical review}}
+\setlength{\parskip}{0.43em}
+\setlength{\parindent}{0pt}
+\setlist{nosep,leftmargin=1.5em}
+\emergencystretch=2em
+\widowpenalty=10000\clubpenalty=10000\displaywidowpenalty=10000
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\commit}{6687962f3c858a4f93623cfc496f33e35c6763d4}
+\newcommand{\shortcommit}{6687962f3c85}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\sr}[3]{\footnote{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/#1\#L#2-L#3}{\nolinkurl{#1}}, lines #2--#3, at the pinned snapshot.}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\R}{\mathbb R}
+\newcommand{\finding}[3]{\subsection{#1: #2}\textbf{Classification:} #3.\par}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\lstdefinelanguage{Wolfram}{morekeywords={Module,If,Return,Failure,HoldComplete,Function,Series,SeriesData,Normal,Options,SetOptions,OptionValue,AsymptoticExpansion,AsymptoticExpand,AsymptoticInverse,SeriesObservable,SeriesRefine,SeriesDifferentiate,SeriesTruncate,MatchQ,True,False,Infinity,Automatic,ClearAll,Root,Exp,Sin,Log,Assumptions,SeriesTermGoal},sensitive=true,morecomment=[s]{(*}{*)},morestring=[b]"}
+\lstset{language=Wolfram,basicstyle=\small\ttfamily,keywordstyle=\bfseries,
+ commentstyle=\itshape,showstringspaces=false,breaklines=true,breakatwhitespace=false,
+ columns=fullflexible,keepspaces=true,frame=single,framerule=0.3pt,
+ xleftmargin=0.35em,xrightmargin=0.35em,aboveskip=0.8em,belowskip=0.6em}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small AsymptoticAnalysis: differential audit}
+\fancyhead[R]{\small\texttt{\shortcommit}}
+\fancyfoot[C]{\thepage}
+\begin{document}
+\begin{titlepage}
+\vspace*{0.6in}
+{\large\scshape Repository analysis / Wolfram Language\par}
+\vspace{0.3in}
+{\LARGE\bfseries AsymptoticAnalysis after\par eighteen reviews\par}
+\vspace{0.18in}
+{\Large A differential audit of native dispatch,\par coefficient frontiers, and exact refinement\par}
+\vspace{0.4in}
+{\large Repository: \texttt{VladimirReshetnikov/Asymptotic}\par}
+\vspace{0.15in}
+Snapshot: \texttt{\commit}\par
+Review date: 9 September 2026, Pacific time\par
+\vspace{0.4in}
+\begin{abstract}
+This report examines the current package against its existing review record rather than republishing that record. Its central conclusion is that the package's strongest role is not merely to wrap Wolfram Language's asymptotic functions: it is to preserve a selected real branch, an explicit sparse scale, transported remainder information, and replayable mathematical evidence. The newer native delegation layer broadens coverage, but its dispatch semantics must agree with the option interface it exposes.
+
+Four current findings concern backend defaults, syntactic overprotection of nested pure functions, inconsistent option-name identity, and contradictory development-status documentation. Two additional findings materially sharpen existing review topics: the observable importer omits a native Taylor-endpoint check already present in the forward engine, and refinement can demand unavailable information from an ancestor even when the derived result is exactly constant. The former admits a source-level wrong-remainder construction with an honest but incomplete Taylor provider; the latter is both a completeness and a performance defect.
+
+The archive includes candidate source patches, fifteen native regression candidates, a native characterization and benchmark harness, a novelty ledger, and forty-eight passing independent Python checks. \textbf{No native Wolfram package execution was obtained in this session.} Public-call outcomes are therefore distinguished from source-established control flow and independently checked mathematics. The patches are review candidates, not an accepted replacement release.
+\end{abstract}
+\vfill
+\begin{tabularx}{\textwidth}{@{}P{1.6in}X@{}}
+\toprule
+Evidence boundary & Source review and independent mathematical/contract models; native service unavailable.\\
+Existing-review baseline & Maintained crosswalk: 18 reports and 123 finding entries.\\
+Deliverable & Article source and PDF, code, reproducible independent results, and unrun native tests.\\
+\bottomrule
+\end{tabularx}
+\end{titlepage}
+\tableofcontents
+\newpage
+
+\section{Executive assessment}
+
+\textbf{The most important new repair is the missing native-order guard in the observable path.} The code asks a Taylor provider for enough coefficients, but then consumes its returned coefficient list without checking that the returned series actually reaches that order. A missing coefficient \emph{inside} a known series interval may mean zero; a coefficient \emph{beyond} its recorded endpoint is unknown. Conflating these cases can turn a truthful $1+t+\OO(t^2)$ input into a false $1+x+\OO(x^4)$ output for a function whose true value is $1+x+x^2$. This is a narrower, directly actionable extension of the existing native-tail review topic, not a claim to have newly discovered the general problem of native remainder semantics.
+
+\textbf{The most immediately visible new interface repair is honoring the declared backend default.} The package exposes \code{"Backend"} through \code{Options}, but its dispatcher hard-codes \code{Automatic} when an explicit selector is absent. Consequently, setting the advertised default to \code{"Series"} does not select that backend. This matters mathematically because the package's exclusive cutoff and native \code{Series}'s inclusive order need not retain the same coefficients.
+
+\textbf{The most useful new performance repair is to stop refinement at an already exact derived value.} A constant observable carries no remaining coefficient demand, even when its provenance mentions an uncertain inverse. Replaying that inverse is unnecessary, and can fail against a legitimate input-precision cap. The existing inverse-state implementation already has an exact finite-inverse fast path; the missing piece is the analogous treatment of exact derived representations.
+
+The native-compatibility goal is valuable, but its success must be judged against three separate questions: Was the intended backend selected? Was its output preserved? Was any additional analytic contract justified? A successful answer to the second question does not automatically answer the other two. Conversely, refusing an analytic operation on a native result without a package remainder contract is a deliberate safety boundary, not a defect.
+
+\begin{longtable}{@{}P{0.52in}P{2.20in}P{0.68in}P{2.86in}@{}}
+\toprule
+ID & Finding & Priority & Evidence and novelty\\\midrule\endhead
+N01 & Advertised backend defaults are ignored & Medium & Dispatcher inspection; post-review native layer; public regression supplied, unrun.\\
+N02 & Nested pure functions are mistaken for a callable-source contract & Medium & Exact guard trace; pure-redex and \code{Root} probes; no claim of a measured native failure.\\
+N03 & Held option parser uses structural identity instead of option-name identity & Medium & Source trace plus official \code{OptionValue} contract; public spelling-equivalence regressions supplied.\\
+D01 & Observable Taylor import lacks a returned-endpoint check & High & Source-level mathematical counterexample with a truthful custom provider; sharpens prior C06/C16.\\
+D02 & Exact derived refinement unnecessarily replays an uncertain ancestor & Medium & Source trace and exact dependency proof; sharpens prior C08/P07/P08, rather than repeating their general recommendations.\\
+N04 & README contradicts implemented automatic routing & Low & Direct contradiction between current README, implementation, and detailed compatibility document.\\
+\bottomrule
+\end{longtable}
+
+Priority describes the consequence of the issue, not a claim that every public reproduction has run. D01 has the highest mathematical consequence, but its concrete provider fixture is still awaiting native execution. N01--N03 are chiefly routing and compatibility defects; they do not establish a newly unsound interval certificate.
+
+\section{Snapshot, scope, and non-duplication method}
+
+\subsection{A moving repository requires a fixed reference}
+
+The audited commit is \texttt{\commit}. Its recorded commit time is 10 September 2026 at 00:18:17 UTC, which is 9 September at 17:18:17 in the user's Pacific timezone. The date change is a timezone conversion, not a claim to have reviewed a future local revision. All repository references in this article are pinned, rather than following \code{main} after the review.
+
+At this snapshot the public package context is \code{AsymptoticAnalysis`}; \code{AsymptoticInverse} remains a public function. The root single-file distribution is generated from modular kernel sources. The README declares version 1.8.0 and Wolfram Language 15.0 or later, and identifies upstream native evidence using 15.0.1 for Windows. Those are repository statements, not a kernel version measured in this session.\cite{readme}
+
+The inspected areas include the complete native-dispatch file; the arithmetic, observable, composition, differentiation, and refinement paths in \code{SeriesOperations.wl}; the rational certificate implementation; coordinate inversion and exact termination; selected core parser and jet routines; ordinary arithmetic normalization; inverse refinement state; focused native compatibility tests; and the relevant repository guides and review crosswalk. This was targeted source inspection through the connected repository service, not an automated full-checkout scan or an exhaustive execution of every adapter.
+
+\subsection{How the existing reports were used}
+
+The maintained implementation register and the two review indexes are the primary exclusion map. The register maps eighteen reports and 123 finding entries; its references identify the original snapshots and the individual evidence ledgers. Relevant original ledgers, including the contract-audit delta and the earlier structured findings, were also consulted where a proposed finding overlapped a recorded topic.\cite{register,reviews,wave2,review11,review4}
+
+This article does not reissue the existing C01--C23, P01--P08, D01--D10, V01--V02, or X01--X12 lists as new findings. The labels D01 and D02 \emph{in this article} mean differential findings; references to \emph{prior C06}, \emph{prior C08}, and so forth always refer to the repository register. The machine-readable novelty ledger uses distinct \code{AUDIT-D01} and \code{AUDIT-D02} identifiers to remove this possible ambiguity.
+
+The newest native-dispatch file is absent at the second-wave review snapshot \nolinkurl{921387e5ba1239bfda96e63e64e89bf63d9c41e6}. This helps establish the chronology of N01--N03. The earlier reviews nevertheless contain broad compatibility recommendations, so the claimed contribution here is the specific current control-flow defect and its regression, not the general idea of improving compatibility.
+
+D01 explicitly builds on the native-tail and opaque-function discussions. Its added content is an \emph{analytic polynomial} with a truthful short Taylor provider, the precise missing check in \code{seriesJetApply}, and a comparison with the already guarded \code{fwdAnalytic}. D02 explicitly builds on refinement-demand concerns. Its added content is a zero-demand exact observable that fails despite needing no new coefficients, a connection to the existing exact-inverse fast path, and a conservative derived-value fast path.
+
+No assertion is made that every sentence of all eighteen historical articles was reread. The novelty assessment is anchored to the maintained full crosswalk, the review indexes, the overlapping original ledgers, and the inspected implementation. This is stronger than ignoring prior reports, but it is not an independent historical text-deduplication proof.
+
+\subsection{Evidence classes}
+
+The report separates four kinds of support. \emph{Source-established} means that a displayed predicate, branch, or missing guard can be checked directly in the pinned code. \emph{Mathematically established} means that the consequence follows from a proof independent of Wolfram evaluation. \emph{Independently executed} means that the included Python model or symbolic calculation actually ran. \emph{Native-pending} means that the supplied Wolfram program still needs to run against the actual package.
+
+These classes are not interchangeable. In particular, an independent model of a dispatcher is not an implementation of Wolfram's evaluator, and a fixture test of a text patch is not a package integration test. The Wolfram connector returned upstream/network errors even for a version query and $1+1$; no usable native kernel response was obtained. Direct container retrieval of a checkout also failed, so the patches were checked against retrieved source anchors and synthetic fixtures rather than applied to a locally cloned complete repository.
+
+\section{What the repository contributes}
+
+\subsection{The representation is the main product}
+
+The ordinary analytic representation is essentially
+\begin{equation}\label{eq:representation}
+ A(x)+P(x)\left(\sum_{\beta<h}u(x)^\beta Q_\beta(\log u(x))
+ +\OO\!\left(u(x)^\rho(1+|\log u(x)|)^d\right)\right),\qquad u(x)\to0^+.
+\end{equation}
+The local coordinate is positive on a selected real approach. Exponents can be exact real numbers; coefficient blocks are polynomials in a logarithmic marker; the prefactor and offset are exact. Stored assumptions, domains, recipes, and remainder metadata accompany the finite expression. The \code{GeneralizedSeries} head is therefore not merely pretty printing for a truncated formula.\sr{src/Kernel/SeriesOperations.wl}{1}{145}
+
+A package cutoff acts on the recorded scale and is exclusive. The finite expression and its remainder must be interpreted together. \code{Normal} deliberately discards the latter. This is convenient for numerical experiments, but it is not a proof-preserving conversion to a fully known function. The code distinguishes native results from analytic series before allowing precision-sensitive operations.\sr{src/Kernel/AsymptoticAnalysis.wl}{1100}{1165}\sr{src/Kernel/NativeCompatibility.wl}{1}{19}
+
+The inverse engine normalizes models of the form
+\begin{equation}\label{eq:inverse-model}
+ f(x)=y_0+a u^p\left(1+\sum_j u^{\delta_j}B_j(\log u)\right),
+\end{equation}
+with the necessary ordering, reality, and branch hypotheses. Direct Lagrange, grouped Lagrange, Newton, exact termination, and retained coefficient state provide different ways to construct or extend the same kind of information. The source does not lack Newton iteration or all incremental reuse; recommending those as entirely new features would repeat or contradict the existing implementation.\sr{src/Kernel/AsymptoticAnalysis.wl}{935}{1035}\sr{src/Kernel/RefinementState.wl}{1}{170}
+
+\subsection{Special scales and supporting operations}
+
+The module map separates Lambert-style logarithmic and exponential cores, Gamma and Barnes inverse scales, source and target coordinate transformations, forward special-function adapters, finite flat sectors, Fourier-like coefficients, and composite envelopes. The intended benefit is to retain a useful asymptotic structure instead of forcing every intermediate result into one ordinary power-series container. The exact closure properties differ between these scales; the same head does not imply that every operation is supported on every kind.\cite{kernelmap,readme}
+
+The ordinary arithmetic interface also has a held normalizer. Its rationale is substantive: evaluation of a reciprocal or an automatic cancellation can otherwise erase a denominator before the package has checked whether its leading term is known. The explicit calculus and the ordinary upvalue interface converge on precision-aware operations rather than on arithmetic with \code{Normal} alone.\sr{src/Kernel/SeriesArithmetic.wl}{1}{180}
+
+Refinement is intentionally not synonymous with truncation. Truncation can weaken known information. Refinement may replay the original source or an operation recipe, or reuse an inverse coefficient state. Differentiation requires more than a magnitude bound on an arbitrary remainder; the code has an explicit derivative-contract gate. These distinctions should be preserved while repairing the particular inconsistencies identified below.\sr{src/Kernel/SeriesOperations.wl}{320}{432}
+
+\subsection{Native delegation adds coverage, not an automatic proof upgrade}
+
+The current wrapper supports explicit \code{"Series"} and \code{"Asymptotic"} backends and selected automatic routes. A native result records the native output, normalized expression, held request, original arguments, recognized specifications, kernel information, and a distinct remainder contract. It does not acquire \code{Exact -> True} simply because a native approximation lacks a visible $O$ term. This is an appropriate design decision.\sr{src/Kernel/NativeCompatibility.wl}{124}{244}
+
+The detailed compatibility document acknowledges that complete native-input coverage remains a goal rather than a completed guarantee. Automatic routing can be constrained by explicit package contracts; a representation failure can allow a selected fallback; an unresolved selected native backend does not imply that another backend was tried. These are existing documented boundaries, not additional discoveries in this report.\cite{nativeplan}
+
+\section{Comparison with built-in Wolfram Language}
+
+\subsection{A fair capability matrix}
+
+A comparison must distinguish mathematical scope, output representation, and evidence strength. There is no basis here for a blanket claim that the package is faster than native functions, or that native functions cannot invert non-Taylor series.
+
+\begin{longtable}{@{}P{1.04in}P{2.22in}P{3.00in}@{}}
+\toprule
+Task & Built-in capabilities & Package position and recommended interpretation\\\midrule\endhead
+Forward expansion & \code{Series} supports Taylor, Laurent, fractional-power and logarithmic behavior, symbolic coefficients, and successive variable specifications.\cite{series} & Sparse exact-real exponent blocks and explicit real-branch remainder transport are the differentiator, not elementary Taylor coefficients. Native delegation handles other output shapes under a different contract.\\
+Broad asymptotics & \code{Asymptotic} treats more than ordinary Taylor input, including special functions and other asymptotic scales.\cite{asymptotic} & Specialized package engines retain their own structures; explicit native mode avoids pretending that all native forms have a package analytic envelope.\\
+Series reversion & \code{InverseSeries} inverts suitable \code{SeriesData}; documented examples include fractional-power inverses.\cite{inverseseries} & The package focuses on real source branches, irrational power-log scales, transformed targets, and specialized inverse cores.\\
+Implicit solutions & \code{AsymptoticSolve} handles equations and systems, branch points, real/complex centers, and several variables.\cite{asymptoticsolve} & A single-variable real inverse package is not a replacement for the full implicit-system solver. Direct equation-solving comparisons belong in a separate coverage matrix.\\
+Arithmetic & \code{SeriesData} participates in arithmetic, composition, differentiation and integration.\cite{seriesdata} & The package tracks logarithmic error degree and gates analytic operations by its stronger representation-specific contracts.\\
+Numerical reference roots & \code{FindRoot} supplies numerical solutions with precision and accuracy controls.\cite{findroot} & An asymptotic seed is useful, but a numerical reference comparison and an exact interval certificate are different outputs.\\
+Discrete and operational asymptotics & The native ecosystem also includes asymptotic sums, integrals, differential and recurrence solvers, and discrete asymptotics.\cite{asymptoticsguide,discrete} & Do not infer coverage of these operations merely from the package's name or from the existence of a native result wrapper.\\
+Options & \code{Options}, \code{SetOptions}, and \code{OptionValue} establish standard defaults and name-resolution conventions.\cite{options,setoptions,optionvalue} & N01 and N03 show that exposing an option is not enough: the held dispatcher must implement its semantics.\\
+\bottomrule
+\end{longtable}
+
+The current \code{Series} documentation lists \code{Analytic}, \code{Assumptions}, and \code{SeriesTermGoal}. In particular, \code{SeriesTermGoal} must not be described as unavailable to \code{Series} merely because older recollections of the option list omitted it. Likewise, \code{AsymptoticSolve}'s approximation order is not generally polynomial degree.\cite{series,asymptoticsolve}
+
+\subsection{The order-convention collision is real}
+
+For the elementary source $e^x$, a native order-two power series has the quadratic term, whereas an exclusive package cutoff of two does not:
+\begin{align}
+ e^x&=1+x+\tfrac12x^2+\OO(x^3), &&\text{native order 2},\\
+ e^x&=1+x+\OO(x^2), &&\text{exclusive cutoff 2}.
+\end{align}
+These identities follow from the exponential series. They are not claimed as newly executed package outputs. The different conventions are documented by the repository and native API.\cite{nativeplan,series}
+
+Therefore, backend selection is part of the mathematical request. A dispatch error cannot be dismissed as a cosmetic metadata issue. Automatic delegation already records a native order convention; a future unified interface should preserve that distinction rather than silently treating the third positional argument as one universal notion of precision. The broad normalization problem is already in the review register; N01 isolates a new way in which the current implementation chooses the wrong convention despite a user-visible default.
+
+\subsection{An independent example of the sparse inverse advantage}
+
+Consider
+\begin{equation}
+ f(x)=x+x^\alpha,\qquad x>0,\quad \alpha>1.
+\end{equation}
+The derivative is positive, so the small positive inverse is unique. Write
+\begin{equation}
+ g(y)=yH(z),\qquad z=y^{\alpha-1}.
+\end{equation}
+Then $H$ satisfies
+\begin{equation}\label{eq:h-equation}
+ H+zH^\alpha=1,\qquad H(0)=1.
+\end{equation}
+The implicit function theorem near $(H,z)=(1,0)$ applies because the derivative with respect to $H$ is one there. The real branch of $H^\alpha$ is analytic near $H=1$. Thus $H$ has a convergent local Taylor expansion in $z$, giving a rigorous asymptotic expansion in $y$.
+
+\begin{proposition}
+For $n\geq1$, the coefficient of $z^n$ in $H$ is
+\begin{equation}\label{eq:inverse-coeff}
+ c_n=\frac{(-1)^n}{n!}\prod_{j=0}^{n-2}(n\alpha-j),\qquad c_0=1,
+\end{equation}
+where the product is empty when $n=1$.
+\end{proposition}
+\begin{proof}
+Set $V=1-H$. Equation \eqref{eq:h-equation} becomes $V=z(1-V)^\alpha$. Lagrange's coefficient identity gives
+\[
+ [z^n]V=\frac1n[t^{n-1}](1-t)^{n\alpha}
+       =\frac{(-1)^{n-1}}n\binom{n\alpha}{n-1}.
+\]
+Negating this coefficient and expanding the binomial coefficient yields \eqref{eq:inverse-coeff}. The analyticity established above justifies the local expansion rather than only a formal manipulation.
+\end{proof}
+
+The first terms are therefore
+\begin{equation}\label{eq:irrational-inverse}
+ g(y)=y-y^\alpha+\alpha y^{2\alpha-1}
+ -\frac{\alpha(3\alpha-1)}2y^{3\alpha-2}+
+ \frac{\alpha(4\alpha-1)(2\alpha-1)}3y^{4\alpha-3}+\cdots.
+\end{equation}
+After the term indexed by $N$, the remainder is $\OO(y^{1+(N+1)(\alpha-1)})$. The included SymPy calculation independently substitutes the product-formula coefficients into \eqref{eq:h-equation} through degree seven and obtains zero for every residual coefficient checked. It does not call the repository.
+
+For $\alpha=\sqrt2$, the exponent differences are irrational. A single conventional \code{SeriesData} with a rational exponent lattice and variable-independent coefficients cannot directly encode that infinite support. This is a representation observation, not a claim that every native Wolfram approach to the example fails: native output may use another shape, transformations, or an equation solver. The package's sparse support is nevertheless a natural direct representation for \eqref{eq:irrational-inverse}.\cite{seriesdata}
+
+\section{New findings in the native interface}
+
+\finding{N01}{The dispatcher ignores the advertised backend default}{source-established interface defect; native regression pending}
+
+\subsubsection*{Source and consequence}
+
+\code{NativeCompatibility.wl} adds \code{"Backend" -> Automatic} to \code{Options[AsymptoticExpansion]}. Its dispatcher collects explicit selector values and then uses
+\begin{lstlisting}
+backend = If[values === {}, Automatic,
+  ReleaseHold[First[values]]];
+\end{lstlisting}
+The no-selector branch does not consult the current option default. This remains true after \code{SetOptions} has changed that default.\sr{src/Kernel/NativeCompatibility.wl}{5}{10}\sr{src/Kernel/NativeCompatibility.wl}{63}{81}
+
+The standard purpose of \code{SetOptions} is to change a symbol's default options. A fully specified \code{OptionValue[f, opts, name]} considers the explicit rules and the defaults of \code{f}; it is the appropriate mechanism for this request.\cite{setoptions,optionvalue}
+
+The minimal public probe is:
+\begin{lstlisting}
+saved = Options[AsymptoticExpansion];
+SetOptions[AsymptoticExpansion, "Backend" -> "Series"];
+s = AsymptoticExpansion[Exp[x], {x, 0, 2}];
+{s["Kind"], Normal[s]}
+Options[AsymptoticExpansion] = saved;
+\end{lstlisting}
+The source predicts automatic package selection, rather than the declared native default, for this ordinary exact-real input. The intended native result contains $x^2/2$; the package's exclusive-cutoff result does not. The supplied test uses cleanup that restores the previous defaults even when evaluation is interrupted.
+
+\subsubsection*{Repair and acceptance conditions}
+
+The minimal candidate replaces the hard-coded fallback with
+\begin{lstlisting}
+OptionValue[AsymptoticExpansion, {}, "Backend"]
+\end{lstlisting}
+while retaining the first explicit selector when one is present. Invalid effective values must still reach the existing \code{InvalidBackend} failure. Delayed defaults should be materialized once per dispatch decision, not once for selection and again for metadata.
+
+The alias requires an explicit policy. It currently delegates to the canonical entry and receives a copied option list at load time. The candidate patch makes the canonical defaults effective; it does \emph{not} implement independent mutable defaults on \code{AsymptoticExpand}. Either document that the alias shares the canonical defaults, or pass the public entry symbol through the held dispatcher so that each entry can resolve its own defaults. Silently exposing two independently changeable option lists while reading neither correctly is not a useful policy.
+
+Acceptance tests should cover an altered default, an explicit overriding selector, a delayed default with an evaluation counter, and restoration of ordinary automatic behavior. A single explicit-backend example cannot expose this defect because it never takes the faulty branch.
+
+\subsubsection*{Novelty}
+
+This finding is about the newly implemented held dispatcher, not a repetition of the older cutoff-normalization recommendation. Its distinguishing observation is that the default shown by \code{Options} and the backend actually used can disagree on the same request.
+
+\finding{N02}{A nested pure function is mistaken for a callable source}{source-established overbroad admission guard; public outcomes pending}
+
+The protection predicate searches the entire held source for \code{_Function}. A match forces package-only handling, even if that function is not the source callable but a nested part of an ordinary expression. The prepared-source guard repeats the same broad test.\sr{src/Kernel/NativeCompatibility.wl}{115}{123}
+
+Two mathematically equivalent, side-effect-free sources illustrate the issue:
+\begin{lstlisting}
+AsymptoticExpansion[I + x, {x, 0, 2}]
+AsymptoticExpansion[Function[t, t][I] + x, {x, 0, 2}]
+\end{lstlisting}
+The second source contains a reducible pure-function application. It is not a callable supplied in place of the source expression. Nonetheless, the original held tree contains \code{Function}, so it enters the protected package path before evaluation can reduce the expression to $I+x$. The first spelling is eligible for representation fallback after the real analytic engine rejects the nonreal coefficient; the second is not.
+
+The same structural issue can affect a \code{Root} coefficient, whose defining polynomial is encoded by a pure function. For example, consider \code{Root[1 + # + #^4 &, 1]}. Its polynomial has no real zero: the minimum of $t^4+t+1$ on $\R$ is
+\[
+ 1-\frac{3}{4^{4/3}}>0.
+\]
+Such a coefficient belongs naturally in a native complex result. A pure function inside its algebraic representation should not, by itself, assert a package callable-source contract. This is a motivated regression candidate, not an assertion that a particular native \code{Root} simplification was observed here.
+
+\subsubsection*{Repair: classify the role, not just the node type}
+
+The candidate checks \code{Function} at the root of the held source, and recognizes the prepared callable wrapper at that root. It keeps recursive protection for actual inverse-function syntax, conditional sources, existing series objects, and remainder objects, and keeps explicit branch, direction, and resource contracts binding.
+
+This is not a proposal to evaluate arbitrary user programs early just to make dispatch convenient. The original source remains held and retained as provenance. The narrower check removes a syntactic false positive without discarding the separate contracts that justify package-only handling. Its regression must include both the reducible expression and an actual source callable; making both delegate would be an incorrect repair.
+
+\subsubsection*{Novelty}
+
+The existing compatibility plan already says that not every native-supported input is automatically covered. N02 adds a specific, generalizable reason: a representation detail nested in an expression is mistaken for a semantic role of the whole source. The relevant acceptance invariant is stability under a side-effect-free identity redex, not an unqualified promise of arbitrary evaluator equivalence.
+
+\finding{N03}{Option classification disagrees with Wolfram option-name identity}{source-established parser inconsistency; native regressions pending}
+
+The dispatcher extracts held option keys and compares them structurally with lists such as \code{HoldComplete[Assumptions]} and \code{HoldComplete["MaxTerms"]}. The backend selector itself matches only the literal string \code{"Backend"}. Meanwhile, the package's eventual \code{OptionValue} calls follow Wolfram's option-name semantics.\sr{src/Kernel/NativeCompatibility.wl}{31}{113}
+
+The official \code{OptionValue} documentation specifies that contexts are ignored for option-name comparison and that a symbol and its symbol-name string are interchangeable. Structural equality of the held syntax does not implement that equivalence.\cite{optionvalue}
+
+A focused example avoids any ambiguity about which native engine to choose:
+\begin{lstlisting}
+AsymptoticExpansion[Sqrt[a^2] Exp[x], {x, 0, 2},
+  "Assumptions" -> a > 0, "Backend" -> "Package"]
+\end{lstlisting}
+The string key \code{"Assumptions"} does not equal the stored held symbol key. It is classified as a native-only extra and rejected before the ordinary option reader can consume it. Using the symbol \code{Assumptions} takes a different path. A symbolic spelling of \code{Backend} can be missed by the selector and, depending on its position and form, treated as an option conflict or an expansion specification rather than a selector.
+
+\subsubsection*{One identity relation must be used throughout dispatch}
+
+The candidate introduces a held option-name function. A held string maps to that string; a held symbol maps to its unevaluated \code{SymbolName}. Known option names are then mapped back to their canonical declared keys. The original rule and delayed value remain held for delegation.
+
+This normalization must be used by selector extraction, selector stripping, specification exclusion, package-only contract checks, and request-key collection. Fixing only one of these leaves a second inconsistent parser in the same call path. Unknown names must remain unknown; normalization is not permission to drop unrecognized options.
+
+The resulting map should be request-local or derived from current defaults. Caching it globally without invalidation can reintroduce N01 when \code{SetOptions} changes a public default or an option set. Equally important, a key's own value must not be evaluated simply to discover its option name. The candidate uses \code{SymbolName[Unevaluated[name]]} for that reason.
+
+\subsubsection*{Remaining grammar question}
+
+A symbol can be both a possible expansion variable and a familiar option name. A fully general native-input parser should use positional grammar and the selected backend's accepted specification forms, not only name membership, to distinguish those roles. That larger grammar redesign is not completed by the candidate patch. The present repair addresses equivalent spellings of actual option rules; it does not claim to solve every ambiguity in a native input-superset interface.
+
+\finding{N04}{The README describes automatic routing as both implemented and still absent}{source-established documentation contradiction}
+
+The detailed compatibility document and current implementation describe selected automatic native routes and representation fallback. The README's development-status paragraph nevertheless says that \code{Automatic} uses the same package path as explicit \code{"Package"}, and describes automatic fallback as still required. The paragraph also foregrounds an older explicit-native test total without clearly separating it from later automatic-routing evidence.\sr{README.md}{130}{201}\cite{nativeplan}
+
+The supplied replacement states the actual three-way distinction: automatic mode retains successful package results and performs selected delegation; package mode requires the analytic engines; explicit native modes choose native semantics. It points to the detailed document for snapshot-specific evidence rather than making one historical test count stand in for the current implementation.
+
+This is not a cosmetic disagreement. Readers use the README to decide whether a call preserves package precision and branch requirements, while maintainers use it to interpret what a reported test total validates. The correction should land with the routing fixes, not be deferred until a broader documentation rewrite.
+
+\section{Sharper findings on mathematical information flow}
+
+\finding{D01}{Observable composition can manufacture zero coefficients beyond a native endpoint}{source-level wrong-remainder construction; native fixture pending; delta to prior C06/C16}
+
+\subsubsection*{The omitted check}
+
+The generic unary branch of \code{seriesJetApply} computes a Taylor order from the requested output cutoff and the valuation of the inner increment. It asks \code{Series} for that order, checks that the result is a regular \code{SeriesData} with suitable coefficient independence, and defines a coefficient accessor that returns zero when an index falls outside the stored list. It does \emph{not} check that the native endpoint is beyond the requested order.\sr{src/Kernel/SeriesOperations.wl}{236}{290}
+
+The corresponding forward-engine path, \code{fwdAnalytic}, already includes the stronger test
+\begin{lstlisting}
+! less[N0, s[[5]]/s[[6]]]
+\end{lstlisting}
+as a reason not to consume that Taylor result through the fast analytic route. The observable path has duplicated a closely related conversion without duplicating this guard. This comparison is more informative than a general statement that native imports deserve scrutiny.\sr{src/Kernel/AsymptoticAnalysis.wl}{478}{529}
+
+\subsubsection*{An honest short provider, not a lying oracle}
+
+Let the observable be the polynomial
+\[
+ h(t)=1+t+t^2.
+\]
+Suppose its specialized Taylor provider supplies
+\begin{equation}\label{eq:short-jet}
+ \texttt{SeriesData[t, 0, \{1, 1\}, 0, 2, 1]},
+\end{equation}
+that is, $1+t+\OO(t^2)$, when asked for order four. This is incomplete but truthful. It does not assert that the quadratic coefficient is zero. A user-defined symbolic function is permitted to supply a conservative partial result; an importer cannot reinterpret that result as a more complete one solely because it had requested more information.
+
+The supplied fixture gives the function its polynomial value at numeric arguments and a custom \code{Series} upvalue returning \eqref{eq:short-jet}. A separate native regression first checks that the fixture actually establishes the intended native result. If that precondition fails on a particular kernel, the subsequent public-path observation is not evidence of this counterexample. This explicit precondition avoids treating a guessed evaluator interaction as an observed result.
+
+Now take the exact inner series $s(x)=x$ and request
+\begin{lstlisting}
+s = AsymptoticExpansion[x, {x, 0, 5}, "Backend" -> "Package"];
+r = SeriesObservable[s, ShortTaylor[z], z, "Cutoff" -> 4];
+\end{lstlisting}
+where \code{ShortTaylor} is the supplied fixture. The following derivation is a source trace, independent of whether that fixture has yet run in a native kernel.
+
+The inner positive jet has valuation one, exact input precision, and logarithmic degree zero. The requested Taylor probe has order four. The returned data in \eqref{eq:short-jet} pass the existing shape, regularity, denominator, and coefficient-independence checks. The coefficient accessor provides $c_1=1$ and substitutes $c_2=c_3=0$. The unit-series routine therefore retains only $x$ below cutoff four. Its precision calculation uses the exact inner precision and requested cutoff, not the returned native endpoint, so it assigns remainder order four. Adding the observable's constant value yields
+\begin{equation}\label{eq:false-observable}
+ 1+x+\OO(x^4).
+\end{equation}
+The true observable is $1+x+x^2$.
+
+\begin{proposition}
+Under the truthful provider contract \eqref{eq:short-jet}, the current observable conversion can assign the false remainder \eqref{eq:false-observable}.
+\end{proposition}
+\begin{proof}
+The source trace above gives the retained expression and the assigned remainder. Their error relative to $h(x)$ is $x^2$. Since $x^2/x^4=x^{-2}$ is unbounded as $x\to0^+$, this error is not $\OO(x^4)$. All coefficients and inputs in the example are real; the source function is an analytic polynomial. Neither complex-coefficient rejection nor an opaque-nonanalytic-function caveat removes the information loss.
+\end{proof}
+
+The independent Python model reproduces the zero-filling decision and checks the exact error ratio at $x=2^{-k}$, where it equals $4^k$. This is corroboration of the mathematics and the modeled conversion, not a native package run.
+
+\subsubsection*{Why this is a substantive delta}
+
+Prior C06 concerns the relationship between native formal order and analytic logarithmic tails, and prior C16 concerns unproved analyticity of opaque functions. The present example assumes a truthful ordinary Taylor bound and an analytic polynomial. The failure is that a \emph{recorded low endpoint is not enforced at all} on this public operation route. It also identifies an implementation asymmetry: a relevant endpoint guard has already been added to a neighboring forward path.
+
+This does not establish that a stock built-in currently returns \eqref{eq:short-jet} for a larger order request. No such stock-function witness is claimed. The narrower statement is sufficient for an importer defect: the accepted representation contains less information than the conversion subsequently uses, and an honest extension provider makes the mismatch explicit.
+
+\subsubsection*{Minimal repair and its limits}
+
+The supplied patch adds a fail-closed endpoint check before constructing the coefficient accessor:
+\begin{lstlisting}
+If[! less[n, native[[5]]/native[[6]]],
+  fail["InsufficientNativeOrder",
+    "The observable Taylor probe does not cover the required order.",
+    <|"RequiredCoefficientOrder" -> n,
+      "NativeEndpoint" -> native[[5]]/native[[6]]|>]];
+\end{lstlisting}
+The packaged version also preserves the returned native result in the diagnostic. This is conservative and intentionally mirrors the existing forward-engine request/endpoint convention. It may refuse a shortened probe that would still suffice for some retained coefficients. Recovering such cases requires a precision-aware import, not merely removing the guard.
+
+For a more complete importer, suppose the native tail is genuinely $\OO(t^m)$ and the inner increment obeys
+\[
+ \eta(x)=\OO\!\left(u^\alpha(1+|\log u|)^d\right),\qquad \alpha>0.
+\]
+Then the transported native tail is bounded by
+\begin{equation}\label{eq:tail-transport}
+ \OO\!\left(u^{\alpha m}(1+|\log u|)^{dm}\right).
+\end{equation}
+The output precision must intersect that information with the uncertainty already present in the inner argument. In the polynomial counterexample, this would retain the truthful $\OO(x^2)$ bound instead of rejecting the operation.
+
+Equation \eqref{eq:tail-transport} assumes the native tail premise; \code{SeriesData} syntax alone does not prove that premise for every opaque source. Thus the candidate fixes an order-completeness hole, not the entire pre-existing analyticity-admission problem. The two obligations should remain separate in code and documentation.
+
+\subsubsection*{A coefficient oracle needs three states}
+
+A useful local abstraction distinguishes: a stored coefficient; an omitted zero \emph{strictly inside} a known coefficient interval; and an unknown coefficient at or beyond its endpoint. The endpoint is not a synonym for the length of the coefficient array. A short array may omit interior zeros while still carrying a later known endpoint. Conversely, an early endpoint makes later coefficients unknown even if the requested order was large.
+
+Exact termination is a fourth, stronger piece of evidence, not something inferred from a missing stored coefficient. The existing core already uses a distinguished terminator in some coefficient generators; extending that idea to native import would reduce the risk of another zero/unknown conflation. This proposal is a concrete implementation of the information boundary exposed by D01, not a new claim that the repository lacks all precision-aware arithmetic.
+
+\finding{D02}{Refinement can reject an exactly known constant because its ancestor cannot be refined}{source-established unnecessary dependency; native public regression pending; delta to prior C08}
+
+\subsubsection*{A public construction with no malformed object}
+
+Start with an inverse whose source is declared only to a finite asymptotic precision:
+\begin{lstlisting}
+s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3},
+  "InputRemainder" -> {4, 0}];
+c = SeriesObservable[s, 7, z];
+SeriesRefine[c, 20]
+\end{lstlisting}
+The inverse describes information compatible with a source $x+x^2+\OO(x^4)$; requesting substantially more inverse information than the transported cap is appropriately refused. But the observable $z\mapsto7$ is exactly constant for every input in that family. Its output is $7$ with zero remainder, and needs no further inverse information.
+
+The ordinary observable path constructs precisely such an exact derived representation. Nevertheless, \code{SeriesRefine} obtains its recipe, recursively refines its operands first, and only afterwards switches on the operation kind. For this positive-valuation ancestor the requested operand cutoff is $h+2$. At $h=20$, the ancestor is asked for cutoff 22 and rejects that request against the declared forward-precision cap. The failure is returned before the constant observable is recomputed.\sr{src/Kernel/SeriesOperations.wl}{270}{294}\sr{src/Kernel/SeriesOperations.wl}{370}{432}
+
+The inverse-state helper does not rescue this case: its first gate requires an ordinary inverse kind and model, whereas the constant is a derived object. That helper does already recognize exact finite inverse results, making the asymmetry particularly clear.\sr{src/Kernel/RefinementState.wl}{133}{169}
+
+\subsubsection*{The demand is exactly zero}
+
+\begin{proposition}
+If an observable $H$ is a known constant on the retained domain, refining $H\circ g$ requires no additional coefficients of $g$, regardless of the precision cap attached to $g$.
+\end{proposition}
+\begin{proof}
+For any two admissible inputs $g_1,g_2$, one has $H(g_1)=H(g_2)=c$. Consequently the output is determined without distinguishing any members of the input family. No increase in input precision can change the finite expression or reduce an already zero output remainder.
+\end{proof}
+
+The claim does not erase the stored domain or make an undefined constant composition valid outside its domain. It says that, on the domain already admitted by the constructor, the source's uncertain coefficients are no longer needed to determine the output.
+
+This extends the earlier demand-planning concern in a different direction. A negative power can require \emph{more} source precision than a fixed margin provides. A constant observable can require \emph{none}. A planner that gives every operand a positive demand is incomplete even if its positive demands are made arbitrarily generous.
+
+\subsubsection*{A conservative exact-value fast path}
+
+The candidate patch recognizes an ordinary derived representation with an infinite precision frontier and a requested cutoff that retains every stored block. It validates the resource option, preserves the exact prefactor, offset, assumptions, domain, expression, and provenance, updates the requested-cutoff metadata, and returns without replaying the source. It records \code{"Strategy" -> "ExactValueNoOp"} and zero new coefficient evaluations.
+
+The restriction on retained blocks is important. A request at or below an existing block exponent may invoke the package's current lower-cutoff retargeting behavior. That separate policy, already discussed in the review register, is left unchanged. Native results, specialized representations without an ordinary cached series representation, and uncertain derived jets do not take the fast path.
+
+A general backward-demand planner remains useful, but it is not necessary to fix this case. The local exact-value rule is small, independently understandable, and consistent with the existing exact finite-inverse optimization. It also avoids claiming that a successful no-op has replayed an operation recipe; its statistics explicitly say otherwise.
+
+\subsubsection*{Performance consequence without invented timings}
+
+For the example above, the requested cutoff can grow without bound while the output remains exactly $7$. The legacy dependency plan makes an ancestor request and can fail before producing that answer. The repaired plan makes zero ancestor coefficient requests. This is an information-flow improvement independent of any wall-clock benchmark.
+
+It is not a claim of constant-time serialization of the entire result object, nor a measurement of Wolfram memory use. Reading a large retained representation or writing its provenance can still have a cost. The guarantee is narrower and useful: requested output order no longer drives mathematically irrelevant coefficient generation.
+
+\section{Trust boundaries that should not be weakened by these repairs}
+
+\subsection{Formal residual, numerical comparison, and interval proof}
+
+The inspected residual code explicitly describes composition with the finite forward model. Such a residual can verify coefficient cancellation without certifying the original function's unknown tail. The numerical checker uses a reference root and reports a comparison, not an interval theorem. The certificate code constructs rational enclosures for supported elementary expressions and states the function and interval to which its proof applies. These are different evidence products, not three interchangeable names for validation.\sr{src/Kernel/AsymptoticAnalysis.wl}{1174}{1249}\sr{src/Kernel/InverseCertificates.wl}{1}{450}
+
+The native \code{FindRoot} API provides numerical root finding with configurable precision and accuracy goals. It is an appropriate source of reference values, but the package's interval certificate has additional mathematical obligations not satisfied merely by a small numerical residual.\cite{findroot}
+
+A basic certificate argument explains the distinction. Let $F$ be continuously differentiable on a real interval $I$, and suppose
+\[
+ 0<\mu\leq |F'(x)|\quad(x\in I)
+\]
+with derivative sign fixed. At a center $c\in I$, suppose $|F(c)-y|\leq\varepsilon$. If the interval
+\[
+ J=[c-\varepsilon/\mu,c+\varepsilon/\mu]
+\]
+is contained in $I$, the mean-value theorem gives opposite endpoint residual signs, hence existence of a root in $J$ by continuity; the derivative condition gives uniqueness in $I$. A sharper interval-Newton correction can then intersect enclosures using the derivative interval. This is a proof about $F$, $y$, and $I$, rather than an asymptotic statement about a family of source germs.
+
+The current implementation includes source-side checks, source-domain checks, derivative separation, residual enclosures, and rational interval refinement. Inspection of those paths did not yield a new certificate-soundness counterexample. That is not a proof of the entire implementation, and it is not a reason to erase the still-open issues already listed in the repository. It is a reason not to manufacture a new certificate finding merely to lengthen this report.
+
+\subsection{Differentiation contracts are not optional decoration}
+
+A value estimate $r(u)=\OO(u^p)$ does not by itself imply $r'(u)=\OO(u^{p-1})$. For example,
+\[
+ r(u)=u^{p+1}\sin(u^{-3})
+\]
+is $\OO(u^{p+1})$ and hence $\OO(u^p)$ near zero, but its derivative contains $-3u^{p-3}\cos(u^{-3})$. Consequently, allowing native or formal data into the analytic derivative path just because a finite expression can be differentiated would discard a real proof obligation.
+
+The package's derivative-order gate addresses this distinction. None of N01--N03 should remove that gate. N02 narrows a false-positive callable classification; it does not authorize analytic arithmetic on arbitrary native output. D01 validates available Taylor order; it does not supply derivative bounds for every imported formal remainder.\sr{src/Kernel/SeriesOperations.wl}{324}{355}
+
+\subsection{Assumptions must survive the whole request}
+
+The core's scoped assumption machinery and native delayed-option handling are deliberate parts of the current design. The proposed option-name normalization must not reevaluate a delayed assumption to obtain a second metadata copy, nor move source evaluation outside the selected backend's context. Its job is only to identify an option name consistently.
+
+For the same reason, the narrow callable fix must retain the original held request even when a side-effect-free expression reduces to a simpler prepared source. Semantic normalization for routing does not justify inventing a new provenance history. The original request, effective option values, selected backend, and returned contract are distinct pieces of information.
+
+\section{Performance analysis and a measurement plan}
+
+\subsection{What can already be concluded}
+
+This session produced no native timing or memory measurements. In particular, the independent test runtime in \code{independent_checks.txt} is the runtime of a small Python model suite, not a benchmark of the repository.
+
+Three structural conclusions are justified. First, exact derived no-ops can avoid all ancestor coefficient generation, as proved in D02. Second, request-local option canonicalization needs only the supplied keys and the current declared option set; it does not require evaluating a source or running a symbolic simplifier. Third, the native wrapper stores both a native result and its normalization, so a timing comparison with a direct native call must account for the additional requested output work. Treating those two workloads as identical would be misleading.
+
+The last point is not a newly discovered memory leak. The prior reviews already discuss retained representations and provenance cost. Here it specifies how to measure the \emph{new dispatch changes} without misattributing deliberate normalization cost to a regression.
+
+\subsection{Benchmark design included in the archive}
+
+The supplied native harness has four variants: direct \code{Series}, explicit native wrapper, automatic wrapper, and exact derived refinement. It records a first call in the process, then repeated warm batches, kernel version, system identifier, selected entry point, result head, and memory-in-use differences at the end of each batch. It deliberately does not label those differences as peak memory.
+
+Each variant should run in a separate fresh kernel against the baseline and staged candidate. The exact-refinement workload needs a semantic column: the baseline's rapid failure and the candidate's successful exact result are not equal successful workloads, so a raw speed ratio would be meaningless. For the wrapper workloads, compare native result preservation and contract metadata before comparing elapsed time.
+
+There should be three classes of input. Small stable native series expose dispatch overhead. Medium expansions expose normalization and result-storage overhead. Large symbolic coefficient cases expose whether key handling or repeated source preparation accidentally triggers additional expensive evaluation. A source with deliberate side effects should be used only as an evaluation-count test, not as a benchmark whose result is assumed mathematically interchangeable under reordering.
+
+\subsection{A request-local map is preferable to premature global caching}
+
+Let $k$ be the number of supplied option rules and $p$ the size of the declared option list. The simple candidate's repeated lookup costs on the order of $kp$ elementary name comparisons. A request-local map can reduce repeated lookup work after one pass through the option list. That refinement should be considered only after the native semantic tests pass.
+
+A process-global cache needs an invalidation rule when defaults or option declarations change. N01 is precisely a default-resolution problem, so introducing a cache that freezes the default map would trade one inconsistency for another. The desired invariant is not ``use a cache'' but ``resolve the current effective request once, without rereading delayed values.''
+
+\section{Proposed development sequence}
+
+\subsection{First: make the current mathematical boundary safe}
+
+Land D01 as a small fail-closed change with its honest short-provider regression and a sufficient-provider control. Review any other path that turns a native coefficient list into a coefficient oracle against the same three-state distinction. The immediate acceptance condition is that an unavailable coefficient cannot be reported as known zero. Broader analytic admission remains a separately tracked obligation, not something this patch can declare solved.
+
+Land D02 independently. Its acceptance conditions are exact constant refinement beyond an ancestor's cap, unchanged treatment of uncertain outputs, preservation of domains and prefactors, validation of invalid budgets, and no change to lower-cutoff cases that discard retained blocks. Record the actual no-op in refinement statistics rather than pretending that more coefficient work occurred.
+
+\subsection{Second: make backend selection agree with the public interface}
+
+N01 should be tested before and after every dispatch refactor because it detects whether the declared default is actually read. N03 should then establish a single held key-identity function used at every classification boundary. N02 should narrow only the false-positive pure-function test, with controls for actual callables and nested inverse-function expressions.
+
+N04 should be corrected in the same development sequence. Documentation must describe the behavior that the tests are meant to validate. An automatic-routing feature described simultaneously as implemented and not yet implemented prevents an otherwise useful review ledger from functioning as a reliable user guide.
+
+\subsection{Third: turn compatibility into invariant-based tests}
+
+The native-interface test suite already contains many valuable direct-backend controls. The next additions should test relations between requests, rather than merely collecting more unrelated examples:
+\begin{enumerate}
+\item An explicit selector and the same effective declared default should select the same backend and convention.
+\item Equivalent option-name spellings should be classified the same way without reevaluating the values.
+\item A side-effect-free reducible function application inside an expression should not assert a callable-source contract for the whole expression.
+\item Increasing the requested order may reveal unknown coefficients, but may not turn them into known zeros.
+\item Exact derived values should not acquire a positive coefficient demand solely because their provenance mentions an uncertain ancestor.
+\end{enumerate}
+These invariants are the incremental development opportunity identified here. They are more targeted than another general recommendation for more tests, and they can be exercised with a small deterministic matrix before testing more expensive special-function cases.
+
+\subsection{Fourth: share the coefficient-provider boundary}
+
+The immediate code duplication is between ordinary forward analytic conversion and observable conversion. A small shared admission function should answer whether a returned native object has the correct variable, center, regularity, lattice, coefficient independence, and usable endpoint. It should return structured information, not a Boolean that causes downstream code to guess what was established.
+
+This is a limited refactor. It need not begin with a universal transseries framework, a new proof kernel, or a complete rewrite of every special adapter. Those much broader ambitions already appear in the repository's research and engineering backlog. The measurable local deliverable is that two callers no longer disagree about what the same Taylor data permit them to read.
+
+\section{Artifacts, validation, and how to reproduce}
+
+\subsection{Included files and their status}
+
+\begin{longtable}{@{}P{2.55in}P{3.71in}@{}}
+\toprule
+Artifact & Purpose and status\\\midrule\endhead
+\code{article/audit.tex}, \code{audit.pdf} & This article and its compiled, visually checked PDF.\\
+\code{code/patch_snapshot.py} & Stages twelve exact-anchor substitutions in three files, in a new directory. Candidate only; not natively integrated.\\
+\code{code/fixtures.wl} & Honest incomplete Taylor provider used by the D01 tests. Its native establishment is a separate test precondition.\\
+\code{code/native_regressions.wlt} & Fifteen desired-behavior tests, including positive controls. Unrun here; several should fail on the baseline.\\
+\code{code/characterize.wls} & Records native observations, messages, expression/remainder summaries, and environment when run by the user. Unrun here.\\
+\code{code/benchmark_native.wls} & Records separate-process first and warm-batch measurements for four variants. Unrun here.\\
+\code{code/audit_models.py} and tests & Independent option, coefficient-frontier, exact-dependency, and mathematical models. Executed; not a Wolfram evaluator.\\
+\nolinkurl{evidence/independent_validation.json} & Forty-eight successful Python test methods, with environment and test identifiers.\\
+\code{evidence/novelty_ledger.json} & Six findings, prior-review relationships, evidence status, and candidate-repair scope.\\
+\code{evidence/review_scope.json} & Inspected areas, cited snapshots, and limitations of this review.\\
+\bottomrule
+\end{longtable}
+
+The patcher validates all expected text anchors before creating its output. It refuses an existing output directory and normally requires the pinned Git revision. It does not modify the source checkout, push a branch, or copy an out-of-date standalone distribution into the staged result. The \code{--no-git-check} switch is for a separately identified archive; it does not disable the source-anchor checks.
+
+\subsection{Independent execution obtained here}
+
+Run the supplied model checks with
+\begin{lstlisting}[language={}]
+python code/run_independent.py
+\end{lstlisting}
+They require Python and SymPy. The final evidence records 48 successful test methods, zero failures, and zero errors. Some methods contain multiple deterministic subcases, which are deliberately not inflated into the advertised method count. The checks cover the modeled default branch, name equivalence, role-sensitive protection, zero versus unknown coefficients, the false remainder ratio, exact-value demand elimination, generalized inverse coefficients through order seven, and fail-closed text-patch behavior.
+
+An initial fixture assertion contained a closing-delimiter typo; it was corrected before the final successful run. No native baseline or candidate failure was hidden by that correction: the affected assertion inspected a generated source string, and no native package run took place at any stage.
+
+The synthetic patch fixtures verify replacement mechanics, not the completeness of a local checkout or correctness of Wolfram evaluation. Source anchors were separately compared with the connector-returned pinned ranges. Before integration, the candidate must still be staged against a real checkout and run in a native kernel.
+
+\subsection{Native reproduction sequence}
+
+From a checkout at the pinned revision, stage the candidates in a separate path:
+\begin{lstlisting}[language={}]
+python code/patch_snapshot.py --repo /path/to/Asymptotic \
+  --out /path/to/asymptotic-audit-candidate
+\end{lstlisting}
+Then characterize the baseline and candidate in separate native processes:
+\begin{lstlisting}[language={}]
+wolframscript -file code/characterize.wls \
+  /path/to/Asymptotic/src/Kernel/AsymptoticAnalysis.wl \
+  baseline-native.json
+
+wolframscript -file code/characterize.wls \
+  /path/to/asymptotic-audit-candidate/src/Kernel/AsymptoticAnalysis.wl \
+  candidate-native.json
+\end{lstlisting}
+In a fresh Wolfram kernel, load the selected modular entry point and run
+\begin{lstlisting}
+Get["/path/to/src/Kernel/AsymptoticAnalysis.wl"];
+TestReport["/path/to/audit/code/native_regressions.wlt"]
+\end{lstlisting}
+The fixture-establishment test for D01 must pass before interpreting that public-path counterexample. Review the current upstream focused tests for native compatibility, observables, assumption scoping, arithmetic, and refinement as well; the fifteen new tests are intentionally not a replacement for those tests.
+
+After accepting changes into the repository, regenerate the standalone distribution with the repository's own build process and run its loading/freshness checks. The audit staging directory does not claim to be a finished release artifact. The existing distribution and validation backlog is not repeated here as a newly discovered finding.
+
+\subsection{What these results do not establish}
+
+There is no measured native speedup, no native pass count for the candidate, no assertion of complete support for all native argument forms, and no proof that the package's entire analytic or interval implementation is sound. The included evidence is nevertheless useful: it identifies exact current source decisions, supplies mathematical counterexamples where appropriate, proposes localized changes, and gives the next evaluator a reproducible way to confirm or reject each public-path prediction.
+
+\section{Conclusion}
+
+The repository already contains substantial mathematics, specialized scale handling, precision-aware arithmetic, retained inverse state, and a serious effort to keep different evidence products distinct. Its recent evolution also shows why a differential audit must inspect the latest source instead of repeating an earlier review's list of missing features.
+
+The central implementation lesson is to preserve information boundaries at every transition. The backend must come from the effective public request, not a hard-coded fallback. An option name must mean the same thing before and after held dispatch. A nested pure function must not silently change the role of an entire source expression. A returned coefficient frontier must bound what a consumer reads, even when the requested order was larger. An exact result must not be made dependent again on information it no longer needs.
+
+The immediate repair sequence is small enough to review independently: enforce the observable endpoint; add the exact derived-value fast path; correct backend defaults and option-name handling; narrow the pure-function guard; and align the README with the implemented behavior. Native execution remains the necessary next validation step, not a result asserted by this article.
+
+\appendix
+\section{Compact novelty and evidence ledger}
+
+\begin{longtable}{@{}P{0.7in}P{1.65in}P{3.91in}@{}}
+\toprule
+Audit ID & Relationship to prior work & Added information and limitation\\\midrule\endhead
+N01 & Native compatibility goals; no matching current defect in the maintained crosswalk & Hard-coded missing-selector branch ignores mutable declared defaults; coefficient-retention consequence and focused regression. No native observation.\\
+N02 & Existing protected-source policy and incomplete-coverage goal & Whole-tree \code{Function} search misclassifies applied redexes and \code{Root} polynomial encodings; root-role candidate guard. No stock-kernel coverage claim.\\
+N03 & Existing option/UX normalization topics & Held structural keys disagree with documented symbol/string/context option-name equivalence; shared canonical-key candidate across five parser responsibilities. Remaining specification grammar is not solved.\\
+D01 & Prior C06 and C16 & Missing returned-endpoint guard in observable conversion; truthful analytic-polynomial short provider; false $\OO(x^4)$ proof; comparison with guarded forward route. Native fixture unrun.\\
+D02 & Prior C08, with related P07/P08 & Exact constant with precision-capped ancestor; proof of zero demand; existing inverse-only fast path contrasted with derived replay; new derived-value no-op. Native public regression unrun.\\
+N04 & Documentation and compatibility tracking & Specific present-tense contradiction in current README and an exact replacement paragraph. Not a general documentation-overhaul recommendation.\\
+\bottomrule
+\end{longtable}
+
+\section{Repair acceptance checklist}
+
+The staged patch should not be accepted solely because it applies. Confirm that explicit backend selection still preserves native results and delayed-option behavior; altered canonical defaults are honored; original protected branch and budget contracts are retained; genuine source callables still enter their supported package route; option spelling normalization does not evaluate keys or values; short native Taylor data cannot supply unknown coefficients; adequate Taylor providers still work; exact derived no-ops preserve metadata and domains; uncertain series are not promoted to exact ones; and lower-cutoff behavior remains unchanged when known blocks would be removed.
+
+The independence of these conditions matters. A patch can repair N02 by delegating too much, or repair D01 by returning a safe failure for every observable. Positive controls are therefore as important as the original counterexample. The supplied native suite includes both, but their status remains unrun until a native kernel records otherwise.
+
+\begin{thebibliography}{99}
+\bibitem{readme} Vladimir Reshetnikov, \emph{Asymptotic repository README}, pinned snapshot \shortcommit.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/README.md}.
+\bibitem{register} \emph{Code review status and implementation register}, same snapshot.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/docs/development/CODE_REVIEW_STATUS.md}.
+\bibitem{reviews} \emph{External code-review index}, same snapshot.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/external-reports/code-review/README.md}.
+\bibitem{wave2} \emph{Second-wave review index}, same snapshot.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/external-reports/code-review/wave-2/README.md}.
+\bibitem{review11} \emph{Review 11 findings delta}, original review snapshot \nolinkurl{921387e5ba1239bfda96e63e64e89bf63d9c41e6}; retrieved from the current pinned archive.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/external-reports/code-review/wave-2/code-review-11/evidence/findings-delta.json}.
+\bibitem{review4} \emph{Review 4 structured findings}, retrieved from the current pinned archive.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/external-reports/code-review/wave-1/code-review-4/evidence/findings.json}.
+\bibitem{kernelmap} \emph{Kernel module map}, current pinned snapshot.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/src/Kernel/README.md}.
+\bibitem{nativeplan} \emph{Native compatibility plan and evidence}, current pinned snapshot.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/6687962f3c858a4f93623cfc496f33e35c6763d4/docs/development/NATIVE_COMPATIBILITY.md}.
+\bibitem{series} Wolfram Research, \emph{Series}, Wolfram Language documentation, accessed 9 September 2026, Pacific time.
+\url{https://reference.wolfram.com/language/ref/Series.html}.
+\bibitem{asymptotic} Wolfram Research, \emph{Asymptotic}, official documentation, accessed on the same date.
+\url{https://reference.wolfram.com/language/ref/Asymptotic.html}.
+\bibitem{inverseseries} Wolfram Research, \emph{InverseSeries}, official documentation.
+\url{https://reference.wolfram.com/language/ref/InverseSeries.html}.
+\bibitem{asymptoticsolve} Wolfram Research, \emph{AsymptoticSolve}, official documentation.
+\url{https://reference.wolfram.com/language/ref/AsymptoticSolve.html}.
+\bibitem{seriesdata} Wolfram Research, \emph{SeriesData}, official documentation.
+\url{https://reference.wolfram.com/language/ref/SeriesData.html}.
+\bibitem{findroot} Wolfram Research, \emph{FindRoot}, official documentation.
+\url{https://reference.wolfram.com/language/ref/FindRoot.html}.
+\bibitem{asymptoticsguide} Wolfram Research, \emph{Asymptotics}, official guide.
+\url{https://reference.wolframcloud.com/language/guide/Asymptotics.html}.
+\bibitem{discrete} Wolfram Research, \emph{DiscreteAsymptotic}, official documentation.
+\url{https://reference.wolfram.com/language/ref/DiscreteAsymptotic.html}.
+\bibitem{options} Wolfram Research, \emph{Options}, official documentation.
+\url{https://reference.wolfram.com/language/ref/Options.html}.
+\bibitem{setoptions} Wolfram Research, \emph{SetOptions}, official documentation.
+\url{https://reference.wolfram.com/language/ref/SetOptions.html}.
+\bibitem{optionvalue} Wolfram Research, \emph{OptionValue}, official documentation.
+\url{https://reference.wolfram.com/language/ref/OptionValue.html}.
+\end{thebibliography}
+\end{document}

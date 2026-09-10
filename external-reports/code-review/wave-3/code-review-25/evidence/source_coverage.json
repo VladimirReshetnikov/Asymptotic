@@ -1,0 +1,42 @@
+{
+  "snapshot": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "scope": "Broad architecture and contract review with close inspection of selected correctness boundaries; not a claim of line-by-line review of every module, test, notebook or mathematical proof.",
+  "complete_or_nearly_complete_sources": [
+    "src/Kernel/NativeCompatibility.wl",
+    "src/Kernel/InverseCertificates.wl",
+    "README.md",
+    "src/Kernel/README.md",
+    "docs/development/NATIVE_RESULT_CONTRACTS.md",
+    "docs/development/CODE_REVIEW_STATUS.md"
+  ],
+  "close_selected_ranges": {
+    "src/Kernel/AsymptoticAnalysis.wl": [
+      "1-200",
+      "1260-end"
+    ],
+    "src/Kernel/SeriesOperations.wl": [
+      "1-385"
+    ],
+    "src/Kernel/SeriesArithmetic.wl": [
+      "1-210"
+    ],
+    "src/Kernel/InverseFunctionExpressions.wl": [
+      "1-230"
+    ],
+    "src/Kernel/GammaInverse.wl": [
+      "1-170"
+    ]
+  },
+  "other_sources": [
+    "external-reports/code-review/README.md",
+    "external-reports/code-review/wave-1/README.md",
+    "external-reports/code-review/wave-2/README.md",
+    ".github/workflows/standalone.yml",
+    "LICENSE"
+  ],
+  "scope_notes": [
+    "Some connector responses truncated at their display budget; conclusions use visible code and subsequently inspected relevant ranges.",
+    "Special-family breadth beyond these implementation paths is attributed to public usage and repository documentation, not new execution.",
+    "No current checkout or repository files were edited."
+  ]
+}

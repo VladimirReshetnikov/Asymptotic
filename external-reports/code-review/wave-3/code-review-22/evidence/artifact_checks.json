@@ -1,0 +1,57 @@
+{
+  "article_pdf": {
+    "pages": 26,
+    "file": "article/audit.pdf",
+    "pdflatex_completed": true,
+    "unresolved_reference_warnings": false,
+    "overfull_box_warnings": false,
+    "renderer": "pdftoppm via PDF skill rendering script",
+    "all_pages_rendered": true,
+    "visual_inspection": "All-page contact sheet and individual pages for comparison matrix, mathematical proof, diagnostic table, and title/summary/code layout.",
+    "extracted_text_words_approximate": 10737
+  },
+  "source_anchor_comparison": {
+    "pinned_source_window": "src/Kernel/SeriesOperations.wl:248-290",
+    "matches_patch_emitter_anchor_and_precondition": true,
+    "method": "Comparison with GitHub connector returned text; not a full-checkout patch application"
+  },
+  "checks": [
+    {
+      "file": "code/independent_checks.py",
+      "check": "Python ast.parse",
+      "passed": true
+    },
+    {
+      "file": "code/observable_order_patch.py",
+      "check": "Python ast.parse",
+      "passed": true
+    },
+    {
+      "file": "code/BoundaryPolicyRegressions.wlt",
+      "check": "Balanced delimiters/strings/nested comments only; not native syntax validation",
+      "passed": true
+    },
+    {
+      "file": "code/ReviewAdapters.wl",
+      "check": "Balanced delimiters/strings/nested comments only; not native syntax validation",
+      "passed": true
+    },
+    {
+      "file": "code/TaylorIngressRegressions.wlt",
+      "check": "Balanced delimiters/strings/nested comments only; not native syntax validation",
+      "passed": true
+    },
+    {
+      "file": "code/characterize.wl",
+      "check": "Balanced delimiters/strings/nested comments only; not native syntax validation",
+      "passed": true
+    },
+    {
+      "file": "code/run_focused.wl",
+      "check": "Balanced delimiters/strings/nested comments only; not native syntax validation",
+      "passed": true
+    }
+  ],
+  "native_syntax_or_execution_verified": false,
+  "independent_test_record": "independent_results.json"
+}

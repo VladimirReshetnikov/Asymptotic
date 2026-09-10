@@ -1,0 +1,156 @@
+{
+  "revision": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "runtime": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "provenance": "Manually transcribed from successful connected Wolfram evaluator responses during this audit; not an automatically exported complete kernel log.",
+  "scope": "Selected observations only. Service/network failures are excluded and are not package failures.",
+  "baseline": [
+    {
+      "id": "N01-default-Series",
+      "setup": "SetOptions[AsymptoticExpansion,\"Backend\"->\"Series\"]",
+      "call": "AsymptoticExpansion[Exp[x],{x,0,3}]",
+      "observed_kind": "Forward",
+      "normal": "1+x+x^2/2",
+      "reported_backend_option": "Series"
+    },
+    {
+      "id": "N01-explicit-Series",
+      "call": "AsymptoticExpansion[Exp[x],{x,0,3},\"Backend\"->\"Series\"]",
+      "observed_kind": "Native",
+      "normal": "1+x+x^2/2+x^3/6"
+    },
+    {
+      "id": "N01-default-Package",
+      "setup": "SetOptions[AsymptoticExpansion,\"Backend\"->\"Package\"]",
+      "call": "AsymptoticExpansion[Exp[I x],{x,0,3}]",
+      "observed_kind": "Native",
+      "normal": "1+I*x-x^2/2-(I/6)*x^3"
+    },
+    {
+      "id": "N01-explicit-Package",
+      "call": "AsymptoticExpansion[Exp[I x],{x,0,3},\"Backend\"->\"Package\"]",
+      "failure_tag": "InexactInput"
+    },
+    {
+      "id": "N01-alias-default",
+      "setup": "Canonical default Automatic; SetOptions[AsymptoticExpand,\"Backend\"->\"Series\"]",
+      "call": "AsymptoticExpand[Exp[x],{x,0,3}]",
+      "observed_kind": "Forward",
+      "normal": "1+x+x^2/2"
+    },
+    {
+      "id": "N02-computed-key",
+      "setup": "Module-local key=\"Backend\"",
+      "call": "AsymptoticExpansion[Exp[x],{x,0,3},key->\"Series\"]",
+      "failure_tag": "NativeOptionConflict"
+    },
+    {
+      "id": "N02-computed-container",
+      "setup": "Module-local opts={\"Backend\"->\"Series\"}",
+      "call": "AsymptoticExpansion[Exp[x],{x,0,3},opts]",
+      "observed_kind": "Native",
+      "normal": "1+x+x^2/2+x^3/6"
+    },
+    {
+      "id": "N03-source",
+      "call": "AsymptoticExpansion[LerchPhi[1/2,2,x^2],{x,Infinity,5},\"Backend\"->\"Package\"]",
+      "observed_kind": "Forward",
+      "scale": "PowerLog",
+      "normal": "18/x^8-4/x^6+2/x^4",
+      "remainder": "PowerLogRemainder[x^(-2),5,0]"
+    },
+    {
+      "id": "N03-product",
+      "call": "SeriesMultiply[s,x] with N03-source",
+      "observed_kind": "Derived",
+      "scale": "Composite",
+      "normal": "(18/x^8-4/x^6+2/x^4)*x",
+      "remainder": "Abs[x]*PowerLogRemainder[x^(-2),5,0]"
+    },
+    {
+      "id": "N03-linear-control",
+      "call": "Same forward request with Lerch argument x instead of x^2; then SeriesMultiply[t,x]",
+      "scale": "PowerLog",
+      "normal": "18/x^3-4/x^2+2/x",
+      "remainder": "PowerLogRemainder[x^(-1),4,0]"
+    },
+    {
+      "id": "N03-domain",
+      "retained_approach": "<|\"Variable\"->x,\"Point\"->Infinity,\"Direction\"->\"FromBelow\"|>",
+      "retained_domain": "x^(-1)>0 && x^2>0 && x^2>0",
+      "domain_implies_x_positive": true
+    },
+    {
+      "id": "N03-private-coordinate",
+      "call": "seriesCoordinateRule[<|\"Variable\"->x,\"ScaleVariable\"->1/x^2,\"Domain\"->x>0,\"Assumptions\"->True|>,u]",
+      "result": "$Failed"
+    },
+    {
+      "id": "F01-private-helper",
+      "call": "catch[fourierComposeBlock[{{1,{{0,1}}},{2,{{0,1}}}},1,{{0,1}},5,ell,True,3,1]]",
+      "failure_tag": "ResourceLimit",
+      "message": "Fourier jet multiplication exceeded MaxTerms retained pairs."
+    },
+    {
+      "id": "F01-public-control",
+      "call": "AsymptoticFourierInverse[x+x^2,{x,0},{y,7},\"MaxTerms\"->7]; FourierInverseResidual[result]",
+      "zero_below_cutoff": true,
+      "relative_cutoff": 6,
+      "residual_blocks": [],
+      "scope": "Exact formal composition with the stored finite Fourier model; unspecified input remainder not composed."
+    }
+  ],
+  "candidate_observations": [
+    {
+      "candidate": "backend-default",
+      "loading": "Temporary patched full standalone via Export then Get",
+      "results": [
+        {
+          "default": "Series",
+          "kind": "Native",
+          "normal": "1+x+x^2/2+x^3/6"
+        },
+        {
+          "default": "Package",
+          "source": "Exp[I x]",
+          "failure_tag": "InexactInput"
+        }
+      ],
+      "not_validated": "Alias default ownership, every option shape, full suite, combined candidate."
+    },
+    {
+      "candidate": "fourier-termination",
+      "loading": "Temporary patched full standalone via Export then Get",
+      "private_result": "{{0,{{0,1}}},{1,{{0,1}}},{2,{{0,1}}}}",
+      "public_control_zero_below_cutoff": true,
+      "public_control_relative_cutoff": 6,
+      "not_validated": "Full Fourier suite, complete frequency/budget matrix, end-to-end timing and combined candidate."
+    },
+    {
+      "candidate": "positive-quadratic-chart mechanism",
+      "loading": "Pinned full standalone; more-specific domain-checked private chart rule",
+      "domain_change": "The exercised operand additionally conjoined x>0, already proved from its retained domain. No extra restriction for this case.",
+      "scale": "PowerLog",
+      "normal": "2*(x^(-2))^(3/2)-4*(x^(-2))^(5/2)+18*(x^(-2))^(7/2)",
+      "remainder": "PowerLogRemainder[x^(-2),9/2,0]",
+      "simplified_difference_under_x_positive": 0,
+      "not_validated": "Complete installer/restorer lifecycle, negative native branch, general charts or refinement."
+    }
+  ],
+  "isolated_native_parser_observation": {
+    "ordinary_OptionsPattern_computed_key_result": "Series",
+    "candidate_stored_key_is_computed": true,
+    "candidate_literal_string_key_is_computed": false,
+    "held_prepared_rule": "HoldComplete[\"Backend\" :> (m++; \"Series\")]",
+    "key_counter_after_preparation": 1,
+    "value_counter_after_preparation": 0,
+    "released_value": "Series",
+    "value_counter_after_release": 1,
+    "scope": "Isolated language mechanism, not full patched package execution."
+  },
+  "not_successfully_executed": [
+    "Full package with computed-keys candidate (connector/service failures; no package result).",
+    "Additional polynomial/irrational inverse comparison batch (connector failure; no capability conclusion).",
+    "Complete supplied run_observations.wl and desired_contracts.wlt as units.",
+    "Complete combined patch and complete quadratic pilot installer lifecycle."
+  ]
+}

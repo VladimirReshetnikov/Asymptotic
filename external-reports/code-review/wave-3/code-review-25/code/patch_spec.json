@@ -1,0 +1,24 @@
+{
+  "snapshot": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "scope": "N01 necessary continuity screen; N02 native order check; N03 canonical constructor default. Does not implement one-sided observable extensions, prove general analyticity, or change AsymptoticExpand alias-default policy.",
+  "edits": [
+    {
+      "id": "N03-default-backend",
+      "path": "src/Kernel/NativeCompatibility.wl",
+      "old": "  backend = If[values === {}, Automatic, ReleaseHold[First[values]]];",
+      "new": "  backend = If[values === {}, OptionValue[AsymptoticExpansion, {}, \"Backend\"], ReleaseHold[First[values]]];"
+    },
+    {
+      "id": "N01-continuity-helper",
+      "path": "src/Kernel/SeriesOperations.wl",
+      "old": "(* Explicit calculus for expansions.  A representation means\n   Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.\n   The prefactor is exact; the jet precision is relative to that prefactor. *)\n\n",
+      "new": "(* Explicit calculus for expansions.  A representation means\n   Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.\n   The prefactor is exact; the jet precision is relative to that prefactor. *)\n\n(* A necessary continuity screen, not a complete analyticity proof.\n   Refuse rather than silently substitute an endpoint value for a different\n   punctured-neighborhood limit. Both sides are checked deliberately: this\n   conservative patch does not introduce a new one-sided observable contract. *)\nseriesObservableEndpointContinuousQ[head_, center_, ass_] := Module[\n  {v = Unique[\"observableContinuity$\"], value, limits},\n  value = head[center];\n  limits = TimeConstrained[Quiet[{\n    Limit[head[center + v], v -> 0, Direction -> -1, Assumptions -> ass],\n    Limit[head[center - v], v -> 0, Direction -> -1, Assumptions -> ass]}], 2, $Failed];\n  ListQ[limits] && Length[limits] === 2 &&\n    And @@ (TrueQ[Simplify[# == value, ass]] & /@ limits)];\n\n"
+    },
+    {
+      "id": "N02-order-and-N01-continuity-guard",
+      "path": "src/Kernel/SeriesOperations.wl",
+      "old": "      cf = Function[k, If[k >= native[[4]] && k - native[[4]] + 1 <= Length[native[[3]]], native[[3, k - native[[4]] + 1]], 0]];",
+      "new": "      If[! TrueQ[native[[5]] > n],\n        fail[\"InsufficientNativeObservablePrecision\",\n          \"The native Taylor result does not reach the requested coefficient order.\",\n          <|\"RequestedCoefficientOrder\" -> n, \"NativeExclusiveOrder\" -> native[[5]]|>]];\n      If[!(parts[[3]] === {} && j[[2]] === Infinity) &&\n          ! seriesObservableEndpointContinuousQ[h, c, ass],\n        fail[\"UnprovedObservableContinuity\",\n          \"The observable is not proved continuous at its limiting argument on both real sides.\",\n          <|\"ObservableHead\" -> h, \"LimitingArgument\" -> c|>]];\n      cf = Function[k, If[k >= native[[4]] && k - native[[4]] + 1 <= Length[native[[3]]], native[[3, k - native[[4]] + 1]], 0]];"
+    }
+  ]
+}

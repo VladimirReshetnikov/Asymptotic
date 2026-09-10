@@ -1,0 +1,68 @@
+{
+  "revision": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "comparison_basis": "Maintained complete 123-entry crosswalk and both review-wave indexes, plus directly inspected relevant current sources; not a claim of rereading every historical article.",
+  "findings": [
+    {
+      "id": "N01",
+      "classification": "New concrete defect and alias-policy subcase",
+      "title": "Backend default lookup ignores Options",
+      "neighbors": [
+        "B01",
+        "B02",
+        "C09 (different function/option)"
+      ],
+      "new_evidence": "SetOptions[AsymptoticExpansion,\"Backend\"->\"Series\"] is visible in Options but yields Forward quadratic output; explicit selector yields Native cubic. Primary-default candidate observations supplied.",
+      "not_reclaimed": "Native coverage itself and generic option-precedence work are not claimed as new.",
+      "repair_boundary": "Primary Backend default fixed by candidate; independent alias default ownership unresolved."
+    },
+    {
+      "id": "N02",
+      "classification": "New concrete held-input defect",
+      "title": "Computed Backend key depends on specification syntax",
+      "neighbors": [
+        "B02",
+        "B03"
+      ],
+      "new_evidence": "An option-key alias fails for a literal spec but succeeds for a computed spec; exact conflict and candidate result recorded.",
+      "not_reclaimed": "General native evaluation compatibility was already a goal.",
+      "repair_boundary": "Normalize admitted option keys before selector discovery without releasing their values."
+    },
+    {
+      "id": "N03",
+      "classification": "New concrete coverage defect",
+      "title": "An applied Function is confused with an unapplied callable",
+      "neighbors": [
+        "B01",
+        "B02"
+      ],
+      "new_evidence": "Identity-wrapped Exp[I x] is rejected while plain Exp[I x] routes natively; candidate preserves genuine callable and explicit budget controls.",
+      "not_reclaimed": "Complex native coverage and preservation of analytic realness policy were already required.",
+      "repair_boundary": "Narrow only Function occurrence tests; retain inverse, condition, object and explicit-constraint protections."
+    },
+    {
+      "id": "N04",
+      "classification": "New precise performance mechanism",
+      "title": "Quadratic nested-option validation",
+      "neighbors": [
+        "P06",
+        "P08"
+      ],
+      "new_evidence": "Measured predicate-entry counts 14,44,152,560 match d(d+3)/2 at depths4,8,16,32.",
+      "not_reclaimed": "Generic profiling and resource-budget proposals are not new.",
+      "repair_boundary": "Proposed pure classification plus normalized emission, each linear in structural nodes; not implemented by bounded candidate."
+    },
+    {
+      "id": "N05",
+      "classification": "New exact documentation delta",
+      "title": "README final status contradicts implemented automatic routing",
+      "neighbors": [
+        "B01",
+        "B02",
+        "D01 (general API clarity)"
+      ],
+      "new_evidence": "README introduction/source/probe show routing; final status still describes Automatic as the Package path.",
+      "not_reclaimed": "General documentation improvement is not a novel proposal.",
+      "repair_boundary": "Replacement paragraph supplied, no historical validation count promoted to current acceptance."
+    }
+  ]
+}

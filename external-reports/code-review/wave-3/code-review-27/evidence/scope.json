@@ -1,0 +1,45 @@
+{
+  "revision": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "direct_source_focus": [
+    "src/Kernel/NativeCompatibility.wl",
+    "src/Kernel/SeriesArithmetic.wl",
+    "src/Kernel/InverseCertificates.wl"
+  ],
+  "direct_supporting_reads": [
+    "README.md",
+    "src/Kernel/README.md",
+    "src/Kernel/AsymptoticAnalysis.wl (public declarations and assumption boundary)",
+    "docs/development/NATIVE_RESULT_CONTRACTS.md",
+    "docs/development/CODE_REVIEW_STATUS.md",
+    "external-reports/code-review/README.md",
+    "external-reports/code-review/wave-1/README.md",
+    "external-reports/code-review/wave-2/README.md",
+    "src/Tests/NativeAutomatic.wlt (selected ranges)",
+    "validation/CheckNativeAutomatic.wl",
+    "validation/FocusedTests.wl",
+    "LICENSE"
+  ],
+  "architecture_scope": "Other subsystem descriptions rely on maintained source maps and documentation; not a line-by-line audit of every module.",
+  "official_documentation": [
+    "https://reference.wolfram.com/language/ref/Series.html",
+    "https://reference.wolfram.com/language/ref/SeriesData.html",
+    "https://reference.wolfram.com/language/ref/Asymptotic.html",
+    "https://reference.wolfram.com/language/ref/InverseSeries.html",
+    "https://reference.wolfram.com/language/ref/AsymptoticSolve.html",
+    "https://reference.wolfram.com/language/ref/SetOptions.html"
+  ],
+  "patch_fixture_execution": {
+    "python": "3.13.5",
+    "platform": "Linux",
+    "test_methods_succeeded": 13,
+    "test_methods_failed": 0,
+    "scope": "Source-excerpt fixtures, not native package execution"
+  },
+  "independent_execution": {
+    "inverse_identity_cases": 50,
+    "parser_recurrence_cases": 65,
+    "scope": "Exact mathematical/structural models, not native package execution"
+  },
+  "distributed_native_regression_specifications": 17,
+  "checksum_files_in_deliverable": false
+}

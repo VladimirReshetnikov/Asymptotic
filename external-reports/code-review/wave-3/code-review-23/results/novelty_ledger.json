@@ -1,0 +1,58 @@
+{
+  "revision": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "findings": [
+    {
+      "id": "N01",
+      "priority": "High",
+      "title": "Depth-parser logarithm rewrite erases winding before real-coefficient validation",
+      "closest_prior": [
+        "C07",
+        "C16"
+      ],
+      "delta": "Exact source-to-model identity failure with symbolic imaginary exponent, a real monotone source, and exponentially diverging false-remainder ratio; not merely nonreal output or opaque Taylor admission",
+      "evidence": "Source proof + independent principal-log checks and mathematical theorem; public/core Wolfram execution pending",
+      "patch": "Two real-exponent guards; unexecuted in Wolfram"
+    },
+    {
+      "id": "N02",
+      "priority": "Medium",
+      "title": "Backend defaults bypass SetOptions",
+      "closest_prior": [
+        "D01",
+        "C09",
+        "B01"
+      ],
+      "delta": "New NativeCompatibility facade computes omitted Backend as literal Automatic, instead of consulting its advertised defaults; distinct from stored Power overriding explicit input",
+      "evidence": "Complete dispatch-source trace; native probes pending",
+      "patch": "Canonical default resolution only; independent alias defaults remain a design decision"
+    },
+    {
+      "id": "N03",
+      "priority": "Medium",
+      "title": "Standalone dependency gate accepts non-bracket calls",
+      "closest_prior": [
+        "V01",
+        "V02"
+      ],
+      "delta": "Specific executable packaging invariant violation demonstrated using the exact retrieved Python assembler; not a generic request for native CI",
+      "evidence": "Eight accepted mutation forms, ten rejected after patch; controls pass",
+      "patch": "Conservative bare-symbol token gate, tested on isolated fixtures"
+    },
+    {
+      "id": "N04",
+      "priority": "Low/medium",
+      "title": "NativeEvaluationStatus conflates held data with an unresolved active call",
+      "closest_prior": [
+        "B01",
+        "D02"
+      ],
+      "delta": "Concrete held-AST classification mechanism after the native bridge was introduced",
+      "evidence": "Source-level classifier behavior; public native constant probe pending",
+      "patch": "Diagnostic redesign only; no numerical wrong-answer claim"
+    }
+  ],
+  "not_new_findings": [
+    "Previously recorded C01-C23/P01-P08/D01-D10/V01-V02/X01-X12 mechanisms are not recounted as new bugs.",
+    "Bounded periodic coefficient extension is a concrete new proposal developed from N01; it does not assert a general transseries implementation."
+  ]
+}

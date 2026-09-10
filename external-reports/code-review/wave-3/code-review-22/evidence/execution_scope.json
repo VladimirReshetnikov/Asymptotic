@@ -1,0 +1,54 @@
+{
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "revision": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "commit_time_utc": "2026-09-10T00:18:17Z",
+  "review_local_date": "2026-09-09",
+  "source_access": "Pinned GitHub connector reads; no local clone was obtained.",
+  "native_execution": {
+    "status": "Unavailable: connector connection errors",
+    "kernel_version": null,
+    "package_executed": false,
+    "candidate_patch_executed": false,
+    "regression_files_executed": false,
+    "helpers_executed": false,
+    "upstream_suite_executed": false,
+    "native_benchmarks_executed": false
+  },
+  "independent_execution": {
+    "python_version": "3.13.5",
+    "checks_passed": 940,
+    "checks_failed": 0,
+    "record": "independent_results.json",
+    "scope": "Exact rational/sparse mathematical models and a synthetic text-patch fixture; not a Wolfram emulator."
+  },
+  "patch_evidence": {
+    "source_anchors_compared_to_pinned_connector_text": true,
+    "comparison_window": "src/Kernel/SeriesOperations.wl:248-290",
+    "automated_tests_used_synthetic_fixture": true,
+    "applied_to_full_checkout": false,
+    "native_load_verified": false
+  },
+  "native_files": {
+    "TaylorIngressRegressions.wlt": {
+      "tests": 7,
+      "executed": false
+    },
+    "BoundaryPolicyRegressions.wlt": {
+      "tests": 4,
+      "executed": false
+    },
+    "characterize.wl": {
+      "observations": 12,
+      "executed": false
+    }
+  },
+  "claims_not_made": [
+    "Default native built-in reproduction of T01",
+    "Native wall-clock improvement",
+    "Full repository verification",
+    "Independent rereading or reproduction of all eighteen archived reports",
+    "N01 fixed by T01 patch",
+    "Historical native test counts validating this candidate"
+  ],
+  "pdf_validation_record": "artifact_checks.json"
+}

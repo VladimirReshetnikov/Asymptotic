@@ -1,0 +1,118 @@
+{
+  "upstream_commit": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "identifier_namespace": "Audit-local: D01 and D02 are not the repository register rows of those names.",
+  "baseline": "Maintained mapping of 18 reports and 123 finding entries, plus selected original ledgers.",
+  "native_observations_obtained": false,
+  "findings": [
+    {
+      "id": "N01",
+      "title": "Advertised backend defaults are ignored",
+      "type": "new current defect",
+      "priority": "medium",
+      "source": [
+        "src/Kernel/NativeCompatibility.wl:5-9",
+        "src/Kernel/NativeCompatibility.wl:64-78"
+      ],
+      "evidence": "Source-established default branch; independent contract model; public native prediction unrun.",
+      "prior_relation": [
+        "B01-B03 native compatibility goals"
+      ],
+      "increment": "Identifies a specific post-review hard-coded default branch with an order-retention consequence.",
+      "candidate": "Resolve the canonical constructor default through OptionValue when an explicit selector is absent.",
+      "limits": "Does not establish an independently mutable default policy for AsymptoticExpand."
+    },
+    {
+      "id": "N02",
+      "title": "Nested Function syntax is treated as a callable-source contract",
+      "type": "new current defect",
+      "priority": "medium",
+      "source": [
+        "src/Kernel/NativeCompatibility.wl:115-122"
+      ],
+      "evidence": "Source-established recursive predicate; pure-redex and nonreal Root public probes supplied, unrun; quartic positivity checked independently.",
+      "prior_relation": [
+        "B01-B03 native coverage",
+        "documented protected-source policy"
+      ],
+      "increment": "Distinguishes the role of the whole source from Function nodes inside an applied expression or Root encoding.",
+      "candidate": "Test root callable role for Function while retaining recursive protection of other branch-bearing objects.",
+      "limits": "No claim that arbitrary source programs can be reordered while preserving side effects."
+    },
+    {
+      "id": "N03",
+      "title": "Held option classification uses structural rather than option-name identity",
+      "type": "new current defect",
+      "priority": "medium",
+      "source": [
+        "src/Kernel/NativeCompatibility.wl:30-113"
+      ],
+      "evidence": "Source inspection plus official OptionValue symbol/string/context contract; independent key model; native candidates unrun.",
+      "prior_relation": [
+        "D01/D06 general option and UX consistency"
+      ],
+      "increment": "Concrete pre-OptionValue classification mismatch across selector, stripping, specification and resource-option handling.",
+      "candidate": "Shared non-evaluating held key-name normalization and canonical declared key selection.",
+      "limits": "Does not solve every ambiguity between expansion specifications and option rules."
+    },
+    {
+      "id": "AUDIT-D01",
+      "title": "Observable native Taylor import does not enforce the returned endpoint",
+      "type": "sharper attributed delta",
+      "priority": "high",
+      "source": [
+        "src/Kernel/SeriesOperations.wl:236-290",
+        "src/Kernel/AsymptoticAnalysis.wl:478-529",
+        "src/Kernel/AsymptoticAnalysis.wl:278-397"
+      ],
+      "evidence": "Mathematical counterexample with h(t)=1+t+t^2 and truthful short Taylor data; independent conversion model; native provider and public route unrun.",
+      "prior_relation": [
+        "C06 native tail contract",
+        "C16 opaque source admission"
+      ],
+      "increment": "False O(x^4) can result even when a true O(t^2) Taylor bound and an analytic polynomial are assumed; identifies a guard already present in the neighboring forward path.",
+      "candidate": "Fail closed before accessing coefficients if the returned native endpoint does not exceed the requested Taylor order.",
+      "limits": "No stock built-in short-provider witness was obtained; this is not a complete analyticity-admission repair.",
+      "display_id": "D01"
+    },
+    {
+      "id": "AUDIT-D02",
+      "title": "Exact derived refinement replays a precision-capped ancestor unnecessarily",
+      "type": "sharper attributed delta",
+      "priority": "medium",
+      "source": [
+        "src/Kernel/SeriesOperations.wl:270-294",
+        "src/Kernel/SeriesOperations.wl:370-432",
+        "src/Kernel/RefinementState.wl:133-169"
+      ],
+      "evidence": "Source trace; proof that a constant observable requires zero ancestor information; independent demand model; native public regression unrun.",
+      "prior_relation": [
+        "C08 refinement demand",
+        "P07 retained provenance cost",
+        "P08 replay profiling"
+      ],
+      "increment": "Concrete exact constant availability failure beyond an uncertain inverse cap, contrasted with the existing inverse-only exact fast path.",
+      "candidate": "Validate then return an ordinary exact derived value unchanged mathematically when all retained blocks fit the request, updating cutoff/statistics.",
+      "limits": "No measured native speedup; no change to coarsening that discards retained blocks or to nonordinary/native result contracts.",
+      "display_id": "D02"
+    },
+    {
+      "id": "N04",
+      "title": "Current README contradicts implemented automatic routing",
+      "type": "new current documentation defect",
+      "priority": "low",
+      "source": [
+        "README.md:170-201",
+        "src/Kernel/NativeCompatibility.wl:124-212",
+        "docs/development/NATIVE_COMPATIBILITY.md"
+      ],
+      "evidence": "Direct comparison of source and current documentation.",
+      "prior_relation": [
+        "D01/D02 documentation/contract consistency",
+        "B01-B04 compatibility tracking"
+      ],
+      "increment": "Specific stale paragraph still equates Automatic and Package despite implemented routing.",
+      "candidate": "Replace that paragraph with the current routing distinctions and scoped historical-validation wording.",
+      "limits": "Not a general proposal to rewrite all documentation."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "initial_independent_run": {
+    "passed": 47,
+    "failed": 1,
+    "scope": "Independent models and synthetic patch fixtures only.",
+    "failure": "A synthetic assertion searched for a closing parenthesis where the generated Wolfram source correctly used a closing bracket.",
+    "resolution": "Corrected that fixture assertion; no Wolfram source execution was involved."
+  },
+  "final_independent_run": "See independent_validation.json and independent_checks.txt for the regenerated final evidence.",
+  "changes_after_initial_run": [
+    "Exact derived no-op metadata updated to record the requested cutoff in both outer and cached representations.",
+    "Independent checks rerun after the change."
+  ],
+  "native_run_at_any_stage": false
+}
