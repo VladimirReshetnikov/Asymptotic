@@ -83,6 +83,60 @@ must still hold, and uncertainty in the inner argument must still be
 propagated. Refinement in the original fixed-parameter regime alone
 does not establish a uniform estimate on a new path.
 
+\paragraph{Taylor order and sided limiting constants.}
+Let $\sigma\in\{-1,1\}$ and suppose the selected germ has the proved estimate
+\begin{equation}
+ h(c+\sigma v)=\sum_{k=0}^{q-1}a_kv^k+\OO(v^q),
+ \qquad v\longrightarrow0^+,
+ \label{eq:sided-taylor-contract}
+\end{equation}
+where $q$ is a positive integer. For example, an analytic extension of
+$v\mapsto h(c+\sigma v)$ to a neighborhood of zero supplies this estimate
+with a bounded Taylor remainder. A formal coefficient list alone does not.
+An absent coefficient below $q$ may denote a known zero; coefficients at
+or above $q$ remain undetermined by this estimate. Thus the truthful
+description $v-v^3/6=v+\OO(v^2)$ does not imply
+$v-v^3/6=v+\OO(v^5)$.
+
+Suppose the complete inner germ satisfies
+$V(w)=\sigma(g(w)-c)>0$ eventually and
+$V(w)=\OO(w^\alpha\M(w)^d)$, with $\alpha>0$ and $d\ge0$.
+For an exclusive power cutoff $C>0$, set $N=\lceil C/\alpha\rceil$.
+If $q\ge N$, then
+\begin{equation}
+ h(g(w))=\sum_{k=0}^{N-1}a_kV(w)^k
+   +\OO\!\left(w^{\alpha N}\M(w)^{dN}\right).
+ \label{eq:sided-taylor-demand}
+\end{equation}
+Indeed, the discarded Taylor powers and the remainder in
+\eqref{eq:sided-taylor-contract} together are $\OO(V^N)$, since $V\to0$;
+the displayed bound follows by taking the $N$th power of its majorant.
+All orders $k<N$ have $k\alpha<C$. If $\alpha N=C$, the logarithmic degree
+$dN$ at that boundary must be retained. If $\alpha N>C$, the strict power
+margin absorbs this fixed logarithmic factor into $\OO(w^C)$.
+When $q<N$, the available Taylor remainder instead contributes
+$\OO(w^{\alpha q}\M^{dq})$ and cannot be assigned the requested higher
+power without further information. In either case, uncertainty in an
+approximation to $V$ and blocks discarded from its finite powers contribute
+their own bounds; \eqref{eq:sided-taylor-demand} does not remove them.
+
+The constant $a_0$ is the sided limit in
+\eqref{eq:sided-taylor-contract}, and need not equal the point value $h(c)$.
+For the fractional-part function $h(t)=t-\lfloor t\rfloor$ near $c=1$,
+\[
+ h(1)=0,\qquad h(1-v)=1-v,\qquad h(1+v)=v
+ \quad(0<v<1).
+\]
+An exactly constant inner germ uses $h(c)$. A proved left or right approach
+uses the corresponding sided germ, including its constant; changing only
+$h(c)$ cannot affect a composition eventually separated from $c$.
+An estimate $g=1+\OO(w)$ alone supplies neither a side nor that separation:
+it permits $1-w$, $1+w$, and the constant $1$. A Taylor contract valid on
+every permitted approach, including the point if it can be attained, is
+required before one such approximation can describe all these possibilities.
+The positivity of $\sigma(g-c)$ must therefore follow from the full inner
+germ and its error bound, not merely from a chosen formal Taylor coordinate.
+
 \paragraph{Differentiation requires derivative information.}
 An estimate $R(w)=\OO(w^P\M(w)^D)$ alone does not imply any estimate on
 $R'$. For example $w^P\sin(e^{1/w})$ has that magnitude bound and a much

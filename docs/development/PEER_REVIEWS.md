@@ -8,6 +8,35 @@ or a merge incorporate them.
 
 ## September 9, 2026 — Mathics compatibility checkpoint
 
+The later immutable review of
+[`7d1bc832895cc90a9b2a978b7b7684acab908bd2`](https://github.com/VladimirReshetnikov/Asymptotic/commit/7d1bc832895cc90a9b2a978b7b7684acab908bd2)
+against `a55df16` found no merge blocker in the Mathics empty-list adapter,
+guarded native loading, capture-script isolation, portable test additions,
+or operations CI shard. The adapter replaces private references to the
+two-argument default-level `Map` case; it leaves `System` definitions unchanged.
+The standalone continues to defer parsing its adapter source on native Wolfram.
+
+The previous P2 capture-script finding is repaired in that immutable revision:
+the exact captured script bytes are copied once, the frozen path is executed,
+the snapshot is checked before each launch and at completion, and original
+tool drift invalidates the report. Three mocked tests exercise unchanged,
+original-mutated, and snapshot-mutated runs. The portable source contains 90
+cases, including 12 new operation cases and one empty-map primitive. These
+are source-review observations; root's subsequent validation is recorded
+separately. The unchanged portable runner and builder were not new peer fixes.
+
+Untracked `MathicsInputAssumptions.wl` and three Mathics receipts visible in
+the peer worktree were outside this immutable review. Historical native
+preservation counts remain attached to their recorded source hashes.
+
+The same incoming revision's article changes were independently reviewed
+against the underlying mathematical chapters. The first-order versus
+second-order Taylor distinction, nonnegative-exponent quotient algebra,
+small-uniformizer wording, possible omitted-weight qualifier, and refined
+forward-error transport formula agree with the stated theorems. New reading
+references resolve. No mathematical blocker was found; this source review
+does not replace rebuilding or inspecting the merged PDF.
+
 Reviewed the 17 committed files between `350c70f` and
 [`5d4ff7c569f747245741d940a5a774d51917912f`](https://github.com/VladimirReshetnikov/Asymptotic/commit/5d4ff7c569f747245741d940a5a774d51917912f),
 plus the relevant uncommitted documentation and native-definition comparison
