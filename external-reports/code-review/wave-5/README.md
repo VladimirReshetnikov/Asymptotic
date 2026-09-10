@@ -26,7 +26,7 @@ below as unprocessed review material, not as accepted or refuted behavior.
 | [39 · Incremental repository audit](code-review-39/README.md) | [PDF](code-review-39/article/review.pdf) · [TeX](code-review-39/article/review.tex) | N01 no-op truncation drops the transported-bound companion field; N02 repeated affine classification on overlapping nonlinear subtrees; N03 the receipt checker admits internally contradictory records. | [34 pytest cases](code-review-39/evidence/independent-results.json) and one transcribed [public native witness plus load smoke](code-review-39/evidence/native-witness.json). Six MUnit regressions and the native probe are unrun. |
 | [42 · Regularity contracts and structural work](code-review-42/README.md) | [PDF](code-review-42/article.pdf) · [TeX](code-review-42/article.tex) | N01 a derivative contract survives an `Abs` of a pure remainder with infinitely many cusps; N02 repeated affine probing (same obligation as 39 N02); N03 discarded-suffix selection by repeated membership queries. | [14 independent tests and six patch-emitter fixtures](code-review-42/evidence/independent_results.json); [no Wolfram or Mathics execution](code-review-42/evidence/audit_manifest.json). Supplied WL received a lexical check only. |
 | [43 · Focused source-review deltas](code-review-43/README.md) | [PDF](code-review-43/article/article.pdf) · [TeX](code-review-43/article/article.tex) | F01 missing explicit source orientation in inverse coefficient reconstruction; F02 a public model's `Limit` may be its normalization offset; F03 a core inverse can retain the eliminated source symbol; E01 strict polynomial monotonicity certificates with isolated stationary points. | [35 independent Python tests](code-review-43/evidence/independent-tests.json) and one transcribed [package smoke](code-review-43/evidence/native-smoke.json). The integration probes are unrun; the [quintic certificate](code-review-43/evidence/quintic-monotonicity-certificate.json) proves strict increase, not an error bound. |
-| [44 · Incremental repository audit](code-review-44/README.md) | [PDF](code-review-44/article/asymptotic-review.pdf) · [TeX](code-review-44/article/asymptotic-review.tex) | T01 test-contract identity in historical reconciliation; T02 POSIX permission loss when publishing PDFs; T03 last-pass-only TeX recorder provenance; T04 lost shared-ledger updates between concurrent builders. | [22 unittest methods](code-review-44/evidence/test-output.txt), some POSIX-only or requiring `pdflatex`; [no repository, Wolfram or Mathics run](code-review-44/evidence/scope.json). No new public mathematical defect is claimed. |
+| [44 · Incremental repository audit](code-review-44/README.md) | [PDF](code-review-44/article/asymptotic-review.pdf) · [TeX](code-review-44/article/asymptotic-review.tex) | T01 test-contract identity in historical reconciliation; T02 POSIX permission loss when publishing PDFs; T03 last-pass-only TeX recorder provenance; T04 lost shared-ledger updates between concurrent builders; P01 PDF build-environment freshness, a policy improvement adjacent to D07; Q01 an unresolved analytic question on complex phase-error transfer, adjacent to C07 and C13, with no public reachability established. The report keeps its own distinction between the four tooling findings and these two. | [22 unittest methods](code-review-44/evidence/test-output.txt), some POSIX-only or requiring `pdflatex`; [no repository, Wolfram or Mathics run](code-review-44/evidence/scope.json). No new public mathematical defect is claimed. |
 | [45 · Incremental source review](code-review-45/README.md) | [PDF](code-review-45/article/review.pdf) · [TeX](code-review-45/article/review.tex) | N01 exact rational source seeds fall outside the new Mathics exact-integer root exception, a conservative coverage limit rather than a wrong result. | [30 independent Python methods](code-review-45/evidence/independent-tests.json); [no Wolfram or Mathics package run](code-review-45/evidence/review-scope.json). The WL overlay, probes and public regressions are unexecuted. |
 
 ## Overlapping obligations inside this wave
@@ -37,9 +37,9 @@ this wave is consolidated.
 
 | Obligation | Retained source | Duplicates removed or still present |
 | --- | --- | --- |
-| Signed-real `Abs` shortcut accepts nonreal retained coefficients | [37 F01](code-review-37/README.md) | Reported identically by retired [40 ABS-01](code-review-40.md) and [41 ABS-01](code-review-41.md). Report 37's witnesses use `a^2 == -1` rather than a literal `I`, so they pass the package's input screen. Both witnesses are now reproduced on the current source in the [three-case characterization](../../../validation/wave5-modulus-witness.json). |
-| `Abs` of a pure remainder keeps an unproved classical derivative contract | [42 N01](code-review-42/README.md) | Reported identically by retired [40 ABS-02](code-review-40.md), with the same `f(x) = x + x^2 Sin[Log[x]]` cusp family. |
-| Repeated affine classification on nested nonlinear subtrees | [39 N02](code-review-39/README.md) | [42 N02](code-review-42/README.md) states the same defect with an equivalent count. Both packages carry unique findings, so neither was retired; count the obligation once. |
+| Signed-real `Abs` shortcut accepts nonreal retained coefficients | [37 F01](code-review-37/README.md) | The same defect was reported by retired [40 ABS-01](code-review-40.md) and [41 ABS-01](code-review-41.md), but the three packages supplied **different witnesses**. Report 37 gives the algebraic cancellation `Abs[1+a x]+Abs[1-a x]-2` under `a^2 == -1`, which passes the package's input screen; retired 40 added a logarithmic witness whose exact value leaves the power-logarithmic scale; retired 41 added a squared witness returning a real coefficient of the wrong sign. All three are reproduced on the current source in the [five-case characterization](../../../validation/wave5-modulus-witness.json), which also records two agreeing real-parameter controls. |
+| `Abs` of a pure remainder keeps an unproved classical derivative contract | [42 N01](code-review-42/README.md) | The same defect was reported by retired [40 ABS-02](code-review-40.md), again with a different witness: 42 uses the pure-remainder family `R(y) = y^3 Sin[Log[y]]` reached through `AsymptoticInverse`, while 40 used the exact source `f(x) = x + x^2 Sin[Log[x]]` routed through `AsymptoticFourierInverse`, naming the Fourier constructor's default derivative order as part of the affected path. The article's Example 16.2 preserves 40's family. |
+| Repeated affine classification on nested nonlinear subtrees | [39 N02](code-review-39/README.md) | [42 N02](code-review-42/README.md) reports the same mechanism in the same code, with an independently derived quadratic count on a different Horner family: 39 proves `4n(n+1)` recognizer visits for `e_n = x(1 + e_{n-1})`, 42 proves `4(d+1)^2 - 1` for `h_{d+1} = 1 + x h_d`. The two formulas differ at every degree. Both packages carry unique findings, so neither was retired; count the obligation once and keep both witness families. |
 | Truncation transport after C22 | [39 N01](code-review-39/README.md) and [42 N03](code-review-42/README.md) | Different mechanisms in the same new code: a dropped companion field versus repeated membership queries. Not duplicates. |
 
 The retired packages' modulus mathematics is preserved. The correct
@@ -47,19 +47,24 @@ complex-modulus construction on a real local coordinate — square the norm,
 take the positive root of the resulting jet, and transport magnitude error by
 the reverse triangle inequality — is recorded in the
 [mathematical article](../../../docs/article/sections/03-forward.tex), together
-with the reason a positive leading coefficient does not license the shortcut
-and the reason a valid magnitude bound does not transport a classical
-derivative contract.
+with retired report 41's Hermitian pairing count (`r(r+1)/2` unordered products
+instead of `r^2`, so 2080 rather than 4096 at support 64), the reason a positive
+leading coefficient does not license the shortcut, and the reason a valid
+magnitude bound does not transport a classical derivative contract.
 
 ## Evidence boundary
 
 No package in this wave executed the repository in Wolfram or in Mathics beyond
-two transcribed observations (39 and 43). The one exception added afterwards is
-the maintained [modulus characterization](../../../validation/wave5-modulus-witness.json),
-which reproduces 37 F01 on the current source; it is a probe, not an acceptance
-suite. Wolfram service connections failed
-for reports 37, 38 and 42; report 44 needed no kernel. Public behavior below
-the finding level is therefore **source-predicted**, and the supplied WLT
+two transcribed observations (39 and 43, each recorded before subsequent calls
+failed). The one exception added afterwards is the maintained
+[modulus characterization](../../../validation/wave5-modulus-witness.json),
+which reproduces the modulus witnesses on the current source; it is a probe, not
+an acceptance suite. The other packages record the connector or a local kernel as
+unavailable: reports 37, 38, 42 and 45 record service or connection failures, and
+report 44's scope file gives "Wolfram connector unavailable; no functioning local
+symbolic kernel" — not that a kernel was unnecessary, though it does separately
+claim no new public mathematical defect. Public behavior below the finding level
+is therefore **source-predicted**, and the supplied WLT
 files, overlays, probes and characterization scripts are specifications rather
 than results. Independent Python counts are separate populations and must not
 be summed into a package acceptance total.
@@ -67,7 +72,8 @@ be summed into a package acceptance total.
 Package-specific licensing and notices are preserved:
 [37's upstream license](code-review-37/UPSTREAM-LICENSE.txt),
 [38's license](code-review-38/LICENSE),
-[39's license](code-review-39/LICENSE), and
+[39's license](code-review-39/LICENSE),
+[44's fixture provenance notice](code-review-44/fixtures/NOTICE.md), and
 [45's licenses directory](code-review-45/licenses/).
 This index does not create a common license for the wave.
 

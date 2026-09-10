@@ -68,8 +68,10 @@ Wave 2 adds reports 10–18, all pinned to
 report 18's two explicitly attributed deltas to earlier findings.
 Reports 10–13, 17 and 18 record selected Wolfram 15.0.0 Linux observations;
 reports 14–16 record independent checks without successful package execution.
-Reports 10 and 12–14 are retired; their C05, C07, C14, C15, C17 and C20–C22
-evidence is superseded by the focused acceptance records cited below.
+Reports 10 and 12–14 are retired; their C05, C07, C14, C15, C17, C20 and C21
+evidence is superseded by the focused acceptance records cited below, as is
+report 14's C22 truncation evidence. C22's arithmetic transport stays open and
+is now carried by its register row rather than by a retained report.
 These snapshots precede the recent C04–C07 repairs. The first eight supplied packages
 were merged from `origin/main` commit `c19c0cd` without editing their contents.
 Report 18's nineteen files were added from

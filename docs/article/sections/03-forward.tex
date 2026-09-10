@@ -103,26 +103,29 @@ $\overline{C_\sigma}$ conjugates the coefficients of the polynomial.
 
 \begin{proposition}[Modulus on a real coordinate]
 \label{prop:modulus}
-Let $F\in\mathcal E_\C$ and put $N=F\overline F$. Then $N\in\mathcal E$, $N\ge0$
+Let $F\in\mathcal E_\C$ and put $Q=F\overline F$. Then $Q\in\mathcal E$, $Q\ge0$
 pointwise, and its blocks are the ordered convolution
-$N_\sigma=\sum_{\tau+\tau'=\sigma}C_\tau\overline{C_{\tau'}}$ at exponents
+$Q_\sigma=\sum_{\tau+\tau'=\sigma}C_\tau\overline{C_{\tau'}}$ at exponents
 $2\beta_0+\sigma$. If the leading block of $F$ is a nonzero constant $c\in\C$,
-then $N$ has leading block $|c|^2w^{2\beta_0}$ and
+then $Q$ has leading block $|c|^2w^{2\beta_0}$ and
 \[
- |F|=N^{1/2}\in\mathcal E,
+ |F|=Q^{1/2}\in\mathcal E,
 \]
 with leading block $|c|w^{\beta_0}$ and support contained in $\beta_0+S'$ for a
 finitely generated positive semigroup $S'$.
 \end{proposition}
 \begin{proof}
-The convolution is the ordinary product rule of Theorem~\ref{thm:closure},
-applied to $F$ and $\overline F$, which have the same support and coefficient
-bounds. Reindexing by $(\tau,\tau')\mapsto(\tau',\tau)$ and conjugating fixes
-each $N_\sigma$, so $N_\sigma\in\R[L]$ and $N\in\mathcal E$. Pointwise
-$N(w)=|F(w)|^2\ge0$. A nonzero constant leading coefficient gives leading
-block $c\overline c\,w^{2\beta_0}=|c|^2w^{2\beta_0}$ with $|c|^2>0$, so
-part~(1) of Theorem~\ref{thm:closure} applies to $N$ with $a=1/2$. Both $|F|$
-and $N^{1/2}$ are nonnegative with the same square, hence equal.
+The convolution is the product rule of Theorem~\ref{thm:closure}, which holds
+verbatim over $\C[L]$ as noted above, applied to $F$ and $\overline F$; they
+have the same support and coefficient bounds. Reindexing by
+$(\tau,\tau')\mapsto(\tau',\tau)$ and conjugating fixes each $Q_\sigma$, so
+$Q_\sigma\in\R[L]$ and $Q\in\mathcal E$, this time by the theorem itself.
+Pointwise $Q(w)=|F(w)|^2\ge0$. Since $\tau+\tau'=0$ with $\tau,\tau'\ge0$
+forces $\tau=\tau'=0$, no cancellation can occur in the leading block, and a
+nonzero constant leading coefficient gives $c\overline c\,w^{2\beta_0}=|c|^2w^{2\beta_0}$
+with $|c|^2>0$. Part~(1) of Theorem~\ref{thm:closure} then applies to $Q$ with
+$a=1/2$ and returns the positive branch, so $|F|$ and $Q^{1/2}$ are nonnegative
+with the same square, hence equal.
 \end{proof}
 
 The constant leading coefficient is not a technicality. If the leading block is
@@ -141,12 +144,13 @@ absolute remainder through the modulus unchanged: if $F-T=\OO(w^P\M^D)$ then
 $|F|-|T|=\OO(w^P\M^D)$. This bounds magnitude only. It identifies no leading
 term, fixes no sign, and supplies no derivative information; Section~\ref{sec:series-calculus}
 shows that a modulus does not transport a classical derivative contract even
-when it transports the magnitude faithfully. A retained support of $m$ blocks
-admits $m^2$ ordered coefficient products in $N$, but the pair
-$C_\tau\overline{C_{\tau'}}$ and $C_{\tau'}\overline{C_\tau}$ are conjugates,
-so their sum is $2\operatorname{Re}\bigl(C_\tau\overline{C_{\tau'}}\bigr)$ and
-only the $m(m+1)/2$ unordered pairs need to be formed. For $m=64$ that is
-$2080$ products instead of $4096$.
+when it transports the magnitude faithfully. A retained support of $r$ blocks
+admits $r^2$ ordered coefficient products in $Q$. For $\tau\ne\tau'$ the two
+products $C_\tau\overline{C_{\tau'}}$ and $C_{\tau'}\overline{C_\tau}$ are
+conjugates, so their contribution is $2\operatorname{Re}\bigl(C_\tau\overline{C_{\tau'}}\bigr)$,
+while the diagonal product $C_\tau\overline{C_\tau}=|C_\tau|^2$ is already real
+and enters once. Only the $r(r+1)/2$ unordered pairs therefore need to be
+formed. For $r=64$ that is $2080$ products instead of $4096$.
 \end{remark}
 
 \subsection{Propagation of finite-order errors}

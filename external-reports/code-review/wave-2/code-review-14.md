@@ -33,6 +33,22 @@ was closed *by* removing it.
 The [composition parameter-scope notes](../../../docs/development/COMPOSITION_PARAMETER_SCOPE.md)
 now cite the C15 baseline and acceptance records rather than this package.
 
+Two residues are worth stating exactly. **C22 is the one work item with no
+retained report source.** N05's own finding — that truncation drops available
+quantitative Zeta and Lerch bounds — is implemented and focused verified, but the
+register adds that supported arithmetic on such results still drops the bound
+fields, and that transport remains open under the C22 row rather than under any
+retained package. **N04's source anchor is recorded nowhere else.**
+`src/Kernel/FourierCoefficients.wl` joins `Options[AsymptoticInverse]` into the
+Fourier constructor's option list, so `SeriesTermGoal -> Automatic` is inherited,
+but `fourierConstruct` reads `Direction`, `"Power"`, `"MaxTerms"`,
+`"MaxFrequencies"`, `"InputRemainder"`, `Method` and `"Truncation"` and never
+`SeriesTermGoal`; a nondefault or malformed value is therefore accepted and
+discarded silently. D01 and D02 carry the general request-normalization decision,
+not this specific omission, and the report's proposed acceptance test — compare
+each specialized constructor's declared option surface with the options it
+actually consumes — is not recorded elsewhere.
+
 ## What it supplied
 
 25 independent Python mathematical-model tests passed, including 500 random

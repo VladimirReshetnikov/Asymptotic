@@ -26,16 +26,26 @@ was closed *by* removing it.
 
 | Entry | Contribution | Register item | Status | Still carried by |
 | --- | --- | --- | --- | --- |
-| ABS-01 | A positive real leading coefficient is treated as proving the whole finite approximation real; a complex parameter then cancels after the invalid nonlinear rewrite | wave 5, no intake yet | Duplicate | retained [report 37 F01](code-review-37/README.md); also reported by retired report 40 |
+| ABS-01 | A positive real leading coefficient is treated as proving the whole finite approximation real; a complex parameter then cancels after the invalid nonlinear rewrite | wave 5, no intake yet | Duplicate finding, one unique witness | the finding is retained as [report 37 F01](code-review-37/README.md) and was also reported by retired report 40; its squared witness is preserved as a case in [wave5-modulus-witness.json](../../../validation/wave5-modulus-witness.json) |
 | MOD-01 | Proposal: a modulus of complex finite coefficients on a positive real coordinate, with error transport by the reverse triangle inequality | — | Merged into the article | [section 3.2](../../../docs/article/sections/03-forward.tex), Proposition 3.6 and Remark 3.7 |
 | PERF-01 | Proposal: Hermitian pairing for the modulus-specific finite convolution, 2080 versus 4096 pairs at support 64 | — | Merged into the article | [section 3.2](../../../docs/article/sections/03-forward.tex), Remark 3.7 |
 
 This package gave the most rigorous treatment of the shared finding, including
 the argument that the literal-input screen is not a codomain proof and the
 `a^2 == -1` witnesses that respect it. That reasoning is why report 37, whose
-witnesses use the same device, is the retained copy rather than report 40. The
-witnesses themselves are now reproduced on the current source in
-[wave5-modulus-witness.json](../../../validation/wave5-modulus-witness.json).
+witnesses use the same device, is the retained copy rather than report 40.
+
+Its **second ABS-01 witness is not a duplicate**, and the article it supplied
+said so explicitly: "Both witnesses should be kept: the first detects a lost term
+and false exactness, while the second detects a real coefficient of the wrong
+sign." That second witness is `Abs[1 + a z]^2 + Abs[1 - a z]^2`, whose exact
+value is `2 + 2x^2` while the shortcut propagates `(1+ax)^2 + (1-ax)^2 = 2 - 2x^2`
+— a real coefficient of the wrong sign, error exactly `4x^2`, with no square root
+in either expression. Report 37 has no equivalent. It is now a case in
+[wave5-modulus-witness.json](../../../validation/wave5-modulus-witness.json),
+which reproduces it on the current source (`2 - 2*x^2` returned with
+`Exact -> True`, difference `4*x^2`) alongside a matching real-parameter
+control.
 
 ## What it supplied
 

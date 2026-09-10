@@ -30,6 +30,21 @@ was closed *by* removing it.
 Its restricted affine-domain proof checker was a prototype for the domain helper,
 not a finding. The current domain work is tracked under C05 and W4-03.
 
+**N02's witness is not reproduced by any retained package**, so it is recorded
+here. A depth-8 exact constant flat object has leaf count 49 and passes the
+60-leaf representation budget; multiplying it by 1 at `MaxTerms -> 60` is
+nevertheless refused, because the gate charges the dense grid `(8+1)^2 = 81 > 60`
+while the execution loop visits a single active pair. The dense-versus-active
+counts continue 1089 against 1 at depth 32 and 16641 against 1 at depth 128. The
+report's soundness argument was that pruning pairs whose sector jet is exactly
+zero leaves the convolution and every propagated uncertainty unchanged, whereas
+pruning a sector with empty finite support but a nonzero unknown remainder does
+not; it proposed reporting `"StoredSectorCounts"`, `"ActiveSectorCounts"` and
+`"RequiredPairs"` on the failure so a padded representation is distinguishable
+from a genuinely dense product. No end-to-end speedup was claimed — the observed
+change is refusal to success. P06 remains open, and this witness now survives
+only in this page and in Git history.
+
 ## What it supplied
 
 The unmodified package and a two-edit temporary standalone were loaded in a

@@ -144,7 +144,8 @@ The [documentation and runner merge audit](documentation-runner-merge-2026-09-09
 records the combined intake under the 17 established W4 identifiers and an
 independent repeat of all 32 Python runner tests. The portable-runner guide
 now describes the repaired behavior and remaining gaps at `45ea65f`.
-All 180 supplied payload files were compared with their arrival Git blobs;
+All 180 supplied payload files were compared with their arrival Git blobs at
+`8cb9b7f`; report 32's seventeen were retired from the working tree afterwards, and
 the article and generated guide remain tied to their existing reviewed artifacts.
 
 The first [runner-integrity check](wave4-runner-integrity-tests.json) passes
@@ -164,7 +165,8 @@ The [wave-4 intake](../docs/development/WAVE_4_INTAKE.md) maps all 64 new
 identified entries and the unnumbered proposals. Its
 [crosswalk audit](wave4-intake-crosswalk.json) verifies every local ID against
 the original ledgers; the [payload audit](wave4-payload-provenance.json)
-verifies all 180 supplied files against arrival `8cb9b7f`. These are static
+verifies all 180 supplied files against arrival `8cb9b7f`, which describes the
+arrival tree rather than the current checkout. These are static
 intake/provenance checks, not package runtime acceptance.
 
 The wave-4 integration merges `origin/main` through `38aa253`, preserving the
@@ -705,12 +707,13 @@ also passes **90/90 in five fresh kernels**, including native adapter isolation
 and the new scalar-goal case in every loading mode. These merged records
 carry their own source hashes; they do not reuse the pre-merge fingerprints.
 
-All nine [wave-3 reports](../external-reports/code-review/wave-3/README.md)
-have been read and compared with the current source. The
+All nine [wave-3 reports](../external-reports/code-review/wave-3/README.md) as
+supplied have been read and compared with the current source. The
 [maintained intake](../docs/development/WAVE_3_INTAKE.md) maps all 44 ledger
 entries and their unnumbered proposals into the implementation scope. This
 source audit does not rerun or validate every supplied native witness or
-candidate patch. The immutable report payloads remain unchanged.
+candidate patch. The retained report payloads remain unchanged; report 26 was
+retired afterwards and remains in Git history behind its tombstone.
 
 The [explicit rule-goal acceptance](native-rule-goal-tests.json) passes
 **116 tests, zero failures**, across [five selected files](CheckNativeRuleGoals.wl),
@@ -1018,30 +1021,53 @@ The full package suite remains skipped.
 
 ## Wave-5 modulus witnesses on nonreal retained coefficients
 
-The [three-case characterization](wave5-modulus-witness.json) from
-[ProbeModulusReality.wl](ProbeModulusReality.wl) reproduces the wave-5 finding
-that three separate reports raised. On Wolfram 15.0.1 for Windows, with all
-kernel source hashes recorded and unchanged during the run:
+The [five-case characterization](wave5-modulus-witness.json) from
+[ProbeModulusReality.wl](ProbeModulusReality.wl) reproduces the wave-5 modulus
+finding that three separate reports raised. On Wolfram 15.0.1 for Windows, with
+all kernel source hashes recorded and unchanged during the run, three cases
+disagree with their exact values and two controls agree. Every verdict is
+computed in the run: `Agrees` compares the returned finite expression with the
+exact value under the case's own domain, and `Difference` records the discrepancy.
 
 - `Abs[1 + a x] + Abs[1 - a x] - 2` under `Assumptions -> a^2 == -1` returns the
-  finite expression `0` with `Exact -> True` and `RemainderPower -> Infinity`.
-  The exact value is `2 Sqrt[1 + x^2] - 2`, whose leading term is `x^2`. The
-  sign-based absolute-value shortcut rewrote two nonreal retained jets, and the
-  cancellation that follows leaves real coefficients, so the final
-  real-coefficient check has no evidence left to reject.
-- `Abs[Log[x] + a] + Abs[Log[x] - a]` under the same assumption returns
-  `-2 Log[x]`. The exact value is `2 Sqrt[Log[x]^2 + 1]`, so the reported
-  expansion omits `-1/Log[x]`. This witness also sits on a scale boundary: the
+  finite expression `0` with `Exact -> True` and `RemainderPower -> Infinity`,
+  where the exact value is `2 Sqrt[1 + x^2] - 2`. This is report 37's F01
+  witness, also reported by retired reports 40 and 41.
+- `Abs[1 + a x]^2 + Abs[1 - a x]^2` returns `2 - 2 x^2` where the exact value is
+  `2 + 2 x^2`: a real coefficient of the **wrong sign**, with the discrepancy
+  exactly `4 x^2` and no square root anywhere in the exact answer. This second
+  witness was supplied only by retired report 41, whose article asked for both to
+  be kept because they detect different failures — a lost term with false
+  exactness, and a wrong sign.
+- `Abs[Log[x] + a] + Abs[Log[x] - a]` returns `-2 Log[x]` where the exact value
+  is `2 Sqrt[Log[x]^2 + 1]`, so the reported expansion omits `-1/Log[x]`. This
+  witness came from retired report 40, and it also sits on a scale boundary: its
   exact value is not a power-logarithmic expansion at all.
-- The real-parameter control `Assumptions -> Element[a, Reals]` correctly
-  returns `0`.
+- Both real-parameter controls agree: `Element[a, Reals]` gives `0` and
+  `2 + 2 a^2 x^2` respectively.
 
-The two independent identities are checked in the same run with `FullSimplify`
-under the relevant real assumptions. This is a **characterization probe, not an
-acceptance suite**, and no repair is applied. The finding, its retained report
-and the duplicate copies that were retired are recorded in the
+The result recorded for each defect case is what the source-traced sign-based
+shortcut predicts when it rewrites nonreal retained jets — the imaginary parts
+cancel, so a final real-coefficient check has nothing left to reject — but the
+probe observes the public result, not the internal rewrite. The three exact
+identities are checked in the same run with `FullSimplify` under the relevant
+real assumptions. This is a **characterization probe, not an acceptance suite**,
+and no repair is applied. The finding, its retained report and the duplicate
+copies that were retired are recorded in the
 [wave-5 index](../external-reports/code-review/wave-5/README.md); the underlying
 mathematics is in the [mathematical article](../docs/article/README.md).
+
+* **Article.** Section 3 gains subsection 3.2 on the modulus of a
+  complex-valued expansion — why a positive leading coefficient does not license
+  the sign rule, the norm-square construction on the real coordinate, the scale
+  boundary at a nonconstant logarithmic leading block, remainder transport by the
+  reverse triangle inequality, and the Hermitian pairing that forms
+  `r(r+1)/2` rather than `r^2` coefficient products. Section 16 gains subsection
+  16.2 on magnitude bounds not transporting differentiability, with the cusp
+  family `f(x) = x + x^2 Sin[Log[x]]`. The rebuilt PDF has **105 pages**, built
+  with three `pdflatex` passes, no undefined or multiply-defined references and
+  no overfull or underfull boxes reported, and SHA-256
+  `ae48c36d2c5ce3f2037a9145afae0247af4c13536b95615128a0eb2d82cd9714`. Pages 15, 16, 52 and 53 were rendered and inspected at full size.
 
 This directory contains focused runners, characterization probes, build and
 provenance tools, benchmarks, and saved evidence from individual milestones.
@@ -1049,7 +1075,8 @@ The [test directory guide](../src/Tests/README.md) explains test
 selection and how to add a small reproducible harness. The
 [implementation register](../docs/development/CODE_REVIEW_STATUS.md) tracks
 review findings; the [review archive](../external-reports/code-review/README.md) preserves the
-reviewers' reports and their original execution scope.
+retained reviewers' reports and their original execution scope, with a tombstone
+for each of the ten retired packages.
 
 ## Choose a focused check
 

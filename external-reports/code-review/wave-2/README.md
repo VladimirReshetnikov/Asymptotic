@@ -10,8 +10,9 @@ the extent of that comparison; it is not a claim that every reviewer reread
 or independently verified every earlier article. Reports [10](code-review-10.md), [12](code-review-12.md),
 [13](code-review-13.md) and [14](code-review-14.md) were
 [retired](../README.md#retired-review-packages): their defect findings are
-implemented and verified, and their remaining entries duplicate retained
-packages. Each tombstone records the full disposition.
+implemented and verified — report 14's C22 entry for truncation only, with the
+arithmetic transport still open — and their remaining entries duplicate
+retained packages. Each tombstone records the full disposition.
 
 Findings, candidate patches and proposed extensions refer to the pinned
 revision. Their inclusion does not establish that a finding still applies,
@@ -53,9 +54,11 @@ attribution and licensing information includes
 [17's code and patch license](code-review-17/LICENSE).
 These notices distinguish newly supplied audit material from upstream excerpts;
 they do not create a common license for all five packages. Consult each
-package's README and source notices for its exact scope. The original
-package files, including their READMEs and historical paths, are preserved
-without editing; this wave index provides the current repository routes.
+package's README and source notices for its exact scope. The five retained
+package directories, including their READMEs and historical paths, are
+preserved without editing; reports 10 and 12–14, and report 13's `NOTICE.md`
+with them, remain unedited in Git history behind their tombstones. This wave
+index provides the current repository routes.
 
 Report 18 was added later from upstream commit
 `84650f3521cfcc89ae832f5bad3554f65faaab31`, with nineteen supplied files. Its

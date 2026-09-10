@@ -34,6 +34,24 @@ The [equal-exponent notes](../../../docs/development/EXPONENT_EQUALITY.md) now
 cite the C14 baseline and the 276/0 acceptance instead of this package's
 historical transcription.
 
+Two pieces of its reasoning are reproduced by no retained package and are
+recorded here. **A1's general loss bound:** with two noncancelling coefficient
+polynomials `L^p` and `L^q` (`0 <= p < q`) at separately spelled but provably
+equal weights, the two-pointer boundary scan records `p + q`, while the merged
+coefficient has degree `q` and its square degree `2q`; the understatement
+`q - p` is therefore unbounded, which is why the shared ordered-equality grouping
+had to be applied at every caller rather than patched at the one observed site.
+Its independent model checked 68 such degree pairs under 204 family conditions.
+**A3's exact error bracket:** for `g + g^2 = y` at `y = 1/1000`, with `S` the
+signed-Catalan partial sum over powers 1 to 19, the exact rational residual
+`R = S + S^2 - y` is positive and gives `R/(1 + S + y) < S - g < R/(1 + S)`,
+pinning the true error at about `1.76072344470623091315e-51` while the numerical
+check reports a zero. C21 is focused verified only for the local-coordinate
+repair and still records the unresolved-state exposure as open, so this bracket
+is the natural acceptance target for it; the package's
+`ResolvedInverseNumericalCheck` wrapper, which escalated working precision and
+refused to manufacture digits, was a prototype and is not retained.
+
 ## What it supplied
 
 The pinned standalone loaded in **Wolfram Language 15.0.0, Linux x86-64**;

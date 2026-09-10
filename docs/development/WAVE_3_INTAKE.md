@@ -13,7 +13,8 @@ The [native compatibility plan](NATIVE_COMPATIBILITY.md),
 and evidence beyond this review wave.
 
 All nine [wave-3 reports](../../external-reports/code-review/wave-3/README.md)
-are included in the current review implementation scope. They add **44
+as supplied are included in the current review implementation scope; eight
+packages are retained and report 26 is retired, its rows kept below. They add **44
 identified ledger entries**: 6, 5, 6, 4, 4, 4, 6, 4, and 5 entries in reports
 19 through 27, respectively. Overlapping reports share work items below;
 they do not multiply the number of fixes. Unnumbered proposals are recorded
@@ -24,7 +25,10 @@ Each report reviews commit
 [`6687962f3c858a4f93623cfc496f33e35c6763d4`](https://github.com/VladimirReshetnikov/Asymptotic/tree/6687962f3c858a4f93623cfc496f33e35c6763d4).
 Their 166 supplied files arrived through `main` revision
 `68b8e1e70731998c5bc1533be1bec0f5b507acd7` and were merged in `350c70f`.
-The supplied code, articles, evidence, and notices are preserved. Proposed
+The eight retained packages' code, articles, evidence and notices are
+preserved unedited; report 26's package was retired after intake and remains in
+Git history behind its
+[tombstone](../../external-reports/code-review/wave-3/code-review-26.md). Proposed
 patches have not been applied wholesale, and their bundled programs have
 not been executed as part of intake.
 

@@ -4,8 +4,10 @@ C15 concerns the fixed parameters of an outer remainder when the inner
 expansion introduces a new varying symbol. It consolidates
 [R11 N02](../../external-reports/code-review/wave-2/code-review-11/evidence/findings-delta.json)
 and R14 N01 in the [review register](CODE_REVIEW_STATUS.md); report 14 is now
-[retired](../../external-reports/code-review/wave-2/code-review-14.md),
-its C15, C20, C21 and C22 entries having been implemented and verified.
+[retired](../../external-reports/code-review/wave-2/code-review-14.md). Its C15
+and C20 entries are focused verified, its C21 entry for the ordinary checker,
+and its C22 entry for truncation only — C22's arithmetic transport remains
+open.
 All 20 focused scope tests pass within the
 [276-test acceptance](../../validation/review-normalization-tests.json).
 This is a bounded repair of parameter capture, not a general uniform-asymptotic

@@ -15,10 +15,14 @@ the public entry and assumption boundary in
 
 ## Findings and current mechanisms
 
+Report 26 is retired; its entries stay in the supplied-findings column, linked
+to its tombstone, because that column records what arrived rather than which
+packages are retained.
+
 | Item | Supplied findings | Current mechanism |
 | --- | --- | --- |
-| W3-01 | [19 N01](../../external-reports/code-review/wave-3/code-review-19/article/audit.tex), [20 N01](../../external-reports/code-review/wave-3/code-review-20/article/asymptotic-incremental-review.tex), [21 N01](../../external-reports/code-review/wave-3/code-review-21/article/audit.tex), [23 N02](../../external-reports/code-review/wave-3/code-review-23/article/asymptotic-current-audit.tex), [24 N01](../../external-reports/code-review/wave-3/code-review-24/article/audit.tex), [25 N03](../../external-reports/code-review/wave-3/code-review-25/article/article.tex), [27 N01](../../external-reports/code-review/wave-3/code-review-27/article/asymptotic-audit.tex) | `expansionDispatch` substitutes `Automatic` for an omitted selector; the alias discards its entry identity; rule-form routing inspects explicit goal presence before the configured value. |
-| W3-02 | 19 N02/N03; 20 N02; 21 N03; 24 N02; 25 N05; 27 N02 | Computed keys bypass preparation, key spellings are compared structurally, and `nativeSpecificationQ` derives positional roles from option-name membership. |
+| W3-01 | [19 N01](../../external-reports/code-review/wave-3/code-review-19/article/audit.tex), [20 N01](../../external-reports/code-review/wave-3/code-review-20/article/asymptotic-incremental-review.tex), [21 N01](../../external-reports/code-review/wave-3/code-review-21/article/audit.tex), [23 N02](../../external-reports/code-review/wave-3/code-review-23/article/asymptotic-current-audit.tex), [24 N01](../../external-reports/code-review/wave-3/code-review-24/article/audit.tex), [25 N03](../../external-reports/code-review/wave-3/code-review-25/article/article.tex), [26 N1](../../external-reports/code-review/wave-3/code-review-26.md), [27 N01](../../external-reports/code-review/wave-3/code-review-27/article/asymptotic-audit.tex) | `expansionDispatch` substitutes `Automatic` for an omitted selector; the alias discards its entry identity; rule-form routing inspects explicit goal presence before the configured value. |
+| W3-02 | 19 N02/N03; 20 N02; 21 N03; 24 N02; 25 N05; [26 N2/N3](../../external-reports/code-review/wave-3/code-review-26.md); 27 N02 | Computed keys bypass preparation, key spellings are compared structurally, and `nativeSpecificationQ` derives positional roles from option-name membership. |
 | W3-03 | 20 N03; 21 N02; 27 N03 | `automaticProtectedQ` recursively protects every `Function`, including consumed identity functions and functions inside algebraic `Root` representations. |
 | W3-15 | 27 N04 | Recursive consumers repeatedly call `nativeOptionTreeQ` on descendants already validated by their parents. |
 

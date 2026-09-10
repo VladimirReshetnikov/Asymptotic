@@ -1,6 +1,7 @@
 {
 	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-	"Scope":"Three bounded public characterizations of the signed-real absolute-value shortcut on nonreal retained coefficients. This is a characterization probe, not an acceptance suite, and no repair is applied.",
+	"Scope":"Five bounded public characterizations of the signed-real absolute-value shortcut on nonreal retained coefficients, with two real-parameter controls. Each verdict is computed in the run by comparing the returned finite expression with the exact value. This is a characterization probe, not an acceptance suite, and no repair is applied.",
+	"Route":"AsymptoticExpansion with \"Backend\" -> \"Package\". The SeriesObservable route used by some of the original reports was not probed.",
 	"SourceSHA256":{
 		"src\/Kernel\/AsymptoticAnalysis.wl":"850b4eb869c6023a7ac83c7da59600db6aa1e309dc6330681f09430672edad87",
 		"src\/Kernel\/BarnesForward.wl":"036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479",
@@ -60,11 +61,12 @@
 		"src\/Kernel\/SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c"
 	},
 	"SourcesUnchangedDuringRun":true,
-	"ProbeSHA256":"6278cef0e44d2c635f59cc4c700e9ad9a25b9e14ed01af6cab8d645e087622af",
+	"ProbeSHA256":"af42874409f4c25b289ad1589f4c130da2ae64cb9a81ec715750ace0b31d7453",
+	"CasesDisagreeing":3,
 	"Observations":[
 		{
 			"Case":"algebraic-cancellation",
-			"Input":"Abs[1 + a x] + Abs[1 - a x] - 2",
+			"Input":"-2 + Abs[1 - a*x] + Abs[1 + a*x]",
 			"Assumptions":"a^2 == -1",
 			"Cutoff":4,
 			"Observed":{
@@ -72,14 +74,31 @@
 				"Exact":true,
 				"RemainderPower":"Infinity"
 			},
-			"ExactValue":"2 Sqrt[1 + x^2] - 2",
-			"ExactLeadingTerm":"x^2",
+			"ExactValue":"-2 + 2*Sqrt[1 + x^2]",
+			"Difference":"2*(-1 + Sqrt[1 + x^2])",
+			"Agrees":false,
 			"IndependentCheck":"True",
-			"Agrees":false
+			"Provenance":"Wave-5 report 37 F01; the same witness family was reported by retired reports 40 and 41."
+		},
+		{
+			"Case":"squared-wrong-sign",
+			"Input":"Abs[1 - a*x]^2 + Abs[1 + a*x]^2",
+			"Assumptions":"a^2 == -1",
+			"Cutoff":4,
+			"Observed":{
+				"Normal":"2 - 2*x^2",
+				"Exact":true,
+				"RemainderPower":"Infinity"
+			},
+			"ExactValue":"2 + 2*x^2",
+			"Difference":"4*x^2",
+			"Agrees":false,
+			"IndependentCheck":"True",
+			"Provenance":"Retired wave-5 report 41 ABS-01, second witness: no square root is involved, so the shortcut returns a real coefficient of the wrong sign."
 		},
 		{
 			"Case":"logarithmic-scale-boundary",
-			"Input":"Abs[Log[x] + a] + Abs[Log[x] - a]",
+			"Input":"Abs[-a + Log[x]] + Abs[a + Log[x]]",
 			"Assumptions":"a^2 == -1",
 			"Cutoff":2,
 			"Observed":{
@@ -87,14 +106,15 @@
 				"Exact":true,
 				"RemainderPower":"Infinity"
 			},
-			"ExactValue":"2 Sqrt[Log[x]^2 + 1]",
-			"FirstOmittedTerm":"-1\/Log[x]",
+			"ExactValue":"2*Sqrt[1 + Log[x]^2]",
+			"Difference":"2*(Log[x] + Sqrt[1 + Log[x]^2])",
+			"Agrees":false,
 			"IndependentCheck":"True",
-			"Agrees":false
+			"Provenance":"Retired wave-5 report 40 ABS-01, logarithmic witness: the exact value leaves the power-logarithmic scale."
 		},
 		{
 			"Case":"real-parameter-control",
-			"Input":"Abs[1 + a x] + Abs[1 - a x] - 2",
+			"Input":"-2 + Abs[1 - a*x] + Abs[1 + a*x]",
 			"Assumptions":"Element[a, Reals]",
 			"Cutoff":4,
 			"Observed":{
@@ -103,7 +123,26 @@
 				"RemainderPower":"Infinity"
 			},
 			"ExactValue":"0",
-			"Agrees":true
+			"Difference":"0",
+			"Agrees":true,
+			"IndependentCheck":"True",
+			"Provenance":"Control: the sign-based shortcut is valid for a real parameter."
+		},
+		{
+			"Case":"real-parameter-squared-control",
+			"Input":"Abs[1 - a*x]^2 + Abs[1 + a*x]^2",
+			"Assumptions":"Element[a, Reals]",
+			"Cutoff":4,
+			"Observed":{
+				"Normal":"2 + 2*a^2*x^2",
+				"Exact":true,
+				"RemainderPower":"Infinity"
+			},
+			"ExactValue":"2 + 2*a^2*x^2",
+			"Difference":"0",
+			"Agrees":true,
+			"IndependentCheck":"True",
+			"Provenance":"Control for the squared witness under a real parameter."
 		}
 	]
 }

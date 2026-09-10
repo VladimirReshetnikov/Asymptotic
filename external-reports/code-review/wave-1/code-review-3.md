@@ -30,10 +30,12 @@ was closed *by* removing it.
 | F04 | Ambient assumptions are used but omitted from a reusable result's recorded hypotheses | C05 | Focused verified | — |
 | F05 | Optimized inversion engines still inherit multi-index enumeration and frontier work | P04 | Pending | reports 5, 9 |
 
-Its roadmap was cited for the X03, X04, X05, X06, X09 and X10 proposals. All but
-X04 kept several other sources; the X04 row in the register now cites report 16's
-O01/O02 derivative-tail entries, which the register's prose already treated as an
-X04/X05 source.
+Its roadmap and API discussion are cited by seven register rows: the D06
+compatibility decision and the X03, X04, X05, X06, X09 and X10 proposals. D06
+keeps reports 4, 6 and 7 plus reviews 5 and 9 as its other sources, and all the
+X rows but X04 keep several others; the X04 row now cites report 16's O01/O02
+derivative-tail entries, which the register's prose already treated as an
+X04/X05 source. Every `[R3-article]` citation therefore resolves to this page.
 
 ## What it supplied
 

@@ -73,19 +73,33 @@ themselves remain unedited in Git history at `2396cb6` and earlier.
 | [14](wave-2/code-review-14.md) | 2 | N01 → C15, N02 → C20, N03 → C21, N05 → C22 (truncation) | N04 → D01 (reports 1, 4, 6, 7, 16) and D02 (1, 4, 6, 7); C22's arithmetic transport stays open under the retained C22 record. |
 | [26](wave-3/code-review-26.md) | 3 | — | Every entry restates W3-01 (19, 20, 21, 23, 24, 25, 27), W3-02 (19, 20, 21, 24, 25, 27) or W3-04 (19, 20, 25). Its alias-default alternative is preserved in the wave-3 intake alongside report 20's. |
 | [32](wave-4/code-review-32.md) | 4 | T01 → W4-10 | M01 → W4-01 (28–30, 33, 34); M02/M03 → W4-03 (28, 35, 36); D-P06 → W4-07 (30, 33–36); D-V01 → W4-12 (28–30, 34, 35); L01 → W4-05 (28–31, 33–35); G01 → W4-08 (28, 30, 36). |
-| [40](wave-5/code-review-40.md) | 5 | — | ABS-01 duplicates 37 F01; ABS-02 duplicates 42 N01. |
-| [41](wave-5/code-review-41.md) | 5 | — | ABS-01 duplicates 37 F01. Its complex-modulus reference algorithm and the Hermitian pairing count are recorded in the [mathematical article](../../docs/article/sections/03-forward.tex) and the wave-5 index. |
+| [40](wave-5/code-review-40.md) | 5 | — | ABS-01's algebraic finding duplicates 37 F01; its logarithmic witness was its own and is now a case in the [modulus characterization](../../validation/wave5-modulus-witness.json). ABS-02 duplicates 42 N01, which uses a different source family; 40's `AsymptoticFourierInverse` entry point is recorded in its tombstone. |
+| [41](wave-5/code-review-41.md) | 5 | — | ABS-01 duplicates 37 F01, but its second witness does not: `Abs[1+a z]^2 + Abs[1-a z]^2` returns a real coefficient of the wrong sign, and it is now a case in the [modulus characterization](../../validation/wave5-modulus-witness.json). Its complex-modulus reference algorithm and Hermitian pairing count are recorded in the [mathematical article](../../docs/article/sections/03-forward.tex). |
 
-Every open or partial work item still has at least one retained report: the
-crosswalk was checked item by item before the removals, and no item lost its
-last source. Nineteen items now rest on a single retained report, and all but
-C12 already did. Four closed items — C14, C17, C20 and C22 — were reported only
-by a retired package; each is focused verified with its own acceptance record,
-and the register keeps the original attribution.
+The crosswalks were walked item by item, and **C22 is the single exception**
+that the rule has to state carefully. C22 is *focused verified for truncation*,
+not closed: the register adds that supported arithmetic on such results still
+drops the bound fields, and that transport remains open. Report 14's N05 — the
+entry that was implemented — was C22's only report source, so its open
+arithmetic half is now carried by the C22 register record and its own
+acceptance evidence rather than by any retained report. Every other open or
+partial item keeps at least one retained report.
 
-Mathematical content that was unique to a retired package was merged into the
-[mathematical article](../../docs/article/README.md) before removal, not
-discarded; the wave-5 index names the merged results.
+Thirty items now rest on a single retained report and twenty-seven already did.
+C12 (report 6), C15 (report 11) and C21 (report 17) became single-sourced
+through these removals, as did the X04 proposal, which now cites report 16.
+Three closed items — C14, C17 and C20 — were reported only by a retired
+package; each is focused verified with its own acceptance record, and the
+register keeps the original attribution.
+
+The mathematics unique to retired reports 40 and 41 — the norm-square modulus
+construction, the logarithmic scale boundary, the Hermitian pairing count and
+the cusp counterexample — was merged into the
+[mathematical article](../../docs/article/README.md) before removal, and the
+wave-5 index names those results. The wave-1 to wave-4 packages were retired
+because every entry they carried is restated elsewhere; their articles were not
+separately audited for unique mathematics, and each tombstone records what its
+package supplied and which of its witnesses survive only in Git history.
 
 Retained packages cite each other by commit-pinned URL. Those citations record
 what a reviewer actually compared against and still resolve on GitHub, so they

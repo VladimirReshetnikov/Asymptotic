@@ -21,7 +21,7 @@ The [maintained wave-4 intake](../../../docs/development/WAVE_4_INTAKE.md)
 maps all **64 report-local ledger entries** supplied by this wave, including
 explicitly numbered advisories and extension proposals: 10, 7, 6, 6, 8, 7, 6, 6,
 and 8 entries for reports 28–36 respectively, of which report 32's eight are now
-carried only by the intake. Combined with the earlier 167 entries from
+carried by the intake and by its [tombstone](code-review-32.md). Combined with the earlier 167 entries from
 waves 1–3, this gives 231 attributed report entries before overlapping
 findings are grouped. These counts do not measure distinct current defects
 or completed repairs.

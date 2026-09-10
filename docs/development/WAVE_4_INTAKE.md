@@ -1,10 +1,11 @@
 # Wave 4: findings, proposals, and implementation scope
 
-All nine [wave-4 reports](../../external-reports/code-review/wave-4/README.md),
-numbered 28–36, are included in the active implementation scope. They add
-**64 identified entries**: 10, 7, 6, 6, 8, 7, 6, 6, and 8 respectively.
-Together with 167 entries from the earlier waves, the review library contains
-**231 attributed entries in 36 reports**. Overlaps are consolidated below;
+All nine [wave-4 reports](../../external-reports/code-review/wave-4/README.md)
+as supplied, numbered 28–36, are included in the active implementation scope;
+eight packages are retained and report 32 is retired, its rows kept below. They
+add **64 identified entries**: 10, 7, 6, 6, 8, 7, 6, 6, and 8 respectively.
+Together with 167 entries from the earlier waves, the wave-1 to wave-4 packages
+supplied **231 attributed entries in 36 reports**. Overlaps are consolidated below;
 these totals are not counts of distinct current defects. Unnumbered proposals
 remain in scope and are mapped separately.
 
@@ -26,8 +27,11 @@ Their **180 supplied files**, including nine TeX and nine PDF articles,
 arrived in
 [`8cb9b7f16b005e368a360308ec3b78919ef7c465`](https://github.com/VladimirReshetnikov/Asymptotic/commit/8cb9b7f16b005e368a360308ec3b78919ef7c465).
 The [payload audit](../../validation/wave4-payload-provenance.json) compares
-every supplied byte with its arrival Git blob and records all hashes. The
-payloads, candidate programs, notices and original evidence remain unchanged.
+every supplied byte with its arrival Git blob and records all hashes; it
+describes the arrival tree, not the current checkout. The eight retained
+packages' payloads, candidate programs, notices and original evidence remain
+unchanged; report 32's seventeen files were retired afterwards, so 163 of the
+180 are still present, unedited.
 
 The incoming intake recorded at `c11995f` reports three independent lanes
 reading every README, complete TeX article, finding ledger and relevant
