@@ -344,7 +344,8 @@ make an analytic result a `"Native"`-kind result.
 | `"NativeSectors"`, `"NativeSeriesOrder"`, `"NativeSeriesBackend"` | Analytic special-function import's exact carriers, amplitude blocks, working native order, and backend description. This path separately justifies the imported error. |
 | `"RealDomainProof"`, `"NormalizedExpression"`, `"ExactSourceEqualityVerified"`, `"AsymptoticReferences"` | Real-domain admission, normalization, exact-source comparison, and references recorded by special-function import. A finite-point ordinary shortcut need not populate every import field. |
 | `"SpecialFunctionFamily"`, `"SpecialFunctionBackend"`, `"SourceArgument"`, `"ParameterScope"` | Zeta/Lerch family, construction method, limiting argument, and fixed-parameter scope. |
-| `"AbsoluteRemainderBound"`, `"RemainderBoundConditions"` | Explicit Zeta/Lerch forward tail bound and its conditions. These go beyond a bare big-O scale but are not an inverse interval certificate. |
+| `"AbsoluteRemainderBound"`, `"RemainderBoundConditions"` | Explicit Zeta/Lerch forward tail bound and its conditions. These go beyond a bare big-O scale but are not an inverse interval certificate. `SeriesTruncate` transports the absolute bound by adding `Abs` of the discarded part. |
+| `"TruncationDiscardedPart"` | Finite part removed by a bound-transporting `SeriesTruncate`; the transported `"ForwardRemainderContract"` has `"Type" -> "TransportedThroughTruncation"` and retains the original contract. Absent after a no-op truncation. |
 | `"FirstOmittedInteger"`, `"RemainderLowerBound"` | Zeta's first omitted Dirichlet term index and positive tail lower bound. |
 | `"LerchParameters"`, `"FirstOmittedMoment"`, `"FiniteSourceExpansion"`, `"RemainderBoundConstant"` | Lerch parameters, first omitted moment, finite-source flag, and bound constant. The omitted-moment value can be `None`. |
 

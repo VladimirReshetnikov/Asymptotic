@@ -2283,7 +2283,10 @@ satisfies</p>
 <code>Zeta[x]</code>, the upper bound is
 <code>4^-x (1 + 4/(x - 1))</code>. These are analytic bounds for the
 forward defining sum; they do not constitute a numerical interval
-certificate or an inverse-error certificate.</p>
+certificate or an inverse-error certificate.
+<code>SeriesTruncate[s, Log[3]]</code> keeps <code>1 + 2^-x</code> and
+transports the upper bound to <code>4^-x (1 + 4/(x - 1)) + 3^-x</code>;
+see <a href="#SeriesTruncate">SeriesTruncate</a>.</p>
 <p><a id="lerch-large-argument-expansions"></a></p>
 </section>
 <section id="lerchphi-at-large-third-argument" class="level5">
@@ -3744,6 +3747,21 @@ validation scope.</p>
 above the exclusive cutoff <code>h</code>. Its only option is
 <code>&quot;MaxTerms&quot; -&gt; 20000</code>. Raising a truncation cutoff cannot
 restore discarded coefficients.</p>
+<p>A quantitative forward tail bound survives truncation. When
+<code>s</code> carries <code>&quot;AbsoluteRemainderBound&quot;</code> and
+<code>&quot;RemainderBoundConditions&quot;</code>, as the large-argument
+<code>Zeta</code> and <code>LerchPhi</code> expansions do, the truncated
+result&#39;s <code>&quot;AbsoluteRemainderBound&quot;</code> is the original bound
+plus <code>Abs</code> of the discarded finite part, which is recorded as
+<code>&quot;TruncationDiscardedPart&quot;</code>, under the unchanged conditions.
+The <code>&quot;ForwardRemainderContract&quot;</code> of the result has
+<code>&quot;Type&quot; -&gt; &quot;TransportedThroughTruncation&quot;</code> and retains the
+original contract. The signed <code>&quot;RemainderLowerBound&quot;</code>, the
+Lerch <code>&quot;RemainderBoundConstant&quot;</code>, and
+<code>&quot;FirstOmittedInteger&quot;</code> describe only the original tail and
+are dropped unless the truncation discards nothing, in which case every
+bound field is kept unchanged. Bare big-O results gain no bound.
+Arithmetic on a truncated result still drops these fields.</p>
 <p><a id="SeriesRefine"></a></p>
 </section>
 <section id="seriesrefine" class="level3">
@@ -3908,7 +3926,10 @@ rational root enclosure, and certified error bounds.</p>
 <td><code>Automatic</code></td>
 <td>Required verification interval with ordered exact rational
 endpoints. Leaving the default <code>Automatic</code> returns
-<code>Failure[&quot;InvalidInterval&quot;, ...]</code>.</td>
+<code>Failure[&quot;InvalidInterval&quot;, ...]</code> whose <code>&quot;Reason&quot;</code>
+is <code>&quot;IntervalNotSupplied&quot;</code>; no interval is inferred from
+asymptotic constants. Unordered, inexact, or irrational endpoints return
+the same tag with <code>&quot;Reason&quot; -&gt; &quot;MalformedInterval&quot;</code>.</td>
 </tr>
 <tr>
 <td><code>&quot;Center&quot;</code></td>

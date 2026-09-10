@@ -3,7 +3,7 @@
    Rebuild: python validation/build_standalone.py
    Verify:  python validation/build_standalone.py --check
    This file is self-contained; load a remote URL with Get[URLDownload[url]].
-   SPDX-License-Identifier: MIT *)
+   SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
    Source SHA256 (UTF-8/LF): 43a4178c5bfb92ec1dd00ef21e631c293263664f552f924def26d50d34adeda8 *)
@@ -2075,7 +2075,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 9256520b4e979cab89989428b57e27ac8f7fe8aacab9c46861c7894cf8b889b4 *)
+   Source SHA256 (UTF-8/LF): 4b2ae8a7a6880e18bffbf2c9738dc70f34ac184d8563f542c93ec9aa84bc2026 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2577,7 +2577,39 @@ AsymptoticAnalysis`SeriesTruncate[s_GeneralizedSeries, h_, opts : OptionsPattern
   If[MemberQ[{"GammaInverse", "BarnesGInverse"}, Lookup[s[[1]], "Kind", ""]], Return[gammaInverseTruncate[s, h, OptionValue["MaxTerms"]], Module]];
   d = seriesData[s, OptionValue["MaxTerms"]];
   If[! exactRealQ[h], fail["InvalidCutoff", "The truncation cutoff must be an exact real number."]];
-  seriesMake[d, {"Truncate", {s}}, h]]];
+  seriesTransportRemainderBound[s, d, seriesMake[d, {"Truncate", {s}}, h]]]];
+
+(* A quantitative forward tail bound survives truncation: the omitted tail
+   after truncation is the discarded finite part plus the original tail, so
+   |new tail| <= |discarded part| + old absolute bound on the same conditions.
+   A signed lower bound and a constant-form bound describe only the original
+   tail; they are retained only when truncation discards nothing. Bare
+   asymptotic remainders carry no bound to transport. Arithmetic on the
+   truncated result still drops these fields. *)
+seriesTransportRemainderBound[s : GeneralizedSeries[a_Association], d_, result : GeneralizedSeries[r_Association]] :=
+  Module[{ell, w, p, before, after, removed, discarded, keys, retained, transported},
+  If[! KeyExistsQ[a, "AbsoluteRemainderBound"] || ! KeyExistsQ[a, "RemainderBoundConditions"],
+    Return[result, Module]];
+  ell = d["LogVariable"]; w = d["ScaleVariable"]; p = d["Prefactor"];
+  before = d["Jet"][[1]]; after = r["SeriesRepresentation"]["Jet"][[1]];
+  removed = Select[before, ! MemberQ[after, #] &];
+  If[! SubsetQ[before, after], Return[result, Module]];
+  (* Dirichlet scales use w = E^(-S) with exponents Log[n]; present the
+     discarded integer powers as n^(-S), the constructor's own form. *)
+  discarded = p seriesJetExpression[{removed, r["RemainderPower"], r["RemainderLogDegree"]}, w, ell] /.
+    (E^u_)^Log[n_Integer?Positive] :> n^u;
+  keys = {"AbsoluteRemainderBound", "RemainderBoundConditions", "RemainderLowerBound",
+    "RemainderBoundConstant", "ForwardRemainderContract", "FirstOmittedInteger", "FiniteSourceExpansion"};
+  If[removed === {}, Return[GeneralizedSeries[Join[r, KeyTake[a, keys]]], Module]];
+  retained = KeyTake[a, {"AbsoluteRemainderBound", "RemainderBoundConditions"}];
+  transported = <|"AbsoluteRemainderBound" -> a["AbsoluteRemainderBound"] + Abs[discarded],
+    "RemainderBoundConditions" -> a["RemainderBoundConditions"],
+    "TruncationDiscardedPart" -> discarded,
+    "ForwardRemainderContract" -> <|"Type" -> "TransportedThroughTruncation",
+      "OriginalContract" -> Lookup[a, "ForwardRemainderContract", Missing["NotAvailable"]],
+      "OriginalAbsoluteRemainderBound" -> retained["AbsoluteRemainderBound"],
+      "Statement" -> "The omitted tail of the truncated expansion is TruncationDiscardedPart plus the original tail, so its absolute value is at most Abs[TruncationDiscardedPart] plus the original AbsoluteRemainderBound under the unchanged RemainderBoundConditions. Signed lower bounds and constant-form bounds are not transported."|>|>;
+  GeneralizedSeries[Join[r, transported]]];
 
 seriesDerivative[s_, n_, declared_, cut_, limit_] := Module[{d, contract, ell, ass, j, q, wprime, pprime, first, second, result, k},
   If[! IntegerQ[n] || n < 0, fail["InvalidDerivativeOrder", "The derivative order must be a nonnegative integer."]];
@@ -3341,7 +3373,7 @@ AsymptoticAnalysis`AsymptoticCoreInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: src/Kernel/CorePerturbation.wl *)
 
 (* BEGIN SOURCE: src/Kernel/InverseCertificates.wl
-   Source SHA256 (UTF-8/LF): d01d9efa24865548b96876f9fddce752584e73285caf3dc87521a3a2cf93eedc *)
+   Source SHA256 (UTF-8/LF): e59820a67002d1745796ba077195019403b22fe0046e62dc13cc6d6e571cd80f *)
 (* Exact rational residual certificates. Decimal arithmetic is used only to
    choose a center; every successful proof uses rational interval endpoints. *)
 
@@ -3680,8 +3712,15 @@ AsymptoticAnalysis`InverseCertificate[GeneralizedSeries[a_Association], yv_, opt
   If[! MemberQ[{"Inverse", "CoreInverse"}, Lookup[a, "Kind", None]],
    certFail["Unsupported", "Certificates require an inverse or exact-core inverse expansion."]];
   If[! exactQ[yv] || ! NumericQ[yv], certFail["InexactTarget", "The certificate target must be an exact numeric expression."]];
+  (* The interval is required. The default Automatic is not a bracketing
+     request: no interval is inferred from asymptotic constants, so an omitted
+     interval gets its own diagnostic instead of a malformed-endpoint message. *)
+  If[interval === Automatic,
+   certFail["InvalidInterval", "No verification interval was supplied. InverseCertificate does not infer an interval from asymptotic constants; give Interval -> {lo, hi} with ordered exact rational endpoints.",
+    <|"Reason" -> "IntervalNotSupplied"|>]];
   If[! MatchQ[interval, {_?certRationalQ, _?certRationalQ}] || ! TrueQ[interval[[1]] < interval[[2]]],
-   certFail["InvalidInterval", "Supply Interval -> {lo, hi} with ordered exact rational endpoints."]];
+   certFail["InvalidInterval", "Supply Interval -> {lo, hi} with ordered exact rational endpoints.",
+    <|"Reason" -> "MalformedInterval", "Interval" -> interval|>]];
   If[! IntegerQ[wp] || wp < 10 || ! IntegerQ[maximum] || maximum < 0 ||
     ! MemberQ[{True, False}, refine] || ! IntegerQ[magnitude] || magnitude < 1,
    certFail["InvalidOption", "WorkingPrecision must be at least 10, MaxRefinements nonnegative, RefineExpansion Boolean, and ExponentMagnitudeLimit a positive integer."]];

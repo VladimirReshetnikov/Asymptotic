@@ -1,0 +1,157 @@
+{
+  "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+  "Scope": "Synthetic runner-gate fixtures in a temporary tree; no repository test suite was run.",
+  "Fixtures": [
+    {
+      "Fixture": "no-test-files",
+      "Files": [],
+      "Export": null,
+      "ExpectedExitCode": 1,
+      "ExitCode": 1,
+      "Passed": true,
+      "OutputTail": [
+        "Kernel: 15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+        "No .wlt test files were discovered; nothing was run."
+      ],
+      "Record": null
+    },
+    {
+      "Fixture": "single-empty-file",
+      "Files": [
+        "Empty.wlt"
+      ],
+      "Export": null,
+      "ExpectedExitCode": 1,
+      "ExitCode": 1,
+      "Passed": true,
+      "OutputTail": [
+        "Kernel: 15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+        "NO TESTS Empty.wlt: the file executed no VerificationTest.",
+        "Discovered files: 1   Executed tests: 0   Empty or aborted files: 1",
+        "Succeeded: 0   Failed: 1"
+      ],
+      "Record": null
+    },
+    {
+      "Fixture": "single-passing-file",
+      "Files": [
+        "Pass.wlt"
+      ],
+      "Export": null,
+      "ExpectedExitCode": 0,
+      "ExitCode": 0,
+      "Passed": true,
+      "OutputTail": [
+        "Kernel: 15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+        "Discovered files: 1   Executed tests: 1   Empty or aborted files: 0",
+        "Succeeded: 1   Failed: 0"
+      ],
+      "Record": null
+    },
+    {
+      "Fixture": "passing-and-empty-files",
+      "Files": [
+        "Empty.wlt",
+        "Pass.wlt"
+      ],
+      "Export": null,
+      "ExpectedExitCode": 1,
+      "ExitCode": 1,
+      "Passed": true,
+      "OutputTail": [
+        "Kernel: 15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+        "NO TESTS Empty.wlt: the file executed no VerificationTest.",
+        "Discovered files: 2   Executed tests: 1   Empty or aborted files: 1",
+        "Succeeded: 1   Failed: 1"
+      ],
+      "Record": null
+    },
+    {
+      "Fixture": "passing-and-failing-files",
+      "Files": [
+        "Fail.wlt",
+        "Pass.wlt"
+      ],
+      "Export": null,
+      "ExpectedExitCode": 1,
+      "ExitCode": 1,
+      "Passed": true,
+      "OutputTail": [
+        "   actual:   HoldForm[2]",
+        "   messages: {}",
+        "Discovered files: 2   Executed tests: 2   Empty or aborted files: 0",
+        "Succeeded: 1   Failed: 1"
+      ],
+      "Record": null
+    },
+    {
+      "Fixture": "passing-with-export",
+      "Files": [
+        "Pass.wlt"
+      ],
+      "Export": "record.json",
+      "ExpectedExitCode": 0,
+      "ExitCode": 0,
+      "Passed": true,
+      "OutputTail": [
+        "Kernel: 15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+        "Discovered files: 1   Executed tests: 1   Empty or aborted files: 0",
+        "Succeeded: 1   Failed: 0"
+      ],
+      "Record": {
+        "ExecutedTests": 1,
+        "RejectedSuites": [],
+        "Succeeded": 1,
+        "Failed": 0
+      }
+    },
+    {
+      "Fixture": "passing-and-empty-with-export",
+      "Files": [
+        "Empty.wlt",
+        "Pass.wlt"
+      ],
+      "Export": "record.json",
+      "ExpectedExitCode": 1,
+      "ExitCode": 1,
+      "Passed": true,
+      "OutputTail": [
+        "Kernel: 15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+        "NO TESTS Empty.wlt: the file executed no VerificationTest.",
+        "Discovered files: 2   Executed tests: 1   Empty or aborted files: 1",
+        "Succeeded: 1   Failed: 1"
+      ],
+      "Record": {
+        "ExecutedTests": 1,
+        "RejectedSuites": [
+          "Empty.wlt"
+        ],
+        "Succeeded": 1,
+        "Failed": 1
+      }
+    },
+    {
+      "Fixture": "export-to-unavailable-drive",
+      "Files": [
+        "Pass.wlt"
+      ],
+      "Export": "Q:/asymptotic-no-such-drive/record.json",
+      "ExpectedExitCode": 1,
+      "ExitCode": 1,
+      "Passed": true,
+      "OutputTail": [
+        "Succeeded: 1   Failed: 0",
+        "CreateDirectory::enoent: File or directory not found.",
+        "Export::nodir: Directory Q:\\asymptotic-no-such-drive\\ does not exist.",
+        "Exporting the validation record failed: Q:/asymptotic-no-such-drive/record.json"
+      ],
+      "Record": null
+    }
+  ],
+  "Passed": 8,
+  "Failed": 0,
+  "RunnerUnchangedDuringRun": true,
+  "RunnerSHA256": {
+    "src/Tests/RunTests.wl": "ca5a5bf403035a41c76b20154dcd35a767b1eebcee9c7104f29c40441ae62105"
+  }
+}

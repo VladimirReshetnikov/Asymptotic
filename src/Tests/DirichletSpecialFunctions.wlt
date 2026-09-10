@@ -181,3 +181,50 @@ VerificationTest[Module[{x},
   MatchQ[dirichletLerchAt[1/2, -1000/3, x, x, Infinity, Automatic, 1, True, 100],
     Failure["ResourceLimit", _Association]]],
   True, TestID -> "dirichlet-lerch-remainder-moment-degree-is-resource-bounded"]
+
+VerificationTest[Module[{x, s, t, error, upper},
+  s = dirichletExpandAt[Zeta[x], x, Infinity, Automatic, 3];
+  t = SeriesTruncate[s, Log[3]];
+  error = N[Zeta[10] - (Normal[t] /. x -> 10), 60];
+  upper = N[t["AbsoluteRemainderBound"] /. x -> 10, 60];
+  {dirichletEqual[t, 1 + 2^-x, x > 1],
+    TrueQ[FullSimplify[t["AbsoluteRemainderBound"] == s["AbsoluteRemainderBound"] + 3^-x, x > 1]],
+    TrueQ[FullSimplify[t["TruncationDiscardedPart"] == 3^-x, x > 1]],
+    t["RemainderBoundConditions"] === s["RemainderBoundConditions"],
+    KeyExistsQ[t[[1]], "RemainderLowerBound"], KeyExistsQ[t[[1]], "FirstOmittedInteger"],
+    t["ForwardRemainderContract"]["Type"],
+    t["ForwardRemainderContract"]["OriginalContract"] === s["ForwardRemainderContract"],
+    0 < error <= upper}],
+  {True, True, True, True, False, False, "TransportedThroughTruncation", True, True},
+  TestID -> "dirichlet-zeta-truncation-transports-the-absolute-tail-bound-and-drops-the-signed-lower-bound"]
+
+VerificationTest[Module[{x, s, u},
+  s = dirichletExpandAt[Zeta[x], x, Infinity, Automatic, 3];
+  u = SeriesTruncate[s, s["Cutoff"]];
+  {dirichletEqual[u, Normal[s], x > 1], u["AbsoluteRemainderBound"] === s["AbsoluteRemainderBound"],
+    u["RemainderLowerBound"] === s["RemainderLowerBound"],
+    u["RemainderBoundConditions"] === s["RemainderBoundConditions"],
+    u["FirstOmittedInteger"] === s["FirstOmittedInteger"],
+    u["ForwardRemainderContract"] === s["ForwardRemainderContract"],
+    KeyExistsQ[u[[1]], "TruncationDiscardedPart"], u["SeriesRecipe"][[1]]}],
+  {True, True, True, True, True, True, False, "Truncate"},
+  TestID -> "dirichlet-zeta-no-op-truncation-retains-every-quantitative-bound-field"]
+
+VerificationTest[Module[{x, l, lt, value, tail, upper},
+  l = dirichletLerchAt[1/2, 2, x, x, Infinity, Automatic, 3];
+  lt = SeriesTruncate[l, l["Cutoff"] - 1];
+  value = 10; tail = N[Abs[LerchPhi[1/2, 2, value] - (Normal[lt] /. x -> value)], 50];
+  upper = N[lt["AbsoluteRemainderBound"] /. x -> value, 50];
+  {l["RemainderBoundConstant"] =!= Missing["KeyAbsent", "RemainderBoundConstant"],
+    KeyExistsQ[lt[[1]], "RemainderBoundConstant"],
+    TrueQ[FullSimplify[lt["AbsoluteRemainderBound"] == l["AbsoluteRemainderBound"] + Abs[lt["TruncationDiscardedPart"]], x > 1]],
+    lt["RemainderBoundConditions"] === l["RemainderBoundConditions"],
+    Length[lt["Blocks"]] + 1 === Length[l["Blocks"]], tail <= upper}],
+  {True, False, True, True, True, True},
+  TestID -> "dirichlet-lerch-truncation-transports-the-bound-without-its-constant-form"]
+
+VerificationTest[Module[{x, v},
+  v = SeriesTruncate[AsymptoticExpansion[Exp[x], {x, 0, 3}], 2];
+  {Expand[Normal[v] - (1 + x)], KeyExistsQ[v[[1]], "AbsoluteRemainderBound"], KeyExistsQ[v[[1]], "TruncationDiscardedPart"]}],
+  {0, False, False},
+  TestID -> "ordinary-truncation-does-not-invent-a-quantitative-bound"]

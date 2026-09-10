@@ -13,6 +13,36 @@ remain open: Wolfram built-in input coverage, Mathics compatibility, and all
 asymptotics in the vendored article corpus. The changes below are implemented
 milestones within that scope.
 
+## September 10, 2026
+
+### Certificate interval diagnostics, runner gates, and license metadata
+
+`InverseCertificate` without an `"Interval"` option now returns
+`Failure["InvalidInterval", ...]` with `"Reason" -> "IntervalNotSupplied"`;
+malformed endpoints return the same tag with `"Reason" -> "MalformedInterval"`.
+The certificate never infers an interval from asymptotic constants. The
+[certificate guide](../src/Documentation/UserGuide.md#InverseCertificate)
+records the option table. The aggregate runner `src/Tests/RunTests.wl` now
+fails on empty, aborted or unexported runs instead of passing vacuously; its
+JSON export gains per-file summaries and rejected-file names. The paclet and
+standalone header declare the SPDX identifier `MIT-0`, matching the root MIT
+No Attribution license. The
+[implementation register](development/CODE_REVIEW_STATUS.md) links the
+focused evidence (D04, D08, V02).
+
+`SeriesTruncate` now transports the explicit tail bound of a large-argument
+`Zeta` or `LerchPhi` expansion instead of discarding it: the truncated result's
+`"AbsoluteRemainderBound"` adds the absolute discarded part, recorded as
+`"TruncationDiscardedPart"`, and keeps the bound conditions. A no-op truncation
+keeps every bound field; a shorter expansion drops the signed lower bound and
+the Lerch constant form. See the
+[truncation section](../src/Documentation/UserGuide.md#SeriesTruncate).
+
+The merged inverse coefficient-model admission work now refuses coefficient
+queries on results without an ordinary inverse model with
+`Failure["UnsupportedCoefficientModel", ...]` and no messages; see the
+[contract note](development/INVERSE_COEFFICIENT_MODELS.md).
+
 ## September 9, 2026
 
 ### Package identity and loading

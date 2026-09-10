@@ -1358,8 +1358,17 @@ fixed-parameter scope.</td>
 <td><code>&quot;AbsoluteRemainderBound&quot;</code>,
 <code>&quot;RemainderBoundConditions&quot;</code></td>
 <td>Explicit Zeta/Lerch forward tail bound and its conditions. These go
-beyond a bare big-O scale but are not an inverse interval
-certificate.</td>
+beyond a bare big-O scale but are not an inverse interval certificate.
+<code>SeriesTruncate</code> transports the absolute bound by adding
+<code>Abs</code> of the discarded part.</td>
+</tr>
+<tr>
+<td><code>&quot;TruncationDiscardedPart&quot;</code></td>
+<td>Finite part removed by a bound-transporting
+<code>SeriesTruncate</code>; the transported
+<code>&quot;ForwardRemainderContract&quot;</code> has
+<code>&quot;Type&quot; -&gt; &quot;TransportedThroughTruncation&quot;</code> and retains the
+original contract. Absent after a no-op truncation.</td>
 </tr>
 <tr>
 <td><code>&quot;FirstOmittedInteger&quot;</code>,

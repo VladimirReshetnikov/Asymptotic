@@ -135,6 +135,12 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   the default once. An empty key list uses it zero times; multiple missing
   results share one lazy default. See
   [LISTS.md](Mathics/LISTS.md).
+- `KeyExistsQ` is not implemented in Mathics 10.0.1: `KeyExistsQ[<|"k" -> 1|>, "k"]`
+  stays unevaluated, even for a plain association. The package supplies its
+  own adapter inside its compatibility context, so package code may use it,
+  but caller-side tests and examples must not. A portable case checks key
+  absence through the result accessor instead, for example
+  `Head[s["RemainderLowerBound"]] === Missing`.
 - Mathics' three-argument `ToExpression` can evaluate the parsed expression
   before its wrapper holds it. When inspecting existing private symbols,
   parse a call to a `HoldAllComplete` helper containing the symbol name.

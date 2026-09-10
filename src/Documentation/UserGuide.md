@@ -1346,7 +1346,7 @@ The result supplies explicit forward tail bounds. If `m = s["FirstOmittedInteger
 m^-S <= Zeta[S] - Normal[s] <= m^-S (1 + m/(S - 1))
 ```
 
-under `s["RemainderBoundConditions"]`, including `S > 1`. The corresponding properties are `"RemainderLowerBound"` and `"AbsoluteRemainderBound"`. For three blocks of `Zeta[x]`, the upper bound is `4^-x (1 + 4/(x - 1))`. These are analytic bounds for the forward defining sum; they do not constitute a numerical interval certificate or an inverse-error certificate.
+under `s["RemainderBoundConditions"]`, including `S > 1`. The corresponding properties are `"RemainderLowerBound"` and `"AbsoluteRemainderBound"`. For three blocks of `Zeta[x]`, the upper bound is `4^-x (1 + 4/(x - 1))`. These are analytic bounds for the forward defining sum; they do not constitute a numerical interval certificate or an inverse-error certificate. `SeriesTruncate[s, Log[3]]` keeps `1 + 2^-x` and transports the upper bound to `4^-x (1 + 4/(x - 1)) + 3^-x`; see [SeriesTruncate](#SeriesTruncate).
 
 <a id="lerch-large-argument-expansions"></a>
 ##### LerchPhi at Large Third Argument
@@ -2496,6 +2496,8 @@ the error-order convention, admission limits, and recorded validation scope.
 
 `SeriesTruncate[s, h]` discards complete blocks at or above the exclusive cutoff `h`. Its only option is `"MaxTerms" -> 20000`. Raising a truncation cutoff cannot restore discarded coefficients.
 
+A quantitative forward tail bound survives truncation. When `s` carries `"AbsoluteRemainderBound"` and `"RemainderBoundConditions"`, as the large-argument `Zeta` and `LerchPhi` expansions do, the truncated result's `"AbsoluteRemainderBound"` is the original bound plus `Abs` of the discarded finite part, which is recorded as `"TruncationDiscardedPart"`, under the unchanged conditions. The `"ForwardRemainderContract"` of the result has `"Type" -> "TransportedThroughTruncation"` and retains the original contract. The signed `"RemainderLowerBound"`, the Lerch `"RemainderBoundConstant"`, and `"FirstOmittedInteger"` describe only the original tail and are dropped unless the truncation discards nothing, in which case every bound field is kept unchanged. Bare big-O results gain no bound. Arithmetic on a truncated result still drops these fields.
+
 <a id="SeriesRefine"></a>
 ### SeriesRefine
 
@@ -2604,7 +2606,7 @@ supported examples and remaining precision limits, and
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `"Interval"` | `Automatic` | Required verification interval with ordered exact rational endpoints. Leaving the default `Automatic` returns `Failure["InvalidInterval", ...]`. |
+| `"Interval"` | `Automatic` | Required verification interval with ordered exact rational endpoints. Leaving the default `Automatic` returns `Failure["InvalidInterval", ...]` whose `"Reason"` is `"IntervalNotSupplied"`; no interval is inferred from asymptotic constants. Unordered, inexact, or irrational endpoints return the same tag with `"Reason" -> "MalformedInterval"`. |
 | `"Center"` | `Automatic` | Initial or fixed rational approximation. An explicitly supplied center remains fixed. |
 | `"TargetError"` | `Automatic` | Positive exact rational absolute error goal for the returned center. |
 | `"RelativeError"` | `Automatic` | Positive exact rational relative error goal using a proved root-magnitude bound. |

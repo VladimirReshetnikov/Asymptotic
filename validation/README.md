@@ -17,6 +17,45 @@ for known implementation and acceptance gaps.
 | Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
 | Interpret portable-runner guarantees and limits | [Portable validation contracts](../docs/Mathics/PORTABLE-VALIDATION.md) |
 
+## Review follow-ups: certificate intervals, truncation bounds, runner gates
+
+Four register items were closed on Wolfram 15.0.1 for Windows after the
+inverse coefficient-model merge; each has its own record and no full package
+suite was run.
+
+* **D04 — omitted certificate interval.** The
+  [two-file certificate run](certificate-interval-tests.json) passes
+  **43/43**, including the new refusal test distinguishing
+  `"Reason" -> "IntervalNotSupplied"` from `"MalformedInterval"`. The
+  [portable certificate group](wolfram-certificate-interval-tests.json) passes
+  3/3 on the official kernel with the new case
+  `certificate-omitted-interval-diagnostic`.
+* **C22 — bound transport through truncation.** The
+  [four-file run](truncation-bounds-tests.json) passes **94/94** from
+  [CheckTruncationBounds.wl](CheckTruncationBounds.wl). Its new Zeta and
+  Lerch tests compare the transported `"AbsoluteRemainderBound"` with the
+  actual defining-sum tail at `x = 10`, check that a no-op truncation keeps
+  every bound field, and check that an ordinary Taylor truncation gains no
+  bound. The [official-kernel portable run](wolfram-zeta-truncation-tests.json)
+  and the [Mathics probe](mathics-modular-new-cases-probe.json) of the new case
+  `special-zeta-truncation-transports-bound` both pass. Two initial test
+  expectations were corrected before acceptance: a `SameQ` comparison of the
+  constructor's `2^-x` form with the calculus form `(E^-x)^Log[2]`, and a
+  `Module`-local symbol in an expected value. These were fixture errors, not
+  package failures.
+* **V02 — aggregate runner gates.** The
+  [gate fixture receipt](run-tests-gate-fixtures.json) from
+  [check_run_tests_gate.py](check_run_tests_gate.py) records **8/8** synthetic
+  fixtures in a temporary tree: no test files, an empty file, a passing file,
+  passing plus empty, passing plus failing, a successful export, an export
+  rejected because of an empty file, and an export to an unavailable drive.
+  An early draft of the runner collected fields with `Lookup` over an
+  empty list, which yields `Missing` and breaks the JSON export; the
+  fixtures caught this before acceptance.
+* **D08 — license identifier.** The paclet and standalone header now declare
+  `MIT-0`; the maintainer confirmed the intended identifier. The regenerated
+  standalone was verified with `--check`.
+
 ## Inverse coefficient model admission
 
 The [five-file native run](inverse-coefficient-model-tests.json) passes

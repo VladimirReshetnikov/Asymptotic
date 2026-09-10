@@ -65,9 +65,29 @@ for local, offline, and commit-pinned forms.
   parsed alongside `Get` can resolve an exported symbol in the global context before
   the package context is on `$ContextPath`.
 
+## Truncated Dirichlet expansions and transported bounds
+
+The `Zeta`/`LerchPhi` constructors write their finite expression as
+`1 + 2^-x + 3^-x`, but the shared series calculus stores the scale as
+`E^-x` with exponents `Log[n]`. After `SeriesTruncate`, `Normal` therefore
+prints `(E^-x)^Log[2]`; the two forms agree for real `x` but are not
+`SameQ`, and `Simplify` without a realness assumption does not identify
+them. Compare truncated Dirichlet results numerically or under `x > 1`. The
+bound transport in `SeriesTruncate` rewrites the discarded part back to
+`n^-x` before taking its absolute value, so `"TruncationDiscardedPart"` and
+the transported `"AbsoluteRemainderBound"` use the constructor's form.
+`Abs[3^-x]` with a symbolic `x` remains an `Abs` expression in the bound;
+it evaluates once `x` is numeric.
+
 ## Missing model fields and coefficient queries
 
 An association lookup for a missing key produces `Missing["KeyAbsent", key]`.
+The same happens for `Lookup[{}, key]`: an empty list is an empty rule
+collection, so a lookup over an empty list of associations returns
+`Missing["KeyAbsent", key]` rather than `{}`. Code that collects a field from
+a possibly empty list of records must map an accessor over the list instead
+of calling `Lookup` on it; the aggregate test runner exports such fields and
+a `Missing` value cannot be exported as JSON.
 Passing that result to `Join` does not validate a result object's capability:
 it emits `Join::incpt` before the public query can report a useful refusal.
 `InverseExpansionCoefficient` now checks its ordinary inverse model before

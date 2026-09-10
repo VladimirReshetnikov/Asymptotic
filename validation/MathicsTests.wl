@@ -478,6 +478,15 @@ portableTest["certificate-fixed-center-accuracy-floor", "certificate",
         TrueQ[best["CertifiedErrorLowerBound"] > 1/10] && Length[c[[2]]["History"]] === 1]],
   True];
 
+portableTest["certificate-omitted-interval-diagnostic", "certificate",
+  Module[{x, y, s, omitted, unordered}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
+    omitted = InverseCertificate[s, 4];
+    unordered = InverseCertificate[s, 4, "Interval" -> {3, 1}];
+    {MatchQ[omitted, Failure["InvalidInterval", _Association]], omitted[[2]]["Reason"],
+      omitted[[2]]["Certified"], MatchQ[unordered, Failure["InvalidInterval", _Association]],
+      unordered[[2]]["Reason"], unordered[[2]]["Interval"]}],
+  {True, "IntervalNotSupplied", False, True, "MalformedInterval", {3, 1}}];
+
 portableTest["numerical-exact-quadratic-inverse", "numerical",
   Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
     c = InverseNumericalCheck[s, 4, WorkingPrecision -> 30];
@@ -538,6 +547,20 @@ portableTest["special-polylog-origin", "special",
   Module[{x, s}, s = AsymptoticExpansion[PolyLog[2, x], {x, 0, 4}];
     {Expand[Normal[s] - (x + x^2/4 + x^3/9)], s["RemainderPower"]}],
   {0, 4}];
+
+portableTest["special-zeta-truncation-transports-bound", "special",
+  Module[{x, s, t, u, value = 10, tail, upper},
+    s = AsymptoticExpansion[Zeta[x], x -> Infinity, SeriesTermGoal -> 3];
+    t = SeriesTruncate[s, Log[3]]; u = SeriesTruncate[s, s["Cutoff"]];
+    tail = N[Zeta[value] - (Normal[t] /. x -> value), 30];
+    upper = N[t["AbsoluteRemainderBound"] /. x -> value, 30];
+    {TrueQ[Abs[N[(Normal[t] - (1 + 2^-x)) /. x -> value, 30]] < 10^-20],
+      TrueQ[Abs[N[(t["AbsoluteRemainderBound"] - s["AbsoluteRemainderBound"] - 3^-x) /. x -> value, 30]] < 10^-20],
+      Head[t["RemainderLowerBound"]] === Missing, t["RemainderBoundConditions"] === s["RemainderBoundConditions"],
+      t["ForwardRemainderContract"]["Type"], TrueQ[0 < tail <= upper],
+      u["AbsoluteRemainderBound"] === s["AbsoluteRemainderBound"],
+      u["RemainderLowerBound"] === s["RemainderLowerBound"]}],
+  {True, True, True, True, "TransportedThroughTruncation", True, True, True}];
 
 portableTest["special-zeta-dirichlet", "special",
   Module[{x, s}, s = AsymptoticExpansion[Zeta[x], x -> Infinity, SeriesTermGoal -> 3];

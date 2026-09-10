@@ -187,9 +187,16 @@ for the present task. A deliberate full run uses:
 wolfram.exe -noinit -script src/Tests/RunTests.wl
 ```
 
-Its optional `ASYMPTOTIC_VALIDATION_OUTPUT` export records the kernel, selected
-filenames, counts, and per-test outcomes. Unlike the focused harness, it does
-not record source hashes or impose a per-file time limit. Historical full-run
+Each discovered file is reported separately. The runner exits nonzero when
+no `.wlt` file is discovered, the package fails to load, a file produces no
+report object or executes no test, any test fails, or a requested export
+cannot be written; an empty run is not a pass. Its optional
+`ASYMPTOTIC_VALIDATION_OUTPUT` export records the kernel, discovered
+filenames, executed-test count, rejected files, per-file summaries, and
+per-test outcomes. Unlike the focused harness, it does not record source
+hashes or impose a per-file time limit. The
+[gate fixture check](../../validation/check_run_tests_gate.py) exercises these
+exits with synthetic files in a temporary tree. Historical full-run
 counts belong to the source and test set recorded at that milestone.
 
 [RunGeneratedCampaign.wl](RunGeneratedCampaign.wl) is a separate deterministic

@@ -242,3 +242,16 @@ VerificationTest[
   {100 < positive[[1]] < positive[[2]] < 102, negative[[1]] <= 0,
    1 < negative[[2]] < 2}],
  {True, True, True}, TestID -> "certificate-real-log-identities-avoid-large-exponentials-and-retain-negative-base-fallback"]
+
+VerificationTest[
+ Module[{x, y, s, omitted, unordered, inexact},
+  s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+  omitted = InverseCertificate[s, 1/10];
+  unordered = InverseCertificate[s, 1/10, "Interval" -> {1/5, 1/20}];
+  inexact = InverseCertificate[s, 1/10, "Interval" -> {0.05, 0.2}];
+  {FailureQ /@ {omitted, unordered, inexact}, #[[1]] & /@ {omitted, unordered, inexact},
+   omitted["Reason"], unordered["Reason"], inexact["Reason"], omitted["Certified"],
+   unordered["Interval"]}],
+ {{True, True, True}, {"InvalidInterval", "InvalidInterval", "InvalidInterval"},
+  "IntervalNotSupplied", "MalformedInterval", "MalformedInterval", False, {1/5, 1/20}},
+ TestID -> "certificate-omitted-interval-is-diagnosed-separately-from-malformed-endpoints"]

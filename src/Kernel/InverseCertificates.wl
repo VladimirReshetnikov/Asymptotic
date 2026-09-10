@@ -336,8 +336,15 @@ AsymptoticAnalysis`InverseCertificate[GeneralizedSeries[a_Association], yv_, opt
   If[! MemberQ[{"Inverse", "CoreInverse"}, Lookup[a, "Kind", None]],
    certFail["Unsupported", "Certificates require an inverse or exact-core inverse expansion."]];
   If[! exactQ[yv] || ! NumericQ[yv], certFail["InexactTarget", "The certificate target must be an exact numeric expression."]];
+  (* The interval is required. The default Automatic is not a bracketing
+     request: no interval is inferred from asymptotic constants, so an omitted
+     interval gets its own diagnostic instead of a malformed-endpoint message. *)
+  If[interval === Automatic,
+   certFail["InvalidInterval", "No verification interval was supplied. InverseCertificate does not infer an interval from asymptotic constants; give Interval -> {lo, hi} with ordered exact rational endpoints.",
+    <|"Reason" -> "IntervalNotSupplied"|>]];
   If[! MatchQ[interval, {_?certRationalQ, _?certRationalQ}] || ! TrueQ[interval[[1]] < interval[[2]]],
-   certFail["InvalidInterval", "Supply Interval -> {lo, hi} with ordered exact rational endpoints."]];
+   certFail["InvalidInterval", "Supply Interval -> {lo, hi} with ordered exact rational endpoints.",
+    <|"Reason" -> "MalformedInterval", "Interval" -> interval|>]];
   If[! IntegerQ[wp] || wp < 10 || ! IntegerQ[maximum] || maximum < 0 ||
     ! MemberQ[{True, False}, refine] || ! IntegerQ[magnitude] || magnitude < 1,
    certFail["InvalidOption", "WorkingPrecision must be at least 10, MaxRefinements nonnegative, RefineExpansion Boolean, and ExponentMagnitudeLimit a positive integer."]];

@@ -137,7 +137,7 @@ def assemble() -> tuple[bytes, list[str]]:
               "   Rebuild: python validation/build_standalone.py\n"
               "   Verify:  python validation/build_standalone.py --check\n"
               "   This file is self-contained; load a remote URL with Get[URLDownload[url]].\n"
-              "   SPDX-License-Identifier: MIT *)\n\n")
+              "   SPDX-License-Identifier: MIT-0 *)\n\n")
     return (header + body).encode("utf-8"), sources
 
 
