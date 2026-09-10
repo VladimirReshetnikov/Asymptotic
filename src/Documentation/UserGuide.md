@@ -186,6 +186,12 @@ The first request has exclusive package cutoff `3`; the second requests native `
 <a id="native-backend-expansions"></a>
 ## Native Expansion Backends
 
+Use an explicit native backend when a built-in's input and order conventions
+are required. Read [Basic Examples](#native-basic-examples) for the loading
+and inspection pattern, [Automatic Selection](#automatic-backend-routing)
+for routing, and [Known Deviations and Coverage Gaps](#native-coverage-gaps)
+for the remaining work toward complete built-in coverage.
+
 <a id="native-coverage-gaps"></a>
 ### Known Deviations and Coverage Gaps
 
@@ -280,6 +286,7 @@ branch and resource options remain binding. Triple specifications retain
 their existing cutoff behavior; this rule-form admission does not reinterpret
 a cutoff as a native order.
 
+<a id="native-basic-examples"></a>
 ### Basic Examples
 
 Preserve a series with complex coefficients and inspect both its native and normalized forms:
@@ -328,7 +335,7 @@ Native results have the following contract:
 | --- | --- |
 | `"Kind"`, `"Scale"` | `"Native"`. |
 | `"NativeResult"` | Complete result returned by the selected built-in engine, including nested orders, conditions, or infinite expressions. |
-| `"Expression"` | `Normal` applied to the native result; also returned by `Normal[s]`. |
+| `"Expression"` | `Normal` applied to the native result during construction; this stored expression is returned by `Normal[s]`. |
 | `"Remainder"` | `Missing["NativeContract"]`; no package analytic remainder is asserted. |
 | `"Exact"` | `Missing["NotEstablished"]`; absence of a native `O` term is not an exactness proof. |
 | `"RemainderContract"` | `"NativeFormalOrder"` for `Series`, or `"NativeAsymptotic"` for `Asymptotic`. |
@@ -430,6 +437,39 @@ Every ordinary expansion uses a positive coordinate tending to zero.
 An ordinary block has the form `w^beta P[Log[w]]`. All terms at the same exponent belong to one block, including the complete logarithmic polynomial. Provably equal exact exponents are combined even when they have different symbolic forms. Exact cancellation is performed before blocks are counted and before the logarithmic degree of a remainder is determined. See [Equal Exponents and Complete Blocks](#equal-exponent-blocks).
 
 For an inverse, the target coordinate also includes the limiting value and selected sign. Use `s["RemainderVariable"]` to obtain the coordinate actually used; do not substitute `y` for it without checking the result.
+
+<a id="choose-precision"></a>
+### Choose a Cutoff or a Block Count
+
+Use a cutoff when the power of the omitted error matters; use `SeriesTermGoal`
+when the number of displayed nonzero blocks matters. Fix the backend explicitly
+when comparing those conventions with a built-in order:
+
+```wolfram
+Clear[x];
+powerCutoff = AsymptoticExpansion[Sin[x], {x, 0, 5},
+  "Backend" -> "Package"];
+twoBlocks = AsymptoticExpansion[Sin[x], {x, 0},
+  SeriesTermGoal -> 2, "Backend" -> "Package"];
+nativeOrder = AsymptoticExpansion[Sin[x], {x, 0, 5},
+  "Backend" -> "Series"];
+{Normal[powerCutoff], Normal[twoBlocks], Normal[nativeOrder]}
+```
+
+```wolfram
+{x - x^3/6, x - x^3/6, x - x^3/6 + x^5/120}
+```
+
+The package cutoff excludes the `x^5` block and records
+`powerCutoff["Remainder"]` as `PowerLogRemainder[x, 5, 0]`.
+The two-block request happens to retain the same expression here; zeros at
+even powers do not count as blocks. Native `Series` includes the requested
+fifth order. Matching built-in order semantics across the complete public
+interface is still part of the [coverage work](#native-coverage-gaps).
+
+For an inverse or a specialized scale, first identify the coordinate and
+prefactor. The number `5` need not mean a power of the original input variable;
+the following table identifies the relevant precision parameter.
 
 ### Cutoff Meanings by Scale
 
@@ -620,9 +660,9 @@ head. Explicit patterns and saved input using the former name must be updated.
 
 | Form | Meaning |
 | --- | --- |
-| `Normal[s]` | Approximation without the package wrapper; for a native result, `Normal[s["NativeResult"]]`, which need not be finite. |
-| `s["property"]` | A stored property. |
-| `s["Properties"]` | Available property names. |
+| `Normal[s]` | The stored `"Expression"` without the package wrapper; a native result stores its construction-time normalization, which need not be finite. |
+| `s["property"]` | A stored property, or `Missing["KeyAbsent", "property"]` when absent. |
+| `s["Properties"]` | The keys stored in this particular result, rather than a universal list of supported fields. |
 | `s[value]` | Evaluation of the approximation at a numerical value when a single expansion variable is identified; native multivariable results require explicit substitution. |
 
 ### Display and Evaluation
@@ -652,7 +692,7 @@ The underlying object still has head `GeneralizedSeries`. Copying the formatted 
 | `Head[s]` | `GeneralizedSeries`. |
 | `InputForm[s]` | Full reconstructible `GeneralizedSeries[association]` representation, including metadata. |
 | `OutputForm[s]` | Compact diagnostic representation. |
-| `Normal[s]` | Ordinary Wolfram Language expression, with the remainder and series metadata dropped. |
+| `Normal[s]` | Stored approximation expression; the package wrapper and its separate analytic remainder metadata are omitted. Native normalization follows the backend result. |
 
 For the example above, `Normal[s]` returns `y - y^2 + 2 y^3 - 5 y^4`. Arithmetic on `s` propagates its remainder:
 
@@ -687,6 +727,12 @@ Ordinary arithmetic on `Normal[s]` uses only the normalized expression. Keep an 
 | `"NativeResult"`, `"RemainderContract"` | Original backend result and its distinct contract for a result with `"Kind" -> "Native"`; see [Native Expansion Backends](#native-backend-expansions). |
 
 Property availability varies by family. Inspect `s["Properties"]` before relying on specialized metadata. Do not edit the underlying association to change a branch or precision claim.
+
+The [result-property reference](ResultReference.md) groups the actual fields
+by representation and explains absent values, exactness, coordinates, and
+native metadata. For example, an ordinary forward result can omit `"Scale"`,
+and an ordinary inverse can record `"ExactModel"` without an `"Exact"` field.
+Those absences do not by themselves mean that construction failed.
 
 An arithmetic result with `"Scale" -> "Composite"` retains a finite expression and separate error scales. It has no single remainder exponent or cutoff. See [Composite Results](#composite-series-results).
 

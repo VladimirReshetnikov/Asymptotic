@@ -102,7 +102,7 @@ documentationCases = HoldComplete[{
       strict = AsymptoticExpansion[Exp[I x], {x, 0, 3}, "Backend" -> "Package"];
       {documentationEqual[automatic, 1 + I x - x^2/2 - I x^3/6],
         automatic["NativeBackend"], automatic["BackendSelectionReason"], automatic["OrderConvention"],
-        MatchQ[strict, Failure["InexactInput", _Association]]}],
+        MatchQ[strict, Failure["UnprovedRealCoefficient", _Association]]}],
     {True, "Series", "PackageRepresentation", "Native", True}],
 
   documentationTest["docs-native-list-zero-goal-search-history",
