@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 KERNEL = ROOT / "src" / "Kernel"
 TARGET = ROOT / "AsymptoticAnalysis.wl"
 LOAD = re.compile(r'^Get\[FileNameJoin\[\{\$kernelDirectory, "([A-Za-z0-9_]+\.wl)"\}\]\];[ \t]*$', re.M)
+MATHICS_LOAD = re.compile(r'^If\[StringContainsQ\[\$Version, "Mathics"\], Get\[FileNameJoin\[\{\$kernelDirectory, "([A-Za-z0-9_]+\.wl)"\}\]\]\];[ \t]*$', re.M)
 DIRECTORY = '$kernelDirectory = DirectoryName[$InputFileName];'
 
 
@@ -63,6 +64,34 @@ def executable_text(text: str) -> str:
     return "".join(result)
 
 
+def mathics_bootstrap(source: str) -> str:
+    """Delay parsing adapters as well as their evaluation on the Wolfram kernel.
+
+    Scan separately parses each top-level statement, preserving streaming
+    Begin/End and symbol resolution just as Get does. Splitting the masked
+    source ignores semicolons in strings, comments, and nested expressions.
+    """
+    code = executable_text(source)
+    statements, start, depth = [], 0, 0
+    for i, char in enumerate(code):
+        if char in "[{(":
+            depth += 1
+        elif char in "]})":
+            depth -= 1
+            if depth < 0:
+                raise ValueError("Unbalanced Mathics bootstrap source")
+        elif char == ";" and depth == 0:
+            statements.append(source[start:i + 1])
+            start = i + 1
+    if depth:
+        raise ValueError("Unbalanced Mathics bootstrap source")
+    if code[start:].strip():
+        statements.append(source[start:])
+    quoted = ",\n".join(json.dumps(s, ensure_ascii=False) for s in statements)
+    return ('If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {\n'
+            + quoted + '\n}]];')
+
+
 def assemble() -> tuple[bytes, list[str]]:
     sources: list[str] = []
 
@@ -79,6 +108,9 @@ def assemble() -> tuple[bytes, list[str]]:
             if text.count(DIRECTORY) != 1:
                 raise ValueError("Review the changed modular entry-point directory setup")
             text = text.replace(DIRECTORY, "(* Standalone: every companion is included below. *)")
+        code = executable_text(text)
+        text = MATHICS_LOAD.sub(lambda match: mathics_bootstrap(inline(match[1]))
+                               if code[match.start():match.start() + 2] == "If" else match[0], text)
         code = executable_text(text)
         text = LOAD.sub(lambda match: inline(match[1])
                         if code[match.start():match.start() + 3] == "Get" else match[0], text)

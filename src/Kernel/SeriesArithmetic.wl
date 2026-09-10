@@ -169,6 +169,9 @@ seriesHeldNormalize[held_HoldComplete, working_, limit_] := Module[{value, next}
 seriesArithmeticAutomatic[held_HoldComplete] := Block[{$seriesArithmeticEnabled = False},
   catch[seriesHeldNormalize[held, Automatic, 20000]]];
 
+(* Mathics rejects a named whole-expression pattern in TagSetDelayed's tag
+   search. Its equivalent rules are installed by MathicsFormatting.wl. *)
+If[! (StringQ[$Version] && StringContainsQ[$Version, "Mathics"]),
 GeneralizedSeries /: expression : Plus[___, s_GeneralizedSeries, ___] /;
     TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
   seriesArithmeticAutomatic[HoldComplete[expression]];
@@ -185,7 +188,8 @@ Scan[Function[head, With[{h = head},
   GeneralizedSeries /: expression : h[s_GeneralizedSeries] /;
       TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
     seriesArithmeticAutomatic[HoldComplete[expression]]]],
-  {Log, Exp, Abs, Sin, Cos, Tan, Sinh, Cosh, Tanh, ArcSin, ArcCos, ArcTan}];
+  {Log, Exp, Abs, Sin, Cos, Tan, Sinh, Cosh, Tanh, ArcSin, ArcCos, ArcTan}]
+];
 
 AsymptoticAnalysis`SeriesNormalize[expr_, OptionsPattern[]] := Block[{$seriesArithmeticEnabled = False}, catch[Module[
   {cut = OptionValue["Cutoff"], limit = OptionValue["MaxTerms"], result, candidate, precision, next, working, tries = 0},

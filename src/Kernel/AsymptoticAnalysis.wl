@@ -109,6 +109,11 @@ Begin["`Private`"];
 
 $kernelDirectory = DirectoryName[$InputFileName];
 
+(* Bind evaluator adapters only when loading in Mathics. The official Wolfram
+   kernel continues to resolve every existing definition to System` symbols. *)
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCompatibility.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsSimplification.wl"}]]];
+
 (* ------------------------------------------------------------------ *)
 (* Failure handling                                                     *)
 (* ------------------------------------------------------------------ *)
@@ -1160,7 +1165,9 @@ heldRemainderScale[HoldComplete[PowerLogRemainder[w_, b_, k_]]] := Module[{base,
 PowerLogRemainder /: MakeBoxes[r : PowerLogRemainder[_, _, _], fmt : StandardForm | TraditionalForm] :=
   Replace[heldRemainderScale[HoldComplete[r]],
     HoldComplete[scale_] :> seriesInterpretationBoxes[HoldComplete[O[scale]], HoldComplete[r], fmt]];
-Format[r_PowerLogRemainder, OutputForm] := With[{sc = remainderScale[r]}, HoldForm[O[sc]]];
+If[! (StringQ[$Version] && StringContainsQ[$Version, "Mathics"]),
+  Format[r_PowerLogRemainder, OutputForm] := With[{sc = remainderScale[r]}, HoldForm[O[sc]]]
+];
 
 (* ------------------------------------------------------------------ *)
 (* Residual check                                                       *)
@@ -1304,6 +1311,7 @@ Get[FileNameJoin[{$kernelDirectory, "ParameterizedSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "DirichletSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NativeSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NativeCompatibility.wl"}]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsFormatting.wl"}]]];
 
 End[];
 EndPackage[];

@@ -1,5 +1,9 @@
 # Mathics3
 
+For installation, package-specific validation, compatibility subtleties, and
+current limitations, see [AsymptoticAnalysis compatibility](COMPATIBILITY.md).
+The comparison below is background material, not a package acceptance record.
+
 https://mathics.org/
 
 The useful way to think about Mathics3 is **not** as “another CAS with Mathematica-ish notation”, but as an independent reimplementation of a substantial subset of the Wolfram Language. Its parser and evaluator deliberately target WL semantics, and quite a lot of ordinary Mathematica code runs unchanged. The largest differences are now less about basic syntax than about the **long tail of evaluator semantics and the enormous difference in library coverage**.
