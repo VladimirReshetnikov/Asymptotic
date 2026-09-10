@@ -220,11 +220,8 @@ compatible native backends. `"Package"` disables that routing. Explicit
 its contract. The [compatibility plan](docs/development/NATIVE_COMPATIBILITY.md)
 records remaining coverage and evaluation questions; the
 [validation record](validation/README.md) identifies each focused run's
-source snapshot and scope. The [wave-3 intake](docs/development/WAVE_3_INTAKE.md)
-consolidates that wave's findings and proposals; the newer
-[wave-4 index](external-reports/code-review/wave-4/README.md) links the Mathics
-and validation-runner reviews and distinguishes their evidence from current
-implementation status.
+source snapshot and scope. The [wave-4 intake](docs/development/WAVE_4_INTAKE.md)
+consolidates the latest findings and proposals for implementation.
 
 For a change, update the applicable source, guide, mathematical hypotheses,
 and [development notes](docs/development/README.md). Run the relevant focused

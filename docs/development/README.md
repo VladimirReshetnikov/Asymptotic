@@ -43,13 +43,15 @@ implementation evidence, and keeps pending repairs separate from deferred API
 and research proposals. The wave indexes record each package's pinned snapshot
 and distinguish executed native observations from independent models and
 unrun regression specifications.
-The [wave-3 intake](WAVE_3_INTAKE.md) maps that wave's 44 attributed ledger entries
-and consolidates their proposals. There are 167 identified entries across
-the first three waves before overlapping findings are grouped; they are not
-167 distinct current defects. The [wave-4 intake](WAVE_4_INTAKE.md) maps another
-64 report-local entries, including findings, advisories, and extensions, to
-shared obligations; they remain a separate count. Current work implements and documents the reviewed
-recommendations, with each repair tied to its own focused validation.
+The [wave-3 intake](WAVE_3_INTAKE.md) maps 44 attributed ledger entries;
+the [wave-4 intake](WAVE_4_INTAKE.md) maps another 64, including numbered
+findings, advisories, and extensions, to shared obligations. Together with
+the 123 entries from waves 1–2, these give 231 attributed report entries
+before overlapping findings are grouped. The earlier 167-entry count covers
+only waves 1–3; neither count measures distinct current defects. The intakes
+also discuss unnumbered proposals. Current work implements and documents
+the reviewed recommendations, with each repair tied to its own focused
+validation.
 
 The [request-resolution workplan](REQUEST_RESOLUTION.md) connects W3-01–W3-03
 and W3-15 through shared argument roles, effective defaults, and once-only

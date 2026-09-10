@@ -51,5 +51,5 @@ licenses; for example, see [19's audit license](code-review-19/LICENSE-AUDIT.txt
 [27's notice](code-review-27/NOTICE.md). This index does not establish a common
 license or claim that all supplied programs have been executed.
 
-Return to the [four-wave index](../README.md) or the
+Return to the [review index](../README.md) or the
 [development workflow](../../../docs/development/README.md).

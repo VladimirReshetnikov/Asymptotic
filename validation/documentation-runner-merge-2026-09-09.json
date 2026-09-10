@@ -1,0 +1,105 @@
+{
+  "RecordedAt": "2026-09-10T03:48:58.359568+00:00",
+  "MergeParents": [
+    "7e59dd5dcaff923454e5302d65b13c3a6849c0c7",
+    "1a183a8c0d1897fb09a50ff7e4004fcc387bd9c4"
+  ],
+  "Scope": "Documentation merge after the first runner integrity repair. Preserve published W4 identifiers, synchronize repaired versus open runner contracts, and retain historical source-specific evidence.",
+  "Documentation": {
+    "Guide": {
+      "PublicSymbols": 38,
+      "Anchors": 220,
+      "Links": 172,
+      "BrokenLocalLinks": 0,
+      "DuplicateAnchors": 0,
+      "GeneratedHTMLMatchesSources": true,
+      "ReferenceDocuments": {
+        "ResultReference.html": {
+          "Anchors": 44,
+          "Links": 74
+        }
+      }
+    },
+    "MathematicalChapters": 31,
+    "MathematicalLabels": 336,
+    "MathematicalReferences": 315,
+    "BibliographyEntries": 11,
+    "MissingReferences": 0,
+    "MissingCitations": 0,
+    "DocumentationLinks": {
+      "MaintainedMarkdownPages": 55,
+      "LocalLinks": 2110,
+      "LocalFragments": 244,
+      "BrokenLocalLinks": 0
+    },
+    "TextEncoding": {
+      "FilesChecked": 90,
+      "EncodingErrors": 0
+    },
+    "PreservedEngineeringFiles": 6,
+    "FullPackageSuiteRun": false
+  },
+  "Intake": {
+    "MappedReportLocalEntries": 64,
+    "CanonicalWorkItems": 17,
+    "MappingsExactlyMatchIncomingCrosswalk": true,
+    "DetailedSourceMechanisms": 20,
+    "UnnumberedProposalGroups": 16
+  },
+  "RunnerRerun": {
+    "Command": [
+      "python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "validation",
+      "-p",
+      "test_mathics_runner.py",
+      "-v"
+    ],
+    "Passed": 32,
+    "Failed": 0,
+    "Skipped": 0,
+    "SourceHashesMatchIncomingReceipt": true,
+    "SourceSHA256": {
+      "validation/run_mathics_tests.py": "48de15d50aa2a867b23723996680f46baff4681af491210b0587dff9dacb4529",
+      "validation/test_mathics_runner.py": "58ac5ec1bc5e165f06d02c40552c2f856a4ecd385ab04abeccad0a208663b825"
+    },
+    "Scope": "Focused Python tests with synthetic protocol peers, real temporary Python processes and virtual environments; no Mathics or Wolfram package execution.",
+    "ConsoleOutputStoredInThisReceipt": false
+  },
+  "PayloadProvenance": {
+    "ArrivalRevision": "8cb9b7f16b005e368a360308ec3b78919ef7c465",
+    "Files": 180,
+    "WorkingBytesRecordedHashesAndGitBlobsAgree": true,
+    "Receipt": "validation/wave4-payload-provenance.json"
+  },
+  "PreservedPresentation": {
+    "Review": "validation/documentation-wave4-review-2026-09-09.json",
+    "ArticlePDFSHA256": "726d6a89c8c3260c5c89f6dc231f505183c8c78c34886d0cb4d0ea9a8e295165",
+    "GuideHTMLUnchangedByRunnerMerge": true,
+    "ArticlePDFUnchangedByRunnerMerge": true
+  },
+  "SourceAndEvidenceSHA256": {
+    "docs/development/WAVE_4_INTAKE.md": "1119b729fc590ad4c93008c0d9a257593dc2b0a06ce9b854618f26a531a663d7",
+    "docs/development/CODE_REVIEW_STATUS.md": "1a6f722743637e516b13aaae80fdb7e5d50d5915be5f2a11afdbb8e675589698",
+    "docs/development/README.md": "fcc318648c56437a064ab7a80a448d48b6db80317652b7210e636482919d63b8",
+    "docs/Mathics/PORTABLE-VALIDATION.md": "849a7145424f3ad60827316f481c0c62535530c4ccdab4b6d00550234ec2c15b",
+    "validation/README.md": "d372fb5641e2b1272db1a423f617dd661da555b9b605b8fc14a57a87fbba00e2",
+    "external-reports/code-review/README.md": "4034f1ee2a6327da2e9e5b3e9bec0b2a6395df37df4a84e806a48080c08f0a48",
+    "external-reports/code-review/wave-4/README.md": "40ce01621d421ce42b996a838c63331f959440818c4af1652d1d82dc20689a55",
+    "validation/run_mathics_tests.py": "48de15d50aa2a867b23723996680f46baff4681af491210b0587dff9dacb4529",
+    "validation/test_mathics_runner.py": "58ac5ec1bc5e165f06d02c40552c2f856a4ecd385ab04abeccad0a208663b825",
+    "validation/wave4-intake-crosswalk.json": "9d79d265c0474d4b8b20be3c2d4e6411346cf0c0aa488347dcbc2d25fe642f11",
+    "validation/wave4-payload-provenance.json": "ae2c7158e9b0f2d712ec6ec5b777c8e7a631705dba65fe772bbadcf6e0a89ab6",
+    "validation/wave4-runner-integrity-tests.json": "253cd381f980149f43cde1a2a18af0626f4e19c9727380760b851eb681a25d46",
+    "src/Documentation/UserGuide.md": "efcb485b10e8bbeffe879bb6310245a4f1910c21c745f658b7003893a3b6172e",
+    "src/Documentation/UserGuide.html": "fbfcec94f0eab0a95bae54d1ee3539533b1baa4dc56acb4d32ceceace0b5873c",
+    "docs/article/asymptotic-inverse.pdf": "726d6a89c8c3260c5c89f6dc231f505183c8c78c34886d0cb4d0ea9a8e295165"
+  },
+  "TextHashNormalization": "CRLF to LF; PDF bytes unchanged.",
+  "FullPackageSuiteRun": false,
+  "MathicsRuntimeRun": false,
+  "CoverageGoalsCompleted": false
+}

@@ -19,6 +19,33 @@ for known implementation and acceptance gaps.
 
 ## Wave-4 integration and merged artifacts
 
+The [documentation and runner merge audit](documentation-runner-merge-2026-09-09.json)
+records the combined intake under the 17 established W4 identifiers and an
+independent repeat of all 32 Python runner tests. The portable-runner guide
+now describes the repaired behavior and remaining gaps at `45ea65f`.
+All 180 supplied payload files were compared with their arrival Git blobs;
+the article and generated guide remain tied to their existing reviewed artifacts.
+
+The first [runner-integrity check](wave4-runner-integrity-tests.json) passes
+**32/32 Python tests**, including 18 new cases, with no skips and two unchanged
+source hashes. `run_mathics_tests.py` now accepts deadlines only in
+`(0, 86400]` seconds, preserves lexical executable paths for virtual-environment
+launchers, keeps every observed source mismatch invalid after restoration,
+and protects both report and `.tmp` paths from aliasing fingerprinted inputs.
+The first mismatch hashes remain in `FirstObservedSourceDriftSHA256`.
+Tests include actual symlinks/hard links, a temporary venv-only import and
+owned-descendant timeout cleanup on Windows. They do not load Mathics or
+Wolfram. Package inputs still remain live; unseen between-checkpoint changes,
+complete dependency/copy coverage, output byte limits and interrupted-attempt
+records remain open in the intake.
+
+The [wave-4 intake](../docs/development/WAVE_4_INTAKE.md) maps all 64 new
+identified entries and the unnumbered proposals. Its
+[crosswalk audit](wave4-intake-crosswalk.json) verifies every local ID against
+the original ledgers; the [payload audit](wave4-payload-provenance.json)
+verifies all 180 supplied files against arrival `8cb9b7f`. These are static
+intake/provenance checks, not package runtime acceptance.
+
 The wave-4 integration merges `origin/main` through `38aa253`, preserving the
 Fourier recurrence repair and the incoming public-help corrections. The
 [merged loading receipt](wave4-merge-loading-tests.json) records **105/0** in
@@ -30,6 +57,14 @@ LaTeX passes over 32 unchanged TeX files. Its [layout record](wave4-merge-pdf-la
 records all 102 pages rendered, visual inspection of pages 1–6 and 67–72 plus
 full page 68, and no text outside page bounds. Earlier repair receipts retain
 their exact historical inputs; the full package suite remains skipped.
+
+The later documentation-only integration through `9b83d04` retains those
+61 loading inputs, all 32 TeX inputs and the same PDF hash. It resolves the
+overlapping wave-4 navigation edits against the completed intake, retains
+the refined Mathics numerical/symbolic limitations, and passes the three
+new maintained-text encoding tests. The earlier incoming layout receipt
+below keeps its own historical scope; it is not a replacement for the
+current wave-4 merge artifact record.
 
 ## Fourier composition stops before unused products
 
@@ -177,9 +212,12 @@ article. Both build histories retain their own source and artifact hashes.
 
 ## Documentation quality and coverage register
 
-The [wave-4 documentation review](documentation-wave4-review-2026-09-09.json)
-records complete attribution of 64 report-local entries to 20 work groups,
-the portable-runner contract audit, and the updated Mathics numerical and
+The initial [wave-4 documentation review](documentation-wave4-review-2026-09-09.json)
+records complete attribution of 64 report-local entries to 20 detailed work groups.
+The merged intake preserves `main`'s 17 canonical identifiers and treats those
+20 mechanisms as subordinate details, retaining all original report IDs.
+The earlier receipt also records
+the portable-runner contract audit and the updated Mathics numerical and
 symbolic-conversion guidance. Static checks include maintained-text encoding,
 local links, and generated HTML. Desktop and narrow browser reviews cover the
 new numerical-precision explanation. The merged Fourier PDF has complete

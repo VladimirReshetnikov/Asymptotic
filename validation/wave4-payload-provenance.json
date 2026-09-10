@@ -1,0 +1,922 @@
+{
+  "Scope": "Byte comparison of every supplied wave-4 payload with its arrival Git blob; no bundled program executed.",
+  "Repository": "https://github.com/VladimirReshetnikov/Asymptotic",
+  "ArrivalRevision": "8cb9b7f16b005e368a360308ec3b78919ef7c465",
+  "PayloadFiles": 180,
+  "FilesPerReport": {
+    "28": 16,
+    "29": 32,
+    "30": 20,
+    "31": 21,
+    "32": 17,
+    "33": 14,
+    "34": 26,
+    "35": 18,
+    "36": 16
+  },
+  "ArticleTeXFiles": 9,
+  "ArticlePDFFiles": 9,
+  "AllArrivalBytesPreserved": true,
+  "Files": {
+    "external-reports/code-review/wave-4/code-review-28/README.md": {
+      "GitBlob": "2cc8387d3f35d651786f30b4a42df517ed22b51e",
+      "SHA256": "d0769dc6d0def807d1870a1998a5394086f7a12fc13a0f6183310b3ae25cab8a",
+      "Bytes": 5156
+    },
+    "external-reports/code-review/wave-4/code-review-28/article.pdf": {
+      "GitBlob": "44ad28437cd12a47f48fe7559610e1a6d78ce33c",
+      "SHA256": "5ce8bc1c9387ac8fdafe6e2a0e249ef93567c59fe636654fa99c3cf9a328321e",
+      "Bytes": 379931
+    },
+    "external-reports/code-review/wave-4/code-review-28/article.tex": {
+      "GitBlob": "f7f7c6a69436d9ee80baadc09634506170517e84",
+      "SHA256": "005b328d4b374e46a2409b1d74cbd55e01a9462b85a1426713fc553b4195caad",
+      "Bytes": 84295
+    },
+    "external-reports/code-review/wave-4/code-review-28/build.sh": {
+      "GitBlob": "7804b0f0c943ca0c08520fb21ae3c17e872f8cf0",
+      "SHA256": "287fc6a1310a3db0d0a7eed8926c53575d7e2c3754b7a7dadd10f3a159eb9e3d",
+      "Bytes": 161
+    },
+    "external-reports/code-review/wave-4/code-review-28/code/PortabilityProbes.wl": {
+      "GitBlob": "25981a1830a9a283251ce1312d0bc0c745645d9a",
+      "SHA256": "1b9f547bbbe67745db52e3670b6890a4560b2c053543dc9438f1a80b9cc0ad0f",
+      "Bytes": 2950
+    },
+    "external-reports/code-review/wave-4/code-review-28/code/audit_checks.py": {
+      "GitBlob": "e4dfba6f18662ba676df00cd1159a3555c6b6021",
+      "SHA256": "fdf1debddcfadc4b2184d307a45f001badcb1998e3a5204525d0913b8f42ed91",
+      "Bytes": 8953
+    },
+    "external-reports/code-review/wave-4/code-review-28/code/bounded_process.py": {
+      "GitBlob": "3b9d3e98447adfbe59a755cb14675d9aea96963d",
+      "SHA256": "bbbdb6e98c6de3b9b7a03b94808c844db51b1ca6a1b3a4ab38da738dfcae54ba",
+      "Bytes": 4000
+    },
+    "external-reports/code-review/wave-4/code-review-28/code/certified_entropy_inverse.py": {
+      "GitBlob": "f50536587ec28a68c346914159c980ae2da6faaa",
+      "SHA256": "d7ed944d7c113a6c0896731213c4978b05c3f47afb6967f86bb15fb84234f5c9",
+      "Bytes": 6121
+    },
+    "external-reports/code-review/wave-4/code-review-28/code/exact_portability_prototypes.py": {
+      "GitBlob": "0c86fb518ca18da787d766ce9830bdfaf10d6c4d",
+      "SHA256": "6fb0fe18f686cc1389775f049f5c668d982909989fbb793e3c7750383a84eae6",
+      "Bytes": 2488
+    },
+    "external-reports/code-review/wave-4/code-review-28/code/run_audit_probes.py": {
+      "GitBlob": "f7223ab546311941581baf5aaebfef8f21c2b43f",
+      "SHA256": "6cf580f76d6ef2457ddc99e5fa70fe016d81d90bea46b99f7499161d57fab550",
+      "Bytes": 5361
+    },
+    "external-reports/code-review/wave-4/code-review-28/evidence/entropy-certificate.json": {
+      "GitBlob": "930cb012571d93f9e4084e31fa77e745ebea0061",
+      "SHA256": "a6344f070c08842fe0e4e29f36755b340d1d71b08c63111ab9da575cfe72315a",
+      "Bytes": 745
+    },
+    "external-reports/code-review/wave-4/code-review-28/evidence/independent-checks.json": {
+      "GitBlob": "85d829a9094cd179a7d40f03d6a2910cbe9fd943",
+      "SHA256": "3fdee3acc4a957973c3872d351e15ca59b662a1f7a338c5cbfbb002d8554c318",
+      "Bytes": 323
+    },
+    "external-reports/code-review/wave-4/code-review-28/evidence/independent-checks.txt": {
+      "GitBlob": "47115eb5ba941003c993cb34c8c99cc2c834e62b",
+      "SHA256": "14161fa0680ef8c2b8edaca2c7514f1368ac9a0a7c93a6f43b8cd33769b4601e",
+      "Bytes": 2236
+    },
+    "external-reports/code-review/wave-4/code-review-28/evidence/lambert-argument-countermodel.json": {
+      "GitBlob": "8669a4a6ed521ccd5e1362c2e6606c813a1f800d",
+      "SHA256": "35d757e55e16d2b2753b57b1164285c7c5d9c75814d3db4dfede8f761cf390bd",
+      "Bytes": 849
+    },
+    "external-reports/code-review/wave-4/code-review-28/evidence/novelty-ledger.csv": {
+      "GitBlob": "3d20202066479f36679fa2d65bcc1a98ac1f00da",
+      "SHA256": "ae2e210b7d74069e5a92a4a35a9a97bc43184aa95eda9fba270936b06e9e065a",
+      "Bytes": 2773
+    },
+    "external-reports/code-review/wave-4/code-review-28/evidence/review-scope.json": {
+      "GitBlob": "333281b41cfbfe0dc53ebb5dabbf71ffac2678e4",
+      "SHA256": "0bd684b0ea0cda8c4fd2ad52ab47d8b138b249ea5363d8f1bf5503e130619b3d",
+      "Bytes": 902
+    },
+    "external-reports/code-review/wave-4/code-review-29/LICENSE-audit-code.txt": {
+      "GitBlob": "04ab2828f36e1d0738eef9a35a12758027de122b",
+      "SHA256": "36aae8328beb37d6ce31f6305beffe147eafa169a90560684c9a58a70d78947f",
+      "Bytes": 1011
+    },
+    "external-reports/code-review/wave-4/code-review-29/README.md": {
+      "GitBlob": "4037b9d748f5387e7d33223ef851ea801ec18f07",
+      "SHA256": "5da131244adeee45b3cf6a6c220787675cd46c7513c5455ff2085ec7e1976fef",
+      "Bytes": 5819
+    },
+    "external-reports/code-review/wave-4/code-review-29/article/asymptotic-mathics-audit.pdf": {
+      "GitBlob": "be606ae58715309a8a01190de6f9709f9cd47a17",
+      "SHA256": "662095f32300df12aeb7c7710e94af879d335999718918e57dfec4a266be9494",
+      "Bytes": 308446
+    },
+    "external-reports/code-review/wave-4/code-review-29/article/asymptotic-mathics-audit.tex": {
+      "GitBlob": "b7157fa4d79e46ae7d565d63b8ef9ba1c70cc78b",
+      "SHA256": "0cd18e9325be7657229e964dbed96193be444bb50e53c7c8d8f3d5c2423ced65",
+      "Bytes": 85981
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/adapter_characterization.wl": {
+      "GitBlob": "a5d1a71db328b47ba2f996ce58585214d0d1a85f",
+      "SHA256": "28061afccd0f394e626ca961189a39d471d4be2527083a945b87a587d63a2fbf",
+      "Bytes": 1381
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/gamma_inverse_jet.py": {
+      "GitBlob": "f1bc9e8f7f7eb3a06ba008d66d63602d816af561",
+      "SHA256": "be8535265557d1c487e8e0e515bd8effe41602b9989c853a3d103a3321677666",
+      "Bytes": 5599
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/lambert_minus_one.py": {
+      "GitBlob": "e40cabe09809bb5a34a76c12d8726ad1cacdc15c",
+      "SHA256": "5d23d74ee9c4cee4d44d96aaa8326d67892965a1b771acd7592aeefa6679fe00",
+      "Bytes": 3044
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/make_harness_candidate.py": {
+      "GitBlob": "4e2d3eba937f184d10a3e9705c256f5889cee2c4",
+      "SHA256": "e8daf0b10c694f7a3675ccde9f25704d138d14d85143aec2ecd3ea7ae3b1c960",
+      "Bytes": 4921
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/native_smoke.wls": {
+      "GitBlob": "26210f28100f11449f4f4eef2cf5b515947a398a",
+      "SHA256": "115a34cec5f1199d6e7b34d296b8c833e9ba1b2475a11fef3d628d8e48a3f491",
+      "Bytes": 963
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/requirements.txt": {
+      "GitBlob": "de9542d36e40090c2dad83e84c503496a711bec7",
+      "SHA256": "47fd19021144e071cc43b6e265aafada0056abe89724ad95bd6e3a8e37995b94",
+      "Bytes": 28
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/summarize_ci.py": {
+      "GitBlob": "2f4190a05f9b11c5af80218ec9559c88556034c3",
+      "SHA256": "f94537c4b6655fc36de7440212d9925042dfc1c3c108c43ce982a498207a9e04",
+      "Bytes": 1217
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/test_harness.py": {
+      "GitBlob": "8e4c1e6b822212ed1f3c6100e07c9faa4a3b7f96",
+      "SHA256": "fbd04d4453df1bc9f2faafcd007a9f3c3ac7b2b7d8c9ad69ed34db43263e4f34",
+      "Bytes": 8817
+    },
+    "external-reports/code-review/wave-4/code-review-29/code/test_mathematical_prototypes.py": {
+      "GitBlob": "d0f92937c62d72653b82e24abb54623b00dd1ddf",
+      "SHA256": "c6fd6cea1827c77520f0c0ce93226ac3e76dbc1d4043f77b22c4cf89a94a855e",
+      "Bytes": 4826
+    },
+    "external-reports/code-review/wave-4/code-review-29/fixtures/LICENSE-upstream.txt": {
+      "GitBlob": "7d2b7fa09617f2024f157a40a318f4b12586644b",
+      "SHA256": "7e69794ef71218df652ac490aa48e6f325361d3f09cbaa05d93afc1ea597ef1c",
+      "Bytes": 926
+    },
+    "external-reports/code-review/wave-4/code-review-29/fixtures/run_mathics_tests.py": {
+      "GitBlob": "df59971aad4757130a5b6f826cf71d10961c525b",
+      "SHA256": "7b9d49e591a44e387c1253d01f41af1aaec713d722573a1ace0f3cb03052f185",
+      "Bytes": 12692
+    },
+    "external-reports/code-review/wave-4/code-review-29/patches/portable_runner.diff": {
+      "GitBlob": "cdffb8e9034f29e997779c61db7c0fb80584ac49",
+      "SHA256": "9e99f2ae7709264e0b6b2a8ed72b919b8894a405eeb5366ddf17f0b58dda9fcc",
+      "Bytes": 6437
+    },
+    "external-reports/code-review/wave-4/code-review-29/patches/run_mathics_tests_candidate.py": {
+      "GitBlob": "9710fa4412bfcba3f174ebe2b2cff78464ce4dd1",
+      "SHA256": "539d942dee66c713754d696413aacf3ad5a2ade1671f2c2d9f647777bdcf00b0",
+      "Bytes": 14737
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/ci-summary.csv": {
+      "GitBlob": "17eec6c962148cf5116993daea9ec9867ab348f6",
+      "SHA256": "43338792d988c40ebedc1e64574eeb0806ac4adcbd0f0b3e71d65be232da7e47",
+      "Bytes": 386
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/ci-summary.json": {
+      "GitBlob": "220b7d088a84f93ef585588a2c6ed80ebe4cdbf5",
+      "SHA256": "f3b752e3f994afc9190adfa1e21ee61c3ba0c6ee9a5d809381678c25611ac044",
+      "Bytes": 1764
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/ci/mathics-modular-calculus.json": {
+      "GitBlob": "0ffe6f6718f6c069c206c14b2d831dde3ddc806a",
+      "SHA256": "62cde16ff3b83d3eed5d66f91266fb920907cb17c14ee85990e396d7c5460665",
+      "Bytes": 20035
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/ci/mathics-modular-contracts.json": {
+      "GitBlob": "03b20726ce8c45ad10a223a332affdf6d92c1135",
+      "SHA256": "a1b5ba4876eaf80a1a3e85dd6fea131c4a72f4e9e34c692cfcda7d5e2f26531e",
+      "Bytes": 28564
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/ci/mathics-modular-foundation.json": {
+      "GitBlob": "65d4f83ada1bf7a9d5b2ab8a0decb8f94fcff01e",
+      "SHA256": "038c1a06f99cb01a89fefe9b9e88934ac350ccdc3fa275c915e0b1a8efaa9628",
+      "Bytes": 32395
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/ci/mathics-modular-operations.json": {
+      "GitBlob": "5f2272d73baace632817b97603ced037265d86f7",
+      "SHA256": "a407a3252c235157b04700bbc4d36eecc1147aba43942edc2f7202ac841f432b",
+      "Bytes": 9989
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/ci/mathics-modular-special.json": {
+      "GitBlob": "4551db91783c47d6dd4287c70c67bbc87ebbee2a",
+      "SHA256": "fe239fccf7aa451897b3db5ce9754689a087723c3abde368a8a59ebfb8c685c1",
+      "Bytes": 15515
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/ci/mathics-standalone-foundation.json": {
+      "GitBlob": "66895403e789d0b1131ae59fd179f04497d5b00d",
+      "SHA256": "3df7064e2fa2faedd1b3d6becd97a840876a0d5f90d853fe7a7e44c7c2b81e9c",
+      "Bytes": 9191
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/harness-tests.json": {
+      "GitBlob": "3d84b1d4f55e9c1700e8dd8b4de691eca14775e6",
+      "SHA256": "fcf23b2942e21ffb62a4ece4785b939605a9d0f1fbad9bb8cd5a80514da193c5",
+      "Bytes": 6756
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/harness-tests.txt": {
+      "GitBlob": "6187955bad3a9dd7ed364d3ec8c7a6ddde0c58e1",
+      "SHA256": "c436e284a41af98b410d8073ec95c948b384c32c50a5d7bf7f34c052e13682b8",
+      "Bytes": 683
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/mathematical-tests.json": {
+      "GitBlob": "d8e3e0e483dc35f54ed4f2e5b2611e382a63b6a2",
+      "SHA256": "976c21d92c896d3109c7396f7f802f3288aec523b015955b5678e91df0855acc",
+      "Bytes": 9659
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/mathematical-tests.txt": {
+      "GitBlob": "ca250a878b15f0eea7d766ce2055d1030d4e33fc",
+      "SHA256": "5ba86740830771d08357b0ff08614b3eb1116551777d4e13b2f4439350732977",
+      "Bytes": 778
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/native-observations.json": {
+      "GitBlob": "72f5b168c496246623a62cec4b2d34e650b5c59f",
+      "SHA256": "49f8993e0ea9814045b760d6192b4a4949bcbcb57f738a2b9d90065f8c1beded",
+      "Bytes": 1494
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/novelty-ledger.json": {
+      "GitBlob": "629034154225a527952ee973fdebe9edb56ea8eb",
+      "SHA256": "13c92040ec8d9e97eb439753363311650c694375464d5ff5185a7d43a3aef678",
+      "Bytes": 2827
+    },
+    "external-reports/code-review/wave-4/code-review-29/results/provenance.json": {
+      "GitBlob": "03c2df70ac6963ae7d804dfa2b2a3d851285a05b",
+      "SHA256": "85971d177846689229b3815e868baecff134854c8e7efa375bc10aa514a48891",
+      "Bytes": 1145
+    },
+    "external-reports/code-review/wave-4/code-review-30/LICENSE": {
+      "GitBlob": "b583f4ac7ad15c46652ed8b07311e432fdb12387",
+      "SHA256": "74543b63ddfc33e9fa09c60973e952eaf57ee781b10f9dc0bbab6afa2164f93e",
+      "Bytes": 968
+    },
+    "external-reports/code-review/wave-4/code-review-30/Makefile": {
+      "GitBlob": "e1728fddb8a639e80dceed7c823e13a5a00fce3c",
+      "SHA256": "a4d81de1916ded00c47c5764277ccff51040f3c9eb323ae26382c7cfeab2d028",
+      "Bytes": 319
+    },
+    "external-reports/code-review/wave-4/code-review-30/README.md": {
+      "GitBlob": "84dce768e2ce4bf8cf4325f774d6461c378af006",
+      "SHA256": "207a31810f3c129f06f988b60342e0debbf9237b70645308e08663603b79310c",
+      "Bytes": 6014
+    },
+    "external-reports/code-review/wave-4/code-review-30/article.pdf": {
+      "GitBlob": "e0492b0bf8af21fcd6a58ec93aaf5e20942c0232",
+      "SHA256": "373efaf2a50ec5ce0d6e23ba4ab6c0055b1ed7aef6d8c3f1506785f319726f8c",
+      "Bytes": 521424
+    },
+    "external-reports/code-review/wave-4/code-review-30/article.tex": {
+      "GitBlob": "a86bfa8ed249a73515944444fb5656602645af88",
+      "SHA256": "92738e09d05f5a1e71f38b6f27b07250ce7688f26475a50c92d1c46cf3141608",
+      "Bytes": 83832
+    },
+    "external-reports/code-review/wave-4/code-review-30/code/CandidateAdapters.wl": {
+      "GitBlob": "c7d13a83dd5f95e6ac4cc3d6f1282ce15f6759ac",
+      "SHA256": "ce2ab6f7e37abc7fb8594070dbf34bc6b00b7099a765884fab44f2ed75b5e231",
+      "Bytes": 2068
+    },
+    "external-reports/code-review/wave-4/code-review-30/code/TargetedProbes.wl": {
+      "GitBlob": "87074e2138b194d2e99fafe47c5c003c44658d24",
+      "SHA256": "da5e0fee0191d4e8f4731f089ce1f38f4b3531f13696862f9b900a1dc1bdf597",
+      "Bytes": 2567
+    },
+    "external-reports/code-review/wave-4/code-review-30/code/exact_oracles.py": {
+      "GitBlob": "11c7d807e576bc15e6b9c151e47d3fc7048de17f",
+      "SHA256": "c224f9ef43baa22010722a0f63c19158315e62b8d62b262786aadb167c40dc54",
+      "Bytes": 11389
+    },
+    "external-reports/code-review/wave-4/code-review-30/code/reproduce_runner.py": {
+      "GitBlob": "863feeb29014e054f60c3e82df2be47edc3345a5",
+      "SHA256": "0cf1da01d7287bfc5bcc369b0ef2b3010409c66673475705db3e595b6a411acb",
+      "Bytes": 7274
+    },
+    "external-reports/code-review/wave-4/code-review-30/code/reproduce_staging.py": {
+      "GitBlob": "6e913fccda0e35145b4107f148d669db78b1dd28",
+      "SHA256": "c808c8da79d884c40a723ef92ba1bf3398b612e72f913ad5f3157d8ce401341c",
+      "Bytes": 2436
+    },
+    "external-reports/code-review/wave-4/code-review-30/code/runner_sticky_flag.patch": {
+      "GitBlob": "f6366e9f9ed0ba4cee01a4a7a882e50caec916c7",
+      "SHA256": "23aecfb301fdf452d0f6940af5b77ada5480daf573bfcd536a1c07dbeb8fee39",
+      "Bytes": 1161
+    },
+    "external-reports/code-review/wave-4/code-review-30/code/stage_git_sources.py": {
+      "GitBlob": "17cbf9a6fbda26de3fd5c3564785de8acf1e47b3",
+      "SHA256": "22dbda7690bb00b6bb87918208d7486381d2e92dbd0cda239031a26334cab300",
+      "Bytes": 3339
+    },
+    "external-reports/code-review/wave-4/code-review-30/evidence/findings.json": {
+      "GitBlob": "2222671408c9b9f49b2830817555ab5925d3ac37",
+      "SHA256": "8d1d396eadee71cb9c84591f0d67ca26b78d3010cbb6ebc706ad33b56e9d738e",
+      "Bytes": 2813
+    },
+    "external-reports/code-review/wave-4/code-review-30/evidence/mathematical_oracles.json": {
+      "GitBlob": "73fdded4e1f074ecd2c306b295e421dcaa1cabf0",
+      "SHA256": "70b098d669b838d2566d91f6ba2cb9907404caeda077c5834075ff0eaeb0ae13",
+      "Bytes": 5103
+    },
+    "external-reports/code-review/wave-4/code-review-30/evidence/runner_experiments.json": {
+      "GitBlob": "9abc5a1dd5fd75bf726b6b272948ed3d9e7d1f09",
+      "SHA256": "2684d700bec8b902d113dae7b907ffb3df595468cbd2b215c2397900009cdb7a",
+      "Bytes": 3433
+    },
+    "external-reports/code-review/wave-4/code-review-30/evidence/source_index.json": {
+      "GitBlob": "53517f7f7517ac2670d931a590579cfb7e512471",
+      "SHA256": "34d41b056b9119ab2b4602657a5082bc0b2e2022b44abd6fd579ee0df2d01cc4",
+      "Bytes": 10814
+    },
+    "external-reports/code-review/wave-4/code-review-30/evidence/staging_experiment.json": {
+      "GitBlob": "70f7201b77d97a15be1f2127c3d0810d4b3b4319",
+      "SHA256": "c28a4e26406643282e8b0adb7945edac7075d5214b21f6a7adca77246ec32934",
+      "Bytes": 259
+    },
+    "external-reports/code-review/wave-4/code-review-30/requirements.txt": {
+      "GitBlob": "de9542d36e40090c2dad83e84c503496a711bec7",
+      "SHA256": "47fd19021144e071cc43b6e265aafada0056abe89724ad95bd6e3a8e37995b94",
+      "Bytes": 28
+    },
+    "external-reports/code-review/wave-4/code-review-30/upstream-excerpts/LICENSE": {
+      "GitBlob": "7d2b7fa09617f2024f157a40a318f4b12586644b",
+      "SHA256": "7e69794ef71218df652ac490aa48e6f325361d3f09cbaa05d93afc1ea597ef1c",
+      "Bytes": 926
+    },
+    "external-reports/code-review/wave-4/code-review-30/upstream-excerpts/run_mathics_tests.py": {
+      "GitBlob": "df59971aad4757130a5b6f826cf71d10961c525b",
+      "SHA256": "7b9d49e591a44e387c1253d01f41af1aaec713d722573a1ace0f3cb03052f185",
+      "Bytes": 12692
+    },
+    "external-reports/code-review/wave-4/code-review-31/README.md": {
+      "GitBlob": "fdd2a443a1966ff423633b5cb98e67f1e4b600a7",
+      "SHA256": "6cf29edb49b3b8a44ff2ec2b43a3d563cb6f9a6ada1ebe2254ec646539f03f33",
+      "Bytes": 5350
+    },
+    "external-reports/code-review/wave-4/code-review-31/article/asymptotic-review.pdf": {
+      "GitBlob": "6bb52f341764de1f7469e3dc4b567b505ca71906",
+      "SHA256": "c2a6f3b26f70310c1f8c78e83ce7d5fdcf5157eb8b9bee19047c1732f9bc6523",
+      "Bytes": 441641
+    },
+    "external-reports/code-review/wave-4/code-review-31/article/asymptotic-review.tex": {
+      "GitBlob": "d0a93af1f291dc00672d722b86e39d0dcfc593ef",
+      "SHA256": "5c710e34f9f4c7f30db6cb1ddbd46783d58e7b32caa88e96e1b643307cb196ff",
+      "Bytes": 74504
+    },
+    "external-reports/code-review/wave-4/code-review-31/build.sh": {
+      "GitBlob": "79f40ddef45967fa8b7649aa8635db456c31b15d",
+      "SHA256": "3c9d3bf27e4a74a6fcad7433beab86d9eb925f66577afc78bf5dc55896994487",
+      "Bytes": 527
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/apply_runner_patch.py": {
+      "GitBlob": "ecb45eeb8e45bde09b6caf7067b6be0622ff02aa",
+      "SHA256": "36b5dc900f04eb57a3e36690408c45699ca9ca6af9b7c02d23cb5657220c612c",
+      "Bytes": 2533
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/bounded_process.py": {
+      "GitBlob": "f271d259f29ea29498cf412c610095e38607d79d",
+      "SHA256": "ce175265d3613e26ac13a3667330d5ed257dd24d8032898c90a4221bb955c142",
+      "Bytes": 3607
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/first_position_candidate.wl": {
+      "GitBlob": "29c185700b537429ff4e0031cac625dae0a529cd",
+      "SHA256": "30c182bfd0b7edc555ea114a690511755957bd6395928261fa6362409805f581",
+      "Bytes": 820
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/run_independent_checks.py": {
+      "GitBlob": "7fad813f9469479823f30952bccd0dc0ea8c940a",
+      "SHA256": "0e439e97a5a6c555e6332c75f1b44dd0ca0b2037373ae39341991f4bd864610b",
+      "Bytes": 8350
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/run_runtime_probes.py": {
+      "GitBlob": "65926172ebc74bc7f7719047d74608946beed0bb",
+      "SHA256": "2c42fe5e1a57ec47a34db4064d12462668f22cb232e36910934107388c5a80e4",
+      "Bytes": 3331
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/runner_fixes.py": {
+      "GitBlob": "243b806164490baf41cfce79fe62b1a76a18c6a8",
+      "SHA256": "1a3a4053bdea47238db07cc077fc61a05ddd1a4406ff0fe10ad1fbae7dd15cb4",
+      "Bytes": 1582
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/runtime_contracts.wl": {
+      "GitBlob": "f5a361cfa4891758d70511d926e8c7bf26aaa660",
+      "SHA256": "902a95e69e7e75287bc77def7ed28b732b6e7c9a7f43449e681c33812ca29daa",
+      "Bytes": 2907
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/test_bounded_process.py": {
+      "GitBlob": "6432221b188317495c032a9b7603bdfcc458606e",
+      "SHA256": "d70abfc209dbd2da4e1ba6aa1f673fcde7f3fb9080d1ef6b14de242aa8bb2d94",
+      "Bytes": 1249
+    },
+    "external-reports/code-review/wave-4/code-review-31/code/test_runner_fixes.py": {
+      "GitBlob": "6acf546c4f2e8c1975c51592429887af07315bd2",
+      "SHA256": "ad55077d22fb02be4178ef1eaeb155f931ef8ee4f4638065113c56fde89f24db",
+      "Bytes": 4864
+    },
+    "external-reports/code-review/wave-4/code-review-31/evidence/artifact_validation.json": {
+      "GitBlob": "e301a43a5ce388044c0e63ce3bfcf8612e164656",
+      "SHA256": "569fea5597fb1e8f81ce1859045ce202792a634821dbb6a4a7404e920a9fd863",
+      "Bytes": 484
+    },
+    "external-reports/code-review/wave-4/code-review-31/evidence/independent_checks.json": {
+      "GitBlob": "150904c1c3b9c0f04bf94bb8ed5b4864d9fc14dc",
+      "SHA256": "51cc328214ba1ad74c773f1a6f37b2f8652fc32a7cafb0aeb9fae0d780617e8c",
+      "Bytes": 2865
+    },
+    "external-reports/code-review/wave-4/code-review-31/evidence/independent_checks.txt": {
+      "GitBlob": "150904c1c3b9c0f04bf94bb8ed5b4864d9fc14dc",
+      "SHA256": "51cc328214ba1ad74c773f1a6f37b2f8652fc32a7cafb0aeb9fae0d780617e8c",
+      "Bytes": 2865
+    },
+    "external-reports/code-review/wave-4/code-review-31/evidence/novelty_ledger.csv": {
+      "GitBlob": "bcfb137113c2c6b39ad31fe27d6a0f41e4252670",
+      "SHA256": "d2810e37b2105e7ea238181f0a6e6f9d8704ab0bf5d6b1f345f98bb4eb5f9429",
+      "Bytes": 2368
+    },
+    "external-reports/code-review/wave-4/code-review-31/evidence/python_tests.txt": {
+      "GitBlob": "7f99c91153ee629f28a3f2ac873cc50017389d7a",
+      "SHA256": "d03baf5cbbaba3c7b0219991476cbe8e66be60d57d5c5ff7864d608579b5559b",
+      "Bytes": 2088
+    },
+    "external-reports/code-review/wave-4/code-review-31/evidence/scope.json": {
+      "GitBlob": "740ffc5a839a7c94506b49fb9affed94826028fe",
+      "SHA256": "a1ec5247503d1a01f4cf7a71d565be87ab7658cc50cda7c7bc48566859e28348",
+      "Bytes": 1273
+    },
+    "external-reports/code-review/wave-4/code-review-31/evidence/source_map.json": {
+      "GitBlob": "2bcde07471d058bda3a79064510ab791ea73b14b",
+      "SHA256": "338c206db5f3ad0ecef07f5373d3820cc8396cfb301e2d158bd27c220be2e02d",
+      "Bytes": 6339
+    },
+    "external-reports/code-review/wave-4/code-review-31/evidence/venv_identity.json": {
+      "GitBlob": "1e7b0b597bdc52e538821bb90e8f16709d5ab536",
+      "SHA256": "8ed21564f647bf48e9ca7bcddcafadb883d89679e3ee71a43d949a72709f4569",
+      "Bytes": 405
+    },
+    "external-reports/code-review/wave-4/code-review-32/README.md": {
+      "GitBlob": "72e039391f05c26b45ee870cb9a8e891d28bc88d",
+      "SHA256": "878cc54c031b87f6b072fec26b56cde804b9dea260910d4f43025b1fba2a1e85",
+      "Bytes": 5680
+    },
+    "external-reports/code-review/wave-4/code-review-32/article/asymptotic-incremental-review.pdf": {
+      "GitBlob": "f82bb9aa56feb49b6dc8c45c3d4794cb1bf35d5a",
+      "SHA256": "159123ccd69ba51aa43a53a22c7e5255c616d9e1adb36148abc41474a7156cb7",
+      "Bytes": 332302
+    },
+    "external-reports/code-review/wave-4/code-review-32/article/asymptotic-incremental-review.tex": {
+      "GitBlob": "054716ad9d1671d9a9dee9747185fc2bb37bef19",
+      "SHA256": "4c39d7dbe38bfd3fbdf0ef36d1bdd6bc202c3245fa0b9f10ae658283c8b1ef17",
+      "Bytes": 86575
+    },
+    "external-reports/code-review/wave-4/code-review-32/code/ReviewMathicsPrimitives.wl": {
+      "GitBlob": "e416fbabf85737379ec5365afa10586e8d27d0e2",
+      "SHA256": "64c74ea398f17aec6975bb3a3eb97fe692e4db81c5e3ae39d30bf32a173c0fa3",
+      "Bytes": 4137
+    },
+    "external-reports/code-review/wave-4/code-review-32/code/patch_timeout.py": {
+      "GitBlob": "06bd721324749e8a6aa4d01f7830b9c40806f555",
+      "SHA256": "29db2eb2036500f820b78e0ad02d851e24e60e68b917a847da2402e10eb4fe6f",
+      "Bytes": 1973
+    },
+    "external-reports/code-review/wave-4/code-review-32/code/portable_probe.wl": {
+      "GitBlob": "2a22805506178060b6564b1f5b6e6b980fb73b84",
+      "SHA256": "23af234db5853762d6bb006ef7a8b2774e68b6bc005f19122c3b485a11607752",
+      "Bytes": 2722
+    },
+    "external-reports/code-review/wave-4/code-review-32/code/reference_algorithms.py": {
+      "GitBlob": "701b3f84c06b4ad4932ad95846bfaec0ff02ba3d",
+      "SHA256": "53d87365639b1e4f9ae073e2be11b358e82e6375580611b6735546e7e10d3177",
+      "Bytes": 11333
+    },
+    "external-reports/code-review/wave-4/code-review-32/code/run_oracles.py": {
+      "GitBlob": "a17fcf8fcfcd4b727776981a67e168064b3a1a4d",
+      "SHA256": "809acf53c3111cb0300de1183b6deaf5dff44c8c2ee8c5cd83748b59f595f63a",
+      "Bytes": 11212
+    },
+    "external-reports/code-review/wave-4/code-review-32/code/run_probes.py": {
+      "GitBlob": "4764b2ec1572aa1b3d0d9ca783f2e0a35e383fcb",
+      "SHA256": "98bf9229dac341cfb055fcc8e0df576cd084bf24f094ff1aa8f6168b9f6f96f1",
+      "Bytes": 6758
+    },
+    "external-reports/code-review/wave-4/code-review-32/code/test_tooling.py": {
+      "GitBlob": "e78f593a6ae7adc6ede5f9d562a949aea87d28b4",
+      "SHA256": "c96edf2a19cf67fa5d6afabc3da5286857456e2bf1af996c162a972b4febe866",
+      "Bytes": 3006
+    },
+    "external-reports/code-review/wave-4/code-review-32/evidence/novelty-ledger.csv": {
+      "GitBlob": "31b822d9a6aed3b542f9eb4c92a87a4339b7e585",
+      "SHA256": "c3bd9c15e3fa583549a2806aac54f9fc61c926adef71c6f1b2ba2a0c23204ec3",
+      "Bytes": 2700
+    },
+    "external-reports/code-review/wave-4/code-review-32/evidence/oracle-console.txt": {
+      "GitBlob": "1129c54da8ad874f470edccbdd3bdf206dbb01aa",
+      "SHA256": "eac17ae427216476702e467acde91a4c328e988f961c4718154c1d4cb310658e",
+      "Bytes": 2784
+    },
+    "external-reports/code-review/wave-4/code-review-32/evidence/oracle-results.json": {
+      "GitBlob": "849a4e3ed680a906cbe2a760dd5a04f0dbd0d696",
+      "SHA256": "0a45b855b45b969f5fa521e70a4299b954ffc345ca809a48fccaf8a542045e23",
+      "Bytes": 4084
+    },
+    "external-reports/code-review/wave-4/code-review-32/evidence/sources.json": {
+      "GitBlob": "55a18efaef241f85a692bf4ef9b364bc15d49f1e",
+      "SHA256": "ad11e1574ed0b043015b72894fc8ec1c8f391f8065e45495f0abc660b81cd440",
+      "Bytes": 8756
+    },
+    "external-reports/code-review/wave-4/code-review-32/evidence/tooling-console.txt": {
+      "GitBlob": "09874e87ab5daeb62b416472b150c525d2e0c218",
+      "SHA256": "4a244fb818b53b31b8181f2a1238d3880e4ee6639b0fbfef21e73642afccc3e4",
+      "Bytes": 860
+    },
+    "external-reports/code-review/wave-4/code-review-32/evidence/tooling-results.json": {
+      "GitBlob": "68318c7fb0d3b7e815f11cd53d06029b72832221",
+      "SHA256": "d577d5e5503ee9efe18679ab75a4b5d8ce5f290ee77e75cae59b9597dd652317",
+      "Bytes": 232
+    },
+    "external-reports/code-review/wave-4/code-review-32/requirements-reference.txt": {
+      "GitBlob": "985831de15c8bc4a4b1f13ee01d6f2c5100675a2",
+      "SHA256": "ffbdcdb8290fa1e056e5165c574f4728c1ee866629a036b1031561db6b27efbc",
+      "Bytes": 95
+    },
+    "external-reports/code-review/wave-4/code-review-33/LICENSE": {
+      "GitBlob": "5e9f41074eda93b7b6158c7858398add37c8b13c",
+      "SHA256": "ec8a3105a777999c6ccf0510a62a5bcddbd25591e2eedf18c4b4fcc7955b76ba",
+      "Bytes": 1107
+    },
+    "external-reports/code-review/wave-4/code-review-33/README.md": {
+      "GitBlob": "6b853c0003d10e746fd5fb0d527906fd07379289",
+      "SHA256": "2ba89a3c5f908e09a36d775e38ddf312cebe3ce5f0128fe3a2b5fe1c22c52a5e",
+      "Bytes": 5594
+    },
+    "external-reports/code-review/wave-4/code-review-33/article/asymptotic-review.pdf": {
+      "GitBlob": "c57c13a32d4db82e247d6028f35ab34480dbe2ad",
+      "SHA256": "c08501388cd9044f32c93358e0ef72264c83fd7dbbe7ae6286290732532f06e4",
+      "Bytes": 186722
+    },
+    "external-reports/code-review/wave-4/code-review-33/article/asymptotic-review.tex": {
+      "GitBlob": "4895a594eb5f2046086d1bb26c262e614736d6b1",
+      "SHA256": "9eaac6ada419f99da2902a457c269683b4dfb6ad9a9895fe267f2dc0b06af46f",
+      "Bytes": 73970
+    },
+    "external-reports/code-review/wave-4/code-review-33/code/independent_checks.py": {
+      "GitBlob": "0d707e83c3cc6c708f7c79e40f105465ddc25455",
+      "SHA256": "bebca60e6111c96c5343097800a341afdde493740a0d817cc2afd3df2db9e528",
+      "Bytes": 6229
+    },
+    "external-reports/code-review/wave-4/code-review-33/code/lambert_minus_one.py": {
+      "GitBlob": "b7924918ec5a356dabf4cfd9adbe24d271ad0599",
+      "SHA256": "5aa1e55e2959b2ca527363f51833e342153ac94900a53182d0b8845e14c4d82a",
+      "Bytes": 7301
+    },
+    "external-reports/code-review/wave-4/code-review-33/code/probes/load_returns_failed.wl": {
+      "GitBlob": "1a96fb6046077789feb606c487a341c40e870e6c",
+      "SHA256": "a2b053f8a82be5fbdbc9425f796846989cceb95a68cb2bb9ccb3dca6420bcb89",
+      "Bytes": 451
+    },
+    "external-reports/code-review/wave-4/code-review-33/code/requirements.txt": {
+      "GitBlob": "48254e66c95dcfa1b8dc3dacf0b7b046cf94b611",
+      "SHA256": "e9718cffd01d9f96d4aa8a82d7acb27e13bc2b6ab6ee1cecf1b9a68f26aec388",
+      "Bytes": 160
+    },
+    "external-reports/code-review/wave-4/code-review-33/code/run_probes.py": {
+      "GitBlob": "ece82bfeb2833a94e0755bbfe2526b8d041c598a",
+      "SHA256": "b46ce48de9469f51a389f63a759152f8eb383841a6355633f13153fcb6a9b57e",
+      "Bytes": 7524
+    },
+    "external-reports/code-review/wave-4/code-review-33/evidence/document-checks.json": {
+      "GitBlob": "755199fdd1f78c2b327a36d57e0bca37bfc3aa65",
+      "SHA256": "83c5065f859cd404a63e7dd0fae5587612704cca1db03485772874475010c7f1",
+      "Bytes": 262
+    },
+    "external-reports/code-review/wave-4/code-review-33/evidence/independent-checks.json": {
+      "GitBlob": "c6f164409536b39fd523f3a791946489878e3f7b",
+      "SHA256": "7cd564f5028115e7267519e42d9fa385a9e852d04988823b8661992158e5f3c8",
+      "Bytes": 9413
+    },
+    "external-reports/code-review/wave-4/code-review-33/evidence/runtime-status.json": {
+      "GitBlob": "fe2a21cd1fcebc47229ae4d329f961cabe7eec03",
+      "SHA256": "a1bdaeeb0b85aab93c4eb901060e0052ee39abdd94e0bc9846c93fbe95e066e1",
+      "Bytes": 820
+    },
+    "external-reports/code-review/wave-4/code-review-33/evidence/source-novelty-ledger.json": {
+      "GitBlob": "ab5e109feb14466cedd0f2822065d4232524962f",
+      "SHA256": "d4232a885ffaaad1b8c49b5380983224491765b09abad088019db1750deb95d7",
+      "Bytes": 7202
+    },
+    "external-reports/code-review/wave-4/code-review-33/patches/focused-proposals.md": {
+      "GitBlob": "a22442b2aec14df3d37b09dfbda0249f7bd532e9",
+      "SHA256": "965dc0f8192f2628218d86c9e1628f6810601336551718baa5a2e5b502846835",
+      "Bytes": 3549
+    },
+    "external-reports/code-review/wave-4/code-review-34/LICENSE.txt": {
+      "GitBlob": "1386445f0798f661c8471c868ae13b5bc6797f48",
+      "SHA256": "102f0d690a515c6cbf17dc4432700c37bfd16ae6640084b10d77985515049c8a",
+      "Bytes": 886
+    },
+    "external-reports/code-review/wave-4/code-review-34/NOTICE.md": {
+      "GitBlob": "5de30b91409b65d404bdbbc94f719c2d88e1fff4",
+      "SHA256": "bc4fd45cd8bface9ac22313d950264e788434ee29461739ad81db6673e607483",
+      "Bytes": 1010
+    },
+    "external-reports/code-review/wave-4/code-review-34/README.md": {
+      "GitBlob": "9f937e15bfb97162d5dc1d219e8935d912228819",
+      "SHA256": "d1e9e796d1d9fa22f9b6bc23ec542e5a1d79b15914a666275046b803bc2b5889",
+      "Bytes": 6724
+    },
+    "external-reports/code-review/wave-4/code-review-34/article/asymptotic-review.pdf": {
+      "GitBlob": "ec81a6cba1dd7dbb169ec777090d35a917b084c5",
+      "SHA256": "46695e1b03d89938ecb4b69c2e5447af53a832f189acad0b3d53e55ccad6248f",
+      "Bytes": 334573
+    },
+    "external-reports/code-review/wave-4/code-review-34/article/asymptotic-review.tex": {
+      "GitBlob": "9c0984e68d38dabcb80cfa4fd1675563c54cbb4b",
+      "SHA256": "354b37ed126bc8ab31e4ab8273786586c3d8a4f2b3edbade7e91cc2f688b8779",
+      "Bytes": 93313
+    },
+    "external-reports/code-review/wave-4/code-review-34/article/build.sh": {
+      "GitBlob": "e4653046448245932d433c5eea81092c35ce8431",
+      "SHA256": "5b52c86907a972760ed443921266584731eec9da2ae0a83ab2bd30a2c7b1d28b",
+      "Bytes": 159
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/MathicsSparseHelpers.wl": {
+      "GitBlob": "0a4adc21cadafed94da9875307fdbea622587cd2",
+      "SHA256": "a946e0a81f6a152a6f2c378aca62fb814a49e3df7734dab65422f7eacdbbd269",
+      "Bytes": 979
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/ProbeReview.wl": {
+      "GitBlob": "fa3d82d3cc657525a47e99adc90103421f193103",
+      "SHA256": "07dd002557bc2a6f555c0e93628e789ceab6e56df55fc30cd103e2883d4a59b6",
+      "Bytes": 2233
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/lambert_certificate.py": {
+      "GitBlob": "d9bc9ecd24653b0627680a730b0f3f7103c87a8b",
+      "SHA256": "d683d40e8f7f431e5bc5e3486c7225bc634680f6bc0cc2cb9f0cba43454621f6",
+      "Bytes": 4788
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/productlog_bridge.py": {
+      "GitBlob": "1588aba87e5e3ac939d790de3da3424c380e0549",
+      "SHA256": "c0c674b3d4d2660563e584597f948ad9c0d55b1770d7430826e98e3d8804b414",
+      "Bytes": 914
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/requirements.txt": {
+      "GitBlob": "de9542d36e40090c2dad83e84c503496a711bec7",
+      "SHA256": "47fd19021144e071cc43b6e265aafada0056abe89724ad95bd6e3a8e37995b94",
+      "Bytes": 28
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/stage_productlog_patch.py": {
+      "GitBlob": "eddd95c7208dbcd8835520727cb0deaf94dda0a7",
+      "SHA256": "9efc83e2a045c6d3a54f760e374be3c11f6793372b8019ccbfcbf0e972203412",
+      "Bytes": 2844
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/stage_runner_patch.py": {
+      "GitBlob": "0d9cf242113527e6987bfccbe61b1714754c6512",
+      "SHA256": "6059506556b331095b1213238c26b8ad8bc16366268168f0119a1f657ac4214f",
+      "Bytes": 3398
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/test_independent.py": {
+      "GitBlob": "07511c07acce388f6c38c60fe6fbd2cd58e84e94",
+      "SHA256": "573183af4bb80df2412e5b71c2deeae68c589d501b2c17e447bd1adb2e4675b2",
+      "Bytes": 6273
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/test_productlog_staging.py": {
+      "GitBlob": "29e5307cf8906ae8891f4bc86a0e0819d345436d",
+      "SHA256": "abcbb47612a942651ab536bc3a99768c4bcf7ed46192eb90326047111d394ac3",
+      "Bytes": 1563
+    },
+    "external-reports/code-review/wave-4/code-review-34/code/test_runner_audit.py": {
+      "GitBlob": "5573bc9740e2388ded07bcbb599ff86f8383a4bd",
+      "SHA256": "bd11906aa354f1b25ec347aa820b85bef77e8567df1e1c35a35ca52350455a37",
+      "Bytes": 7748
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/artifact-validation.json": {
+      "GitBlob": "95510d13b6d3313e5e0432b726a679e3719800b7",
+      "SHA256": "928aa38d2069863e3db27d5695c81c41c31b4735e8cc25784528a809ac04f886",
+      "Bytes": 3453
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/independent-observations.json": {
+      "GitBlob": "5a6429105a40bf85e95e6a002145fbbfc080c447",
+      "SHA256": "25ca2b4169272257ce60082c104daf1ef1d4b437c1eb65c66d4a4afde5e3b397",
+      "Bytes": 2887
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/independent-tests.txt": {
+      "GitBlob": "03a53b236b4fb97431e5a5734ba56ae7455519d8",
+      "SHA256": "816f70fe1ebffc69071e0d36449b7616013695ee8dd65259de12afa63ef4c1b4",
+      "Bytes": 1019
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/novelty-ledger.csv": {
+      "GitBlob": "7de0725107411bfa7d4d79efa909ee70ddb24792",
+      "SHA256": "605e78d22071733efb40dc8e1a5a0f9ee9ed1180abe6d30e63935160c49e6180",
+      "Bytes": 1444
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/productlog-staging-tests.txt": {
+      "GitBlob": "e37ead09630b65a22e73b3329dc00b5b39f7f80f",
+      "SHA256": "d6444b1eb3d20e7ff1ba784919733bdd450ec6754c12dda91f23d2886e106f52",
+      "Bytes": 415
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/runner-observations.json": {
+      "GitBlob": "b8b6a861564ea8817b52ee691dd5fe0dea716a98",
+      "SHA256": "a0d169f5fd7d254e3354e3e39f850edfd4a7a41e3cc05ecd49553db12711bada",
+      "Bytes": 10255
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/runner-tests.txt": {
+      "GitBlob": "a65f19c75433b1050f036f93eb068fafd232ebf9",
+      "SHA256": "e5acf81a9a7781e020b94dabdb33bf70a174c73820e4b5827f66e77bf28380be",
+      "Bytes": 1314
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/source-coverage.json": {
+      "GitBlob": "ef6630c893629303664daf5d5dcb1cc043f19366",
+      "SHA256": "fd8361db5c6869d2d7f980e56bad522648258a23f74b8f844bcd20f401578748",
+      "Bytes": 9244
+    },
+    "external-reports/code-review/wave-4/code-review-34/evidence/validation-scope.json": {
+      "GitBlob": "162237a00531116f7e01b4c4c3b4f6dfba0708ec",
+      "SHA256": "e7bd0e4cc2bf7f65efa35b356364aad4d2e76e35d16ae7d8bc1df6dabc5e1e07",
+      "Bytes": 1977
+    },
+    "external-reports/code-review/wave-4/code-review-34/fixtures/run_mathics_tests_upstream.py": {
+      "GitBlob": "df59971aad4757130a5b6f826cf71d10961c525b",
+      "SHA256": "7b9d49e591a44e387c1253d01f41af1aaec713d722573a1ace0f3cb03052f185",
+      "Bytes": 12692
+    },
+    "external-reports/code-review/wave-4/code-review-35/README.md": {
+      "GitBlob": "ca579800deffe64512cab35724dfcb44f7c49ab8",
+      "SHA256": "b7e8ec944b54a59bef703028b069367116ad4b2dbe74eb58645688b33df26807",
+      "Bytes": 7924
+    },
+    "external-reports/code-review/wave-4/code-review-35/article/article.pdf": {
+      "GitBlob": "30c17ff0864f54cceeac7f37f2fa949a8b746435",
+      "SHA256": "b134a6763a62da9677a4d6add524aacad0e3af451eee6d29650e391be35479bc",
+      "Bytes": 382052
+    },
+    "external-reports/code-review/wave-4/code-review-35/article/article.tex": {
+      "GitBlob": "ab060fc6b05d647ee75a1c8874088af8c57bfba4",
+      "SHA256": "642e85a7590aabfd5336ffc4bd525929c906b033c23184f99203921fb6a720a4",
+      "Bytes": 84662
+    },
+    "external-reports/code-review/wave-4/code-review-35/code/ReviewPrimitives.wl": {
+      "GitBlob": "955acb512f46c0470510491bcd83dd346001f2ec",
+      "SHA256": "2f3f515b43225807e3fb4a72342ada1d45b5da08b115b2d9adfa4250a6aa1e05",
+      "Bytes": 4511
+    },
+    "external-reports/code-review/wave-4/code-review-35/code/patch_portable_runner.py": {
+      "GitBlob": "65060a4a832062fe61eda8d892b612b38965e7a7",
+      "SHA256": "4815185a2649a3fa06d18b8444309ad905bd54578e62c6268b9f524f74da68a4",
+      "Bytes": 3538
+    },
+    "external-reports/code-review/wave-4/code-review-35/code/portable_runner_candidate.patch": {
+      "GitBlob": "ba9690bf40cabfff1410a61be96ede26568babac",
+      "SHA256": "97ec5f9789e63beffc844a369b95079a7deeb3fdf466c6234a1691aed1df67a9",
+      "Bytes": 2376
+    },
+    "external-reports/code-review/wave-4/code-review-35/code/run_mathics_tests_candidate.py": {
+      "GitBlob": "21b2d0dbdd947a1b12916294c4a289570ea997be",
+      "SHA256": "107faf182a643c56cb7fd582d0b1278477d7fa085da7520dafcb97c23ed076d3",
+      "Bytes": 13514
+    },
+    "external-reports/code-review/wave-4/code-review-35/evidence/artifact_validation.json": {
+      "GitBlob": "619379080d90c194101f36badec97ad8c663d426",
+      "SHA256": "417aed9a05880d78a793121a2fc14dafa9440abe0f5e176f8856448fe52a3f1b",
+      "Bytes": 622
+    },
+    "external-reports/code-review/wave-4/code-review-35/evidence/exact_reference_checks.json": {
+      "GitBlob": "809e7b25a292ad403540a73a129545faf0b471d3",
+      "SHA256": "b48a24b5d53419700bf7a8c92af1690adbd37cd59183426f1c8b03d885725442",
+      "Bytes": 22238
+    },
+    "external-reports/code-review/wave-4/code-review-35/evidence/findings.json": {
+      "GitBlob": "c8bf31e93e7e3055fc9e49c2c98f5f015441715f",
+      "SHA256": "d6555e730477353bf3d9056b0b56a0218b33d9fe187bccc92fd9fef78cf215ac",
+      "Bytes": 5692
+    },
+    "external-reports/code-review/wave-4/code-review-35/evidence/novelty_ledger.csv": {
+      "GitBlob": "d0bff8fce4934f95bf566ba3ef86da64d53ca5ed",
+      "SHA256": "4510c0a1b86934b5463ca7c06ef9c430e79da3372dc38224d1db521707a4be87",
+      "Bytes": 3817
+    },
+    "external-reports/code-review/wave-4/code-review-35/evidence/runner_experiments.json": {
+      "GitBlob": "f4568f867edeb157fe8836e85065e44863459d5f",
+      "SHA256": "9f14f582be8e68e221f82aa197fa2c3b663eceed2b60a48e40c957e21e602be9",
+      "Bytes": 18740
+    },
+    "external-reports/code-review/wave-4/code-review-35/evidence/source_inventory.csv": {
+      "GitBlob": "af3363ecbdea754ccfe416089d519237176c569d",
+      "SHA256": "8fa54b8f3fb2a6cd77b5b20458e33ea3c2316440e6e739bad37c2a75b21b4aa8",
+      "Bytes": 8146
+    },
+    "external-reports/code-review/wave-4/code-review-35/tests/ProbeNewReview.wl": {
+      "GitBlob": "28500ada536036e030f96159a0f0e8fce4dbca23",
+      "SHA256": "a34e882799bf4a9a3be9063c7402e052e8a63c5b466b285cc200f11d64a18308",
+      "Bytes": 3655
+    },
+    "external-reports/code-review/wave-4/code-review-35/tests/exact_reference_checks.py": {
+      "GitBlob": "d457c2b8587a3ece836adf543ede54b9ba501a13",
+      "SHA256": "1d6d0260099cac48554a4d35e437e6895a2d2ee6e7a9d4ef6df2ed5897f642cf",
+      "Bytes": 6971
+    },
+    "external-reports/code-review/wave-4/code-review-35/tests/runner_experiments.py": {
+      "GitBlob": "9b35a23d5e5a5a356b6e4a1ee5f99b65dfec3461",
+      "SHA256": "7986d6c8627d99e8573cebdbcab2e9e37b841b9eb6386d495613e2da2e59904a",
+      "Bytes": 7200
+    },
+    "external-reports/code-review/wave-4/code-review-35/upstream/LICENSE": {
+      "GitBlob": "7d2b7fa09617f2024f157a40a318f4b12586644b",
+      "SHA256": "7e69794ef71218df652ac490aa48e6f325361d3f09cbaa05d93afc1ea597ef1c",
+      "Bytes": 926
+    },
+    "external-reports/code-review/wave-4/code-review-35/upstream/run_mathics_tests.py": {
+      "GitBlob": "df59971aad4757130a5b6f826cf71d10961c525b",
+      "SHA256": "7b9d49e591a44e387c1253d01f41af1aaec713d722573a1ace0f3cb03052f185",
+      "Bytes": 12692
+    },
+    "external-reports/code-review/wave-4/code-review-36/README.md": {
+      "GitBlob": "24a9652b848b9d750487897fad9e359f755d6b16",
+      "SHA256": "077e19c77e0252a5e7a10f9cb432b0ed52f895294052867454e6ab8ca3026c04",
+      "Bytes": 3095
+    },
+    "external-reports/code-review/wave-4/code-review-36/article.pdf": {
+      "GitBlob": "c059c0aa1bef61c00b263fd9d6773e7b10bd7bd3",
+      "SHA256": "126d4630021fc5b1c0f9fa2e639d2bb2bde7c9cf8b97f1df79405feae0168b67",
+      "Bytes": 399770
+    },
+    "external-reports/code-review/wave-4/code-review-36/article.tex": {
+      "GitBlob": "931ab136fa3b2d08e3d3f3d4da5cc9d88eaf2dc2",
+      "SHA256": "d5201427e96bca43e2f0bfa29517760dc8a451aa6d037a69489a7da718463e4b",
+      "Bytes": 85085
+    },
+    "external-reports/code-review/wave-4/code-review-36/code/ProposedMathicsHelpers.wl": {
+      "GitBlob": "8a615f2d0873b7fc2862f449d998b65a762e2103",
+      "SHA256": "fd4e41e7787de5506e2c106020b483510c319157326f2b4c8b0db4ce41c12db9",
+      "Bytes": 4272
+    },
+    "external-reports/code-review/wave-4/code-review-36/code/ReviewProbes.wl": {
+      "GitBlob": "2fef18b519b8e61053f65c3ab8349879e522fd04",
+      "SHA256": "2a79a172c20d7a45c1cc0e7988aac33b1681b1e58552c5682edf3a7f95420010",
+      "Bytes": 3108
+    },
+    "external-reports/code-review/wave-4/code-review-36/code/ci_inventory.py": {
+      "GitBlob": "7bce66b8164039cbe938075e6526c9a5f8244b84",
+      "SHA256": "f950f681ff97c8fd9b4185d0d333e12495d4e660243eab39338617fb468a0aa3",
+      "Bytes": 6127
+    },
+    "external-reports/code-review/wave-4/code-review-36/code/reference_checks.py": {
+      "GitBlob": "412494621a1498ffe63f71d8c412fd0f63d1535c",
+      "SHA256": "0c650583b4a15c335eca3c97dfe3d7202fdab7220d140787762a00601a1dd068",
+      "Bytes": 15790
+    },
+    "external-reports/code-review/wave-4/code-review-36/code/test_ci_inventory.py": {
+      "GitBlob": "cc047a94432b019059394a4680313860b4b42a0c",
+      "SHA256": "46a0970190270cd121e65a3c3433048e734cfe7ca8971ec88089eee5c45fc617",
+      "Bytes": 2224
+    },
+    "external-reports/code-review/wave-4/code-review-36/patches/finite-timeout.patch": {
+      "GitBlob": "10b19ff3690ef2136c069509b30a686ca5e8473e",
+      "SHA256": "f8c7766454fdfc967a3e7de6b75d975c9aeea2d8757e41f6526967376d743109",
+      "Bytes": 648
+    },
+    "external-reports/code-review/wave-4/code-review-36/results/evidence_scope.json": {
+      "GitBlob": "db6cc96f9694a75f7653eeed727631a906387af2",
+      "SHA256": "5bb2f6d535e2ba02d3bf956ee21f5fcf40df1a62561025bfa92d452e023924a4",
+      "Bytes": 736
+    },
+    "external-reports/code-review/wave-4/code-review-36/results/inventory_tests.txt": {
+      "GitBlob": "13e8b1358a8647ba61c8a83b14be7ded86b86065",
+      "SHA256": "c0fff25716c1315cda0bc89412687503e9b3eba01b51a829ac22362a6268218e",
+      "Bytes": 1018
+    },
+    "external-reports/code-review/wave-4/code-review-36/results/native_probe.txt": {
+      "GitBlob": "88a9dbe1184f3a82d9c49c7b0691d14fb32b2fe6",
+      "SHA256": "3cd9f0802d8cebb056fc0d6e4900c87cef2d508a62f17203ea8f4a85a81d2932",
+      "Bytes": 1047
+    },
+    "external-reports/code-review/wave-4/code-review-36/results/novelty_ledger.csv": {
+      "GitBlob": "0a6d19e9121093840698a7abeb2bf1c3a095a913",
+      "SHA256": "bbf892c56dcdfdb7a66fd5934069e2111c6c132f047ce269b11cc7ec8da65ffd",
+      "Bytes": 1338
+    },
+    "external-reports/code-review/wave-4/code-review-36/results/quality_checks.json": {
+      "GitBlob": "82da373047b84581dcaba4d0fb92d9f2c4a74944",
+      "SHA256": "f8c66f0c3bca2d2385590b01ea7c06cbc3df44d3c57523f0a53c418f3e4736fe",
+      "Bytes": 564
+    },
+    "external-reports/code-review/wave-4/code-review-36/results/reference_results.json": {
+      "GitBlob": "5473c39f75d2bd6ec386f65dbba059e86504784c",
+      "SHA256": "a02942bb98b83d9fe04ad4a911ae3d33c793d55a81a192b1ce1b52456283f3ef",
+      "Bytes": 2338
+    },
+    "external-reports/code-review/wave-4/code-review-36/results/reference_tests.txt": {
+      "GitBlob": "4b1d3cc466f9ef29e55d2356b8bda27c9d71bc4e",
+      "SHA256": "08926cf30f88e060efcc0324370d4d110b512dd3a727c95b5994146b76a52a2c",
+      "Bytes": 1809
+    }
+  }
+}

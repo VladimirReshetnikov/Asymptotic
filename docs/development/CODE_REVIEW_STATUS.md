@@ -28,20 +28,21 @@ standalone evidence at checkpoint `01b18ab` predates this rename. Earlier
 passing counts likewise apply to their recorded source snapshots, not to new
 path/context hashes after the rename.
 
-Updated September 9, 2026. This register and the linked wave-3 intake consolidate
-**167 identified finding entries from the first twenty-seven
-[review packages](../../external-reports/code-review/README.md), covering waves 1–3,** into shared
-work items: 123 entries from waves 1–2 and 44 from wave 3. They also record
-substantive roadmap proposals separately. This is a
-work map, not a claim that every recommendation is a defect or an accepted API
-change. The full library now contains **36 reports in four waves**. The
-[wave-4 intake](WAVE_4_INTAKE.md) separately maps **64 report-local entries**
-from reports 28–36 to shared implementation obligations and proposals.
-Its source-audited mechanisms, unverified public manifestations, and later
-peer evidence have separate status. These entries are not included in the
-167-entry count, and neither count measures distinct current defects or
-completed changes. The [wave index](../../external-reports/code-review/wave-4/README.md)
-preserves each report's article and supplied evidence.
+Updated September 9, 2026. This register and the linked wave-3 and wave-4
+intakes consolidate **231 attributed report entries across all thirty-six
+[review packages](../../external-reports/code-review/README.md)** into shared
+work items: 123 entries from waves 1–2, 44 from wave 3, and 64 from wave 4.
+The earlier 167-entry count therefore remains scoped to waves 1–3. Numbered
+advisories and extension proposals are included in their wave's inventory;
+the intakes also discuss unnumbered proposals. These counts do not measure
+distinct current defects, accepted API changes, or completed repairs.
+
+The [wave-4 intake](WAVE_4_INTAKE.md) maps every report-local entry from
+reports 28–36 to implementation obligations and proposals. Source-audited
+mechanisms, unverified public manifestations, historical observations, and
+later implementation evidence retain separate status. The
+[wave-4 index](../../external-reports/code-review/wave-4/README.md) preserves
+each report's article and supplied evidence.
 
 Reviews 1–6, 8, and 9 examine `07a9781212beb2eeb9ff16aa625b50ac27974078`;
 review 7 examines `75de8756175911cd8830704fd1a3406c1022f018`. Their supplied
@@ -74,6 +75,25 @@ and focused acceptance obligations. The supplied 166 payload files were
 merged from `68b8e1e70731998c5bc1533be1bec0f5b507acd7` without editing them.
 Current source inspection does not turn their historical or unrun witnesses
 into current native reproductions.
+
+Wave 4 adds reports 28–36 at the two exact snapshots recorded in the
+[wave-4 intake](WAVE_4_INTAKE.md). Its **64 identified entries and unnumbered
+proposals are included in scope**, with current-source comparisons and
+focused acceptance obligations. All 180 supplied files, including nine TeX
+and nine PDF articles, match their [arrival Git blobs](../../validation/wave4-payload-provenance.json).
+Review evidence and candidate code do not establish current Mathics or
+Wolfram package behavior; no bundled programs were executed during intake.
+
+The first wave-4 [runner repair](../../validation/wave4-runner-integrity-tests.json)
+records **32 passed, 0 failed focused Python tests** on Windows, using synthetic
+protocol peers and temporary Python processes/environments. It restricts
+deadlines to finite values in `(0, 86400]` seconds (W4-10), preserves the
+selected executable's invocation path (W4-11), latches observed source drift
+(part of W4-12), and prevents report/staging aliases of fingerprinted inputs
+(part of W4-13). These identifiers follow the
+[maintained wave-4 intake](WAVE_4_INTAKE.md). Complete executed-source coverage
+and freezing, mandatory load admission, output caps and interruption records
+remain pending. This receipt contains no Mathics or Wolfram package execution.
 
 W3-06 now has independently reproduced native failures and
 [131/0 focused native acceptance](../../validation/observable-ingress-main-sync-tests.json).

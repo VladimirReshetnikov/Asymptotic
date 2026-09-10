@@ -8,15 +8,27 @@ acceptance of this suite is one milestone toward the project's
 it does not establish compatibility for every supported Wolfram input, every
 public option combination, or the original MUnit suite.
 
-This note is a **source audit**, not a new runtime receipt. Its implementation
-reference is commit
-[`38aa253aaf792577100103a76a9db165d7390e0e`](https://github.com/VladimirReshetnikov/Asymptotic/tree/38aa253aaf792577100103a76a9db165d7390e0e).
-The [runner](../../validation/run_mathics_tests.py),
+This note is a **source audit**, not a new runtime receipt. Its current runner
+implementation reference is commit
+[`45ea65ffb969dc5f1df8e08f3a92b407e3db096d`](https://github.com/VladimirReshetnikov/Asymptotic/blob/45ea65ffb969dc5f1df8e08f3a92b407e3db096d/validation/run_mathics_tests.py).
+The earlier audit covered
+[`38aa253aaf792577100103a76a9db165d7390e0e`](https://github.com/VladimirReshetnikov/Asymptotic/tree/38aa253aaf792577100103a76a9db165d7390e0e),
+whose runner, suite, and verifier were unchanged in peer merge
+`4da0dbcac93b1a4221bd55e1f2c787268350c33f`. Commit `45ea65f` repairs timeout
+admission, executable symlink handling, report/input aliases, and forgotten
+observed source differences. The other limitations below still apply.
+The maintained sources are the [runner](../../validation/run_mathics_tests.py),
 [portable assertions](../../validation/MathicsTests.wl), and
-[acceptance verifier](../../validation/check_mathics_acceptance.py) are unchanged
-between that reference and peer merge
-`4da0dbcac93b1a4221bd55e1f2c787268350c33f`. The limitations below describe those
-versions; they should be reassessed when the implementation changes.
+[acceptance verifier](../../validation/check_mathics_acceptance.py).
+
+The recorded [runner integrity tests](../../validation/wave4-runner-integrity-tests.json)
+report **32 succeeded, 0 failed, 0 skipped** on Python 3.14.4 / Windows 11.
+Their recorded hashes match the runner and
+[test source](../../validation/test_mathics_runner.py) audited here. They cover
+synthetic protocol peers, temporary Python processes, and virtual environments;
+they do not execute the Mathics or Wolfram package suite or establish the same
+test outcomes on every host. Runtime outcomes are recorded separately from
+this source audit.
 
 ## What the runner checks
 
@@ -42,7 +54,8 @@ Receipts distinguish `Selected`, `Executed`, `Succeeded`, `Failed`, and
 after the loop. `RunComplete: true` means the runner reached its final reporting
 step: a launch error can end the loop with unrun cases. Read that flag together
 with the counters and individual outcomes. The runner's normal success exit
-requires all selected cases to succeed and its final source comparison to match.
+requires all selected cases to succeed and no source difference to have been
+observed at any reporting checkpoint.
 
 Selection uses the literal declaration format
 `portableTest["case-id", "group", ...]`. The current inventory contains 101
@@ -67,27 +80,49 @@ that copy. `TestSuiteSnapshotSHA256` identifies those copied bytes. Package
 sources are **not** copied: each fresh kernel receives the original live entry
 path through `ASYMPTOTIC_PORTABLE_SOURCE`. The receipt's `Command` names the
 original suite path; the executed command substitutes the temporary suite copy.
+The temporary copy is not made read-only or rehashed between launches: its
+recorded hash identifies the byte buffer used to create it, not continuous
+integrity of the executed file.
 
 `TestedSourcesSHA256` records the initial fingerprints.
-`SourcesUnchangedDuringRun` compares them with fingerprints read while writing
-that particular receipt. Its name should not be interpreted as a continuous
+`SourcesUnchangedDuringRun` remains `true` only while every reporting checkpoint
+matches them. Since `45ea65f`, the first observed difference is retained in
+`FirstObservedSourceDriftSHA256`, the flag stays `false`, and the normal final
+exit is nonzero even if every case passes and the original bytes are restored.
+For such a run, `SourcesSHA256AfterRun` records the latest fingerprints and can
+equal the initial fingerprints; the first-drift field explains the failed
+integrity result.
+
+This fixes the earlier behavior at `38aa253`, where a matching later comparison
+could erase a previously observed difference from the final receipt. The
+historical mechanism and mock-kernel experiments are documented in
+[report 30, F1](../../external-reports/code-review/wave-4/code-review-30/evidence/findings.json)
+and [report 35's runner experiments](../../external-reports/code-review/wave-4/code-review-35/evidence/runner_experiments.json).
+The current runner's restoration regression is included in the linked integrity
+receipt. Retaining observed differences still does not provide a continuous
 filesystem guarantee:
 
 - Files are read sequentially, so a fingerprint set is not an atomic snapshot.
 - Case discovery, the initial suite fingerprint, and the suite-byte copy are
   separate reads. Concurrent edits can occur between them.
 - A package file can change and return to its original contents between
-  comparisons. Even a difference detected at an intermediate checkpoint is not
-  latched: a later matching comparison can restore the flag to `true` and omit
-  `SourcesSHA256AfterRun` from the final receipt.
+  comparisons, so no checkpoint necessarily observes that difference.
 
-These mechanisms are supported by source inspection and supplied mock-kernel
-experiments, including
-[report 30, F1/F2 and experiment results](../../external-reports/code-review/wave-4/code-review-30/evidence/findings.json),
-[report 35's runner experiments](../../external-reports/code-review/wave-4/code-review-35/evidence/runner_experiments.json),
-and [report 29's loader-closure findings](../../external-reports/code-review/wave-4/code-review-29/results/novelty-ledger.json).
-Mock-kernel experiments test the harness mechanism; they are not additional
+The dependency-closure limitations remain, including
+[report 30, F2](../../external-reports/code-review/wave-4/code-review-30/evidence/findings.json)
+and [report 29, N2](../../external-reports/code-review/wave-4/code-review-29/results/novelty-ledger.json).
+Supplied mock-kernel experiments test harness mechanisms; they are not additional
 Mathics package passes or evidence that source mutation occurred in a CI run.
+
+The runner also protects its fingerprinted inputs from report writes. Before
+launch and before every receipt write, both `--output` and its `<output>.tmp`
+staging path are checked for direct, relative-path, symlink, or hard-link aliases
+of the initial and currently discovered input files. An observed collision is
+rejected. This protects the monitored input set, including newly discovered
+siblings, rather than every possible dependency. It is an observed-path check,
+not a filesystem lock against changes between checking a path and writing it.
+Unrelated existing output files can still be replaced, so choose a fresh receipt
+path when preserving earlier evidence.
 
 For new evidence, use a dedicated checkout and keep its source files unchanged
 until the run finishes. Preserve the receipt, exact revision, source hashes,
@@ -108,16 +143,21 @@ remembering that it runs in its own fresh processes. This is the source-level
 finding [report 33, F03](../../external-reports/code-review/wave-4/code-review-33/evidence/source-novelty-ledger.json);
 that report's proposed load-failure fixture is not a new recorded package run.
 
-Use an ordinary, finite, positive `--timeout` value. The CLI rejects values
-less than or equal to zero, but does not explicitly reject `NaN`, infinity, or
-impractically large finite values. Such inputs do not carry the documented
-per-case timeout guarantee; nonfinite values can also enter receipts as the
-nonstandard JSON constants `NaN` or `Infinity`. With a normal finite timeout, the
-runner waits for the process with that limit and then terminates its owned process group/tree;
-cleanup and output draining have additional waits. The option is not a strict
-total wall-clock limit for the whole suite. See
+`--timeout` must now be finite and satisfy `0 < seconds <= 86400`; the default
+is 180 seconds. Both CLI argument parsing and direct calls to `run_case` enforce
+this contract before creating a process. Consequently, an invalid explicitly
+supplied timeout is also rejected with `--list`. At `38aa253`, `NaN`, infinity,
+and excessively large finite values could pass validation; nonfinite values
+could also enter receipts as nonstandard JSON constants. That historical
+admission defect, described in
 [report 29, N1](../../external-reports/code-review/wave-4/code-review-29/results/novelty-ledger.json)
-and [report 35, N02](../../external-reports/code-review/wave-4/code-review-35/evidence/findings.json).
+and [report 35, N02](../../external-reports/code-review/wave-4/code-review-35/evidence/findings.json),
+is repaired in `45ea65f` and covered by the recorded integrity tests.
+
+For an admitted timeout, the runner waits for the process with that limit and
+then terminates its owned process group/tree. Cleanup and output draining have
+additional waits. The option is not a strict total wall-clock limit for either
+the case including cleanup or the whole suite.
 
 Captured output has no byte limit. The runner buffers complete diagnostics and
 serializes accumulated results again at checkpoints, so a time limit does not
@@ -133,16 +173,16 @@ includes that case. Preserve this incomplete receipt as diagnostic evidence;
 it does not establish an outcome for the active case. See
 [report 29, N3 and supplied harness results](../../external-reports/code-review/wave-4/code-review-29/results/harness-tests.json).
 
-On POSIX, the runner resolves an existing interpreter path with `Path.resolve()`.
-For a virtual environment whose Python executable is a symlink, this can select
-the base interpreter and lose the intended environment's dependencies. Merely
-activating the environment does not fix the default `sys.executable` path being
-resolved. [Report 31's interpreter-identity experiment](../../external-reports/code-review/wave-4/code-review-31/evidence/venv_identity.json)
-demonstrates this path-resolution issue; it is not a failed package assertion.
-Check the actual interpreter identity and runtime header before attributing a
-run to a virtual environment. An explicitly supplied unqualified executable
-name is looked up through `PATH` when it is not an existing file in the caller's
-working directory; this avoids resolving an explicit symlink path.
+The runner now anchors an existing executable path with `os.path.abspath()`
+without dereferencing its symlinks. This applies to explicit `--python`, the
+default `sys.executable`, and `--wolfram`. An unqualified executable name that
+is not an existing file in the caller's working directory remains available
+for normal `PATH` lookup. At `38aa253`, `Path.resolve()` could instead select a
+POSIX virtual environment's base interpreter and lose the intended dependencies;
+[report 31's interpreter-identity experiment](../../external-reports/code-review/wave-4/code-review-31/evidence/venv_identity.json)
+documents that historical mechanism. The path-selection repair is covered by
+the recorded integrity tests; outcomes beyond their Windows host remain
+unverified by that receipt. Retain the actual runtime header with evidence.
 
 ## What acceptance verification adds
 
@@ -172,6 +212,8 @@ mutation, interpreter substitution, or another failure, and do not invalidate
 those existing observations without such evidence. Their scope remains the
 complete maintained portable suite at the recorded source hashes and runtime,
 not all package inputs, later changed sources, or complete Mathics compatibility.
+The later runner repairs improve new evidence collection; they do not rerun or
+change the source revision of these historical observations.
 
 ## Practical commands
 
@@ -186,9 +228,10 @@ python validation/run_mathics_tests.py --case "inverse-*" --list
 
 Repeated `--case` patterns are combined by union, as are repeated `--group`
 values; when both kinds are supplied, their selections are intersected. Unknown
-groups, unmatched patterns, and an empty intersection are errors. `--list`
-returns before validating the runtime, source path, or timeout; it is an
-inventory check only.
+groups, unmatched patterns, and an empty intersection are errors. Argument
+parsing validates an explicitly supplied timeout before `--list` can return.
+Listing does not check runtime availability, source-file existence, or output
+aliases; it is an inventory and argument check only.
 
 For a Windows virtual environment installed from
 [the pinned requirements](../../validation/requirements-mathics.txt), the
