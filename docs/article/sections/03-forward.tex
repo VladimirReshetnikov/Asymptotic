@@ -69,6 +69,85 @@ Apply the closure theorem to $U^{1/d}$, the analytic function $A$, and $U^{n_0/d
 
 Variable powers also reduce to the closure theorem through $F^G=\exp(G\log F)$ when $F>0$ and the resulting exponential argument satisfies its hypotheses; this includes $w^w=\exp(w\log w)$. For a nonzero leading block $w^\beta P(L)$, the eventual sign is the sign of $(-1)^{\deg P}[L^{\deg P}]P$, so absolute values reduce to multiplication by that sign whenever it is provable.
 
+\subsection{Modulus of a complex-valued expansion}
+\label{sec:modulus}
+
+The sign reduction just stated is a statement about \emph{real} coefficient
+polynomials. Write $\mathcal E_\C$ for the class of Definition~\ref{def:pl-expansion}
+with $C_\sigma\in\C[L]$ instead of $\R[L]$. It is closed under sums and
+products by the same argument, since \eqref{eq:pl-expansion} bounds
+$\|C_\sigma\|_1$ and never uses reality. For $F\in\mathcal E$ with a nonzero
+leading block the eventual sign gives $|F|=\pm F$. For
+$F\in\mathcal E_\C\setminus\mathcal E$ that rule is false, and its failure is
+invisible in the leading block.
+
+\begin{example}[A positive leading coefficient does not license the sign rule]
+\label{ex:modulus-cancellation}
+Let $a\in\C$ satisfy $a^2=-1$, and let $w\to0^+$ be real. Both $1+aw$ and
+$1-aw$ have leading block $1$, with positive constant leading coefficient.
+Replacing each modulus by its argument and adding gives the identically zero
+expression $(1+aw)+(1-aw)-2$. The true value is
+\[
+ |1+aw|+|1-aw|-2=2\sqrt{1+w^2}-2=w^2-\tfrac14w^4+\OO(w^6),
+\]
+whose leading term is $w^2$. The whole expansion is lost, and the loss is
+concealed: the two imaginary parts cancel, so the returned coefficients are
+real. Reality of the \emph{result} of a compound calculation is therefore no
+evidence that a modulus taken inside it was evaluated correctly.
+\end{example}
+
+The correct construction stays on the real coordinate. Because $w$ and
+$L=\log w$ are real, conjugation acts on $\mathcal E_\C$ coefficientwise:
+$\overline F=\sum_\sigma w^{\beta_0+\sigma}\overline{C_\sigma}(L)$, where
+$\overline{C_\sigma}$ conjugates the coefficients of the polynomial.
+
+\begin{proposition}[Modulus on a real coordinate]
+\label{prop:modulus}
+Let $F\in\mathcal E_\C$ and put $N=F\overline F$. Then $N\in\mathcal E$, $N\ge0$
+pointwise, and its blocks are the ordered convolution
+$N_\sigma=\sum_{\tau+\tau'=\sigma}C_\tau\overline{C_{\tau'}}$ at exponents
+$2\beta_0+\sigma$. If the leading block of $F$ is a nonzero constant $c\in\C$,
+then $N$ has leading block $|c|^2w^{2\beta_0}$ and
+\[
+ |F|=N^{1/2}\in\mathcal E,
+\]
+with leading block $|c|w^{\beta_0}$ and support in $\beta_0+\tfrac12S'$ for a
+finitely generated positive semigroup $S'$.
+\end{proposition}
+\begin{proof}
+The convolution is the ordinary product rule of Theorem~\ref{thm:closure},
+applied to $F$ and $\overline F$, which have the same support and coefficient
+bounds. Reindexing by $(\tau,\tau')\mapsto(\tau',\tau)$ and conjugating fixes
+each $N_\sigma$, so $N_\sigma\in\R[L]$ and $N\in\mathcal E$. Pointwise
+$N(w)=|F(w)|^2\ge0$. A nonzero constant leading coefficient gives leading
+block $c\overline c\,w^{2\beta_0}=|c|^2w^{2\beta_0}$ with $|c|^2>0$, so
+part~(1) of Theorem~\ref{thm:closure} applies to $N$ with $a=1/2$. Both $|F|$
+and $N^{1/2}$ are nonnegative with the same square, hence equal.
+\end{proof}
+
+The constant leading coefficient is not a technicality. If the leading block is
+a nonconstant polynomial in $L$, the square root of $|C_{0}|^2$ need not be
+polynomial in $L$, and the modulus leaves the scale: for $F=L+a$ with $a^2=-1$
+one has $|F|=\sqrt{L^2+1}$, which is not a power--log expansion in the sense of
+Definition~\ref{def:pl-expansion} and belongs to the larger scales of
+Section~\ref{sec:boundaries}. This is the same obstruction as for
+$\sqrt{L^2}=-L$ noted above, now without a provable sign to remove it.
+
+\begin{remark}[Error transport and cost]
+\label{rem:modulus-transport}
+The reverse triangle inequality $\bigl||F|-|T|\bigr|\le|F-T|$ transports an
+absolute remainder through the modulus unchanged: if $F-T=\OO(w^P\M^D)$ then
+$|F|-|T|=\OO(w^P\M^D)$. This bounds magnitude only. It identifies no leading
+term, fixes no sign, and supplies no derivative information; Section~\ref{sec:series-calculus}
+shows that a modulus does not transport a classical derivative contract even
+when it transports the magnitude faithfully. A retained support of $m$ blocks
+admits $m^2$ ordered coefficient products in $N$, but the pair
+$C_\tau\overline{C_{\tau'}}$ and $C_{\tau'}\overline{C_\tau}$ are conjugates,
+so their sum is $2\operatorname{Re}\bigl(C_\tau\overline{C_{\tau'}}\bigr)$ and
+only the $m(m+1)/2$ unordered pairs need to be formed. For $m=64$ that is
+$2080$ products instead of $4096$.
+\end{remark}
+
 \subsection{Propagation of finite-order errors}
 \label{sec:evaluator}
 

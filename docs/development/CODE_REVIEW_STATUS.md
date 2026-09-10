@@ -28,14 +28,24 @@ standalone evidence at checkpoint `01b18ab` predates this rename. Earlier
 passing counts likewise apply to their recorded source snapshots, not to new
 path/context hashes after the rename.
 
-Updated September 9, 2026. This register and the linked wave-3 and wave-4
-intakes consolidate **231 attributed report entries across all thirty-six
-[review packages](../../external-reports/code-review/README.md)** into shared
-work items: 123 entries from waves 1–2, 44 from wave 3, and 64 from wave 4.
-The earlier 167-entry count therefore remains scoped to waves 1–3. Numbered
-advisories and extension proposals are included in their wave's inventory;
-the intakes also discuss unnumbered proposals. These counts do not measure
-distinct current defects, accepted API changes, or completed repairs.
+Updated September 10, 2026. This register and the linked wave-3 and wave-4
+intakes consolidate **231 attributed report entries from the thirty-six
+supplied wave-1 to wave-4 [review packages](../../external-reports/code-review/README.md)**
+into shared work items: 123 entries from waves 1–2, 44 from wave 3, and 64 from
+wave 4. The earlier 167-entry count therefore remains scoped to waves 1–3.
+Numbered advisories and extension proposals are included in their wave's
+inventory; the intakes also discuss unnumbered proposals. These counts do not
+measure distinct current defects, accepted API changes, or completed repairs.
+
+Eight of those packages, together with two of the nine wave-5 packages, have
+since been [retired](../../external-reports/code-review/README.md#retired-review-packages):
+reports 2, 3, 10, 12, 13, 14, 26 and 32, plus 40 and 41. Every entry they carried was
+implemented and verified below, settled as a decision, or restated by a retained
+report; the register keeps their attributions and the retirement table names the
+retained package that still carries each open obligation. Retiring a copy does
+not close an item, and the entry counts above still describe what arrived.
+References of the form `[Rn]` for a retired package resolve to that table.
+Thirty-five packages are retained across five waves.
 
 The [wave-4 intake](WAVE_4_INTAKE.md) maps every report-local entry from
 reports 28–36 to implementation obligations and proposals. Source-audited
@@ -47,9 +57,9 @@ each report's article and supplied evidence.
 Reviews 1–6, 8, and 9 examine `07a9781212beb2eeb9ff16aa625b50ac27974078`;
 review 7 examines `75de8756175911cd8830704fd1a3406c1022f018`. Their supplied
 patches and native observations concern those snapshots. Preserve their notices
-and check current source before adapting a patch. Reviews 3 and 8 include limited
-native execution; the other reports' independent mathematical and patch-fixture
-checks do not execute this package. See the [review index](../../external-reports/code-review/README.md)
+and check current source before adapting a patch. Reviews 3 and 8 included
+limited native execution; review 3 is retired, and the other reports'
+independent mathematical and patch-fixture checks do not execute this package. See the [review index](../../external-reports/code-review/README.md)
 for each report's evidence boundary.
 
 Wave 2 adds reports 10–18, all pinned to
@@ -57,6 +67,8 @@ Wave 2 adds reports 10–18, all pinned to
 report 18's two explicitly attributed deltas to earlier findings.
 Reports 10–13, 17 and 18 record selected Wolfram 15.0.0 Linux observations;
 reports 14–16 record independent checks without successful package execution.
+Reports 10 and 12–14 are retired; their C05, C07, C14, C15, C17 and C20–C22
+evidence is superseded by the focused acceptance records cited below.
 These snapshots precede the recent C04–C07 repairs. The first eight supplied packages
 were merged from `origin/main` commit `c19c0cd` without editing their contents.
 Report 18's nineteen files were added from
@@ -80,9 +92,38 @@ Wave 4 adds reports 28–36 at the two exact snapshots recorded in the
 [wave-4 intake](WAVE_4_INTAKE.md). Its **64 identified entries and unnumbered
 proposals are included in scope**, with current-source comparisons and
 focused acceptance obligations. All 180 supplied files, including nine TeX
-and nine PDF articles, match their [arrival Git blobs](../../validation/wave4-payload-provenance.json).
+and nine PDF articles, match their [arrival Git blobs](../../validation/wave4-payload-provenance.json)
+as they arrived; report 32's seventeen files are recorded there and have since
+been retired from the working tree.
 Review evidence and candidate code do not establish current Mathics or
 Wolfram package behavior; no bundled programs were executed during intake.
+
+Wave 5 supplied reports 37–45 at `8e85996` and `651f202`; seven are retained and
+indexed in the [wave-5 index](../../external-reports/code-review/wave-5/README.md).
+**This wave has no consolidated intake.** Its entries are outside the 231 counted
+above and outside every `C*`, `P*`, `D*`, `V*`, `X*`, `W3-*` and `W4-*` item, so
+nothing below is closed or refuted by them. Three of the nine packages reported
+the same signed-real absolute-value shortcut, and two reported the same
+observable derivative-contract loss; reports 40 and 41 were retired as the
+duplicate copies.
+
+That modulus finding is no longer only source-predicted. The
+[three-case characterization](../../validation/wave5-modulus-witness.json),
+produced by [ProbeModulusReality](../../validation/ProbeModulusReality.wl) on
+Wolfram 15.0.1 Windows with unchanged sources, reproduces two public wrong
+results on the current source: under `a^2 == -1` the package returns exact `0`
+with `RemainderPower -> Infinity` for `Abs[1 + a x] + Abs[1 - a x] - 2`, whose
+true value is `2 Sqrt[1 + x^2] - 2 = x^2 + O(x^4)`, and `-2 Log[x]` for
+`Abs[Log[x] + a] + Abs[Log[x] - a]`, whose true value is
+`2 Sqrt[Log[x]^2 + 1]` and omits `-1/Log[x]`. The real-parameter control is
+correct. This is a characterization probe, not an acceptance suite, and no
+repair is applied here. The underlying mathematics — why a positive leading
+coefficient does not license the sign rule, the norm-square construction that
+does compute a modulus on the real coordinate, and the scale boundary at a
+nonconstant logarithmic leading block — is now in the
+[mathematical article](../article/sections/03-forward.tex), together with the
+[separate reason](../article/sections/17-calculus.tex) a faithful magnitude
+bound does not transport a classical derivative contract.
 
 The first wave-4 [runner repair](../../validation/wave4-runner-integrity-tests.json)
 records **32 passed, 0 failed focused Python tests** on Windows, using synthetic
@@ -592,7 +633,7 @@ inputs outside its proved contract.
 | X01 | Primitive rationally commensurate flat-rate normalization. Current `flatModel` requires integer multiples of the smallest rate; rates 2 and 3 instead admit primitive rate 1. Bound lattice denominator/degree growth and keep genuinely irrational rate ratios distinct. **Pending scope decision; current restriction inspected.** | [R2 F07][R2], [R5 F07][R5], [R7 F05][R7]; [FlatSectors](../../src/Kernel/FlatSectors.wl). |
 | X02 | Shared coefficient algebra for rational/reciprocal logarithms, iterated slow variables, and compatible retained Gamma/Barnes cores. Improve ordered arithmetic, selected composition, Fourier term goals/refinement, and nonvanishing oscillatory coefficients under explicit hypotheses. Preserve conservative composite envelopes when no ordered closure is proved. | [R2 roadmap][R2-article], [R5 specialized scales][R5-article], [R7 roadmap][R7-roadmap], [R8 extensions][R8-article]. |
 | X03 | Integration of already constructed germs with an explicit integration constant/normalization, exponent `-1` resonance, coordinate Jacobian, and integrable remainder condition. This is a proposed operation, not a replacement for native asymptotic integration. | [R2 roadmap][R2-article], [R3 roadmap][R3-article], [R4 extensions][R4-article], [R5 roadmap][R5-article], [R8 extensions][R8-article]. |
-| X04 | A source-differentiation/re-expansion operation can complement differentiation under a retained derivative contract. It must not infer derivatives of unknown magnitude remainders. | [R3 roadmap][R3-article]. |
+| X04 | A source-differentiation/re-expansion operation can complement differentiation under a retained derivative contract. It must not infer derivatives of unknown magnitude remainders. | [R16 O01/O02][R16]; [R3 roadmap][R3-article] (retired). |
 | X05 | Quantitative tail bounds from checked majorants, stronger interval subdivision/polynomial enclosures, and original-function Gamma/Barnes/Erfc inverse certificates. Require explicit function and derivative bounds; a high-precision residual or a finite asymptotic model is insufficient. | [R3 roadmap][R3-article], [R4 certification][R4-article], [R5 certification][R5-article], [R6 future work][R6-article], [R8 certification][R8-article]. |
 | X06 | Independent proof records/checkers for rational interval arithmetic, finite residual identities, and local remainder transport; optional proof-assistant formalization of this small trusted core. Keep formal identity, asymptotic theorem, numerical evidence, and root certification distinct. | [R2 roadmap][R2-article], [R3 verification boundary][R3-article], [R5 evidence architecture][R5-article], [R6 future work][R6-article], [R7 evidence][R7-roadmap], [R8 certification][R8-article]. |
 | X07 | Finite conditional parameter cases when a bounded decision procedure proves them. Keep a separate chart, branch and precision contract per case, and retain an inconclusive-within-budget outcome. | [R5 longer-range work][R5-article]. |
@@ -614,19 +655,19 @@ adds all 44 entries from reports 19–27 and the consolidated `W3-*` work items.
 | Review | Finding → register item |
 | --- | --- |
 | [1][R1] — 14 entries | A01 → C02; A02 → C01; A03 → C03; A04 → C05; A05 → V01; A06 → P06; A07 → D01; A08 → D03; A09 → D04; A10 → D09; A11 → D05; A12 → D02; A13 → P07; A14 → D07, D08. |
-| [2][R2] — 7 entries | F01 → C04; F02 → C02; F03 → C03; F04 → C01; F05 → C08; F06 → P04; F07 → X01. |
-| [3][R3] — 5 entries | F01 → C02; F02 → C01; F03 → C03; F04 → C05; F05 → P04. |
+| [2][R2] — 7 entries, package retired | F01 → C04; F02 → C02; F03 → C03; F04 → C01; F05 → C08; F06 → P04; F07 → X01. |
+| [3][R3] — 5 entries, package retired | F01 → C02; F02 → C01; F03 → C03; F04 → C05; F05 → P04. |
 | [4][R4] — 11 entries | A01 → C02; A02 → C01; A03 → P03; A04 → P07; A05 → C11; A06 → P06; A07 → V01; A08 → D01, D02, D06; R01 → C13; R02 → C07; R03 → C06. |
 | [5][R5] — 7 entries | F01 → C01; F02 → C02; F03 → P04; F04 → C08; F05 → C10; F06 → P05; F07 → X01. |
 | [6][R6] — 16 entries | A01 → C01; A02 → C03; A03 → C09; A04 → C08; A05 → P05; A06 → P06; A07 → V01; A08 → V02; A09 → D01; A10 → D05; A11 → D02, D03; A12 → C05, D06; A13 → D04; A14 → D08, D09; A15 → C12; A16 → P08. |
 | [7][R7] — 11 entries | F01 → C01; F02 → C02; F03 → C06; F04 → C07; F05 → X01; E01 → V01; E02 → D01, D02, D03, D06; E03 → D08; E04 → D04; R01 → C13; R02 → P07, P08. |
 | [8][R8] — 10 entries | F01 → C05; F02 → C02; F03 → C01; F04 → P02; F05 → P03; F06 → P06; F07 → V01; F08 → D03; F09 → D08; F10 → D04. |
 | [9][R9] — 6 entries | F01 → C01; F02 → P01; F03 → P04; F04 → C07; F05 → C08; F06 → C03. |
-| [10][R10] — 2 entries | N01 → C05; N02 → P06. |
+| [10][R10] — 2 entries, package retired | N01 → C05; N02 → P06. |
 | [11][R11] — 4 entries | N01 → C05; N02 → C15; N03 → C16, B03; N04 → C07, B01. |
-| [12][R12] — 3 entries | N01 → C05; N02 → C07, C13, B01; N03 → C17. |
-| [13][R13] — 3 entries | A1 → C14, C12; A2 → C07, B01; A3 → C21. |
-| [14][R14] — 5 entries | N01 → C15; N02 → C20; N03 → C21; N04 → D01, D02; N05 → C22. |
+| [12][R12] — 3 entries, package retired | N01 → C05; N02 → C07, C13, B01; N03 → C17. |
+| [13][R13] — 3 entries, package retired | A1 → C14, C12; A2 → C07, B01; A3 → C21. |
+| [14][R14] — 5 entries, package retired | N01 → C15; N02 → C20; N03 → C21; N04 → D01, D02; N05 → C22. |
 | [15][R15] — 4 entries | F01 → C18; F02 → C19; F03 → C23; F04 → X02. |
 | [16][R16] — 7 entries | N01 → C05; N02 → C19; N03 → D01, P06; N04 → D01; S01 → C04, P02, P03; O01 → X04, X05; O02 → X04, X05. |
 | [17][R17] — 4 entries | N1 → C05; N2 → C23; N3 → C21; N4 → B04. |
@@ -666,26 +707,26 @@ Passing an unrelated historical suite, a source-only model, or a patched review
 fixture alone does not close an item in the current package.
 
 [R1]: ../../external-reports/code-review/wave-1/code-review-1/evidence/findings.csv
-[R2]: ../../external-reports/code-review/wave-1/code-review-2/README.md#findings-and-supplied-implementation-scope
-[R3]: ../../external-reports/code-review/wave-1/code-review-3/README.md#start-here
+[R2]: ../../external-reports/code-review/README.md#retired-review-packages
+[R3]: ../../external-reports/code-review/README.md#retired-review-packages
 [R4]: ../../external-reports/code-review/wave-1/code-review-4/evidence/findings.json
 [R5]: ../../external-reports/code-review/wave-1/code-review-5/evidence/findings.json
 [R6]: ../../external-reports/code-review/wave-1/code-review-6/evidence/findings.csv
 [R7]: ../../external-reports/code-review/wave-1/code-review-7/evidence/findings.csv
 [R8]: ../../external-reports/code-review/wave-1/code-review-8/evidence/findings.csv
 [R9]: ../../external-reports/code-review/wave-1/code-review-9/README.md#findings
-[R10]: ../../external-reports/code-review/wave-2/code-review-10/evidence/review_crosswalk.json
+[R10]: ../../external-reports/code-review/README.md#retired-review-packages
 [R11]: ../../external-reports/code-review/wave-2/code-review-11/evidence/findings-delta.json
-[R12]: ../../external-reports/code-review/wave-2/code-review-12/evidence/novelty_ledger.csv
-[R13]: ../../external-reports/code-review/wave-2/code-review-13/README.md#principal-results
-[R14]: ../../external-reports/code-review/wave-2/code-review-14/evidence/findings.json
+[R12]: ../../external-reports/code-review/README.md#retired-review-packages
+[R13]: ../../external-reports/code-review/README.md#retired-review-packages
+[R14]: ../../external-reports/code-review/README.md#retired-review-packages
 [R15]: ../../external-reports/code-review/wave-2/code-review-15/evidence/findings.csv
 [R16]: ../../external-reports/code-review/wave-2/code-review-16/evidence/findings.csv
 [R17]: ../../external-reports/code-review/wave-2/code-review-17/evidence/novelty_matrix.json
 [R18]: ../../external-reports/code-review/wave-2/code-review-18/evidence/novelty_ledger.json
 [R18-validation]: ../../external-reports/code-review/wave-2/code-review-18/evidence/patch_validation.json
-[R2-article]: ../../external-reports/code-review/wave-1/code-review-2/article/asymptotic-review.tex
-[R3-article]: ../../external-reports/code-review/wave-1/code-review-3/article/asymptotic-audit.tex
+[R2-article]: ../../external-reports/code-review/README.md#retired-review-packages
+[R3-article]: ../../external-reports/code-review/README.md#retired-review-packages
 [R4-article]: ../../external-reports/code-review/wave-1/code-review-4/article.tex
 [R5-article]: ../../external-reports/code-review/wave-1/code-review-5/article/asymptotic-audit.tex
 [R6-article]: ../../external-reports/code-review/wave-1/code-review-6/article/article.tex

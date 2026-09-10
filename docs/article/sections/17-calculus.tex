@@ -246,3 +246,53 @@ cutoff nor a pointwise numerical certificate, and they imply no
 derivative bounds. For a pure error, the integer-power rule gives
 $\OO(R)^n=\OO(R^n)$; a fractional power additionally needs a real-branch
 condition that a magnitude bound alone does not supply.
+
+\subsection{Magnitude bounds do not transport differentiability}
+\label{sec:magnitude-vs-derivative}
+
+The Lipschitz argument above transports a magnitude bound through an absolute
+value, and Remark~\ref{rem:modulus-transport} does the same for the modulus of
+a complex-valued expansion. Neither transports a \emph{classical derivative}
+contract, even when the input is smooth and its recorded derivative bounds are
+true. The obstruction is that $t\mapsto|t|$ fails to be differentiable at
+$t=0$, and a quantity that changes sign infinitely often near the endpoint
+meets that point infinitely often.
+
+\begin{example}[A truthful derivative contract destroyed by an absolute value]
+\label{ex:absolute-value-cusps}
+Let $f(x)=x+x^2\sin\log x$ for $x>0$, and write $L=\log x$. Then $f$ is
+smooth on $(0,\infty)$, $f(x)-x=\OO(x^2)$, and
+\[
+ \varphi(x):=f'(x)-1=x\,(2\sin L+\cos L)=\sqrt5\,x\,\sin(L+\theta),
+ \qquad \tan\theta=\tfrac12 .
+\]
+Hence $|\varphi|\le\sqrt5\,x$, so $f'(x)>0$ for $x<1/\sqrt5$ and $f$ is
+strictly increasing there, with a local inverse $g$ near $0$. Also
+$f''(x)=(2\sin L+\cos L)+(2\cos L-\sin L)=\OO(1)$, so the three assertions
+\[
+ g(y)-y=\OO(y^2),\qquad g'(y)-1=\OO(y),\qquad g''(y)=\OO(1)
+\]
+are all true, the second because $g'-1=-\varphi(g)/f'(g)$ and $g\sim y$.
+
+Nevertheless $|\varphi|$ is differentiable on no interval $(0,\epsilon)$. Its
+zeros in $(0,1)$ are $x_n=\exp(-\arctan\tfrac12-n\pi)$ for $n\ge1$, which
+accumulate at $0$, and there $2\sin L+\cos L=0$, so
+\[
+ \varphi'(x_n)=f''(x_n)=2\cos L-\sin L=\pm\sqrt5\ne0 .
+\]
+Thus $\varphi$ changes sign at each $x_n$ and $|\varphi|$ has one-sided
+derivatives $-\sqrt5$ and $+\sqrt5$ there. The magnitude bound
+$|\varphi|=\OO(x)$ survives the absolute value; the derivative bound
+$\varphi'=\OO(1)$ does not extend to $|\varphi|$, whose derivative fails to
+exist at every $x_n$. The same happens to $|g'(y)-1|$ at the images
+$y_n=f(x_n)$, because $g'(y)-1$ vanishes exactly where $f'(g(y))=1$ and
+$f''\ne0$ at those points.
+\end{example}
+
+A derivative contract must therefore be recorded separately from a magnitude
+contract, and lowered whenever an absolute value or a modulus is applied to a
+quantity whose sign is not proved eventually constant. A nonvanishing proof on
+the relevant neighborhood, or an exact factorization that exhibits the sign,
+restores the higher contract; a Lipschitz constant alone does not. Neither does
+the accumulation of cusps contradict the magnitude estimate: the two contracts
+are independent, and only the weaker one is preserved.
