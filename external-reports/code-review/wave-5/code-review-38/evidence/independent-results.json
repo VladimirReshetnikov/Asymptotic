@@ -1,0 +1,112 @@
+{
+  "reviewed_repository": "VladimirReshetnikov/Asymptotic",
+  "reviewed_revision": "8e859961d7d37f008b826f3a8cad406460271614",
+  "environment": {
+    "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+    "sympy": "1.14.0",
+    "mpmath": "1.3.0"
+  },
+  "tests": {
+    "methods_run": 28,
+    "successful": true,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "scaled_polynomial_family_subcases": 12,
+    "derivative_transport_family_scale_point_subcases": 18,
+    "counting_policy": "Subcases are included in method tests, not additional package tests."
+  },
+  "native_execution": {
+    "Wolfram_package": false,
+    "Mathics_package": false,
+    "native_helper": false,
+    "native_regressions": false,
+    "upstream_suite": false,
+    "fresh_upstream_CI": false
+  },
+  "examples": {
+    "cubic": {
+      "polynomial": "-16*x**3 + 8*x**2 + x",
+      "reference": {
+        "endpoint": "0",
+        "side": 1,
+        "target": "1/2",
+        "component": [
+          "0",
+          "CRootOf(48*x**2 - 16*x - 1, 1)"
+        ],
+        "reference_root": "1/4",
+        "derivative_sign": 1,
+        "equation_roots": [
+          "-1/4",
+          "1/4",
+          "1/2"
+        ],
+        "same_side_roots": [
+          "1/4",
+          "1/2"
+        ],
+        "scope": "Exact QQ polynomial; open critical-point-free endpoint component"
+      },
+      "leading_inverse_coefficients": [
+        "1",
+        "-8",
+        "144"
+      ],
+      "finite_approximation_at_target": "1/2",
+      "same_side_exact_root_candidate": "1/2",
+      "candidate_equation_residual": "0",
+      "actual_selected_branch_error": "1/4",
+      "candidate_derivative": "-3",
+      "evidence_type": "Independent exact mathematical oracle; no package evaluation"
+    },
+    "quartic": {
+      "polynomial": "384*x**4 - 304*x**3 + 56*x**2 + x",
+      "reference": {
+        "endpoint": "0",
+        "side": 1,
+        "target": "1/2",
+        "component": [
+          "0",
+          "CRootOf(1536*x**3 - 912*x**2 + 112*x + 1, 1)"
+        ],
+        "reference_root": "1/8",
+        "derivative_sign": 1,
+        "equation_roots": [
+          "-1/12",
+          "1/8",
+          "1/4",
+          "1/2"
+        ],
+        "same_side_roots": [
+          "1/8",
+          "1/4",
+          "1/2"
+        ],
+        "scope": "Exact QQ polynomial; open critical-point-free endpoint component"
+      },
+      "leading_inverse_coefficients": [
+        "1",
+        "-56",
+        "6576"
+      ],
+      "finite_approximation_at_target": "1/2",
+      "same_side_exact_root_candidate": "1/2",
+      "candidate_equation_residual": "0",
+      "actual_selected_branch_error": "3/8",
+      "candidate_derivative": "21",
+      "evidence_type": "Independent exact mathematical oracle; no package evaluation"
+    }
+  },
+  "derivative_sample": {
+    "x": 3,
+    "family": "LogGamma",
+    "target_scale": "1/2",
+    "stored_unscaled_expression_value": "0.922686362742183765469319310996599778721564631896823525808768",
+    "original_derivative_value": "0.461392167549233569696743954958798784478920332030038200597116",
+    "corrected_pointwise_magnitude_lower_bound": "0.461343181371091882734659655498299889360782315948411762904384",
+    "evidence_type": "Independent 80-decimal mpmath sample; not an interval certificate"
+  },
+  "development_note": "An initial algebraic-root test used structural simplify equality for a CRootOf. It was replaced by an exact minimal-polynomial and positivity test; the branch-reference algorithm was unchanged."
+}

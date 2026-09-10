@@ -1,0 +1,565 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{margin=25mm,headheight=14pt}
+\usepackage{microtype,amsmath,amssymb,amsthm,booktabs,longtable,array}
+\usepackage{xcolor,listings,enumitem,fancyhdr,hyperref,xurl}
+\definecolor{ink}{HTML}{18364B}
+\definecolor{muted}{HTML}{52616C}
+\definecolor{papergray}{HTML}{F2F4F5}
+\hypersetup{colorlinks=true,linkcolor=ink,urlcolor=ink,citecolor=ink,pdftitle={Two missed Abs contracts in AsymptoticAnalysis},pdfauthor={Independent technical review}}
+\lstset{basicstyle=\ttfamily\small,backgroundcolor=\color{papergray},frame=single,rulecolor=\color{papergray},breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,aboveskip=10pt,belowskip=10pt}
+\setlength{\parskip}{5pt}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{4pt}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlist{nosep,leftmargin=1.5em}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{muted}AsymptoticAnalysis \;|\; Incremental audit}
+\fancyhead[R]{\small\color{muted}10 September 2026}
+\fancyfoot[C]{\small\thepage}
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\CC}{\mathbb C}
+\newcommand{\revision}{\texttt{651f2029d0b2cd4da9e4dfdf1f4275a124d23b99}}
+\newcommand{\src}[3]{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/#1\#L#2-L#3}{\code{#1}, lines #2--#3}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\begin{document}
+\begin{titlepage}
+\vspace*{12mm}
+{\color{muted}\large EXCLUSION-AWARE REPOSITORY REVIEW\par}
+\vspace{12mm}
+{\color{ink}\Huge\bfseries Two missed \texttt{Abs} contracts\par}
+\vspace{4mm}
+{\color{ink}\LARGE in AsymptoticAnalysis\par}
+\vspace{9mm}
+{\Large Incorrect real outputs and lost differentiability\par}
+\vspace{12mm}
+\rule{\textwidth}{0.7pt}
+\vspace{5mm}
+\textbf{Repository}\quad VladimirReshetnikov/Asymptotic\par
+\textbf{Pinned revision}\quad\revision\par
+\textbf{Review date}\quad 10 September 2026\par
+\textbf{Deliverables}\quad Article, conservative patch generator, exact reference\par
+\hspace*{28mm}implementation, independent checks, prospective Wolfram tests.\par
+\vspace{8mm}
+\begin{minipage}{0.94\textwidth}
+\textbf{Principal result.} Two source-level defects survive the prior-review exclusion filter. The absolute-value shortcut can turn complex intermediate jets into an incorrect real, apparently exact answer. Separately, a valid modulus magnitude estimate is allowed to inherit a derivative contract that it does not preserve. The latter has an exact Fourier-source witness with infinitely many cusps approaching the expansion point.
+
+\textbf{Evidence boundary.} The mathematical counterexamples and the reference algorithm were checked independently in Python/SymPy. The Wolfram kernel service returned upstream errors; no native package execution, native patch validation, or full-suite pass is claimed.
+\end{minipage}
+\vfill
+{\color{muted}This is a new-findings article, not a republication of the repository's existing review backlog. No checksum files are distributed.\par}
+\end{titlepage}
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+
+\section{Executive assessment}
+
+The two findings concern different meanings of correctness. \textbf{ABS-01 is a value error}: a complex argument with a positive real leading coefficient is treated as though taking its modulus were the identity. Two such incorrect intermediate results can cancel their imaginary terms, so the final real-coefficient validator cannot detect the error. \textbf{ABS-02 is a regularity error}: a correct estimate of the form $|r|=\OO(R)$ is allowed to retain a classical derivative contract, even when $|r|$ has infinitely many nondifferentiable points.
+
+Both deductions use the current shared \code{fwdAbs} primitive and the public observable/differentiation paths, rather than an invented replacement implementation. Source locations and proposed native characterizations are provided below. Nevertheless, the distinction between a source trace and an observed kernel result remains important: all public Wolfram outputs in this article are \emph{predictions to be tested}, not measurements. The independent mathematical identities are established separately.
+
+\begin{center}
+\begin{tabular}{L{19mm}L{29mm}L{72mm}L{24mm}}
+\toprule
+ID & Priority & Failure and immediate response & Evidence\\
+\midrule
+ABS-01 & High correctness & Reject the signed-real shortcut when retained coefficients are not proved real; later add a genuine modulus-jet adapter. & Source trace; exact counterexamples\\[4pt]
+ABS-02 & High contract integrity & Do not copy differentiability through an uncertain zero of \code{Abs}; conservatively lower the output derivative contract. & Source trace; exact smooth-source cusp proof\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The supplied patch is deliberately narrower than a full complex-modulus implementation. It modifies two modular files, refuses the unsafe shortcut, and conservatively lowers the derivative contract for nonexact variable-dependent \code{Abs} observables. Its transformation logic passed exact-anchor fixture checks, but the modified package has not been run in a Wolfram kernel. The richer mathematical repair is illustrated by a tested, log-free Python reference implementation based on the squared modulus.
+
+No additional performance defect or measured speedup is claimed. The performance discussion concerns the cost and admissible scope of these \emph{new repairs}, not an attempt to relabel already recorded performance recommendations as fresh findings.
+
+\section{Snapshot, scope, and exclusion method}
+\subsection{Source identity}
+
+The reviewed snapshot is \revision, whose commit time is 10 September 2026 at 13:42:02 UTC. Its commit message is ``Record affine ranges and truncation bound transport in the article.'' All source links in this report are commit-pinned; none depends on the future contents of the mutable \code{main} branch. The snapshot was retrieved through the GitHub connector. A complete working checkout was not available in the execution container, so no claim is made that a repository-wide local search or build was performed.\cite{repo}
+
+\subsection{What was inspected}
+
+The investigation ranged beyond the two files ultimately patched. Selected source ranges were examined in the sparse power-log core and series operations; Gamma and Barnes forward/inverse formulas and residual checks; exact source-coordinate reconstruction; reciprocal-log calculus; Dirichlet special-function bounds; exact special-function identities and parameterized adapters; native special-function tree transport; Fourier coefficient arithmetic; interval inverse certificates; several Mathics adapters; and the portable acceptance verifier. The analysis of some files was complete and of others was range-based. This is a targeted source review, not a statement-coverage audit.
+
+The eventual findings concentrate on a small shared boundary because its failures are both mathematically sharp and distinct from the accumulated backlog. Inspection without a new finding is not a correctness proof for a module. In particular, no broad claim about all inverse families, all native \code{Series} trees, all Mathics behavior, or all numerical certificates follows from this work.
+
+\subsection{Prior-review suppression}
+
+The repository's review index describes 36 review packages in four waves and 231 report entries before deduplication. The consolidated status register and the wave-3/wave-4 intake documents were used as the primary exclusion baseline. Additional original finding ledgers were checked for reviews 1, 4, 5, 6, 7, and 8, together with the original review-25 summary. This does \emph{not} mean every paragraph of all 36 original articles was read.\cite{reviews,status,wave3,wave4,r1,r4,r5,r6,r7,r8,r25}
+
+This distinction mattered in practice. A native trigonometric-transport candidate initially appeared promising, but an original ledger identified it as review 4's R01. It is therefore absent from the findings, patch, and recommendations in this article. Suppression also applies to proposals, not merely to defects already fixed upstream.
+
+The nearest existing obligations to ABS-01 are C07 and review 4's R02: they concern coefficient/realness boundaries. ABS-01 is not another example of a complex final coefficient escaping validation. Its final coefficient array is real and therefore passes that validation; the value was corrupted \emph{inside a nonholomorphic operation before collection}. The nearest broad obligations to ABS-02 are C13/C16. The new witness does not rely on an opaque custom \code{Series} handler, a false user declaration, a discontinuous input function, or a malformed raw object. It uses an explicit smooth Fourier source, valid derivative bounds, and a concrete derivative-contract transfer through an uncertain modulus zero.
+
+\begin{center}
+\begin{tabular}{L{24mm}L{43mm}L{82mm}}
+\toprule
+Candidate & Nearest baseline references & Exclusion decision\\
+\midrule
+ABS-01 & C07; R4 R02; W3-06 & Retained: new incorrect-real-output mechanism at \code{fwdAbs}.\\[3pt]
+ABS-02 & C13; C16; X04 & Retained: new explicit classical-regularity counterexample after a legitimate derivative declaration.\\[3pt]
+Other native transport candidate & R4 R01 & Suppressed; no new finding or patch is distributed for it.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The novelty conclusion is relative to the retrieved registers and the specified original ledgers. It is not a guarantee that an unindexed sentence elsewhere in the repository has never suggested a related idea.
+
+\section{The contracts that the implementation must distinguish}
+\subsection{Power-log value information}
+
+For a positive local variable $u\to0^+$, the core represents a jet by
+\[
+ J=(T,P,D),\qquad
+ A(u)=\sum_{(\alpha,Q)\in T}u^\alpha Q(\ell),\qquad \ell=\log u,
+\]
+with a magnitude remainder
+\[
+ f(u)=A(u)+\OO\!\left(u^P(1+|\log u|)^D\right).
+\]
+The rows are exponent/coefficient-polynomial pairs. A tail power $P=\infty$ represents no omitted remainder in this finite jet model. The public \code{PowerLogRemainder} descriptor explicitly denotes a magnitude class, not the actual signed residual.\cite{core}
+
+Intermediate arithmetic deliberately permits complex coefficients: a real final expression can be a sum of complex intermediate expressions. The current \code{realCoefficientRows} routine checks the \emph{collected} coefficients at representation boundaries. This policy is useful and should not be replaced by an indiscriminate ban on complex intermediate arithmetic.\cite{core}
+
+The policy is valid only when each preceding transformation is mathematically valid on the intermediate values. Addition and multiplication do not become invalid merely because their operands are complex. In contrast, the identity $|z|=z$ is not a complex identity, even near the positive real axis.
+
+\subsection{Magnitude versus differentiability}
+
+A derivative contract adds information that a magnitude remainder does not contain. In the simplest local chart, a contract through order $N$ means that the relevant classical derivatives exist on a sufficiently small punctured interval and obey appropriate estimates, for example
+\[
+ r^{(k)}(u)=\OO(u^{P-k}),\qquad 0\leq k\leq N.
+\]
+The package's \code{SeriesDifferentiate} checks an available or explicitly declared \code{RemainderDerivativeOrder} before differentiating. It then transports that order through the derivative calculation. This is materially stronger than an almost-everywhere derivative bound.\cite{operations}
+
+The modulus is globally Lipschitz:
+\begin{equation}\label{eq:lipschitz}
+ \bigl||z|-|w|\bigr|\leq |z-w|,\qquad z,w\in\CC.
+\end{equation}
+Thus $r=\OO(R)$ always implies $|r|=\OO(R)$. But \eqref{eq:lipschitz} says nothing about differentiability at zeros of $r$. A smooth real function crossing zero simply acquires a cusp under \code{Abs}. A derivative-capability field must therefore describe the regularity of the \emph{new remainder}, not merely repeat the capability of the input remainder.
+
+\section{ABS-01: a real leading sign is not a modulus identity}
+\subsection{The source rule}
+
+The relevant primitive is in \src{src/Kernel/AsymptoticAnalysis.wl}{460}{465}. Its operative logic is:
+\begin{lstlisting}
+fwdAbs[j : {T_, P_, D_}, ell_, ass_] := Module[{q, c, degree},
+  If[T === {}, Return[j, Module]];
+  q = T[[1, 2]]; degree = polyDegree[q, ell];
+  c = (-1)^degree Coefficient[q, ell, degree];
+  Which[provablyPositive[c, ass], j,
+        provablyNegative[c, ass], pScale[j, -1, ell, ass],
+        True, fail["UnprovedSign", ...]]];
+\end{lstlisting}
+The factor $(-1)^{\deg Q}$ correctly accounts for $\ell\to-\infty$ when a \emph{real} leading polynomial has an eventual sign. The defect is not that sign calculation. It is that no condition here establishes realness of the remaining coefficients, or even of all coefficients of the leading polynomial.
+
+Both ordinary forward expansion and \code{seriesJetApply} delegate \code{Abs} to this helper. The latter has a dedicated \code{Abs} arm before its generic unary-observable admission logic. After applying the observable, \code{SeriesObservable} constructs a result with \code{seriesMake}, where realness is checked only after all outer additions have been collected.\cite{core,operations}
+
+\subsection{A polynomial-unit counterexample}
+
+Let $u>0$. Consider
+\begin{equation}\label{eq:unit}
+ F(u)=|1+i u|+|1-i u|=2\sqrt{1+u^2}.
+\end{equation}
+The two exact input jets at the modulus nodes are
+\[
+ J_+=\bigl(\{(0,1),(1,i)\},\infty,0\bigr),\qquad
+ J_-=\bigl(\{(0,1),(1,-i)\},\infty,0\bigr).
+\]
+For each, the helper sees a positive leading coefficient $1$ and returns the jet unchanged. The surrounding addition consequently yields the exact constant jet $2$. Its only coefficient is real; the final real-coefficient check has no evidence left with which to reject it.
+
+The actual series is
+\begin{equation}\label{eq:unitexp}
+ F(u)=2+u^2-\frac{u^4}{4}+\frac{u^6}{8}+\OO(u^8).
+\end{equation}
+In particular,
+\[
+ \lim_{u\to0^+}\frac{F(u)-2}{u^2}=1.
+\]
+A result $2$ with zero remainder is false. Even a result $2+\OO(u^4)$ would be false. This example therefore distinguishes genuine value correctness from the more limited property ``all final coefficients are real.''
+
+The phenomenon is not isolated. For any $a>0$, $b\in\RR\setminus\{0\}$, and positive integer $n$,
+\[
+ |a+i b u^n|+|a-i b u^n|
+ =2a+\frac{b^2}{a}u^{2n}+\OO(u^{4n}).
+\]
+The signed shortcut instead produces $2a$. The independent checks cover 27 exact rational parameter/exponent choices from this family.
+
+\subsection{A logarithmic example that exposes the scale boundary}
+
+A second witness makes the missing information even more conspicuous:
+\begin{equation}\label{eq:logwitness}
+ H(u)=|\log u+i|+|\log u-i|
+     =2\sqrt{(\log u)^2+1}.
+\end{equation}
+For $0<u<1$, write $t=-\log u>0$. Each leading polynomial $\ell\pm i$ has degree one and leading coefficient $1$. The helper's eventual-sign calculation produces $-1$, so it negates both jets. Their imaginary constants cancel, predicting the exact result $-2\log u=2t$.
+
+But
+\[
+ H(u)=2t+\frac1t-\frac1{4t^3}+\OO(t^{-5}),\qquad
+ \lim_{t\to\infty}t\bigl(2\sqrt{t^2+1}-2t\bigr)=1.
+\]
+The first omitted contribution is a reciprocal logarithm. It is larger than $u^q$ for every fixed $q>0$, because $e^{qt}/t\to\infty$. A polynomial-log-only answer cannot silently discard it while claiming an exact result or a positive-power tail.
+
+This witness also clarifies the correct behavior of a conservative fix: refusal is legitimate when the coefficient algebra cannot represent the modulus. Returning a convenient but false power-log expression is not. A richer reciprocal-log representation is an implementation extension, not a justification for the current shortcut.
+
+\subsection{Prospective public characterizations}
+
+The distributed native script uses explicit package selection so that a native fallback cannot conceal the path being tested:
+\begin{lstlisting}
+s = AsymptoticAnalysis`AsymptoticExpansion[
+  u, {u, 0, 4}, "Backend" -> "Package"];
+
+AsymptoticAnalysis`SeriesObservable[
+  s, Abs[1 + I z] + Abs[1 - I z], z]
+
+AsymptoticAnalysis`SeriesObservable[
+  s, Abs[Log[z] + I] + Abs[Log[z] - I], z]
+\end{lstlisting}
+The source predicts incorrect exact expressions $2$ and $-2\log u$, respectively, provided these public calls reach the inspected helper without an earlier evaluation transformation. \emph{These calls were not executed in a native kernel during the review.} The helper-level counterexample does not depend on that last integration detail: the displayed arrays themselves satisfy its input representation and deterministically take the unsafe branches.
+
+The proposed regression set includes both public calls and direct helper controls. It also verifies that cancellation \emph{inside one argument} remains valid, as in
+\[
+ \left|(1+i u)+(1-i u)\right|=2.
+\]
+The new guard belongs at the modulus boundary, after its own argument has been collected, not at every complex arithmetic intermediate.
+
+\section{ABS-02: a valid modulus bound can destroy a derivative contract}
+\subsection{The source path}
+
+There are three relevant steps. First, \code{fwdAbs} returns an empty-row finite-tail jet unchanged. This is sound as a magnitude estimate: $r=\OO(R)$ implies $|r|=\OO(R)$. Second, \code{SeriesObservable} replaces the jet in the input representation but otherwise retains the representation fields. That includes \code{RemainderDerivativeOrder}. Third, \code{seriesDerivative} trusts that retained field when deciding whether the next derivative is allowed.\cite{core,operations}
+
+The defect is specifically the second step. Fixing ABS-01 by checking that all retained coefficients are real does not fix ABS-02: an empty coefficient list vacuously passes such a check, and the counterexample below is entirely real.
+
+\subsection{An exact source inside the Fourier model}
+
+Use the exact source function
+\begin{equation}\label{eq:fouriersource}
+ f(x)=x+x^2\sin(\log x),\qquad x>0.
+\end{equation}
+Its derivatives are
+\begin{align}
+ f'(x)&=1+x\bigl(2\sin(\log x)+\cos(\log x)\bigr),\label{eq:fp}\\
+ f''(x)&=\sin(\log x)+3\cos(\log x).\label{eq:fpp}
+\end{align}
+For $0<x<1/4$, the elementary bounds $|f'(x)-1|\leq3x<3/4$ and $|f''(x)|\leq4$ show that $f$ is strictly increasing and has a smooth inverse $g$ on a target interval adjoining zero. Also $f(x)/x\to1$, so $g(y)\sim y$.
+
+\begin{proposition}\label{prop:bounds}
+The remainder $R(y)=g(y)-y$ satisfies a valid classical derivative contract through order two:
+\[
+ R(y)=\OO(y^2),\qquad R'(y)=\OO(y),\qquad R''(y)=\OO(1).
+\]
+\end{proposition}
+\begin{proof}
+Set $x=g(y)$. The exact equation gives $g(y)-y=-x^2\sin(\log x)=\OO(x^2)=\OO(y^2)$. Inverse differentiation gives
+\[
+ g'(y)=\frac1{f'(x)},\qquad
+ g''(y)=-\frac{f''(x)}{f'(x)^3}.
+\]
+The lower bound $f'(x)>1/4$ and \eqref{eq:fp} imply $g'(y)-1=\OO(x)=\OO(y)$. Equation \eqref{eq:fpp} then gives $g''(y)=\OO(1)$. All these are derivatives of the actual smooth inverse, not formal derivatives of an unknown magnitude symbol.
+\end{proof}
+
+The source \eqref{eq:fouriersource} is a monomial leading core with one higher-power finite Fourier coefficient in $\log x$, precisely the form admitted by \code{AsymptoticFourierInverse}. At cutoff $2$, its retained inverse expression is $y$, with a tail of order $y^2$. The Fourier constructor records derivative order zero by default, so the test explicitly supplies the justified order-two declaration from Proposition~\ref{prop:bounds}. The general series-data adapter can recover a power-log representation from the finite expression $y$; no raw association is fabricated.\cite{fourier,operations}
+
+\subsection{Infinitely many simple zeros and cusps}
+
+Let
+\[
+ \theta_n=-\arctan(1/2)-n\pi,\qquad
+ x_n=e^{\theta_n},\qquad y_n=f(x_n),\qquad n\geq1.
+\]
+These are positive points tending to zero. Since $\tan\theta_n=-1/2$,
+\[
+ 2\sin\theta_n+\cos\theta_n=0,
+\]
+and hence $f'(x_n)=1$ and $g'(y_n)=1$. At the same points,
+\[
+ f''(x_n)=\sin\theta_n+3\cos\theta_n
+         =-5\sin\theta_n\neq0,
+\]
+with $|f''(x_n)|=\sqrt5$. Consequently
+\begin{equation}\label{eq:inversezero}
+ g''(y_n)=-f''(x_n),\qquad |g''(y_n)|=\sqrt5.
+\end{equation}
+Thus each zero of $g'-1$ at $y_n$ is simple.
+
+\begin{proposition}\label{prop:cusps}
+The function $A(y)=|g'(y)-1|$ is $\OO(y)$, but it is not classically differentiable on any complete sufficiently small punctured target interval.
+\end{proposition}
+\begin{proof}
+The magnitude estimate follows from Proposition~\ref{prop:bounds}. Near any $y_n$, Taylor's theorem gives
+\[
+ g'(y)-1=g''(y_n)(y-y_n)+o(|y-y_n|).
+\]
+Therefore $A$ has left and right derivatives $-\sqrt5$ and $+\sqrt5$ at $y_n$. These differ. Since $y_n\to0^+$, every punctured target interval contains such a cusp. Removing isolated points away from zero cannot repair the claimed germ; there are infinitely many of them accumulating at the endpoint.
+\end{proof}
+
+An almost-everywhere derivative of $A$ can still be bounded. That is not the classical derivative capability used by \code{D} and \code{SeriesDifferentiate}. The counterexample depends on this distinction, not on the size of the derivative where it happens to exist.
+
+\subsection{Prospective public trace}
+
+The exact-source characterization is:
+\begin{lstlisting}
+s = AsymptoticAnalysis`AsymptoticFourierInverse[
+  x + x^2 Sin[Log[x]], {x, 0}, {y, 2}];
+
+d = AsymptoticAnalysis`SeriesDifferentiate[
+  s, 1, "RemainderDerivativeOrder" -> 2];
+
+a = AsymptoticAnalysis`SeriesObservable[d, Abs[z - 1], z];
+
+AsymptoticAnalysis`SeriesDifferentiate[a]
+\end{lstlisting}
+The inspected source predicts the following metadata flow:
+\begin{center}
+\begin{tabular}{L{20mm}L{47mm}L{48mm}L{30mm}}
+\toprule
+Object & Finite expression & Remainder information & Remaining derivative order\\
+\midrule
+\code{s} & $y$ & $\OO(y^2)$ & $0$ by default\\
+\code{d} & $1$ & $\OO(y)$, after valid declaration & $1$\\
+\code{a} & $0$ & $\OO(y)$, valid magnitude estimate & incorrectly retained $1$\\
+Next derivative & $0$ & apparent $\OO(1)$ derivative & should be refused\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This is not a claim that the user declared nonexistent derivatives. The first declaration is justified by the exact source. The new nondifferentiability is introduced later by \code{Abs}. Nor is it an attempt to infer an arbitrary function from a malformed saved object: the source and every operation in the prospective test use public constructors.
+
+The native test remains unexecuted. Its purpose is to verify the complete public route, including Fourier construction and representation recovery, while the source trace and Propositions~\ref{prop:bounds}--\ref{prop:cusps} establish why inheriting that contract is mathematically unjustified.
+
+\section{Repairs: conservative first, richer only with proved contracts}
+\subsection{Patch A: guard the signed-real shortcut}
+
+Immediately after the empty-row case in \code{fwdAbs}, the candidate patch requires all retained coefficient polynomials to be proved real under the recorded assumptions:
+\begin{lstlisting}
+If[! AllTrue[T, realPolynomialQ[#[[2]], ell, ass] &],
+  fail["UnprovedAbsoluteValueArgument",
+    "The signed real Abs shortcut requires real retained coefficient polynomials.",
+    <|"Reason" -> "RetainedCoefficientsNotProvedReal"|>]];
+\end{lstlisting}
+This preserves the ordinary eventual-sign shortcut for real jets. It rejects the complex perturbations in ABS-01 before an outer sum can erase the evidence. The error name intentionally says ``unproved'': failure of a symbolic proof is not itself a proof of nonrealness.
+
+The check is not a complete complex-modulus implementation. For example, $|1+i u|$ is perfectly well defined and has an ordinary real Taylor expansion. The initial repair should return a truthful structured refusal rather than keep the current false expression. The final-result real-coefficient validator remains useful and should remain in place.
+
+\subsection{Patch B: lower the derivative contract at the observable boundary}
+
+A precision-preserving magnitude transformation need not be a regularity-preserving transformation. The distributed patch therefore lowers the derivative contract for a nonexact observable containing a variable-dependent \code{Abs}:
+\begin{lstlisting}
+If[j[[2]] =!= Infinity &&
+   ! FreeQ[body, node_Abs /; ! FreeQ[node, x]],
+  d = Join[d, <|"RemainderDerivativeOrder" -> 0|>]];
+\end{lstlisting}
+This is deliberately conservative. It also lowers the contract in some safe cases, such as a modulus argument already bounded away from zero. Its advantage is a small, auditable change that blocks the reported inheritance path without changing the valid magnitude estimate or inventing a differentiability proof.
+
+A subsequent refinement should preserve derivatives only after proving the relevant modulus arguments stay away from zero, or after proving a special exact structure at their zeros. Merely observing a zero retained expression, or merely proving that the complete argument is real, does not suffice. The prototype does not claim to have audited and redesigned every other caller of the internal jet evaluator.
+
+Exact outputs are excluded from this conservative downgrade by the finite-tail condition. With the realness guard in place, an exact finite real jet accepted by the sign shortcut has an eventual sign (or is exactly zero); its elementary modulus identity is then valid on the relevant tail.
+
+\subsection{A richer value algorithm: square the norm, then take the positive root}
+
+Suppose
+\[
+ f(u)=u^\alpha\bigl(c+\varepsilon(u)\bigr),\qquad c\in\CC\setminus\{0\},
+ \qquad \varepsilon(u)\to0,
+\]
+and the known jet has a remainder of magnitude $\OO(u^P)$ with $P>\alpha$. For positive $u$,
+\begin{equation}\label{eq:normsquare}
+ |f(u)|=\sqrt{f(u)\overline{f(u)}}.
+\end{equation}
+The squared modulus has positive leading coefficient $|c|^2$, so a real positive-root expansion can be made in an ordinary unit series. Complex intermediate coefficients are handled by conjugation, not by pretending they are real.
+
+The precision calculation is important. If $f=A+r$, $A=\OO(u^\alpha)$, and $r=\OO(u^P)$, then
+\[
+ f\overline f-A\overline A
+ =A\overline r+\overline A r+r\overline r
+ =\OO(u^{\alpha+P}),
+\]
+because $P>\alpha$. Taking the positive square root divides the local error scale by $u^\alpha$, returning a modulus error of order $\OO(u^P)$. Alternatively, the same magnitude precision follows directly from \eqref{eq:lipschitz}. Neither proof licenses derivative inheritance through an uncertain zero.
+
+For a log-free normalized squared-modulus series
+\[
+ Q(u)=\sum_{k\geq0}q_k u^k,\qquad q_0>0,
+\]
+write $B(u)^2=Q(u)$ with $B(u)=\sum b_k u^k$ and $b_0=\sqrt{q_0}$. Then
+\begin{equation}\label{eq:rootrecurrence}
+ b_k=\frac{q_k-\sum_{j=1}^{k-1}b_jb_{k-j}}{2b_0},\qquad k\geq1.
+\end{equation}
+This is the recurrence implemented in the supplied Python reference. It correctly produces
+\[
+ |1+i u|=1+\tfrac12u^2-\tfrac18u^4+\OO(u^6).
+\]
+The log-leading witness \eqref{eq:logwitness} requires additional coefficient algebra; the log-free reference deliberately refuses that input rather than disguise the missing reciprocal-log expansion.
+
+\subsection{Recovering regularity without overclaiming it}
+
+There are two useful admissible cases. If a real argument has a proved nonzero eventual sign and all requisite derivative bounds are known, \code{Abs} reduces to multiplication by that sign. If a complex argument stays away from zero relative to a nonzero leading term, the squared-modulus construction is smooth as a function of its real and imaginary components; derivative transport can be justified by the chain rule with those component bounds.
+
+An argument known only as a tail approaching zero is a different case. Its zeros may be absent, finite, repeated, or infinite and simple. Magnitude data alone does not distinguish these possibilities. In that case the implementation should retain the value bound, lower the derivative capability, and explain why a subsequent classical derivative request is refused. This behavior addresses a concrete user-experience problem: the user should not be asked to trust derivative metadata that an intervening operation has silently invalidated.
+
+\section{Artifacts, test results, and implementation costs}
+\subsection{What is supplied}
+
+The archive contains the article source and PDF; \code{code/stage_patch.py}; \code{code/modulus_jet.py}; the independent Python test suite and its recorded output; nine prospective Wolfram regression tests; a native characterization script; machine-readable finding/provenance records; and reproduction instructions. No upstream repository copy, font files, compilation debris, or checksum files are included.
+
+\code{stage_patch.py} requires a checkout at the pinned revision and no local changes to the two edited files. It validates all exact edit anchors before staging changed modular files in a new external directory. It does not overwrite the input checkout, does not produce a complete runnable package, and does not regenerate the standalone automatically. Its tests exercised exact-anchor fixtures, including missing anchors, duplicate anchors, and attempted reapplication; they were not tests of a complete modified repository.
+
+\subsection{Independent checks actually run}
+
+The supplied test runner completed \textbf{18 test methods with zero failures and zero errors}, using Python 3.13.5 and SymPy 1.14.0. The receipt records the precise local versions, counts, and scope. The tests include 27 conjugate-pair coefficient cases, 27 norm-square reference cases, 12 exact Fourier cusp phases, seven fixed derivative orders for a log-periodic control, and 30 zero-bracket controls for an additional smooth oscillatory family.
+
+These counts are not 18 native package tests. In particular, none of the nine Wolfram tests was executed, and no Wolfram \code{TestReport} has been fabricated. Several attempts to obtain a native kernel returned HTTP 502/upstream service errors. The returned failure, rather than an inferred kernel result, is the execution evidence.
+
+The reference checks verify the square-root recurrence by recomputing the squared output and comparing it with the exact squared modulus below the advertised cutoff. They also test negative and imaginary leading coefficients, integer Laurent shifts, an inherited error-power cap, rejection of inexact or unsupported input, and resource-budget failures. This provides useful independent evidence for the reference algorithm, not a certification of the Wolfram patch.
+
+\subsection{Scope and complexity of the reference implementation}
+
+\code{modulus_jet.py} accepts integer exponent keys and exact Gaussian-rational coefficients. It supports log-free polynomial and Laurent jets in a positive local variable, with an optional integer input-remainder power. It deliberately assigns no derivative capability. A finite input polynomial is not treated as proof that its modulus is a finite polynomial.
+
+Let $m$ be the number of relevant retained coefficients and $N$ the relative Taylor depth. The implementation uses a cutoff-pruned norm-square convolution, followed by \eqref{eq:rootrecurrence}. Its elementary arithmetic-operation count is at most of order $m^2+N^2$; exact coefficient bit complexity and simplification costs are additional. Explicit order and retained-pair limits bound the model's work. No wall-clock comparison against the Wolfram package was performed.
+
+The conservative Wolfram guard is cheaper than building a modulus expansion but requires realness checks over the retained coefficient polynomials. This additional work is the price of preventing an invalid shortcut. A future implementation should reuse already established per-argument realness evidence where available, but should never reuse a final-output realness result as evidence about a distinct intermediate modulus argument.
+
+The richer reference routine is research code with a deliberately bounded domain. It does not implement symbolic Gaussian coefficients under arbitrary assumptions, fractional exponents, polynomial-log leading blocks, reciprocal-log coefficients, Mathics integration, or proof-producing derivative transport. These are explicit limitations of the supplied artifact, not newly asserted shortcomings of the upstream project.
+
+\section{Focused implementation and acceptance plan}
+
+\subsection{First milestone: remove false successes}
+
+Apply the two conservative source edits to a separate pinned checkout, regenerate the standalone with the repository's existing builder, and run the supplied focused tests in a fresh native kernel. The acceptance conditions are specific: the complex-unit and complex-log witnesses must not return the source-predicted false exact answers; the uncertain-modulus derivative request must not succeed on an inherited classical derivative contract; and ordinary real-sign controls must retain their correct values.
+
+The current policy tests expect the candidate's structured refusal for complex retained coefficients. A richer correct modulus implementation may replace that refusal with the correct expansion and corresponding tail. Such a change should update those policy assertions rather than being treated as a regression merely because it is more capable.
+
+\subsection{Second milestone: restore justified capabilities}
+
+Implement the norm-square construction for nonzero-leading log-free jets, with the precision rule proved above. Start with exact rational or Gaussian-rational coefficients and integer weights; this is a small domain for which independent exact oracles are supplied. Preserve the distinction between exactness of the input finite expression and exact termination of its modulus expansion.
+
+At the same time, refine the conservative derivative downgrade only where there is a proof that each relevant modulus argument remains away from zero, or an exact local factorization proves sufficient smoothness at its zeros. The exact Fourier witness should remain a negative control. Testing only positive units would miss the boundary that caused ABS-02.
+
+\subsection{Third milestone: make the new behavior understandable}
+
+Document the distinction between a real final result and a real intermediate argument of \code{Abs}. A useful example pair is
+\[
+ \left|(1+i u)+(1-i u)\right|=2,
+ \qquad |1+i u|+|1-i u|=2\sqrt{1+u^2}.
+\]
+The first permits cancellation before applying the nonlinear operation; the second does not.
+
+For derivative refusal, the diagnostic should say that the magnitude remainder survived the modulus but classical differentiability did not follow. The user can then provide a separately justified regularity theorem or choose a supported nonzero-sign branch. It should not suggest that requesting more terms alone necessarily repairs infinitely many accumulating zeros.
+
+These milestones are confined to the newly demonstrated contracts. The existing release, compatibility, scaling, and architectural backlog remains in the upstream registers and is not duplicated here.
+
+\section{Limitations and conclusion}
+
+This audit supplies two new source-grounded counterexamples, not a claim that every repository path has been verified. It does not report observed native package outputs, a native patch pass, a full-suite pass, a Mathics compatibility result, a measured performance regression, or a speedup. The native characterization scripts and tests are provided precisely because those integration observations remain to be collected.
+
+The first finding is particularly easy to miss when testing only final realness: the invalid complex intermediate pieces cancel, and the wrong result becomes an apparently harmless real constant or logarithm. The second shows why a correct magnitude estimate is not enough to preserve every capability attached to an asymptotic object. A smooth exact Fourier source provides valid input derivative bounds, yet a later modulus introduces cusps at infinitely many points approaching the endpoint.
+
+The immediate recommendation is therefore narrow: stop the two false-success paths, retain valid magnitude information, and regain richer modulus/derivative behavior only through explicit mathematical transfer rules. The supplied conservative patch, exact reference implementation, and focused tests make those obligations concrete without reissuing the previous review backlog.
+
+\appendix
+\section{Reproduction and interpretation}
+\subsection{Independent checks}
+From the archive root, with Python and SymPy installed:
+\begin{lstlisting}
+python tests/test_independent.py
+\end{lstlisting}
+This rewrites \code{evidence/independent_checks.json} with the new local run. The distributed text log records the authoring run. No upstream package is loaded.
+
+A small reference-algorithm example is:
+\begin{lstlisting}
+import sys
+sys.path.insert(0, "code")
+import sympy as sp
+from modulus_jet import modulus_jet
+u = sp.Symbol("u", positive=True)
+result = modulus_jet({0: 1, 1: sp.I}, 6)
+print(result.expression(u))  # 1 + u**2/2 - u**4/8
+print(result.error_power)    # 6; magnitude remainder O(u**6)
+\end{lstlisting}
+
+\subsection{Native characterization, not a recorded result}
+\begin{lstlisting}
+wolframscript -file code/native_characterizations.wl \
+  /path/to/pinned/AsymptoticAnalysis.wl
+\end{lstlisting}
+The script prints its kernel version, finite expressions, remainders, derivative-contract fields, and failures. Run it against the unmodified snapshot and a separately staged candidate. Do not reinterpret these unexecuted script contents as observations.
+
+For the prospective test file, load the package first in a fresh kernel:
+\begin{lstlisting}
+Get["/path/to/AsymptoticAnalysis.wl"];
+TestReport["/path/to/tests/AbsObservableDelta.wlt"]
+\end{lstlisting}
+The test file includes candidate-policy assertions as well as correctness controls. It is not the repository's complete suite.
+
+\subsection{Stage the source edits}
+\begin{lstlisting}
+python code/stage_patch.py \
+  /path/to/pinned-checkout /path/to/new-external-staging
+\end{lstlisting}
+The output contains only the changed \code{src/Kernel/AsymptoticAnalysis.wl} and \code{src/Kernel/SeriesOperations.wl}. Review the changes and transfer them to a separate complete checkout. Regenerate the root standalone using the repository's existing \code{validation/build_standalone.py}. No standalone artifact produced by this review has been executed or certified.
+
+\section{Source locator and evidence register}
+\begin{longtable}{L{36mm}L{109mm}}
+\toprule
+Obligation & Pinned source location\\
+\midrule
+\endhead
+Real coefficient boundary & \src{src/Kernel/AsymptoticAnalysis.wl}{244}{267}\\[5pt]
+Shared modulus shortcut & \src{src/Kernel/AsymptoticAnalysis.wl}{437}{465}\\[5pt]
+Observable argument admission and dispatch & \src{src/Kernel/SeriesOperations.wl}{272}{346}\\[5pt]
+Observable representation inheritance & \src{src/Kernel/SeriesOperations.wl}{348}{369}\\[5pt]
+Classical derivative gate and propagation & \src{src/Kernel/SeriesOperations.wl}{535}{558}\\[5pt]
+Recovery of the finite Fourier approximation & \src{src/Kernel/SeriesOperations.wl}{40}{67}\\[5pt]
+Fourier constructor's result and derivative field & \src{src/Kernel/FourierCoefficients.wl}{205}{237}\\
+\bottomrule
+\end{longtable}
+
+The accompanying \code{evidence/findings.json} separates source deductions, independent checks, unexecuted native probes, and patch scope. \code{evidence/provenance.json} records the snapshot and source-review limitations. Commit identities serve as provenance; no checksum files are included.
+
+\begin{thebibliography}{99}
+\small
+\bibitem{repo} VladimirReshetnikov/Asymptotic. Reviewed commit:\newline\revision.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/commit/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99}
+\bibitem{core} AsymptoticAnalysis core, pinned revision.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Kernel/AsymptoticAnalysis.wl}
+\bibitem{operations} Series operations, pinned revision.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Kernel/SeriesOperations.wl}
+\bibitem{fourier} Fourier coefficient/inverse implementation, pinned revision.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Kernel/FourierCoefficients.wl}
+\bibitem{reviews} Prior-review index, pinned revision.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/README.md}
+\bibitem{status} Consolidated code-review status, pinned revision.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/docs/development/CODE_REVIEW_STATUS.md}
+\bibitem{wave3} Wave-3 intake, pinned revision.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/docs/development/WAVE_3_INTAKE.md}
+\bibitem{wave4} Wave-4 intake, pinned revision.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/docs/development/WAVE_4_INTAKE.md}
+\bibitem{r1} Review 1, original finding ledger.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/wave-1/code-review-1/evidence/findings.csv}
+\bibitem{r4} Review 4, original finding ledger, including R01 and R02.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/wave-1/code-review-4/evidence/findings.json}
+\bibitem{r5} Review 5, original finding ledger.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/wave-1/code-review-5/evidence/findings.json}
+\bibitem{r6} Review 6, original finding ledger.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/wave-1/code-review-6/evidence/findings.csv}
+\bibitem{r7} Review 7, original finding ledger.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/wave-1/code-review-7/evidence/findings.csv}
+\bibitem{r8} Review 8, original finding ledger.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/wave-1/code-review-8/evidence/findings.csv}
+\bibitem{r25} Review 25, original summary and evidence limits.\newline
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/wave-3/code-review-25/README.md}
+\end{thebibliography}
+\end{document}

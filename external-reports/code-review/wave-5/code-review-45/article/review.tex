@@ -1,0 +1,450 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=0.88in,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{xcolor,listings,fancyhdr,titlesec,enumitem,needspace,etoolbox}
+\usepackage{hyperref,xurl}
+\definecolor{ink}{HTML}{183448}
+\definecolor{accent}{HTML}{176D78}
+\definecolor{muted}{HTML}{516373}
+\definecolor{papergray}{HTML}{F2F5F7}
+\hypersetup{colorlinks=true,linkcolor=accent,citecolor=accent,urlcolor=accent,
+ pdftitle={Asymptotic: incremental review of exact-root admission},
+ pdfauthor={Technical review prepared for Vladimir Reshetnikov},bookmarksnumbered=true}
+\titleformat{\section}{\Large\bfseries\color{ink}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{ink}}{\thesubsection}{0.7em}{}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.48em}
+\setlength{\emergencystretch}{3em}
+\setcounter{tocdepth}{2}
+\pretocmd{\section}{\Needspace{7\baselineskip}}{}{}
+\setlist{nosep,leftmargin=1.6em}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\color{muted}Asymptotic / Incremental source review}
+\fancyhead[R]{\small\color{muted}8e859961d7d3}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\lstset{basicstyle=\small\ttfamily,columns=fullflexible,keepspaces=true,
+ breaklines=true,showstringspaces=false,frame=single,rulecolor=\color{papergray},
+ backgroundcolor=\color{papergray},xleftmargin=5pt,xrightmargin=5pt,
+ framexleftmargin=4pt,framexrightmargin=4pt,aboveskip=0.7em,belowskip=0.7em}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\pin}{8e859961d7d37f008b826f3a8cad406460271614}
+\newcommand{\repo}[2]{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/#1}{#2}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\begin{document}
+\begin{titlepage}
+\vspace*{0.35in}
+{\small\bfseries\color{accent}INCREMENTAL REPOSITORY REVIEW}\par
+\vspace{0.30in}
+{\Huge\bfseries\color{ink}Asymptotic}\par
+\vspace{0.14in}
+{\LARGE Exact-root admission after\par the numerical precision guard}\par
+\vspace{0.35in}
+{\large Source analysis, a proof-preserving repair candidate,\par and independently executed regression models}\par
+\vspace{0.35in}
+\begin{tabularx}{\textwidth}{@{}lY@{}}
+Repository & \code{VladimirReshetnikov/Asymptotic}\\[5pt]
+Reviewed revision & \small\texttt{\pin}\\[5pt]
+Review date & September 10, 2026\\[5pt]
+Novelty baseline & Four review waves; 36 packages; 231 attributed entries\\[5pt]
+Retained additional item & One conservative coverage limitation, not a demonstrated wrong mathematical result\\[5pt]
+Executed evidence & 30 independent Python test methods, with deterministic nested families\\[5pt]
+Not executed & The repository, the WL candidate, or package regressions in Wolfram/Mathics\\
+\end{tabularx}
+\vspace{0.25in}\hrule\vspace{0.12in}
+\textbf{Principal result.} The newly installed Mathics numerical safeguard can recognize an unchanged integer seed as an exact polynomial root, but not an equally verifiable noninteger dyadic seed. Consequently, an exact inverse such as $x=y$ can be refused at $y=1/2$ under the default 50-digit numerical-check request. This is a source-derived prediction with supplied fresh-kernel probes, not a recorded package execution.
+\vspace{0.12in}\hrule
+\vfill
+\textbf{Review discipline.} Existing issues are not counted again. The report distinguishes a newly narrowed acceptance boundary from the earlier unsafe precision claim that the safeguard addresses. Apparent certificate and powered-observable issues were screened out when they were already covered or did not contradict the stated contract.
+\vspace{0.2in}
+{\small Prepared for Vladimir Reshetnikov. The archive contains this article, candidate WL code, independent exact-arithmetic code, tests, evidence, and a novelty/coverage ledger.}
+\end{titlepage}
+{\small\setlength{\parskip}{0pt}\tableofcontents}
+\clearpage
+
+\section{Executive verdict}
+
+The useful outcome of a fifth incremental review is not another catalog of familiar defects. The repository already maintains an unusually extensive review inventory. Its current index records 36 packages and 231 attributed entries before overlap consolidation, and explicitly distinguishes historical observations from current acceptance. This review used that inventory, the maintained status register, both later-wave intakes, and relevant original material to avoid presenting old work as new.\cite{review-index,status,wave3,wave4}
+
+\textbf{One additional item is retained: N01, the exact-rational seed coverage gap in the new Mathics numerical admission helper.} Its severity is medium for compatibility and user experience, low for mathematical safety: the current behavior refuses useful work rather than returning a known false value. It is particularly visible because the refused examples need no iterative root finder at all. The equation can be checked exactly at the already available candidate. The current helper admits this argument only when the candidate is an integer.\cite{mathics-numeric}
+
+The public-path witness is deliberately elementary:
+\begin{lstlisting}
+s = AsymptoticInverse[x, {x, 0}, {y, 3},
+    Direction -> "FromAbove"];
+InverseNumericalCheck[s, 1/2, WorkingPrecision -> 50]
+\end{lstlisting}
+For this inverse, the exact expression is $y$, the source seed is $1/2$, and the original equation is $x-1/2=0$. Both the source side and the target side are positive. The inspected numerical path sends that seed to the guarded helper. The integer-only exception cannot admit it; the requested precision is then above the guard's machine-precision threshold. The anticipated result is a structured precision-unavailable failure, subject to the unexecuted public construction and dispatch being reproduced as specified.\cite{core,numerical-checks,mathics-numeric}
+
+This report does \emph{not} claim a freshly observed wrong expansion, false error theorem, false interval enclosure, or measured package speedup. The local environment had no usable Wolfram or Mathics runtime; the available evaluator connection failed. Thirty independent Python test methods passed. Those tests establish properties of the supplied exact-arithmetic reference implementation and countermodels; they do not turn the WL patch into a validated package change.
+
+The recommended repair is narrow: extend candidate admission, not the claimed precision of the root finder. A proposed rational candidate is accepted only if an exact polynomial equation vanishes at that exact candidate. The old precision refusal remains in force for everything not proved by this path. The accompanying WL overlay is experimental and unexecuted; the accompanying bounded Python checker and its tests were executed.
+
+\section{Scope and nonduplication}
+\subsection{A pinned and bounded review}
+
+All repository citations resolve to \texttt{\pin}. Reading a moving default branch would make it too easy to compare a new implementation against an obsolete report without noticing the mismatch. The pin identifies the source reviewed here; it is not a claim about any later version of the repository.
+
+Inspection covered public construction and numerical dispatch, ordinary inverse machinery, selected series operations, Gamma/Barnes inverse and forward paths, source-coordinate transformations, exact interval certification, selected Dirichlet-family code, Mathics adapters, and validation documentation/tooling. The coverage ledger records those areas and the nature of the inspection. This is substantial targeted source analysis, not a statement that every line of the generated package, every vendored article, or every historical review was read.
+
+In particular, the novelty screen relies primarily on maintained consolidated crosswalks. Relevant originals were consulted where the summaries suggested a possible overlap: the wave-2 index specifically identifies report 15's powered-observable topic, and report 28's original article makes the previous numerical-precision finding explicit. No assertion is made that no similar sentence exists anywhere in unindexed historical prose.\cite{wave2-index,review28}
+
+\subsection{Why N01 is not a repetition of W4-02}
+
+The earlier W4-02 issue concerns a numerical solver path being described as high precision without checking the precision actually supplied. The current code introduces a conservative refusal and a separately proved exact-integer escape route. This review preserves the safety objective of that change.\cite{wave4,review28,mathics-numeric}
+
+N01 concerns the \emph{new exception's acceptance class}. The equation $2x-1=0$ at the already represented seed $x=1/2$ can be proved exactly just as $x-1=0$ can be proved at $x=1$. Refusing the former because its exact point has denominator two is not necessary to maintain the numerical safeguard. Extending that exact proof path is a concrete additional development opportunity, not another recommendation to add an achieved-precision check.
+
+The distinction is important for issue tracking. N01 should be linked as a follow-on to the guarded implementation, with its own acceptance tests. It should not reopen the earlier false-precision claim as though the guard were absent, and it should not be counted separately for each dyadic number, source scaling, or working-precision setting.
+
+\subsection{Evidence categories}
+
+\begin{tabularx}{\textwidth}{@{}P{1.35in}Y@{}}
+\toprule
+Category & Meaning in this report\\\midrule
+Source fact & A condition or call path visible at the pinned revision.\\[4pt]
+Deduction & A mathematical or control-flow consequence, with assumptions stated.\\[4pt]
+Independent execution & The supplied Python implementation or arithmetic model was executed.\\[4pt]
+Unrun characterization & WL code supplied to establish actual evaluator and public-path behavior.\\[4pt]
+Not established & Complete integration, a native failure transcript, global absence of other bugs, or package timing.\\
+\bottomrule
+\end{tabularx}
+
+A failure to obtain a runtime is an evidence limitation, not a package defect. Similarly, a conservative failure is not interchangeable with a wrong answer. Those distinctions constrain both the article's language and the machine-readable evidence files.
+
+\section{Architectural observations and coverage}
+
+The public entry defines a remainder-aware expansion object and dispatches into specialized modules. Numerical checking is a consumer of retained symbolic information, not the mechanism that constructs every expansion. The ordinary inverse path retains the original forward expression, variables, selected endpoint, direction, power observable, and target-domain information; the numerical consumer reconstructs a source seed, solves the stored equation, and compares the requested observable.\cite{core,numerical-checks}
+
+This separation explains why a missing arbitrary-precision solver need not block all high-precision checks. If the retained expression already produces an exact solution at a particular target, a numerical iteration would be redundant. A small exact-verification path can establish that particular root while leaving the general solver capability unchanged.
+
+The Mathics numerical module is installed late and rewrites five package-owned consumers: the ordinary numerical inverse evidence function, coordinate and source-coordinate checks, Gamma/Barnes numerical checks, and the special-inverse numerical path. It does not replace caller uses of \code{System`FindRoot}. A repair at the exact-candidate helper therefore has a narrow implementation surface, but acceptance must still examine the different consumer contracts.\cite{mathics-numeric}
+
+\begin{longtable}{@{}P{1.36in}P{2.78in}P{1.83in}@{}}
+\toprule
+Area & Inspected source / boundary & Review disposition\\\midrule\endfirsthead
+\toprule Area & Inspected source / boundary & Review disposition\\\midrule\endhead
+Public and ordinary inverse & \code{AsymptoticAnalysis.wl}; construction, coefficient/residual and numerical entries & Public route for N01; no further item retained\\[5pt]
+Numerical evidence & \code{NumericalInverseChecks.wl}; seed, domain, root and observable & Exact information is converted to a numerical seed before the guard\\[5pt]
+Mathics numerical adapter & \code{MathicsNumerical.wl}; exact-integer exception and precision refusal & N01 retained\\[5pt]
+Series arithmetic & \code{SeriesOperations.wl}, \code{SeriesArithmetic.wl}, refinement requests & Relevant apparent overlaps excluded\\[5pt]
+Specialized inverse families & Gamma/Barnes checks and operations; coordinate/source-coordinate code & Inspected selected contracts; not declared defect-free\\[5pt]
+Certification & \code{InverseCertificates.wl}; interval operations, domain proof and scope & Branch-connectivity alarm rejected under explicit scope\\[5pt]
+Other Mathics adapters & Assumptions, Taylor, simplification, calls, compatibility, calculus and time budgets & Existing inventory used to suppress duplicates\\[5pt]
+Other mathematical paths & Selected real-domain, Barnes-forward and Dirichlet-family code & No additional supported finding retained\\[5pt]
+Validation and provenance & Maintained receipts/documentation, acceptance-checker source and review crosswalks & No receipt treated as an execution performed here\\
+\bottomrule
+\end{longtable}
+
+The phrase ``no additional item retained'' is a review result, not a proof of correctness. It can mean that a suspicion was already reported, that a guard makes the behavior conservative, that the contract intentionally excludes the proposed input, or that the available evidence was insufficient to support a fresh claim.
+
+\section{N01: exact dyadic roots are outside the integer-only exception}
+\subsection{The decisive source condition}
+
+The helper \code{mathicsNumericalExactIntegerSeed} is held. It blocks the source variable, requires a real numeric seed, rounds that seed to an integer, and rejects the request unless the seed is that integer or exactly the numerical representation of that integer at the seed's precision. It then requires a held equality, forms its difference, checks an exact finite polynomial, and accepts only literal zero after substitution.\cite{mathics-numeric}
+
+The relevant predicate is:
+\begin{lstlisting}
+candidate = Round[seed];
+If[! IntegerQ[candidate] ||
+   ! (SameQ[seed, candidate] ||
+      SameQ[seed, N[candidate, Precision[seed]]]),
+   Return[$Failed, Module]];
+\end{lstlisting}
+This is a sensible sufficient condition for recognizing an unchanged integer. It is not a sufficient implementation of exact \emph{rational} candidate admission. For a real seed representing $1/2$, either integer chosen at the rounding tie differs from $1/2$. The helper returns before attempting the exact equation $2(1/2)-1=0$.
+
+Its caller then checks whether the requested precision goal exceeds its available machine-precision threshold. If so, it throws \code{MathicsNumericalPrecisionUnavailable}. The exact-integer exception is evaluated before this refusal. This ordering means that extending the exception can recover a useful class without weakening the refusal.\cite{mathics-numeric}
+
+\subsection{Public identity and affine witnesses}
+
+For $f(x)=x$ on the branch $x\to0^+$, the inverse is exactly $g(y)=y$. A request at $y=1/2$ produces an exact mathematical seed $1/2$, and arbitrary requested display precision does not create a need to approximate an unknown root. The existing numerical consumer computes the seed from the stored expression and forwards a numerical version to the helper.\cite{numerical-checks}
+
+The integer control $y=1$ is important. The distinction is not that one target requires a difficult asymptotic approximation and the other is easy. Both are exact instances of the same inverse. The helper's point class, not the mathematical difficulty of inversion, separates them.
+
+An equivalent affine formulation is
+\[
+ f(x)=2x,\qquad y=1,\qquad g(1)=\frac12.
+\]
+The target is now an integer, but the source root is not. Therefore simply treating integer targets specially would repair the wrong boundary. The exact proof must concern the recovered source candidate and the retained source equation.
+
+More generally, let
+\[
+ f(x)=a x+b,\quad a\in\mathbb Q\setminus\{0\},\quad
+ c\in\mathbb Q,\quad t=ac+b.
+\]
+Then $f(c)-t=0$ is an exact identity. Subject to the selected source/target domains, changing $a$ or $b$ does not change the availability of that equality proof. A future exact-root path should not make acceptance depend unnecessarily on whether $c$ happens to have denominator one.
+
+\subsection{An infinite family and a non-root control}
+
+For integers $m$ and $k\geq1$, consider
+\[
+ p_{m,k}(x)=2^k x-m,\qquad c_{m,k}=\frac{m}{2^k}.
+\]
+Every candidate satisfies $p_{m,k}(c_{m,k})=0$. When the reduced denominator exceeds one, an integer-only candidate gate cannot use this identity. Dyadic values are particularly useful probes because they have finite binary representations; they avoid making the first witness depend on reconstruction of a nonterminating binary fraction.
+
+The counter-control is just as essential. For any nonzero rational $\varepsilon$,
+\[
+ 2\left(\frac12+\varepsilon\right)-1=2\varepsilon\ne0.
+\]
+A candidate that is close to $1/2$ is not thereby an exact root. The supplied tests include the next binary floating-point number above $1/2$ and an explicitly resolved small perturbation. They must not be promoted merely because their residuals are small.
+
+\subsection{Severity and limits}
+
+This is an \textbf{avoidable conservative refusal}, not evidence of unsound interval arithmetic or fabricated digits. The current source is explicit about its limited exception. The finding is that the accepted class is unnecessarily narrow for the project's compatibility objective and for exact polynomial checks; the documentation is not accused of promising rational-root completeness.\cite{mathics-numeric,status}
+
+The simplest current manifestation is predicted at the public numerical-check API. Until the supplied WL probes run against the exact pin, the report does not claim an observed failure tag, a passed integration test, or a measured improvement. The private source predicate itself is directly inspectable and its integer-versus-dyadic distinction does not require a numerical experiment.
+
+\section{A proof-preserving repair}
+\subsection{Separate proposal, proof, and output}
+
+The repair has three logically different steps. First obtain a candidate point. Next prove that the retained exact equation vanishes there. Only then format the proved point numerically at the requested precision. Neither candidate reconstruction nor formatting is the proof.
+
+For an exact rational polynomial $p$ and exact rational candidate $c$, the acceptance condition is simply
+\begin{equation}\label{eq:point-proof}
+ p(c)=0\quad\text{in exact arithmetic}.
+\end{equation}
+No positive residual tolerance is used. The existing domain and source-side checks remain consumers of the resulting root. Equation~\eqref{eq:point-proof} alone does not prove uniqueness, membership in a particular inverse germ, or validity of an unspecified input-remainder family.
+
+\begin{proposition}[Safe exact admission]
+Let $p\in\mathbb Q[x]$ be the exact retained equation and $c\in\mathbb Q$ a proposed candidate. An algorithm that accepts only after verifying $p(c)=0$ by exact arithmetic cannot accept a point that fails that equation, regardless of how the candidate was proposed.
+\end{proposition}
+\begin{proof}
+Acceptance includes a decision that the rational number $p(c)$ equals the rational number zero. Rational arithmetic is exact; therefore the equality holds. Candidate generation has no role in this implication. It can affect completeness or cost, but not this equality conclusion.
+\end{proof}
+
+The word ``safe'' here is deliberately local. It refers to the equation equality, not to a theorem about a mutable evaluator, arbitrary callbacks, all source domains, or global branch identity. The WL implementation must still preserve evaluation semantics and exactness checks before the elementary mathematical argument applies.
+
+\subsection{Candidate reconstruction is not exactification of an answer}
+
+Official Wolfram documentation distinguishes a rational reconstruction compatible with an inexact number's precision from the exact rational encoded by its stored bits. In particular, \code{Rationalize[x,0]} is not documented as identical to a bitwise extraction in every case. The supplied proposal therefore treats its output as a \emph{candidate}, validates the point independently, and keeps a round-trip identity screen.\cite{wl-rationalize}
+
+The implementation must not use \code{SetPrecision} to manufacture trustworthy digits of an unproved approximate root. Exact numbers have infinite precision in Wolfram's representation, but turning a float into an exact rational only specifies a point; it does not prove that the point solves the original equation.\cite{wl-precision}
+
+For example, the exact rational represented by a Python binary float approximating $1/3$ is generally not $1/3$. The independent test checks that it fails $3x-1=0$ exactly. The separate test with the original rational candidate $1/3$ succeeds. These are intentionally different tests, and the Python conversion is not described as an emulator of Wolfram's \code{Rationalize}.
+
+\subsection{The supplied WL overlay}
+
+\path{code/ExactSeedCandidate.wl} replaces one package-private helper in a disposable Mathics session after loading the package. It preserves the legacy private helper name so the five already-bound consumers do not need a new rewrite. It retains the original integer shortcut and adds a bounded rational-candidate attempt when the shortcut does not apply.
+
+The added path requires a finite real numeric seed, a rational candidate, a round trip to the seed at its recorded precision, and manageable reconstruction input/point size. The retained equation must still be an exact finite polynomial, and direct substitution must still produce literal zero. The original general precision refusal remains unchanged. The overlay does not alter \code{System`FindRoot}, native Wolfram dispatch, the series constructor, or the source/target domain checks.
+
+The overlay uses fully qualified package symbols rather than relying on a late \code{Begin} nested inside a compound expression to retokenize names. Its local early exits use an explicit catch tag rather than assuming that a late-loaded \code{Return} binds to the same compatibility wrapper as the original source. These are implementation precautions for this candidate, not additional repository findings.
+
+The WL file has \textbf{not been executed}. Its reconstruction bounds are candidate policy, not a claimed complete resource bound for the package's polynomial evaluator. It is not a production patch to install automatically in a working research session. Baseline and candidate behavior need separate fresh processes, and the final source change should be made in the maintained modular source and regenerated through the repository's normal workflow after acceptance.
+
+\subsection{Preserve the exact seed before numerical conversion}
+
+A fuller implementation should first inspect the exact expression after exact target substitution, before calling \code{N}. That exact candidate is already available for examples such as $g(1)=1/3$ when $f(x)=3x$. Recovering it from a rounded numerical representation is unnecessary.
+
+This is a local extension of N01's remedy, not a proposal to turn the whole package into an exact solver. An internal record can distinguish an original exact candidate from a reconstructed candidate and a merely numerical seed. The equality check remains identical. If no exact candidate is proved, the current numerical capability guard handles the request as before.
+
+The first implementation should remain narrow: rational polynomial equations and rational candidates. Algebraic candidates, transcendental identities, numerical black boxes, and generalized interval oracles require additional contracts and are outside the delivered implementation. No completeness claim for exact roots follows from admitting rationals.
+
+\section{A small exact checker with explicit work limits}
+\subsection{Clearing denominators}
+
+The Python companion is independently implemented rather than a translation of the full package. It accepts coefficients in increasing degree order and an exact rational candidate. Let
+\[
+ p(x)=\sum_{i=0}^{d}a_i x^i,\qquad a_i\in\mathbb Q,
+ \qquad c=\frac{r}{s},\quad s>0.
+\]
+Choose the positive common denominator
+\[
+ D=\operatorname{lcm}_{0\leq i\leq d}\operatorname{den}(a_i),
+ \qquad A_i=Da_i\in\mathbb Z.
+\]
+Then define the homogeneous integer evaluation
+\begin{equation}\label{eq:homogeneous}
+ H(r,s)=\sum_{i=0}^{d}A_i r^i s^{d-i}.
+\end{equation}
+
+\begin{lemma}
+For the data above, $H(r,s)=Ds^d p(r/s)$. In particular, $p(c)=0$ if and only if $H(r,s)=0$.
+\end{lemma}
+\begin{proof}
+Multiply each term $a_i(r/s)^i$ by $Ds^d$ and use $Da_i=A_i$. The multiplier $Ds^d$ is nonzero, so it preserves equivalence to zero.
+\end{proof}
+
+The checker performs only integer arithmetic after clearing denominators. It returns an equality witness containing the exact input polynomial and candidate. The witness explicitly says that it does not establish uniqueness, inverse-branch identity, or package acceptance.
+
+\subsection{Linear-length homogeneous Horner evaluation}
+
+Computing every power independently is unnecessary. Initialize $v=A_d$ and $q=1$. Moving downward through the remaining coefficients, update
+\[
+ q\leftarrow q s,\qquad v\leftarrow vr+A_i q.
+\]
+After the final coefficient, $v=H(r,s)$. Inductively, after $j$ steps,
+\[
+ v=\sum_{k=0}^{j} A_{d-k}r^{j-k}s^k.
+\]
+The loop uses a number of integer arithmetic operations linear in the supplied degree. That is not a unit-cost or wall-clock claim: integer lengths grow with degree and with the sizes of $r$, $s$, and the coefficients.
+
+The implementation uses coefficient-count, input-bit-size, and predicted intermediate-bit-size limits. It checks a conservative bound before constructing the potentially large cleared-denominator evaluation. Unknown or over-budget cases decline the exact-admission attempt; they are not silently accepted and no coefficient is dropped.
+
+\subsection{A one-sided modular filter}
+
+The reference implementation also evaluates $H$ modulo two small positive moduli, 101 and 103. A nonzero modular residue proves that $H\ne0$, so it can cheaply reject many incorrect candidates. Passing both modular filters does \emph{not} establish equality. The exact integer computation is still mandatory on the acceptance path.
+
+The polynomial $p(x)=101\cdot103$ is a useful negative control: both modular residues vanish for every candidate, but the polynomial is never zero. The tests require rejection after the exact stage. The homogeneous form does not divide by the candidate denominator modulo either modulus, so candidates whose denominators are divisible by 101 or 103 remain valid test cases.
+
+These performance ideas apply only to the narrow independent rational-polynomial checker. No claim is made that this loop is faster than the repository's evaluator, that its modular filter always pays for itself, or that a package benchmark has been run. In small affine examples, retaining the original exact candidate is likely more important than adding a sophisticated filter; that is an engineering expectation, not a measured result.
+
+\subsection{Verifiable receipts rather than trusted flags}
+
+The point-equality examples in \path{evidence/point-equality-examples.json} can be rechecked by the supplied verifier. It recomputes the polynomial equality instead of trusting stored degree, denominator, or zero-value fields. It rejects altered candidates and inconsistent metadata in the tests.
+
+This receipt format is intentionally not a replacement for the repository's validation receipts. It proves an equation about the explicitly included polynomial. It does not authenticate a repository revision, bind mutable user definitions, certify source domains, or demonstrate that an interpreter executed the accompanying WL program.
+
+\section{Validation performed and remaining acceptance}
+\subsection{Executed independent checks}
+
+The independent suite ran on Python 3.13.5 on Linux. All \textbf{30 unittest methods passed}, with zero errors and zero failures. The supplied transcript and JSON receipt record that population. Nested cases are reported separately: 96 dyadic cases, nine affine rescalings, 200 deterministic rational-oracle comparisons, and 150 constructed-root cases. These nested counts are not added to a fictional package acceptance total.
+
+The tests exercise the following distinct obligations:
+\begin{itemize}
+\item The integer-only model rejects noninteger dyadics, while exact rational equality accepts them; integer controls are unchanged.
+\item A neighboring float, an approximate irrational root, and the exact binary value of an approximation to $1/3$ do not pass the wrong polynomial equation.
+\item Cleared-denominator evaluation agrees with independent \code{Fraction} Horner evaluation on deterministic random inputs; constructed polynomial roots pass.
+\item Modular false positives, denominator/modulus interactions, tampered receipts, inexact input, nonfinite seeds, and work-limit refusals behave as specified.
+\end{itemize}
+
+These are tests of the mathematical repair idea and its Python reference code. The exact model of the old gate operates on rational seeds; it is not an implementation of Mathics precision metadata, its parser, the numerical solver, or the entire package.
+
+\subsection{WL characterization and regression files}
+
+\path{code/Probe.wl} emits raw observations from a fresh interpreter. It records the runtime string, package path, private-helper controls on Mathics, and public numerical-check cases. It deliberately does not print a passing acceptance summary merely because it reached the end.
+
+\path{code/public_regressions.wlt} contains desired-contract MUnit tests for the public API. It checks the integer control, $1/2$, $3/8$, affine source scaling, the target-side refusal, and preservation of a source condition excluding the candidate. The tests are unrun. Mathics execution requires a runner that actually supports the chosen test format; supplying a \code{.wlt} file does not establish that support.
+
+\begin{longtable}{@{}P{1.82in}P{2.10in}P{2.05in}@{}}
+\toprule
+Case & Expected current/candidate distinction & Required evidence\\\midrule\endfirsthead
+\toprule Case & Expected current/candidate distinction & Required evidence\\\midrule\endhead
+Integer exact root & Both should preserve the exact shortcut & Same numerical result and domain checks\\[4pt]
+Dyadic exact root & Current integer gate declines; candidate should prove it & Exact root equality and requested output representation\\[4pt]
+Resolved nearby non-root & Neither may promote it & Exact rejection, not a residual-tolerance decision\\[4pt]
+Inexact equation & Exact shortcut remains unavailable & No conversion of approximate coefficients into a theorem\\[4pt]
+Nonpolynomial equation & Existing general guard remains applicable & No accidental new transcendental proof path\\[4pt]
+Excluded source point & A proved equation root must still fail the domain check & Public refusal survives candidate admission\\[4pt]
+Non-dyadic exact expression & Exact seed preservation may help; reconstruction alone need not & Separate original-exact and reconstructed-candidate records\\[4pt]
+Native Wolfram run & Mathics-only overlay must leave it unchanged & Fresh native controls, not inferred preservation\\
+\bottomrule
+\end{longtable}
+
+\subsection{What is not established}
+
+There is no successful native or Mathics package run in this review, no current package timing, no demonstrated full-checkout installation of the overlay, and no proof that every relevant historical sentence was searched. The code and mathematical argument reduce the amount of work needed to validate N01; they do not eliminate evaluator-level acceptance.
+
+The independent test runner regenerates its own evidence files. It does not invoke the repository, a remote kernel, a package test suite, or a network service. This makes its successful result reproducible without confusing its scope with the unexecuted integration work.
+
+\section{A certificate suspicion that did not survive contract checking}
+
+A potentially serious-looking counterexample arose during the audit: an interval can isolate a root on the same source side as an inverse expansion without identifying the root belonging to that expansion's local germ. On reading the complete certificate result construction, however, the source explicitly limits its claim to a unique root of the stored function in the verification interval, on the selected side and within retained source conditions. It expressly does not assert a global inverse-branch certificate.\cite{certificates}
+
+For example,
+\[
+ f(x)=x-2x^2,\qquad t=\frac9{200}
+\]
+has positive roots $1/20$ and $9/20$. The inverse germ at $x=0^+$ selects the smaller root as $t\to0^+$. A small interval around $9/20$ can nevertheless be a valid unique-root enclosure for the stored equation. A certificate making only the stated interval claim is not false merely because a reader hoped it would certify the germ-selected root.
+
+The distinction cannot be repaired conceptually by checking only the derivative's sign. For
+\[
+ f(x)=x(x-1)(x-2),\qquad t=\frac{231}{1000},
+\]
+the three roots are
+\[
+ \frac{9-\sqrt{37}}{20},\quad
+ \frac{9+\sqrt{37}}{20},\quad
+ \frac{21}{10}.
+\]
+The first and third roots have positive derivative, but only the first is connected to the $0^+$ inverse germ at small positive target. These examples explain why exact point equality, local interval uniqueness, and branch connectivity are different propositions.
+
+\textbf{Disposition: not counted as a new defect or a new certification recommendation.} The code's explicit scope prevents the proposed example from establishing the suspected false theorem. The independent point-equality checker similarly avoids a branch-identity claim. This is included to document a rejected alarm, not to inflate the finding count or restate the existing certification roadmap.
+
+A second apparent powered-observable coverage issue was excluded at the novelty stage because the wave-2 index explicitly identifies report 15 as covering it. Other familiar routes were likewise left to their existing work items.\cite{wave2-index}
+
+\section{Focused development sequence}
+
+Only development work directly needed to resolve N01 is recommended here. Broader package architecture, native compatibility, precision propagation, review infrastructure, and mathematical-extension recommendations remain in the pre-existing reports rather than being copied into this article.
+
+\subsection{First: characterize the new acceptance boundary}
+
+Run the integer, dyadic, nearby-non-root, and source-domain controls against the pinned baseline in a fresh Mathics process. Save the actual outputs and runtime version. Then run the public identity and affine cases. A private helper failure establishes its local behavior; it does not substitute for showing that the public call reaches it.
+
+The success condition is not merely an absence of messages. A positive case must return the correct reference root or the desired numerical-check association, and a negative case must preserve its refusal. The source-domain case is especially important because exact equation satisfaction alone is weaker than all of the public call's requirements.
+
+\subsection{Second: integrate the narrow rational path}
+
+Implement exact candidate admission without changing the general solver's advertised capabilities. Start with retained rational candidates and exact polynomial equations. Retain the existing integer controls, precision refusal, original equation, and post-root domain checks. Evaluate the experimental overlay as a candidate, not as an automatically trusted hotfix.
+
+Avoid broad rational guessing as the acceptance test. A reconstruction policy may propose a point, but only equation~\eqref{eq:point-proof} permits its exact admission. A failed or over-budget proof attempt must leave the conservative behavior intact rather than reducing the requested precision silently.
+
+\subsection{Third: retain pre-numerical exact information}
+
+Add an internal exact-candidate slot at the point where the stored expression is specialized to an exact target. This avoids unnecessarily losing $1/3$ before a solver is even considered. The slot must not be a second unsynchronized copy of the entire expansion; it is request-local evidence derived from the already retained expression and target.
+
+Keep the distinction visible in numerical evidence: an exact equation-verified candidate, an approximate solver result, and an unsupported precision request are different outcomes. That distinction explains why one exact point can be available at a requested precision even when the general root finder is not.
+
+\subsection{Acceptance, not a completeness claim}
+
+The narrow change is ready only after its selected public and private cases pass in supported Mathics and native configurations. It does not establish arbitrary-precision Mathics root finding, exact solution of all polynomial equations, algebraic-root completeness, branch connectivity, or complete compatibility across every exported API.
+
+This bounded endpoint is useful precisely because it is achievable and testable without weakening the existing safeguard or reopening the previous review inventory.
+
+\section{Using the archive}
+
+The bundle is self-contained for the independent tests and the article build. From its root directory:
+\begin{lstlisting}
+python code/run_reference_tests.py
+cd article
+pdflatex -interaction=nonstopmode -halt-on-error review.tex
+pdflatex -interaction=nonstopmode -halt-on-error review.tex
+\end{lstlisting}
+
+The Python test runner requires only the standard library. It rewrites the independent receipt files; preserve a copy of the delivered evidence before regenerating them when comparing environments. The WL characterization script expects \code{$AuditPackagePath} to be set to an existing local package entry. The optional \code{$AuditPatchPath} selects the experimental overlay. Use separate fresh sessions for baseline and candidate observations.
+
+\begin{tabularx}{\textwidth}{@{}P{2.22in}Y@{}}
+\toprule
+Artifact & Purpose\\\midrule
+\path{article/review.tex}, \path{article/review.pdf} & Article source and compiled version\\[4pt]
+\path{code/exact_seed_reference.py} & Bounded independent rational-polynomial equality checker\\[4pt]
+\path{code/test_exact_seed.py} & Independent mathematical and admission tests\\[4pt]
+\path{code/ExactSeedCandidate.wl} & Unexecuted Mathics-only private-helper overlay\\[4pt]
+\path{code/Probe.wl} & Unexecuted raw interpreter characterizations\\[4pt]
+\path{code/public_regressions.wlt} & Unexecuted desired public contracts\\[4pt]
+\path{evidence/independent-tests.json} & Executed test count and explicit scope\\[4pt]
+\path{evidence/novelty-ledger.json} & Retained item, overlap boundary, excluded alarms\\[4pt]
+\path{evidence/review-scope.json} & Pin, runtime limits and source coverage\\
+\bottomrule
+\end{tabularx}
+
+\section{Conclusion}
+
+The additional result of this review is modest but concrete. A new safety guard has a useful exact-root escape route, yet unnecessarily ties that route to integer source values. The same equality proof can cover rational points without trusting an inadequate numerical solver. The report isolates that boundary, supplies an infinite family of exact witnesses, derives a bounded verification algorithm, and tests an independent implementation.
+
+The remaining step is evaluator-level acceptance of the candidate and the public witnesses. Until then, the correct description is a source-supported compatibility opportunity with executed independent mathematics, not a native-verified package fix. Existing findings are left to their original reports, and an apparent certificate counterexample is rejected because it does not contradict the code's explicit claim.
+
+\begin{thebibliography}{99}
+\small
+\bibitem{review-index} Asymptotic contributors. \repo{external-reports/code-review/README.md}{Code review index}, pinned revision. Four-wave inventory and evidence distinctions.
+\bibitem{status} Asymptotic contributors. \repo{docs/development/CODE_REVIEW_STATUS.md}{Code review implementation status}, pinned revision. Consolidated earlier findings and coverage targets.
+\bibitem{wave3} Asymptotic contributors. \repo{docs/development/WAVE_3_INTAKE.md}{Wave 3 intake}, pinned revision.
+\bibitem{wave4} Asymptotic contributors. \repo{docs/development/WAVE_4_INTAKE.md}{Wave 4 intake}, pinned revision. See W4-02 and the distinction between incoming reports and later implementation.
+\bibitem{wave2-index} Asymptotic contributors. \repo{external-reports/code-review/wave-2/README.md}{Wave 2 review index}, pinned revision. Original report topics and scope.
+\bibitem{review28} Report 28. \repo{external-reports/code-review/wave-4/code-review-28/article.tex}{Numerical contracts, Mathics semantics, and validation infrastructure}, original article preserved in the repository. Its F01 concerns the earlier unguarded precision boundary.
+\bibitem{core} Asymptotic contributors. \repo{src/Kernel/AsymptoticAnalysis.wl}{Public kernel and ordinary inverse implementation}, pinned revision. See public usage, inverse construction, and the numerical dispatch in \code{InverseNumericalCheck}.
+\bibitem{numerical-checks} Asymptotic contributors. \repo{src/Kernel/NumericalInverseChecks.wl}{Numerical inverse checks}, pinned revision. In particular seed construction, root solving, source-domain validation, and observable comparison.
+\bibitem{mathics-numeric} Asymptotic contributors. \repo{src/Kernel/MathicsNumerical.wl}{Mathics numerical admission adapter}, pinned revision. Lines 10--22: exact-integer helper; lines 24--45: precision guard; final lines: five consumer rewrites.
+\bibitem{certificates} Asymptotic contributors. \repo{src/Kernel/InverseCertificates.wl}{Inverse certificates}, pinned revision. See \code{certAttempt}, result metadata, and its explicit scope statement.
+\bibitem{wl-rationalize} Wolfram Research. \href{https://reference.wolfram.com/language/ref/Rationalize.html}{Rationalize documentation}. Consulted September 10, 2026. Distinguishes precision-compatible rational reconstruction from bitwise rational extraction.
+\bibitem{wl-precision} Wolfram Research. \href{https://reference.wolfram.com/language/ref/Precision.html}{Precision documentation}. Consulted September 10, 2026. Exact numbers, approximate numbers, and precision semantics.
+\bibitem{wl-findroot} Wolfram Research. \href{https://reference.wolfram.com/language/ref/FindRoot.html}{FindRoot documentation}. Consulted September 10, 2026. Numerical solver and precision-goal semantics; not a specification of Mathics behavior.
+\end{thebibliography}
+\end{document}

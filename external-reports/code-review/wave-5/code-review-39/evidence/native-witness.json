@@ -1,0 +1,34 @@
+{
+  "evidence_type": "Manual transcription of successful Wolfram connector observations; not an exported acceptance receipt",
+  "review_commit": "651f2029d0b2cd4da9e4dfdf1f4275a124d23b99",
+  "runtime": {
+    "last_observed_service_version": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+    "version_capture_scope": "A separate earlier service query, not embedded in the public-witness output"
+  },
+  "complete_load_smoke": {
+    "method": "Import pinned standalone as Text, then Get[StringToStream[text]]",
+    "observed_text_character_count": 685212,
+    "observed_Get_result": "Null",
+    "observed_AsymptoticExpansion_DownValues_count": 1,
+    "observed_seriesTransportRemainderBound_DownValues_count": 1
+  },
+  "public_witness": {
+    "input": "s=AsymptoticAnalysis`AsymptoticExpansion[Zeta[x],{x,Infinity,Log[4]},\"Backend\"->\"Package\"]; t=AsymptoticAnalysis`SeriesTruncate[s,Log[2]]; u=AsymptoticAnalysis`SeriesTruncate[t,Log[2]];",
+    "display_normalization": "The Module-generated variable name is alpha-renamed to x; algebraic display of the discarded part is standardized.",
+    "heads": ["GeneralizedSeries", "GeneralizedSeries", "GeneralizedSeries"],
+    "intermediate_TruncationDiscardedPart": "2^(-x) + 3^(-x)",
+    "noop_TruncationDiscardedPart": "Missing[\"KeyAbsent\",\"TruncationDiscardedPart\"]",
+    "AbsoluteRemainderBound_SameQ": true,
+    "noop_contract_type": "TransportedThroughTruncation",
+    "Normal_intermediate": "1",
+    "Normal_noop": "1",
+    "diagnostics": "The successful call also emitted Power::infy and Greater::nord diagnostics. Their origin was not isolated; this review does not count them as another finding."
+  },
+  "limitations": [
+    "The six supplied MUnit regression specifications were not executed as a suite.",
+    "The N01 production patch was not validated in a successful patched-package native call.",
+    "The supplied N02 native instrumentation script was not successfully run; reported traversal counts come from source analysis and an independent Python model.",
+    "Several subsequent Wolfram calls returned 502/network errors and yielded no computational result.",
+    "No fresh Mathics package execution or full repository test-suite run is claimed."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "scope": "Balanced parentheses/brackets/braces with nested comments and strings only; not Wolfram parsing or execution.",
+  "checks": {
+    "code/run_focused.wl": true,
+    "code/characterize.wl": true,
+    "code/AbsGuardRegressions.wlt": true,
+    "source-excerpts/fwdAbs.baseline.wl": true,
+    "candidate_guard_definition": true
+  },
+  "desired_contract_test_count": 8
+}

@@ -1,0 +1,615 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm,mathtools}
+\usepackage{newpxtext,newpxmath}
+\usepackage[margin=0.9in,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{booktabs,longtable,array,tabularx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xurl}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\definecolor{ink}{HTML}{283A35}
+\definecolor{accent}{HTML}{536B48}
+\definecolor{papergray}{HTML}{F4F5F1}
+\hypersetup{colorlinks=true,linkcolor=ink,urlcolor=accent,citecolor=accent,
+ pdftitle={Asymptotic: a non-duplicative source review},
+ pdfauthor={Technical review prepared for Vladimir Reshetnikov}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textsc{Asymptotic / source review}}
+\fancyhead[R]{\small 10 September 2026}
+\fancyfoot[C]{\thepage}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1pt}
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=1.5em}
+\lstdefinestyle{code}{basicstyle=\ttfamily\small,breaklines=true,
+ columns=fullflexible,keepspaces=true,showstringspaces=false,
+ backgroundcolor=\color{papergray},frame=single,rulecolor=\color{black!15},
+ xleftmargin=5pt,xrightmargin=5pt,aboveskip=9pt,belowskip=9pt}
+\lstset{style=code}
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\newcommand{\repo}{\texttt{VladimirReshetnikov/Asymptotic}}
+\newcommand{\commit}{\texttt{8e859961d7d37f008b826f3a8cad406460271614}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\source}[2]{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/#1}{#2}}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\begin{document}
+\begin{center}
+{\Large\scshape Technical source review}\par
+\vspace{8pt}
+{\huge\bfseries Asymptotic}\par
+\vspace{7pt}
+{\Large Inverse-coefficient contracts, model limits,\\
+validation, and stationary-point branch proofs}\par
+\vspace{12pt}
+{\large A focused delta beyond the existing review register}\par
+\vspace{12pt}
+Prepared for Vladimir Reshetnikov \quad / \quad 10 September 2026
+\end{center}
+
+\vspace{6pt}
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+Repository & \repo\\
+Reviewed commit & \commit\\
+Source baseline & Commit-pinned canonical kernel modules and related development ledgers\\
+Exclusion baseline & The index of 36 reports in \code{external-reports/code-review}, the consolidated wave-1/2 register, and wave-3/4 intake crosswalks\\
+Evidence & Source inspection; one native package smoke test; 35 independent Python tests; supplied but unexecuted Wolfram integration probes\\
+\bottomrule
+\end{tabularx}
+
+\section*{Executive assessment}
+This review isolates \textbf{three API/validation findings and one bounded mathematical coverage opportunity}. It does not assert a newly reproduced, generally wrong asymptotic expansion. The most concrete defects concern information exposed \emph{about} an inverse: a coefficient's advertised reconstruction omits the source orientation, and a public model field named \code{Limit} is sometimes an internal normalization offset rather than a limit. A separate, small validation gap admits a purported core inverse that still contains the source variable being eliminated. Finally, both global monotonicity helpers have an avoidable sufficient-condition limitation: strict monotonicity of a polynomial does not require a derivative that is nonzero everywhere.
+
+The fixes are deliberately narrow. Preserve existing normalized coefficients and internal offsets; add explicit observable reconstruction and target-limit metadata. Extend the perturbative argument checks within a documented expression scope. For branch inference, a nonzero polynomial derivative of one weak sign gives a useful, rigorously justified certificate even when it vanishes at finitely many points. The accompanying implementation demonstrates an exact certificate producer and a separate rational-arithmetic checker.
+
+A current native Wolfram kernel successfully loaded the pinned standalone package and expanded \(\sin x\) as expected. Subsequent execution-service calls failed, so \textbf{none of the new package-level probes is reported as executed}. The 35 successful Python tests establish the independent algebraic models and companion prototype, not current Wolfram or Mathics package acceptance. This distinction is maintained throughout the article and the evidence files.
+
+\clearpage
+\begingroup
+\setlength{\parskip}{0pt}
+\small
+\tableofcontents
+\endgroup
+\clearpage
+
+\section{Scope, evidence, and the non-duplication boundary}
+\label{sec:scope}
+
+\subsection{What was inspected}
+The inspection followed the data path from public request parsing through local-coordinate normalization, sparse power--log jets, inverse construction, observable assembly, and evidence APIs. It also examined selected Gamma/Barnes and elementary exponential carriers, special-function adapters, reciprocal-logarithmic operations, conservative composite envelopes, and Mathics-specific replacement helpers. The source locators in Appendix~\ref{app:sources} identify the main inspected boundaries; this is not a claim that every file in the repository received an exhaustive line-by-line audit.
+
+The authoritative implementation is the canonical modular source, with the root standalone distribution used for the successful native smoke. In particular, the core file owns the ordinary inverse model, final observable assembly, the coefficient accessor, and the perturbative generator. The native and Mathics branch modules own the two global monotonicity helpers discussed below. These source roles can be checked directly in the pinned files.\cite{core,branches,mathicsbranches,mathicscalculus}
+
+\subsection{What the exclusion process does and does not establish}
+The repository already contains a substantial review history. Its maintained register maps reports 1--18; the wave-3 and wave-4 intake documents add their respective crosswalks and prose-proposal groups. Those documents, rather than a keyword-only search, were the primary exclusion mechanism. The targeted original ledgers from reports 4 and 6 were also consulted where the proposed deltas approach their API discussions.\cite{reviewindex,register,wave3,wave4,r4,r6}
+
+The present article does \emph{not} reissue the existing recommendations about generic resource budgets, dense native exports, unknown-remainder calculus, broad result schemas, existing refinement issues, release validation, runner integrity, or general Mathics adapter installation. It also does not rename a known defect by changing its example. The small amount of prior-work discussion below only identifies the boundary separating a new claim from an old one.
+
+Deduplication here is based on the complete maintained crosswalks and their proposal summaries, plus targeted original ledgers. It is not a word-for-word comparison of every earlier article and PDF. Consequently, ``delta'' means a specific mechanism and witness not found in the inspected register, not an assertion of priority over every sentence ever written about the repository.
+
+\begin{table}[htbp]
+\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+ID & Present issue & Nearest existing item & Distinguishing condition\\
+\midrule
+F01 & Missing source-orientation factor in coefficient reconstruction metadata & C09; D06 & No option override or translated endpoint is needed: the identity inverse from below already exposes the discrepancy.\\
+F02 & Public model \code{Limit} is not always the analytic target limit & C10; D02 & The witness is \code{PowerLogModel[1/x,...]} itself, not a residual label or a broad schema proposal.\\
+F03 & Core inverse can retain the eliminated source variable & W3-08; D02 & A valid-arity \code{PerturbativeInverse} call is admitted with a structurally invalid core expression.\\
+E01 & Global polynomial monotonicity with isolated stationary points & W4-03 & This is a whole-interval uniqueness proof, not a deleted-neighborhood radius or eventual-sign search.\\
+\bottomrule
+\end{tabularx}
+\caption{Novelty boundary. Existing IDs are comparison anchors, not repeated recommendations.}
+\end{table}
+
+\subsection{Evidence labels}
+A \emph{source-established mechanism} is a statement about the inspected definitions and their control flow. A \emph{derived witness} is an exact mathematical evaluation of that mechanism. Neither by itself proves that every public dispatcher reaches that path in a particular interpreter. An \emph{observed package result} requires an actual package execution. A \emph{prototype result} concerns only the supplied companion implementation.
+
+The sole successful native package smoke used the commit-pinned standalone file, whose returned byte count was 679426. Its kernel identified itself as Wolfram Language 15.0.0 for Linux x86 (64-bit), dated 6 May 2026. The returned expression and remainder were
+\[
+ \operatorname{Normal}(s)=x-\frac{x^3}{6},\qquad
+ s[\text{``Remainder''}]=\operatorname{PowerLogRemainder}(x,5,0).
+\]
+The package reported 38 exported names. These values are preserved as a \emph{manual transcription of the connector result}, not as a freshly machine-verified acceptance receipt.
+
+The later connection failures are not failed mathematical tests. They left the new integration probes unexecuted. The independent local run used Python 3.13.5 and SymPy 1.14.0, with 35 tests, zero failures, zero errors, and zero skips. Its transcript and JSON summary are included separately. Historical test counts quoted in repository documentation were not added to that total and were not relabeled as current evidence.\cite{validation}
+
+\section{The relevant architecture: model, chart, and observable}
+\label{sec:architecture}
+
+The ordinary engine works in a positive local coordinate \(u\to0^+\). At a finite source endpoint, write
+\[
+ x=x_0+\sigma u,\qquad \sigma\in\{-1,1\};
+\]
+at an infinite endpoint, write
+\[
+ x=\frac{\sigma}{u}.
+\]
+The sign is an essential part of the chart. It is not, in general, a coefficient of the normalized inverse unit.
+
+A normalized finite power--log model has the form
+\begin{equation}
+ f(x(u))=b+a u^p\left(1+\sum_{i=1}^{m}u^{d_i}P_i(\log u)\right),
+ \qquad d_i>0,
+ \label{eq:model}
+\end{equation}
+with a nonzero real leading coefficient \(a\) and nonzero real leading power \(p\). In the actual source, \code{rowsToModel} stores the extracted baseline \(b\), the leading data, the gaps, and the logarithmic coefficient polynomials. The inverse constructor subsequently decides the actual target endpoint and assembles the observable with the source sign.\cite{core}
+
+For finite target endpoint \(y_0\), let \(v=y-y_0\); for an infinite target endpoint, the constructor uses \(v=y\). The positive uniformizer is
+\[
+ z=(v/a)^{1/p},\qquad L=\log(v/a)/p.
+\]
+For a source observable of power \(r\), define
+\[
+ \rho=\begin{cases}r,&x_0\text{ finite},\\-r,&x_0\text{ infinite}.
+ \end{cases}
+\]
+The coefficient machinery computes contributions of the normalized local quantity \(u^{\rho}\), not automatically of the final signed source observable.
+
+This organization is mathematically natural. It separates positive-coordinate power algebra from orientation and from additive translation. The review therefore does \emph{not} recommend changing the coefficient algebra to carry a sign redundantly through every recurrence. The problem is at the public description boundary: the returned metadata must say which of these quantities a coefficient reconstructs.
+
+The same separation matters for proof records. A certificate of global injectivity, a lower bound on a derivative, and an asymptotic error estimate are different objects. An extension that proves the first must not be substituted wherever an existing consumer requires the second. This distinction becomes decisive in Section~\ref{sec:monotonicity}.
+
+\section{F01: inverse coefficient metadata drops source orientation}
+\label{sec:orientation}
+
+\subsection{Finding and severity}
+\textbf{Classification: medium-priority API correctness and reconstruction contract.}
+The ordinary inverse constructor multiplies the assembled local expansion by \(\sigma^r\). The object overload of \code{InverseExpansionCoefficient} adjusts the internal power for an infinite source endpoint, but does not attach the corresponding orientation multiplier to its returned coefficient or its \code{Meaning} field. Its meaning describes a contribution of the form
+\[
+ (v/a)^{\beta}\,C(L),
+\]
+without the factor needed to interpret that contribution as part of the represented observable.\cite{core}
+
+The normalized coefficient itself need not be wrong. A caller deliberately requesting a coefficient of the positive local-coordinate expression may want exactly that value. The defect is that the public object-oriented accessor does not make the missing chart factor explicit, even though the object it was called on already represents the signed source observable.
+
+\subsection{Minimal witness: the identity inverse from below}
+Consider the public probe
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+s = AsymptoticInverse[x, {x, 0}, {y, 2},
+  Direction -> "FromBelow"];
+c = InverseExpansionCoefficient[s, {}];
+{Normal[s], c}
+\end{lstlisting}
+\end{minipage}\par
+This probe is supplied for execution; the following values are the exact source-derived prediction, not a newly observed kernel transcript.
+
+The local coordinate is \(u=-x\), so \(f=-u\), \(a=-1\), \(p=1\), and \(\sigma=-1\). There are no correction gaps and the leading multi-index is empty. The coefficient routine returns the leading normalized coefficient \(C=1\) at exponent \(\beta=1\). Its described local contribution is therefore
+\[
+ (y/(-1))^1\cdot1=-y.
+\]
+The inverse constructor, correctly, multiplies this by \(\sigma=-1\), obtaining
+\[
+ \operatorname{Normal}(s)=y.
+\]
+Thus a caller following the coefficient record's advertised reconstruction without separately rediscovering the source chart obtains the negative of the represented inverse. No approximate arithmetic, difficult branch theorem, conflicting option, or finite translation is needed.
+
+The same issue occurs at the negative infinite source endpoint. For \(f(x)=x\), \(x\to-\infty\), one has \(u=-1/x\), \(a=-1\), \(p=-1\), and \(\rho=-1\). The normalized contribution is again \(-y\), while the observable is \(y\).
+
+\subsection{The discrepancy affects nonleading terms as well}
+For \(f(x)=x+x^2\) near zero from below,
+\[
+ f(-u)=-u+u^2=-u(1-u).
+\]
+The normalized inverse has positive Catalan coefficients in powers of \(-y\):
+\[
+ u=-y+y^2-2y^3+5y^4+\cdots.
+\]
+The source inverse is
+\[
+ x=-u=y-y^2+2y^3-5y^4+\cdots.
+\]
+In particular, the local contribution at the first nontrivial multi-index is \(+y^2\); the observable contribution is \(-y^2\). A leading-term-only documentation example would not fully exercise the contract.
+
+For an even integral observable power, \(\sigma^r=1\), so this witness disappears. For an odd integral power, it persists. That parity distinction is a useful positive control: a proposed repair that indiscriminately negates every coefficient on a negative source branch is itself wrong.
+
+\subsection{A precise reconstruction law}
+Let the coefficient routine return \(\beta_{\mathbf k}\) and \(C_{\mathbf k}(L)\). The contribution to the source observable is
+\begin{equation}
+ T_{\mathbf k}(y)=\sigma^r(v/a)^{\beta_{\mathbf k}}
+ C_{\mathbf k}\!\left(\frac{\log(v/a)}p\right).
+ \label{eq:orientedterm}
+\end{equation}
+For a finite endpoint and \(r=1\), add \(x_0\) \emph{once} to the sum of these terms. For finite endpoints and other admitted powers, the ordinary constructor's output is the powered displacement, not an extra copy of the endpoint at every coefficient. For infinite source endpoints there is no additive source offset. These are the actual assembly cases in the inspected constructor.\cite{core}
+
+Equation~\eqref{eq:orientedterm} must be applied before interpreting a coefficient as an observable contribution. Equal-weight multi-indices may then be collected. The orientation repair does not change which multi-indices collide, how truncation is requested, or how a remainder is justified.
+
+\subsection{Recommended compatible repair}
+Do not silently redefine the existing \code{Coefficient} field. Add fields that preserve both interpretations:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+"LocalCoefficient"      -> C
+"ObservableMultiplier"  -> sigma^r
+"ObservableCoefficient" -> sigma^r C
+"AdditiveOffset"        -> sourceOffset
+"ContributionExpression" -> orientedTermInTargetVariable
+\end{lstlisting}
+\end{minipage}\par
+The \code{Meaning} text should explicitly distinguish a normalized local coefficient from an observable contribution. The additive offset must be documented as a once-per-expansion baseline. The example should show both a right-source control and a left-source witness.
+
+The supplied \code{OrientedInverseContribution} helper implements this as an additive API, without modifying package definitions. Its scope is deliberately restricted to ordinary, exponent-truncated inverse objects. It does not pretend that Gamma/Barnes, composite, native, logarithmic, or raw reconstructed associations all satisfy the same coefficient contract.
+
+\subsection{Acceptance conditions and non-overlap}
+A focused acceptance selection should cover the identity from both finite sides, both infinite endpoints, one translated finite endpoint, odd and even integral powers, and one nonleading contribution. Summing the new contribution expressions must agree with the same retained local terms after the constructor's existing chart transformation; the additive offset is added exactly once.
+
+This is distinct from C09, where an explicit \code{Power} option is shadowed by stored data: the witness supplies no override. It is also narrower than D06's discussion of source-point versus displacement observables: the minimal witness uses \(x_0=0\), so no translation convention can explain away the missing sign.\cite{register,r6}
+
+\section{F02: the public model's Limit field can be an offset}
+\label{sec:limit}
+
+\subsection{Finding and severity}
+\textbf{Classification: medium-priority metadata semantics.}
+The public \code{PowerLogModel} function exposes the association returned by \code{rowsToModel}. The latter initializes its \code{Limit} value to zero and extracts a constant baseline only when the leading row has weight zero. When the leading power is negative, that stored value is not the analytic limit of the source expression.\cite{core}
+
+The inverse constructor later changes its \emph{own} target endpoint to the appropriate signed infinity. That correction does not turn the model's original field into a target-limit field. Consequently, model and inverse metadata use the same word for different roles.
+
+\Needspace{9\baselineskip}
+\subsection{Minimal and diagnostic witnesses}
+The public probe
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+m = PowerLogModel[1/x, {x, 0}];
+{m["Limit"], m["LeadingPower"], m["LeadingCoefficient"]}
+\end{lstlisting}
+\end{minipage}\par
+has the source-derived prediction \(\{0,-1,1\}\), although the admitted positive local approach has
+\[
+ \lim_{x\to0^+}\frac1x=+\infty.
+\]
+For \(-1/x\), the limit is \(-\infty\), while the normalized model baseline is again zero. For \(7+x\), the extracted baseline and actual limit are both seven, so ordinary regular examples conceal the distinction.
+
+A particularly useful control is
+\[
+ f(x)=\frac1x+7.
+\]
+Here the leading row has weight \(-1\); the constant seven remains in the correction rows rather than being removed as the baseline. Therefore the model's stored \code{Limit} is zero, the Laurent constant coefficient is seven, and the actual limit is positive infinity. These are \emph{three different quantities}. Renaming the old field to ``constant term'' would not solve the semantic problem.
+
+\subsection{Why the normalized offset is legitimate internal data}
+The model decomposition \eqref{eq:model} still represents the source correctly. When \(p<0\), a finite constant may be treated as a subleading relative correction. That is a valid algebraic normalization. For \(1/u+7\), one may write
+\[
+ \frac1u+7=0+u^{-1}(1+7u).
+\]
+It would be destructive to replace the baseline in this expression by infinity merely because the old key is named \code{Limit}. Internal consumers use the baseline algebraically. A repair must separate meanings rather than corrupt the model to match a label.
+
+For the admitted model class, the target limit follows directly from the leading data:
+\begin{equation}
+ \operatorname{TargetLimit}=\begin{cases}
+ b,&p>0,\\
+ +\infty,&p<0\text{ and }a>0,\\
+ -\infty,&p<0\text{ and }a<0.
+ \end{cases}
+ \label{eq:targetlimit}
+\end{equation}
+If an implementation cannot establish the necessary sign under its retained assumptions, it should return an explicit unresolved value rather than guess. The public ordinary model currently admits numerical real exponents; a future symbolic extension must maintain that distinction.
+
+\subsection{Recommended repair and migration}
+Introduce \code{ModelOffset} for the baseline extracted by normalization and \code{TargetLimit} for the analytic endpoint. Preserve the existing field as a documented legacy alias during a compatibility period, or add a versioned explicit accessor that returns both meanings. The supplied \code{DescribeModelLimit} companion demonstrates the latter approach.
+
+For internal cleanup, update baseline consumers to use \code{ModelOffset} before retiring the ambiguous name. The exact-termination check is one example: it constructs a finite target expression from the model baseline and leading power. Such a consumer must not accidentally read a signed-infinite endpoint.\cite{termination}
+
+For public documentation, show at least one pole and one regular finite limit. State explicitly that \code{ModelOffset} is neither automatically the Laurent constant coefficient nor the target endpoint. This resolves a concrete ambiguity without requiring a wholesale new object schema.
+
+\subsection{Acceptance conditions and non-overlap}
+Test \(x\), \(7+x\), \(1/x\), \(-1/x\), and \(7+1/x\) on the appropriate real approaches. The old normalized reconstruction must remain algebraically unchanged. The new target-limit field must agree with the leading-data theorem, and the inverse object's target endpoint must agree with it whenever both are available.
+
+C10 concerns wording in the residual normalization; F02 concerns the actual value exposed by a different public API before any residual is computed. D02's broader shared-contract discussion is not re-proposed here. The implementation delta is the explicit separation of these two particular fields.\cite{register}
+
+\section{F03: a core inverse may retain the eliminated source variable}
+\label{sec:perturbative}
+
+\subsection{The intended formal contract}
+The four-argument \code{PerturbativeInverse} accepts a core inverse \(\phi(y)\), a source perturbation \(h(x)\), source and target variables, and a nonnegative order. Its native implementation computes
+\begin{equation}
+ \phi(y)+\sum_{k=1}^{n}\frac{(-1)^k}{k!}
+ \frac{d^{k-1}}{dy^{k-1}}
+ \left[\phi'(y)h(\phi(y))^k\right].
+ \label{eq:perturbative}
+\end{equation}
+The Mathics replacement evaluates the same finite family using \code{Table} and \code{Total} instead of the native symbolic \code{Sum} path. Both definitions check that source and target symbols differ and that \(h\) does not contain the target variable. Neither checks that the purported core inverse is free of the source variable.\cite{core,mathicscalculus}
+
+\subsection{The admitted malformed call}
+Consider
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+PerturbativeInverse[x + y, x^2, {x, y}, 1]
+\end{lstlisting}
+\end{minipage}\par
+Both existing argument tests succeed. Substitution gives \(h(\phi)=(x+y)^2\), and differentiation with respect to \(y\) gives the formal result
+\[
+ x+y-(x+y)^2.
+\]
+The supposedly eliminated source symbol survives. This is not a counterexample to the Lagrange--Buermann formula on valid data; it is an argument-admission gap that lets a structurally invalid core pass as an ordinary result.
+
+\textbf{Classification: low-priority validation and diagnostic quality.} No claim is made that a valid core inverse is expanded incorrectly by this example. The repair prevents a confusing successful-looking output rather than repairing the mathematical recurrence.
+
+\subsection{Minimal repair and the scope caveat}
+For the same structural expression policy already used for \(h\), the minimal check is
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+If[x === y || ! FreeQ[h, y] || ! FreeQ[phi, x],
+  Failure["InvalidVariables", <|"MessageTemplate" ->
+    "Use distinct symbols; h must not contain y and phi must not contain x."|>],
+  (* existing computation *)
+]
+\end{lstlisting}
+\end{minipage}\par
+It must be applied to both the native definition and the late Mathics replacement. Patching only the native definition leaves the second runtime's admission unchanged. The included Python patch generator checks exact old fragments in both files and emits a unified diff without modifying the checkout.
+
+There is a subtle boundary to document. \code{FreeQ} is a structural occurrence check, not a complete lexical free-variable analysis for every Wolfram binder. A core containing a \emph{bound} occurrence of a same-named symbol inside an unevaluated scoping construct is not mathematically the same as \(\phi=x+y\). The small companion therefore adopts an explicit-expression structural policy matching the existing perturbation check. If binder-containing cores are part of the supported contract, the final production repair should use scope-aware free-variable analysis or alpha-renaming rather than rejecting all bound occurrences blindly.
+
+This validation does not prove that \(\phi\) really inverts an arbitrary undisclosed core function; no such core function is supplied to this API. It also does not manufacture an asymptotic remainder theorem for the finite perturbation formula.
+
+\subsection{Positive controls}
+For \(\phi(y)=y\) and \(h(x)=a x^2\), formula~\eqref{eq:perturbative} gives
+\[
+ y-a y^2+2a^2y^3-5a^3y^4
+\]
+through third perturbative order. For \(\phi(y)=\sqrt y\) and \(h(x)=a x^2\), it gives
+\[
+ \sqrt y\left(1-\frac a2+\frac{3a^2}{8}-\frac{5a^3}{16}\right),
+\]
+which agrees with the corresponding finite expansion of \(\sqrt{y/(1+a)}\). These exact controls, the malformed witness, the zeroth-order validation case, and the existing target-variable restriction are covered by the independent Python tests.
+
+The supplied Wolfram helper leaves all package definitions untouched. Its native and Mathics integration remain unexecuted. The patch generator itself is intentionally a preparatory tool: after accepting its diff, regenerate the standalone distribution using the repository's existing process rather than independently editing generated source.
+
+\section{E01: global monotonicity through isolated stationary points}
+\label{sec:monotonicity}
+
+\subsection{Current sufficient condition and its limit}
+The native \code{inverseBranchGlobalMonotonicity} first checks continuity and convexity, then tries to prove a derivative strictly positive everywhere or strictly negative everywhere. Its additional special logarithmic lemma does not change the polynomial case considered here. The Mathics polynomial/convex-domain wrapper likewise accepts a strict derivative sign and otherwise returns \code{None}.\cite{branches,mathicsbranches}
+
+That is a sound sufficient condition. It is not necessary for strict monotonicity. This section proposes a bounded coverage extension, not a correction to an unsound existing proof. A failed helper certificate also does not establish that the full public inverse dispatcher fails: another branch-completeness route may succeed. The supplied probe targets the helper explicitly, and public integration must be tested separately.
+
+\subsection{A compact exact witness}
+Let
+\begin{equation}
+ F(x)=x-\frac23x^3+\frac15x^5.
+ \label{eq:quintic}
+\end{equation}
+Then
+\[
+ F'(x)=(x^2-1)^2\ge0,
+\]
+with zeros at \(x=\pm1\). Thus the current strict-derivative condition is false on \(\R\). Nevertheless, for any \(a<b\),
+\[
+ F(b)-F(a)=\int_a^b(t^2-1)^2\,dt>0.
+\]
+The integrand is nonnegative and can vanish only at two points, not on a nontrivial interval. Therefore \(F\) is strictly increasing. Its odd degree and positive leading coefficient give limits \(-\infty\) and \(+\infty\), so it is a bijection of \(\R\).
+
+The example avoids relying on native simplification of \code{InverseFunction[Function[t,t^3]]} to a familiar root expression. More importantly, it isolates the missing theorem: a derivative can have zeros without creating a second inverse branch.
+
+\begin{proposition}[Polynomial weak-sign certificate]
+Let \(I\subseteq\R\) be a nondegenerate interval and \(F\in\R[x]\). If \(F'\) is not the zero polynomial and \(F'(x)\ge0\) for all \(x\in I\), then \(F\) is strictly increasing on \(I\). With the reversed derivative inequality it is strictly decreasing.
+\end{proposition}
+\begin{proof}
+A nonzero polynomial has finitely many roots. For any \(a<b\) in \(I\), the interval \((a,b)\) therefore contains a point where \(F'>0\). Continuity makes \(F'\) positive on a smaller interval of positive length. Its integral over \([a,b]\) is strictly positive, while the rest of the integral is nonnegative. The decreasing case follows by applying the same argument to \(-F\).
+\end{proof}
+
+The interval assumption is essential. A derivative of one sign on two disjoint pieces does not by itself compare function values across the gap. The proposed first implementation therefore handles the entire real line, where convexity is built into the supported domain, rather than pretending to solve arbitrary Boolean domain geometry.
+
+\subsection{An exact rational-polynomial decision procedure}
+For a rational polynomial \(F\), set \(Q=F'\). If \(Q=0\), no strict-monotonicity certificate is issued. Otherwise write a square-free decomposition
+\[
+ Q=c\prod_{j=1}^{s}q_j^{m_j}
+   =c\,A^2B,
+\]
+where
+\[
+ A=\prod_jq_j^{\lfloor m_j/2\rfloor},\qquad
+ B=\prod_{m_j\text{ odd}}q_j.
+\]
+The factors are rational polynomials, and the product identity can be checked exactly. The whole-line sign test reduces to determining whether \(B\) has a real root. If it has none, \(B\) has constant sign; consequently \(Q\) has one weak sign and is nonzero except at finitely many roots of \(A\). Its sign away from those roots is obtained from the leading coefficient of \(Q\). The proposition then certifies strict monotonicity.
+
+Conversely, if a square-free odd-multiplicity part has a real root, \(Q\) changes sign there, so this whole-line weak-sign route cannot certify monotonicity. The prototype returns \code{NoCertificate} instead of silently weakening its conclusion. The distinction between a local interval and the entire line is maintained.
+
+For \eqref{eq:quintic},
+\[
+ Q=(x^2-1)^2,\qquad c=1,\quad A=x^2-1,\quad B=1.
+\]
+No nontrivial root isolation is even needed for the odd part. The certificate records two stationary real roots while explicitly asserting no positive global derivative lower bound.
+
+\subsection{Sturm sequences and a separately checkable certificate}
+The optional producer uses SymPy's square-free polynomial factorization. The official polynomial interface documents both square-free factor lists and Sturm sequences. The companion checker does not trust the producer's factorization, root count, or claimed direction; it recomputes the relevant identities using rational coefficients and exact polynomial division.\cite{sympypoly}
+
+For a nonzero polynomial \(B\), form
+\[
+ S_0=B,\qquad S_1=B',\qquad
+ S_{i+1}=-\operatorname{rem}(S_{i-1},S_i)
+\]
+until the next remainder is zero. A constant \(B\) uses a one-element chain. The root count is obtained from the difference of sign variations at \(-\infty\) and \(+\infty\). At these endpoints, the sign of a polynomial is determined exactly by its leading coefficient and degree; no numerical approximation to a root is needed.
+
+The emitted JSON contains the input polynomial, its derivative, the factor coefficient, polynomial factors and multiplicities, the odd part, its Sturm chain, the claimed monotonicity direction, and a stationary-root count. Verification checks the derivative identity, factor product, odd-part product, entire remainder recurrence, root count, and conclusion. It additionally recomputes the derivative's distinct real-root count for the stationary-point metadata.
+
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+python code/polynomial_certificate.py produce \
+  '["0","1","0","-2/3","0","1/5"]'
+
+python code/polynomial_certificate.py verify \
+  evidence/quintic-monotonicity-certificate.json
+\end{lstlisting}
+\end{minipage}\par
+The input convention is ascending powers. Thus the first command represents exactly \(x-2x^3/3+x^5/5\). No expression string is evaluated as Python or Wolfram code.
+
+\subsection{Strict injectivity is not a slope bound}
+The new certificate must have a different type from \code{StrictDerivativeOnRealInterval}. In particular, it must not carry an invented positive \code{DerivativeLowerAbsoluteBound}. The function in \eqref{eq:quintic} has zero infimum of \(|F'|\) on any interval containing either stationary point.
+
+At \(x=1\), the exact local identity is
+\begin{equation}
+ F(1+h)-\frac{8}{15}=\frac43h^3+h^4+\frac15h^5.
+ \label{eq:stationaryexpansion}
+\end{equation}
+Writing \(\delta=y-8/15\), the inverse has leading displacement
+\[
+ h\sim\sqrt[3]{\frac34\delta}.
+\]
+It is uniquely defined but is not locally Lipschitz at the stationary target. A small forward residual translates into a cube-root scale there, not a residual divided by a positive uniform slope. This is why a global branch-uniqueness result cannot simply be inserted into numerical inverse-error code as a derivative estimate.
+
+A suitable proof record would identify its type as \code{WeakDerivativeWithFiniteZeroSet}, retain the domain, derivative and sign, and explicitly distinguish global injectivity from local inverse order. Existing local branch validation and asymptotic construction should continue to establish the source approach, target side, and local scaling.
+
+\subsection{Integration route and scope}
+A minimal integration sequence is to keep the current cheap strict-slope checks first, then try the bounded rational-polynomial route only when they are inconclusive. On native Wolfram, an explicitly strict \code{FunctionMonotonicity} query is another possible characterization control; its documentation distinguishes strict and non-strict requests. Such a query should specify the strictness option rather than relying on a default. No current output of that query is claimed here.\cite{wlmono}
+
+For Mathics, the mathematical algorithm can be ported using exact polynomial arithmetic; the supplied Python producer/checker is not already wired into the package. Installing a subprocess dependency or trusting an external certificate without verification would be a separate engineering decision. This article does not claim a Mathics implementation has been completed.
+
+The first scope should remain rational coefficients on \(\R\). Parameter-dependent leading cancellations, algebraic coefficient fields, and arbitrary disconnected source domains introduce additional proof obligations. Those are not prerequisites for accepting the quintic witness, and they should not inflate a small branch-coverage change into a broad theorem-prover redesign.
+
+\subsection{Why this is not the existing eventual-neighborhood proposal}
+W4-03 concerns finding a sufficiently small deleted neighborhood and carrying a justified radius through later local proofs. E01 concerns strict ordering of every pair of points in one whole interval despite isolated derivative zeros. It neither chooses a smaller radius nor improves the existing seven-radius search. It supplies a different theorem with a different consumer contract.\cite{wave4}
+
+\section{Performance implications, without unsupported speed claims}
+\label{sec:performance}
+
+\subsection{F01 and F02 need no expensive reconstruction}
+The orientation factor in F01 is already determined by the stored source endpoint, direction and observable power. Attaching it to coefficient metadata does not require recomputing inverse coefficients or replaying the source function. Likewise, formula~\eqref{eq:targetlimit} uses the model's existing leading data; it does not require a new general symbolic \code{Limit} call for each public model.
+
+For numeric real parameters already admitted by the ordinary model, both operations are small compared with inverse construction. This is an algorithmic work observation, not a measured end-to-end speedup. In particular, the companion implementation sometimes invokes simplification for its presentation, and that cost should not be confused with the minimum production metadata cost.
+
+\subsection{F03 rejects before differentiation}
+The malformed-core guard can run before substitution and before any of the higher derivatives in \eqref{eq:perturbative}. On an admitted explicit expression tree, a structural occurrence test is linear in the expression's visited structure. The correction is worthwhile chiefly for clarity; no claim of a significant performance regression or improvement on valid inputs is made.
+
+A broader scope-aware validator would have a different cost and contract. It should be introduced because binder-containing cores are supported and need it, not because the present malformed witness somehow proves every syntactic occurrence check sufficient.
+
+\subsection{E01 moves work to a bounded algebraic question}
+The certificate route replaces an impossible strict-derivative proof for the witness with a decidable algebraic sign question. This is an availability improvement. It may also avoid repeated general symbolic proof attempts for the same polynomial, but that must be measured on the actual package rather than inferred from the Python prototype.
+
+The implementation bounds polynomial degree at 64, coefficient numerator/denominator bit lengths at 4096, and serialized certificate size at 250000 bytes. It checks projected factor-product degree before raising factors to their multiplicities. Those are explicit prototype admission limits, not proposed replacements for the repository's existing resource-budget design.
+
+With naive dense polynomial arithmetic, one multiplication uses quadratically many rational coefficient operations in the degree. A Euclidean remainder sequence performs a bounded number of divisions with decreasing degrees. Coefficient bit growth can dominate these operation counts, so a claim of merely ``polynomial time in degree'' would omit an important parameter. Production profiling should record degree, coefficient size, factorization time, remainder-chain length, and verification time separately for this feature.
+
+The checker uses dense coefficient arrays only inside its explicitly degree-bounded prototype. It is not proposed as a new representation for the repository's sparse asymptotic jets. Nor is it an operating-system sandbox: input limits and rational identities do not replace a process-level deadline for a certificate producer doing expensive factorization.
+
+\section{Implementation sequence and focused acceptance}
+\label{sec:acceptance}
+
+\subsection{Small compatible changes first}
+First establish a concrete coefficient-reconstruction contract and add the F01 fields or an equivalent documented accessor. Keep local coefficients unchanged. Next split the F02 model baseline and target endpoint, migrating internal baseline consumers before deprecating the ambiguous field. These changes should be reviewable without altering any coefficient recurrence, branch choice, or asymptotic remainder.
+
+The F03 guard is independent of those metadata changes. Apply it to both definitions under a stated expression policy, regenerate the standalone, and use valid-core controls to detect accidental behavior changes. Do not count an expected refusal as evidence that the perturbative formula itself was improved.
+
+Then implement E01 as a separate proof type with a narrow rational-polynomial admission predicate. Its acceptance must establish both that the witness is now certifiable and that no consumer mistakes weak-sign injectivity for a positive slope bound. This last condition is at least as important as making the example succeed.
+
+\subsection{Expected regression matrix}
+\begin{longtable}{@{}p{0.10\linewidth}p{0.37\linewidth}p{0.44\linewidth}@{}}
+\toprule
+Item & Positive and negative controls & Acceptance property\\
+\midrule
+\endhead
+F01 & Identity from both finite sides; both infinities; a translated endpoint; odd/even powers; a correction term & Observable contributions reconstruct the represented finite expression after adding the offset once. Local coefficients and remainder metadata are unchanged.\\[5pt]
+F02 & Regular limit, positive/negative pole, pole plus a constant, unresolved sign & Model reconstruction is unchanged. Target endpoint and normalization baseline are separate; no consumer performs arithmetic with an infinite endpoint where it needs a baseline.\\[5pt]
+F03 & Identity core, square-root core, source-containing core, target-containing perturbation, order zero & Valid controls preserve their formulas. Invalid core data is diagnosed before differentiation. Native and Mathics definitions have the same admitted expression policy.\\[5pt]
+E01 & Strict-slope polynomial, cube, quintic with two stationary points, negative quintic, nonmonotone quadratic, constant & Only justified strict-monotonicity records are accepted. Stationary zeros are not represented as a positive slope lower bound. Unknown or out-of-scope cases retain existing fallback behavior.\\
+\bottomrule
+\end{longtable}
+
+\subsection{The artifacts and their actual status}
+\code{exact_models.py} contains independent expressions for F01--F03. \code{polynomial_certificate.py} contains the optional producer and standard-library checker for E01. \code{test_review.py} executes the 35 independent tests and writes the local evidence record. The tests include tampering with direction, factor coefficient, derivative, Sturm recurrence, stationary-root count, multiplicity, and domain.
+
+\code{ReviewDeltas.wl} contains additive companion helpers for F01--F03, without changing the package. \code{native_probes.wl} loads a caller-specified package path in a fresh kernel and records bounded observations. \code{prepare_validation_patch.py} emits the two-file F03 candidate diff after checking exact baseline fragments. The Wolfram helpers and probes have not been executed in the current review environment.
+
+The native probe runner records the expected commit but does not independently verify that the supplied file came from it. The operator must use the pinned checkout. This explicit limitation prevents a user-supplied file path from being mistaken for verified source provenance.
+
+\subsection{What remains unestablished}
+No current public integration failure has been reproduced for the new witnesses. No full native suite, Mathics suite, benchmark matrix, or production patch acceptance has been executed for this article. The source analysis establishes the narrow mechanisms, while the exact derivations and Python tests establish their mathematical models. The remaining public-dispatch and interpreter-specific questions are represented by executable probes, not by invented output.
+
+The review also does not certify the absence of other bugs in inspected modules. Several candidate paths were deliberately not promoted to findings when their guards were present, their conservative result was mathematically valid, or their underlying issue was already in the review register. The absence of a new allegation in such an area is not a completeness theorem about it.
+
+\section{Conclusion}
+The useful next work identified here is smaller and more concrete than another broad architecture rewrite. The ordinary inverse's internal separation of positive local coordinates and final source observables should become explicit in its public coefficient data. A public model should expose both its normalization baseline and its actual target limit without overloading the word ``limit.'' A perturbative generator should reject an explicit core that still contains the source symbol it is meant to eliminate. And polynomial branch inference can admit isolated stationary points without weakening the truth of its uniqueness claim.
+
+These changes have different evidentiary weights. F01 and F02 are source-supported metadata inconsistencies with exact minimal witnesses. F03 is a malformed-input validation gap, not an error on valid mathematical data. E01 is a sound bounded extension, with a tested independent prototype but no installed package implementation. Keeping those distinctions visible makes the report actionable without inflating a small number of defensible deltas into a misleading catalog of new numerical failures.
+
+\appendix
+\section{Source locators and inspection map}
+\label{app:sources}
+The following paths refer to the pinned commit, not to a moving branch. Function names are the primary locators; line ranges in the companion ledger identify inspected source windows rather than asserting a complete-file audit.
+
+\begin{longtable}{@{}p{0.43\linewidth}p{0.49\linewidth}@{}}
+\toprule
+Path / boundary & Inspected role\\
+\midrule
+\endhead
+\source{src/Kernel/AsymptoticAnalysis.wl}{\code{src/Kernel/AsymptoticAnalysis.wl}} & Exact-number ordering, coefficient normalization, sparse jets, forward assembly, \code{rowsToModel}, ordinary inverse construction, object formatting, coefficient accessor, perturbative generator.\\[5pt]
+\source{src/Kernel/SeriesOperations.wl}{\code{SeriesOperations.wl}} & Representation conversion, arithmetic, observables, composition, differentiation, refinement replay.\\[5pt]
+\source{src/Kernel/SeriesArithmetic.wl}{\code{SeriesArithmetic.wl}} and \source{src/Kernel/SeriesEnvelopeArithmetic.wl}{\code{SeriesEnvelopeArithmetic.wl}} & Held arithmetic admission and conservative mixed-scale error transport.\\[5pt]
+\source{src/Kernel/InverseFunctionSyntax.wl}{\code{InverseFunctionSyntax.wl}} and \source{src/Kernel/InverseFunctionBranches.wl}{\code{InverseFunctionBranches.wl}} & Callable/condition parsing, global monotonicity, deleted-neighborhood branch validation.\\[5pt]
+\source{src/Kernel/InverseCertificates.wl}{\code{InverseCertificates.wl}} and \source{src/Kernel/NumericalInverseChecks.wl}{\code{NumericalInverseChecks.wl}} & Rational interval evidence and numerical inverse comparison boundaries.\\[5pt]
+\source{src/Kernel/GammaInverseChecks.wl}{\code{GammaInverseChecks.wl}}, \source{src/Kernel/GammaInverseOperations.wl}{\code{GammaInverseOperations.wl}} & Original logarithmic equation checks, formal residuals, observable powers and inherited precision.\\[5pt]
+\source{src/Kernel/BarnesForward.wl}{\code{BarnesForward.wl}}, \source{src/Kernel/ExponentialForward.wl}{\code{ExponentialForward.wl}} & Exact logarithmic normalization and retained asymptotic carriers.\\[5pt]
+\source{src/Kernel/ParameterizedSpecialFunctions.wl}{\code{ParameterizedSpecialFunctions.wl}}, \source{src/Kernel/DirichletSpecialFunctions.wl}{\code{DirichletSpecialFunctions.wl}}, \source{src/Kernel/SpecialFunctionAdapters.wl}{\code{SpecialFunctionAdapters.wl}} & Selected defining-series, large-parameter, and threshold-adapter contracts.\\[5pt]
+\source{src/Kernel/ReciprocalLogOperations.wl}{\code{ReciprocalLogOperations.wl}}, \source{src/Kernel/ExactTermination.wl}{\code{ExactTermination.wl}} & Analytic reciprocal-log calculus and verification against original inverse sources.\\[5pt]
+\source{src/Kernel/MathicsInverseBranches.wl}{\code{MathicsInverseBranches.wl}}, \source{src/Kernel/MathicsCalculus.wl}{\code{MathicsCalculus.wl}} & The E01 weak-sign coverage boundary and the F03 late replacement definition.\\[5pt]
+Other inspected Mathics helpers & Assumptions, algebra, simplification, calls, compatibility, time budgets, Taylor providers, ProductLog construction, Stirling providers, and certificate assignment compatibility.\\
+\bottomrule
+\end{longtable}
+
+\section{Reproduction commands}
+Run from the archive's top-level directory. The independent test suite needs Python and SymPy; the certificate verifier itself uses only the standard library.
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+python code/test_review.py
+python code/polynomial_certificate.py verify \
+  evidence/quintic-monotonicity-certificate.json
+
+# Native observations, in a fresh Wolfram kernel:
+wolframscript -file code/native_probes.wl \
+  /absolute/path/to/pinned/AsymptoticAnalysis.wl
+
+# Emit, but do not apply, the F03 candidate patch:
+python code/prepare_validation_patch.py \
+  /absolute/path/to/pinned/Asymptotic > validation.patch
+
+# Rebuild this article:
+cd article
+pdflatex -interaction=nonstopmode -halt-on-error article.tex
+pdflatex -interaction=nonstopmode -halt-on-error article.tex
+pdflatex -interaction=nonstopmode -halt-on-error article.tex
+\end{lstlisting}
+\end{minipage}\par
+
+\clearpage
+\begin{thebibliography}{99}
+\small
+\bibitem{core} \repo, \emph{Canonical kernel core}, reviewed commit.\newline
+\source{src/Kernel/AsymptoticAnalysis.wl}{\code{src/Kernel/AsymptoticAnalysis.wl}}.
+\bibitem{branches} \repo, \emph{Real inverse-function branch inference}, reviewed commit.\newline
+\source{src/Kernel/InverseFunctionBranches.wl}{\code{src/Kernel/InverseFunctionBranches.wl}}.
+\bibitem{mathicsbranches} \repo, \emph{Mathics inverse-branch helpers}, reviewed commit.\newline
+\source{src/Kernel/MathicsInverseBranches.wl}{\code{src/Kernel/MathicsInverseBranches.wl}}.
+\bibitem{mathicscalculus} \repo, \emph{Mathics finite calculus replacements}, reviewed commit.\newline
+\source{src/Kernel/MathicsCalculus.wl}{\code{src/Kernel/MathicsCalculus.wl}}.
+\bibitem{termination} \repo, \emph{Exact inverse termination verification}, reviewed commit.\newline
+\source{src/Kernel/ExactTermination.wl}{\code{src/Kernel/ExactTermination.wl}}.
+\bibitem{reviewindex} \repo, \emph{External review index}, reviewed commit.\newline
+\source{external-reports/code-review/README.md}{\code{external-reports/code-review/README.md}}.
+\bibitem{register} \repo, \emph{Consolidated review status and crosswalk}, reviewed commit.\newline
+\source{docs/development/CODE_REVIEW_STATUS.md}{\code{docs/development/CODE_REVIEW_STATUS.md}}.
+\bibitem{wave3} \repo, \emph{Wave-3 intake and finding crosswalk}, reviewed commit.\newline
+\source{docs/development/WAVE_3_INTAKE.md}{\code{docs/development/WAVE_3_INTAKE.md}}.
+\bibitem{wave4} \repo, \emph{Wave-4 intake, detailed obligations, and proposal groups}, reviewed commit.\newline
+\source{docs/development/WAVE_4_INTAKE.md}{\code{docs/development/WAVE_4_INTAKE.md}}.
+\bibitem{r4} \repo, \emph{Report 4 original finding ledger}, reviewed commit.\newline
+\source{external-reports/code-review/wave-1/code-review-4/evidence/findings.json}{\code{wave-1/code-review-4/evidence/findings.json}}.
+\bibitem{r6} \repo, \emph{Report 6 original finding ledger}, reviewed commit.\newline
+\source{external-reports/code-review/wave-1/code-review-6/evidence/findings.csv}{\code{wave-1/code-review-6/evidence/findings.csv}}.
+\bibitem{validation} \repo, \emph{Review and validation record}, reviewed commit.\newline
+\source{validation/README.md}{\code{validation/README.md}}.
+\bibitem{sympypoly} SymPy developers, \emph{Polynomials Manipulation Module Reference}, documentation consulted 10 September 2026; square-free factorization and Sturm-sequence interfaces.\newline
+\url{https://docs.sympy.org/latest/modules/polys/reference.html}.
+\bibitem{wlmono} Wolfram Research, \emph{FunctionMonotonicity}, documentation consulted 10 September 2026; explicit strictness option.\newline
+\url{https://reference.wolfram.com/language/ref/FunctionMonotonicity.html}.
+\end{thebibliography}
+\end{document}

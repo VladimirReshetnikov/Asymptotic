@@ -1,0 +1,62 @@
+{
+  "reviewed_commit": "8e859961d7d37f008b826f3a8cad406460271614",
+  "findings": [
+    {
+      "id": "F01",
+      "priority": "High",
+      "title": "Sign-only Abs rewrite permits nonreal retained coefficients and hides a false exact zero after cancellation",
+      "source_files": [
+        "src/Kernel/AsymptoticAnalysis.wl",
+        "src/Kernel/SeriesOperations.wl"
+      ],
+      "source_ranges": [
+        "445-465",
+        "304-367"
+      ],
+      "evidence": "Source-established helper mechanism; exact mathematical counterexample; public result is predicted, not observed.",
+      "counterexample": "Abs[1+a x]+Abs[1-a x]-2, with a^2==-1 and x>0",
+      "true_expression": "2 Sqrt[1+x^2]-2",
+      "source_model_result": "Exact zero",
+      "candidate": "Require real retained coefficient polynomials before the sign-based shortcut.",
+      "not_implemented": "General conjugate-norm modulus expansion",
+      "native_executed": false
+    },
+    {
+      "id": "F02",
+      "priority": "Medium",
+      "title": "Ordinary zeroth power accepts symbolic support without nonvanishing on the retained parameter domain",
+      "source_files": [
+        "src/Kernel/SeriesOperations.wl",
+        "src/Kernel/AsymptoticAnalysis.wl"
+      ],
+      "source_ranges": [
+        "173-202",
+        "400-475"
+      ],
+      "evidence": "Source-established admission path and finite logical countermodel; public result is predicted, not observed.",
+      "counterexample": "SeriesPower of the exact a*x jet under Element[a,Reals], exponent zero",
+      "contract_qualification": "Under the existing ordinary exact-zero rejection policy; a deliberately consistent formal-unit policy would be a different API choice.",
+      "candidate": "Prove nonzero leading logarithmic coefficient and exact prefactor; preserve unsigned nonzero parameters.",
+      "not_implemented": "Exhaustive parameter case splitting or unification of every representation zero-power policy",
+      "native_executed": false
+    },
+    {
+      "id": "F03",
+      "priority": "Low-medium",
+      "title": "Gamma/Barnes zeroth-power early return drops the caller cutoff",
+      "source_files": [
+        "src/Kernel/GammaInverseOperations.wl",
+        "src/Kernel/SeriesArithmetic.wl"
+      ],
+      "source_ranges": [
+        "5-34",
+        "32-44"
+      ],
+      "evidence": "Literal cutoff replacement established by source; exclusive-cutoff model checked; public result is predicted, not observed.",
+      "counterexample": "SeriesPower[g,0,\"Cutoff\"->0] for Gamma/Barnes inverse object",
+      "classification": "Projection and request metadata defect; not a false constant-function value or false Big-O.",
+      "candidate": "Pass If[cut===Automatic,1,cut] into the existing constant constructor and clarify source-vs-view exactness.",
+      "native_executed": false
+    }
+  ]
+}

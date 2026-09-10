@@ -1,0 +1,18 @@
+{
+  "scope": "One actual native package smoke; no new finding probe executed",
+  "evidence_form": "Manual transcription of successful Wolfram connector response",
+  "review_commit": "8e859961d7d37f008b826f3a8cad406460271614",
+  "input": "Module[{file,load,s},file=URLDownload[\"https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/8e859961d7d37f008b826f3a8cad406460271614/AsymptoticAnalysis.wl\"];load=Get[file];s=AsymptoticAnalysis`AsymptoticExpansion[Sin[x],{x,0,5},\"Backend\"->\"Package\"];{$Version,FileByteCount[file],load,Length[Names[\"AsymptoticAnalysis`*\"]],Normal[s],s[\"Remainder\"]}]",
+  "returned_values": {
+    "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+    "file_bytes": 679426,
+    "load_result": "Null",
+    "exported_name_count": 38,
+    "normal": "x-x^3/6",
+    "remainder": "PowerLogRemainder[x,5,0]"
+  },
+  "subsequent_execution": "Connection/service failures, including simple follow-up calls; no candidate outputs obtained",
+  "native_candidate_probe_count_executed": 0,
+  "mathics_package_run": false,
+  "full_package_suite_run": false
+}

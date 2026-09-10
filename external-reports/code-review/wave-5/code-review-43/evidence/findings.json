@@ -1,0 +1,136 @@
+{
+  "review_commit": "8e859961d7d37f008b826f3a8cad406460271614",
+  "findings": [
+    {
+      "id": "F01",
+      "classification": "API reconstruction metadata",
+      "priority": "Medium",
+      "title": "Coefficient record omits the source-orientation multiplier",
+      "source_paths": [
+        "src/Kernel/AsymptoticAnalysis.wl"
+      ],
+      "source_windows": [
+        [
+          1100,
+          1180
+        ],
+        [
+          1316,
+          1337
+        ]
+      ],
+      "mechanism": "construct multiplies by source sign to the observable power; the object coefficient accessor delegates a local coefficient without that multiplier in its meaning.",
+      "witness": "AsymptoticInverse[x,{x,0},{y,2},Direction->\"FromBelow\"], then InverseExpansionCoefficient[s,{}]",
+      "derived_result": "local contribution -y; represented inverse y",
+      "nearest_prior_items": [
+        "C09",
+        "D06"
+      ],
+      "delta": "No Power override or translation is used. This concerns chart-to-observable coefficient reconstruction, not the coefficient recurrence.",
+      "native_witness_executed": false,
+      "independent_model_tested": true,
+      "source_urls": [
+        "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/AsymptoticAnalysis.wl"
+      ]
+    },
+    {
+      "id": "F02",
+      "classification": "Model metadata semantics",
+      "priority": "Medium",
+      "title": "Model Limit is a normalization offset for negative leading powers",
+      "source_paths": [
+        "src/Kernel/AsymptoticAnalysis.wl",
+        "src/Kernel/ExactTermination.wl"
+      ],
+      "source_windows": [
+        [
+          783,
+          836
+        ],
+        [
+          1300,
+          1314
+        ]
+      ],
+      "mechanism": "rowsToModel starts y0 at zero and removes a constant only if it is the first row; public PowerLogModel exposes this value as Limit.",
+      "witness": "PowerLogModel[1/x,{x,0}]",
+      "derived_result": "Limit field 0, leading power -1, leading coefficient 1; actual right-hand target limit +Infinity",
+      "nearest_prior_items": [
+        "C10",
+        "D02"
+      ],
+      "delta": "A concrete public model field, not a residual label or general schema recommendation.",
+      "native_witness_executed": false,
+      "independent_model_tested": true,
+      "source_urls": [
+        "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/AsymptoticAnalysis.wl",
+        "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/ExactTermination.wl"
+      ]
+    },
+    {
+      "id": "F03",
+      "classification": "Malformed-input validation",
+      "priority": "Low",
+      "title": "Perturbative core can contain the source variable being eliminated",
+      "source_paths": [
+        "src/Kernel/AsymptoticAnalysis.wl",
+        "src/Kernel/MathicsCalculus.wl"
+      ],
+      "source_windows": [
+        [
+          1286,
+          1295
+        ],
+        [
+          1,
+          19
+        ]
+      ],
+      "mechanism": "Both implementations test x!=y and FreeQ[h,y] but not source occurrences in phi.",
+      "witness": "PerturbativeInverse[x+y,x^2,{x,y},1]",
+      "derived_result": "x+y-(x+y)^2 still contains x",
+      "nearest_prior_items": [
+        "W3-08",
+        "D02"
+      ],
+      "delta": "Valid call arity with an invalid core, not a wrong formula on valid core data or a coefficient accessor kind check.",
+      "repair_scope": "The candidate FreeQ guard is structural; bound same-named occurrences need a broader scope-aware policy if such cores are supported.",
+      "native_witness_executed": false,
+      "independent_model_tested": true,
+      "source_urls": [
+        "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/AsymptoticAnalysis.wl",
+        "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsCalculus.wl"
+      ]
+    },
+    {
+      "id": "E01",
+      "classification": "Bounded proof-coverage extension",
+      "priority": "Development opportunity",
+      "title": "Global strict monotonicity with isolated stationary points",
+      "source_paths": [
+        "src/Kernel/InverseFunctionBranches.wl",
+        "src/Kernel/MathicsInverseBranches.wl"
+      ],
+      "source_windows": [
+        [
+          49,
+          79
+        ]
+      ],
+      "mechanism": "The inspected global helper requires a strictly signed derivative for the polynomial case.",
+      "witness": "F=x-2*x^3/3+x^5/5 on R; Fprime=(x^2-1)^2",
+      "derived_result": "Strictly increasing globally despite stationary points -1 and 1",
+      "nearest_prior_items": [
+        "W4-03"
+      ],
+      "delta": "Whole-line injectivity, not a deleted-neighborhood radius. A different dispatcher path can still succeed.",
+      "native_witness_executed": false,
+      "independent_model_tested": true,
+      "prototype_installed_in_repository": false,
+      "source_urls": [
+        "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/InverseFunctionBranches.wl",
+        "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsInverseBranches.wl"
+      ]
+    }
+  ]
+}

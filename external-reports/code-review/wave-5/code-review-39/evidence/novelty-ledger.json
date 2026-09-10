@@ -1,0 +1,31 @@
+{
+  "snapshot": "651f2029d0b2cd4da9e4dfdf1f4275a124d23b99",
+  "exclusion_scope": "external-reports/code-review, four waves and 36 packages, as consolidated by the maintained status and wave intakes",
+  "method_boundary": "Consolidated register/intake review plus targeted original-report comparison; not a claim to have independently reread every line of all 36 articles.",
+  "findings": [
+    {
+      "id": "N01",
+      "title": "No-op truncation drops the companion delta of its retained transported-bound contract",
+      "nearest_prior": ["R14 N05", "C22"],
+      "delta": "The old report concerns lost quantitative bounds. The new truncation repair preserves those bounds but creates a TruncationDiscardedPart companion field that the subsequent no-op copy omits.",
+      "evidence": "Current pinned-source inspection and a successful public native witness",
+      "not_claimed": "No incorrect numerical bound or new asymptotic coefficient error"
+    },
+    {
+      "id": "N02",
+      "title": "Repeated unsuccessful affine classification makes nested Horner enclosure quadratic in structural visits",
+      "nearest_prior": ["R14 N02", "C20", "P08"],
+      "delta": "The earlier finding requested exact affine evaluation before rounding. The new implementation adds repeated subtree classification. The exact 4n(n+1) visit count for 4n+1 tree nodes and a semantics-preserving local classification reuse design are new mechanism-specific analysis.",
+      "evidence": "Pinned-source recurrence proof, independent exact interval model, preserved controls",
+      "not_claimed": "No measured native end-to-end speedup, bit-complexity bound, or wrong interval"
+    },
+    {
+      "id": "N03",
+      "title": "The new acceptance checker accepts selected-entry and source-stability contradictions",
+      "nearest_prior": ["W4-09", "W4-12", "W4-14", "R36 N06"],
+      "delta": "This is validation of internally contradictory saved receipts in the downstream checker added at e10ef1b71f5b55080c62f52c3ce9d3d6e039fc99, not rediscovery of the runner's capture, freezing, load-gate or aggregation defects.",
+      "evidence": "Execution of copied upstream validation functions on explicitly synthetic records, with negative and positive controls",
+      "not_claimed": "No assertion that historical repository receipts contain these defects, no genuine Mathics run, and no authenticity guarantee"
+    }
+  ]
+}

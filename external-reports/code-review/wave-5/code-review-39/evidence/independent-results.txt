@@ -1,0 +1,157 @@
+{
+  "evidence_type": "Independent Python model and synthetic receipt tests; no package runtime",
+  "review_commit": "651f2029d0b2cd4da9e4dfdf1f4275a124d23b99",
+  "python": "3.13.5",
+  "affine_counts": [
+    {
+      "depth": 1,
+      "tree_nodes": 5,
+      "old_affine_visits": 8,
+      "predicted_old_visits": 8,
+      "new_classification_visits": 4,
+      "intervals_identical": true,
+      "interval": [
+        "5/16",
+        "3/4"
+      ]
+    },
+    {
+      "depth": 2,
+      "tree_nodes": 9,
+      "old_affine_visits": 24,
+      "predicted_old_visits": 24,
+      "new_classification_visits": 7,
+      "intervals_identical": true,
+      "interval": [
+        "21/64",
+        "7/8"
+      ]
+    },
+    {
+      "depth": 4,
+      "tree_nodes": 17,
+      "old_affine_visits": 80,
+      "predicted_old_visits": 80,
+      "new_classification_visits": 13,
+      "intervals_identical": true,
+      "interval": [
+        "341/1024",
+        "31/32"
+      ]
+    },
+    {
+      "depth": 8,
+      "tree_nodes": 33,
+      "old_affine_visits": 288,
+      "predicted_old_visits": 288,
+      "new_classification_visits": 25,
+      "intervals_identical": true,
+      "interval": [
+        "87381/262144",
+        "511/512"
+      ]
+    },
+    {
+      "depth": 16,
+      "tree_nodes": 65,
+      "old_affine_visits": 1088,
+      "predicted_old_visits": 1088,
+      "new_classification_visits": 49,
+      "intervals_identical": true,
+      "interval": [
+        "1431655765/4294967296",
+        "131071/131072"
+      ]
+    },
+    {
+      "depth": 32,
+      "tree_nodes": 129,
+      "old_affine_visits": 4224,
+      "predicted_old_visits": 4224,
+      "new_classification_visits": 97,
+      "intervals_identical": true,
+      "interval": [
+        "1431655765/4294967296",
+        "1"
+      ]
+    },
+    {
+      "depth": 64,
+      "tree_nodes": 257,
+      "old_affine_visits": 16640,
+      "predicted_old_visits": 16640,
+      "new_classification_visits": 193,
+      "intervals_identical": true,
+      "interval": [
+        "1431655765/4294967296",
+        "1"
+      ]
+    }
+  ],
+  "receipt_observations": [
+    {
+      "case": "control",
+      "results": {
+        "upstream_excerpt": {
+          "accepted": true,
+          "layout": "modular",
+          "cases": [
+            "case-a"
+          ]
+        },
+        "candidate_guard": {
+          "accepted": true,
+          "layout": "modular",
+          "cases": [
+            "case-a"
+          ]
+        }
+      }
+    },
+    {
+      "case": "unfingerprinted-entry",
+      "results": {
+        "upstream_excerpt": {
+          "accepted": true,
+          "layout": "modular",
+          "cases": [
+            "case-a"
+          ]
+        },
+        "candidate_guard": {
+          "accepted": false,
+          "reason": "Selected Source must identify exactly one fingerprinted input path"
+        }
+      }
+    },
+    {
+      "case": "nonentry-module",
+      "results": {
+        "upstream_excerpt": {
+          "accepted": false,
+          "reason": "Unexpected package entry filename"
+        },
+        "candidate_guard": {
+          "accepted": false,
+          "reason": "Unexpected package entry filename"
+        }
+      }
+    },
+    {
+      "case": "recorded-drift",
+      "results": {
+        "upstream_excerpt": {
+          "accepted": true,
+          "layout": "modular",
+          "cases": [
+            "case-a"
+          ]
+        },
+        "candidate_guard": {
+          "accepted": false,
+          "reason": "A recorded first source mismatch contradicts source-stability claims"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "python": "3.13.5",
+  "reviewed_commit": "8e859961d7d37f008b826f3a8cad406460271614",
+  "status": "passed",
+  "named_checks": 22,
+  "checks": [
+    {
+      "name": "F01: sign-only sparse model returns exact zero",
+      "passed": true,
+      "scope": "source-model algebra"
+    },
+    {
+      "name": "F01: conjugate norm is 1+x^2",
+      "passed": true,
+      "scope": "exact Gaussian-rational algebra"
+    },
+    {
+      "name": "F01: nonzero correct leading term",
+      "passed": true,
+      "scope": "exact binomial algebra"
+    },
+    {
+      "name": "F01: six coefficients of the correct modulus expansion",
+      "passed": true,
+      "scope": "exact binomial algebra"
+    },
+    {
+      "name": "F01 norm identity for imaginary amplitude 1/3",
+      "passed": true,
+      "scope": "exact parameter-family algebra"
+    },
+    {
+      "name": "F01 norm identity for imaginary amplitude 1",
+      "passed": true,
+      "scope": "exact parameter-family algebra"
+    },
+    {
+      "name": "F01 norm identity for imaginary amplitude 7/2",
+      "passed": true,
+      "scope": "exact parameter-family algebra"
+    },
+    {
+      "name": "F01 narrow guard rejects nonreal retained coefficients",
+      "passed": true,
+      "scope": "guard predicate model"
+    },
+    {
+      "name": "F01 narrow guard preserves real retained coefficients",
+      "passed": true,
+      "scope": "guard predicate model"
+    },
+    {
+      "name": "F02: nonempty symbolic row does not exclude a=0",
+      "passed": true,
+      "scope": "finite logical countermodel"
+    },
+    {
+      "name": "F02: unsigned but nonzero real amplitudes are admissible",
+      "passed": true,
+      "scope": "finite logical controls"
+    },
+    {
+      "name": "F03: zero cutoff excludes the constant monomial",
+      "passed": true,
+      "scope": "exclusive-cutoff model"
+    },
+    {
+      "name": "F03: every positive cutoff retains the constant monomial",
+      "passed": true,
+      "scope": "exclusive-cutoff controls"
+    },
+    {
+      "name": "Candidate transformations modify exactly three fixture files",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    },
+    {
+      "name": "F01 candidate installs local real-polynomial guard",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    },
+    {
+      "name": "F02 candidate checks nonvanishing without choosing a sign",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    },
+    {
+      "name": "F03 candidate forwards explicit cutoff",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    },
+    {
+      "name": "Candidate unified diff has all three source paths",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    },
+    {
+      "name": "Candidate refuses missing anchor",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    },
+    {
+      "name": "Candidate refuses duplicate anchor",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    },
+    {
+      "name": "Candidate refuses already patched",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    },
+    {
+      "name": "Candidate refuses missing file",
+      "passed": true,
+      "scope": "synthetic text fixture"
+    }
+  ],
+  "F01_correct_coefficients": {
+    "2": "1",
+    "4": "-1/4",
+    "6": "1/8",
+    "8": "-5/64",
+    "10": "7/128",
+    "12": "-21/512"
+  },
+  "F01_decimal_witnesses": [
+    {
+      "x": "0.1",
+      "true_modulus_defect": "0.009975124224178054043852982551915237389004694005275458114565659465698247",
+      "defect_over_x_squared": "0.9975124224178054043852982551915237389004694005275458114565659465698247"
+    },
+    {
+      "x": "0.01",
+      "true_modulus_defect": "0.00009999750012499218804683398759739443099790131372957687374013168438393984",
+      "defect_over_x_squared": "0.9999750012499218804683398759739443099790131372957687374013168438393984"
+    },
+    {
+      "x": "0.001",
+      "true_modulus_defect": "9.999997500001249999218750546874589844072265363159397887998123329124313E-7",
+      "defect_over_x_squared": "0.9999997500001249999218750546874589844072265363159397887998123329124313"
+    },
+    {
+      "x": "0.0001",
+      "true_modulus_defect": "9.999999975000000124999999218750005468749958984375322265622381591818694E-9",
+      "defect_over_x_squared": "0.9999999975000000124999999218750005468749958984375322265622381591818694"
+    },
+    {
+      "x": "0.000001",
+      "true_modulus_defect": "9.999999999997500000000001249999999999218750000000546874999999589843750E-13",
+      "defect_over_x_squared": "0.9999999999997500000000001249999999999218750000000546874999999589843750"
+    }
+  ],
+  "F03_cutoff_cases": [
+    {
+      "cutoff": "-2",
+      "expected_expression": 0,
+      "expected_remainder_power": "0",
+      "old_branch_expression": 1,
+      "old_branch_cutoff": "1"
+    },
+    {
+      "cutoff": "-1",
+      "expected_expression": 0,
+      "expected_remainder_power": "0",
+      "old_branch_expression": 1,
+      "old_branch_cutoff": "1"
+    },
+    {
+      "cutoff": "0",
+      "expected_expression": 0,
+      "expected_remainder_power": "0",
+      "old_branch_expression": 1,
+      "old_branch_cutoff": "1"
+    },
+    {
+      "cutoff": "1/3",
+      "expected_expression": 1,
+      "expected_remainder_power": "Infinity",
+      "old_branch_expression": 1,
+      "old_branch_cutoff": "1"
+    },
+    {
+      "cutoff": "1",
+      "expected_expression": 1,
+      "expected_remainder_power": "Infinity",
+      "old_branch_expression": 1,
+      "old_branch_cutoff": "1"
+    },
+    {
+      "cutoff": "2",
+      "expected_expression": 1,
+      "expected_remainder_power": "Infinity",
+      "old_branch_expression": 1,
+      "old_branch_cutoff": "1"
+    }
+  ],
+  "scope": "Independent mathematical/source-model checks and small synthetic text fixtures only.",
+  "wolfram_package_executed": false,
+  "wolfram_candidate_executed": false,
+  "real_checkout_patch_tested": false,
+  "native_timings_measured": false
+}

@@ -1,0 +1,261 @@
+{
+  "audit_date": "2026-09-10",
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "commit": "651f2029d0b2cd4da9e4dfdf1f4275a124d23b99",
+  "commit_timestamp_utc": "2026-09-10T13:42:02Z",
+  "retrieval": "Pinned GitHub connector file reads, with selected line windows. No complete local checkout.",
+  "review_exclusion": {
+    "imported_packages": 36,
+    "attributed_entries_before_overlap_consolidation": 231,
+    "primary_sources": [
+      "external-reports/code-review/README.md",
+      "docs/development/CODE_REVIEW_STATUS.md",
+      "docs/development/WAVE_3_INTAKE.md",
+      "docs/development/WAVE_4_INTAKE.md"
+    ],
+    "direct_original_comparison": "external-reports/code-review/wave-2/code-review-14/article.tex, relevant affine and truncation sections",
+    "limitation": "Not every page of all 36 original articles was reread. Maintained consolidation was used as the primary exclusion map."
+  },
+  "implementation_source_count": 19,
+  "source_inventory": "source_inventory.csv",
+  "findings": [
+    {
+      "id": "N01",
+      "nearest_existing": "C13; D02; X04",
+      "new_claim": "An honestly supplied classical derivative contract survives a pure-remainder Abs operation despite accumulating simple-zero cusps.",
+      "not_repeated": "Generic need for derivative hypotheses, a real-remainder policy, or a common capability schema.",
+      "evidence": "Pinned source; proved real smooth inverse family; independent recurrence and cusp checks; native public sequence unrun.",
+      "source": "src/Kernel/SeriesOperations.wl:305-374,536-558; src/Kernel/AsymptoticAnalysis.wl:fwdAbs"
+    },
+    {
+      "id": "N02",
+      "nearest_existing": "C20; review 14 N02; general P08 caching background",
+      "new_claim": "The new affine recognition fallback revisits overlapping nonlinear subtrees; Horner family recognizer calls are 4(d+1)^2-1.",
+      "not_repeated": "The earlier loss of affine cancellation before rounding, already repaired.",
+      "evidence": "Pinned recursion trace; exact count proof; executed structural/rational models; native timings unrun.",
+      "source": "src/Kernel/InverseCertificates.wl:95-151"
+    },
+    {
+      "id": "N03",
+      "nearest_existing": "C22; review 14 N05",
+      "new_claim": "New bound-transport code selects a discarded suffix with repeated membership queries; a guarded prefix path removes that avoidable work.",
+      "not_repeated": "Missing truncation bound transport or the triangle-inequality bound formula, already implemented.",
+      "evidence": "Pinned source; 500 prefix-model cases and fallback tests; linear-membership cost model, not native MemberQ complexity proof.",
+      "source": "src/Kernel/SeriesOperations.wl:506-535"
+    }
+  ],
+  "execution": {
+    "python_version": "3.13.5",
+    "independent_tests": {
+      "scope": "Independent mathematical and structural models; no Wolfram/Mathics package execution",
+      "tests_run": 14,
+      "failures": 0,
+      "errors": 0,
+      "successful": true,
+      "random_interval_trees": 300,
+      "exact_rational_sample_points": 2100,
+      "random_prefix_cases": 500,
+      "affine_counts": [
+        {
+          "depth": 1,
+          "repeated_probe_calls": 15,
+          "single_annotation_nodes": 9
+        },
+        {
+          "depth": 2,
+          "repeated_probe_calls": 35,
+          "single_annotation_nodes": 13
+        },
+        {
+          "depth": 4,
+          "repeated_probe_calls": 99,
+          "single_annotation_nodes": 21
+        },
+        {
+          "depth": 8,
+          "repeated_probe_calls": 323,
+          "single_annotation_nodes": 37
+        },
+        {
+          "depth": 16,
+          "repeated_probe_calls": 1155,
+          "single_annotation_nodes": 69
+        },
+        {
+          "depth": 32,
+          "repeated_probe_calls": 4355,
+          "single_annotation_nodes": 133
+        },
+        {
+          "depth": 64,
+          "repeated_probe_calls": 16899,
+          "single_annotation_nodes": 261
+        },
+        {
+          "depth": 128,
+          "repeated_probe_calls": 66563,
+          "single_annotation_nodes": 517
+        }
+      ],
+      "membership_counts": [
+        {
+          "input_blocks": 16,
+          "kept_blocks": 8,
+          "linear_membership_model_comparisons": 100,
+          "prefix_row_comparisons": 8
+        },
+        {
+          "input_blocks": 16,
+          "kept_blocks": 16,
+          "linear_membership_model_comparisons": 136,
+          "prefix_row_comparisons": 16
+        },
+        {
+          "input_blocks": 32,
+          "kept_blocks": 16,
+          "linear_membership_model_comparisons": 392,
+          "prefix_row_comparisons": 16
+        },
+        {
+          "input_blocks": 32,
+          "kept_blocks": 32,
+          "linear_membership_model_comparisons": 528,
+          "prefix_row_comparisons": 32
+        },
+        {
+          "input_blocks": 64,
+          "kept_blocks": 32,
+          "linear_membership_model_comparisons": 1552,
+          "prefix_row_comparisons": 32
+        },
+        {
+          "input_blocks": 64,
+          "kept_blocks": 64,
+          "linear_membership_model_comparisons": 2080,
+          "prefix_row_comparisons": 64
+        },
+        {
+          "input_blocks": 128,
+          "kept_blocks": 64,
+          "linear_membership_model_comparisons": 6176,
+          "prefix_row_comparisons": 64
+        },
+        {
+          "input_blocks": 128,
+          "kept_blocks": 128,
+          "linear_membership_model_comparisons": 8256,
+          "prefix_row_comparisons": 128
+        },
+        {
+          "input_blocks": 256,
+          "kept_blocks": 128,
+          "linear_membership_model_comparisons": 24640,
+          "prefix_row_comparisons": 128
+        },
+        {
+          "input_blocks": 256,
+          "kept_blocks": 256,
+          "linear_membership_model_comparisons": 32896,
+          "prefix_row_comparisons": 256
+        },
+        {
+          "input_blocks": 512,
+          "kept_blocks": 256,
+          "linear_membership_model_comparisons": 98432,
+          "prefix_row_comparisons": 256
+        },
+        {
+          "input_blocks": 512,
+          "kept_blocks": 512,
+          "linear_membership_model_comparisons": 131328,
+          "prefix_row_comparisons": 512
+        }
+      ],
+      "cusp_samples": [
+        {
+          "n": 1,
+          "y": 0.03132486123724742,
+          "left_quotient_divided_by_y": -3.16223022600596,
+          "right_quotient_divided_by_y": 3.1623250944523233
+        },
+        {
+          "n": 2,
+          "y": 0.0013536699931304178,
+          "left_quotient_divided_by_y": -3.162230225928245,
+          "right_quotient_divided_by_y": 3.1623250944523225
+        },
+        {
+          "n": 3,
+          "y": 5.8497384439259024e-05,
+          "left_quotient_divided_by_y": -3.162230225828326,
+          "right_quotient_divided_by_y": 3.162325094419017
+        },
+        {
+          "n": 4,
+          "y": 2.5279011898026026e-06,
+          "left_quotient_divided_by_y": -3.1622302257728148,
+          "right_quotient_divided_by_y": 3.162325094441222
+        },
+        {
+          "n": 5,
+          "y": 1.092405153950221e-07,
+          "left_quotient_divided_by_y": -3.162230226105872,
+          "right_quotient_divided_by_y": 3.1623250931755464
+        }
+      ]
+    },
+    "patch_fixture_tests": {
+      "scope": "Synthetic source-anchor fixtures only; complete upstream source application not executed",
+      "tests_run": 6,
+      "failures": 0,
+      "errors": 0,
+      "successful": true
+    },
+    "native_wolfram_package": "NOT EXECUTED: remote kernel connection failed; no local kernel.",
+    "mathics_package": "NOT EXECUTED: no usable runtime.",
+    "native_patch_tests": "NOT EXECUTED",
+    "full_upstream_suite": "NOT EXECUTED",
+    "full_pinned_source_patch_application": "NOT EXECUTED; exact anchors compared against pinned source reads; emitter mechanics tested with synthetic fixtures.",
+    "native_performance": "NOT MEASURED",
+    "wolfram_lexical_check": {
+      "scope": "Lexical balance only. Not a Wolfram parser or native execution.",
+      "checks": {
+        "code/run_native.wls": {
+          "balanced": true,
+          "lines": 78,
+          "characters": 4540
+        },
+        "candidate regularity replacement": {
+          "balanced": true,
+          "lines": 7,
+          "characters": 458
+        },
+        "candidate prefix replacement": {
+          "balanced": true,
+          "lines": 7,
+          "characters": 388
+        }
+      }
+    }
+  },
+  "supplied_edits": {
+    "regularity": "Conservative derivative-order downgrade for an inexact ordinary observable containing Abs. Native-unverified; loses some legitimate sign-known capabilities.",
+    "prefix": "Guarded structural prefix comparison and direct discarded suffix, with old membership fallback. Native-unverified.",
+    "affine_annotation": "Independent exact rational reference design only; no production certificate-module patch."
+  },
+  "reproduction": {
+    "independent": "python code/verify_independent.py",
+    "patch_fixtures": "python code/test_patch_emitter.py",
+    "native": "Set ASYMPTOTIC_REPO; wolframscript -file code/run_native.wls",
+    "patch_emitter": "python patches/emit_candidate_patch.py /path/to/Asymptotic > candidate.diff",
+    "pdf": "sh build.sh"
+  },
+  "pdf_validation": {
+    "pages": 19,
+    "all_pages_rendered_with": "pdftoppm",
+    "replacement_character_present": false,
+    "word_count_pdf_extraction": 7826,
+    "build": "pdfLaTeX, repeated passes; final log has no overfull/underfull boxes, warnings or undefined references",
+    "visual_review": "All pages inspected in contact sheets; final contents, code/mathematical pages and bibliography inspected at higher resolution."
+  }
+}

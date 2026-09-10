@@ -1,0 +1,118 @@
+{
+  "reviewed_revision": "651f2029d0b2cd4da9e4dfdf1f4275a124d23b99",
+  "scope": "Incremental review excluding the retrieved prior-review register and checked original finding ledgers",
+  "native_package_execution": false,
+  "native_patch_validation": false,
+  "findings": [
+    {
+      "id": "ABS-01",
+      "priority": "High correctness",
+      "title": "Signed-real modulus shortcut accepts complex retained terms; outer cancellation conceals a wrong real answer",
+      "classification": "Source-traced value defect, independently proved mathematical counterexamples; public native route unexecuted",
+      "source_locations": [
+        {
+          "path": "src/Kernel/AsymptoticAnalysis.wl",
+          "lines": [
+            437,
+            465
+          ]
+        },
+        {
+          "path": "src/Kernel/SeriesOperations.wl",
+          "lines": [
+            300,
+            369
+          ]
+        }
+      ],
+      "witnesses": [
+        {
+          "expression": "Abs[1+I u]+Abs[1-I u]",
+          "actual": "2 Sqrt[1+u^2]",
+          "source_predicted_shortcut": "2",
+          "first_missing_term": "u^2"
+        },
+        {
+          "expression": "Abs[Log[u]+I]+Abs[Log[u]-I]",
+          "actual": "2 Sqrt[Log[u]^2+1]",
+          "source_predicted_shortcut": "-2 Log[u]",
+          "first_missing_term": "-1/Log[u] for 0<u<1"
+        }
+      ],
+      "public_native_outputs_observed": [],
+      "nearest_prior_obligations": [
+        "C07",
+        "review 4 R02",
+        "W3-06"
+      ],
+      "distinction": "The final coefficients are real; the nonholomorphic shortcut has already corrupted their values before final collection.",
+      "minimal_patch": "Require every retained coefficient polynomial to be proved real before the signed-real shortcut.",
+      "extension": "Compute an admitted modulus jet using conjugation, norm-square convolution and positive-root recurrence; transport magnitude precision explicitly."
+    },
+    {
+      "id": "ABS-02",
+      "priority": "High contract integrity",
+      "title": "A finite modulus tail inherits unjustified classical differentiability",
+      "classification": "Source-traced derivative-capability defect; exact smooth-source cusp proof; public native route unexecuted",
+      "source_locations": [
+        {
+          "path": "src/Kernel/AsymptoticAnalysis.wl",
+          "lines": [
+            460,
+            465
+          ]
+        },
+        {
+          "path": "src/Kernel/SeriesOperations.wl",
+          "lines": [
+            348,
+            369
+          ]
+        },
+        {
+          "path": "src/Kernel/SeriesOperations.wl",
+          "lines": [
+            535,
+            558
+          ]
+        },
+        {
+          "path": "src/Kernel/FourierCoefficients.wl",
+          "lines": [
+            205,
+            237
+          ]
+        }
+      ],
+      "exact_source": "f(x)=x+x^2 Sin[Log[x]], x>0",
+      "inverse": "g=f^(-1) on the increasing branch near zero",
+      "valid_initial_bounds": [
+        "g(y)-y=O(y^2)",
+        "g'(y)-1=O(y)",
+        "g''(y)=O(1)"
+      ],
+      "transformed_observable": "Abs[g'(y)-1]",
+      "cusp_points": "x_n=Exp[-ArcTan[1/2]-n Pi], y_n=f(x_n), n>=1",
+      "one_sided_derivatives_at_cusps": [
+        "-Sqrt[5]",
+        "Sqrt[5]"
+      ],
+      "public_native_outputs_observed": [],
+      "nearest_prior_obligations": [
+        "C13",
+        "C16",
+        "X04"
+      ],
+      "distinction": "A truthful derivative declaration for an exact smooth Fourier-source inverse is invalidated by a later modulus operation; no malformed object or opaque custom Series handler is used.",
+      "minimal_patch": "For a finite output tail and a variable-dependent Abs node in SeriesObservable, lower RemainderDerivativeOrder to zero.",
+      "patch_tradeoff": "Conservatively loses derivative capability even in some nonzero-sign cases; does not redesign every internal jet evaluator caller.",
+      "extension": "Recover regularity only with per-argument nonvanishing or an exact smoothness factorization."
+    }
+  ],
+  "suppressed_candidate": {
+    "reference": "review 4 R01",
+    "status": "Excluded from findings and patch"
+  },
+  "patch_validation": "Exact-anchor fixtures only; no complete checkout or native patched package execution",
+  "independent_test_receipt": "independent_checks.json"
+}

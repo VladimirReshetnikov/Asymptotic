@@ -1,0 +1,990 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=25mm,headheight=14pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{listings,xcolor,xurl,enumitem,fancyhdr}
+\usepackage[hidelinks,pdfusetitle]{hyperref}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\definecolor{codeback}{gray}{0.97}
+\lstset{basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{codeback},
+ breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,
+ frame=single,rulecolor=\color{black!18},framerule=0.3pt,xleftmargin=3pt,xrightmargin=3pt,
+ aboveskip=9pt,belowskip=9pt}
+\setlength{\parskip}{5pt}
+\setlength{\parindent}{0pt}
+\setcounter{tocdepth}{2}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\pin}{651f2029d0b2cd4da9e4dfdf1f4275a124d23b99}
+\newcommand{\file}[1]{\nolinkurl{#1}}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\pagestyle{fancy}
+\fancyhf{}\fancyhead[L]{\small Asymptotic: incremental source audit}
+\fancyhead[R]{\small 10 September 2026}\fancyfoot[C]{\thepage}
+\title{Asymptotic: Regularity Contracts and Structural Work}
+\author{An incremental technical audit for Vladimir Reshetnikov}
+\date{10 September 2026}
+\begin{document}
+\begin{titlepage}
+\vspace*{10mm}
+{\Large\scshape Incremental source audit\par}
+\vspace{9mm}
+{\Huge\bfseries Asymptotic\par}
+\vspace{4mm}
+{\LARGE Regularity contracts\par and structural work\par}
+\vspace{10mm}
+{\large VladimirReshetnikov/Asymptotic\par}
+\vspace{3mm}
+\textbf{Audited commit}\par
+{\small\ttfamily\pin\par}
+\vspace{3mm}
+10 September 2026
+\vspace{10mm}
+
+\textbf{Assessment.} The inspected code contains a derivative-contract propagation
+problem in the ordinary absolute-value observable path. A real, smooth input
+remainder can produce an absolute value with infinitely many cusps accumulating
+at the expansion point, while the result still advertises a classical derivative
+bound. Two recent repair paths also warrant targeted performance changes: repeated
+affine recognition during recursive interval evaluation, and repeated membership
+queries when finding discarded truncation blocks.
+
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule ID & New contribution & Evidence class\\\midrule
+N01 & Classical differentiability is not preserved by the pure-remainder \code{Abs} path. & Source + proof\\
+N02 & A linear affine recognizer is repeatedly invoked on nested nonlinear subtrees. & Source + exact counts\\
+N03 & Prefix truncation is processed as repeated general membership searches. & Source + cost model\\
+\bottomrule
+\end{tabularx}
+
+\vspace{4mm}
+\textbf{What ran.} Fourteen independent mathematical and structural tests and six
+patch-emitter fixture tests passed. They are not Wolfram package tests. Native
+Wolfram and Mathics execution did not succeed in this environment; the archive
+contains unexecuted native observations and conservative candidate edits for
+local validation.
+
+\vfill
+\textbf{Scope discipline.} This article does not reissue the existing review
+backlog. It uses the consolidated four-wave register and intake records as its
+exclusion map, and directly compares the relevant portions of review 14. The ZIP
+contains this article, editable \LaTeX, models, recorded independent results,
+and reproduction tools. It is not an upstream package release.
+\end{titlepage}
+
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+
+\section{Baseline, exclusions, and evidence}
+\subsection{The reviewed version}
+The audit is pinned to commit \code{651f2029d0b2cd4da9e4dfdf1f4275a124d23b99},
+whose timestamp is 10 September 2026, 13:42:02 UTC. The relevant library is
+\code{AsymptoticAnalysis}; its canonical implementation is under
+\file{src/Kernel/}, while the root \file{AsymptoticAnalysis.wl} is a generated
+standalone. Findings refer to this immutable snapshot, not to whatever
+\code{main} contains when the article is read.\cite{repo,layout}
+
+The immediately preceding commit, \code{e9142f7f5e3db241d5ffb8951c72606ed0c89aa9},
+adds the rational-affine interval path discussed in N02. Its purpose is a valid
+repair of the earlier C20 problem. N02 concerns the cost of that newly installed
+path on \emph{nonlinear} syntax; it does not allege that the original affine
+correctness/availability repair is still missing.\cite{affinecommit,cert}
+
+The source was read through pinned GitHub file requests. There was no successful
+complete local checkout. Source coverage was deliberately concentrated on the
+ordinary jet calculus, source transformations, exact interval evaluation,
+several special-function adapters, and selected Mathics compatibility modules.
+Appendix~\ref{app:coverage} distinguishes substantial file reads from selected
+windows. An inspected path without a retained new finding is not certified
+bug-free.
+
+\subsection{How duplication was avoided}
+The repository contains 36 imported review packages. Its register describes 231
+attributed entries before consolidation of overlaps. Those are not 231 distinct
+open defects. The primary exclusion sources here are
+\file{CODE_REVIEW_STATUS.md}, the wave-3 and wave-4 intake records, and the
+imported-review index. Review 14's affine and truncation sections were additionally
+read directly because they are the antecedents of N02 and N03.\cite{reviewindex,status,wave3,wave4,review14}
+
+This is not a claim to have reread every page of all 36 articles. It is an
+explicitly documented crosscheck against the maintained consolidation, with
+closer original-source comparison where a candidate overlaps earlier work.
+The article does not repeat the existing recommendations about native-tail
+admission, generic derivative hypotheses, generic resource budgets, backward
+precision planning, or quantitative-bound transport as new findings.
+
+\begin{longtable}{@{}L{12mm}L{44mm}L{\dimexpr\textwidth-56mm-4\tabcolsep\relax}@{}}
+\toprule New ID & Nearest existing entries & Distinct contribution retained here\\\midrule\endhead
+N01 & C13; D02; X04 & A specific \code{Abs} operation carries an already legitimate derivative contract into a result for which that classical derivative does not exist on any punctured neighborhood. The witness is real; no missing initial derivative hypothesis is used.\\
+N02 & C20; review 14 N02 & The installed repair repeatedly searches overlapping nonlinear subtrees. The new claim is a quadratic recognizer-call count for a stable Horner syntax family, not failure to preserve affine cancellation.\\
+N03 & C22; review 14 N05 & The installed bound-transport routine uses repeated membership queries even when the retained rows are an identical prefix. The new proposal changes this selection algorithm, not the bound-transport theorem.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Evidence labels and execution limits}
+Three different kinds of statement occur below. A \emph{source observation}
+identifies a concrete definition and control-flow path in the pinned code. A
+\emph{mathematical or structural result} is proved independently of any kernel
+execution. A \emph{native reproduction candidate} is executable Wolfram code
+whose actual outcome still needs to be recorded on the pinned package.
+
+The independent Python tests exercise the counterexample identities, rational
+interval models, structural operation counts, prefix/fallback selection, and
+patch-emitter mechanics. They do not emulate Wolfram evaluation, package loading,
+option resolution, or Mathics. In particular, a passing independent test does not
+mean the public package call has been run. The native service returned connection
+errors, and neither a local Wolfram kernel nor an installable Mathics runtime was
+available. No native timing, patched native test, or full upstream suite result is
+claimed.
+
+N01 is therefore a source-derived regularity-contract defect with a rigorous
+admissible witness, rather than an observed incorrect numerical coefficient.
+N02's repeated recursive recognizer work is explicit in the implementation.
+N03's comparison counts describe a conventional linear-membership model; they
+are not a statement about undocumented optimizations inside a particular
+Wolfram \code{MemberQ} implementation.
+
+\section{The invariant that matters: a jet is more than its finite part}
+The ordinary representation is usefully read as
+\begin{equation}\label{eq:representation}
+ F(y)=o(y)+p(y)\bigl(J(w(y))+R(w(y))\bigr),\qquad w\to0^+,
+\end{equation}
+where the finite jet has the form
+\[
+ J(w)=\sum_{\alpha<P}w^\alpha C_\alpha(\log w),\qquad
+ R(w)=\OO\bigl(w^P(1+|\log w|)^D\bigr).
+\]
+The ordinary \code{SeriesRepresentation} stores an offset, a prefactor, a
+positive scale coordinate, a logarithmic variable, and a jet triple. Its
+\code{RemainderDerivativeOrder} is a separate contract, used by
+\code{seriesDerivative}; a magnitude estimate alone does not satisfy that
+guard.\cite{operations,kernel}
+
+For the examples in this article, $o=0$, $p=1$, and $w=y$, so no coordinate
+Jacobian or carrier regularity is involved. An order-$k$ derivative contract
+means that the actual remainder has the relevant classical derivatives on an
+eventual punctured interval and that, for $0\le j\le k$, they obey the matching
+bounds
+\begin{equation}\label{eq:derivative-contract}
+ R^{(j)}(y)=\OO\bigl(y^{P-j}(1+|\log y|)^D\bigr).
+\end{equation}
+This interpretation is exactly what permits a routine to differentiate a
+stored remainder by lowering its power and its available derivative order.
+The implementation explicitly rejects a derivative request when the available
+order is too small.\cite{operations}
+
+There are two independent closure questions. Does an operation preserve the
+\emph{magnitude} estimate? Does it preserve \emph{classical regularity and the
+matching derivative estimates}? Absolute value illustrates why the answers can
+differ. On real values it is Lipschitz:
+\[
+ \bigl||a|-|b|\bigr|\le |a-b|.
+\]
+Thus $|\OO(y^P)|=\OO(y^P)$ is a sound magnitude transport. It does not follow that
+absolute value preserves differentiability through zeros of its argument.
+No issue about complex absolute value or the interpretation of a fractional
+power is needed here.\cite{wlabs}
+
+\section{N01: absolute value preserves a derivative contract it has not proved}
+\subsection{The implementation path}
+The ordinary helper \code{fwdAbs} starts with the following branch:
+\begin{lstlisting}
+fwdAbs[j : {T_, P_, D_}, ell_, ass_] := Module[...,
+  If[T === {}, Return[j, Module]];
+  ...]
+\end{lstlisting}
+For a pure remainder it returns exactly the same magnitude jet. That is the
+right magnitude estimate. For a nonempty jet, the rest of the routine attempts
+to establish the eventual sign from the leading logarithmic coefficient.
+\cite{kernel}
+
+The expression interpreter \code{seriesJetApply} delegates an \code{Abs}
+application to that helper. The public \code{SeriesObservable} then constructs
+the result using
+\begin{lstlisting}
+j = seriesJetApply[body, x, d["Jet"], d, h, limit];
+result = seriesMake[Join[d, <|"Jet" -> j|>],
+  {"Observable", {s}, e, x}, h];
+\end{lstlisting}
+The replacement changes the jet but leaves the input's derivative-order field
+in \code{d}. The ordinary result constructor retains that field for an inexact
+jet. Consequently, the pure-remainder branch can preserve a positive derivative
+order without establishing smoothness of the absolute value. The relevant
+source locations are \file{SeriesOperations.wl}, the expression interpreter and
+lines 354--374, followed by the derivative guard at lines 536--558.
+\cite{operations}
+
+\subsection{A legitimate input family, not a forged object}
+Consider, for $0<y<1/4$,
+\begin{equation}\label{eq:H}
+ R(y)=y^3\sin(\log y),\qquad H(y)=y+R(y).
+\end{equation}
+Every derivative of $R$ exists at every positive $y$. The elementary recurrence
+\begin{equation}\label{eq:recurrence}
+ \frac{d}{dy}\left[y^m(a\sin\log y+b\cos\log y)\right]
+ =y^{m-1}\left[(ma-b)\sin\log y+(a+mb)\cos\log y\right]
+\end{equation}
+shows that $R^{(j)}(y)=\OO(y^{3-j})$ for every fixed $j$. In particular,
+\begin{align}
+ R'(y)&=y^2(3\sin\log y+\cos\log y),\label{eq:g}\\
+ R''(y)&=5y(\sin\log y+\cos\log y).
+\end{align}
+A declaration of two matching derivatives for this input remainder is true.
+
+\begin{proposition}\label{prop:inverse-admissible}
+The function $H$ in \eqref{eq:H} is the local inverse of a real smooth function
+$F$ satisfying $F(x)=x+\OO(x^3)$ on a positive one-sided neighborhood of zero.
+\end{proposition}
+\begin{proof}
+Since $|R'(y)|\le\sqrt{10}\,y^2<4/16$, we have $H'(y)>3/4$ on the stated
+interval. Also
+\[
+ \frac{15}{16}\le\frac{H(y)}y\le\frac{17}{16}.
+\]
+Thus $H$ is positive and strictly increasing, and has a smooth inverse $F$ on
+its positive image. With $x=H(y)$,
+\[
+ |F(x)-x|=|y-H(y)|\le y^3
+ \le \left(\frac{16}{15}\right)^3 x^3.
+\]
+This proves the required forward remainder estimate and local branch
+admissibility.
+\end{proof}
+
+The point of this construction is that the input can be an ordinary inverse
+result with a declared omitted forward remainder. There is no need to manufacture
+an association, exploit an unvalidated saved object, assert false smoothness,
+or allow a complex unknown error. The family supplies an actual smooth inverse
+realizing the magnitude and derivative contracts used below. The argument uses
+the documented magnitude-plus-matching-derivative interpretation of those
+contracts, not an extra requirement of analyticity at the endpoint itself.
+
+\subsection{Where the classical derivative disappears}
+Set $g=R'$. Write
+\[
+ g(y)=\sqrt{10}\,y^2\sin(\log y+\theta),\qquad
+ \theta=\arctan(1/3).
+\]
+For every positive integer $n$,
+\begin{equation}\label{eq:zeros}
+ y_n=\exp(-\theta-n\pi)
+\end{equation}
+is a zero of $g$, and $y_n\to0^+$. These zeros are simple. Substitution into
+$g'(y)=5y(\sin\log y+\cos\log y)$ gives
+\begin{equation}\label{eq:slopes}
+ |g'(y_n)|=\sqrt{10}\,y_n>0.
+\end{equation}
+
+\begin{proposition}\label{prop:cusp}
+The magnitude estimate $|g(y)|=\OO(y^2)$ is valid, but $|g|$ has no classical
+derivative at any $y_n$. Therefore it is not differentiable on any complete
+punctured neighborhood $(0,\delta)$ of zero.
+\end{proposition}
+\begin{proof}
+At a simple zero $y_n$,
+$g(y_n+h)=g'(y_n)h+o(h)$. Hence the left and right derivatives of $|g|$ are
+$-|g'(y_n)|$ and $+|g'(y_n)|$, respectively. They differ by
+$2\sqrt{10}\,y_n$. Every punctured neighborhood contains such a point.
+\end{proof}
+
+This is not a failure of a derivative \emph{bound} at points where a derivative
+exists. Away from the zeros, the first derivative of $|g|$ is indeed
+$\OO(y)$. It is a failure of the classical derivative's existence on the
+claimed eventual domain. Quietly interpreting the answer as an almost-everywhere
+or weak derivative would change the operation's meaning.
+
+\subsection{The public reproduction candidate}
+The following sequence uses the public APIs. The actual native results are not
+pre-populated in the archive.
+\begin{lstlisting}
+s = AsymptoticInverse[x, {x, 0}, {y, 2},
+  "InputRemainder" -> {3, 0}];
+id = AsymptoticExpansion[y, {y, 0, 4}, "Backend" -> "Package"];
+r = SeriesAdd[s, SeriesMultiply[id, -1]];
+g = SeriesDifferentiate[r, 1, "RemainderDerivativeOrder" -> 2];
+a = SeriesObservable[g, Abs[z], z];
+SeriesDifferentiate[a]
+\end{lstlisting}
+The intended progression, derived from the inspected source, is:
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule Stage & Magnitude jet & Derivative order\\\midrule
+\code{r} & $0+\OO(y^3)$ & Initially undeclared\\
+\code{g} & $0+\OO(y^2)$ & $1$ after the truthful order-$2$ declaration\\
+\code{a} & $0+\OO(y^2)$ & Incorrectly retained as $1$\\
+Final differentiation & $0+\OO(y)$ & Accepted on that retained premise\\
+\bottomrule
+\end{tabular}
+\end{center}
+For the member $H$ of the permitted inverse family, \code{a} represents $|g|$
+from Proposition~\ref{prop:cusp}. The final classical differentiation must not be
+justified by the input contract alone. A corrected implementation should either
+refuse the last call, retain an explicitly weaker regularity status, or require
+additional information proving an eventual smooth branch.
+
+The proof does not claim that the package executes the unspecified forward
+remainder as a numerical function. It reasons about the family denoted by the
+remainder contract. The existing numerical checker explicitly distinguishes its
+stored explicit equation from an unspecified input-remainder family; this audit
+preserves that distinction.\cite{numerical}
+
+\subsection{A small conservative repair}
+A minimal correctness repair is to stop propagating a positive derivative order
+through an inexact ordinary observable containing \code{Abs}, unless the
+operation has separately proved a smooth local branch. The supplied patch emitter
+implements the conservative first step immediately after \code{seriesJetApply}:
+\begin{lstlisting}
+If[! FreeQ[body, _Abs] && j[[2]] =!= Infinity,
+  d = Join[d, <|"RemainderDerivativeOrder" -> 0|>]];
+\end{lstlisting}
+This is intentionally broader than the bad pure-remainder case. It can lose a
+useful derivative guarantee when the absolute-value argument actually has a
+proved eventual nonzero sign. It does not change the finite jet or its magnitude
+bound. Exact output jets still receive exact-result treatment. The patch is a
+correctness-first candidate, not a claim of a maximal regularity implementation.
+
+Keeping this change in the ordinary \code{SeriesObservable} path also means that
+replaying an observable recipe through that patched path applies the same
+conservative policy. No external wrapper should attach a one-time warning while
+leaving a replay route capable of silently restoring the old guarantee.
+
+\subsection{The better implementation: track regularity inside the interpreter}
+The more precise repair is to make the expression interpreter return both its
+jet and an available smoothness order. For an absolute-value node, the transfer
+rule is local and small:
+\begin{equation}\label{eq:abs-policy}
+ k_{\rm out}=\begin{cases}
+ k_{\rm in},&\text{if the complete argument is eventually strictly positive or negative},\\
+ \infty,&\text{if the complete argument is exactly zero},\\
+ 0,&\text{otherwise, using only the real Lipschitz estimate}.
+ \end{cases}
+\end{equation}
+A nonempty leading block with a proved sign can provide the first case because
+the stored error is asymptotically smaller than that block. An empty finite jet
+cannot provide it merely by carrying a large derivative-order number.
+
+The interpreter should aggregate this order through nested expressions, not
+inspect only the outermost head. A magnitude-neutral intermediate \code{Abs}
+can invalidate regularity before a later arithmetic operation. Conversely,
+algebraic identities such as $|g|^2=g^2$ for real $g$ may restore smoothness, but
+that is a separate proved identity, not a reason to retain the old order by
+default. This narrowly scoped regularity transfer is the development opportunity
+made concrete by N01.
+
+\subsection{Acceptance cases and an optional weak-derivative extension}
+The regression must inspect both the outer association and
+\code{SeriesRepresentation}; a downgrade in only one place can be bypassed by
+\code{seriesData}. The primary case is the public chain above. Controls should
+include exact zero, an exact sign-known polynomial, a nonempty sign-known jet
+with an inexact tail, nested absolute values, and replay of the observable recipe.
+A sign-aware implementation should retain the useful order in the proved-sign
+control; the conservative patch intentionally need not do so.
+
+An optional future interface could distinguish classical derivatives from
+almost-everywhere derivatives of real Lipschitz observables. That would require
+an explicit change of contract. For this witness the first weak derivative is
+locally bounded, but the distributional second derivative of $|g|$ also contains
+point masses with weights $2|g'(y_n)|$. An ordinary power-log magnitude remainder
+does not represent that discrete distribution. A weak-derivative mode therefore
+must not be implemented by simply turning off the classical guard.
+
+\section{N02: repeated affine probing makes a nonlinear fallback quadratic}
+\subsection{A good local repair with a different global cost}
+The new \code{certAffinePair} recognizes rational affine syntax by carrying a
+pair $(a,b)$ for $ax+b$. Sums add their pairs. Products combine pairs while
+refusing a product of two nonconstant affine factors. Other heads fail the
+recognition attempt. One invocation visits each node of its admitted arithmetic
+tree at most once, apart from exact rational arithmetic. The source comment's
+linear-tree description is reasonable for that \emph{single invocation}.
+\cite{cert}
+
+The important integration point is different. Before the ordinary \code{Plus}
+or \code{Times} interval fallback, \code{certEnclose} invokes
+\code{certAffineRange}, which invokes \code{certAffinePair}. If that test fails,
+\code{certEnclose} recursively processes the children, each of which may trigger
+another full affine-recognition attempt. Successful affine roots are cheap; deeply
+nested nonlinear roots repeatedly expose overlapping subtrees.
+\begin{lstlisting}
+MemberQ[{Plus, Times}, Head[expression]] &&
+  (affine = certAffineRange[expression, x, interval]) =!= $Failed,
+  certRoundInterval[affine, ctx],
+Head[expression] === Plus,
+  Fold[certAdd[#1, #2, ctx] &, {0, 0},
+    certEnclose[#, x, interval, ctx] & /@ (List @@ expression)],
+...
+\end{lstlisting}
+This integration is visible at \file{InverseCertificates.wl}, lines 103--148.
+The finding concerns recognizer work before the old conservative fallback;
+it does not question the soundness of an interval returned by that fallback.
+\cite{cert}
+
+\subsection{A canonical, supported witness family}
+Use the unevaluated-by-expansion Horner family
+\begin{equation}\label{eq:horner}
+ h_0(x)=1+x^2,\qquad h_{d+1}(x)=1+xh_d(x).
+\end{equation}
+In Wolfram syntax this is
+\begin{lstlisting}
+expr = Nest[1 + x # &, 1 + x^2, depth];
+\end{lstlisting}
+The seed $1+x^2$ is deliberate. Starting from $x^2$ alone allows the first
+multiplication to simplify to $x^3$, changing the base-case count. The chosen
+seed leaves alternating \code{Plus} and \code{Times} nodes under ordinary
+canonical evaluation without calling \code{Expand}. Every $h_d$ is a supported
+polynomial, and the interval $[0,1/2]$ avoids any domain difficulty. There is no
+unsupported special function at the bottom of the expression.
+
+Let $A_d$ be the number of \code{certAffinePair} invocations in one recognition
+attempt on $h_d$. The \code{Power} node $x^2$ is rejected immediately by the
+affine recognizer, so
+\[
+ A_0=3,\qquad A_d=A_{d-1}+4=4d+3.
+\]
+For $d\ge1$, the intermediate product $x h_{d-1}$ costs
+$1+1+A_{d-1}=4d+1$ recognizer invocations. The recognizer eagerly maps over the
+children before it tests whether a failure occurred, so the failed nonlinear
+subtree is traversed again at the next recursive interval level.
+
+\begin{proposition}\label{prop:quadratic}
+In the inspected recursive control structure, enclosing $h_d$ causes
+\begin{equation}\label{eq:probe-count}
+ C_d=4(d+1)^2-1
+\end{equation}
+invocations of the affine-pair recognizer. Thus recognizer work is quadratic in
+$d$, even though the input syntax has linear size.
+\end{proposition}
+\begin{proof}
+At depth zero, the only affine attempt is on $1+x^2$, so $C_0=3$.
+For $d\ge1$, the evaluator first attempts the whole sum, then the product, then
+recursively encloses $h_{d-1}$:
+\[
+ C_d=C_{d-1}+(4d+3)+(4d+1)=C_{d-1}+8d+4.
+\]
+Summing yields $C_d=3+4d^2+8d=4(d+1)^2-1$.
+\end{proof}
+
+This is a count of explicit recursive calls, not a claim that rational arithmetic
+has constant bit cost. Integer/rational operand sizes, expression hashing,
+list allocation, and interval arithmetic can add work. They do not eliminate
+this repeated traversal in the source algorithm. The claim is also narrower
+than a timing prediction for a complete certificate: a certificate evaluates
+several expressions, including a derivative, and its surrounding proof work may
+dominate a small example.
+
+\subsection{Executed independent counts}
+The supplied model constructs an explicit syntax tree with \code{Plus},
+\code{Times}, an integer-power node, rational constants, and a variable. It
+implements the inspected recognition/fallback control flow and compares it
+with a single annotation pass. These are \emph{model operation counts}, not
+native performance measurements.
+\begin{center}
+\begin{tabular}{@{}rrr@{}}
+\toprule Horner depth $d$ & Repeated recognizer calls $C_d$ & Annotation nodes $4d+5$\\\midrule
+4 & 99 & 21\\
+8 & 323 & 37\\
+16 & 1,155 & 69\\
+32 & 4,355 & 133\\
+64 & 16,899 & 261\\
+128 & 66,563 & 517\\
+\bottomrule
+\end{tabular}
+\end{center}
+The annotation-node count uses the model's explicit literal exponent node; it
+is not Wolfram's \code{LeafCount}. All tested depths matched the closed-form
+recognizer count. The two evaluators also agreed on 300 randomized rational
+arithmetic trees. Their interval outputs enclosed 2,100 exact rational sample
+values. Sampling is a useful regression check, while interval soundness rests
+on the elementary operation rules and their inductive composition.
+
+\subsection{Repair with two passes, not more expansion}
+A direct remedy is to annotate the expression tree once, then evaluate intervals
+using the annotation. For each node retain either a rational affine pair or
+\code{NotAffine}. All children are annotated bottom-up. Importantly, an
+unsupported affine head such as \code{Power}, \code{Log}, or \code{Exp} does not
+prevent useful affine annotations within its children.
+
+The interval evaluator then behaves as follows. At a node carrying a pair, it
+computes the affine endpoint range exactly and applies the existing outward
+rounding at the same semantic point as today. At a node without a pair, it uses
+the existing interval rule and the already annotated children. No polynomial
+expansion, solving, or approximate coefficient test is required.
+
+\begin{lemma}
+For the rational arithmetic fragment implemented in the independent model,
+replacing repeated recognition by bottom-up affine annotations preserves the
+result of the original recognition-plus-interval algorithm.
+\end{lemma}
+\begin{proof}
+Induct on the expression tree. The annotation computes exactly the same pair
+recurrence as an independent recognition call; therefore both evaluators take
+the affine shortcut at the same nodes and use the same exact endpoint formula.
+At every other supported node, they apply the same interval operation to child
+results that agree by induction.
+\end{proof}
+
+The production version should retain the existing rational/dyadic interval
+primitives. The model deliberately does not reimplement the complete exponential
+and logarithmic enclosure engine. Its purpose is to establish the structural
+transformation and its local equivalence obligations, not to replace a trusted
+certificate evaluator with an untested partial implementation.
+
+A single pass returning both a pair and an interval is possible, but a careless
+implementation computes rounded child intervals or raises child-domain failures
+before discovering that the parent is exactly affine. The two-pass design cleanly
+separates structural recognition from semantic interval evaluation and avoids
+that ordering mistake. Annotation must remain arithmetic metadata, not a proof
+that a nonaffine expression is continuous or in domain.
+
+\subsection{Caching scope and implementation tradeoffs}
+A cache can also remove repeated recognizer calls, but a cache keyed by complete
+expression trees may still pay repeated structural hashing or equality costs.
+Its actual cost depends on sharing and kernel representation. An explicit
+annotated tree gives a straightforward linear structural-pass argument without
+requiring such a representation assumption.
+
+Affine annotations depend on the expression and chosen source symbol, but not
+on the verification interval or enclosure precision. Interval values depend on
+all of those. Mixing the two cache lifetimes would be incorrect: adaptive
+refinement changes the interval and arithmetic context. A suitable implementation
+can reuse a structural plan through several interval evaluations while recomputing
+all interval-dependent values.
+
+Annotation increases live structural storage by $\OO(N)$ for an $N$-node tree.
+For tiny expressions, the existing local probe may be cheaper. A hybrid can keep
+the simple path below a small structural threshold and use the annotated path
+for larger trees, but the threshold should be determined by measurements rather
+than guessed in this audit. The correctness invariant is the same in either
+case: exact affine arithmetic remains before rounding.
+
+\subsection{Native acceptance criteria}
+The native runner supplies the stable Horner family at depths 8, 16, 32, and 64,
+records actual \code{LeafCount}, and times \code{certEnclose} separately from
+construction. It intentionally does not advertise an unmeasured speedup. A
+production benchmark should additionally count recognizer invocations, with
+instrumentation that distinguishes entry from exit tracing and does not itself
+perform quadratic work.
+
+Tests should compare old and planned enclosures on exactly affine, nested
+nonlinear, mixed affine/transcendental, and unsupported expressions. Check the
+same failures and interval inclusions, not only elapsed time. In particular,
+retaining the affine repair's existing success cases is a regression obligation,
+not a new finding in this article.
+
+\section{N03: finding a discarded suffix by repeated membership}
+\subsection{Where the new work occurs}
+The recent \code{seriesTransportRemainderBound} routine obtains the source rows
+and newly retained rows, then computes the discarded set as follows:
+\begin{lstlisting}
+before = d["Jet"][[1]];
+after = r["SeriesRepresentation"]["Jet"][[1]];
+removed = Select[before, ! MemberQ[after, #] &];
+If[! SubsetQ[before, after], Return[result, Module]];
+\end{lstlisting}
+These are lines 516--518 of \file{SeriesOperations.wl}. The routine subsequently
+uses the known discarded expression to transport an existing quantitative
+bound. It also handles the case in which no retained block was removed.
+\cite{operations}
+
+The bound-transport theorem is already an earlier-review contribution and is
+not being proposed again. The new issue is the selection algorithm used by the
+implemented repair. Ordinary exponent truncation of a canonical ordered jet
+normally retains an identical prefix. That common case does not require a
+general membership query for every source row.
+
+\subsection{What is established, and what is not}
+Let the input have $N$ distinct rows and the result retain the first $M$ rows.
+The source expression performs $N$ separate \code{MemberQ} calls on a list of
+length $M$, followed by a subset check. \code{MemberQ} is a pattern-membership
+operation; the official documentation does not promise an asymptotic complexity
+or expose a reusable indexed set for these calls.\cite{wlmember}
+
+Under a straightforward linear scan, the row comparisons in the first
+statement alone are
+\begin{equation}\label{eq:membership}
+ \sum_{i=1}^{M}i+(N-M)M
+ =NM-\frac{M(M-1)}2.
+\end{equation}
+For a no-op truncation, $M=N$, this is $N(N+1)/2$. This is the exact count in the
+supplied linear-search model, not an instrumented count of the Wolfram kernel's
+internal pattern matcher. An undocumented native optimization could change the
+actual timing or comparison behavior. The source still issues repeated general
+queries where a proved prefix relation is sufficient.
+
+\begin{center}
+\begin{tabular}{@{}rrr@{}}
+\toprule Blocks, no-op case & Linear-membership model comparisons & Prefix row comparisons\\\midrule
+16 & 136 & 16\\
+64 & 2,080 & 64\\
+256 & 32,896 & 256\\
+512 & 131,328 & 512\\
+\bottomrule
+\end{tabular}
+\end{center}
+The table excludes the old subset check and the cost of comparing large
+coefficient expressions. It therefore should not be read as a native wall-clock
+speedup estimate. It identifies a local avoidable pattern and supplies a small
+alternative whose structural work is explicit.
+
+\subsection{A guarded prefix fast path}
+The candidate replacement is:
+\begin{lstlisting}
+If[Length[after] <= Length[before] &&
+    Take[before, Length[after]] === after,
+  removed = Drop[before, Length[after]],
+  removed = Select[before, ! MemberQ[after, #] &];
+  If[! SubsetQ[before, after], Return[result, Module]]];
+\end{lstlisting}
+The length guard is important: it prevents an out-of-range \code{Take} from
+becoming the new diagnostic behavior. The structural equality check is also
+important. The patch does not merely assume that every stored representation
+uses the same canonical coefficient syntax. If normalization has changed a row,
+or the result is not a prefix, it falls back to the old selection and subset
+policy.
+
+\begin{proposition}\label{prop:prefix}
+For a well-formed canonical jet with distinct rows, suppose
+\[\texttt{after}=\operatorname{Take}(\texttt{before},M).\]
+The proposed fast path returns the same discarded rows as the original membership expression, in the
+same order, and the original subset test would succeed.
+\end{proposition}
+\begin{proof}
+The first $M$ rows occur in \texttt{after}; every remaining distinct row does not.
+The original \code{Select} therefore retains exactly the suffix beginning at
+$M+1$. That is \code{Drop[before,M]}. Every row in the prefix belongs to the
+source, so the subset relation follows without a second membership pass.
+\end{proof}
+
+This reasoning is deliberately restricted to canonical jets with distinct
+rows. It is not a new validation rule for arbitrary user-built associations.
+The fallback remains for other structurally admissible situations. It preserves
+the original routine's handling rather than changing the meaning of membership
+or attempting to use a symbolic inequality between coefficient expressions.
+
+\subsection{Why this is a useful low-risk patch}
+The fast path affects only the extraction of the known discarded finite part.
+The subsequent bound formula, conditions, signed-bound policy, contract record,
+and presentation of integer Dirichlet powers remain untouched. This keeps the
+change separable from mathematical bound improvements already in the backlog.
+
+A semantic no-op is a particularly useful benchmark because it isolates a case
+where no discarded contribution is needed. The candidate still compares a
+prefix, but avoids re-searching it for each row. For a genuine truncation it
+extracts the suffix directly. Its cost is linear in the structural size of the
+rows inspected or copied; coefficient-expression bit/term complexity is not
+assumed constant.
+
+The independent suite checked 500 randomly generated prefix cases, reordered
+and nonprefix fallbacks, empty lists, complete retention, and refusal of an
+invalid subset in the model. The native runner additionally specifies no-op
+truncations of public Zeta expansions. Those native observations have not been
+executed here. Their actual constructor and truncation costs may include other
+work, so the helper and the whole operation should be profiled separately.
+
+\section{Implementation package and focused development sequence}
+\subsection{What the supplied artifacts implement}
+The archive contains a standard-library Python model and an executable test
+runner. The affine model includes both repeated recognition and a bottom-up
+annotation plan. The truncation model includes the repeated linear-membership
+algorithm and the guarded prefix alternative. The regularity witness is checked
+through an exact derivative-coefficient recurrence, elementary rational bounds,
+and supplementary numerical one-sided difference quotients.
+
+The patch emitter produces two candidate edits to the canonical
+\file{src/Kernel/SeriesOperations.wl}: the conservative \code{Abs} regularity
+downgrade, and the guarded prefix fast path. It does not modify the repository.
+It verifies the audited Git commit by default and requires unique exact source
+anchors. An explicit override permits an unversioned source tree while retaining
+anchor validation. Its fixture tests cover both edits independently, missing and
+duplicate anchors, already changed input, and preservation of unrelated text.
+
+No production \code{InverseCertificates.wl} patch is supplied. N02 has an
+implemented independent reference design and a native benchmark specification,
+but integrating the annotation plan into all certificate expression rules and
+failure paths deserves a full native validation pass. Supplying a partial
+certificate-engine replacement as if it were complete would be misleading.
+
+\subsection{Ordering the work}
+\begin{longtable}{@{}L{12mm}L{62mm}L{\dimexpr\textwidth-74mm-4\tabcolsep\relax}@{}}
+\toprule Step & Change & Completion criterion\\\midrule\endhead
+1 & Apply a conservative regularity downgrade for inexact absolute-value observables. & The N01 chain no longer obtains a classical derivative from the transported input contract; exact controls remain correct.\\
+2 & Refine that repair into sign-aware regularity transfer inside the expression interpreter. & Proved-sign cases preserve their legitimate order; unknown zero-crossing cases do not; nested observables and recipe replay agree.\\
+3 & Install the guarded prefix selection path. & Prefix/no-op cases select the same discarded rows and preserve the existing quantitative-bound semantics; nonprefix cases retain the fallback.\\
+4 & Introduce a certificate structural annotation plan. & Affine decisions and outward interval behavior match the old evaluator while Horner-family recognition work becomes linear in tree size.\\
+5 & Add narrow scaling and semantic-composition regressions. & Structural work counts and regularity transitions are tested separately from numerical values and total timings.\\
+\bottomrule
+\end{longtable}
+
+This sequence is intentionally local. It does not reproduce the already extensive
+roadmap for additional scales, special functions, native-backend coverage,
+integration, general proof objects, or multivariate systems. The opportunities
+identified here are operation-specific regularity transfer, reusable
+interval-independent affine plans, and exploiting the exact prefix invariant
+of truncation.
+
+\subsection{Tests should target the interaction, not only the repaired feature}
+N01 is invisible to tests that inspect only \code{Normal[result]} and its
+remainder power. The invalid fact is in the derivative capability consumed by a
+later operation. The essential regression is therefore a sequence:
+construction with an honest remainder family, arithmetic cancellation,
+differentiation with a legitimate declaration, absolute value, and a second
+classical differentiation.
+
+N02 is invisible to tests containing only successfully affine expressions.
+A recognizer that is fast when it succeeds can be expensive when it repeatedly
+fails just above an old nonlinear subtree. The depth family deliberately holds
+the mathematical fragment fixed and changes only nesting.
+
+N03 is invisible to tests of bound values alone. The implemented bound can be
+perfectly valid while its no-op transport makes unnecessary general searches.
+The acceptance suite should retain both the semantic checks and a narrowly
+scoped structural-work observation. A total-time threshold alone is too noisy
+to explain which phase regressed.
+
+These three test shapes are distinct from a blanket request for more tests.
+They are specific interaction witnesses and size families derived from the
+current implementation.
+
+\section{Reproduction and recorded results}
+\subsection{Independent checks that were executed}
+Run from the archive directory:
+\begin{lstlisting}
+python code/verify_independent.py
+python code/test_patch_emitter.py
+\end{lstlisting}
+Python 3.10 or later and its standard library are sufficient. The first command
+writes \file{evidence/independent_results.json} and its text transcript. The
+second writes the patch-fixture result record and transcript. The delivered
+records come from actual executions during this audit.
+
+\begin{tabularx}{\textwidth}{@{}lXr@{}}
+\toprule Suite & What was checked & Result\\\midrule
+Independent model tests & Derivative recurrence, cusp witnesses, inverse-family bounds, affine recognition, exact interval equivalence, prefix/fallback selection, and structural count formulas. & 14/14\\
+Patch-emitter fixtures & Unique-anchor transformations, individual edits, missing/duplicate anchors, and refusal to reapply edits. & 6/6\\
+\bottomrule
+\end{tabularx}
+
+The independent suite includes 300 randomized expression trees, 2,100 exact
+rational evaluation points inside their intervals, and 500 randomized prefix
+cases. These are subcases within the 14 tests, not thousands of package test
+passes. Random seeds are fixed in the source. Mathematical proofs in the article
+supply the general statements; the finite samples are supplementary executable
+checks.
+
+The cusp samples numerically approximate left and right difference quotients
+normalized by $y_n$. They approach $-\sqrt{10}$ and $+\sqrt{10}$. This numerical
+calculation is not used to infer non-differentiability: the exact local expansion
+in Proposition~\ref{prop:cusp} already proves it.
+
+\subsection{Native observations that remain to be run}
+Use a fresh kernel and an existing checkout of the pinned revision. For example,
+in PowerShell:
+\begin{lstlisting}
+$env:ASYMPTOTIC_REPO = 'C:\src\Asymptotic'
+wolframscript -file code/run_native.wls
+\end{lstlisting}
+For a POSIX shell:
+\begin{lstlisting}
+ASYMPTOTIC_REPO=/path/to/Asymptotic \
+  wolframscript -file code/run_native.wls
+\end{lstlisting}
+The script reads the canonical modular loader. It records the kernel version,
+the observed Git commit when available, the N01 public chain, an exact
+sign-known control, Horner-family interval timings, and Zeta no-op truncation
+observations. Individual observations have a bounded execution time. It does
+not download code, install dependencies, edit the repository, or claim to run
+the upstream complete suite.
+
+The script's exit status distinguishes a runner/load/output failure from
+successfully writing observations. A zero exit code is \emph{not} a correctness
+verdict: an observation can show the baseline defect, a timeout, a message, or a
+rejected operation. Inspect the serialized results. The delivered archive does
+not contain a fabricated \file{native_observations.json}; that file is created
+only by an actual native execution.
+
+The runner is a Wolfram-kernel observation tool, not a promise of compatibility
+with every Mathics release. The mathematical counterexample and the structural
+algorithms do not depend on a particular kernel, but public routing, native
+\code{Series}, pattern matching, and execution timing do. A Mathics validation
+should record its own results separately rather than relabeling Wolfram or
+Python results.
+
+\subsection{Emitting and reviewing the candidate patch}
+\begin{lstlisting}
+python patches/emit_candidate_patch.py /path/to/Asymptotic \
+  > candidate.diff
+\end{lstlisting}
+Use \code{--which regularity} or \code{--which prefix} to emit one change only.
+The emitter is read-only. It refuses an unexpected Git commit by default and
+refuses missing or duplicate anchors. The explicit
+\code{--skip-commit-check} option is for a consciously selected unversioned or
+modified source tree; it does not disable the anchor checks.
+
+The source anchors were compared with the pinned reads. The transformation was
+fixture-tested, but it was not applied to a complete local upstream checkout in
+this audit. The generated patch still needs review, native execution of the
+focused cases, and the repository's normal validation. Rebuild the standalone
+using \file{validation/build_standalone.py}; editing the generated distribution
+alone would not update the canonical source.\cite{layout}
+
+The regularity patch is intentionally conservative and can reduce supported
+differentiation in some valid sign-known inexact cases. The prefix patch has a
+narrower semantic footprint and retains the old fallback. Neither is presented
+as a completed production release.
+
+\section{Conclusion}
+The strongest new result is N01. The existing derivative guard can be obeyed
+honestly at the input and still be bypassed indirectly by an operation that
+preserves magnitude but not differentiability. The example is not based on a
+complex branch, a malformed object, or a missing initial derivative estimate.
+Its infinitely many simple zeros explain exactly which premise is lost.
+
+N02 and N03 concern the implementation of two useful recent fixes rather than
+a rejection of those fixes. Affine cancellation should remain exact before
+rounding, but the recognition plan need not be rediscovered at every nonlinear
+subtree. Quantitative truncation bounds should remain preserved, but a known
+prefix can be removed without repeated general membership searches.
+
+The immediate actionable changes are small: downgrade unproved regularity in
+the absolute-value observable path and add the guarded prefix fast path. The
+larger follow-on is a reusable, interval-independent affine annotation plan.
+Together they give specific correctness and performance improvements without
+repeating the repository's established development backlog.
+
+\appendix
+\section{Source coverage and exclusions}\label{app:coverage}
+The table is a source-reading record, not a test-coverage percentage. ``Selected''
+means substantial relevant windows rather than a verified complete-file read.
+Several large connector responses were windowed or truncated, so completeness
+is not inferred from a request for an entire file.
+
+\begin{longtable}{@{}L{65mm}L{20mm}L{\dimexpr\textwidth-85mm-4\tabcolsep\relax}@{}}
+\toprule Source under \file{src/Kernel/} & Read scope & Focus and disposition\\\midrule\endhead
+\file{AsymptoticAnalysis.wl} & Selected & Public inverse assembly, precision-tracked jets, arithmetic, \code{fwdAbs}, representation, formatting, and residual dispatch. N01 uses the absolute-value branch.\\
+\file{SeriesOperations.wl} & Selected & Representation normalization, observables, composition, truncation, derivative guard, and refinement entry paths. N01 and N03 retained.\\
+\file{InverseCertificates.wl} & Selected & Rational interval primitives, affine recognition, recursive enclosure, source conditions, seed and adaptive certificate flow. N02 retained.\\
+\file{SeriesEnvelopeArithmetic.wl} & Substantial & Composite-envelope arithmetic and approach handling. No additional finding retained.\\
+\file{SourceCoordinates.wl} & Selected & Logarithmic/exponential source charts, observable restoration, and error transport. No additional finding retained.\\
+\file{GammaForward.wl} & Substantial & Positive-factor logarithmic normalization and forward carrier extraction. No additional finding retained.\\
+\file{GammaInverse.wl} & Substantial & Ordered coefficient recurrence, affine parameters, omitted block bound, and truncation. No additional finding retained.\\
+\file{SpecialFunctionAdapters.wl} & Selected & Erfc, Gamma/LogGamma, and local threshold model construction. No additional finding retained.\\
+\file{ParameterizedSpecialFunctions.wl} & Substantial & Fixed-parameter analytic and Frobenius adapters. No additional finding retained.\\
+\file{DirichletSpecialFunctions.wl} & Substantial & Zeta/Lerch block construction and explicit bound metadata; supports the N03 benchmark specification.\\
+\file{NumericalInverseChecks.wl} & Substantial & Stored-equation scope and numerical source-domain checks. No additional finding retained.\\
+\file{ExactTermination.wl} & Substantial & Bounded symbolic verification of inverse termination. No additional finding retained.\\
+\file{NativeCompatibility.wl} & Selected & Native-result distinction and backend/held request entry; checked the reproduction option spelling. No additional finding retained.\\
+\file{MathicsAlgebra.wl} & Substantial & Algebraic substitutes and list helpers; previously catalogued concerns excluded.\\
+\file{MathicsAssumptions.wl} & Substantial & Realness/sign proof helpers and assumption walking. No additional finding retained.\\
+\file{MathicsCalculus.wl} & Substantial & Perturbative inverse expression and logarithmic Euler derivative. No additional finding retained.\\
+\file{MathicsSimplification.wl} & Substantial & Simplification, assumptions, and Series/Limit wrappers. Previously catalogued concerns excluded.\\
+\file{MathicsTaylor.wl} & Substantial & Restricted defining Taylor series. Previously catalogued parameter restrictions excluded.\\
+\file{MathicsSpecialFunctions.wl} & Substantial & Finite Stirling forward adapter. No additional finding retained.\\
+\bottomrule
+\end{longtable}
+
+The ordinary calculus tests in \file{src/Tests/SeriesOperations.wlt} were also
+read, notably their explicit derivative-contract tests and exact finite-tail
+control. They were not executed. Architecture descriptions of other modules
+were read in the kernel README, but that is not counted as inspection of those
+modules' implementation.\cite{optests,layout}
+
+The maintained review register was used to exclude already catalogued work even
+when a related code path remained interesting. Consequently, the absence of a
+new finding in the table should not be interpreted as a claim that every
+existing concern is resolved. That would contradict the purpose of a
+nonduplicating incremental audit.
+
+\section{Artifact inventory}
+\begin{longtable}{@{}L{71mm}L{\dimexpr\textwidth-71mm-2\tabcolsep\relax}@{}}
+\toprule File & Role\\\midrule\endhead
+\file{article.tex}, \file{article.pdf} & Editable article and rendered version.\\
+\file{README.md} & Reproduction commands and execution boundaries.\\
+\file{code/audit_models.py} & Independent rational/structural reference models and derivative recurrence.\\
+\file{code/verify_independent.py} & Executed 14-test suite; writes its actual result records.\\
+\file{code/test_patch_emitter.py} & Executed six-test synthetic fixture suite.\\
+\file{code/run_native.wls} & Unexecuted native observations; records actual results when run locally.\\
+\file{code/check_wl_lexical.py} & Delimiter, string, and nested-comment balance check; not a native parser.\\
+\file{patches/emit_candidate_patch.py} & Read-only emitter for the two conservative candidate edits.\\
+\file{evidence/independent_results.json} & Actual independent counts, subcase totals, and cusp samples.\\
+\file{evidence/independent_tests.txt} & Actual independent-test transcript.\\
+\file{evidence/patch_fixture_results.json} & Actual patch-fixture outcome.\\
+\file{evidence/patch_fixture_tests.txt} & Actual fixture-test transcript.\\
+\file{evidence/audit_manifest.json} & Snapshot, scope, finding status, and execution record.\\
+\file{evidence/novelty_crosswalk.csv} & Concise mapping to nearest previous entries without reissuing them.\\
+\file{evidence/source_inventory.csv} & Pinned source-reading inventory.\\
+\file{evidence/wl_lexical_check.json} & Actual lexical-balance check outcomes.\\
+\file{build.sh} & PDF build command sequence.\\
+\bottomrule
+\end{longtable}
+No upstream package distribution, font files, checksum files, or fabricated
+native result files are included.
+
+\begin{thebibliography}{99}
+\small
+\bibitem{repo} Vladimir Reshetnikov. \emph{Asymptotic}, audited commit
+\code{651f2029d0b2cd4da9e4dfdf1f4275a124d23b99}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/tree/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99}.
+Repository README and commit metadata, accessed 10 September 2026.
+
+\bibitem{layout} \emph{Canonical kernel layout}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Kernel/README.md}.
+
+\bibitem{reviewindex} \emph{Imported code-review index}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/README.md}.
+
+\bibitem{status} \emph{Code review implementation status}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/docs/development/CODE_REVIEW_STATUS.md}.
+
+\bibitem{wave3} \emph{Wave 3 intake}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/docs/development/WAVE_3_INTAKE.md}.
+
+\bibitem{wave4} \emph{Wave 4 intake}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/docs/development/WAVE_4_INTAKE.md}.
+
+\bibitem{review14} \emph{Incremental technical audit}, imported review 14.
+Affine and truncation sections, especially source lines 263--355 and 470--580.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/external-reports/code-review/wave-2/code-review-14/article.tex}.
+
+\bibitem{affinecommit} \emph{Evaluate rational affine subexpressions exactly in certificates (C20)},
+commit of 10 September 2026, 13:37:49 UTC.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/commit/e9142f7f5e3db241d5ffb8951c72606ed0c89aa9}.
+
+\bibitem{kernel} \emph{AsymptoticAnalysis.wl}, canonical main module.
+Relevant definitions: \code{fwdAbs}, precision-tracked jets, inverse assembly,
+and \code{GeneralizedSeries} accessors.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Kernel/AsymptoticAnalysis.wl}.
+
+\bibitem{operations} \emph{SeriesOperations.wl}.
+Relevant source windows: 305--374 (observable interpretation and construction),
+506--558 (bound transport and differentiation), and the representation helpers
+near the beginning of the module.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Kernel/SeriesOperations.wl}.
+
+\bibitem{cert} \emph{InverseCertificates.wl}.
+Relevant source windows: 95--151 (affine recognizer and enclosure dispatch),
+251--327 (certificate attempt), and 357--484 (public certificate orchestration).
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Kernel/InverseCertificates.wl}.
+
+\bibitem{numerical} \emph{NumericalInverseChecks.wl}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Kernel/NumericalInverseChecks.wl}.
+
+\bibitem{optests} \emph{SeriesOperations.wlt}, upstream ordinary calculus tests.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/651f2029d0b2cd4da9e4dfdf1f4275a124d23b99/src/Tests/SeriesOperations.wlt}.
+
+\bibitem{wlabs} Wolfram Research. \emph{Abs}, Wolfram Language documentation.
+\url{https://reference.wolfram.com/language/ref/Abs.html}.
+Accessed 10 September 2026. Only the real absolute-value meaning is used here.
+
+\bibitem{wlmember} Wolfram Research. \emph{MemberQ}, Wolfram Language documentation.
+\url{https://reference.wolfram.com/language/ref/MemberQ.html}.
+Accessed 10 September 2026. Documents pattern-membership semantics, not a
+complexity guarantee for the audit's repeated-list-query pattern.
+\end{thebibliography}
+\end{document}

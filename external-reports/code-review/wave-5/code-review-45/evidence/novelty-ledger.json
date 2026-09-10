@@ -1,0 +1,47 @@
+{
+  "reviewed_commit": "8e859961d7d37f008b826f3a8cad406460271614",
+  "novelty_method": "Maintained 36-package/231-entry inventory, status and wave intakes, relevant originals; not exhaustive full-text reading of all historical prose.",
+  "retained_items": [
+    {
+      "id": "N01",
+      "classification": "Conservative coverage follow-on; no wrong output alleged",
+      "priority": "Medium compatibility/UX; low direct mathematical-safety severity",
+      "title": "Exact noninteger rational seeds are excluded by the newly installed Mathics exact-integer exception",
+      "source": "src/Kernel/MathicsNumerical.wl",
+      "symbol": "mathicsNumericalExactIntegerSeed",
+      "source_location": "lines 10-22, with caller precision refusal at lines 24-45",
+      "minimal_equation": "2*x == 1, seed N[1/2,60]",
+      "public_probe": "InverseNumericalCheck[AsymptoticInverse[x,{x,0},{y,3},Direction->\"FromAbove\"],1/2,WorkingPrecision->50]",
+      "current_public_outcome": "Predicted precision-unavailable refusal; not executed here",
+      "nearest_prior_item": "W4-02 / report 28 F01",
+      "difference": "Earlier item: inadequate achieved numerical precision. This item: an avoidably narrow exact-root exception in the new safeguard; keep the safeguard.",
+      "evidence": [
+        "Inspected current source",
+        "Exact mathematical witnesses",
+        "Executed independent Python models",
+        "Unexecuted WL probe and candidate"
+      ],
+      "not_claimed": [
+        "Native reproduction",
+        "Mathics reproduction",
+        "Complete exact-root support",
+        "False current interval certificate",
+        "Package performance improvement"
+      ]
+    }
+  ],
+  "not_retained": [
+    {
+      "candidate": "A distant root in a same-side verification interval",
+      "reason": "The certificate explicitly limits its claim and disclaims global inverse-branch certification. No contradictory theorem established."
+    },
+    {
+      "candidate": "Powered negative-source Gamma/Barnes observable closure",
+      "reason": "Wave-2 index identifies report 15 as already covering this area. Excluded, not counted again."
+    },
+    {
+      "candidate": "Other existing status and wave-intake entries",
+      "reason": "No repeated recommendations or new issue counts in this bundle."
+    }
+  ]
+}

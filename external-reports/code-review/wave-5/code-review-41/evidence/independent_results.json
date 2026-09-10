@@ -1,0 +1,610 @@
+{
+  "timestamp_utc": "2026-09-10T14:29:25.177131+00:00",
+  "python": "3.13.5",
+  "sympy": "1.14.0",
+  "scope": "Independent mathematical, abstract-jet, and synthetic patch-fixture checks only.",
+  "native_package_executed": false,
+  "native_candidate_executed": false,
+  "tests": 115,
+  "passed": 115,
+  "failed": 0,
+  "pair_counts": [
+    {
+      "support": 8,
+      "ordered_pair_products": 64,
+      "hermitian_pair_products": 36
+    },
+    {
+      "support": 16,
+      "ordered_pair_products": 256,
+      "hermitian_pair_products": 136
+    },
+    {
+      "support": 32,
+      "ordered_pair_products": 1024,
+      "hermitian_pair_products": 528
+    },
+    {
+      "support": 64,
+      "ordered_pair_products": 4096,
+      "hermitian_pair_products": 2080
+    }
+  ],
+  "results": [
+    {
+      "name": "source-model/pair-cancels-to-exact-two",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "oracle/pair-has-quadratic-term",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "oracle/pair-difference-not-O-x4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "oracle/rational-witness-three-quarters",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "source-model/squares-wrong-sign",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "oracle/square-pair-error-exact",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "oracle/square-pair-exact-identity",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=1/2/cut=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=1/2/cut=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=1/2/cut=3/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=1/2/cut=3/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=1/2/cut=5/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=1/2/cut=5/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=1/cut=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=1/cut=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=1/cut=3/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=1/cut=3/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=1/cut=5/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=1/cut=5/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=3/cut=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=3/cut=1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=3/cut=3/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=3/cut=3/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/2/c=3/cut=5/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/2/c=3/cut=5/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=1/2/cut=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=1/2/cut=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=1/2/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=1/2/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=1/2/cut=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=1/2/cut=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=1/cut=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=1/cut=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=1/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=1/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=1/cut=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=1/cut=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=3/cut=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=3/cut=2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=3/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=3/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=1/c=3/cut=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=1/c=3/cut=5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=1/2/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=1/2/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=1/2/cut=9/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=1/2/cut=9/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=1/2/cut=15/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=1/2/cut=15/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=1/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=1/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=1/cut=9/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=1/cut=9/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=1/cut=15/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=1/cut=15/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=3/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=3/cut=3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=3/cut=9/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=3/cut=9/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=3/2/c=3/cut=15/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=3/2/c=3/cut=15/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=1/2/cut=4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=1/2/cut=4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=1/2/cut=6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=1/2/cut=6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=1/2/cut=10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=1/2/cut=10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=1/cut=4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=1/cut=4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=1/cut=6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=1/cut=6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=1/cut=10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=1/cut=10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=3/cut=4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=3/cut=4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=3/cut=6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=3/cut=6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/grid/q=2/c=3/cut=10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/error/q=2/c=3/cut=10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/unit-phase-invariance/0",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/unit-phase-invariance/1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/unit-phase-invariance/2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/conjugation-invariance",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/complex-leading-constant",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/pure-error",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/negative-real-fast-path",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/real-log-fast-path",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/exact-zero",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/log-coefficients",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/log-tail-degree",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/input-precision-clips-output",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "modulus/leading-cutoff-bound",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "model/refuses-symbolic-unproved-coefficients",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "model/refuses-complex-leading-log-amplitude",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "model/refuses-inexact-coefficients",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "model/refuses-retained-term-at-error",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "model/refuses-zero-budget",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "model/product-budget-stops",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "model/step-budget-stops",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "patch/one-guard",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "patch/preserves-surroundings",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "patch/replaces-whole-reviewed-definition",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "patch/anchor-matches-transcribed-source-excerpt",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "patch/rejects-missing-anchor",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "patch/rejects-duplicate-anchor",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "patch/rejects-already-patched",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "patch/rejects-modified-anchor",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hermitian/same-polynomial/m=8",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hermitian/pair-count/m=8",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hermitian/same-polynomial/m=16",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hermitian/pair-count/m=16",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hermitian/same-polynomial/m=32",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hermitian/pair-count/m=32",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hermitian/same-polynomial/m=64",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "hermitian/pair-count/m=64",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

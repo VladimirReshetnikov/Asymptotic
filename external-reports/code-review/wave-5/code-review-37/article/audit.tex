@@ -1,0 +1,709 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=0.88in,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype,booktabs,longtable,tabularx,array}
+\usepackage{xcolor,listings,enumitem,fancyhdr}
+\usepackage{hyperref,xurl}
+\definecolor{ink}{HTML}{19364B}
+\definecolor{soft}{HTML}{F3F6F8}
+\definecolor{rulecolor}{HTML}{CAD5DD}
+\hypersetup{colorlinks=true,linkcolor=ink,urlcolor=ink,citecolor=ink,
+ pdftitle={AsymptoticAnalysis: a differential code audit after four review waves},
+ pdfauthor={OpenAI},pdfsubject={Three source-derived findings, mathematical countermodels, and candidate repairs}}
+\lstset{basicstyle=\ttfamily\small,backgroundcolor=\color{soft},
+ frame=single,rulecolor=\color{rulecolor},breaklines=true,columns=fullflexible,
+ keepspaces=true,showstringspaces=false,aboveskip=10pt,belowskip=10pt,
+ xleftmargin=5pt,xrightmargin=5pt,framesep=5pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5.5pt}
+\setlist{nosep,leftmargin=1.5em}
+\renewcommand{\arraystretch}{1.16}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{ink}AsymptoticAnalysis \;|\; Differential audit}
+\fancyhead[R]{\small 10 September 2026}
+\fancyfoot[L]{\small Source-derived findings; native execution not completed}
+\fancyfoot[R]{\thepage}
+\newcommand{\commit}{8e859961d7d37f008b826f3a8cad406460271614}
+\newcommand{\repo}{https://github.com/VladimirReshetnikov/Asymptotic}
+\newcommand{\src}[3]{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/#1\#L#2-L#3}{source, lines #2--#3}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\Oterm}{\mathcal{O}}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\newtheorem{corollary}[proposition]{Corollary}
+
+\begin{document}
+\begin{titlepage}
+\vspace*{0.3in}
+{\small\sffamily\color{ink}REPOSITORY REVIEW \quad / \quad INCREMENTAL FINDINGS}
+\vspace{0.32in}
+
+{\Huge\bfseries\color{ink}AsymptoticAnalysis}\par
+\vspace{0.12in}
+{\LARGE A differential code audit\\after four review waves}\par
+\vspace{0.35in}
+{\large Nonholomorphic observables, parameter-sensitive zeroth powers,\\and an ignored special-family cutoff}
+\vspace{0.4in}
+
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+Repository & \url{https://github.com/VladimirReshetnikov/Asymptotic}\\
+Reviewed revision & \texttt{\commit}\\
+Review date & 10 September 2026\\
+Exclusion baseline & Maintained review register, four-wave archive index, and selected original finding records\\
+Evidence & Source inspection; exact independent countermodels; synthetic patch-fixture checks\\
+Execution boundary & No successful Wolfram kernel evaluation or patched-package execution\\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.33in}
+\textbf{Principal result.} Three concrete deltas are developed rather than another copy of the existing backlog. The most serious is an absolute-value rewrite that can turn a nonzero, real-valued expression into an apparently exact zero. Two smaller issues concern the domain and truncation semantics of zeroth powers.
+
+\vspace{0.13in}
+\textbf{Included artifacts.} The editable article, PDF, a read-only candidate-patch emitter, fourteen unrun Wolfram regression candidates, an unrun characterization driver, and twenty-two executed independent checks with machine-readable results.
+
+\vfill
+{\small The source-level mechanisms are established from the pinned files. Public reproductions are predictions until run in the target kernel. No native timing, complete test-suite result, or exhaustive rereading of every archived article is claimed.}
+\end{titlepage}
+
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+
+\section{Executive assessment}
+
+The most useful next change is a local correctness repair, not another expansion of the package's already substantial feature surface. The inspected implementation has separate routes for ordinary power--logarithmic jets, specialized inverse families, flat sectors, Fourier coefficients, and composite error envelopes. The three findings in this report occur where an operation crosses, or bypasses, one of those routes. They concern the meaning of the represented function, not simply the aesthetic form of an answer. The relevant dispatch and representation code is in the ordinary kernel, explicit series operations, arithmetic adapter, and Gamma/Barnes inverse-power adapter.\cite{core,operations,arithmetic,gammaops}
+
+\begin{tabularx}{\textwidth}{@{}p{0.45in}p{0.7in}X@{}}
+\toprule
+ID & Priority & Finding and immediate remedy\\
+\midrule
+F01 & High & A leading-sign rule for \code{Abs} does not check the reality of retained subleading coefficients. Opposite imaginary coefficients can cancel after two incorrect rewrites, hiding an incorrect exact zero. Require real retained coefficients before using this rule.\\
+F02 & Medium & An ordinary zeroth power treats a nonempty symbolic jet as evidence of nonvanishing, even when its retained parameter domain includes an identically zero specialization. Prove nonvanishing or refuse under the existing analytic convention.\\
+F03 & Low--medium & The Gamma/Barnes zeroth-power fast path validates an explicit cutoff and then replaces it with the literal value one. Forward the requested cutoff, while preserving the exact constant source separately from its truncated view.\\
+\bottomrule
+\end{tabularx}
+
+The severity distinctions matter. F01 has an exact mathematical counterexample: the expected answer has leading term $x^2$, whereas the inspected rewrite sequence produces zero. F02 concerns a parameter-domain and convention inconsistency; a formal algebra could deliberately define a different zeroth-power convention, but that is not how the ordinary exact-zero guard is written. F03 returns the correct constant function, but not the requested exclusive truncation or request metadata. It is not a false asymptotic error estimate.
+
+\subsection{What was established, and what was not}
+
+Source inspection establishes the bodies and ordering of the relevant definitions. Independent Python checks establish the countermodel identities and the small text transformations supplied with the report. The independent run completed \textbf{22 named checks}, all passing. Its detailed output is \path{evidence/independent_results.json}; it explicitly records that neither the Wolfram package nor the candidate Wolfram changes were executed.
+
+The available Wolfram service failed even on a version/arithmetic probe. A local executable checkout was also not obtained. Consequently, this article does not print invented kernel transcripts, call the supplied WLT tests ``passed,'' or claim that a particular kernel necessarily reaches the predicted public result without an intervening simplification or diagnostic. Each public example is a reproducible \emph{candidate}, accompanied by a shorter mechanism-level witness. The distinction is especially important for F01, where evaluation and assumption simplification may change the surface expression before the helper is entered.
+
+These limitations do not invalidate the exact counterexamples to the inspected rules. They do limit the strength of a release recommendation: the supplied changes are candidates for review and native validation, not a certified replacement package. The article gives enough source detail and regression intent to make that next validation step focused.
+
+\subsection{The non-duplication boundary}
+
+The exclusion baseline was the archive index, the maintained \code{CODE_REVIEW_STATUS.md} register, the third- and fourth-wave intake crosswalks, and selected original records nearest to the candidate findings. The index organizes reports 1--36 in four waves. The maintained records were used as a suppression baseline rather than as evidence that old defects remain present.\cite{archive,register,wave3,wave4}
+
+The original records consulted in addition to the crosswalks were review 2's README, review 4's finding ledger, review 22's README, and review 25's README. These were particularly relevant to prior precision, realness, capability, and observable-admission work.\cite{review2,review4,review22,review25} This was \emph{not} an independent line-by-line rereading of all thirty-six articles and every bundled artifact. A code-search response was incomplete, so an empty search result was not used as proof of novelty.
+
+The three deltas below were not found at this specificity in that consulted baseline. Their closest prior obligations are identified in Section~\ref{sec:novelty}, solely to delimit the new claims. General recommendations already present in the archive are not republished as new work. In particular, this report does not turn pre-existing broad concerns about precision, resource budgets, or native validation into additional numbered findings.
+
+\section{The semantic model needed for the review}
+
+\subsection{A jet is more than its displayed expression}
+
+The ordinary internal representation has the form
+\[
+ J=(T,P,D),\qquad
+ T=\{(\alpha_j,Q_j)\}_{j=1}^{m},
+\]
+with a positive local coordinate $u\to0^+$ and $L=\log u$. It represents
+\begin{equation}\label{eq:jet}
+ f(u)=\sum_{j=1}^{m}u^{\alpha_j}Q_j(L)
+       +\Oterm\!\left(u^P(1+|L|)^D\right).
+\end{equation}
+The source uses $P=\infty$ for an exact finite jet. The rows are merged and ordered, and coefficients are collected before the public representation boundary checks their reality. The core's comments explicitly allow complex intermediate summands that cancel in a real completed coefficient.\cite{core} See \src{src/Kernel/AsymptoticAnalysis.wl}{240}{430}.
+
+The explicit calculus additionally permits an exact offset and prefactor:
+\[
+ f(y)=b(y)+p(y)\bigl(J(w(y))\bigr).
+\]
+The stored series representation, target domain, assumptions, and operation recipe therefore matter when applying an operation. An equality of finite expressions does not on its own establish equality of domains, errors, or truncation requests.\cite{operations} See \src{src/Kernel/SeriesOperations.wl}{1}{145}.
+
+For a fixed admissible parameter value, a genuinely nonzero leading coefficient controls the eventual sign of a real power--logarithmic polynomial. A \emph{syntactically present} coefficient is a weaker fact: the coefficient may vanish at some parameter values. Likewise, a positive leading coefficient of a complex-valued polynomial controls neither its reality nor its modulus. F01 and F02 exploit these two different distinctions.
+
+\subsection{Why an exclusive cutoff must remain visible}
+
+A requested cutoff $h$ keeps rows with $\alpha_j<h$. A known omitted row can supply a sharper remainder than the literal requested cutoff. For example, truncating the exact constant one at $h=-1$ or $h=0$ gives an empty finite part with a valid $\Oterm(1)$ remainder; there is no requirement to weaken that bound to $\Oterm(u^{-1})$. The requested cutoff and the best known remainder power need not coincide. This behavior follows the ordinary \code{makeForwardObject} and \code{seriesTrim} definitions.\cite{core,operations} See \src{src/Kernel/AsymptoticAnalysis.wl}{729}{795} and \src{src/Kernel/SeriesOperations.wl}{18}{30}.
+
+The same example also separates \emph{source exactness} from \emph{view exactness}. The source function one is known exactly. Its cutoff-zero view deliberately omits its only term, and is therefore not an exact finite representation. F03 loses this distinction by always constructing the cutoff-one view.
+
+\subsection{Operation-specific proof obligations}
+
+The relevant obligations can be stated without inventing a new object system. For the sign-based absolute-value shortcut, the retained approximation must be real and have an eventual sign. For a zeroth power under the current nonvanishing convention, the represented base must not be identically zero on any admitted parameter specialization. For a constant-observable fast path, the final view must still honor the caller's requested projection.
+
+These are separate obligations. A final real-coefficient check cannot retroactively justify a nonholomorphic intermediate rewrite. A nonempty row list cannot prove nonvanishing. An exact result cannot silently exempt itself from a term-selection option. The following sections trace each obligation to its specific implementation boundary.
+
+\section{F01: a complex perturbation defeats the sign-based absolute value}\label{sec:F01}
+
+\subsection{Source mechanism}
+
+The ordinary forward dispatcher routes \code{Abs} to \code{fwdAbs}. The helper returns a pure remainder unchanged; otherwise it examines the first coefficient polynomial and chooses either the original jet or its negative according to the eventual sign inferred from that polynomial's highest logarithmic coefficient. There is no check that all retained coefficients are real.\cite{core} The relevant definition is in \src{src/Kernel/AsymptoticAnalysis.wl}{445}{465}.
+
+Its essential form is:
+\begin{lstlisting}
+fwdAbs[j : {T_, P_, D_}, ell_, ass_] := Module[{q, c, degree},
+  If[T === {}, Return[j, Module]];
+  q = T[[1, 2]]; degree = polyDegree[q, ell];
+  c = (-1)^degree Coefficient[q, ell, degree];
+  Which[provablyPositive[c, ass], j,
+    provablyNegative[c, ass], pScale[j, -1, ell, ass],
+    True, fail["UnprovedSign", ...]]];
+\end{lstlisting}
+
+For real-valued jets with fixed eventual sign, this is an efficient and natural shortcut. For a complex retained approximation it is not a modulus computation. Wolfram's \code{Abs} denotes the complex modulus as well as the real absolute value; it is not an operation that simply preserves a complex quantity with positive real leading term.\cite{absdoc}
+
+The observable dispatcher also routes \code{Abs} directly to this helper. That branch precedes the generic unary-function path, which has its own complete-argument realness and one-sided Taylor checks. A repair to generic Taylor ingress therefore does not automatically protect \code{Abs}.\cite{operations} See \src{src/Kernel/SeriesOperations.wl}{304}{367}.
+
+\subsection{An exact cancellation witness}
+
+Let $a^2=-1$, and let $x>0$ be real. Consider
+\begin{equation}\label{eq:abswitness}
+ F_a(x)=|1+a x|+|1-a x|-2.
+\end{equation}
+The only complex solutions of $a^2=-1$ are $a=\pm i$. Thus both moduli equal $\sqrt{1+x^2}$, independently of the choice of root.
+
+\begin{proposition}\label{prop:abs}
+For every $a$ with $a^2=-1$,
+\[
+ F_a(x)=2\sqrt{1+x^2}-2
+       =x^2-\frac{x^4}{4}+\frac{x^6}{8}-\frac{5x^8}{64}
+         +\Oterm(x^{10})
+\]
+as $x\to0^+$. In particular, $F_a$ is not the exact zero function and is not $\Oterm(x^4)$.
+\end{proposition}
+\begin{proof}
+Complex conjugation gives
+\[
+ (1+a x)\overline{(1+a x)}=(1+a x)(1-a x)=1+x^2.
+\]
+The same identity holds with the sign reversed. The positive square root gives the asserted exact identity, and the binomial expansion gives the displayed coefficients. Alternatively, the rationalized expression
+\begin{equation}\label{eq:rationalized}
+ F_a(x)=\frac{2x^2}{\sqrt{1+x^2}+1}
+\end{equation}
+immediately proves $F_a(x)/x^2\to1$. Hence $F_a(x)/x^4\to+\infty$.
+\end{proof}
+
+Now apply the inspected helper to the two exact sparse jets
+\[
+ J_+=\bigl(\{(0,1),(1,a)\},\infty,0\bigr),\qquad
+ J_-=\bigl(\{(0,1),(1,-a)\},\infty,0\bigr).
+\]
+In both cases the first coefficient polynomial is one. Its logarithmic degree is zero, and its inferred sign is positive. Therefore the helper returns $J_+$ and $J_-$ unchanged. Addition and subtraction of the exact constant two then cancel every retained row, giving an exact zero jet.
+
+This is a particularly useful witness because it does not rely on a pessimistic interpretation of an unknown remainder, on native \code{SeriesData}, or on a forged public object. The wrong operation acts on exact finite polynomials. The error is subsequently concealed by legitimate coefficient collection.
+
+\subsection{Why the final realness check does not repair the mistake}
+
+A final coefficient check asks whether the completed row coefficients are real. In the predicted result of this witness there are no nonzero coefficients at all. The incorrect imaginary contributions have already canceled. A validation rule that rejects visibly nonreal final output consequently cannot distinguish the incorrect zero from a genuine exact cancellation.
+
+The distinction is between two kinds of intermediate complex expressions. In ordinary addition or multiplication, complex terms may cancel without changing the validity of the algebra. In a modulus, conjugation is essential: replacing $|1+a x|$ by $1+a x$ is already wrong before any later cancellation is considered. The package's permissive treatment of complex intermediate summands is not itself the problem; the missing \emph{local} hypothesis on the \code{Abs} shortcut is.
+
+\subsection{Public reproduction candidates}
+
+The following observable candidate starts from a real exact source series. It uses a symbolic parameter rather than a literal imaginary constant, because the public input validator rejects explicit \code{Complex} atoms. The assumption $a^2=-1$ records the intended parameter domain.
+
+\begin{lstlisting}
+Clear[a, x, z];
+s = AsymptoticExpansion[x, {x, 0, 4},
+  Assumptions -> a^2 == -1, "Backend" -> "Package"];
+
+SeriesObservable[s,
+  Abs[1 + a z] + Abs[1 - a z] - 2,
+  z, "Cutoff" -> 4]
+\end{lstlisting}
+
+A direct-constructor candidate tests the other caller:
+\begin{lstlisting}
+AsymptoticExpansion[
+  Abs[1 + a x] + Abs[1 - a x] - 2, {x, 0, 4},
+  Assumptions -> a^2 == -1, "Backend" -> "Package"]
+\end{lstlisting}
+
+The source-derived prediction is an exact zero if these expressions reach the inspected rule sequence without earlier normalization. The correct retained expression at cutoff four is $x^2$, with a nonzero remainder beginning at power four. A conservative unsupported-domain failure is also acceptable for a package that elects not to handle these complex intermediate arguments. An exact zero is not acceptable.
+
+These examples were \textbf{not run in Wolfram}. The supplied \path{Characterize.wl} prints the actual result and selected metadata when run, while leaving diagnostic messages visible. The private-helper candidate avoids any uncertainty about public preprocessing and directly exercises the missing local guard.
+
+\subsection{A narrow repair, with a proof of its scope}
+
+Immediately after the empty-jet return, require every retained coefficient polynomial to be provably real:
+\begin{lstlisting}
+If[! And @@ (realPolynomialQ[#[[2]], ell, ass] & /@ T),
+  fail["UnprovedAbsArgument",
+    "The sign-based absolute-value expansion requires real retained coefficients; use an exact modulus identity or supply sufficient assumptions."]];
+\end{lstlisting}
+
+This uses the package's existing real-polynomial predicate. It does not prohibit complex intermediate arithmetic elsewhere, and it does not attempt to turn the real sign helper into a general complex-modulus engine.
+
+An important subtlety keeps this repair smaller than a whole-source realness requirement.
+
+\begin{lemma}\label{lem:lipschitz}
+Suppose $A(u)$ is real and eventually has fixed sign $\sigma\in\{-1,1\}$. If $E(u)$ is possibly complex and $E(u)=\Oterm(B(u))$ in magnitude, then
+\[
+ |A(u)+E(u)|=\sigma A(u)+\Oterm(B(u)).
+\]
+\end{lemma}
+\begin{proof}
+The reverse triangle inequality gives
+\[
+ \bigl||A+E|-|A|\bigr|\leq |E|.
+\]
+Since $|A|=\sigma A$ eventually, the claim follows.
+\end{proof}
+
+Thus complex \emph{unknown errors beyond a real retained jet} do not by themselves invalidate the magnitude estimate produced by this helper. The obstruction in F01 is a complex \emph{retained} term, which the helper leaves in the finite output as though the modulus were the identity. A pure remainder remains safe to return as a pure magnitude remainder, as the existing empty-jet branch does.
+
+This argument is about the magnitude contract at this operation. It is not a new claim that differentiating arbitrary modulus remainders preserves derivative bounds. Derivative metadata requires its own existing hypotheses; the candidate patch does not expand them.
+
+\subsection{Useful extension beyond conservative refusal}
+
+A later, separate enhancement could admit finite complex retained jets by forming a conjugate norm,
+\[
+ A\overline A,
+\]
+and expanding its positive square root. For the witness, this produces $1+x^2$ before the square root, recovering the missing quadratic term. For a jet with an unknown error $E=\Oterm(B)$, the squared-norm uncertainty can be bounded by
+\[
+ \bigl||A+E|^2-|A|^2\bigr|
+ \leq 2|A||E|+|E|^2.
+\]
+A square-root step still needs a suitable positive leading norm or an appropriately weaker bound. The case of a zero leading norm cannot be handled by blindly applying the same division-based linearization.
+
+This proposal is restricted to real-axis modulus evaluation with exact parameter conjugation; it is not a proposal for arbitrary complex asymptotic sectors. It should be implemented only after the conservative rejection is stable, and as a separate change from the supplied guard. The regression suite supplied here deliberately tests the guard's refusal, not this unimplemented extension.
+
+\section{F02: zeroth powers need a parameter-domain decision}\label{sec:F02}
+
+\subsection{The current inconsistency}
+
+In the ordinary series-power implementation, an empty retained jet is rejected at exponent zero:
+\begin{lstlisting}
+If[r === 0 && d["Jet"][[1]] === {},
+  fail["IndeterminatePower",
+    "A zeroth power requires a known nonzero leading term."]];
+\end{lstlisting}
+After this test, \code{fwdPower} dispatches a nonnegative integer exponent to \code{pIntegerPower}. At exponent zero, the binary-power loop performs no iterations and returns the exact constant one.\cite{operations,core} See \src{src/Kernel/SeriesOperations.wl}{173}{202} and \src{src/Kernel/AsymptoticAnalysis.wl}{400}{475}.
+
+A nonempty symbolic row list does not establish the condition stated in the error message. It says that a coefficient has not been proved identically zero under the assumptions, not that it has been proved nonzero at every admissible parameter value.
+
+\subsection{A valid constructed family exposes the gap}
+
+Consider
+\begin{equation}\label{eq:zerofamily}
+ f_a(x)=a x,\qquad a\in\mathbb R,\quad x\to0^+.
+\end{equation}
+Its exact finite jet has one symbolic row $(1,a)$. The family is valid as a real-valued forward expression for every real $a$, including $a=0$. The following candidate therefore does not require malformed associations or hidden internal metadata:
+\begin{lstlisting}
+Clear[a, x];
+s = AsymptoticExpansion[a x, {x, 0, 3},
+  Assumptions -> Element[a, Reals], "Backend" -> "Package"];
+SeriesPower[s, 0]
+\end{lstlisting}
+
+The inspected ordinary path returns the exact constant one without adding $a\ne0$ to the domain. At $a=0$, however, the represented base is identically zero. The package's explicit empty-jet policy would reject a separately constructed exact zero before taking its zeroth power.
+
+The distinguishing problem is not the value of the limiting base at $x=0$. For $a\ne0$, the base $a x$ is nonzero on the punctured approach, despite tending to zero. Such a zeroth power should be admitted under the current policy. The obstruction is the allowed \emph{parameter specialization} $a=0$, where the base is zero throughout the approach.
+
+\subsection{Conventions must be separated from a correctness claim}
+
+There are legitimate contexts in which $f^0=1$ is a formal algebraic convention even when $f=0$. There are also pointwise analytic conventions in which $0^0$ is indeterminate. Wolfram documents both the indeterminate numerical case and generic symbolic power simplifications.\cite{powerdoc} Therefore ``the answer must be one'' or ``the answer must always fail'' is too coarse a specification.
+
+The present finding is an inconsistency within this package's own guard structure. The ordinary route explicitly refuses exact-zero jets. The composite-envelope route also seeks eventual nonvanishing and relative-precision evidence for powers outside its positive-integer branch, rather than equating symbolic support with nonvanishing.\cite{envelope} See \src{src/Kernel/SeriesEnvelopeArithmetic.wl}{236}{288}. A symbolic family whose domain contains zero should not acquire a stronger pointwise domain guarantee merely because its coefficient has not yet been specialized.
+
+Under a deliberate formal-unit convention, the alternative repair would be to document and apply that convention consistently across representations, including the exact-zero case. That is a broader API decision. The supplied candidate instead follows the conservative convention already expressed by the ordinary error message and composite guard.
+
+\subsection{A sufficient nonvanishing test}
+
+Suppose the retained jet has leading block
+\[
+ u^\alpha Q(L),\qquad Q(L)=c_d L^d+\cdots+c_0,
+\]
+with a known remainder smaller than this leading block and with the ordinary ordered-jet invariants intact. For fixed parameters, a proved nonzero highest coefficient $c_d$ establishes eventual nonvanishing of $Q(\log u)$. An exact external prefactor must also be nonzero.
+
+\begin{proposition}\label{prop:nonzero}
+Assume that, for every fixed parameter value in the retained domain, $c_d\ne0$, the exact prefactor $p(u)$ is nonzero on the approach, and every other retained block and the error are $o(u^\alpha Q(\log u))$. Then the represented function with zero offset is eventually nonzero, and its pointwise zeroth power is the exact constant one.
+\end{proposition}
+\begin{proof}
+Because $L\to-\infty$,
+\[
+ \frac{Q(L)}{c_dL^d}\longrightarrow1.
+\]
+For each fixed admissible parameter value, the polynomial is therefore nonzero for sufficiently negative $L$. The full parenthesized jet is its leading block multiplied by $1+o(1)$, and hence is eventually nonzero as well. Multiplication by the nonzero exact prefactor preserves nonvanishing. No uniform parameter-independent threshold is asserted.
+\end{proof}
+
+The sufficient test must not require choosing a sign. For example, the assumptions $a\in\mathbb R$ and $a\ne0$ establish exactly what a zeroth power needs, although neither $a>0$ nor $a<0$ follows separately.
+
+The candidate helper is:
+\begin{lstlisting}
+seriesZerothPowerNonzeroQ[d_] := Module[
+  {j = d["Jet"], ell = d["LogVariable"], q, degree, c},
+  If[j[[1]] === {}, Return[False, Module]];
+  q = j[[1, 1, 2]]; degree = polyDegree[q, ell];
+  c = Coefficient[q, ell, degree];
+  TrueQ[FullSimplify[c != 0 && d["Prefactor"] != 0,
+    seriesAss[d]]]];
+\end{lstlisting}
+It is used only for $r=0$, after the existing empty-jet guard. Failure to prove the condition produces \code{Failure["UnprovedNonzeroBase", ...]} rather than silently restricting the parameter domain.
+
+This is intentionally sufficient rather than complete. A leading coefficient can vanish on one parameter subcase while a lower logarithmic coefficient or later power still proves nonvanishing there. The helper may reject such a valid family. Resolving those cases requires a further proof or a deliberately specified domain split; the narrow patch does not claim that coverage.
+
+\subsection{Regression and user-facing behavior}
+
+The important test pair differs only by a nonvanishing hypothesis:
+\begin{lstlisting}
+(* Conservative refusal: a=0 is admitted. *)
+Assumptions -> Element[a, Reals]
+
+(* Acceptance: no sign choice is needed. *)
+Assumptions -> (Element[a, Reals] && a != 0)
+\end{lstlisting}
+Additional controls are an exact-zero input, which should preserve the existing \code{IndeterminatePower} failure, and a negative nonzero input such as $-x$, which should return one. A regression that only checks a positive numeric base would miss the parameter problem entirely.
+
+The diagnostic should name the failed obligation, not suggest that the user increase asymptotic order. More terms do not resolve the fact that $a=0$ is allowed in Equation~\eqref{eq:zerofamily}. The relevant action is to supply a true nonvanishing assumption, specialize the parameter, or choose a different explicitly documented algebraic convention.
+
+The patch is confined to the ordinary precision-jet path. It does not claim to unify every flat-sector, composite, or specialized-family zeroth-power convention. Those routes should be included in a focused future policy comparison, but are not additional established defects in this report.
+
+\section{F03: Gamma/Barnes zeroth powers ignore the requested cutoff}\label{sec:F03}
+
+\subsection{The early return that drops the request}
+
+The shared Gamma/Barnes inverse-power adapter checks that an explicit \code{cut} is an exact real number. Its $k=0$ branch then constructs a constant forward object using cutoff one regardless of that value:
+\begin{lstlisting}
+If[k === 0,
+  ...
+  result = forwardCore[1, y, a["Limit"], 1,
+    Assumptions -> ass, Direction -> direction,
+    "MaxTerms" -> limit];
+  ...
+  Return[GeneralizedSeries[...], Module]];
+\end{lstlisting}
+This is visible in \src{src/Kernel/GammaInverseOperations.wl}{5}{34}. The public power wrapper does not subsequently apply a general truncation to this result; its special finishing step applies to flat-series results.\cite{gammaops,arithmetic} See \src{src/Kernel/SeriesArithmetic.wl}{32}{44}.
+
+The source therefore establishes an ignored option, not merely an unexpectedly simplified display. The caller's cutoff has been admitted, then discarded in a successful branch.
+
+\subsection{Reproduction candidates and expected projection}
+
+A simple candidate uses the positive inverse-Gamma source branch:
+\begin{lstlisting}
+Clear[x, y];
+g = AsymptoticInverse[Gamma[x], {x, Infinity}, {y, 1}];
+SeriesPower[g, 0, "Cutoff" -> 0]
+\end{lstlisting}
+The source-derived prediction is a retained constant one with stored cutoff one. A second candidate with \code{"Cutoff" -> 2} still stores cutoff one. Replacing \code{Gamma} by \code{BarnesG} reaches the same operation adapter, subject to successful family construction. None of these public candidates was executed during this review.
+
+For the exact constant source one, the intended exclusive projection is straightforward:
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Requested $h$ & Retained expression & Remainder & Stored cutoff\\
+\midrule
+$-2$ & $0$ & $\Oterm(1)$ & $-2$\\
+$-1$ & $0$ & $\Oterm(1)$ & $-1$\\
+$0$ & $0$ & $\Oterm(1)$ & $0$\\
+$1/3$ & $1$ & $0$ & $1/3$\\
+$1$ & $1$ & $0$ & $1$\\
+$2$ & $1$ & $0$ & $2$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The remainder power for the first three rows is zero, the exponent of the known omitted constant. It need not equal a negative request. These outcomes are a direct consequence of retaining a monomial of weight zero exactly when $0<h$.
+
+\subsection{Why this is not an accuracy bug}
+
+The exact zeroth-power observable on the admitted nonzero source branch is one. Returning one is consequently mathematically sound as an approximation. The defect is that the explicit operation promises an exclusive cutoff view, and downstream code can use the recorded cutoff and term support to decide whether a request was honored. A fast path must either implement that view or explicitly reject a request it does not support.
+
+A broad phrase such as ``exact answers may ignore cutoffs'' would introduce a different contract and would conflict with ordinary truncation of exact finite expressions. The existing ordinary projector already has the required behavior, so no such exception is necessary.\cite{core,operations}
+
+\subsection{Minimal repair and metadata preservation}
+
+Replace the literal cutoff argument with:
+\begin{lstlisting}
+If[cut === Automatic, 1, cut]
+\end{lstlisting}
+The default behavior remains unchanged. An explicit request is passed to the same ordinary constant constructor that the branch already uses. The target domain and exact constant \code{Function} are retained by the surrounding code.
+
+One explanatory metadata sentence should also change. The current statement that the constant observable is exact can be read as a claim about the returned finite view. The proposed wording is:
+\begin{quote}
+The source observable is the exact constant one, independent of the operand remainder; the requested cutoff may omit its term.
+\end{quote}
+This distinguishes the exact source information from the possibly inexact projected representation. It also explains why later reconstruction can legitimately recover the constant without pretending that the cutoff-zero view had no error.
+
+The supplied regressions cover the Gamma zero cutoff, a positive explicit cutoff with correct metadata, the shared Barnes path, and the automatic default. A nonzero power remains on the existing precision-propagation path and is not changed by this candidate.
+
+\section{Novelty ledger and excluded overlap}\label{sec:novelty}
+
+The following crosswalk states the boundary of each contribution. Prior IDs refer to the maintained register or wave intake, not to newly numbered findings in this article.\cite{register,wave3,wave4}
+
+\begin{longtable}{@{}p{0.4in}p{1.65in}p{4.0in}@{}}
+\toprule
+Delta & Nearest prior obligation & What is different here\\
+\midrule
+\endfirsthead
+\toprule Delta & Nearest prior obligation & What is different here\\\midrule
+\endhead
+F01 & C07; W3-06; review 4's real-argument concern; reviews 22/25 observable ingress & The dedicated nonholomorphic \code{Abs} shortcut, not the generic Taylor oracle, rewrites exact complex retained polynomials incorrectly. Two such rewrites cancel to a real exact zero. The repair checks local retained reality, and its proof deliberately permits a complex unknown magnitude error.\\
+F02 & C02; C09; C11 & A valid ordinary object with a nonempty parameterized row reaches exponent zero without a nonvanishing proof. This is neither a fractional power of a pure error, a stored-power option-precedence issue, nor a malformed-object admission issue.\\
+F03 & W3-14; D01 & The concrete early return in the Gamma/Barnes \emph{zeroth-power} adapter discards the caller's cutoff. The earlier zero-order differentiation concern is not repeated, and no generic request-normalization redesign is claimed as new.\\
+\bottomrule
+\end{longtable}
+
+The exact examples, local patches, and acceptance conditions define the deltas. The report does not claim that broad concepts such as ``check realness'' or ``honor options'' are new. It identifies previously unrecorded operation paths and counterexamples within the consulted exclusion baseline.
+
+The distinction also sets a limit on novelty confidence. The maintained crosswalks provide broad coverage of the archive's attributed findings, but they are summaries. A buried example in an unexamined full article or bundled test could narrow one of these deltas further. The evidence ledger states that limitation instead of treating incomplete code search or a familiar issue label as proof of absolute uniqueness.
+
+\section{Broader assessment of the inspected code}
+
+\subsection{What the inspection covered}
+
+The review followed the ordinary forward and inverse representation boundaries, arithmetic dispatch, observable application, selected composition and derivative paths, exact interval certificate primitives, Fourier coefficient algebra, flat-sector operations, reciprocal-log calculus, Gamma/Barnes constructions, Dirichlet special functions, special-function identities, and selected Mathics adapters. The exact inventory is in Appendix~\ref{app:inventory} and \path{evidence/source_inventory.json}. Some modules were read in full; others were examined in specific ranges. This is a broad source inspection, not a claim of complete formal verification.
+
+Several implementation choices reduce the need for speculative recommendations. Ordinary multiplication already uses sorted support to avoid constructing products outside a cutoff. Nonnegative integer powers already use binary powering. The Fourier code has corresponding retained-pair traversal and a homogeneous-coefficient termination check. The certificate primitives round rational endpoints outward rather than relying on floating-point comparisons. These properties are visible in the inspected code and are not presented as missing features.\cite{core,fourier,certificates}
+
+The special-function inspection did not establish another distinct defect suitable for this report. In particular, the finite half-integer Bessel recurrence retains both exponentials, the elementary hypergeometric identities preserve endpoint contributions, and the reviewed Dirichlet-tail construction uses explicit positive envelopes rather than treating the first omitted oscillatory term as an error norm. These are source observations and limited algebraic consistency checks, not a claim that every parameter branch, native normalization, or numerical evaluator is correct.\cite{identities,dirichlet,parameterized}
+
+The Gamma and Barnes inverse-power findings should likewise not be interpreted as a rejection of their inverse asymptotic formulas. F03 is in the constant-observable return path; it does not involve the Bernoulli coefficients or the Lambert-based core reversion. The inspection traced those neighboring modules to delimit the affected path, not to infer a new formula error.\cite{gammainverse,barnesinverse,barnesforward,gammaops}
+
+\subsection{Performance: costs introduced by the repairs}
+
+No new native performance defect or speedup was measured. The report therefore does not rank the package against built-ins or quote invented runtimes. There are, however, concrete costs to assess before adopting the proposed safeguards.
+
+For F01, the guard visits each retained coefficient polynomial. If there are $m$ rows, the structural traversal is linear in $m$, but the cost of proving coefficient reality depends on the symbolic coefficients and assumptions. In the usual rational-coefficient case the predicates are simple. With complicated parameter expressions, simplification can dominate. The existing real-polynomial predicate has its own simplification strategy; the patch reuses it rather than introducing a second inconsistent notion of reality.\cite{core}
+
+The relevant benchmark is not merely construction time on one polynomial. It is the additional time at \code{Abs} calls for rational coefficients, real symbolic coefficients, unsigned real parameters, and explicitly nonreal retained coefficients. Results should be compared at the same cutoff and with the same accepted/refused contract. A faster answer that silently returns the wrong modulus is not a comparable success.
+
+The optional conjugate-norm extension has a different cost profile. A retained support of size $m$ has at most $m^2$ raw ordered norm-product pairs before merging and cutoff pruning. That is a combinatorial upper bound, not a timing estimate. A general modulus route could therefore be materially more expensive than a local refusal. Keeping the guard and the extension separate lets users obtain the correctness fix without paying for an unrequested expansion of complex-modulus support.
+
+For F02, the extra symbolic proof is confined to exponent zero. It does not add work to ordinary positive or negative nonzero powers. Its benefit is that a constant result no longer bypasses an important domain obligation. A failure should not trigger repeated attempts to acquire more power terms: the counterexample's missing information is a parameter hypothesis.
+
+F03 should add no new family reversion work. The branch already builds the ordinary constant forward object; the fix changes only which cutoff is passed to that existing construction. A benchmark that suggests a large change in nonzero Gamma/Barnes power timings would indicate an unintended patch interaction, because that path is outside the edit.
+
+\subsection{API and UX improvements directly supported by the findings}
+
+The diagnostics should explain the mathematical obstruction at the operation that encounters it. F01 should report that a \emph{sign-based modulus shortcut} cannot consume nonreal retained coefficients, rather than eventually producing a generic coefficient error after cancellation. F02 should identify nonvanishing on the retained parameter domain, not imply that an asymptotic term is missing. F03 should preserve the caller's request metadata even when the source observable is constant.
+
+Documentation examples can be short and targeted. An \code{Abs} example should distinguish a complex retained perturbation from a complex unknown magnitude error. A zeroth-power example should contrast $a\in\mathbb R$ with $a\in\mathbb R\setminus\{0\}$. A constant-observable example should show that cutoff zero omits weight zero while leaving the exact source available. These examples explain the new local contracts without duplicating an existing comprehensive API redesign proposal.
+
+\subsection{Unimplemented work that follows specifically from these deltas}
+
+The conjugate-norm modulus route is the principal new coverage opportunity developed here. It has a clean first scope: real local coordinate, exact finite polynomial-logarithmic retained data, explicit conjugation of fixed parameters, and a proved positive norm leading block. The exact witness of Section~\ref{sec:F01} is both an acceptance test and a small reference calculation.
+
+For zeroth powers, a focused policy note should decide whether the package intends a pointwise analytic nonvanishing convention or a formal multiplicative identity. The immediate guard follows the current ordinary policy. A later policy change must not leave behavior dependent on whether a value happens to be stored as an ordinary jet, a factored jet, or another supported representation. This is a precise question about exponent zero, not a proposal to rebuild the whole capability system.
+
+For special-family constant results, the useful abstraction is simply to reuse the existing ordinary projector and retain the exact source. The F03 patch already does this. Further abstraction is unnecessary until another distinct constant-return path demonstrates the same need.
+
+\section{Implementation sequence and acceptance criteria}
+
+\subsection{First: stop the incorrect modulus rewrite}
+
+Adopt or adapt the F01 local guard before implementing a broader modulus engine. The minimum acceptance condition is that both public cancellation witnesses either produce a mathematically justified expansion or refuse. The narrow candidate deliberately chooses refusal. The private helper must reject an exact jet with retained coefficient $i$, while real positive and negative controls must remain supported.
+
+The regression should inspect both the finite expression and exactness/remainder metadata. Merely checking that the returned expression is real would allow the original false zero to pass. Merely checking that one unsummed modulus fails would not exercise the cancellation that makes the defect difficult to notice.
+
+\subsection{Second: align ordinary zeroth powers with their stated domain}
+
+Keep the existing exact-zero refusal, add the sufficient nonvanishing check, and preserve the unsigned-nonzero control. The intended result for $a x$ under $a\in\mathbb R$ is a precise refusal; under $a\in\mathbb R$ and $a\ne0$, the intended result is the exact constant one. No new sign restriction should be attached to the second case.
+
+This change should be judged against its declared conservative scope. Rejecting a complicated parameter family whose nonvanishing is true but unproved is not a false answer. Claiming nonvanishing on a domain that includes an identically zero specialization is. A later coverage extension can improve the proof procedure independently of this safety boundary.
+
+\subsection{Third: preserve the special-family cutoff}
+
+Pass the explicit cutoff into the constant constructor and update the exactness explanation. Verify the zero cutoff, a positive cutoff different from one, and the automatic default in both the Gamma and Barnes routes. Retained term support, stored cutoff, and remainder metadata are separate assertions.
+
+The target domain should remain the one inherited from the inverse object. Truncation of a constant does not justify dropping branch restrictions or claiming that the source was defined at every target value. The supplied patch leaves those existing fields in place.
+
+\subsection{Integration boundary}
+
+The canonical edits affect three modular files. They should be reviewed in a disposable checkout of the pinned revision, after which the repository's existing standalone builder must regenerate the root distribution. A modular patch tested against an unchanged root standalone would test the wrong code. The builder itself is not modified by this report.\cite{kernelreadme}
+
+The supplied fourteen-test suite is a focused candidate acceptance suite, not the project's complete release suite. Its baseline failures are intentional for the new desired contracts. The characterization script should be run on the unmodified snapshot before interpreting those failures, and the same candidate suite should then be run against the intended patched entry point. These are reproduction instructions, not claims that this sequence was completed here.
+
+\section{Artifacts, independent checks, and reproduction}\label{sec:reproduction}
+
+\subsection{Executed independent evidence}
+
+The independent checker uses Python's standard library. Gaussian-rational sparse polynomial arithmetic verifies the exact cancellation model and conjugate-norm identity. Rational binomial arithmetic verifies the first six nonzero coefficients of $2\sqrt{1+x^2}-2$. A finite parameter-domain countermodel distinguishes symbolic support from nonvanishing. A simple projector checks the exclusive-cutoff behavior of the constant monomial. Small synthetic text fixtures exercise the candidate edits and their refusal on missing, duplicated, or already-patched anchors.
+
+The twenty-two checks are named checks, not twenty-two native regression cases. Some named checks inspect several exact examples. Conversely, a successful fixture transformation is not a successful application to a complete repository checkout. The result JSON preserves these distinctions explicitly.
+
+As a numerical illustration, the checker also evaluates Equation~\eqref{eq:rationalized} using 70-digit decimal arithmetic. The following rounded values are generated from the exact mathematical counterexample, \emph{not} from the package:
+\begin{center}
+\begin{tabular}{@{}rrr@{}}
+\toprule
+$x$ & $F_a(x)$ & $F_a(x)/x^2$\\
+\midrule
+$10^{-1}$ & $9.97512422417805\times10^{-3}$ & $0.997512422417805$\\
+$10^{-2}$ & $9.99975001249922\times10^{-5}$ & $0.999975001249922$\\
+$10^{-3}$ & $9.99999750000125\times10^{-7}$ & $0.999999750000125$\\
+$10^{-4}$ & $9.99999997500000\times10^{-9}$ & $0.999999997500000$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+From the archive root, reproduce the independent evidence with:
+\begin{lstlisting}
+python code/independent_checks.py
+\end{lstlisting}
+The script overwrites its own \path{evidence/independent_results.json} with the new run's results. It does not download the repository or execute Wolfram code.
+
+\subsection{Candidate patch emitter}
+
+\path{code/emit_candidate_patch.py} reads a local Git checkout and emits a unified diff. It does not apply changes. It requires the reviewed HEAD, a clean tracked worktree, the three expected canonical files, and exactly one occurrence of each edit anchor. It refuses missing or ambiguous anchors, an already inserted helper, and symlinked or escaping source paths. These are implementation properties of the supplied emitter; the successful real-checkout route was not exercised in this environment.
+
+A typical invocation is:
+\begin{lstlisting}
+python code/emit_candidate_patch.py /path/to/Asymptotic \
+  --output /path/outside/checkout/asymptotic-delta.patch
+\end{lstlisting}
+The output path must be outside the checkout and must not already exist. Without \code{--output}, the diff is written to standard output. The tool ignores untracked files when checking tracked-worktree cleanliness; it is not a full filesystem freeze or a protection against concurrent modification. It performs no network requests and generates no checksum files.
+
+After inspection, apply the diff only in a disposable working copy. Regenerate the standalone with the repository's own builder, then run native characterization and candidate tests against the selected package file. The patch changes the local \code{Abs} guard, the ordinary zeroth-power admission check, and the Gamma/Barnes constant-view cutoff. It does not implement the optional complex-modulus extension, parameter case splitting, or broader zero-power policy unification.
+
+\subsection{Unrun native artifacts}
+
+\path{code/Characterize.wl} prints eight actual observations when executed. It records the runtime version and package path, leaves messages visible, and bounds individual characterization evaluations. It does not contain alleged observed outputs.
+
+\path{code/Regressions.wlt} contains fourteen desired-contract tests: six for F01, four for F02, and four for F03. It is designed for the narrow guard candidate, so the public F01 tests expect the new specific refusal rather than an unimplemented modulus expansion.
+
+\path{code/RunRegressions.wl} is an unrun fresh-kernel convenience driver. It checks package loading, performs a mandatory constructor smoke probe, requires fourteen result records, and uses the documented \code{TestReportObject} success property. Its target is a current Wolfram 15+ environment; a runtime without the required report properties is refused rather than interpreted as success.\cite{testreportdoc}
+
+\begin{lstlisting}
+wolframscript -file code/Characterize.wl \
+  /path/to/AsymptoticAnalysis.wl
+
+wolframscript -file code/RunRegressions.wl \
+  /path/to/AsymptoticAnalysis.wl
+\end{lstlisting}
+
+The shell exit codes of the regression driver are intended to distinguish success, test failure, and setup/report incompatibility. That driver, its WLT syntax in a native evaluator, and the candidate Wolfram definitions remain unvalidated by actual native execution here. The README therefore also gives the direct \code{Get} plus \code{TestReport} route for manual inspection.
+
+\subsection{Evidence ledger}
+
+\begin{tabularx}{\textwidth}{@{}p{2.6in}X@{}}
+\toprule
+Activity & Status\\
+\midrule
+Pinned-source inspection through GitHub & Completed for the ranges in the inventory\\
+Maintained exclusion-register review & Completed; selected originals additionally consulted\\
+Independent mathematical/fixture checks & 22 named checks passed\\
+Public Wolfram reproduction candidates & Not executed\\
+Patched Wolfram package & Not executed\\
+Full upstream test suite & Not executed\\
+Candidate emitter on complete real checkout & Not executed; pure text transformations tested on synthetic fixtures\\
+Native performance measurements & None\\
+Article PDF & Compiled and rendered for layout inspection\\
+\bottomrule
+\end{tabularx}
+
+\section{Conclusion}
+
+The most serious delta is small in code and substantial in meaning. A sign rule for a real approximation is not a complex modulus rule, and final real-coefficient collection cannot repair an invalid nonholomorphic rewrite. The exact cancellation witness makes this distinction testable without relying on native asymptotic heuristics.
+
+The two zeroth-power findings illustrate different boundaries. Nonempty symbolic support is not a proof of nonvanishing on a parameter domain. Exact source information is not permission to discard a requested truncation. The proposed repairs address those boundaries locally, preserving the existing architecture and avoiding a repeated general redesign agenda.
+
+The practical recommendation is to validate the three narrow candidates in the native kernel, beginning with the modulus cancellation witness, and to keep the optional complex-modulus coverage extension separate. The included evidence supports the mathematical counterexamples and patch intent. It does not substitute for native execution of the package, and the artifacts make that remaining work explicit.
+
+\appendix
+\section{Inspection inventory}\label{app:inventory}
+
+All repository sources below refer to the pinned revision on the title page. ``Full'' means the available text of that module was examined; it does not mean every behavior was verified. ``Selected'' names the source windows used. The machine-readable inventory includes clickable pinned URLs.
+
+{\small
+\begin{longtable}{@{}p{3.3in}p{2.75in}@{}}
+\toprule
+Source & Inspection scope\\
+\midrule
+\endfirsthead
+\toprule Source & Inspection scope\\\midrule
+\endhead
+\path{src/Kernel/AsymptoticAnalysis.wl} & Selected: 110--615, 645--795, 1150--end; overlapping reads resolved helper definitions and callers.\\
+\path{src/Kernel/SeriesOperations.wl} & Selected: 1--375 and 415--560.\\
+\path{src/Kernel/SeriesArithmetic.wl} & Selected: 1--165.\\
+\path{src/Kernel/SeriesEnvelopeArithmetic.wl} & Selected: 175--295.\\
+\path{src/Kernel/GammaInverseOperations.wl} & Full.\\
+\path{src/Kernel/InverseFunctionExpressions.wl} & Full.\\
+\path{src/Kernel/GammaInverse.wl} & Selected: 1--145.\\
+\path{src/Kernel/BarnesInverse.wl} & Full.\\
+\path{src/Kernel/BarnesForward.wl} & Full.\\
+\path{src/Kernel/ExponentialForward.wl} & Full.\\
+\path{src/Kernel/ReciprocalLogOperations.wl} & Full.\\
+\path{src/Kernel/FourierCoefficients.wl} & Broad selected ranges; the first response was truncated, followed by focused construction and residual reads.\\
+\path{src/Kernel/FlatSectorOperations.wl} & Selected: 1--160.\\
+\path{src/Kernel/InverseCertificates.wl} & Selected: 1--280.\\
+\path{src/Kernel/DirichletSpecialFunctions.wl} & Full.\\
+\path{src/Kernel/ParameterizedSpecialFunctions.wl} & Full.\\
+\path{src/Kernel/SpecialFunctionIdentities.wl} & Full.\\
+\path{src/Kernel/MathicsAssumptions.wl} & Full across two source windows.\\
+\path{src/Kernel/MathicsCalculus.wl} & Full.\\
+\path{src/Kernel/MathicsSpecialFunctions.wl} & Full.\\
+\path{.github/workflows/mathics.yml} & Full; no CI execution reproduced.\\
+\path{README.md}; \path{src/Kernel/README.md}; \path{LICENSE} & Read for entry points, architecture, and source licensing.\\
+\path{external-reports/code-review/README.md} & Archive index.\\
+\path{docs/development/CODE_REVIEW_STATUS.md} & Maintained crosswalk, through its inspected end.\\
+\path{docs/development/WAVE_3_INTAKE.md}; \path{docs/development/WAVE_4_INTAKE.md} & Consolidated intake windows: 1--135 and 1--175 respectively.\\
+Reviews 2, 4, 22, 25 & Selected original README/finding-ledger records; not all full articles.\\
+\bottomrule
+\end{longtable}}
+
+\section{Artifact map}
+
+\begin{tabularx}{\textwidth}{@{}p{2.9in}X@{}}
+\toprule
+Path & Purpose\\
+\midrule
+\path{article/audit.tex}, \path{article/audit.pdf} & Editable article and compiled reading copy.\\
+\path{article/build.sh} & Two-pass PDF build using standard installed TeX packages.\\
+\path{code/independent_checks.py} & Executed exact countermodels and synthetic patch-fixture checks.\\
+\path{code/emit_candidate_patch.py} & Read-only, pinned-checkout candidate diff emitter.\\
+\path{code/Regressions.wlt} & Fourteen unrun desired-contract tests.\\
+\path{code/Characterize.wl} & Eight unrun characterization cases.\\
+\path{code/RunRegressions.wl} & Unrun current-kernel test driver.\\
+\path{evidence/independent_results.json} & Actual independent authoring-run results.\\
+\path{evidence/findings.json} & Findings, scope, severity, and native-execution flags.\\
+\path{evidence/novelty_ledger.json} & Closest prior obligations and precise deltas.\\
+\path{evidence/source_inventory.json} & Reviewed source ranges and baseline records.\\
+\path{evidence/execution_status.json} & Explicit completed and uncompleted work.\\
+\path{README.md}, \path{UPSTREAM-LICENSE.txt} & Usage instructions and upstream source-excerpt license.\\
+\bottomrule
+\end{tabularx}
+
+The archive contains no checksum files, font files, repository mirror, fabricated native outputs, or LaTeX build intermediates. Commit identifiers are source provenance, not checksum artifacts.
+
+\newpage
+\begin{thebibliography}{99}
+\small
+\bibitem{core} Asymptotic contributors. \emph{AsymptoticAnalysis.wl}, canonical kernel. Pinned revision \texttt{8e859961}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/AsymptoticAnalysis.wl}.
+\bibitem{operations} Asymptotic contributors. \emph{SeriesOperations.wl}. Same pinned revision. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/SeriesOperations.wl}.
+\bibitem{arithmetic} Asymptotic contributors. \emph{SeriesArithmetic.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/SeriesArithmetic.wl}.
+\bibitem{gammaops} Asymptotic contributors. \emph{GammaInverseOperations.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/GammaInverseOperations.wl}.
+\bibitem{envelope} Asymptotic contributors. \emph{SeriesEnvelopeArithmetic.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/SeriesEnvelopeArithmetic.wl}.
+\bibitem{archive} Asymptotic contributors. \emph{External code-review archive index}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/README.md}.
+\bibitem{register} Asymptotic contributors. \emph{Code review status and consolidated findings}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/docs/development/CODE_REVIEW_STATUS.md}.
+\bibitem{wave3} Asymptotic contributors. \emph{Wave 3 intake}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/docs/development/WAVE_3_INTAKE.md}.
+\bibitem{wave4} Asymptotic contributors. \emph{Wave 4 intake}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/docs/development/WAVE_4_INTAKE.md}.
+\bibitem{review2} Archived review 2. \emph{Technical review README}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-1/code-review-2/README.md}.
+\bibitem{review4} Archived review 4. \emph{Finding ledger}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-1/code-review-4/evidence/findings.json}.
+\bibitem{review22} Archived review 22. \emph{Precision-boundary audit README}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-3/code-review-22/README.md}.
+\bibitem{review25} Archived review 25. \emph{Incremental technical review README}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-3/code-review-25/README.md}.
+\bibitem{absdoc} Wolfram Research. \emph{Abs}. Official Wolfram Language documentation, accessed 10 September 2026. \url{https://reference.wolfram.com/language/ref/Abs.html}.
+\bibitem{powerdoc} Wolfram Research. \emph{Power}. Official Wolfram Language documentation, accessed 10 September 2026. \url{https://reference.wolfram.com/language/ref/Power.html}.
+\bibitem{testreportdoc} Wolfram Research. \emph{TestReportObject}. Official Wolfram Language documentation, accessed 10 September 2026. \url{https://reference.wolfram.com/language/ref/TestReportObject.html}.
+\bibitem{fourier} Asymptotic contributors. \emph{FourierCoefficients.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/FourierCoefficients.wl}.
+\bibitem{certificates} Asymptotic contributors. \emph{InverseCertificates.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/InverseCertificates.wl}.
+\bibitem{identities} Asymptotic contributors. \emph{SpecialFunctionIdentities.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/SpecialFunctionIdentities.wl}.
+\bibitem{dirichlet} Asymptotic contributors. \emph{DirichletSpecialFunctions.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/DirichletSpecialFunctions.wl}.
+\bibitem{parameterized} Asymptotic contributors. \emph{ParameterizedSpecialFunctions.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/ParameterizedSpecialFunctions.wl}.
+\bibitem{gammainverse} Asymptotic contributors. \emph{GammaInverse.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/GammaInverse.wl}.
+\bibitem{barnesinverse} Asymptotic contributors. \emph{BarnesInverse.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/BarnesInverse.wl}.
+\bibitem{barnesforward} Asymptotic contributors. \emph{BarnesForward.wl}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/BarnesForward.wl}.
+\bibitem{kernelreadme} Asymptotic contributors. \emph{Kernel architecture README}. \url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/README.md}.
+\end{thebibliography}
+\end{document}

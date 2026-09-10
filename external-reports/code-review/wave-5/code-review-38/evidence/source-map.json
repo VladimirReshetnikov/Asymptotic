@@ -1,0 +1,190 @@
+{
+  "revision": "8e859961d7d37f008b826f3a8cad406460271614",
+  "primary_sources": [
+    {
+      "path": "src/Kernel/NumericalInverseChecks.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/NumericalInverseChecks.wl",
+      "functions": [
+        "numericalInverseEvidence",
+        "numericalSourceDomainCheck"
+      ],
+      "scope": "N1; complete short module"
+    },
+    {
+      "path": "src/Kernel/InverseCertificates.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/InverseCertificates.wl",
+      "functions": [
+        "inverseEvidenceSourceDomain",
+        "certPositiveCondition",
+        "certAttempt"
+      ],
+      "scope": "N1 scope/control; certificate source inspection, no execution"
+    },
+    {
+      "path": "src/Kernel/SpecialFunctionAdapters.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/SpecialFunctionAdapters.wl",
+      "functions": [
+        "specialGamma",
+        "specialConstruct",
+        "specialNumerical"
+      ],
+      "scope": "N2; family construction and numerical path"
+    },
+    {
+      "path": "src/Kernel/AsymptoticAnalysis.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/AsymptoticAnalysis.wl",
+      "functions": [
+        "construct",
+        "inverseDispatch",
+        "lagrangeCoefficient",
+        "InverseNumericalCheck"
+      ],
+      "scope": "N1 leading cutoff/model assembly; selected major sections"
+    }
+  ],
+  "additional_inspection": [
+    {
+      "path": "src/Kernel/SeriesOperations.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/SeriesOperations.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/FourierCoefficients.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/FourierCoefficients.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/ReciprocalLogOperations.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/ReciprocalLogOperations.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/SourceCoordinates.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/SourceCoordinates.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/CorePerturbation.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/CorePerturbation.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/FlatSectorOperations.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/FlatSectorOperations.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/GammaForward.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/GammaForward.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/GammaInverse.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/GammaInverse.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/BarnesInverse.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/BarnesInverse.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/DirichletSpecialFunctions.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/DirichletSpecialFunctions.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsAssumptions.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsAssumptions.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsSimplification.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsSimplification.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsTaylor.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsTaylor.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsNumerical.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsNumerical.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsTimeBudget.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsTimeBudget.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsCalls.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsCalls.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsCoreFunctions.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsCoreFunctions.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsLists.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsLists.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    },
+    {
+      "path": "src/Kernel/MathicsCompatibility.wl",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/src/Kernel/MathicsCompatibility.wl",
+      "scope": "Coverage described in article; not necessarily entire file"
+    }
+  ],
+  "baseline": [
+    {
+      "path": "external-reports/code-review/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/README.md"
+    },
+    {
+      "path": "docs/development/CODE_REVIEW_STATUS.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/docs/development/CODE_REVIEW_STATUS.md"
+    },
+    {
+      "path": "docs/development/WAVE_3_INTAKE.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/docs/development/WAVE_3_INTAKE.md"
+    },
+    {
+      "path": "docs/development/WAVE_4_INTAKE.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/docs/development/WAVE_4_INTAKE.md"
+    },
+    {
+      "path": "external-reports/code-review/wave-1/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-1/README.md"
+    },
+    {
+      "path": "external-reports/code-review/wave-2/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-2/README.md"
+    },
+    {
+      "path": "external-reports/code-review/wave-4/README.md",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-4/README.md"
+    },
+    {
+      "path": "external-reports/code-review/wave-2/code-review-13/article/asymptotic-incremental-audit.tex",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-2/code-review-13/article/asymptotic-incremental-audit.tex"
+    },
+    {
+      "path": "external-reports/code-review/wave-2/code-review-17/article/asymptotic_delta_audit.tex",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-2/code-review-17/article/asymptotic_delta_audit.tex"
+    },
+    {
+      "path": "external-reports/code-review/wave-4/code-review-28/article.tex",
+      "url": "https://github.com/VladimirReshetnikov/Asymptotic/blob/8e859961d7d37f008b826f3a8cad406460271614/external-reports/code-review/wave-4/code-review-28/article.tex"
+    }
+  ],
+  "external_primary_sources": [
+    "https://reference.wolfram.com/language/ref/FindRoot.html",
+    "https://dlmf.nist.gov/5.9",
+    "https://dlmf.nist.gov/5.11"
+  ],
+  "locators": "Functions and immutable paths, not inferred local checkout paths. No complete checkout was available."
+}
