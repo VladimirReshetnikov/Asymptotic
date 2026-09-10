@@ -16,12 +16,17 @@ each author states the extent of that comparison. They do not collectively
 establish that every earlier article was reread or every package behavior tested.
 
 The [maintained wave-4 intake](../../../docs/development/WAVE_4_INTAKE.md)
-maps all **64 identified entries**, including explicitly numbered advisories
-and extension proposals: 10, 7, 6, 6, 8, 7, 6, 6, and 8 entries respectively.
-Combined with the earlier 167 entries, this gives 231 attributed report
-entries before deduplication. These are not 231 distinct current defects.
+maps all **64 report-local ledger entries**, including explicitly numbered
+advisories and extension proposals: 10, 7, 6, 6, 8, 7, 6, 6, and 8 entries
+for reports 28–36 respectively. Combined with the earlier 167 entries from
+waves 1–3, this gives 231 attributed report entries before overlapping
+findings are grouped. These counts do not measure distinct current defects
+or completed repairs.
 Consult the [implementation register](../../../docs/development/CODE_REVIEW_STATUS.md)
-for current status, overlap, accepted policy, and focused validation.
+for current decisions, overlap, accepted policy, and focused validation.
+This index records the supplied reports' scope; the intake distinguishes
+their historical observations and proposed witnesses from current-source
+mechanics and implementation evidence.
 
 | Package | Article | Main focus | Supplied evidence and limits |
 | --- | --- | --- | --- |

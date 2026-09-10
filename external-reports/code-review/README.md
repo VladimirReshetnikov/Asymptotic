@@ -12,9 +12,14 @@ Thirty-six review packages are grouped into four waves. Each wave index links th
 The maintained [implementation status](../../docs/development/CODE_REVIEW_STATUS.md) consolidates the findings and links completed fixes to focused validation, while tracking pending work and design decisions.
 The [wave-3 intake](../../docs/development/WAVE_3_INTAKE.md) maps its 44
 attributed ledger entries; the [wave-4 intake](../../docs/development/WAVE_4_INTAKE.md)
-maps 64 more entries and their related proposals. Together with the earlier
-123 entries, the collection has 231 identified report entries before
-consolidating overlaps; this is not a count of distinct current defects.
+maps 64 more entries, including numbered advisories and extension proposals,
+to implementation obligations. Together with the earlier 123 entries, the
+collection has 231 attributed report entries before consolidating overlaps.
+The earlier 167-entry count covers waves 1–3; neither count measures distinct
+current defects or completed changes. The intakes also discuss unnumbered
+proposals. The [wave-4 index](wave-4/README.md) links the later findings and
+their novelty ledgers without treating independent or synthetic checks as
+current package acceptance.
 
 The wave indexes distinguish source and mathematical checks from native package observations, executed patch checks, and unrun regression specifications. Reviewers' independent test counts are not a combined acceptance run of this repository.
 

@@ -15,8 +15,16 @@ for known implementation and acceptance gaps.
 | Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
 | Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
 | Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
+| Interpret portable-runner guarantees and limits | [Portable validation contracts](../docs/Mathics/PORTABLE-VALIDATION.md) |
 
 ## Wave-4 integration and merged artifacts
+
+The [documentation and runner merge audit](documentation-runner-merge-2026-09-09.json)
+records the combined intake under the 17 established W4 identifiers and an
+independent repeat of all 32 Python runner tests. The portable-runner guide
+now describes the repaired behavior and remaining gaps at `45ea65f`.
+All 180 supplied payload files were compared with their arrival Git blobs;
+the article and generated guide remain tied to their existing reviewed artifacts.
 
 The first [runner-integrity check](wave4-runner-integrity-tests.json) passes
 **32/32 Python tests**, including 18 new cases, with no skips and two unchanged
@@ -203,6 +211,19 @@ article. Both build histories retain their own source and artifact hashes.
 
 
 ## Documentation quality and coverage register
+
+The initial [wave-4 documentation review](documentation-wave4-review-2026-09-09.json)
+records complete attribution of 64 report-local entries to 20 detailed work groups.
+The merged intake preserves `main`'s 17 canonical identifiers and treats those
+20 mechanisms as subordinate details, retaining all original report IDs.
+The earlier receipt also records
+the portable-runner contract audit and the updated Mathics numerical and
+symbolic-conversion guidance. Static checks include maintained-text encoding,
+local links, and generated HTML. Desktop and narrow browser reviews cover the
+new numerical-precision explanation. The merged Fourier PDF has complete
+102-page visual coverage: 37 changed pages were reviewed and 65 page renders
+match the preceding reviewed artifact exactly. Existing runtime evidence
+retains its own source hashes; this documentation pass runs no kernel suite.
 
 The [102-page merge-layout record](documentation-merge-layout-2026-09-09.json)
 identifies the article retained in merge `38aa253`: all 32 TeX inputs and the

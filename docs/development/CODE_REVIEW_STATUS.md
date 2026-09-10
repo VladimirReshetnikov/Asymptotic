@@ -28,15 +28,21 @@ standalone evidence at checkpoint `01b18ab` predates this rename. Earlier
 passing counts likewise apply to their recorded source snapshots, not to new
 path/context hashes after the rename.
 
-Updated September 9, 2026. This register and the linked wave-3 and wave-4 intakes consolidate
-**231 identified finding entries in all thirty-six
+Updated September 9, 2026. This register and the linked wave-3 and wave-4
+intakes consolidate **231 attributed report entries across all thirty-six
 [review packages](../../external-reports/code-review/README.md)** into shared
-work items: 123 entries from waves 1–2, 44 from wave 3, and 64 from wave 4. They also record
-substantive roadmap proposals separately. This is a
-work map, not a claim that every recommendation is a defect or an accepted API
-change. The [wave-4 index](../../external-reports/code-review/wave-4/README.md)
-links the supplied reports; the completed intake records their implementation
-obligations without implying acceptance of every proposed change.
+work items: 123 entries from waves 1–2, 44 from wave 3, and 64 from wave 4.
+The earlier 167-entry count therefore remains scoped to waves 1–3. Numbered
+advisories and extension proposals are included in their wave's inventory;
+the intakes also discuss unnumbered proposals. These counts do not measure
+distinct current defects, accepted API changes, or completed repairs.
+
+The [wave-4 intake](WAVE_4_INTAKE.md) maps every report-local entry from
+reports 28–36 to implementation obligations and proposals. Source-audited
+mechanisms, unverified public manifestations, historical observations, and
+later implementation evidence retain separate status. The
+[wave-4 index](../../external-reports/code-review/wave-4/README.md) preserves
+each report's article and supplied evidence.
 
 Reviews 1–6, 8, and 9 examine `07a9781212beb2eeb9ff16aa625b50ac27974078`;
 review 7 examines `75de8756175911cd8830704fd1a3406c1022f018`. Their supplied
@@ -79,11 +85,15 @@ Review evidence and candidate code do not establish current Mathics or
 Wolfram package behavior; no bundled programs were executed during intake.
 
 The first wave-4 [runner repair](../../validation/wave4-runner-integrity-tests.json)
-passes 32/0 focused Python tests. It addresses finite bounded deadlines and
-lexical launcher selection (W4-10/W4-11), latches observed source drift
+records **32 passed, 0 failed focused Python tests** on Windows, using synthetic
+protocol peers and temporary Python processes/environments. It restricts
+deadlines to finite values in `(0, 86400]` seconds (W4-10), preserves the
+selected executable's invocation path (W4-11), latches observed source drift
 (part of W4-12), and prevents report/staging aliases of fingerprinted inputs
-(part of W4-13). Complete executed-source coverage and freezing, mandatory
-load admission, output caps and interruption records remain pending.
+(part of W4-13). These identifiers follow the
+[maintained wave-4 intake](WAVE_4_INTAKE.md). Complete executed-source coverage
+and freezing, mandatory load admission, output caps and interruption records
+remain pending. This receipt contains no Mathics or Wolfram package execution.
 
 W3-06 now has independently reproduced native failures and
 [131/0 focused native acceptance](../../validation/observable-ingress-main-sync-tests.json).

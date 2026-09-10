@@ -4,6 +4,8 @@ For installation, package-specific validation, compatibility subtleties, and
 current limitations, see [AsymptoticAnalysis compatibility](COMPATIBILITY.md).
 The [public API inventory](API-COVERAGE.md) maps exported operations to exact
 portable cases and records remaining input and option coverage.
+The [portable validation guide](PORTABLE-VALIDATION.md) explains supported
+runner commands, receipt interpretation, and known execution-tool limits.
 For the maintained implementation gotchas and reproducible checking rules,
 see [MATHICS-NOTES.md](../MATHICS-NOTES.md), the companion to the Wolfram notes.
 The [empty-list notes](LISTS.md) explain the package-local mapping workaround

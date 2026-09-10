@@ -15,6 +15,9 @@ background claims about an interpreter are not evidence that a package
 feature has passed a regression test.
 The maintained [Mathics implementation notes](../MATHICS-NOTES.md) collect
 reproducible evaluator gotchas in the same form as the Wolfram notes.
+The [portable validation guide](PORTABLE-VALIDATION.md) explains what the
+runner and acceptance verifier check, along with their source-provenance,
+loading, timeout, and interpreter-selection limits.
 
 ## Goal and current status
 

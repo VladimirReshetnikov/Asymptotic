@@ -78,6 +78,10 @@ package and suite byte hashes used for its run, including historical CRLF
 snapshots. The summary copies those source hashes without normalization;
 publishing the current suite with LF does not make its bytes identical to a
 historical tested snapshot.
+
+The [portable validation contracts](PORTABLE-VALIDATION.md) explain the
+runner's source-fingerprint and loading limits, case-selection semantics,
+and what the acceptance verifier adds to a saved receipt.
 The initial publication checkpoint `bc6d570` normalized those receipt files
 to LF. The publication correction restores their captured bytes and marks
 `validation/mathics-*-tests.json` with `-text`, so Git preserves their recorded
