@@ -672,6 +672,34 @@ portableTest["assumptions-inline-inverse-and-model-preserve-composite", "assumpt
       MatchQ[m, Failure["UnprovedRealCoefficient", _]]}],
   {True, True}];
 
+portableTest["operations-newton-inverse-and-retained-refinement", "operations",
+  Module[{x, y, a, b, c},
+    a = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}, Method -> "Newton"];
+    b = SeriesRefine[a, 5]; c = SeriesRefine[b, 7];
+    {Simplify[Normal[a] - (y - y^2)], a["Method"],
+      Simplify[Normal[c] - (y - y^2 + 2 y^3 - 5 y^4 + 14 y^5 - 42 y^6)],
+      c["RemainderPower"], c["RefinementStatistics"]["StateOrigin"],
+      Take[c["ComputationState"]["StepCutoffs"], Length[b["ComputationState"]["StepCutoffs"]]] ===
+        b["ComputationState"]["StepCutoffs"],
+      InverseResidual[c]["ZeroBelowCutoff"]}],
+  {0, "Newton", 0, 7, "RetainedNewtonState", True, True}];
+
+portableTest["operations-refinement-additional-blocks-request", "operations",
+  Module[{x, y, s, r}, s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+    r = SeriesRefine[s, <|"AdditionalBlocks" -> 3|>];
+    {Length[r["Blocks"]], r["RefinementRequest"]["GoalReached"],
+      InverseResidual[r]["ZeroBelowCutoff"],
+      Simplify[Normal[r] - (y - y^2 + 2 y^3 - 5 y^4 + 14 y^5)]}],
+  {5, True, True, 0}];
+
+portableTest["operations-refinement-replays-product-recipe", "operations",
+  Module[{x, y, s, r}, s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+    r = SeriesRefine[SeriesMultiply[s, s], 5];
+    {Simplify[Normal[r] - (y^2 - 2 y^3 + 5 y^4)], r["RemainderPower"],
+      r["RefinementStatistics"]["Strategy"],
+      r["RefinementStatistics"]["NewCoefficientEvaluations"]}],
+  {0, 5, "ReplayOperationRecipe", Missing["ReplayNotInstrumented"]}];
+
 (* A typo in the Python/WL test selection must never look like an empty pass. *)
 Print["No portable test matched: ", portableSelection];
 Exit[2];

@@ -142,6 +142,37 @@ immutability where relevant, and explicit failure contracts. Two callable
 cases deliberately record different runtime contracts because Wolfram
 evaluates their `InverseFunction` before package dispatch.
 
+The [public API inventory](../docs/Mathics/API-COVERAGE.md) maps all 38 exports
+to representative cases. The [receipt summary](mathics-test-coverage.json)
+records **98 distinct cases with successful Mathics evidence in each layout,
+across three explicitly identified package snapshots**. Three further
+refinement cases now also pass in the modular package and original Wolfram;
+their standalone checks are still running. The maintained suite contains 101 cases.
+
+| Snapshot | Modular evidence | Standalone evidence |
+| --- | --- | --- |
+| 53 modules | [Full 77-case run](mathics-modular-tests.json): 76 passes, one exact-normalization failure; [corrected assertion](mathics-modular-normalization-tests.json): 1 pass on identical package hashes. | [Full 77-case run](mathics-standalone-tests.json): the same 76/1 result; [corrected assertion](mathics-standalone-normalization-tests.json): 1 pass on identical artifact bytes. |
+| 54 modules, empty-list mapping protection | [13 additional cases](mathics-modular-api-tests.json), all pass. | [13 additional cases](mathics-standalone-api-tests.json), all pass. |
+| 55 modules, held inline-assumption protection | [8 additional cases](mathics-modular-final-api-tests.json), all pass. | [8 additional cases and 5 repeated loading checks](mathics-standalone-final-tests.json), all pass. |
+
+The first failing fixture used `Expand` where Mathics required `Simplify` to
+recognize the same exact zero. Its corrected oracle also passes the untouched
+Wolfram package. The summary preserves the original failure and counter values;
+it does not rewrite either full run as 77/77 or claim one full 98-case run on
+the last snapshot. The full Linux matrix for the current package is pending.
+
+Regenerate that explicitly scoped summary with:
+
+```text
+python validation/summarize_mathics_tests.py --reconcile validation/mathics-modular-tests.json validation/mathics-modular-normalization-tests.json --reconcile validation/mathics-standalone-tests.json validation/mathics-standalone-normalization-tests.json --supplemental validation/mathics-modular-api-tests.json --supplemental validation/mathics-standalone-api-tests.json --supplemental validation/mathics-modular-final-api-tests.json --supplemental validation/mathics-standalone-final-tests.json --output validation/mathics-test-coverage.json
+```
+
+Reconciliation requires identical package hashes and successful targeted
+corrections for every original failing case. The summarizer rejects incomplete,
+drifting, or inconsistent receipts and retains the distinct supplemental
+snapshots. Six focused tests check these evidence boundaries, relative
+modular paths, and protection against overwriting an input receipt.
+
 ```text
 python -m pip install -r validation/requirements-mathics.txt
 python validation/run_mathics_tests.py --timeout 300
