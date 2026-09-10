@@ -1,12 +1,12 @@
 (* Bounded characterization, NOT a passing acceptance suite. Each result records
    current public behavior for a specific wave-2 finding, including open defects. *)
 root = DirectoryName[DirectoryName[$InputFileName]];
-sources = Append[FileNames["*.wl", FileNameJoin[{root, "AsymptoticInverse", "Kernel"}]], $InputFileName];
+sources = Append[FileNames["*.wl", FileNameJoin[{root, "AsymptoticAnalysis", "Kernel"}]], $InputFileName];
 hashes[] := Association[(StringReplace[FileNameJoin[
   Drop[FileNameSplit[ExpandFileName[#]], Length[FileNameSplit[root]]]], "\\" -> "/"] ->
   IntegerString[FileHash[#, "SHA256"], 16, 64]) & /@ sources];
 before = hashes[];
-Get[FileNameJoin[{root, "AsymptoticInverse", "Kernel", "AsymptoticInverse.wl"}]];
+Get[FileNameJoin[{root, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]];
 SetAttributes[probe, HoldRest];
 probe[id_, body_] := Module[{seconds, value},
   {seconds, value} = AbsoluteTiming[Quiet[TimeConstrained[body, 30, $Aborted]]];

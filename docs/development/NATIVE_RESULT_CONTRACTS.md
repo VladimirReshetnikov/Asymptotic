@@ -1,7 +1,7 @@
 # Native expansion result contracts
 
 This note records the explicit native-backend contract implemented in
-[NativeCompatibility.wl](../../AsymptoticInverse/Kernel/NativeCompatibility.wl).
+[NativeCompatibility.wl](../../AsymptoticAnalysis/Kernel/NativeCompatibility.wl).
 [Focused acceptance](../../validation/native-compatibility-tests.json) records
 130 passed, zero failed across eight selected files on Wolfram 15.0.1 for
 Windows, with sources unchanged. This is explicit-mode evidence, not proof
@@ -143,7 +143,9 @@ The [focused entry script](../../validation/CheckNativeCompatibility.wl)
 selects native compatibility, contract and presentation cases plus adjacent
 result, normalization, arithmetic, assumption and real-coefficient regressions.
 Its [final record](../../validation/native-compatibility-tests.json) reports
-130 successes and no failures. The
+130 successes and no failures for the recorded pre-rename source snapshot.
+Its original package paths and context remain in the evidence; they do not
+validate the later AsymptoticAnalysis rename. The
 [first-pass record](../../validation/native-compatibility-first-pass.json)
 preserves two fixture failures corrected before acceptance; the
 [validation account](../../validation/README.md#explicit-native-expansion-backends)

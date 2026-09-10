@@ -136,8 +136,9 @@ coefficients (see `../WOLFRAM-NOTES.md`).
 
 ## 5. What the unified work keeps
 
-The article `../article/asymptotic-inverse.tex` and the package
-`../AsymptoticInverse` were written after this comparison and adopt:
+The article `../article/asymptotic-inverse.tex` and the package originally
+named AsymptoticInverse (now [AsymptoticAnalysis](../AsymptoticAnalysis/README.md))
+were written after this comparison and adopt:
 
 - the marker (auxiliary-parameter) Lagrange–Bürmann theorem with a residue
   proof (01, 05, 06, 09), the Euler-operator coefficient formula with the

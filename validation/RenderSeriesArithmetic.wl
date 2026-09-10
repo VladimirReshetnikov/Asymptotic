@@ -1,7 +1,7 @@
 (* Native front-end preview of the arithmetic API.
    Run: wolfram.exe -script validation/RenderSeriesArithmetic.wl *)
 arithmeticRenderRoot = DirectoryName[DirectoryName[$InputFileName]];
-Get[FileNameJoin[{arithmeticRenderRoot, "AsymptoticInverse", "Kernel", "AsymptoticInverse.wl"}]];
+Get[FileNameJoin[{arithmeticRenderRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]];
 Clear[x, a, b, exact];
 a = AsymptoticExpansion[Sin[x], {x, 0, 5}];
 b = AsymptoticExpansion[Cos[x], {x, 0, 4}];

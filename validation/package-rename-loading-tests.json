@@ -1,0 +1,436 @@
+{
+  "Artifact": {
+    "Artifact": "AsymptoticAnalysis.wl",
+    "SourceFiles": 39,
+    "Bytes": 602048,
+    "SHA256": "70b4c2e40b32044d40cec1a0e00e9e97f3d634325e8f84479adf860f209902d8",
+    "MatchesSources": true
+  },
+  "FullPackageSuiteRun": false,
+  "KernelInitializationDisabled": true,
+  "InitializationEnvironmentCleared": true,
+  "PackageAbsentBeforeEachLoad": true,
+  "TestedSourcesSHA256": {
+    "AsymptoticAnalysis.wl": "70b4c2e40b32044d40cec1a0e00e9e97f3d634325e8f84479adf860f209902d8",
+    "validation/build_standalone.py": "e23bb5acd148829e58b3931d3e9f92c0e39ba4d7432cd6f47e00449e99ddcab7",
+    "validation/CheckStandalone.wl": "338541be35d7cf17356e472a73efe7b08a54baa7ce7b7d97da714dddfd680ceb",
+    "validation/check_standalone_loading.py": "0c47c60e611c876099cfb49a2caabd792c4dc70f2f76878a02555154228490b2",
+    "AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl": "b01a659d783a7b47960af07dd777e7e63aa2d9339a9942275fe10449b2c7edb1",
+    "AsymptoticAnalysis/Kernel/BarnesForward.wl": "036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479",
+    "AsymptoticAnalysis/Kernel/BarnesInverse.wl": "56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
+    "AsymptoticAnalysis/Kernel/BarnesInverseChecks.wl": "70de0268030051fefa1c9c323036488936a84fd309689c22abea51f179b0f6f0",
+    "AsymptoticAnalysis/Kernel/CoordinateInverse.wl": "db983454b4c6ab9c5ed0bf3c389ce482adc6adecefbd9cc3f8ac608d074b7a1c",
+    "AsymptoticAnalysis/Kernel/CorePerturbation.wl": "db58afaeed4cda7b3e9f5dfaaf682465db1b2fcb9bdc0a0e61f00a7a43759b95",
+    "AsymptoticAnalysis/Kernel/DirichletSpecialFunctions.wl": "381e36cab5d980c050fb208236308b0118c8b97be9b2f457f297bfc203ea9a6c",
+    "AsymptoticAnalysis/Kernel/ExactTermination.wl": "9a2ae123b5f01c40b1e70e47b93326c6ce31d2303f4b4eb94cb9e587bdd94a17",
+    "AsymptoticAnalysis/Kernel/ExponentialCorePerturbation.wl": "8c5e8bcc4f87f6ce37d86f88d9d1dad81ae3e0ec0654d4f5bcb4a821b01f9f2a",
+    "AsymptoticAnalysis/Kernel/ExponentialForward.wl": "f92c050fc4cd3216a08fd7aafceef4202a8aad070f33402959434053195da345",
+    "AsymptoticAnalysis/Kernel/FlatSectorOperations.wl": "3bbcc50a0c5ca167800ef29f3318235eccfb04b38f5ace0b6e5c215b06274d28",
+    "AsymptoticAnalysis/Kernel/FlatSectors.wl": "ea3f7f6fea967ec56b54da2931a9d72ee695c6454f6c1da79dd5e35cf432ff8a",
+    "AsymptoticAnalysis/Kernel/FourierCoefficients.wl": "9e22b0a627b792788dcfef12c2da60083fdba8f40a9da92dbd67ccbd9c4cfa70",
+    "AsymptoticAnalysis/Kernel/GammaForward.wl": "f9fb80f55892521f0150bca280d448e53c1aa3c3dcb5b1d542a45642a61e5d40",
+    "AsymptoticAnalysis/Kernel/GammaInverse.wl": "646aa421554e971c09a4c51ad47b3e873e94aecf26042796937c74921b26a729",
+    "AsymptoticAnalysis/Kernel/GammaInverseChecks.wl": "4a51a03be40b24a6d454d24ae5b717aacdc58a249bdf54974ab32c03a9050a8e",
+    "AsymptoticAnalysis/Kernel/GammaInverseOperations.wl": "c449679dd9b8686a15fb985c5e6304a492ed350bddbcedcd12b66af98e484062",
+    "AsymptoticAnalysis/Kernel/IncrementalInverse.wl": "a410833cc04cfb857eeafe07072e39846e9df4bbb68089c870810b4e973c6e00",
+    "AsymptoticAnalysis/Kernel/InverseCertificates.wl": "d01d9efa24865548b96876f9fddce752584e73285caf3dc87521a3a2cf93eedc",
+    "AsymptoticAnalysis/Kernel/InverseFunctionBranches.wl": "727c43fd3e873a3853caa82ddbbd83be18d1923353e8be62f154e904e804eafe",
+    "AsymptoticAnalysis/Kernel/InverseFunctionExpressions.wl": "edbce75c731a9575761f729ec3f1a4a54f2b11c96fcd1a59122ce8ee1301f07d",
+    "AsymptoticAnalysis/Kernel/InverseFunctionFamilies.wl": "d7c6d4c1acf616bdf990e44c2f8729a583b836cd757a95e64d81ed65ead3abe0",
+    "AsymptoticAnalysis/Kernel/InverseFunctionSyntax.wl": "cee9ea02101c02f5e72476de2589beafb9d150383719258453b7ca124c48973e",
+    "AsymptoticAnalysis/Kernel/LambertInverse.wl": "58f5b8eaaefac7413cd127a94ec5d613b8774d9d955366c1508700f97fbbb0a4",
+    "AsymptoticAnalysis/Kernel/LogarithmicScales.wl": "72138884f10994a4922d60cb4970da594966edae592b09b0ba7bf0eab81d34d2",
+    "AsymptoticAnalysis/Kernel/NativeCompatibility.wl": "63844f835e6e8571bf3d45c01603666ff48346de23afe4ebfb9f3a748e1353be",
+    "AsymptoticAnalysis/Kernel/NativeSpecialFunctions.wl": "75d91565e8ad96d0e498bf41c055b3012aa07e45905c9010736100478d3382ed",
+    "AsymptoticAnalysis/Kernel/NumericalInverseChecks.wl": "a3f1fd51ff3232b01025ed59eff3628cf1e693533f0a8627f439f32768f656d5",
+    "AsymptoticAnalysis/Kernel/ParameterizedSpecialFunctions.wl": "19370b301debf8107b96e356b00bc06a6c4bf04ee7aa9bab3060fff822afa204",
+    "AsymptoticAnalysis/Kernel/ReciprocalLogOperations.wl": "a32c53929053b8a39ef72ff6e4879a68e99d5cc04b3555ca0e760d96a4a587ea",
+    "AsymptoticAnalysis/Kernel/RefinementRequests.wl": "d07fd2048c224b6a147f0b3e9a8b913527b337174c52363018b83fd11bd9b41c",
+    "AsymptoticAnalysis/Kernel/RefinementState.wl": "57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
+    "AsymptoticAnalysis/Kernel/SeriesArithmetic.wl": "707749457e126120e6a6a607cdb983f2b2108caf22d3c5d42610b473f942c0a1",
+    "AsymptoticAnalysis/Kernel/SeriesEnvelopeArithmetic.wl": "2cde86032fe867c7c59049e3f36c72f06ea25beb4f22aeb971f660651885a86a",
+    "AsymptoticAnalysis/Kernel/SeriesOperations.wl": "8993956cb2cb83936e38179c428b0a4478389d88b79fe8d7f55ef57f1d5e6bfe",
+    "AsymptoticAnalysis/Kernel/SourceCoordinates.wl": "d79d7d82152835aa5a804a9ab41a60ff77572f002b1a4135a7c0d19d917c0086",
+    "AsymptoticAnalysis/Kernel/SpecialFunctionAdapters.wl": "374d1c7007a1736568fc52d2840b44840cacfbcce8441340d73f8f79c14b639a",
+    "AsymptoticAnalysis/Kernel/SpecialFunctionIdentities.wl": "58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
+    "AsymptoticAnalysis/Kernel/SpecialFunctionRealDomain.wl": "6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c",
+    "AsymptoticAnalysis/Kernel/init.m": "666391563930b19ef41e4fc4f62b470aa8d7fcd5f3c977e3a104f90b192a1bef",
+    "AsymptoticAnalysis/PacletInfo.wl": "694fa2a3b49cc40b4318e20dda0a2473816818665c7ac7e76690cc22f10fd660"
+  },
+  "SourcesUnchangedDuringRun": true,
+  "RemoteSHA256Before": null,
+  "RemoteSHA256After": null,
+  "FreshKernelRuns": 5,
+  "Results": [
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "Source": "isolated-local",
+      "Mode": "Get",
+      "GetMethod": "\"Automatic\"",
+      "Succeeded": 12,
+      "Failed": 0,
+      "Results": [
+        {
+          "TestID": "loading-renamed-context-preserves-public-inverse-name-without-legacy-definitions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, False, {}}]"
+        },
+        {
+          "TestID": "loading-automatic-native-representation-fallback",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Native\", \"Native\", True}]"
+        },
+        {
+          "TestID": "loading-relative-certificate-review18-repair",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-native-series-and-held-alias",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"Native\", True, True}]"
+        },
+        {
+          "TestID": "loading-native-asymptotic-contract-guard",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True}]"
+        },
+        {
+          "TestID": "loading-contexts-and-stream-cleanup",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticAnalysis`\", {}, {}, True}]"
+        },
+        {
+          "TestID": "loading-irrational-inverse",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-early-exact-termination",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, 0, True}]"
+        },
+        {
+          "TestID": "loading-gamma-ratio",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-late-native-special-functions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-arithmetic-normal-and-display",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True}]"
+        },
+        {
+          "TestID": "loading-explicit-reload-and-dirichlet",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True, True, True}]"
+        }
+      ],
+      "Case": "isolated-local",
+      "ExitCode": 0
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "Source": "modular",
+      "Mode": "Get",
+      "GetMethod": "\"Automatic\"",
+      "Succeeded": 12,
+      "Failed": 0,
+      "Results": [
+        {
+          "TestID": "loading-renamed-context-preserves-public-inverse-name-without-legacy-definitions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, False, {}}]"
+        },
+        {
+          "TestID": "loading-automatic-native-representation-fallback",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Native\", \"Native\", True}]"
+        },
+        {
+          "TestID": "loading-relative-certificate-review18-repair",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-native-series-and-held-alias",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"Native\", True, True}]"
+        },
+        {
+          "TestID": "loading-native-asymptotic-contract-guard",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True}]"
+        },
+        {
+          "TestID": "loading-contexts-and-stream-cleanup",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticAnalysis`\", {}, {}, True}]"
+        },
+        {
+          "TestID": "loading-irrational-inverse",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-early-exact-termination",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, 0, True}]"
+        },
+        {
+          "TestID": "loading-gamma-ratio",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-late-native-special-functions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-arithmetic-normal-and-display",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True}]"
+        },
+        {
+          "TestID": "loading-explicit-reload-and-dirichlet",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True, True, True}]"
+        }
+      ],
+      "Case": "modular",
+      "ExitCode": 0
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "Source": "modular-init",
+      "Mode": "Get",
+      "GetMethod": "\"Automatic\"",
+      "Succeeded": 12,
+      "Failed": 0,
+      "Results": [
+        {
+          "TestID": "loading-renamed-context-preserves-public-inverse-name-without-legacy-definitions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, False, {}}]"
+        },
+        {
+          "TestID": "loading-automatic-native-representation-fallback",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Native\", \"Native\", True}]"
+        },
+        {
+          "TestID": "loading-relative-certificate-review18-repair",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-native-series-and-held-alias",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"Native\", True, True}]"
+        },
+        {
+          "TestID": "loading-native-asymptotic-contract-guard",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True}]"
+        },
+        {
+          "TestID": "loading-contexts-and-stream-cleanup",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticAnalysis`\", {}, {}, True}]"
+        },
+        {
+          "TestID": "loading-irrational-inverse",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-early-exact-termination",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, 0, True}]"
+        },
+        {
+          "TestID": "loading-gamma-ratio",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-late-native-special-functions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-arithmetic-normal-and-display",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True}]"
+        },
+        {
+          "TestID": "loading-explicit-reload-and-dirichlet",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True, True, True}]"
+        }
+      ],
+      "Case": "modular-init",
+      "ExitCode": 0
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "Source": "needs",
+      "Mode": "Needs",
+      "GetMethod": "\"Automatic\"",
+      "Succeeded": 12,
+      "Failed": 0,
+      "Results": [
+        {
+          "TestID": "loading-renamed-context-preserves-public-inverse-name-without-legacy-definitions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, False, {}}]"
+        },
+        {
+          "TestID": "loading-automatic-native-representation-fallback",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Native\", \"Native\", True}]"
+        },
+        {
+          "TestID": "loading-relative-certificate-review18-repair",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-native-series-and-held-alias",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"Native\", True, True}]"
+        },
+        {
+          "TestID": "loading-native-asymptotic-contract-guard",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True}]"
+        },
+        {
+          "TestID": "loading-contexts-and-stream-cleanup",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticAnalysis`\", {}, {}, True}]"
+        },
+        {
+          "TestID": "loading-irrational-inverse",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-early-exact-termination",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, 0, True}]"
+        },
+        {
+          "TestID": "loading-gamma-ratio",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-late-native-special-functions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-arithmetic-normal-and-display",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True}]"
+        },
+        {
+          "TestID": "loading-explicit-reload-and-dirichlet",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True, True, True}]"
+        }
+      ],
+      "Case": "needs",
+      "ExitCode": 0
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "Source": "paclet",
+      "Mode": "Paclet",
+      "GetMethod": "\"Automatic\"",
+      "Succeeded": 12,
+      "Failed": 0,
+      "Results": [
+        {
+          "TestID": "loading-renamed-context-preserves-public-inverse-name-without-legacy-definitions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, False, {}}]"
+        },
+        {
+          "TestID": "loading-automatic-native-representation-fallback",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Native\", \"Native\", True}]"
+        },
+        {
+          "TestID": "loading-relative-certificate-review18-repair",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-native-series-and-held-alias",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"AsymptoticAnalysis`\", \"Native\", True, True}]"
+        },
+        {
+          "TestID": "loading-native-asymptotic-contract-guard",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True}]"
+        },
+        {
+          "TestID": "loading-contexts-and-stream-cleanup",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{\"Global`\", \"AsymptoticAnalysis`\", {}, {}, True}]"
+        },
+        {
+          "TestID": "loading-irrational-inverse",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-early-exact-termination",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, 0, True}]"
+        },
+        {
+          "TestID": "loading-gamma-ratio",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-late-native-special-functions",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[True]"
+        },
+        {
+          "TestID": "loading-arithmetic-normal-and-display",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True}]"
+        },
+        {
+          "TestID": "loading-explicit-reload-and-dirichlet",
+          "Outcome": "Success",
+          "ActualOutput": "HoldForm[{True, True, True, True, True, True}]"
+        }
+      ],
+      "Case": "paclet",
+      "ExitCode": 0
+    }
+  ],
+  "Succeeded": 60,
+  "Failed": 0,
+  "HTTPFixtureRequests": [],
+  "IsolatedFixtureFiles": [
+    "AsymptoticAnalysis.wl"
+  ],
+  "HTTPFixtureHasNoCompanionFiles": null,
+  "LocalHTTPServerStarted": false,
+  "PackageContext": "AsymptoticAnalysis`",
+  "LegacyPackageContextAbsent": true
+}

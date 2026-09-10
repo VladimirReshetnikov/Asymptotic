@@ -1,7 +1,7 @@
 # Original research and implementation reports
 
 This directory preserves the nine reports that informed the unified
-AsymptoticInverse package. They arrived as independent research and Wolfram
+package, now named AsymptoticAnalysis. They arrived as independent research and Wolfram
 Language implementations on September 7, 2026. Each report includes its own
 mathematical article, package, examples, and verification material.
 
@@ -29,9 +29,9 @@ the packages have different public names and order conventions and are not
 interchangeable with the maintained implementation. Load a historical
 package in a separate kernel when reproducing its results.
 
-For current work, use the [maintained package](../AsymptoticInverse/README.md),
+For current work, use the [maintained package](../AsymptoticAnalysis/README.md),
 [mathematical article](../article/README.md), and
-[user guide](../AsymptoticInverse/Documentation/README.md). Later reviews of
+[user guide](../AsymptoticAnalysis/Documentation/README.md). Later reviews of
 the unified package are indexed separately under
 [code-review/](../code-review/README.md); current fixes and outstanding
 findings are tracked in the

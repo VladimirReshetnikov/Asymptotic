@@ -12,8 +12,8 @@ snapshot also includes its saved illustration.
 
 The snapshots preserve the questions' historical inputs and outputs. They
 are not a current comparison against every Wolfram version. Consult the
-[user guide](../../AsymptoticInverse/Documentation/README.md) for the package
-interface, the [examples](../../AsymptoticInverse/Examples/README.md) for
+[user guide](../../AsymptoticAnalysis/Documentation/README.md) for the package
+interface, the [examples](../../AsymptoticAnalysis/Examples/README.md) for
 executable versions, and the [original report comparison](../../reports/COMPARISON.md)
 for the research developed from these questions.
 

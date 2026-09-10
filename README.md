@@ -1,4 +1,4 @@
-# AsymptoticInverse
+# AsymptoticAnalysis
 
 A Wolfram Language package for real asymptotic expansions of functions and
 their inverses. It handles real exponents, logarithmic coefficients, finite
@@ -6,6 +6,11 @@ and infinite endpoints, and selected logarithmic, exponential, flat, and
 oscillatory scales. Analytic results carry an explicit remainder and real branch
 information. Native backends preserve built-in formal and asymptotic results
 with their own contracts, selected explicitly or by automatic routing.
+
+The package and Wolfram context are now named `AsymptoticAnalysis`. Public
+function names, including `AsymptoticInverse`, are unchanged. The
+[loading guide](AsymptoticAnalysis/Documentation/UserGuide.md#loading-fixed-versions)
+also explains how to load revisions from before the package rename.
 
 The current development target is complete input coverage of the built-in
 Wolfram `Series` and `Asymptotic` functions, including native-supported cases
@@ -23,7 +28,7 @@ the required interfaces, result semantics, and validation boundaries.
 | Document | Read it for |
 | --- | --- |
 | **[Mathematical article (PDF)](article/asymptotic-inverse.pdf)** · [LaTeX source](article/asymptotic-inverse.tex) | Definitions, theorems, proofs, mathematical examples, and the hypotheses behind each scale and error estimate. |
-| **[User guide (HTML)](AsymptoticInverse/Documentation/UserGuide.html)** · [Markdown source](AsymptoticInverse/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
+| **[User guide (HTML)](AsymptoticAnalysis/Documentation/UserGuide.html)** · [Markdown source](AsymptoticAnalysis/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
 | **[Code review reports](code-review/README.md)** | Eighteen reports in two waves: [reports 1–9](code-review/wave-1/README.md) and [reports 10–18](code-review/wave-2/README.md), with pinned revisions, mathematical and engineering findings, evidence, regression candidates, and proposed patches. |
 | **[Vendored ProveIt articles](vendor/proveit/README.md)** | A revision-pinned TeX/PDF library on asymptotic expansions, transseries, q-analogs, combinatorial sequences, and their interpolated inverses, with topic reading lists and build provenance. |
 
@@ -38,7 +43,7 @@ Load the current `main` version directly from GitHub in a Wolfram kernel:
 
 ```wolfram
 Get[URLDownload[
-  "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"]];
+  "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticAnalysis.wl"]];
 ```
 
 This downloads the complete standalone package to a temporary file, then
@@ -47,14 +52,14 @@ Downloading first avoids an observed Wolfram 15.0.1 issue that intermittently
 truncated direct `Get` of the compressed package response.
 
 For a fixed version, use the guide's
-[commit-pinned loading form](AsymptoticInverse/Documentation/UserGuide.md#loading-fixed-versions).
-The repository-root `AsymptoticInverse.wl` is also a complete single-file
+[commit-pinned loading form](AsymptoticAnalysis/Documentation/UserGuide.md#loading-fixed-versions).
+The repository-root `AsymptoticAnalysis.wl` is also a complete single-file
 package that you can download and load with local `Get` offline.
 
 From a local checkout, load the modular entry point instead:
 
 ```wolfram
-Get["AsymptoticInverse/Kernel/AsymptoticInverse.wl"];
+Get["AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl"];
 ```
 
 Then compute an expansion:
@@ -79,7 +84,7 @@ Normal[ig]
 The increasing Gamma inverse retains an exact Lambert core and expands in
 complete polynomial reciprocal-logarithmic blocks at successive inverse
 powers of that core. The guide covers its
-[LogGamma, affine, powered, and reciprocal-target extensions](AsymptoticInverse/Documentation/UserGuide.md#inverse-gamma-and-loggamma).
+[LogGamma, affine, powered, and reciprocal-target extensions](AsymptoticAnalysis/Documentation/UserGuide.md#inverse-gamma-and-loggamma).
 
 The forward interface also covers admitted Bessel, Airy, error-integral,
 fixed-parameter incomplete Gamma, zeta/polylogarithm, hypergeometric, and
@@ -92,7 +97,7 @@ AsymptoticExpansion[Erfc[x], x -> Infinity, SeriesTermGoal -> 3]
 AsymptoticExpansion[EllipticK[1 - x], x -> 0, SeriesTermGoal -> 3]
 ```
 
-The [special-function guide](AsymptoticInverse/Documentation/UserGuide.md#special-function-expansions)
+The [special-function guide](AsymptoticAnalysis/Documentation/UserGuide.md#special-function-expansions)
 explains real branches, fixed parameter assumptions, complete block counts
 for separate carriers, and the distinction between exact identities and
 exponentially small tails. These are endpoint-specific capabilities, not a
@@ -110,7 +115,7 @@ b^(1/2)
 SeriesNormalize[(1 + a)/(1 - a), "Cutoff" -> 4]
 ```
 
-Constructors return [`GeneralizedSeries`](AsymptoticInverse/Documentation/UserGuide.md#GeneralizedSeries)
+Constructors return [`GeneralizedSeries`](AsymptoticAnalysis/Documentation/UserGuide.md#GeneralizedSeries)
 objects. StandardForm and TraditionalForm hide the head. For analytic results,
 `Normal` extracts the finite expression. Keep the series object when doing further
 arithmetic that needs its remainder. In the package path, `{x, 0, 5}`
@@ -118,7 +123,7 @@ uses an **exclusive power cutoff**; `SeriesTermGoal` requests complete
 nonzero blocks. These are distinct from the native `Series` order convention.
 Version 1.8.0 renames the former `PowerLogSeries`
 head, so explicit patterns should now use `_GeneralizedSeries`. The
-[arithmetic guide](AsymptoticInverse/Documentation/UserGuide.md#series-operations)
+[arithmetic guide](AsymptoticAnalysis/Documentation/UserGuide.md#series-operations)
 explains precision propagation, ordinary function operands, held normalization,
 and composite error bounds for compatible expansions in different scales.
 
@@ -136,7 +141,7 @@ Native results preserve the backend output with `"Kind" -> "Native"`.
 Their package remainder is `Missing["NativeContract"]`; a formal native order
 does not establish an analytic error bound. `Normal` follows the stored native
 result and need not be finite. Continue native operations on `"NativeResult"`.
-See [Native Expansion Backends](AsymptoticInverse/Documentation/UserGuide.md#native-backend-expansions).
+See [Native Expansion Backends](AsymptoticAnalysis/Documentation/UserGuide.md#native-backend-expansions).
 
 Version 1.8.0 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)
@@ -146,8 +151,8 @@ for the exact scope of each run.
 
 | Location | Content |
 | --- | --- |
-| [AsymptoticInverse.wl](AsymptoticInverse.wl) | Generated standalone package for loading from a URL download or single-file offline use. |
-| [AsymptoticInverse/](AsymptoticInverse/README.md) | Package loading, [kernel source](AsymptoticInverse/Kernel/README.md), [examples](AsymptoticInverse/Examples/README.md), and [focused tests](AsymptoticInverse/Tests/README.md). |
+| [AsymptoticAnalysis.wl](AsymptoticAnalysis.wl) | Generated standalone package for loading from a URL download or single-file offline use. |
+| [AsymptoticAnalysis/](AsymptoticAnalysis/README.md) | Package loading, [kernel source](AsymptoticAnalysis/Kernel/README.md), [examples](AsymptoticAnalysis/Examples/README.md), and [focused tests](AsymptoticAnalysis/Tests/README.md). |
 | [article/](article/README.md) | Mathematical article and its build instructions. |
 | [docs/](docs/README.md) | Reading paths and links between mathematical, user, and contributor documentation. |
 | [docs/development/](docs/development/README.md) | Current review status, implementation plans, gotcha notes, and preserved historical engineering chapters. |
@@ -164,7 +169,7 @@ When changing the kernel sources, regenerate the standalone file with
 the freshness check and focused loading validation.
 
 Documentation build and review commands are in [article/README.md](article/README.md)
-and [Documentation/README.md](AsymptoticInverse/Documentation/README.md).
+and [Documentation/README.md](AsymptoticAnalysis/Documentation/README.md).
 
 ## Development status
 

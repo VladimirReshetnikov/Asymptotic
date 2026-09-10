@@ -7,8 +7,8 @@ extended scales used by the package. It contains mathematical examples
 and algorithms, without package syntax or implementation history.
 
 Package usage belongs to the separate
-**[user guide](../AsymptoticInverse/Documentation/UserGuide.html)**
-([Markdown](../AsymptoticInverse/Documentation/UserGuide.md)), organized in the
+**[user guide](../AsymptoticAnalysis/Documentation/UserGuide.html)**
+([Markdown](../AsymptoticAnalysis/Documentation/UserGuide.md)), organized in the
 style of Wolfram documentation. It is this package's guide, not an official
 Wolfram reference page.
 

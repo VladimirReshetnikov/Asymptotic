@@ -10,29 +10,40 @@ loadingMethod = If[loadingRemote, "URLDownload followed by local Get", "Automati
 loadingGet[] := If[loadingRemote,
   Get[URLDownload[loadingSource]], Get[loadingSource]];
 If[! StringQ[loadingSource] || ! StringQ[loadingOutput], Exit[2]];
-If[MemberQ[$Packages, "AsymptoticInverse`"] ||
-    Names["AsymptoticInverse`*"] =!= {} ||
+loadingLegacyNames[] := Join[Names["AsymptoticInverse`*"], Names["AsymptoticInverse`Private`*"]];
+If[MemberQ[$Packages, "AsymptoticAnalysis`"] ||
+    Names["AsymptoticAnalysis`*"] =!= {} ||
+    MemberQ[$Packages, "AsymptoticInverse`"] || loadingLegacyNames[] =!= {} ||
     Names["Global`AsymptoticExpansion"] =!= {} ||
     Names["Global`GeneralizedSeries"] =!= {},
   Print["Acceptance checks require a kernel without preloaded package definitions."];
   Exit[2]];
-If[StringQ[loadingPath] && loadingPath =!= "", PrependTo[$Path, loadingPath]];
+If[loadingMode =!= "Paclet" && StringQ[loadingPath] && loadingPath =!= "", PrependTo[$Path, loadingPath]];
 loadingStringStreamsBefore = Count[Streams[], InputStream["String", _]];
 loadingResult = If[loadingMode === "Missing", Quiet[Check[loadingGet[], $Failed]],
-  Check[If[loadingMode === "Needs", Needs["AsymptoticInverse`"], loadingGet[]], $Failed]];
+  Check[Switch[loadingMode,
+    "Needs", Needs["AsymptoticAnalysis`"],
+    "Paclet", PacletDirectoryLoad[loadingPath]; Needs["AsymptoticAnalysis`"],
+    _, loadingGet[]], $Failed]];
 If[loadingMode === "Missing",
   loadingChecks = {loadingResult === $Failed,
-    ! MemberQ[$Packages, "AsymptoticInverse`"], $Context === "Global`"};
+    ! MemberQ[$Packages, "AsymptoticAnalysis`"], $Context === "Global`"};
   Export[loadingOutput, <|"Kernel" -> $Version, "Source" -> loadingSource,
     "Mode" -> loadingMode, "Succeeded" -> Count[loadingChecks, True],
     "Failed" -> Count[loadingChecks, Except[True]], "Checks" -> loadingChecks|>, "RawJSON"];
   Exit[If[And @@ loadingChecks, 0, 1]]];
-If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticInverse`"],
+If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"],
   Print["Package loading failed: ", loadingSource]; Exit[1]];
 
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[{
+      Context[AsymptoticInverse], Context[AsymptoticExpansion], Context[GeneralizedSeries],
+      MemberQ[$Packages, "AsymptoticAnalysis`"],
+      MemberQ[$Packages, "AsymptoticInverse`"], loadingLegacyNames[]},
+    {"AsymptoticAnalysis`", "AsymptoticAnalysis`", "AsymptoticAnalysis`", True, False, {}},
+    TestID -> "loading-renamed-context-preserves-public-inverse-name-without-legacy-definitions"],
   VerificationTest[Module[{x, s},
     s = AsymptoticExpand[Exp[I x], {x, 0, 3}];
     {s["Kind"], s["OrderConvention"],
@@ -50,7 +61,7 @@ loadingReport = TestReport[{
     {Context[AsymptoticExpand], s["Kind"],
       s["NativeResult"] === Series[Exp[I x], {x, 0, 3}],
       s["Exact"] === Missing["NotEstablished"]}],
-    {"AsymptoticInverse`", "Native", True, True}, TestID -> "loading-native-series-and-held-alias"],
+    {"AsymptoticAnalysis`", "Native", True, True}, TestID -> "loading-native-series-and-held-alias"],
   VerificationTest[Module[{x, s},
     s = AsymptoticExpansion[Sin[x], x -> 0, "Backend" -> "Asymptotic"];
     {Normal[s] === Asymptotic[Sin[x], x -> 0],
@@ -59,7 +70,7 @@ loadingReport = TestReport[{
   VerificationTest[{$Context, Context[AsymptoticExpansion],
     Names["Global`AsymptoticExpansion"], Names["Global`GeneralizedSeries"],
     Count[Streams[], InputStream["String", _]] === loadingStringStreamsBefore},
-    {"Global`", "AsymptoticInverse`", {}, {}, True}, TestID -> "loading-contexts-and-stream-cleanup"],
+    {"Global`", "AsymptoticAnalysis`", {}, {}, True}, TestID -> "loading-contexts-and-stream-cleanup"],
   VerificationTest[Module[{x, y, s},
     s = AsymptoticInverse[x + x^Sqrt[2], {x, 0}, y, SeriesTermGoal -> 3];
     MatchQ[s, _GeneralizedSeries] && TrueQ[FullSimplify[Normal[s] ==
@@ -95,8 +106,9 @@ loadingReport = TestReport[{
     {result =!= $Failed, Length[UpValues[GeneralizedSeries]] === before,
       Normal[s] === 1 + 2^-x + 3^-x,
       Count[Streams[], InputStream["String", _]] === loadingStringStreamsBefore,
-      AsymptoticExpand[Sin[x], x -> 0, "Backend" -> "Asymptotic"]["NativeBackend"] === "Asymptotic"}],
-    {True, True, True, True, True}, TestID -> "loading-explicit-reload-and-dirichlet" ]
+      AsymptoticExpand[Sin[x], x -> 0, "Backend" -> "Asymptotic"]["NativeBackend"] === "Asymptotic",
+      ! MemberQ[$Packages, "AsymptoticInverse`"] && loadingLegacyNames[] === {}}],
+    {True, True, True, True, True, True}, TestID -> "loading-explicit-reload-and-dirichlet" ]
 }, ProgressReporting -> False];
 loadingResults = (<|"TestID" -> #["TestID"], "Outcome" -> #["Outcome"],
   "ActualOutput" -> ToString[#["ActualOutput"], InputForm]|> &) /@ Values[loadingReport["TestResults"]];

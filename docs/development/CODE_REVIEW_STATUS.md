@@ -1,5 +1,13 @@
 # Code review implementation status
 
+The maintained package is now named AsymptoticAnalysis. Public function names,
+including `AsymptoticInverse`, are unchanged. Source and test links below follow
+the renamed directory; saved review payloads and validation records retain
+their original paths and contexts. The 163/0 routing, 58/0 certificate and 11/0
+standalone evidence at checkpoint `01b18ab` predates this rename. Earlier
+passing counts likewise apply to their recorded source snapshots, not to new
+path/context hashes after the rename.
+
 Updated September 9, 2026. This register consolidates the **123 identified finding
 entries in all eighteen [review packages](../../code-review/README.md)** into shared
 work items. It also records substantive roadmap proposals separately. It is a
@@ -64,7 +72,7 @@ function `AsymptoticExpansion` now also has the held alias `AsymptoticExpand`.
 | B03 | **Native representation focused verified.** `Kind`/`Scale` `"Native"` preserves the complete native result, held request and syntactic specifications, ambient context and runtime provenance. Analytic remainder and exactness remain missing; `Normal` applies native normalization and can retain infinite expressions. Analytic operations refuse to infer a remainder theorem. Further analytic promotion and native operations remain separate work; coordinate with C06, C07, C13 and C16. |
 | B04 | **Partial — focused comparisons recorded.** Eight selected files pass 163 tests on Wolfram 15.0.1 Windows with unchanged sources, including native differential, contract and presentation cases plus adjacent regressions. This evidence supports those cases only. Broader matrix coverage, R17 N4's specific comparison, and the structural argument for full Automatic coverage remain required. |
 
-Implementation: [NativeCompatibility.wl](../../AsymptoticInverse/Kernel/NativeCompatibility.wl).
+Implementation: [NativeCompatibility.wl](../../AsymptoticAnalysis/Kernel/NativeCompatibility.wl).
 Current automatic evidence: [163/0 record](../../validation/native-automatic-tests.json),
 [eight-file runner](../../validation/CheckNativeAutomatic.wl), and
 [artifact receipt](../../validation/automatic-certificate-artifacts.json).
@@ -87,8 +95,8 @@ preserving the denominator and native order. A 100,000-position limit returns
 `Missing["DenseSeriesDataLimit", metadata]` for an oversized optional view. Empty
 inverse coefficients are handled. The sparse result remains available.
 
-Source: [core exporters](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
-[ReviewNativeExport.wlt](../../AsymptoticInverse/Tests/ReviewNativeExport.wlt)
+Source: [core exporters](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl).
+[ReviewNativeExport.wlt](../../AsymptoticAnalysis/Tests/ReviewNativeExport.wlt)
 contains 13 targeted cases. The inspected
 [five-file native record](../../validation/review-native-export-tests.json)
 reports **115 successes, 0 failures**, Wolfram 15.0.1 for Windows, and unchanged
@@ -113,14 +121,14 @@ reports 10 successes and six branch-case failures on `73aabf2`; the
 [post-fix record](../../validation/review-power-branches-tests.json) reports
 **148 successes, 0 failures** across six selected files, with unchanged sources
 during the run. Its 16 new
-[branch regressions](../../AsymptoticInverse/Tests/ReviewPowerBranches.wlt)
+[branch regressions](../../AsymptoticAnalysis/Tests/ReviewPowerBranches.wlt)
 cover recursive and direct routes and valid controls. Published implementation:
 `921387e`.
 
-Sources: [core `fwdPower`](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl),
-[operation dispatch](../../AsymptoticInverse/Kernel/SeriesOperations.wl).
-Existing neighboring regressions: [SeriesOperations](../../AsymptoticInverse/Tests/SeriesOperations.wlt),
-[SeriesArithmetic](../../AsymptoticInverse/Tests/SeriesArithmetic.wlt).
+Sources: [core `fwdPower`](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl),
+[operation dispatch](../../AsymptoticAnalysis/Kernel/SeriesOperations.wl).
+Existing neighboring regressions: [SeriesOperations](../../AsymptoticAnalysis/Tests/SeriesOperations.wlt),
+[SeriesArithmetic](../../AsymptoticAnalysis/Tests/SeriesArithmetic.wlt).
 Findings: [R1 A01][R1], [R2 F02][R2], [R3 F01][R3], [R4 A01][R4],
 [R5 F02][R5], [R7 F02][R7], [R8 F02][R8].
 
@@ -141,7 +149,7 @@ regressions, with unchanged sources and all final source hashes verified.
 See the [native-remainder notes](NATIVE_SERIES_REMAINDERS.md) for the formal
 versus analytic distinction and the separate incoming-tail contract.
 
-Source: [core exporters](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
+Source: [core exporters](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl).
 Require forward/inverse tests with positive logarithmic degree and unchanged
 ordinary algebraic exports. Findings: [R1 A03][R1], [R2 F03][R2], [R3 F03][R3],
 [R6 A02][R6], [R9 F06][R9].
@@ -155,8 +163,8 @@ degree of every input block, so a later logarithmic block cannot disappear
 from the bound. The estimate is conservative and need not detect cancellations
 among complete boundary polynomials.
 
-Source: [core `unitSeriesPrecision` / `pUnitSeries`](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
-The 15 new [precision tests](../../AsymptoticInverse/Tests/ReviewUnitPrecision.wlt)
+Source: [core `unitSeriesPrecision` / `pUnitSeries`](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl).
+The 15 new [precision tests](../../AsymptoticAnalysis/Tests/ReviewUnitPrecision.wlt)
 cover explicit logarithm, exponential, radical, reciprocal and sine witnesses,
 an irrational frontier, later-block degrees, inherited errors and exact cases.
 The [baseline record](../../validation/review-unit-arithmetic-baseline.json)
@@ -186,7 +194,7 @@ Models retain their parameter assumptions, and coefficient queries inherit them.
 Delayed options are resolved before dispatch and forwarded as immediate rules;
 nested option lists and specialized constructor paths are covered.
 
-The original 17 [assumption regressions](../../AsymptoticInverse/Tests/ReviewAssumptions.wlt)
+The original 17 [assumption regressions](../../AsymptoticAnalysis/Tests/ReviewAssumptions.wlt)
 all fail against pinned kernel `e9c9eb9` in the
 [baseline record](../../validation/review-assumptions-baseline.json). The
 [acceptance record](../../validation/review-assumptions-tests.json) identifies
@@ -194,15 +202,15 @@ all fail against pinned kernel `e9c9eb9` in the
 [supplemental replay record](../../validation/review-assumption-replay-tests.json)
 adds **12 passed, zero failed** for delayed options, all remaining specialized
 constructors, nested callbacks, representations and retained state. Both records
-match the current source hashes and report unchanged sources during execution.
+match the source hashes of that recorded snapshot and report unchanged sources during execution.
 The [implementation notes](ASSUMPTION_CONTEXT.md) explain the policy, nested-state
 requirements and evaluation limits. The mathematical article and user guide
 now discuss retained parameter domains and distinguish pointwise from uniform
 asymptotic claims. The six specialized constructors retain their existing
 parameter-only assumption restriction.
 
-Sources: [core assumption splitting](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl),
-[public expression adapters](../../AsymptoticInverse/Kernel/InverseFunctionExpressions.wl).
+Sources: [core assumption splitting](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl),
+[public expression adapters](../../AsymptoticAnalysis/Kernel/InverseFunctionExpressions.wl).
 Findings: [R1 A04][R1], [R3 F04][R3], [R6 A12][R6], [R8 F01][R8].
 
 ### C06 — Reconcile unresolved logarithmic tails in native import paths
@@ -232,10 +240,10 @@ for an arbitrary function from a finite native coefficient list. The required
 finite-logarithmic tail premise is stated in the article and
 [native-remainder notes](NATIVE_SERIES_REMAINDERS.md).
 
-Sources: [ordinary fallback](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl),
-[structured importer](../../AsymptoticInverse/Kernel/NativeSpecialFunctions.wl).
-Regressions: [ReviewNativeTailImport](../../AsymptoticInverse/Tests/ReviewNativeTailImport.wlt),
-[NativeSpecialIngress](../../AsymptoticInverse/Tests/NativeSpecialIngress.wlt).
+Sources: [ordinary fallback](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl),
+[structured importer](../../AsymptoticAnalysis/Kernel/NativeSpecialFunctions.wl).
+Regressions: [ReviewNativeTailImport](../../AsymptoticAnalysis/Tests/ReviewNativeTailImport.wlt),
+[NativeSpecialIngress](../../AsymptoticAnalysis/Tests/NativeSpecialIngress.wlt).
 Findings: [R4 R03][R4], [R7 F03][R7].
 
 ### C07 — Apply the advertised real-coefficient contract consistently
@@ -248,7 +256,7 @@ uses `Simplify` followed by a one-second `FullSimplify` fallback when needed.
 Failure metadata distinguish proved nonrealness from an unproved condition.
 Observable Taylor probes use a signed positive local increment.
 
-The [23 focused cases](../../AsymptoticInverse/Tests/ReviewRealCoefficients.wlt)
+The [23 focused cases](../../AsymptoticAnalysis/Tests/ReviewRealCoefficients.wlt)
 cover constant/native coefficients, offsets, retained assumptions, cancellation,
 known exact blocks above a requested cutoff and real special-function controls.
 The [eleven-file acceptance](../../validation/review-real-coefficients-tests.json)
@@ -261,9 +269,9 @@ semantic exponent grouping (C14). Native-supported complex/formal inputs need
 the distinct compatibility representation in B01–B03; they must not remain
 excluded merely because they do not satisfy the real representation's contract.
 
-Sources: [core constants and analytic expansion](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl),
-[observables](../../AsymptoticInverse/Kernel/SeriesOperations.wl),
-[special-function domains](../../AsymptoticInverse/Kernel/SpecialFunctionRealDomain.wl).
+Sources: [core constants and analytic expansion](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl),
+[observables](../../AsymptoticAnalysis/Kernel/SeriesOperations.wl),
+[special-function domains](../../AsymptoticAnalysis/Kernel/SpecialFunctionRealDomain.wl).
 Findings: [R4 R02][R4], [R7 F04][R7], [R9 F04][R9], [R11 N04][R11],
 [R12 N02][R12], [R13 A2][R13], [R18 D-C07][R18]. Report 18 adds a historical
 cross-entry acceptance matrix for nonreal constants; it does not replace the
@@ -283,10 +291,10 @@ demands backward through the operation, reconstruct forward, and check the
 achieved bound; report insufficient source information accurately. For shared
 operands, collect the strongest demand before refinement.
 
-Source: [recipe refinement](../../AsymptoticInverse/Kernel/SeriesOperations.wl).
+Source: [recipe refinement](../../AsymptoticAnalysis/Kernel/SeriesOperations.wl).
 Independent target: refine the negative tenth power of a truncated `Exp[x]-1`
 to cutoff 5, which requires operand precision 16 under the report's convention.
-Existing tests: [RefinementRegressions](../../AsymptoticInverse/Tests/RefinementRegressions.wlt).
+Existing tests: [RefinementRegressions](../../AsymptoticAnalysis/Tests/RefinementRegressions.wlt).
 Findings: [R2 F05][R2], [R5 F04][R5], [R6 A04][R6], [R9 F05][R9]. A correct
 but weaker expansion must not be described as an achieved requested cutoff.
 
@@ -296,7 +304,7 @@ but weaker expansion must not be described as an achieved requested cutoff.
 `InverseExpansionCoefficient` places the stored `"Power"` option before caller
 options. Choose explicit-option precedence or reject a conflict. Test omitted,
 matching, and conflicting options at finite and infinite source endpoints.
-Source: [core coefficient overload](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
+Source: [core coefficient overload](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl).
 Finding: [R6 A03][R6].
 
 ### C10 — Include the target offset in residual normalization labels
@@ -305,7 +313,7 @@ Finding: [R6 A03][R6].
 `f(g(y))/(a z^p)-1`; the translated model requires
 `(f(g(y))-y0)/(a z^p)-1`. Inspect the actual residual calculation alongside the
 wording and retain its finite-model scope. Test nonzero target offset and the
-zero-offset control. Source: [core residual API](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
+zero-offset control. Source: [core residual API](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl).
 Finding: [R5 F05][R5]. This entry does not assert that the calculated residual
 has the same defect as the label.
 
@@ -316,7 +324,7 @@ inconsistent finite terms, internal jets, or metadata. Specify which constructio
 and import boundaries are supported, then validate invariants there. Avoid
 revalidating every trusted internal operation. Include malformed and older
 saved-object fixtures; coordinate with D02–D03.
-Source: [result accessors](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
+Source: [result accessors](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl).
 Finding: [R4 A05][R4]. No claim is made that arbitrary hand-built associations
 already have a documented validity guarantee.
 
@@ -326,7 +334,7 @@ already have a documented validity guarantee.
 proved negation of `d < 0` as strict positivity. Establish equality separately
 or preserve an undecidable-order result; do not conflate nonnegative with
 positive. Preserve exact algebraic resonance and sorting requirements.
-Source: [core `compare`](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl).
+Source: [core `compare`](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl).
 Finding: [R6 A15][R6]. No wrong public result has been reproduced.
 
 ### C13 — Audit composition domains and the realness of unknown errors
@@ -335,8 +343,8 @@ Finding: [R6 A15][R6]. No wrong public result has been reproduced.
 domain, not only its finite approximation. Check whether real trigonometric
 error bounds require a retained real-valued error contract. Use boundary-touching
 compositions and uncertain inner branches to settle public reachability.
-Sources: [series operations](../../AsymptoticInverse/Kernel/SeriesOperations.wl),
-[composite envelopes](../../AsymptoticInverse/Kernel/SeriesEnvelopeArithmetic.wl).
+Sources: [series operations](../../AsymptoticAnalysis/Kernel/SeriesOperations.wl),
+[composite envelopes](../../AsymptoticAnalysis/Kernel/SeriesEnvelopeArithmetic.wl).
 Findings: [R4 R01][R4], [R7 R01][R7]. Preserve existing conservative refusals;
 neither report establishes a current counterexample.
 
@@ -390,14 +398,14 @@ current package.
 
 | ID | Current status and bounded next action | Report evidence and source |
 | --- | --- | --- |
-| P01 | **Pending — source inspected.** Nonnegative integer powers use binary powering, but exact operands can still be fully expanded before a tiny requested cutoff. Propagate the cutoff through intermediate products with correct negative-valuation shifts. Compare with an independent truncated Cartesian oracle and preserve failure ordering. | [R9 F02][R9]; core `fwdPower`, `pIntegerPower`, `pMul` in [AsymptoticInverse.wl](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl). |
+| P01 | **Pending — source inspected.** Nonnegative integer powers use binary powering, but exact operands can still be fully expanded before a tiny requested cutoff. Propagate the cutoff through intermediate products with correct negative-valuation shifts. Compare with an independent truncated Cartesian oracle and preserve failure ordering. | [R9 F02][R9]; core `fwdPower`, `pIntegerPower`, `pMul` in [AsymptoticAnalysis.wl](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl). |
 | P02 | **Pending — source inspected.** Generic unit-series loops check product limits but do not consistently bound accumulated support or depth. Define the units and check each stage without charging an irrelevant continuation after exact termination. Historical native reproduction is in review 8. | [R8 F04][R8]; core `jetPowerSeries` / `jetComposeBlock`. |
-| P03 | **Focused verified.** The homogeneous Euler recurrence stops before multiplying another power once its coefficient polynomial is proved zero. Its 16 [regressions](../../AsymptoticInverse/Tests/ReviewRecurrenceTermination.wlt) cover finite products, logarithmic coefficients, valid assumption-dependent termination, validation order and required-versus-futile resource use. Four baseline resource failures now pass in the [196-test acceptance](../../validation/review-unit-arithmetic-tests.json). Generic coefficient generators still permit isolated zeros. | [R4 A03][R4], [R8 F05][R8]; core `jetComposeBlock`. |
-| P04 | **Pending — source inspected.** Grouped and Newton routes still construct the direct multi-index region/frontier. Separate method-specific coefficient scheduling from complete-weight/frontier certification. Test collisions, irrational gaps, cancellation, term goals, and exact termination before considering a priority queue or automatic strategy selection. | [R2 F06][R2], [R3 F05][R3], [R5 F03][R5], [R9 F03][R9]; [core constructor](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl), [refinement state](../../AsymptoticInverse/Kernel/RefinementState.wl). |
+| P03 | **Focused verified.** The homogeneous Euler recurrence stops before multiplying another power once its coefficient polynomial is proved zero. Its 16 [regressions](../../AsymptoticAnalysis/Tests/ReviewRecurrenceTermination.wlt) cover finite products, logarithmic coefficients, valid assumption-dependent termination, validation order and required-versus-futile resource use. Four baseline resource failures now pass in the [196-test acceptance](../../validation/review-unit-arithmetic-tests.json). Generic coefficient generators still permit isolated zeros. | [R4 A03][R4], [R8 F05][R8]; core `jetComposeBlock`. |
+| P04 | **Pending — source inspected.** Grouped and Newton routes still construct the direct multi-index region/frontier. Separate method-specific coefficient scheduling from complete-weight/frontier certification. Test collisions, irrational gaps, cancellation, term goals, and exact termination before considering a priority queue or automatic strategy selection. | [R2 F06][R2], [R3 F05][R3], [R5 F03][R5], [R9 F03][R9]; [core constructor](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl), [refinement state](../../AsymptoticAnalysis/Kernel/RefinementState.wl). |
 | P05 | **Pending — source inspected.** `logCanon` unconditionally factors exact integer/rational logarithm arguments. Bound optional canonicalization and retain opaque exact logarithms when that budget is exhausted. Test equality/zero detection and reproducibility as well as runtime. | [R5 F06][R5], [R6 A05][R6]; core `logCanon`, `coefCanon`, `polyCanon`. |
-| P06 | **Decision / pending.** Separate output support, candidate products, recursion/depth, frequencies, dense positions, coefficient size, and symbolic proof work. Preflight expensive expansion/allocation and preserve local failure ordering. A shared request budget should report the exhausted resource; replacing every limit with one counter is not the proposal. | [R1 A06][R1], [R4 A06][R4], [R6 A06][R6], [R8 F06][R8]; [kernel modules](../../AsymptoticInverse/Kernel/). |
-| P07 | **Profiling required.** Measure nested recipe/provenance size and cache retention before introducing shared immutable nodes, compact serialization, or cache elision. Bound caches by meaningful cost and preserve branch/refinement evidence when removing optional state. Reported exponential history growth is structural, not a measured current workload. | [R1 A13][R1], [R4 A04][R4], [R7 R02][R7]; [SeriesOperations](../../AsymptoticInverse/Kernel/SeriesOperations.wl), [RefinementState](../../AsymptoticInverse/Kernel/RefinementState.wl). |
-| P08 | **Profiling required.** Profile repeated `Expand`/normalization, native powers and analytic calls, coefficient recurrences, proof queries, and rebuild/replay work. Prefer bounded request-local reuse over a global cache. Only keep optimizations with identical coefficients, domains, errors, and meaningful matched measurements. | [R6 A16][R6], [R7 R02][R7]; [NativeSpecialFunctions](../../AsymptoticInverse/Kernel/NativeSpecialFunctions.wl), [GammaInverse](../../AsymptoticInverse/Kernel/GammaInverse.wl), and report roadmap discussions. |
+| P06 | **Decision / pending.** Separate output support, candidate products, recursion/depth, frequencies, dense positions, coefficient size, and symbolic proof work. Preflight expensive expansion/allocation and preserve local failure ordering. A shared request budget should report the exhausted resource; replacing every limit with one counter is not the proposal. | [R1 A06][R1], [R4 A06][R4], [R6 A06][R6], [R8 F06][R8]; [kernel modules](../../AsymptoticAnalysis/Kernel/). |
+| P07 | **Profiling required.** Measure nested recipe/provenance size and cache retention before introducing shared immutable nodes, compact serialization, or cache elision. Bound caches by meaningful cost and preserve branch/refinement evidence when removing optional state. Reported exponential history growth is structural, not a measured current workload. | [R1 A13][R1], [R4 A04][R4], [R7 R02][R7]; [SeriesOperations](../../AsymptoticAnalysis/Kernel/SeriesOperations.wl), [RefinementState](../../AsymptoticAnalysis/Kernel/RefinementState.wl). |
+| P08 | **Profiling required.** Profile repeated `Expand`/normalization, native powers and analytic calls, coefficient recurrences, proof queries, and rebuild/replay work. Prefer bounded request-local reuse over a global cache. Only keep optimizations with identical coefficients, domains, errors, and meaningful matched measurements. | [R6 A16][R6], [R7 R02][R7]; [NativeSpecialFunctions](../../AsymptoticAnalysis/Kernel/NativeSpecialFunctions.wl), [GammaInverse](../../AsymptoticAnalysis/Kernel/GammaInverse.wl), and report roadmap discussions. |
 
 Already implemented mechanisms must remain the baseline: sparse sorted-product
 pruning, binary integer powering, Fourier weight pruning, grouped Lagrange,
@@ -411,18 +419,18 @@ observations, and include peak memory and unchanged controls.
 
 | ID | Current status / decision to make | References |
 | --- | --- | --- |
-| D01 | **Decision.** Normalize requests internally by coordinate, absolute/relative cutoff, complete-weight or carrier term goal, and achieved error. Keep existing syntax compatible. Do not imply a single cutoff exists for arbitrary composite envelopes. | [R1 A07][R1], [R4 A08][R4], [R6 A09][R6], [R7 E02][R7]; [user guide](../../AsymptoticInverse/Documentation/UserGuide.md). |
-| D02 | **Decision.** Specify a small shared result/scale contract and capability discovery, including error evidence and derivative-contract order. Preserve unsupported versus undecidable versus disproved outcomes and report selected adapter/method/fallback. Avoid a broad registry refactor before concrete duplicated contracts are settled. | [R1 A12][R1], [R4 A08][R4], [R6 A11][R6], [R7 E02][R7]; [operation dispatch](../../AsymptoticInverse/Kernel/SeriesOperations.wl), [automatic arithmetic](../../AsymptoticInverse/Kernel/SeriesArithmetic.wl). |
+| D01 | **Decision.** Normalize requests internally by coordinate, absolute/relative cutoff, complete-weight or carrier term goal, and achieved error. Keep existing syntax compatible. Do not imply a single cutoff exists for arbitrary composite envelopes. | [R1 A07][R1], [R4 A08][R4], [R6 A09][R6], [R7 E02][R7]; [user guide](../../AsymptoticAnalysis/Documentation/UserGuide.md). |
+| D02 | **Decision.** Specify a small shared result/scale contract and capability discovery, including error evidence and derivative-contract order. Preserve unsupported versus undecidable versus disproved outcomes and report selected adapter/method/fallback. Avoid a broad registry refactor before concrete duplicated contracts are settled. | [R1 A12][R1], [R4 A08][R4], [R6 A11][R6], [R7 E02][R7]; [operation dispatch](../../AsymptoticAnalysis/Kernel/SeriesOperations.wl), [automatic arithmetic](../../AsymptoticAnalysis/Kernel/SeriesArithmetic.wl). |
 | D03 | **Decision.** Add versioned saved-object import/migration if persistence is supported. The public rename to `GeneralizedSeries` is already documented; a compatibility alias was intentionally not exported. Validate migration rather than textually rewriting arbitrary code. | [R1 A08][R1], [R6 A11][R6], [R7 E02][R7], [R8 F08][R8]; guide and C11. |
-| D04 | **Pending — source inspected.** `InverseCertificate` defaults `"Interval"` to `Automatic` but requires ordered rational endpoints. Either clearly make the interval required with a specific diagnostic or separately implement verified bracketing. Do not infer an interval from unspecified asymptotic constants. | [R1 A09][R1], [R6 A13][R6], [R7 E04][R7], [R8 F10][R8]; [InverseCertificates](../../AsymptoticInverse/Kernel/InverseCertificates.wl), [CertificateRegressions](../../AsymptoticInverse/Tests/CertificateRegressions.wlt). |
-| D05 | **Optional API decision.** Keep `Normal[s]` and `s[value]` as the documented finite expression and its numerical substitution. A separate checked evaluator could report domain, conditioning, scale, and available bounds. A bare asymptotic `O` with unknown constant cannot supply a numerical error bar. | [R1 A11][R1], [R6 A10][R6]; [result accessors](../../AsymptoticInverse/Kernel/AsymptoticInverse.wl). |
+| D04 | **Pending — source inspected.** `InverseCertificate` defaults `"Interval"` to `Automatic` but requires ordered rational endpoints. Either clearly make the interval required with a specific diagnostic or separately implement verified bracketing. Do not infer an interval from unspecified asymptotic constants. | [R1 A09][R1], [R6 A13][R6], [R7 E04][R7], [R8 F10][R8]; [InverseCertificates](../../AsymptoticAnalysis/Kernel/InverseCertificates.wl), [CertificateRegressions](../../AsymptoticAnalysis/Tests/CertificateRegressions.wlt). |
+| D05 | **Optional API decision.** Keep `Normal[s]` and `s[value]` as the documented finite expression and its numerical substitution. A separate checked evaluator could report domain, conditioning, scale, and available bounds. A bare asymptotic `O` with unknown constant cannot supply a numerical error bar. | [R1 A11][R1], [R6 A10][R6]; [result accessors](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl). |
 | D06 | **Compatibility decision.** Normalize supported real native direction aliases or reject them helpfully; preserve a clear assumption policy (C05). Clarify absolute source observables versus displacement powers at translated endpoints before changing syntax or semantics. Retain the role of held `SeriesNormalize` before automatic Wolfram cancellations. | [R4 A08][R4], [R6 A12][R6], [R7 E02][R7]; [review 3 API discussion][R3-article], [review 5 API discussion][R5-article], [review 9 API discussion][R9-article]. |
 | D07 | **Decision / partially existing.** Versioned release artifacts, checksums, and reproducible load examples remain useful. Download-before-`Get`, offline use, commit-pinned examples, canonical modular sources, and standalone freshness checks already exist; do not implement them again as missing features. | [R1 A14][R1]; [development README](README.md), [standalone workflow](../../.github/workflows/standalone.yml). |
-| D08 | **Pending — source inspected.** Align the paclet's `"MIT"` identifier with the root MIT No Attribution license after confirming the intended distribution metadata. Preserve separate review-package licenses and notices. | [R1 A14][R1], [R6 A14][R6], [R7 E03][R7], [R8 F09][R8]; [PacletInfo](../../AsymptoticInverse/PacletInfo.wl), [LICENSE](../../LICENSE). |
-| D09 | **Optional distribution decision.** Add Documentation Center symbol/reference pages and executable examples if native paclet help integration is desired. The current paclet declares a Kernel extension only; the existing HTML guide remains maintained documentation. | [R1 A10][R1], [R6 A14][R6]; [PacletInfo](../../AsymptoticInverse/PacletInfo.wl). |
+| D08 | **Pending — source inspected.** Align the paclet's `"MIT"` identifier with the root MIT No Attribution license after confirming the intended distribution metadata. Preserve separate review-package licenses and notices. | [R1 A14][R1], [R6 A14][R6], [R7 E03][R7], [R8 F09][R8]; [PacletInfo](../../AsymptoticAnalysis/PacletInfo.wl), [LICENSE](../../LICENSE). |
+| D09 | **Optional distribution decision.** Add Documentation Center symbol/reference pages and executable examples if native paclet help integration is desired. The current paclet declares a Kernel extension only; the existing HTML guide remains maintained documentation. | [R1 A10][R1], [R6 A14][R6]; [PacletInfo](../../AsymptoticAnalysis/PacletInfo.wl). |
 | D10 | **API policy decision; current coarsening observed.** Decide whether `SeriesRefine[s, lowerCutoff]` is a minimum-precision request, an explicit refusal, or intentional retargeting that may discard displayed terms. The current R18 probe reproduces valid coarser forward and inverse approximations; this is not a wrong asymptotic formula. Any no-op guard must first validate the request and establish comparable coordinates and cutoff conventions, preserve domains and retained information, and leave deliberate coarsening available through `SeriesTruncate`. | [R18 N02][R18]; [current probe](../../validation/review-18-intake.json), C08, D01, P08 |
 | V01 | **Deferred by current user instruction.** The reviews propose a full native release gate and CI semantic coverage. The present workflow checks standalone generation with Python; focused native records remain scoped evidence. Record source hashes, kernel version, selected suites, messages and failed/aborted cases. Do not claim or run a full-suite gate for this task. | [R1 A05][R1], [R4 A07][R4], [R6 A07][R6], [R7 E01][R7], [R8 F07][R8]; [validation record](../../validation/README.md). |
-| V02 | **Pending — source inspected.** Make the legacy aggregate runner reject zero discovered/executed tests and failed report/export construction. Reuse the stronger focused runner's checks without running the aggregate suite. Validate the runner itself with isolated empty/aborted fixtures. | [R6 A08][R6]; [RunTests](../../AsymptoticInverse/Tests/RunTests.wl), [FocusedTests](../../validation/FocusedTests.wl). |
+| V02 | **Pending — source inspected.** Make the legacy aggregate runner reject zero discovered/executed tests and failed report/export construction. Reuse the stronger focused runner's checks without running the aggregate suite. Validate the runner itself with isolated empty/aborted fixtures. | [R6 A08][R6]; [RunTests](../../AsymptoticAnalysis/Tests/RunTests.wl), [FocusedTests](../../validation/FocusedTests.wl). |
 
 ## Deferred mathematical and architectural extensions
 
@@ -434,7 +442,7 @@ coefficient oracles, remainder/branch obligations, and refusal cases.
 
 | ID | Proposal and boundary | Report source |
 | --- | --- | --- |
-| X01 | Primitive rationally commensurate flat-rate normalization. Current `flatModel` requires integer multiples of the smallest rate; rates 2 and 3 instead admit primitive rate 1. Bound lattice denominator/degree growth and keep genuinely irrational rate ratios distinct. **Pending scope decision; current restriction inspected.** | [R2 F07][R2], [R5 F07][R5], [R7 F05][R7]; [FlatSectors](../../AsymptoticInverse/Kernel/FlatSectors.wl). |
+| X01 | Primitive rationally commensurate flat-rate normalization. Current `flatModel` requires integer multiples of the smallest rate; rates 2 and 3 instead admit primitive rate 1. Bound lattice denominator/degree growth and keep genuinely irrational rate ratios distinct. **Pending scope decision; current restriction inspected.** | [R2 F07][R2], [R5 F07][R5], [R7 F05][R7]; [FlatSectors](../../AsymptoticAnalysis/Kernel/FlatSectors.wl). |
 | X02 | Shared coefficient algebra for rational/reciprocal logarithms, iterated slow variables, and compatible retained Gamma/Barnes cores. Improve ordered arithmetic, selected composition, Fourier term goals/refinement, and nonvanishing oscillatory coefficients under explicit hypotheses. Preserve conservative composite envelopes when no ordered closure is proved. | [R2 roadmap][R2-article], [R5 specialized scales][R5-article], [R7 roadmap][R7-roadmap], [R8 extensions][R8-article]. |
 | X03 | Integration of already constructed germs with an explicit integration constant/normalization, exponent `-1` resonance, coordinate Jacobian, and integrable remainder condition. This is a proposed operation, not a replacement for native asymptotic integration. | [R2 roadmap][R2-article], [R3 roadmap][R3-article], [R4 extensions][R4-article], [R5 roadmap][R5-article], [R8 extensions][R8-article]. |
 | X04 | A source-differentiation/re-expansion operation can complement differentiation under a retained derivative contract. It must not infer derivatives of unknown magnitude remainders. | [R3 roadmap][R3-article]. |

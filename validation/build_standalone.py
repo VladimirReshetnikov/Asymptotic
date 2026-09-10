@@ -1,6 +1,6 @@
 """Build the single-file Wolfram package used by Get[raw-GitHub-URL].
 
-The canonical implementation remains in AsymptoticInverse/Kernel. Companion
+The canonical implementation remains in AsymptoticAnalysis/Kernel. Companion
 loads are expanded in place, preserving Wolfram's streaming context changes.
 Run with --check to verify freshness without writing any files.
 """
@@ -14,8 +14,8 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-KERNEL = ROOT / "AsymptoticInverse" / "Kernel"
-TARGET = ROOT / "AsymptoticInverse.wl"
+KERNEL = ROOT / "AsymptoticAnalysis" / "Kernel"
+TARGET = ROOT / "AsymptoticAnalysis.wl"
 LOAD = re.compile(r'^Get\[FileNameJoin\[\{\$kernelDirectory, "([A-Za-z0-9_]+\.wl)"\}\]\];[ \t]*$', re.M)
 DIRECTORY = '$kernelDirectory = DirectoryName[$InputFileName];'
 
@@ -75,7 +75,7 @@ def assemble() -> tuple[bytes, list[str]]:
         text = path.read_text(encoding="utf-8")
         sources.append(name)
         digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
-        if name == "AsymptoticInverse.wl":
+        if name == "AsymptoticAnalysis.wl":
             if text.count(DIRECTORY) != 1:
                 raise ValueError("Review the changed modular entry-point directory setup")
             text = text.replace(DIRECTORY, "(* Standalone: every companion is included below. *)")
@@ -86,13 +86,13 @@ def assemble() -> tuple[bytes, list[str]]:
         dependency = re.search(r'(?<![\w$])(?:Get|Needs|Import|OpenRead|ReadList|Read|BinaryRead|URLRead|URLExecute|URLDownload)\s*\[|\$(?:InputFileName|Input|kernelDirectory)\b', code)
         if dependency:
             raise ValueError(f"Unresolved load or file-dependent code in {name}: {dependency[0]}")
-        return (f"(* BEGIN SOURCE: AsymptoticInverse/Kernel/{name}\n"
+        return (f"(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/{name}\n"
                 f"   Source SHA256 (UTF-8/LF): {digest} *)\n" + text.rstrip() +
-                f"\n(* END SOURCE: AsymptoticInverse/Kernel/{name} *)\n")
+                f"\n(* END SOURCE: AsymptoticAnalysis/Kernel/{name} *)\n")
 
-    body = inline("AsymptoticInverse.wl")
+    body = inline("AsymptoticAnalysis.wl")
     header = ("(* ::Package:: *)\n"
-              "(* GENERATED FILE. Edit AsymptoticInverse/Kernel/*.wl instead.\n"
+              "(* GENERATED FILE. Edit AsymptoticAnalysis/Kernel/*.wl instead.\n"
               "   Rebuild: python validation/build_standalone.py\n"
               "   Verify:  python validation/build_standalone.py --check\n"
               "   This file is self-contained and can be loaded directly by URL.\n"
@@ -104,7 +104,7 @@ def build(check: bool = False) -> dict:
     data, sources = assemble()
     if check:
         if not TARGET.exists() or TARGET.read_bytes() != data:
-            raise SystemExit("AsymptoticInverse.wl is stale; run python validation/build_standalone.py")
+            raise SystemExit("AsymptoticAnalysis.wl is stale; run python validation/build_standalone.py")
     else:
         # Assemble and validate everything before replacing the artifact.
         temporary = TARGET.with_suffix(".wl.tmp")

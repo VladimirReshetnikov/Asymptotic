@@ -2,18 +2,18 @@
    without running any package regression suites. *)
 Get[FileNameJoin[{DirectoryName[$InputFileName], "FocusedTests.wl"}]];
 runnerCheckRoot = CreateDirectory[];
-CreateDirectory[FileNameJoin[{runnerCheckRoot, "AsymptoticInverse", "Kernel"}], CreateIntermediateDirectories -> True];
-CreateDirectory[FileNameJoin[{runnerCheckRoot, "AsymptoticInverse", "Tests"}]];
+CreateDirectory[FileNameJoin[{runnerCheckRoot, "AsymptoticAnalysis", "Kernel"}], CreateIntermediateDirectories -> True];
+CreateDirectory[FileNameJoin[{runnerCheckRoot, "AsymptoticAnalysis", "Tests"}]];
 CreateDirectory[FileNameJoin[{runnerCheckRoot, "validation"}]];
-runnerCheckKernel = FileNameJoin[{runnerCheckRoot, "AsymptoticInverse", "Kernel", "AsymptoticInverse.wl"}];
-Export[runnerCheckKernel, "BeginPackage[\"AsymptoticInverse`\"]; EndPackage[];", "Text"];
+runnerCheckKernel = FileNameJoin[{runnerCheckRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}];
+Export[runnerCheckKernel, "BeginPackage[\"AsymptoticAnalysis`\"]; EndPackage[];", "Text"];
 runnerCheckEntry = FileNameJoin[{runnerCheckRoot, "validation", "entry.wl"}];
 Export[runnerCheckEntry, "(* Self-check entry. *)", "Text"];
 runnerCheckEnvironment = Environment["ASYMPTOTIC_VALIDATION_OUTPUT"];
 SetEnvironment["ASYMPTOTIC_VALIDATION_OUTPUT" -> None];
 
 runnerCheck[name_, body_, expectedExit_, expectedCounts_, unchanged_, timeout_: 30] := Module[{code, report},
-  Export[FileNameJoin[{runnerCheckRoot, "AsymptoticInverse", "Tests", name <> ".wlt"}], body, "Text"];
+  Export[FileNameJoin[{runnerCheckRoot, "AsymptoticAnalysis", "Tests", name <> ".wlt"}], body, "Text"];
   code = FocusedValidation`Run[runnerCheckRoot, runnerCheckEntry, <|
     "Suites" -> {name <> ".wlt"}, "Output" -> name <> ".json", "Timeout" -> timeout,
     "Scope" -> "Synthetic runner behavior check; no package suite."|>];

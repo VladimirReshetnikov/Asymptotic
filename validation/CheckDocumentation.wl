@@ -5,8 +5,8 @@
    Every check, including its exact comparison, has a 60-second bound. *)
 
 documentationRoot = DirectoryName[DirectoryName[$InputFileName]];
-Get[FileNameJoin[{documentationRoot, "AsymptoticInverse", "Kernel", "AsymptoticInverse.wl"}]];
-documentationGuide = Import[FileNameJoin[{documentationRoot, "AsymptoticInverse",
+Get[FileNameJoin[{documentationRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]];
+documentationGuide = Import[FileNameJoin[{documentationRoot, "AsymptoticAnalysis",
   "Documentation", "UserGuide.md"}], "Text"];
 
 documentationEqual[s_, expected_, assumptions_: True] :=
@@ -40,7 +40,7 @@ documentationTest[id_String, expression_, expected_] := VerificationTest[
 
 documentationReport = TestReport[{
   documentationTest["docs-all-37-public-symbols-have-explicit-guide-anchors",
-    Module[{names = Last[StringSplit[#, "`"]] & /@ Names["AsymptoticInverse`*"]},
+    Module[{names = Last[StringSplit[#, "`"]] & /@ Names["AsymptoticAnalysis`*"]},
       {Length[names], Select[names,
         ! StringContainsQ[documentationGuide, "<a id=\"" <> # <> "\"></a>"] &]}],
     {37, {}}],

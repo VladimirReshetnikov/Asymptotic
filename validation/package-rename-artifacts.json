@@ -1,0 +1,96 @@
+{
+  "RecordedAtUTC": "2026-09-10T00:06:42.253631+00:00",
+  "PreRenameMergedCommit": "5474ada7eb2a7a4adbe57620a2e1477ba9c51411",
+  "PackageName": "AsymptoticAnalysis",
+  "PackageContext": "AsymptoticAnalysis`",
+  "PublicInverseFunction": "AsymptoticAnalysis`AsymptoticInverse",
+  "DocumentedPublicSymbolCount": 38,
+  "Standalone": {
+    "Artifact": "AsymptoticAnalysis.wl",
+    "SourceFiles": 39,
+    "Bytes": 602048,
+    "SHA256": "70b4c2e40b32044d40cec1a0e00e9e97f3d634325e8f84479adf860f209902d8",
+    "MatchesSources": true
+  },
+  "Acceptance": {
+    "validation/package-rename-tests.json": {
+      "SHA256": "a6e7d263bd5a6a6c83dfa4d7b474ef0cce67ddf6f87814325df44eb704a08049",
+      "Succeeded": 226,
+      "Failed": 0,
+      "VerifiedSourceCount": 53,
+      "SourcesMatchCurrentWorktree": true
+    },
+    "validation/package-rename-loading-tests.json": {
+      "SHA256": "24a2278c30abce628d2471c36596a47c60b6c22f04b9d9ae3402e1e6cbac4e7c",
+      "Succeeded": 60,
+      "Failed": 0,
+      "VerifiedSourceCount": 45,
+      "SourcesMatchCurrentWorktree": true
+    }
+  },
+  "PythonBuilderTests": {
+    "Succeeded": 11,
+    "Failed": 0,
+    "Command": "python -B -m unittest discover -s validation -p test_standalone.py -v"
+  },
+  "Documentation": {
+    "Guide": {
+      "PublicSymbols": 38,
+      "Anchors": 209,
+      "Links": 130,
+      "BrokenLocalLinks": 0,
+      "DuplicateAnchors": 0,
+      "GeneratedHTMLMatchesSources": true
+    },
+    "MathematicalChapters": 31,
+    "MathematicalLabels": 329,
+    "MathematicalReferences": 285,
+    "BibliographyEntries": 11,
+    "MissingReferences": 0,
+    "MissingCitations": 0,
+    "LandingPageLocalLinks": 161,
+    "PreservedEngineeringFiles": 6,
+    "FullPackageSuiteRun": false
+  },
+  "ArtifactSHA256": {
+    "AsymptoticAnalysis.wl": "70b4c2e40b32044d40cec1a0e00e9e97f3d634325e8f84479adf860f209902d8",
+    "AsymptoticAnalysis/PacletInfo.wl": "694fa2a3b49cc40b4318e20dda0a2473816818665c7ac7e76690cc22f10fd660",
+    "AsymptoticAnalysis/Kernel/init.m": "666391563930b19ef41e4fc4f62b470aa8d7fcd5f3c977e3a104f90b192a1bef",
+    "AsymptoticAnalysis/Documentation/UserGuide.md": "bb833fe9851fd9d1f52beda1562f9aabb171e8c6a970afef0c5b9a5ab50449e8",
+    "AsymptoticAnalysis/Documentation/UserGuide.html": "21b0676fb9b5c43dc85fdf59b1b4329caa165df21383be913fd9ec0738b33a49",
+    "AsymptoticAnalysis/Documentation/UserGuide.css": "69853132fec2f492c02fcdea11bc1c351cf5a2babc962b2dbbd8b9bd253e90d8",
+    "README.md": "c52aeb84fc0cc069bf1e5dcf6ba0dd880aa2cd49dd089aa43d1277b416fb5cdc",
+    "article/asymptotic-inverse.pdf": "b9e1f9bb962b23e77c8a8662ffd2c1646e38c4d281516d11fd501d51b943e95c"
+  },
+  "IdentityOnlyKernelChanges": {
+    "ComparedToCommit": "5474ada7eb2a7a4adbe57620a2e1477ba9c51411",
+    "ModulesChecked": 39,
+    "AllowedChanges": [
+      "Package directory and entry filename",
+      "Public and private context prefix",
+      "Private failure catch tag",
+      "Package banner"
+    ],
+    "AllModulesMatched": true
+  },
+  "HistoricalEvidencePreserved": true,
+  "MathematicalArticle": {
+    "ChangedForRename": false,
+    "RebuiltForRename": false,
+    "PagesFromPrecedingReceipt": 98,
+    "SHA256": "b9e1f9bb962b23e77c8a8662ffd2c1646e38c4d281516d11fd501d51b943e95c"
+  },
+  "Limitations": {
+    "FullPackageSuiteRun": false,
+    "BenchmarksRun": false,
+    "DocumentationBrowserLayoutRechecked": false,
+    "GitHubURLChecked": false
+  },
+  "FirstPass": {
+    "Report": "validation/package-rename-first-pass.json",
+    "SHA256": "e38082d043fefb335eb0369e0f0f6f69ae03ecac5b7cfee579f98110cbc58f90",
+    "Succeeded": 225,
+    "Failed": 1,
+    "Explanation": "The new public-name fixture assumed Names returned fully qualified names. It returns short names for contexts on $ContextPath. The fixture now normalizes names and compares all 38; the package did not change."
+  }
+}

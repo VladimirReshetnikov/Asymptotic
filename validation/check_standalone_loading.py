@@ -1,7 +1,8 @@
 """Check a standalone build in fresh native kernels, without the full suite.
 
 By default test isolated local and HTTP files, modular entry points, Needs,
-reloads, and a failed HTTP fetch. --url tests a published artifact instead.
+reloads, and a failed HTTP fetch. --local-only omits HTTP fixtures and creates
+no server. --url tests a published artifact without creating a local server.
 """
 
 from __future__ import annotations
@@ -23,14 +24,18 @@ from urllib.request import urlopen
 from build_standalone import ROOT, TARGET, build
 
 
-def check(url: str | None, output: Path, repeat: int = 1) -> dict:
+def check(url: str | None, output: Path, repeat: int = 1,
+          local_only: bool = False) -> dict:
+    if url and local_only:
+        raise ValueError("--url and --local-only are mutually exclusive")
     if repeat < 1 or (repeat != 1 and not url):
         raise ValueError("--repeat must be positive and is supported only with --url")
     artifact = build(check=True)
     tracked = [TARGET, ROOT / "validation/build_standalone.py",
                ROOT / "validation/CheckStandalone.wl", Path(__file__).resolve()]
-    tracked += sorted((ROOT / "AsymptoticInverse/Kernel").glob("*.wl"))
-    tracked.append(ROOT / "AsymptoticInverse/Kernel/init.m")
+    tracked += sorted((ROOT / "AsymptoticAnalysis/Kernel").glob("*.wl"))
+    tracked.append(ROOT / "AsymptoticAnalysis/Kernel/init.m")
+    tracked.append(ROOT / "AsymptoticAnalysis/PacletInfo.wl")
 
     def fingerprints():
         return {str(p.relative_to(ROOT)).replace("\\", "/"):
@@ -62,7 +67,7 @@ def check(url: str | None, output: Path, repeat: int = 1) -> dict:
         class Handler(SimpleHTTPRequestHandler):
             def do_GET(self):
                 requests.append(self.path)
-                if self.path == "/compressed/AsymptoticInverse.wl":
+                if self.path == "/compressed/AsymptoticAnalysis.wl":
                     self.send_response(200)
                     self.send_header("Content-Type", "text/plain; charset=utf-8")
                     self.send_header("Content-Encoding", "gzip")
@@ -77,19 +82,28 @@ def check(url: str | None, output: Path, repeat: int = 1) -> dict:
             def log_message(self, *_):
                 pass
 
-        server = ThreadingHTTPServer(("127.0.0.1", 0), partial(Handler, directory=str(serving)))
-        worker = threading.Thread(target=server.serve_forever, daemon=True)
-        worker.start()
-        origin = f"http://127.0.0.1:{server.server_port}"
+        server = None
+        worker = None
+        origin = ""
+        if not url and not local_only:
+            server = ThreadingHTTPServer(("127.0.0.1", 0), partial(Handler, directory=str(serving)))
+            worker = threading.Thread(target=server.serve_forever, daemon=True)
+            worker.start()
+            origin = f"http://127.0.0.1:{server.server_port}"
         cases = [(f"published-{i + 1}", "Get", url, "") for i in range(repeat)] if url else [
             ("isolated-local", "Get", str(isolated), ""),
-            ("isolated-http", "Get", origin + "/AsymptoticInverse.wl", ""),
-            ("isolated-gzip-http", "Get", origin + "/compressed/AsymptoticInverse.wl", ""),
-            ("modular", "Get", str(ROOT / "AsymptoticInverse/Kernel/AsymptoticInverse.wl"), ""),
-            ("modular-init", "Get", str(ROOT / "AsymptoticInverse/Kernel/init.m"), ""),
+            ("isolated-http", "Get", origin + "/AsymptoticAnalysis.wl", ""),
+            ("isolated-gzip-http", "Get", origin + "/compressed/AsymptoticAnalysis.wl", ""),
+            ("modular", "Get", str(ROOT / "AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl"), ""),
+            ("modular-init", "Get", str(ROOT / "AsymptoticAnalysis/Kernel/init.m"), ""),
             ("needs", "Needs", str(isolated), str(serving)),
+            ("paclet", "Paclet", str(ROOT / "AsymptoticAnalysis/Kernel/init.m"),
+             str(ROOT / "AsymptoticAnalysis")),
             ("missing-http", "Missing", origin + "/missing.wl", ""),
         ]
+        if local_only:
+            cases = [case for case in cases if case[0] not in
+                     {"isolated-http", "isolated-gzip-http", "missing-http"}]
         try:
             for name, mode, source, search_path in cases:
                 print(f"Checking {name}: {source}", flush=True)
@@ -114,12 +128,14 @@ def check(url: str | None, output: Path, repeat: int = 1) -> dict:
                 if run.returncode or result["Failed"]:
                     raise RuntimeError(f"{name} failed: {json.dumps(result)}")
         finally:
-            server.shutdown()
-            server.server_close()
-            worker.join()
-        if not url:
-            if requests != ["/AsymptoticInverse.wl", "/AsymptoticInverse.wl",
-                            "/compressed/AsymptoticInverse.wl", "/compressed/AsymptoticInverse.wl",
+            if server is not None:
+                server.shutdown()
+                server.server_close()
+            if worker is not None:
+                worker.join()
+        if not url and not local_only:
+            if requests != ["/AsymptoticAnalysis.wl", "/AsymptoticAnalysis.wl",
+                            "/compressed/AsymptoticAnalysis.wl", "/compressed/AsymptoticAnalysis.wl",
                             "/missing.wl"]:
                 raise RuntimeError(f"Unexpected HTTP fixture requests: {requests}")
         fixture_files = sorted(p.name for p in serving.iterdir())
@@ -138,7 +154,10 @@ def check(url: str | None, output: Path, repeat: int = 1) -> dict:
               "Failed": sum(r["Failed"] for r in results),
               "HTTPFixtureRequests": requests,
               "IsolatedFixtureFiles": fixture_files,
-              "HTTPFixtureHasNoCompanionFiles": True if not url else None}
+              "HTTPFixtureHasNoCompanionFiles": True if not url and not local_only else None,
+              "LocalHTTPServerStarted": server is not None,
+              "PackageContext": "AsymptoticAnalysis`",
+              "LegacyPackageContextAbsent": True}
     output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"Passed {result['Succeeded']} checks in {len(results)} fresh kernels; report: {output}")
     return result
@@ -146,8 +165,11 @@ def check(url: str | None, output: Path, repeat: int = 1) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--url")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--url")
+    mode.add_argument("--local-only", action="store_true",
+                      help="Check local standalone, modular, init.m, Needs, paclet registration and reloads without any HTTP server")
     parser.add_argument("--repeat", type=int, default=1, help="Repeat published loading in fresh kernels")
-    parser.add_argument("--output", type=Path, default=ROOT / "validation/standalone-loading-tests.json")
+    parser.add_argument("--output", type=Path, default=ROOT / "validation/package-rename-loading-tests.json")
     args = parser.parse_args()
-    check(args.url, args.output, args.repeat)
+    check(args.url, args.output, args.repeat, args.local_only)

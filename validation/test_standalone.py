@@ -33,9 +33,9 @@ class StandaloneBuilderTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory(prefix="standalone-builder-")
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
-        self.kernel = self.root / "AsymptoticInverse" / "Kernel"
+        self.kernel = self.root / "AsymptoticAnalysis" / "Kernel"
         self.kernel.mkdir(parents=True)
-        self.target = self.root / "AsymptoticInverse.wl"
+        self.target = self.root / "AsymptoticAnalysis.wl"
         globals_patch = patch.multiple(
             builder, ROOT=self.root, KERNEL=self.kernel, TARGET=self.target
         )
@@ -48,7 +48,7 @@ class StandaloneBuilderTests(unittest.TestCase):
 
     def entry(self, body: str = "value = 1;\n") -> None:
         self.write(
-            "AsymptoticInverse.wl",
+            "AsymptoticAnalysis.wl",
             'BeginPackage["Fixture`"];\n'
             '$kernelDirectory = DirectoryName[$InputFileName];\n'
             + body
@@ -73,7 +73,7 @@ class StandaloneBuilderTests(unittest.TestCase):
         self.write("Nested.wl", "nested = 7;\n")
         self.write("Late.wl", "late = 8;\n")
         data, sources = builder.assemble()
-        self.assertEqual(sources, ["AsymptoticInverse.wl", "ExactTermination.wl", "Middle.wl", "Nested.wl", "Late.wl"])
+        self.assertEqual(sources, ["AsymptoticAnalysis.wl", "ExactTermination.wl", "Middle.wl", "Nested.wl", "Late.wl"])
         text = data.decode("utf-8")
         statements = ["rootBefore = 1;", "early = 4;", "rootMiddle = 2;", "middleBefore = 5;", "nested = 7;", "middleAfter = 6;", "late = 8;", "rootAfter = 3;"]
         self.assertEqual([text.index(s) for s in statements], sorted(text.index(s) for s in statements))
@@ -104,7 +104,7 @@ class StandaloneBuilderTests(unittest.TestCase):
         self.assertFalse(self.target.with_suffix(".wl.tmp").exists())
 
     def test_cycles_and_repeated_dependencies_are_rejected(self) -> None:
-        for child in (load("AsymptoticInverse.wl"), load("Child.wl")):
+        for child in (load("AsymptoticAnalysis.wl"), load("Child.wl")):
             with self.subTest(child=child):
                 self.entry(load("Child.wl"))
                 self.write("Child.wl", child)
@@ -125,7 +125,7 @@ class StandaloneBuilderTests(unittest.TestCase):
         )
         self.entry(text)
         data, sources = builder.assemble()
-        self.assertEqual(sources, ["AsymptoticInverse.wl"])
+        self.assertEqual(sources, ["AsymptoticAnalysis.wl"])
         self.assertIn(text.rstrip(), data.decode("utf-8"))
         masked = builder.executable_text(text)
         self.assertEqual(len(masked), len(text))
@@ -154,7 +154,7 @@ class StandaloneBuilderTests(unittest.TestCase):
                     builder.executable_text(text)
 
     def test_changed_entry_directory_setup_requires_review(self) -> None:
-        self.write("AsymptoticInverse.wl", "value = 1;\n")
+        self.write("AsymptoticAnalysis.wl", "value = 1;\n")
         with self.assertRaisesRegex(ValueError, "directory setup"):
             builder.assemble()
 

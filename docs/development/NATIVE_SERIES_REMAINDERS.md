@@ -2,7 +2,7 @@
 
 This note records the C03 export and C06 analytic-import decisions in the
 [code review register](CODE_REVIEW_STATUS.md). The
-[user guide](../../AsymptoticInverse/Documentation/UserGuide.md#native-series-remainder-view)
+[user guide](../../AsymptoticAnalysis/Documentation/UserGuide.md#native-series-remainder-view)
 describes the public behavior. Implementation and focused native validation
 are separate evidence; this document does not certify a test run.
 

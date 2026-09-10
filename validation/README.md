@@ -1,12 +1,58 @@
 # Review and validation record
 
+## Package rename and historical evidence
+
+The maintained package directory, standalone file and Wolfram context are now
+`AsymptoticAnalysis/`, `AsymptoticAnalysis.wl` and ``"AsymptoticAnalysis`"``.
+The public `AsymptoticInverse` function is unchanged. Current loading commands
+and navigation use the renamed package; see the
+[loading guide](../AsymptoticAnalysis/Documentation/UserGuide.md#loading-fixed-versions).
+
+The 163/0 automatic-routing, 58/0 certificate and 11/0 standalone records below
+belong to the pre-rename checkpoint `01b18ab`. Their source paths, contexts,
+hashes, logs and artifact receipts remain unchanged as historical evidence.
+Earlier records likewise describe their own snapshots. None of those hashes
+or passing counts establishes validation of the renamed files. Commands quoted
+in historical run descriptions retain their original paths; reproduce them
+from the corresponding revision, or use the current focused runners for a new
+run. Current `main` download URLs point to `AsymptoticAnalysis.wl`.
+
+The renamed package passes **226 tests, zero failures**, across the twelve
+explicitly selected files in [package-rename-tests.json](package-rename-tests.json),
+run by [CheckPackageRename.wl](CheckPackageRename.wl). The five identity tests
+check all 38 public names, the new context, the unchanged inverse constructor,
+serialization/display roundtrips and refinement. The remaining 221 checks
+repeat the preceding automatic-native and certificate acceptance against the
+renamed sources. All 53 recorded source hashes stayed unchanged during the run.
+The [225/1 first pass](package-rename-first-pass.json) preserves a new test
+fixture mistake: `Names` returns short names for contexts on `$ContextPath`.
+Normalizing those names fixed the assertion; no package behavior changed.
+
+[Local loading acceptance](package-rename-loading-tests.json) passes **60
+checks in five fresh kernels**, covering an isolated standalone file, the
+modular entry point, `init.m`, standalone `Needs`, and the guide's
+`PacletDirectoryLoad` followed by `Needs`. Each mode also checks reload,
+namespace cleanliness, native delegation, inverse expansion and certificates.
+Run it without creating a local server:
+
+```powershell
+python -B validation/check_standalone_loading.py --local-only --output validation/package-rename-loading-tests.json
+```
+
+The [rename artifact receipt](package-rename-artifacts.json) records source
+and output hashes, eleven passing Python builder tests, and documentation
+consistency. All 39 kernel modules differ from the pre-rename checkpoint only
+by package identity substitutions. Mathematical TeX and the 98-page PDF are
+unchanged, so this rename did not require another PDF build. The full package
+suite and benchmark measurements were not run.
+
 ## Automatic native routing and report 18 certificate repair
 
 [CheckNativeAutomatic.wl](CheckNativeAutomatic.wl) passes **163 tests, zero
 failures**, across eight selected files in [native-automatic-tests.json](native-automatic-tests.json).
 This includes 35 automatic-routing cases and adjacent explicit-native,
 presentation, contract, assumption, real-coefficient and inverse-callable
-regressions. All 49 recorded source hashes match the final worktree and stayed
+regressions. All 49 recorded source hashes matched the pre-rename worktree and stayed
 unchanged during execution. The [159/4 first pass](native-automatic-first-pass.json)
 preserves two dispatch bugs (held infinity matching and selector-only empty
 option containers) and two fixture errors (a square inverse already simplified
@@ -15,7 +61,7 @@ by native evaluation, and a single-support product that did not exceed its budge
 [CheckReviewCertificateAccuracy.wl](CheckReviewCertificateAccuracy.wl) passes
 **58 tests, zero failures**, across three files in
 [review-certificate-accuracy-tests.json](review-certificate-accuracy-tests.json).
-All 44 recorded source hashes match the final worktree and stayed unchanged
+All 44 recorded source hashes matched the pre-rename worktree and stayed unchanged
 during execution. Sixteen new tests cover report 18's relative-only witness,
 explicit-order retry growth, rational endpoint-square checks at different root
 magnitudes, sharp error bounds, best-result retention, exact-root controls,
@@ -51,7 +97,7 @@ The [native artifact receipt](native-compatibility-artifacts.json) records the
 completed distribution and documentation checks for the explicit native
 backends. The [focused acceptance](native-compatibility-tests.json) has
 **130 passes, zero failures** across eight files, with all 49 recorded source
-hashes verified against the final worktree. A separate fresh-kernel local
+hashes verified against that run's pre-rename worktree. A separate fresh-kernel local
 [standalone load and reload run](native-compatibility-standalone.json) passed
 all nine checks, including the alias and both native backends. HTTP loading
 was not rerun for this milestone. Eleven Python builder tests passed, and
@@ -89,7 +135,7 @@ The full package suite remains skipped.
 
 This directory contains focused runners, characterization probes, build and
 provenance tools, benchmarks, and saved evidence from individual milestones.
-The [test directory guide](../AsymptoticInverse/Tests/README.md) explains test
+The [test directory guide](../AsymptoticAnalysis/Tests/README.md) explains test
 selection and how to add a small reproducible harness. The
 [implementation register](../docs/development/CODE_REVIEW_STATUS.md) tracks
 review findings; the [review archive](../code-review/README.md) preserves the
@@ -174,7 +220,7 @@ recorded explicit-mode cases, not complete input-superset coverage. The
 held metadata and the distinct formal or native asymptotic contract. Document
 build and artifact acceptance must be recorded separately.
 
-[RunTests.wl](../AsymptoticInverse/Tests/RunTests.wl) discovers every `.wlt`
+[RunTests.wl](../AsymptoticAnalysis/Tests/RunTests.wl) discovers every `.wlt`
 file. A historical all-passing run therefore does not establish acceptance
 of a later test set. Existing native ingress
 and export tests concern the package's current analytic representation;
@@ -333,7 +379,7 @@ wolfram.exe -noinit -script validation/CheckReviewAssumptions.wl
 wolfram.exe -noinit -script validation/CheckReviewAssumptionReplay.wl
 ```
 
-The [user guide](../AsymptoticInverse/Documentation/UserGuide.html#assumption-context)
+The [user guide](../AsymptoticAnalysis/Documentation/UserGuide.html#assumption-context)
 and [implementation notes](../docs/development/ASSUMPTION_CONTEXT.md) describe
 explicit-option replacement, retained contexts, specialized domain restrictions,
 and ordinary evaluation limits. The article now explains retained parameter
@@ -704,7 +750,7 @@ Version 1.7.1 adds a standalone distribution at the repository root:
 
 ```wolfram
 Get[URLDownload[
-  "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl"]]
+  "https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticAnalysis.wl"]]
 ```
 
 The generated file contains all 38 canonical kernel sources, in their
@@ -768,7 +814,7 @@ python validation/check_documentation.py
 After publishing, check the downloaded standalone form with:
 
 ```powershell
-python validation/check_standalone_loading.py --url https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticInverse.wl --repeat 3 --output validation/github-loading-tests.json
+python validation/check_standalone_loading.py --url https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticAnalysis.wl --repeat 3 --output validation/github-loading-tests.json
 ```
 
 The published-URL runner compares the remote file byte for byte with the

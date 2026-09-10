@@ -7,10 +7,16 @@
 benchmarkRoot = Environment["ASYMPTOTIC_BENCHMARK_ROOT"];
 If[! StringQ[benchmarkRoot] || benchmarkRoot === "",
   benchmarkRoot = DirectoryName[DirectoryName[$InputFileName]]];
-benchmarkSources = FileNames["*.wl", FileNameJoin[{benchmarkRoot, "AsymptoticInverse", "Kernel"}]];
+(* Select both the current package and immutable pre-rename baselines. *)
+benchmarkPackage = If[FileExistsQ[FileNameJoin[{benchmarkRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]],
+  "AsymptoticAnalysis", "AsymptoticInverse"];
+benchmarkContext = benchmarkPackage <> "`";
+benchmarkKernel = FileNameJoin[{benchmarkRoot, benchmarkPackage, "Kernel"}];
+benchmarkSources = FileNames["*.wl", benchmarkKernel];
 benchmarkHashes[] := Association[(FileNameTake[#] -> IntegerString[FileHash[#, "SHA256"], 16, 64]) & /@ benchmarkSources];
 benchmarkBefore = benchmarkHashes[];
-Get[FileNameJoin[{benchmarkRoot, "AsymptoticInverse", "Kernel", "AsymptoticInverse.wl"}]];
+If[Check[Get[FileNameJoin[{benchmarkKernel, benchmarkPackage <> ".wl"}]], $Failed] === $Failed ||
+    ! MemberQ[$Packages, benchmarkContext], Print["Benchmark package loading failed."]; Exit[2]];
 
 (* Accept the association-backed result from both the baseline and current
    public head, without installing a symbol from an older package version. *)
@@ -32,13 +38,23 @@ benchmarkMergeRows = Flatten[Table[{k Sqrt[2], (1 + ell)^4 - ell^4 + j}, {j, 0, 
 benchmarkNative = SeriesData[u, 0, Table[(1 + Log[u])^Mod[k, 4], {k, 0, 39}], 0, 40, 1];
 benchmarkSet = Environment["ASYMPTOTIC_BENCHMARK_SET"];
 If[! StringQ[benchmarkSet] || benchmarkSet === "", benchmarkSet = "Core"];
-benchmarkResults = Switch[benchmarkSet, "Core", {
+(* Resolve private helper symbols once, outside all measured evaluations. *)
+benchmarkResults = With[{benchmarkPrivatefourierJetMerge = Symbol[benchmarkContext <> "Private`fourierJetMerge"],
+  benchmarkPrivatefourierJetMul = Symbol[benchmarkContext <> "Private`fourierJetMul"],
+  benchmarkPrivatejetMerge = Symbol[benchmarkContext <> "Private`jetMerge"],
+  benchmarkPrivatelocalCoordinate = Symbol[benchmarkContext <> "Private`localCoordinate"],
+  benchmarkPrivatelogarithmicPowerBuilder = Symbol[benchmarkContext <> "Private`logarithmicPowerBuilder"],
+  benchmarkPrivatelogarithmicPowerConstruct = Symbol[benchmarkContext <> "Private`logarithmicPowerConstruct"],
+  benchmarkPrivatepMul = Symbol[benchmarkContext <> "Private`pMul"],
+  benchmarkPrivateseriesCoordinateRule = Symbol[benchmarkContext <> "Private`seriesCoordinateRule"],
+  benchmarkPrivatespecialNativeTree = Symbol[benchmarkContext <> "Private`specialNativeTree"],
+  benchmarkPrivatespecialParameterizedForwardJet = Symbol[benchmarkContext <> "Private`specialParameterizedForwardJet"]}, Switch[benchmarkSet, "Core", {
   benchmarkMeasure["Sparse product with a finite remainder boundary",
-    AsymptoticInverse`Private`pMul[{benchmarkRows, 80, 3}, {benchmarkRows, 80, 3}, ell, True, 20000]],
+    benchmarkPrivatepMul[{benchmarkRows, 80, 3}, {benchmarkRows, 80, 3}, ell, True, 20000]],
   benchmarkMeasure["Merge repeated irrational weights and logarithmic polynomials",
-    AsymptoticInverse`Private`jetMerge[benchmarkMergeRows, ell, True]],
+    benchmarkPrivatejetMerge[benchmarkMergeRows, ell, True]],
   benchmarkMeasure["Import a 40-coefficient native logarithmic series",
-    AsymptoticInverse`Private`specialNativeTree[benchmarkNative, u, True, 20000]],
+    benchmarkPrivatespecialNativeTree[benchmarkNative, u, True, 20000]],
   benchmarkMeasure["Irrational inverse with five complete blocks",
     benchmarkSeriesResult[AsymptoticExpansion[InverseFunction[
       Function[x, ConditionalExpression[x + x^Sqrt[2], x > 0]]], x -> Infinity, SeriesTermGoal -> 5]]],
@@ -53,13 +69,13 @@ benchmarkResults = Switch[benchmarkSet, "Core", {
   benchmarkFourierProduct = Table[{k, {{0, 1}}}, {k, 0, 199}];
   {
     benchmarkMeasure["100 inversions of an ordinary translated coordinate",
-      Last[Table[AsymptoticInverse`Private`seriesCoordinateRule[
+      Last[Table[benchmarkPrivateseriesCoordinateRule[
         <|"Variable" -> x, "ScaleVariable" -> x - Sqrt[2]|>, u], {100}]]],
     benchmarkMeasure["Merge Fourier source blocks with repeated frequencies",
-      AsymptoticInverse`Private`fourierJetMerge[
+      benchmarkPrivatefourierJetMerge[
         Join[benchmarkFourierRows, benchmarkFourierRows], ell, True, 20000, 8]],
     benchmarkMeasure["200-by-200 Fourier source product below weight 4",
-      AsymptoticInverse`Private`fourierJetMul[
+      benchmarkPrivatefourierJetMul[
         benchmarkFourierProduct, benchmarkFourierProduct, 4, ell, True, 20, 8]],
     benchmarkMeasure["Public Fourier inverse through target weight 4",
       benchmarkSeriesResult[AsymptoticFourierInverse[x + x^2 Sin[Log[x]], {x, 0}, {y, 4}]]]
@@ -87,16 +103,16 @@ benchmarkResults = Switch[benchmarkSet, "Core", {
   }, "Composition", {
     benchmarkMeasure["Six nested logarithmic regions without exact-composition checks",
       Module[{make, result, rows = {{1, 1}, {2, Sqrt[ell]}},
-        coord = AsymptoticInverse`Private`localCoordinate[x, 0, Automatic]},
-        make = If[DownValues[AsymptoticInverse`Private`logarithmicPowerBuilder] === {},
-          Function[h, AsymptoticInverse`Private`logarithmicPowerConstruct[
+        coord = benchmarkPrivatelocalCoordinate[x, 0, Automatic]},
+        make = If[DownValues[benchmarkPrivatelogarithmicPowerBuilder] === {},
+          Function[h, benchmarkPrivatelogarithmicPowerConstruct[
             rows, 0, 1, {ell}, x + x^2 Sqrt[-Log[x]], x, 0, y, coord, h, 1, True, 20000]],
-          AsymptoticInverse`Private`logarithmicPowerBuilder[
+          benchmarkPrivatelogarithmicPowerBuilder[
             rows, 0, 1, {ell}, x + x^2 Sqrt[-Log[x]], x, 0, y, coord, 1, True, 20000]];
         Do[result = make[h], {h, Range[3/2, 13/2]}];
         benchmarkSeriesResult[result]]],
     benchmarkMeasure["Exact probe of a nonconstant trigamma composition",
-      AsymptoticInverse`Private`specialParameterizedForwardJet[
+      benchmarkPrivatespecialParameterizedForwardJet[
         PolyGamma[1, 1 + u^Sqrt[2]], u, ell, True, Infinity, 20000] === $Failed],
     benchmarkMeasure["Irrational Bessel order and argument at zero",
       benchmarkSeriesResult[AsymptoticExpansion[BesselJ[Sqrt[2], x^Sqrt[2]], {x, 0, 5}]]],
@@ -109,13 +125,13 @@ benchmarkResults = Switch[benchmarkSet, "Core", {
         {x, 0, 5}, Assumptions -> b > 0]]],
     benchmarkMeasure["Revert a Bessel perturbation with an irrational argument",
       benchmarkSeriesResult[AsymptoticInverse[x + BesselJ[0, x^Sqrt[2]] - 1, {x, 0}, {y, 4}]]]
-  }, _, Print["Unknown benchmark set: ", benchmarkSet]; Exit[2]];
+  }, _, Print["Unknown benchmark set: ", benchmarkSet]; Exit[2]]];
 benchmarkUnchanged = benchmarkBefore === benchmarkHashes[];
 benchmarkOutput = Environment["ASYMPTOTIC_BENCHMARK_OUTPUT"];
 If[! StringQ[benchmarkOutput] || benchmarkOutput === "",
   benchmarkOutput = FileNameJoin[{DirectoryName[$InputFileName], ToLowerCase[benchmarkSet] <> "-refactoring-benchmark.json"}]];
 Export[benchmarkOutput, <|"Kernel" -> $Version, "WarmupRuns" -> 1, "MeasuredRuns" -> 3,
-  "Scope" -> "Selected fixtures; local timings are not portable performance guarantees.", "FixtureSet" -> benchmarkSet,
+  "Scope" -> "Selected fixtures; local timings are not portable performance guarantees.", "FixtureSet" -> benchmarkSet, "PackageContext" -> benchmarkContext,
   "SourcesUnchangedDuringRun" -> benchmarkUnchanged, "TestedSourceSHA256" -> benchmarkBefore,
   "BenchmarkSHA256" -> IntegerString[FileHash[$InputFileName, "SHA256"], 16, 64],
   "Results" -> benchmarkResults|>, "RawJSON"];

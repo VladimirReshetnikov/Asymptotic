@@ -8,8 +8,8 @@ Wolfram reference page.
 | Read or do | Start here |
 | --- | --- |
 | Learn the theory, hypotheses, and proofs | [Mathematical article (PDF)](../article/asymptotic-inverse.pdf) · [LaTeX source and build instructions](../article/README.md) |
-| Load and use the package | [User guide (HTML)](../AsymptoticInverse/Documentation/UserGuide.html) · [Markdown source](../AsymptoticInverse/Documentation/UserGuide.md) |
-| Rebuild the guide or inspect its examples | [Guide build instructions](../AsymptoticInverse/Documentation/README.md) · [Examples](../AsymptoticInverse/Examples/README.md) |
+| Load and use the package | [User guide (HTML)](../AsymptoticAnalysis/Documentation/UserGuide.html) · [Markdown source](../AsymptoticAnalysis/Documentation/UserGuide.md) |
+| Rebuild the guide or inspect its examples | [Guide build instructions](../AsymptoticAnalysis/Documentation/README.md) · [Examples](../AsymptoticAnalysis/Examples/README.md) |
 | Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients |
 | Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Eighteen code review packages in two waves](../code-review/README.md) |
 | Check what was actually validated | [Validation record](../validation/README.md), with focused test results and artifact-specific build and review evidence |

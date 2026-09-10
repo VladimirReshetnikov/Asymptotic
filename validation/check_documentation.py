@@ -31,8 +31,8 @@ def check() -> dict:
     assert not set(references) - set(labels), "Missing mathematical references"
     assert not set(citations) - set(bibliography), "Missing bibliography entries"
     assert not re.search(r"\\wl\{|lstlisting|AsymptoticExpansion|PowerLogSeries|GeneralizedSeries|\.wl\b|sec:package|sec:reports", text), "Software content in the mathematical article"
-    routes = [ROOT / "README.md", ROOT / "AsymptoticInverse/README.md",
-              ROOT / "article/README.md", ROOT / "AsymptoticInverse/Documentation/README.md",
+    routes = [ROOT / "README.md", ROOT / "AsymptoticAnalysis/README.md",
+              ROOT / "article/README.md", ROOT / "AsymptoticAnalysis/Documentation/README.md",
               ROOT / "docs/development/README.md", ROOT / "docs/development/article-notes/README.md"]
     local_links = 0
     for path in routes:

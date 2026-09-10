@@ -17,7 +17,7 @@ from urllib.parse import unquote, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DOCS = ROOT / "AsymptoticInverse" / "Documentation"
+DOCS = ROOT / "AsymptoticAnalysis" / "Documentation"
 
 
 class Document(HTMLParser):
@@ -38,7 +38,7 @@ def build(check: bool = False) -> dict:
     command = ["pandoc", "UserGuide.md", "--from=gfm", "--to=html5",
                "--standalone", "--section-divs", "--toc", "--toc-depth=2",
                "--embed-resources", "--css=UserGuide.css",
-               "--metadata=pagetitle:AsymptoticInverse User Guide",
+               "--metadata=pagetitle:AsymptoticAnalysis User Guide",
                "--metadata=lang:en"]
     rendered = subprocess.run(command, cwd=DOCS, check=True, capture_output=True,
                               encoding="utf-8").stdout.replace("\r\n", "\n")
@@ -57,8 +57,8 @@ def build(check: bool = False) -> dict:
         elif not (DOCS / unquote(url.path)).exists():
             errors.append(f"Missing local destination: {href}")
     kernel = "\n".join(path.read_text(encoding="utf-8") for path in
-                       sorted((ROOT / "AsymptoticInverse" / "Kernel").rglob("*.wl")))
-    public = sorted(set(re.findall(r"^(?:AsymptoticInverse`)?([A-Za-z][A-Za-z0-9]*)::usage\s*=", kernel, re.M)))
+                       sorted((ROOT / "AsymptoticAnalysis" / "Kernel").rglob("*.wl")))
+    public = sorted(set(re.findall(r"^(?:AsymptoticAnalysis`)?([A-Za-z][A-Za-z0-9]*)::usage\s*=", kernel, re.M)))
     for symbol in public:
         if document.ids.count(symbol) != 1:
             errors.append(f"Public symbol needs one reference anchor: {symbol}")

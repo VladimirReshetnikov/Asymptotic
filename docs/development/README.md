@@ -4,9 +4,16 @@ This directory connects current implementation work to its mathematical
 hypotheses, public contracts, and validation evidence. Return to the
 [documentation index](../README.md) for reader-facing and historical material.
 
+The maintained package is now `AsymptoticAnalysis`, with the matching Wolfram
+context and source directory. Public `AsymptoticInverse` calls remain unchanged.
+Saved validation records from before the rename describe their original
+paths, contexts and source hashes. In particular, checkpoint `01b18ab` contains
+the pre-rename 163/0 routing, 58/0 certificate and 11/0 standalone results;
+these are not validation of the renamed source files.
+
 The maintained reader-facing documentation consists of the
 [mathematical article](../../article/asymptotic-inverse.pdf) and the
-[package user guide](../../AsymptoticInverse/Documentation/UserGuide.html).
+[package user guide](../../AsymptoticAnalysis/Documentation/UserGuide.html).
 
 The [code review library](../../code-review/README.md) contains eighteen
 packages in two waves: [reports 1–9](../../code-review/wave-1/README.md) and
@@ -22,7 +29,7 @@ expansion-API coverage of built-in `Series` and `Asymptotic`, including formal,
 complex and multivariable results. Explicit native backends and the held
 `AsymptoticExpand` alias are implemented, with
 [130 passed, zero failed focused checks](../../validation/native-compatibility-tests.json)
-across eight selected files and unchanged sources.
+across eight selected files and unchanged sources at that pre-rename milestone.
 `Automatic` now routes native specifications/options and selected representation
 failures to a compatible native backend. Successful package requests retain
 their existing analytic contract, cutoff and block-count semantics. The
@@ -34,7 +41,7 @@ native output, held request metadata, option conflicts, and the absence of
 an independently proved analytic remainder.
 
 Report 18's certificate accuracy stall is addressed in
-[InverseCertificates.wl](../../AsymptoticInverse/Kernel/InverseCertificates.wl).
+[InverseCertificates.wl](../../AsymptoticAnalysis/Kernel/InverseCertificates.wl).
 The [focused certificate runner](../../validation/CheckReviewCertificateAccuracy.wl)
 checks relative-aware planning, arithmetic retries, sharp root-interval bounds,
 best-result retention, and the distinction between a proved enclosure and
@@ -55,7 +62,7 @@ observables, and distinguish this check from a proof that the source is real.
 1. Check the [implementation register](CODE_REVIEW_STATUS.md) and the relevant
    pinned review. Reproduce the issue on the current source before treating a
    historical observation as a current defect.
-2. Use the [kernel source map](../../AsymptoticInverse/Kernel/README.md) to
+2. Use the [kernel source map](../../AsymptoticAnalysis/Kernel/README.md) to
    locate the implementation, then update the relevant tests and contract
    notes. Preserve the distinction between formal order, asymptotic remainder,
    numerical comparison, and a quantitative certificate.
@@ -66,7 +73,7 @@ observables, and distinguish this check from a proof that the source is real.
    Keep proposed behavior and unexecuted regression specifications labeled as
    pending until their implementation and focused acceptance are available.
 
-Update the [user guide source](../../AsymptoticInverse/Documentation/UserGuide.md)
+Update the [user guide source](../../AsymptoticAnalysis/Documentation/UserGuide.md)
 and rebuild its HTML for public behavior changes. Update the
 [mathematical article](../../article/README.md) when its hypotheses, results,
 or examples change, and rebuild its PDF using the documented three-pass
@@ -97,7 +104,7 @@ of engineering history.
 ## Standalone package
 
 The canonical implementation is the modular package under
-`AsymptoticInverse/Kernel/`. The repository-root `AsymptoticInverse.wl` is a
+`AsymptoticAnalysis/Kernel/`. The repository-root `AsymptoticAnalysis.wl` is a
 generated distribution for HTTP `Get` and single-file offline loading.
 It preserves the original module order and top-level context transitions.
 Each included source carries its path and SHA-256 hash, calculated after

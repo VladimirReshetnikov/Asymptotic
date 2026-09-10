@@ -2,7 +2,7 @@
 
 This note specifies the C05 contract from the
 [code review register](CODE_REVIEW_STATUS.md#c05--retain-every-assumption-used-to-establish-a-reusable-result).
-The [user guide](../../AsymptoticInverse/Documentation/UserGuide.md#assumption-context)
+The [user guide](../../AsymptoticAnalysis/Documentation/UserGuide.md#assumption-context)
 describes the public behavior. Implementation and native acceptance must be
 recorded separately in the [validation record](../../validation/README.md);
 this explanation alone is not test evidence.
@@ -130,7 +130,7 @@ additional mathematics. See the article's parameter-domain discussion in
 ## Focused regression obligations
 
 The bounded regression file
-[ReviewAssumptions.wlt](../../AsymptoticInverse/Tests/ReviewAssumptions.wlt)
+[ReviewAssumptions.wlt](../../AsymptoticAnalysis/Tests/ReviewAssumptions.wlt)
 is the starting point. Acceptance should cover:
 
 - Positive, negative and nested ambient constructor contexts; explicit replacement

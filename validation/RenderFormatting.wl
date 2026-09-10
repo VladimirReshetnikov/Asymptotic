@@ -1,7 +1,7 @@
 (* Native front-end preview; independent of the package regression suite.
    Run: wolfram.exe -script validation/RenderFormatting.wl *)
 formattingRenderRoot = DirectoryName[DirectoryName[$InputFileName]];
-Get[FileNameJoin[{formattingRenderRoot, "AsymptoticInverse", "Kernel", "AsymptoticInverse.wl"}]];
+Get[FileNameJoin[{formattingRenderRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]];
 Clear[x, y];
 formattingRenderSeries = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
 formattingRenderExact = AsymptoticExpansion[1 + x, {x, 0, 2}];
