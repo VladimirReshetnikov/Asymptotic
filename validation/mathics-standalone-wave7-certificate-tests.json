@@ -1,0 +1,93 @@
+{
+  "Runtime": "Mathics",
+  "Command": [
+    "C:\\Asymptotic\\.venv\\mathics\\Scripts\\python.exe",
+    "-m",
+    "mathics",
+    "--quiet",
+    "--no-readline",
+    "--file",
+    "C:\\Asymptotic\\.claude\\worktrees\\code-review-fixes-c7a47c\\validation\\MathicsTests.wl"
+  ],
+  "UTC": "2026-09-10T21:36:30.492736+00:00",
+  "Source": "C:\\Asymptotic\\.claude\\worktrees\\code-review-fixes-c7a47c\\AsymptoticAnalysis.wl",
+  "PerCaseTimeoutSeconds": 600.0,
+  "FreshKernelPerCase": true,
+  "MathicsIterationLimitConfiguredBySuite": 1000000,
+  "FullPackageSuiteRun": false,
+  "RunComplete": true,
+  "Selected": 5,
+  "TestSuiteSnapshotSHA256": "5c7b56988242927444bf76425b378d2dfc8038f7e9faa0bf8003f8b3b0fbc3b3",
+  "Executed": 5,
+  "Succeeded": 5,
+  "Failed": 0,
+  "NotRun": 0,
+  "SourcesUnchangedDuringRun": true,
+  "TestedSourcesSHA256": {
+    "AsymptoticAnalysis.wl": "d42f14cf479ade7050bc3c2fda33aca86fee0b6248e8c3944e8bd0c8c4a410f0",
+    "validation/MathicsTests.wl": "5c7b56988242927444bf76425b378d2dfc8038f7e9faa0bf8003f8b3b0fbc3b3",
+    "validation/run_mathics_tests.py": "5a8a3923784b722d33513a2f27ef771d1a0a367726812f988c217fcffd90200f"
+  },
+  "Results": [
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "certificate-exact-rational-root",
+      "Group": "certificate",
+      "ElapsedSeconds": 57.016,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tcertificate-exact-rational-root\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "certificate-fixed-center-accuracy-floor",
+      "Group": "certificate",
+      "ElapsedSeconds": 54.563,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tcertificate-fixed-center-accuracy-floor\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{True, \"IntervalNotSupplied\", False, True, \"MalformedInterval\", {3, 1}}",
+      "ExpectedOutput": "{True, \"IntervalNotSupplied\", False, True, \"MalformedInterval\", {3, 1}}",
+      "ExitCode": 0,
+      "TestID": "certificate-omitted-interval-diagnostic",
+      "Group": "certificate",
+      "ElapsedSeconds": 53.859,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{True, \"IntervalNotSupplied\", False, True, \"MalformedInterval\", {3, 1}}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{True, \"IntervalNotSupplied\", False, True, \"MalformedInterval\", {3, 1}}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tcertificate-omitted-interval-diagnostic\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "certificate-exact-affine-translation",
+      "Group": "certificate",
+      "ElapsedSeconds": 43.437,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tcertificate-exact-affine-translation\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{True, True, True}",
+      "ExpectedOutput": "{True, True, True}",
+      "ExitCode": 0,
+      "TestID": "certificate-logarithm-near-one-relative-precision",
+      "Group": "certificate",
+      "ElapsedSeconds": 399.953,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{True, True, True}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{True, True, True}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tcertificate-logarithm-near-one-relative-precision\tSuccess\r\n"
+    }
+  ]
+}

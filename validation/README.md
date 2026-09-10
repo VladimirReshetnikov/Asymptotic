@@ -1075,10 +1075,11 @@ which runs inside the [wave-6 boundary run](wave6-boundaries-tests.json)
 (**185/185**). The [standalone builder tests](test_standalone.py) cover
 association delimiters in three spellings (59 N02). The portable case
 `certificate-logarithm-near-one-relative-precision` runs the three report-63
-witnesses in the Mathics `certificate` group; its
-[modular](mathics-modular-wave7-certificate-tests.json) and
-[standalone](mathics-standalone-wave7-certificate-tests.json) receipts are
-recorded below once the runs complete.
+witnesses in the Mathics `certificate` group, which passes **5/5** on
+Mathics 10.0.1 in the [modular](mathics-modular-wave7-certificate-tests.json)
+and [standalone](mathics-standalone-wave7-certificate-tests.json) layouts with
+unchanged sources; the new case takes about 390–400 seconds on the tested
+Windows interpreter, inside its 600-second timeout.
 
 ## C22 arithmetic transport and the affine memo
 
