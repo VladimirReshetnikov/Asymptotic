@@ -120,6 +120,21 @@ class PortableProcessTests(unittest.TestCase):
 
 
 class PortableReportTests(unittest.TestCase):
+    def test_relocated_modular_source_fingerprints_include_siblings(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mathics-fingerprint-test-") as temporary:
+            kernel = Path(temporary) / "src/Kernel"
+            kernel.mkdir(parents=True)
+            source = kernel / "AsymptoticAnalysis.wl"
+            source.write_text("entry", encoding="utf-8")
+            module = kernel / "RefinementState.wl"
+            module.write_text("original", encoding="utf-8")
+            before = runner.fingerprints(source)
+            module.write_text("modified", encoding="utf-8")
+            after = runner.fingerprints(source)
+            self.assertIn(str(module), before)
+            self.assertNotEqual(before[str(module)], after[str(module)])
+            self.assertEqual(before[str(source)], after[str(source)])
+
     def test_running_cases_use_frozen_suite_bytes(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mathics-snapshot-test-") as temporary:
             suite = Path(temporary) / "suite.wl"

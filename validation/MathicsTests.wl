@@ -199,10 +199,50 @@ portableTest["callable-inverse-function", "callable",
     {Expand[Normal[s] - (y - y^2 + 2 y^3)], s["RemainderPower"]}],
   {0, 4}];
 
+portableTest["callable-formal-parameter-ownvalue", "callable",
+  Module[{t, x, s}, s = Block[{t = 17},
+      AsymptoticExpansion[Function[t, Exp[t]], {x, 0, 3}]];
+    {Expand[Normal[s] - (1 + x + x^2/2)], s["RemainderPower"]}],
+  {0, 3}];
+
+portableTest["callable-nested-formal-binding", "callable",
+  Module[{t, x, s}, s = AsymptoticExpansion[
+      Function[t, t + Function[t, t^2][t]], {x, 0, 3}];
+    {Expand[Normal[s] - (x + x^2)], s["Remainder"]}],
+  {0, 0}];
+
+portableTest["callable-negative-inverse-branch", "callable",
+  Module[{y, s}, s = AsymptoticExpansion[
+      InverseFunction[ConditionalExpression[#^2, # < 0] &], {y, 0, 2}];
+    {Expand[Normal[s] + Sqrt[y]], s["Remainder"]}],
+  {0, 0}];
+
+portableTest["callable-crossing-inverse-branch-rejected", "callable",
+  Module[{y}, MatchQ[AsymptoticExpansion[
+    InverseFunction[ConditionalExpression[#^2, -1 < # < 1] &],
+    {y, 0, 2}, "Backend" -> "Package"], _Failure]],
+  True];
+
+portableTest["callable-disconnected-inverse-domain-rejected", "callable",
+  Module[{y}, MatchQ[AsymptoticExpansion[
+    InverseFunction[ConditionalExpression[#^2, #^2 > 1] &],
+    {y, 4, 2}, "Backend" -> "Package"], _Failure]],
+  True];
+
+portableTest["callable-complex-function-rejected", "callable",
+  Module[{y}, MatchQ[AsymptoticExpansion[
+    InverseFunction[I # &], {y, 0, 2}, "Backend" -> "Package"], _Failure]],
+  True];
+
 portableTest["inverse-quadratic", "inverse",
   Module[{x, y, s}, s = AsymptoticInverse[x + x^2, {x, 0}, {y, 4}];
     {Expand[Normal[s] - (y - y^2 + 2 y^3)], s["RemainderPower"]}],
   {0, 4}];
+
+portableTest["inverse-depth-quadratic", "inverse",
+  Module[{x, y, s}, s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}, "Truncation" -> "Depth"];
+    {Expand[Normal[s] - (y - y^2 + 2 y^3 - 5 y^4)], s["RemainderPower"]}],
+  {0, 5}];
 
 portableTest["inverse-logarithmic-coefficients", "inverse",
   Module[{x, y, s}, s = AsymptoticInverse[x + x^2 (1 + Log[x]), {x, 0}, {y, 4}];
@@ -280,6 +320,14 @@ portableTest["arithmetic-refinement", "arithmetic",
     {Expand[Normal[refined] - (y - y^2 + 2 y^3 - 5 y^4)], refined["RemainderPower"]}],
   {0, 5}];
 
+portableTest["arithmetic-refinement-retained-state", "arithmetic",
+  Module[{x, y, s, first, second}, s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];
+    first = SeriesRefine[s, 5]; second = SeriesRefine[first, 7];
+    {Expand[Normal[second] - (y - y^2 + 2 y^3 - 5 y^4 + 14 y^5 - 42 y^6)],
+      second["RemainderPower"], second["RefinementStatistics"]["StateOrigin"],
+      Expand[Normal[s] - (y - y^2)], s["RemainderPower"]}],
+  {0, 7, "RetainedLagrangeState", 0, 3}];
+
 portableTest["arithmetic-truncation", "arithmetic",
   Module[{x, s}, s = SeriesTruncate[AsymptoticExpansion[Exp[x], {x, 0, 5}], 3];
     {Expand[Normal[s] - (1 + x + x^2/2)], s["RemainderPower"]}],
@@ -336,6 +384,16 @@ portableTest["certificate-exact-rational-root", "certificate",
       c["CertifiedErrorBound"] === 0 && TrueQ[c["RootEnclosure"][[1]] <= 2 <= c["RootEnclosure"][[2]]]],
   True];
 
+portableTest["certificate-fixed-center-accuracy-floor", "certificate",
+  Module[{x, y, s, c, best}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
+    c = InverseCertificate[s, 4, "Interval" -> {1, 3}, "Center" -> 3/2,
+      "TargetError" -> 1/10, "MaxRefinements" -> 0, "RefineExpansion" -> False];
+    If[! MatchQ[c, Failure["AccuracyFloor", _Association]], False,
+      best = c[[2]]["BestCertificate"];
+      TrueQ[best["Certified"]] && ! TrueQ[best["AccuracyGoalReached"]] &&
+        TrueQ[best["CertifiedErrorLowerBound"] > 1/10] && Length[c[[2]]["History"]] === 1]],
+  True];
+
 portableTest["numerical-exact-quadratic-inverse", "numerical",
   Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
     c = InverseNumericalCheck[s, 4, WorkingPrecision -> 30];
@@ -370,13 +428,54 @@ portableTest["special-polylog-origin", "special",
 
 portableTest["special-zeta-dirichlet", "special",
   Module[{x, s}, s = AsymptoticExpansion[Zeta[x], x -> Infinity, SeriesTermGoal -> 3];
-    {Expand[Normal[s] - (1 + 2^-x + 3^-x)], s["RemainderPower"], s["Exact"]}],
+    {Simplify[Normal[s] - (1 + 2^-x + 3^-x)], s["RemainderPower"], s["Exact"]}],
   {0, Log[4], False}];
 
 portableTest["logarithmic-reciprocal-core", "logarithmic",
   Module[{x, y, s}, s = AsymptoticLogarithmicInverse[x + x/Log[x], {x, 0}, {y, 3}];
     {s["Terms"], s["RemainderPower"], s["RemainderLogDegree"]}],
   {{{0, 1}, {1, 1}, {2, 1}}, 3, 0}];
+
+portableTest["families-single-index-coefficient", "families",
+  Module[{x, model, c}, model = PowerLogModel[x + x^2 (1 + Log[x]), {x, 0}];
+    c = InverseExpansionCoefficient[model, {2}];
+    Expand[c["Coefficient"] - (3 + 5 \[FormalL] + 2 \[FormalL]^2)]],
+  0];
+
+portableTest["families-lambert-negative-branch", "families",
+  Module[{x, y, s}, s = AsymptoticInverse[x Log[x], {x, 0}, y, SeriesTermGoal -> 3];
+    {s["Blocks"] /. s["LogVariable"] -> \[FormalL], s["Scale"], s["LambertBranch"]}],
+  {{{0, 1}, {1, \[FormalL]}, {2, \[FormalL]^2 + \[FormalL]}}, "Logarithmic", -1}];
+
+portableTest["families-fourier-first-correction", "families",
+  Module[{x, y, s}, s = AsymptoticFourierInverse[x + x^2 Sin[Log[x]], {x, 0}, {y, 3}];
+    {Simplify[Normal[s] - (y - y^2 Sin[Log[y]])],
+      s["RemainderPower"], s["RemainderLogDegree"]}],
+  {0, 3, 0}];
+
+portableTest["families-gamma-inverse-first-correction", "families",
+  Module[{x, y, s, core}, s = AsymptoticInverse[Gamma[x], {x, Infinity}, y, SeriesTermGoal -> 2];
+    core = Log[y]/ProductLog[Log[y]/E];
+    {Together[Normal[s] - (core + 1/2 - Log[2 Pi]/(2 Log[core]))],
+      s["Scale"], s["ReturnedTermCount"], s["RemainderPower"]}],
+  {0, "GammaInverse", 2, 1}];
+
+portableTest["families-barnes-inverse-leading-core", "families",
+  Module[{x, y, s, core}, s = AsymptoticInverse[BarnesG[x], {x, Infinity}, y, SeriesTermGoal -> 1];
+    core = Sqrt[4 Log[y]/ProductLog[4 Log[y]/Exp[3]]];
+    {Together[Normal[s] - core], s["Scale"], s["ReturnedTermCount"],
+      s["RemainderPower"], s["RemainderInverseLogPower"]}],
+  {0, "BarnesGInverse", 1, 0, 0}];
+
+portableTest["families-exponential-core-first-sector", "families",
+  Module[{x, y, s, v, core}, s = AsymptoticExponentialCoreInverse[
+      x Exp[x], x^2, {x, Infinity}, {y, 1}];
+    v = s["LocalVariable"]; core = s["CoreLocalInverse"];
+    {Together[s["LocalSectorCoefficients"][[1, 2]] + v^2/(v + 1)],
+      Together[Normal[s] - (core - core^3/((core + 1) y))],
+      s["SectorDepth"], Length[s["Sectors"]], Length[s["Terms"]],
+      FreeQ[{s["Sectors"], s["Terms"]}, _Take]}],
+  {0, 0, 1, 1, 2, True}];
 
 (* A typo in the Python/WL test selection must never look like an empty pass. *)
 Print["No portable test matched: ", portableSelection];

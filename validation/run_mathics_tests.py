@@ -44,8 +44,10 @@ def available_cases() -> list[tuple[str, str]]:
 
 def fingerprints(source: Path) -> dict[str, str]:
     files = {source, SUITE, Path(__file__).resolve()}
-    if source == ROOT / "src/Kernel/AsymptoticAnalysis.wl":
-        files.update((ROOT / "src/Kernel").glob("*.wl"))
+    if source.name == "AsymptoticAnalysis.wl" and source.parent.name == "Kernel":
+        # --source can select a relocated modular tree, including an untouched
+        # Wolfram baseline. Its sibling modules are part of the tested input.
+        files.update(source.parent.glob("*.wl"))
     return {
         path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path):
         hashlib.sha256(path.read_bytes()).hexdigest()

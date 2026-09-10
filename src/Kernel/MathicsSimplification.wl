@@ -23,8 +23,9 @@ AsymptoticAnalysis`Mathics`FullSimplify[e_, ass_] :=
 (* Mathics' Series does not accept Assumptions as an option. Retain the
    assumptions as an evaluation scope for the package's local Taylor calls. *)
 AsymptoticAnalysis`Mathics`Series[e_, spec_List, Assumptions -> ass_] :=
-  Block[{$Assumptions = ass}, System`Series[e, spec]];
-AsymptoticAnalysis`Mathics`Series[e_, spec_List] := System`Series[e, spec];
+  AsymptoticAnalysis`Mathics`mathicsTaylorSeries[e, spec, ass];
+AsymptoticAnalysis`Mathics`Series[e_, spec_List] :=
+  AsymptoticAnalysis`Mathics`mathicsTaylorSeries[e, spec, $Assumptions];
 
 (* Direction strings and the Assumptions option are absent from Mathics'
    Limit interface. The supported integer directions have the same meaning:

@@ -78,11 +78,13 @@ mathicsSignsWithinQ[signs_, permitted_List] := ListQ[signs] && signs =!= {} &&
 
 mathicsRealProof[e_, facts_, depth_Integer] := Module[{head = Head[e], arguments, signs, base, exponent},
   If[depth <= 0, Return[None, Module]];
+  If[e === System`Glaisher, Return[True, Module]];
   If[Or @@ (SameQ[#, e] & /@ facts[[1]]), Return[True, Module]];
   signs = mathicsKnownSigns[e, facts];
   If[ListQ[signs] && signs =!= {}, Return[True, Module]];
-  If[NumericQ[e], Return[Which[TrueQ[System`Element[e, Reals]], True,
-    System`Element[e, Reals] === False, False, True, None], Module]];
+  If[NumericQ[e],
+    signs = System`Element[e, Reals];
+    If[signs === True || signs === False, Return[signs, Module]]];
   If[MemberQ[{Plus, Times, Alternatives}, head],
     arguments = mathicsRealProof[#, facts, depth - 1] & /@ List @@ e;
     Return[If[And @@ (TrueQ /@ arguments), True, None], Module]];
@@ -106,6 +108,7 @@ mathicsRealProof[e_, facts_, depth_Integer] := Module[{head = Head[e], arguments
 mathicsSignProof[e_, facts_, depth_Integer] := Module[
   {known, head = Head[e], sets, base, exponent, signs, result},
   If[depth <= 0, Return[None, Module]];
+  If[e === System`Glaisher, Return[{1}, Module]];
   known = mathicsKnownSigns[e, facts];
   If[known =!= None, Return[known, Module]];
   If[NumericQ[e] && TrueQ[System`Element[e, Reals]],

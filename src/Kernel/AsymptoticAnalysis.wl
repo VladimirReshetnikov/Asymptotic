@@ -120,7 +120,9 @@ $kernelDirectory = DirectoryName[$InputFileName];
    kernel continues to resolve every existing definition to System` symbols. *)
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCompatibility.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCalls.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsAlgebra.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsAssumptions.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsTaylor.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsSimplification.wl"}]]];
 
 (* ------------------------------------------------------------------ *)
@@ -1322,6 +1324,8 @@ Get[FileNameJoin[{$kernelDirectory, "NativeSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NativeCompatibility.wl"}]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCalculus.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCertificate.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsRefinement.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsInverseBranches.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsSpecialFunctions.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsFormatting.wl"}]]];
 
