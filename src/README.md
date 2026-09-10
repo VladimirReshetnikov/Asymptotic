@@ -32,6 +32,9 @@ Get[URLDownload[
 
 This downloads the complete standalone package to a temporary file, then
 loads it with normal `Get`; no installation or checkout is needed.
+The remote URL uses the repository-root
+[`AsymptoticAnalysis.wl`](../AsymptoticAnalysis.wl), which includes all companion
+modules. Use the `src/Kernel/` entry point below with a local checkout.
 Downloading first avoids an observed Wolfram 15.0.1 issue that intermittently
 truncated direct `Get` of the compressed package response.
 

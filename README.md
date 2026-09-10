@@ -48,6 +48,9 @@ Get[URLDownload[
 
 This downloads the complete standalone package to a temporary file, then
 loads it with normal `Get`. No installation or local checkout is required.
+The GitHub URL points to the repository-root
+[`AsymptoticAnalysis.wl`](AsymptoticAnalysis.wl). Moving the modular package
+directory to `src/` does not change this standalone URL.
 Downloading first avoids an observed Wolfram 15.0.1 issue that intermittently
 truncated direct `Get` of the compressed package response.
 
