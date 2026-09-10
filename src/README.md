@@ -17,6 +17,16 @@ Complete compatibility is not yet established; the
 [compatibility guide](../docs/Mathics/COMPATIBILITY.md) records current
 coverage, interpreter settings, and remaining work.
 
+**The package must successfully compute all asymptotics developed in
+`vendor/proveit/docs`, including q-analogs, their inverses, and combinatorial
+sequences.** Existing power-log, logarithmic, Gamma/Barnes, Fourier, and flat
+engines are building blocks toward this goal; complete article coverage is
+not yet established. See the
+[vendored coverage matrix](../docs/development/VENDORED_ASYMPTOTICS.md) for
+the family-by-family status and the
+[coverage register](../docs/development/COVERAGE_TARGETS.md) for all three
+project requirements.
+
 The package was renamed from AsymptoticInverse. Its context is
 ``"AsymptoticAnalysis`"``; public functions such as `AsymptoticInverse` retain
 their names. See [fixed-version loading](Documentation/UserGuide.md#loading-fixed-versions)

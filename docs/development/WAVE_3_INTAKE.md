@@ -1,5 +1,17 @@
 # Wave 3: findings, proposals, and implementation scope
 
+This intake contributes to the active [project coverage targets](COVERAGE_TARGETS.md):
+complete compatibility with the official Wolfram kernel and Mathics3;
+correct and successful handling of every input successfully handled by
+`Series`, `Asymptotic`, or `DiscreteAsymptotic`, with a different result
+representation permitted; and support for all asymptotics documented in
+`vendor/proveit/docs`, including q-analogs, inverses, and combinatorial
+sequences. These are required goals, not claims of current completeness.
+The [native compatibility plan](NATIVE_COMPATIBILITY.md),
+[Mathics compatibility plan](../Mathics/COMPATIBILITY.md), and
+[vendored asymptotics register](VENDORED_ASYMPTOTICS.md) track known gaps
+and evidence beyond this review wave.
+
 All nine [wave-3 reports](../../external-reports/code-review/wave-3/README.md)
 are included in the current review implementation scope. They add **44
 identified ledger entries**: 6, 5, 6, 4, 4, 4, 6, 4, and 5 entries in reports
@@ -77,6 +89,10 @@ W3-02's equivalent-key cases, or W3-09's conditional-source policy.**
 These proposals are included for evaluation and implementation where their
 contracts can be established. They are not discarded because a narrow patch
 already passes, nor presented as accepted native or mathematical behavior.
+Implementation and API choices remain open, but coverage required by the
+three project goals is not optional. In particular, the current absence of a
+`DiscreteAsymptotic` backend and incomplete Mathics and vendored-corpus
+coverage remain obligations even where no wave-3 finding names them.
 
 | Proposal | Sources, decision and validation boundary |
 | --- | --- |
@@ -102,4 +118,6 @@ W3-01–W3-03 should follow one consistent option/default policy. The remaining
 capability, packaging, exact-demand and resource items retain their separate
 focused acceptance obligations. Update this intake and the main register
 when a current-source reproduction, implementation decision or accepted fix
-changes an item's status.
+changes an item's status. Carry any remaining native, Mathics, or vendored
+coverage gap into its maintained plan; completing this intake alone does
+not complete the project coverage goals.

@@ -8,6 +8,13 @@ from documentation_links import check_local_links, maintained_pages, markdown_ta
 
 
 class DocumentationLinksTests(unittest.TestCase):
+    def test_raw_html_links_and_images_are_not_silently_ignored(self):
+        anchors, links = markdown_targets(
+            '<a id="target" href="missing.md#absent">Read</a>\n\n'
+            '<img src="missing.png" alt="image">')
+        self.assertEqual(anchors, {"target"})
+        self.assertEqual(links, ["missing.md#absent", "missing.png"])
+
     def test_gfm_targets_and_code_exclusion(self):
         anchors, links = markdown_targets('''# A `code` heading!
 # A `code` heading!

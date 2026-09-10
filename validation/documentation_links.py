@@ -18,6 +18,7 @@ class Anchors(HTMLParser):
     def __init__(self):
         super().__init__()
         self.ids: set[str] = set()
+        self.links: list[str] = []
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
@@ -25,6 +26,10 @@ class Anchors(HTMLParser):
             self.ids.add(values["id"])
         if tag == "a" and values.get("name"):
             self.ids.add(values["name"])
+        if tag == "a" and values.get("href"):
+            self.links.append(values["href"])
+        if tag == "img" and values.get("src"):
+            self.links.append(values["src"])
 
 
 def maintained_pages(root: Path) -> list[Path]:
@@ -71,7 +76,7 @@ def markdown_targets(source: str) -> tuple[set[str], list[str]]:
                 visit(value)
 
     visit(json.loads(result.stdout))
-    return anchors | html.ids, links
+    return anchors | html.ids, links + html.links
 
 
 def check_local_links(pages: list[Path]) -> dict:

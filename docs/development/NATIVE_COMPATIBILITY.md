@@ -202,9 +202,10 @@ the official [DiscreteAsymptotic reference](https://reference.wolfram.com/langua
 
 ## Native result semantics
 
-The implemented native result kind preserves the complete `NativeResult`,
-`OriginalArguments`, and selected `NativeRequest` inside held forms. It records
-recognized `ExpansionSpecifications`, `AmbientAssumptions`, backend,
+The implemented native result kind preserves the complete returned payload in
+`NativeResult`, with `OriginalArguments` and the selected `NativeRequest`
+stored in held forms. The payload itself is not wrapped in `HoldComplete`.
+The wrapper records recognized `ExpansionSpecifications`, `AmbientAssumptions`, backend,
 kernel version and evaluation status. Literal explicit requests retain
 syntactic specifications; preparation may resolve automatic specifications.
 Native option expressions are not reevaluated to build a metadata snapshot;

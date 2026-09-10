@@ -24,6 +24,15 @@ selected special functions. Complete compatibility is not yet established.
 The [Mathics compatibility guide](docs/Mathics/COMPATIBILITY.md) records the
 tested environments, supported cases, and remaining work.
 
+**The package must also successfully compute all asymptotics developed in the
+vendored articles under `vendor/proveit/docs`, including q-analogs, their
+inverses, and combinatorial sequences.** This coverage is not yet established.
+Existing expansion engines provide useful building blocks; the
+[vendored asymptotics matrix](docs/development/VENDORED_ASYMPTOTICS.md) separates
+those from article-specific algorithms and validation still needed. The
+[coverage register](docs/development/COVERAGE_TARGETS.md) brings all three
+project requirements together.
+
 The package and Wolfram context are now named `AsymptoticAnalysis`. Public
 function names, including `AsymptoticInverse`, are unchanged. The
 [loading guide](src/Documentation/UserGuide.md#loading-fixed-versions)
