@@ -37,6 +37,14 @@ forward-error transport formula agree with the stated theorems. New reading
 references resolve. No mathematical blocker was found; this source review
 does not replace rebuilding or inspecting the merged PDF.
 
+The actual merged guide build exposed two missing coverage-index targets in
+`7d1bc83`. The subsequent upstream revision `699a9739` supplies both indexes,
+the maintenance guide and raw-HTML link/image checks. Root merged it, retained
+both validation histories, and reran all five documentation-link regressions
+plus the complete maintained-document checker. The final native and TeX
+source hashes are unchanged by that documentation-only merge. No peer
+uncommitted files were copied to fill the missing targets.
+
 Reviewed the 17 committed files between `350c70f` and
 [`5d4ff7c569f747245741d940a5a774d51917912f`](https://github.com/VladimirReshetnikov/Asymptotic/commit/5d4ff7c569f747245741d940a5a774d51917912f),
 plus the relevant uncommitted documentation and native-definition comparison

@@ -112,8 +112,9 @@ D02 and P08. Fourier work-count profiling belongs to W3-13/P03. The proposed
 full-suite release gate does not override the instruction to skip that suite
 during this task.
 
-Immediate correctness priorities are W3-06's observable information/side
-checks and W3-10's logarithm identity hypotheses. Request-resolution work
+With W3-06's observable information, side and real-input guards focused
+verified, the next correctness priority is W3-10's logarithm identity
+hypotheses. Request-resolution work
 W3-01–W3-03 should follow one consistent option/default policy. The remaining
 capability, packaging, exact-demand and resource items retain their separate
 focused acceptance obligations. Update this intake and the main register

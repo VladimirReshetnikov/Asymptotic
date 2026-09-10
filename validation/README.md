@@ -27,11 +27,30 @@ the sided observable case in each mode. The merged standalone contains
 54 modules; native loads keep the Mathics adapter definitions inactive.
 
 The 14 standalone-builder, 14 portable-runner, three native-capture isolation,
-and four documentation-link Python tests pass. An initial invocation used
+and five documentation-link Python tests pass. An initial invocation used
 the nonexistent pattern `test_run_mathics_tests.py` and ran zero tests; the
 corrected `test_mathics_runner.py` invocation supplies the 14-test result.
 These tool tests do not establish Mathics feature acceptance. The full
 package suite remains skipped.
+
+The subsequent documentation-only merge through `699a9739` leaves every
+recorded input unchanged: all 62 focused-test hashes, 60 loading hashes and
+32 TeX-source hashes match the final committed files. The original baseline's
+53 kernel hashes independently match `a55df16`. The final generated guide
+matches its Markdown/CSS sources; the documentation checker validates 45
+maintained Markdown pages, 1,631 local links, 210 fragments, and 331 mathematical
+labels with no missing references. The two coverage-index links missing in
+the earlier incoming commit resolve after the latest merge.
+
+The [merged PDF build](observable-ingress-merge-pdf-build.json) records exactly
+three serial strict LaTeX passes and the final 100-page artifact. The
+[render record](observable-ingress-merge-pdf-layout.json) records rendering of
+all pages, zero text-outside-page geometry findings, and visual inspection of
+contact pages 1–12, 43–54 and 97–100 plus full page 47. Other pages were rendered
+but were not visually inspected in this checkpoint. The earlier
+[99-page build](observable-ingress-pdf-build.json) and
+[layout record](observable-ingress-pdf-layout.json) belong to the pre-merge
+article. Both build histories retain their own source and artifact hashes.
 
 This page preserves evidence from individual source snapshots. A historical
 passing count does not validate today's checkout. The project-wide
