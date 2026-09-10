@@ -240,13 +240,32 @@ full original-suite outcomes and native symbol-definition comparisons
 separate. It records the unchanged original 1,452 passes and 12 failures,
 as well as subsequent definition comparisons against updated upstream
 controls. Consult each stage's source hashes before attributing it to a
-later commit. The latest stage compares the merged observable-series changes
-against `ac91e66`: all 2,059 modular and 2,058 standalone package symbol
+later commit. The latest stage compares the merged principal-logarithm guard
+against `a76c0b5`: all 2,059 modular and 2,058 standalone package symbol
 definitions match, as do the six monitored System builtins and eight behavior
-probes across load and reload. This is a definition comparison, separate
+probes across load and reload. Only the private `parseFinite` downvalues change
+relative to the preceding observable stage; all Mathics adapters are unchanged.
+This is a definition comparison, separate
 from the earlier full MUnit run. The [Mathics CI workflow](../.github/workflows/mathics.yml)
 runs both package entry points on Linux and uploads complete per-shard
 receipts even when a case fails.
+
+To verify a complete set of downloaded portable shards against one immutable
+commit, use the independent [acceptance verifier](check_mathics_acceptance.py):
+
+```text
+python validation/check_mathics_acceptance.py --receipts EXTRACTED_ARTIFACTS --revision IMMUTABLE_COMMIT --output acceptance.json
+```
+
+It requires every maintained test ID exactly once in each layout, successful
+raw kernel protocol and zero exit statuses, and exact package, suite and
+runner hashes read directly from Git blobs. It rejects incomplete runs,
+duplicate or unknown cases, mixed sources, altered protocol fields and output
+paths that overwrite a receipt. Sixteen integrity tests cover those cases,
+including a dirty working tree that differs from the requested commit.
+Requirements-file hashes are distinguished from observed runtime versions;
+neither is a complete audit of installed dependencies. The historical
+multi-snapshot summary above remains separate from this acceptance check.
 
 The native comparison is reproducible with:
 
