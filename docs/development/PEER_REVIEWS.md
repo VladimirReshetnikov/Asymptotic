@@ -8,6 +8,17 @@ or a merge incorporate them.
 
 ## September 9, 2026 — Mathics compatibility checkpoint
 
+The additional immutable `c50ff6b` input-assumption adapter, incorporated by
+`b4c2a2d`, was reviewed separately before final publication. No blocker was
+found in its held `catch` delegate, `Element` replacement restricted to
+syntactic `Assumptions` rule values, or placement before the private empty-map
+rewrite. Native Wolfram skips both modular loading and standalone parsing of
+the adapter. Its documented limitations for already evaluated assumptions,
+computed containers and literal native backends match the dispatch source.
+Four new assumption cases and the 98-case portable inventory were inspected;
+root did not execute a Mathics feature suite. The selected native acceptance
+was repeated after this merge, with new source-hash receipts.
+
 The later immutable review of
 [`7d1bc832895cc90a9b2a978b7b7684acab908bd2`](https://github.com/VladimirReshetnikov/Asymptotic/commit/7d1bc832895cc90a9b2a978b7b7684acab908bd2)
 against `a55df16` found no merge blocker in the Mathics empty-list adapter,

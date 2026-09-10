@@ -2,6 +2,17 @@
 
 ## Observable Taylor information, approach sides, and real arguments
 
+After the final sync through immutable `main` revision `b4c2a2d`, the
+[repeated six-file native run](observable-ingress-main-sync-tests.json)
+again passes **131/131**. This revision adds the guarded Mathics input-assumption
+adapter and a 55-module standalone. These new source hashes distinguish the
+latest acceptance from the earlier 54-module records below.
+The [repeated local loading run](observable-ingress-main-sync-loading-tests.json)
+also passes **95/95 in five fresh kernels**. All 63 focused-test input hashes
+and 61 loading hashes match the final committed package and harness files.
+The final guide is fresh, and the documentation checker passes across 47
+maintained Markdown pages with no broken local links or mathematical references.
+
 The [six-file native acceptance](observable-ingress-tests.json) passes
 **131 tests with zero failures**, including 29 new cases in
 [ReviewObservableIngress.wlt](../src/Tests/ReviewObservableIngress.wlt).
@@ -33,11 +44,11 @@ corrected `test_mathics_runner.py` invocation supplies the 14-test result.
 These tool tests do not establish Mathics feature acceptance. The full
 package suite remains skipped.
 
-The subsequent documentation-only merge through `699a9739` leaves every
+The documentation-only merge through `699a9739` left every
 recorded input unchanged: all 62 focused-test hashes, 60 loading hashes and
-32 TeX-source hashes match the final committed files. The original baseline's
-53 kernel hashes independently match `a55df16`. The final generated guide
-matches its Markdown/CSS sources; the documentation checker validates 45
+32 TeX-source hashes matched commit `34d9287`. The original baseline's
+53 kernel hashes independently match `a55df16`. At that checkpoint the generated guide
+matched its Markdown/CSS sources; the documentation checker validated 45
 maintained Markdown pages, 1,631 local links, 210 fragments, and 331 mathematical
 labels with no missing references. The two coverage-index links missing in
 the earlier incoming commit resolve after the latest merge.

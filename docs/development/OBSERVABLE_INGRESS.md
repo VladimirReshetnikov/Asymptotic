@@ -6,9 +6,10 @@ W3-06 consolidates the generic observable findings in
 and [report 25, N01/N02](../../external-reports/code-review/wave-3/code-review-25/evidence/novelty_ledger.json).
 See the [wave-3 intake](WAVE_3_INTAKE.md) and
 [review register](CODE_REVIEW_STATUS.md) for current implementation status.
-The implementation passes [131 focused native tests](../../validation/observable-ingress-tests.json)
+The implementation passes [131 focused native tests](../../validation/observable-ingress-main-sync-tests.json)
 after incorporating immutable `main` revision
-`7d1bc832895cc90a9b2a978b7b7684acab908bd2`. The full suite was not run.
+`b4c2a2dc03186b94fa81689d745f6cad5a096b21`, including the additional
+Mathics input-assumption adapter. The full suite was not run.
 
 ## Reproduced baseline and independent counterexamples
 
