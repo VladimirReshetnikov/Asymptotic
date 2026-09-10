@@ -1,0 +1,46 @@
+{
+  "SourceRepository": "https://github.com/VladimirReshetnikov/Asymptotic",
+  "FeatureParent": "5b2b6cd1219255de47296f596097a56aabd632c0",
+  "MergedMain": "b6df7a13026d6a24f46addae455f1933f6b91a83",
+  "ConflictResolution": "Only the generated standalone file conflicted; regenerated from automatically merged modular sources using the incoming conditional-module builder.",
+  "FullPackageSuiteRun": false,
+  "NativeKernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+  "Acceptances": {
+    "review-normalization-merge-tests.json": {
+      "Succeeded": 425,
+      "Failed": 0,
+      "SHA256": "0bfbd0890bab419f92cf42628dc39d10fb1591971c3b26c84f45dc39d62488b0",
+      "VerifiedSourceHashes": 67
+    },
+    "review-normalization-merge-loading-tests.json": {
+      "Succeeded": 80,
+      "Failed": 0,
+      "SHA256": "71533a2ebd1e8449e39325c8f52b55707f04f4e32e489175ad2e3d1c924bfe0e",
+      "VerifiedSourceHashes": 48
+    }
+  },
+  "Standalone": {
+    "Artifact": "AsymptoticAnalysis.wl",
+    "SourceFiles": 42,
+    "Bytes": 623155,
+    "SHA256": "31c2f82d00cc85a1129c8945e301134085a497fe82b3b7e9967880d795aad34b",
+    "MatchesSources": true
+  },
+  "FreshNativeLoadingKernels": 5,
+  "NativeIsolation": "All five loading modes check no Mathics adapter symbols or context-path entry and unchanged System context for Module, Return, Lookup and Simplify; reloads and arithmetic/formatting are also exercised.",
+  "PythonTests": {
+    "StandaloneBuilder": {
+      "Succeeded": 13,
+      "Failed": 0
+    },
+    "PortableRunner": {
+      "Succeeded": 11,
+      "Failed": 0
+    }
+  },
+  "GuideHTMLSHA256": "f9e7479488a0e8092c125aae31c573411a65e1a6a629a7cfdb725ad3cad42784",
+  "ArticlePDFSHA256": "7a582cc903685c2e0dc3a93b9c14fe874d92d95f4660abfd453762cc9e4d6212",
+  "DocumentationArtifacts": "Identical to the rendered/reviewed 5b2b6cd artifacts; no additional PDF rebuild was required for the Mathics source merge.",
+  "MathicsExecution": "Not run in this merge acceptance. Incoming Mathics feature coverage remains as documented by its owning worktree.",
+  "GoalStatus": "Full native input coverage and remaining review findings are still open."
+}

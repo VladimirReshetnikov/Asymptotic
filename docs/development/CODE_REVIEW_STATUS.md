@@ -73,7 +73,11 @@ function `AsymptoticExpansion` now also has the held alias `AsymptoticExpand`.
 | B04 | **Partial — focused comparisons recorded.** Nine selected files pass 179 tests on Wolfram 15.0.1 Windows with unchanged sources, including 16 new backend-search cases. Separate bounded differential probes reproduce R17 N4's selected native `x^x`, Zeta and quadratic inverse calculations. These records support only their stated cases; broader matrix coverage and the structural argument for full Automatic coverage remain required. |
 
 Implementation: [NativeCompatibility.wl](../../src/Kernel/NativeCompatibility.wl).
-Current search evidence: [179/0 record](../../validation/native-search-tests.json),
+The merged-source [425/0 acceptance](../../validation/review-normalization-merge-tests.json)
+rechecks the union of normalization/scope and native-search cases plus package
+identity after integrating `main` revision `b6df7a1`'s Mathics-only bootstrap.
+See the [merge receipt](../../validation/review-normalization-merge-artifacts.json).
+The individual search evidence at `5b2b6cd` is the [179/0 record](../../validation/native-search-tests.json),
 [nine-file runner](../../validation/CheckNativeSearch.wl), and
 [normalization/search artifact receipt](../../validation/review-normalization-artifacts.json).
 Automatic search records `NativeAttempts`, consumes effective explicit common

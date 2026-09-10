@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 3674f826e60b5a5055c5abcb48c4dd6cc45a4920479d20c457f41fd6d3e9c3c9 *)
+   Source SHA256 (UTF-8/LF): d40a0b0333e3fab5bc3b160bb2e693fcf0b5addb8046e348e6f4ce8e6f4761b0 *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -117,6 +117,61 @@ SeriesDifferentiate::usage = "SeriesDifferentiate[s,n] differentiates n times wh
 Begin["`Private`"];
 
 (* Standalone: every companion is included below. *)
+
+(* Bind evaluator adapters only when loading in Mathics. The official Wolfram
+   kernel continues to resolve every existing definition to System` symbols. *)
+If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
+"(* BEGIN SOURCE: src/Kernel/MathicsCompatibility.wl\n   Source SHA256 (UTF-8/LF): 884de180d3efa29e73122c0a117728a85fe3cc836b072de8afe773d2ceb8e1da *)\n(* Mathics3 compatibility is isolated in its own context.  The official\n   Wolfram evaluator never adds this context to its search path, so the\n   streamed kernel sources retain their original System symbols there.\n   These are deliberately bounded helpers for the forms used by this package,\n   not replacements installed on Mathics' global System definitions. *)\n\nBegin[\"AsymptoticAnalysis`Mathics`\"];",
+"\n\nClearAll[AsymptoticAnalysis`Mathics`Module,\n  AsymptoticAnalysis`Mathics`Return,\n  AsymptoticAnalysis`Mathics`Lookup,\n  AsymptoticAnalysis`Mathics`FailureQ,\n  AsymptoticAnalysis`Mathics`MissingQ,\n  AsymptoticAnalysis`Mathics`KeyExistsQ,\n  AsymptoticAnalysis`Mathics`AssociateTo,\n  AsymptoticAnalysis`Mathics`KeyDrop,\n  AsymptoticAnalysis`Mathics`KeyTake,\n  AsymptoticAnalysis`Mathics`DeleteDuplicatesBy,\n  AsymptoticAnalysis`Mathics`FirstPosition,\n  AsymptoticAnalysis`Mathics`RootReduce,\n  AsymptoticAnalysis`Mathics`ToRadicals,\n  AsymptoticAnalysis`Mathics`Refine];",
+"\n\n$contextPathBeforeCompatibility = $ContextPath;",
+"\n$ContextPath = Prepend[DeleteCases[$ContextPath, \"AsymptoticAnalysis`Mathics`\"],\n  \"AsymptoticAnalysis`Mathics`\"];",
+"\n\n(* Mathics 10 implements Return[value] but not Return[value, Module].\n   Moreover, its ordinary Return is intercepted by loop constructs.  A\n   distinct dynamic tag per invocation implements the package's explicit\n   Module destination across loops, recursion, and nested helper calls.\n   Wrapping the whole native Module also covers local initializers. *)\nSetAttributes[Module, HoldAll];",
+"\nModule[locals_List, body_] := System`Block[\n  {$moduleReturnTag = System`Unique[\"mathicsModuleReturn$\"]},\n  System`Catch[System`Module[locals, body], $moduleReturnTag]];",
+"\nReturn[value_, Module] := System`Throw[value, $moduleReturnTag];",
+"\nReturn[value_, System`Module] := System`Throw[value, $moduleReturnTag];",
+"\nReturn[value_] := System`Throw[value, $moduleReturnTag];",
+"\nReturn[] := System`Throw[Null, $moduleReturnTag];",
+"\n\nFailureQ[e_] := MatchQ[e, _System`Failure];",
+"\nMissingQ[e_] := MatchQ[e, _System`Missing];",
+"\nKeyExistsQ[a_Association, key_] := Or @@ (SameQ[#, key] & /@ Keys[a]);",
+"\n\n(* Hold only the default through argument evaluation; it must not run for a\n   present key.  Mathics 10's built-in Lookup rewrites to an unevaluated\n   FirstCase and does not implement the list-of-keys form used throughout\n   the package.  Association application supplies ordinary value semantics. *)\nSetAttributes[Lookup, HoldAllComplete];",
+"\nLookup[a_, key_] := lookupRequired[a, key];",
+"\nLookup[a_, key_, default_] := lookupValue[a, key, HoldComplete[default]];",
+"\nlookupRequired[a_Association, keys_List] := lookupRequired[a, #] & /@ keys;",
+"\nlookupRequired[a_Association, key_] :=\n  If[KeyExistsQ[a, key], a[key], Missing[\"KeyAbsent\", key]];",
+"\nlookupRequired[associations_List, key_] := lookupRequired[#, key] & /@ associations;",
+"\nlookupValue[a_Association, keys_List, default_HoldComplete] :=\n  lookupValue[a, #, default] & /@ keys;",
+"\nlookupValue[a_Association, key_, default_HoldComplete] :=\n  If[KeyExistsQ[a, key], a[key], ReleaseHold[default]];",
+"\nlookupValue[associations_List, key_, default_HoldComplete] :=\n  lookupValue[#, key, default] & /@ associations;",
+"\n\nSetAttributes[AssociateTo, HoldFirst];",
+"\nAssociateTo[a_, rules_] := (a = Join[a, Association[rules]]);",
+"\nKeyDrop[a_Association, key_] := KeyDrop[a, {key}];",
+"\nKeyDrop[a_Association, keys_List] := Association @@ Select[List @@ a,\n  Function[rule, ! Or @@ (SameQ[First[rule], #] & /@ keys)]];",
+"\nKeyTake[a_Association, key_] := KeyTake[a, {key}];",
+"\nKeyTake[a_Association, keys_List] := Association @@ Flatten[\n  Function[key, Select[List @@ a, SameQ[First[#], key] &]] /@ keys, 1];",
+"\nDeleteDuplicatesBy[items_List, function_] := First /@ GatherBy[items, function];",
+"\n\n(* Mathics FirstPosition compares exact expressions instead of matching its\n   pattern and does not accept Heads.  Position supports the required forms.\n   Keep a potentially effectful default held until there is no match. *)\nSetAttributes[FirstPosition, HoldRest];",
+"\nFirstPosition[expr_, pattern_] :=\n  firstPosition[expr, pattern, HoldComplete[Missing[\"NotFound\"]], {0, Infinity}, True];",
+"\nFirstPosition[expr_, pattern_, default_] :=\n  firstPosition[expr, pattern, HoldComplete[default], {0, Infinity}, True];",
+"\nFirstPosition[expr_, pattern_, default_, levels_, opts : OptionsPattern[]] :=\n  firstPosition[expr, pattern, HoldComplete[default], levels, OptionValue[Heads]];",
+"\nOptions[FirstPosition] = {Heads -> True};",
+"\nfirstPosition[expr_, pattern_, default_HoldComplete, levels_, heads_] := System`Module[{positions},\n  positions = Position[expr, pattern, levels, Heads -> heads];\n  If[positions === {}, ReleaseHold[default], First[positions]]];",
+"\n\n(* The exact expression is retained when Mathics lacks Wolfram's algebraic\n   number normalizer/radical converter.  Simplify can reduce elementary exact\n   radicals without introducing approximate numbers or asserting a new root. *)\nRootReduce[e_] := System`Simplify[e];",
+"\nToRadicals[e_] := e;",
+"\nRefine[e_, ass_] := AsymptoticAnalysis`Mathics`Simplify[e, ass];",
+"\nRefine[e_] := System`Simplify[e];",
+"\n\n$ContextPath = $contextPathBeforeCompatibility;",
+"\nEnd[];",
+"\n\nIf[StringQ[$Version] && StringContainsQ[$Version, \"Mathics\"],\n  (* Names occurring in public inputs/options must resolve identically in the\n     caller and the package even when Mathics has no implementation for them.\n     Creating inert System names does not claim that those kernels exist. *)\n  Scan[Symbol, {\"System`SeriesTermGoal\", \"System`BarnesG\", \"System`LogBarnesG\",\n    \"System`Asymptotic\", \"System`Failure\", \"System`FunctionDomain\",\n    \"System`Reduce\", \"System`Resolve\", \"System`ForAll\", \"System`Exists\",\n    \"System`Inactive\", \"System`Activate\", \"System`Algebraics\"}];\n  $ContextPath = Prepend[DeleteCases[$ContextPath, \"AsymptoticAnalysis`Mathics`\"],\n    \"AsymptoticAnalysis`Mathics`\"]];"
+}]];
+If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
+"(* BEGIN SOURCE: src/Kernel/MathicsSimplification.wl\n   Source SHA256 (UTF-8/LF): 6f5fa3aa65b692e14488202d23c8bdf0e2236afe3ef78eb102bf66aabf78e656 *)\n(* Mathics 10's two-argument simplifiers call an expression-only operation on\n   the assumptions. Atomic True/False therefore raise a Python exception.\n   A list of assumptions has the same logical meaning and keeps evaluation\n   inside the kernel's supported representation. These definitions are only\n   selected through the Mathics context during package loading. *)\n\nAsymptoticAnalysis`Mathics`Simplify[e_] := System`Simplify[e];",
+"\nAsymptoticAnalysis`Mathics`Simplify[e_, ass_] := System`Simplify[e, {ass}];",
+"\nAsymptoticAnalysis`Mathics`FullSimplify[e_] := System`FullSimplify[e];",
+"\nAsymptoticAnalysis`Mathics`FullSimplify[e_, ass_] := System`FullSimplify[e, {ass}];",
+"\n\n(* Mathics' Series does not accept Assumptions as an option. Retain the\n   assumptions as an evaluation scope for the package's local Taylor calls. *)\nAsymptoticAnalysis`Mathics`Series[e_, spec_List, Assumptions -> ass_] :=\n  Block[{$Assumptions = ass}, System`Series[e, spec]];",
+"\nAsymptoticAnalysis`Mathics`Series[e_, spec_List] := System`Series[e, spec];"
+}]];
 
 (* ------------------------------------------------------------------ *)
 (* Failure handling                                                     *)
@@ -1219,7 +1274,9 @@ heldRemainderScale[HoldComplete[PowerLogRemainder[w_, b_, k_]]] := Module[{base,
 PowerLogRemainder /: MakeBoxes[r : PowerLogRemainder[_, _, _], fmt : StandardForm | TraditionalForm] :=
   Replace[heldRemainderScale[HoldComplete[r]],
     HoldComplete[scale_] :> seriesInterpretationBoxes[HoldComplete[O[scale]], HoldComplete[r], fmt]];
-Format[r_PowerLogRemainder, OutputForm] := With[{sc = remainderScale[r]}, HoldForm[O[sc]]];
+If[! (StringQ[$Version] && StringContainsQ[$Version, "Mathics"]),
+  Format[r_PowerLogRemainder, OutputForm] := With[{sc = remainderScale[r]}, HoldForm[O[sc]]]
+];
 
 (* ------------------------------------------------------------------ *)
 (* Residual check                                                       *)
@@ -7183,7 +7240,7 @@ seriesEnvelopeUnary[head_, s_GeneralizedSeries, cut_, limit_] := Module[
 (* END SOURCE: src/Kernel/SeriesEnvelopeArithmetic.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesArithmetic.wl
-   Source SHA256 (UTF-8/LF): 707749457e126120e6a6a607cdb983f2b2108caf22d3c5d42610b473f942c0a1 *)
+   Source SHA256 (UTF-8/LF): 642401b840307a543801b5d121b26dac9c22e5daf1f756c74c840103625b73ef *)
 (* Ordinary arithmetic is a thin, guarded entry to the precision calculus.
    The explicit normalizer holds the expression tree before evaluation so that
    a reciprocal is checked before Times can cancel its denominator. *)
@@ -7355,6 +7412,9 @@ seriesHeldNormalize[held_HoldComplete, working_, limit_] := Module[{value, next}
 seriesArithmeticAutomatic[held_HoldComplete] := Block[{$seriesArithmeticEnabled = False},
   catch[seriesHeldNormalize[held, Automatic, 20000]]];
 
+(* Mathics rejects a named whole-expression pattern in TagSetDelayed's tag
+   search. Its equivalent rules are installed by MathicsFormatting.wl. *)
+If[! (StringQ[$Version] && StringContainsQ[$Version, "Mathics"]),
 GeneralizedSeries /: expression : Plus[___, s_GeneralizedSeries, ___] /;
     TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
   seriesArithmeticAutomatic[HoldComplete[expression]];
@@ -7371,7 +7431,8 @@ Scan[Function[head, With[{h = head},
   GeneralizedSeries /: expression : h[s_GeneralizedSeries] /;
       TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s] :=
     seriesArithmeticAutomatic[HoldComplete[expression]]]],
-  {Log, Exp, Abs, Sin, Cos, Tan, Sinh, Cosh, Tanh, ArcSin, ArcCos, ArcTan}];
+  {Log, Exp, Abs, Sin, Cos, Tan, Sinh, Cosh, Tanh, ArcSin, ArcCos, ArcTan}]
+];
 
 AsymptoticAnalysis`SeriesNormalize[expr_, OptionsPattern[]] := Block[{$seriesArithmeticEnabled = False}, catch[Module[
   {cut = OptionValue["Cutoff"], limit = OptionValue["MaxTerms"], result, candidate, precision, next, working, tries = 0},
@@ -8667,6 +8728,9 @@ nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module
     "NativeKernelVersion" -> $Version, "NativeSystemID" -> $SystemID|>]];
 (* END SOURCE: src/Kernel/NativeCompatibility.wl *)
 
+If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
+"(* BEGIN SOURCE: src/Kernel/MathicsFormatting.wl\n   Source SHA256 (UTF-8/LF): 60978db0dc37a4a051336d724a0fda9e08463ffbea0e2820ba37610cfc0d812c *)\n(* Loaded after the analytic engines, in AsymptoticAnalysis`Private`.\n   Mathics' TagSetDelayed cannot discover the tag beneath the named outer\n   pattern used by the ordinary-arithmetic API.  Direct UpValues assignment\n   installs those same patterns without changing any System definition. *)\n\nIf[StringQ[$Version] && StringContainsQ[$Version, \"Mathics\"], Block[{$seriesArithmeticEnabled = False},\n  mathicsArithmeticRules = {\n    HoldPattern[expression : Plus[___, s_GeneralizedSeries, ___] /;\n      TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s]] :>\n      seriesArithmeticAutomatic[HoldComplete[expression]],\n    HoldPattern[expression : Times[___, s_GeneralizedSeries, ___] /;\n      TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s]] :>\n      seriesArithmeticAutomatic[HoldComplete[expression]],\n    HoldPattern[expression : Power[s_GeneralizedSeries, _] /;\n      TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s]] :>\n      seriesArithmeticAutomatic[HoldComplete[expression]],\n    HoldPattern[expression : Power[_, s_GeneralizedSeries] /;\n      TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s]] :>\n      seriesArithmeticAutomatic[HoldComplete[expression]]\n  };\n  mathicsArithmeticRules = Join[mathicsArithmeticRules,\n    Function[head, With[{h = head},\n      HoldPattern[expression : h[s_GeneralizedSeries] /;\n        TrueQ[$seriesArithmeticEnabled] && seriesArithmeticObjectQ[s]] :>\n        seriesArithmeticAutomatic[HoldComplete[expression]]]] /@\n    {Log, Exp, Abs, Sin, Cos, Tan, Sinh, Cosh, Tanh, ArcSin, ArcCos, ArcTan}];\n  (* Reading Mathics UpValues can add HoldPattern wrappers.  Remove our own\n     previous arithmetic rules structurally instead of relying on SameQ\n     deduplication, so repeated Get does not accumulate duplicate rules. *)\n  UpValues[GeneralizedSeries] = Join[\n    Select[UpValues[GeneralizedSeries],\n      FreeQ[#, HoldPattern[seriesArithmeticAutomatic[_HoldComplete]]] &],\n    mathicsArithmeticRules];\n  (* An explicit head avoids Mathics treating Pattern as the formatting tag. *)\n  Format[PowerLogRemainder[w_, b_, k_], OutputForm] :=\n    With[{sc = remainderScale[PowerLogRemainder[w, b, k]]}, HoldForm[O[sc]]]\n]];"
+}]];
 
 End[];
 EndPackage[];

@@ -2,7 +2,18 @@
 
 ## Exact exponent collection, composition scope, and native search
 
-The C14/C15 and native-search milestone has three separate acceptance records:
+The fixes are recorded at `5b2b6cd`. Before publication, upstream `main`
+advanced to `b6df7a1`, adding the Mathics-only evaluator adapters. The modular
+sources merged directly; the generated standalone conflict was resolved by
+rebuilding from the merged sources. The
+[merged native acceptance](review-normalization-merge-tests.json) passes
+**425 tests, zero failures**, across the [23 explicitly selected suites](CheckMergedReviewFixes.wl).
+This deduplicates the two selections below and adds five package-identity cases.
+See the [merge artifact receipt](review-normalization-merge-artifacts.json)
+for the exact parents, source hashes, and distribution checks. This run does
+not establish Mathics feature acceptance or complete native input coverage.
+
+The pre-merge C14/C15 and native-search milestone has three separate acceptance records:
 
 | Record | Executed scope | Result |
 | --- | --- | --- |
@@ -10,8 +21,8 @@ The C14/C15 and native-search milestone has three separate acceptance records:
 | [Native search](native-search-tests.json) | [9 selected suites](CheckNativeSearch.wl), including 16 new compatible-backend search cases | **179 passed, 0 failed** |
 | [Local distribution loading](review-normalization-loading-tests.json) | Isolated standalone, modular entry, `init.m`, `Needs`, and paclet loading; reloads and all three new repairs checked | **75 passed, 0 failed, 5 fresh kernels** |
 
-All runs used Wolfram 15.0.1 for Windows. The final files match all 56, 50,
-and 45 source hashes in these respective records. The two focused runs share
+All runs used Wolfram 15.0.1 for Windows. The committed files at `5b2b6cd` match
+all 56, 50, and 45 source hashes in these respective records. The two focused runs share
 35 assumption/reality cases; their counts are not 455 distinct tests. The
 full package suite was skipped. The [artifact receipt](review-normalization-artifacts.json)
 ties these records to the rebuilt standalone file, guide and mathematical PDF.

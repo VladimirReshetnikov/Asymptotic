@@ -38,6 +38,11 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"],
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[{Names["AsymptoticAnalysis`Mathics`*"],
+      MemberQ[$ContextPath, "AsymptoticAnalysis`Mathics`"],
+      Context[Module], Context[Return], Context[Lookup], Context[Simplify]},
+    {{}, False, "System`", "System`", "System`", "System`"},
+    TestID -> "loading-mathics-adapters-remain-unparsed-on-native-wolfram"],
   VerificationTest[Module[{x, a = Sinh[1]^2, b = (Cosh[2] - 1)/2, s},
     s = AsymptoticExpansion[x^a - x^b + x^2, {x, 0},
       SeriesTermGoal -> 1, "Backend" -> "Package"];

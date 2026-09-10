@@ -202,5 +202,33 @@ class StandaloneBuilderTests(unittest.TestCase):
         self.assertFalse(self.target.with_suffix(".wl.tmp").exists())
 
 
+    def test_mathics_bootstrap_defers_parsing_and_preserves_streaming_statements(self) -> None:
+        self.entry('If[StringContainsQ[$Version, "Mathics"], '
+                   'Get[FileNameJoin[{$kernelDirectory, "MathicsFixture.wl"}]]];\n')
+        self.write("MathicsFixture.wl", 'Begin["Fixture`Mathics`"];\n'
+                   'f[x_] := Module[{}, Print["a;b"]; x]; (* ; nested (* ; *) *)\n'
+                   'End[];\n')
+        data, sources = builder.assemble()
+        text = data.decode("utf-8")
+        code = builder.executable_text(text)
+        self.assertEqual(sources, ["AsymptoticAnalysis.wl", "MathicsFixture.wl"])
+        self.assertIn("Scan[ToExpression", code)
+        self.assertNotIn("Module[", code)
+        self.assertNotIn("Print[", code)
+        self.assertNotIn("Get[", code)
+        import json
+        encoded = text.split("Scan[ToExpression, {\n", 1)[1].split("\n}]];", 1)[0]
+        statements = json.loads("[" + encoded + "]")
+        self.assertEqual(len(statements), 3)
+        self.assertIn('Begin["Fixture`Mathics`"];', statements[0])
+        self.assertIn('Print["a;b"]; x]', statements[1])
+        self.assertIn('End[];', statements[2])
+
+    def test_mathics_bootstrap_rejects_unbalanced_source(self) -> None:
+        for text in ("f[x;", "f[x]];", "Module[{x}, x;"):
+            with self.subTest(text=text), self.assertRaisesRegex(ValueError, "Unbalanced"):
+                builder.mathics_bootstrap(text)
+
+
 if __name__ == "__main__":
     unittest.main()
