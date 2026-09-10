@@ -208,12 +208,16 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   formula correct while corrupting its remainder metadata. Validate both.
   Likewise, Fourier exponential identities do not replace the separate
   real-conjugacy and frequency-budget checks.
-- The tested Mathics two-argument `ProductLog[k, z]` forwards arguments in
-  the wrong order to its numerical library. In particular,
+- The tested Mathics two-argument `ProductLog[k, z]` lacks a numerical arity
+  implementation and converts to SymPy using the wrong argument order. In particular,
   `N[ProductLog[0, E]]` can return `-Infinity`. Package-created principal
   values use the exact equivalent `ProductLog[z]` before specialization;
   `ProductLog[E]` gives 1. Symbolic lower-branch formulas do not establish
-  reliable nonprincipal numerical evaluation. See [ALGEBRA.md](Mathics/ALGEBRA.md).
+  reliable nonprincipal numerical evaluation. Exact `s[value]` substitution
+  remains useful, but external `N` can produce wrong complex values for
+  surrounding functions while leaving `ProductLog` unresolved. The tested
+  lower-branch numerical checker declines an unproved branch instead of
+  reporting successful evidence. See [ALGEBRA.md](Mathics/ALGEBRA.md).
 - `Expand` can leave an exact cancellation such as matching `2^-x` terms
   or polynomial-logarithmic perturbative terms unreduced. In the Zeta and
   perturbative-inverse regressions, `Simplify`, `Together`, and
