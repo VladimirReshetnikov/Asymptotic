@@ -28,7 +28,7 @@ table:has(th:nth-child(3)) th:nth-child(3) { width: 54%; }
 ul, ol { padding-left: 1.4rem; }
 blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: #4d5660; }
 #TOC { position: fixed; inset: 0 auto 0 0; width: 288px; overflow: auto; background: #f5f6f8; border-right: 1px solid var(--line); padding: 2rem 1.45rem; font-size: .8rem; }
-#TOC::before { content: "AsymptoticInverse"; display: block; font-size: 1.15rem; color: var(--accent); font-weight: 600; margin-bottom: .3rem; }
+#TOC::before { content: "AsymptoticAnalysis"; display: block; font-size: 1.15rem; color: var(--accent); font-weight: 600; margin-bottom: .3rem; }
 #TOC::after { content: "Custom package reference"; display: block; font-size: .72rem; color: #68717b; margin-top: 1.5rem; }
 #TOC ul { padding: 0; list-style: none; margin: 0; }
 #TOC > ul > li > a { display: block; color: #505a66; font-size: .75rem; margin-bottom: .9rem; }
@@ -36,4 +36,5 @@ blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2re
 #TOC li li li { display: none; }
 @media (max-width: 1050px) { body > section { padding: 2rem 2.2rem 4rem; margin-left: 250px; } #TOC { width: 250px; padding: 1.6rem 1.2rem; } }
 @media (max-width: 760px) { #TOC { position: static; width: auto; max-height: 19rem; border-bottom: 1px solid var(--line); } body > section { margin-left: 0; padding: 1.7rem 1.2rem 3rem; } h1 { font-size: 2rem; } h2 { font-size: 1.45rem; } pre { padding: .8rem; } table { font-size: .8rem; } th, td { padding: .5rem; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 @media print { #TOC { display: none; } body { font-size: 10pt; } body > section { margin: 0; padding: 0; max-width: none; } h2, h3, h4 { break-after: avoid; } pre, tr { break-inside: avoid; } pre code { white-space: pre-wrap; } a { color: inherit; } }

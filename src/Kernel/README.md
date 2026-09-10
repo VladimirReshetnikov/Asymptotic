@@ -25,10 +25,14 @@ syntax, options, and result properties are documented in the
 | [InverseFunctionExpressions.wl](InverseFunctionExpressions.wl), [InverseFunctionSyntax.wl](InverseFunctionSyntax.wl), [InverseFunctionBranches.wl](InverseFunctionBranches.wl) | Held forward requests, inverse-function syntax, and real branch admission. |
 | [SourceCoordinates.wl](SourceCoordinates.wl), [CoordinateInverse.wl](CoordinateInverse.wl) | Source charts and coordinate transport. |
 | [CorePerturbation.wl](CorePerturbation.wl), [LambertInverse.wl](LambertInverse.wl), [GammaInverse.wl](GammaInverse.wl), [BarnesInverse.wl](BarnesInverse.wl) | Perturbative inverse construction and specialized cores. |
+| [GammaForward.wl](GammaForward.wl), [BarnesForward.wl](BarnesForward.wl), [ExponentialForward.wl](ExponentialForward.wl) | Factored forward expansions, logarithms, products, ratios, and admitted powers. |
+| [LogarithmicScales.wl](LogarithmicScales.wl), [FlatSectors.wl](FlatSectors.wl), [FourierCoefficients.wl](FourierCoefficients.wl) | Nested logarithmic scales, flat exponential sectors, and Fourier coefficient families. |
 | [SpecialFunctionAdapters.wl](SpecialFunctionAdapters.wl), [NativeSpecialFunctions.wl](NativeSpecialFunctions.wl), [SpecialFunctionRealDomain.wl](SpecialFunctionRealDomain.wl) | Special-function admission, native-series import, and real-domain checks. |
+| [ParameterizedSpecialFunctions.wl](ParameterizedSpecialFunctions.wl), [DirichletSpecialFunctions.wl](DirichletSpecialFunctions.wl) | Fixed-parameter special-function branches, Dirichlet scales, and explicit Zeta/Lerch tail bounds. |
 | [SeriesOperations.wl](SeriesOperations.wl), [SeriesArithmetic.wl](SeriesArithmetic.wl), [SeriesEnvelopeArithmetic.wl](SeriesEnvelopeArithmetic.wl) | Explicit operations, composition parameter scope and source provenance, ordinary arithmetic dispatch, and composite remainder bounds. |
 | [RefinementRequests.wl](RefinementRequests.wl), [RefinementState.wl](RefinementState.wl), [IncrementalInverse.wl](IncrementalInverse.wl) | Refinement requests, retained state, and incremental inverse work. |
 | [InverseCertificates.wl](InverseCertificates.wl), [NumericalInverseChecks.wl](NumericalInverseChecks.wl) | Quantitative certificates and separate numerical diagnostics. |
+| [MathicsCompatibility.wl](MathicsCompatibility.wl) and the `Mathics*.wl` companions | Interpreter-specific adapters loaded only on Mathics; see the compatibility map below. |
 
 This map identifies starting points, not an exhaustive list of dependencies.
 The entry point is authoritative for load order. The
@@ -67,6 +71,30 @@ records [276 passed, zero failed tests](../../validation/review-normalization-te
 across fifteen selected files, including arithmetic, inverse, Fourier,
 logarithmic, assumption, and native-special neighbors. For just the two repair
 files, use [CheckReviewScopeAndEquality.wl](../../validation/CheckReviewScopeAndEquality.wl).
+
+## Mathics compatibility map
+
+The entry point conditionally loads helpers in the isolated
+``"AsymptoticAnalysis`Mathics`"`` context and companion overrides of
+package-owned implementation definitions. The adapter context is removed
+from the public context path after loading. The official Wolfram path skips
+these adapters; they do not replace global `System` definitions. The
+[compatibility guide](../../docs/Mathics/COMPATIBILITY.md) explains runtime
+requirements, evaluation differences, and the scope of recorded tests.
+
+| Implementation | Contract and reading path |
+| --- | --- |
+| [MathicsCompatibility.wl](MathicsCompatibility.wl), [MathicsCalls.wl](MathicsCalls.wl) | Scoped returns, association helpers, and held call evaluation; [runtime subtleties](../../docs/Mathics/COMPATIBILITY.md#compatibility-subtleties). |
+| [MathicsAssumptions.wl](MathicsAssumptions.wl), [MathicsSimplification.wl](MathicsSimplification.wl) | Conservative realness and sign reasoning; [assumption contracts](../../docs/Mathics/ASSUMPTIONS.md). |
+| [MathicsAlgebra.wl](MathicsAlgebra.wl), [MathicsTaylor.wl](MathicsTaylor.wl), [MathicsCalculus.wl](MathicsCalculus.wl) | Bounded exact algebra, local Taylor work, and calculus adapters; [algebra contracts](../../docs/Mathics/ALGEBRA.md). |
+| [MathicsInverseBranches.wl](MathicsInverseBranches.wl) | Callable evaluation and supported inverse-domain proofs; [callable contracts](../../docs/Mathics/CALLABLES.md). |
+| [MathicsCoreFunctions.wl](MathicsCoreFunctions.wl), [MathicsSpecialFunctions.wl](MathicsSpecialFunctions.wl) | Package-owned support for selected exact cores and special functions. |
+| [MathicsCertificate.wl](MathicsCertificate.wl), [MathicsRefinement.wl](MathicsRefinement.wl), [MathicsFormatting.wl](MathicsFormatting.wl), [MathicsTimeBudget.wl](MathicsTimeBudget.wl) | Interpreter-specific certificate, refinement, display, and simplification-budget handling. |
+
+The [portable runner](../../validation/run_mathics_tests.py) executes selected
+cases in fresh Mathics or Wolfram processes. Its results complement the
+[focused Wolfram tests](../Tests/README.md); support in one runtime does not
+establish identical evaluation or coverage in the other.
 
 ## Editing and validation
 

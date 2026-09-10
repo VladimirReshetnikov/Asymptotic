@@ -4,6 +4,13 @@ This directory connects current implementation work to its mathematical
 hypotheses, public contracts, and validation evidence. Return to the
 [documentation index](../README.md) for reader-facing and historical material.
 
+Complete package compatibility with both the official Wolfram kernel and
+[Mathics3](https://mathics.org/) is a project goal. Mathics support is currently
+partial: use the [compatibility status](../Mathics/COMPATIBILITY.md#goal-and-current-status)
+to distinguish implemented adapters, focused evidence, and remaining work.
+Wolfram preservation checks and Mathics acceptance are separate requirements;
+success on one interpreter does not establish success on the other.
+
 The maintained package and Wolfram context are named `AsymptoticAnalysis`;
 the modular sources are under `src/`. Public `AsymptoticInverse` calls remain unchanged.
 Saved validation records from before the rename describe their original
