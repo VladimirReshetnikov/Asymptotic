@@ -81,6 +81,17 @@ for known implementation and acceptance gaps.
 
 ## Documentation quality and coverage register
 
+The [public-help consistency pass](documentation-help-2026-09-09.json) corrects
+seven usage messages and the corresponding guide descriptions: positive
+target coordinates, stored expressions and missing properties, report
+associations, source observables, certificate planning, individual coefficient
+contributions, and sided Taylor contracts. Only help strings changed in the
+kernel. The regenerated standalone package passes [95 local loading and reload
+checks in five fresh Wolfram kernels](documentation-help-loading-2026-09-09.json).
+This pass also repairs reproducible Mathics receipt hashing and the documented
+summary command, preserving historical runtime hashes and outcomes. It does
+not rerun the full package suite or establish new Mathics runtime acceptance.
+
 The [merged documentation receipt](documentation-deep-review-2026-09-09.json)
 incorporates `origin/main` through `41ac72d`, including observable admission
 and held Mathics membership assumptions. The [merged example run](documentation-examples-2026-09-09-merged.json)
@@ -144,16 +155,19 @@ evaluates their `InverseFunction` before package dispatch.
 
 The [public API inventory](../docs/Mathics/API-COVERAGE.md) maps all 38 exports
 to representative cases. The [receipt summary](mathics-test-coverage.json)
-records **98 distinct cases with successful Mathics evidence in each layout,
-across three explicitly identified package snapshots**. Three further
-refinement cases now also pass in the modular package and original Wolfram;
-their standalone checks are still running. The maintained suite contains 101 cases.
+records **101 distinct cases with successful modular Mathics evidence and
+98 with standalone evidence, across three explicitly identified package
+snapshots**. The three additional refinement cases have a modular receipt;
+their standalone results are not yet included in this summary. The maintained
+suite contains 101 cases. The [Wolfram preservation audit](mathics-wolfram-preservation.json)
+also reports controls for all 101 expectations across separate batches;
+per-case Wolfram execution receipts for those batches are not published here.
 
 | Snapshot | Modular evidence | Standalone evidence |
 | --- | --- | --- |
 | 53 modules | [Full 77-case run](mathics-modular-tests.json): 76 passes, one exact-normalization failure; [corrected assertion](mathics-modular-normalization-tests.json): 1 pass on identical package hashes. | [Full 77-case run](mathics-standalone-tests.json): the same 76/1 result; [corrected assertion](mathics-standalone-normalization-tests.json): 1 pass on identical artifact bytes. |
 | 54 modules, empty-list mapping protection | [13 additional cases](mathics-modular-api-tests.json), all pass. | [13 additional cases](mathics-standalone-api-tests.json), all pass. |
-| 55 modules, held inline-assumption protection | [8 additional cases](mathics-modular-final-api-tests.json), all pass. | [8 additional cases and 5 repeated loading checks](mathics-standalone-final-tests.json), all pass. |
+| 55 modules, held inline-assumption protection | [8 additional cases](mathics-modular-final-api-tests.json) and [3 refinement cases](mathics-modular-refinement-tests.json), all pass. | [8 additional cases and 5 repeated loading checks](mathics-standalone-final-tests.json), all pass; the 3 refinement cases are not included. |
 
 The first failing fixture used `Expand` where Mathics required `Simplify` to
 recognize the same exact zero. Its corrected oracle also passes the untouched
@@ -164,14 +178,17 @@ the last snapshot. The full Linux matrix for the current package is pending.
 Regenerate that explicitly scoped summary with:
 
 ```text
-python validation/summarize_mathics_tests.py --reconcile validation/mathics-modular-tests.json validation/mathics-modular-normalization-tests.json --reconcile validation/mathics-standalone-tests.json validation/mathics-standalone-normalization-tests.json --supplemental validation/mathics-modular-api-tests.json --supplemental validation/mathics-standalone-api-tests.json --supplemental validation/mathics-modular-final-api-tests.json --supplemental validation/mathics-standalone-final-tests.json --output validation/mathics-test-coverage.json
+python validation/summarize_mathics_tests.py --reconcile validation/mathics-modular-tests.json validation/mathics-modular-normalization-tests.json --reconcile validation/mathics-standalone-tests.json validation/mathics-standalone-normalization-tests.json --supplemental validation/mathics-modular-api-tests.json --supplemental validation/mathics-standalone-api-tests.json --supplemental validation/mathics-modular-final-api-tests.json --supplemental validation/mathics-standalone-final-tests.json --supplemental validation/mathics-modular-refinement-tests.json --output validation/mathics-test-coverage.json
 ```
 
 Reconciliation requires identical package hashes and successful targeted
 corrections for every original failing case. The summarizer rejects incomplete,
 drifting, or inconsistent receipts and retains the distinct supplemental
-snapshots. Six focused tests check these evidence boundaries, relative
-modular paths, and protection against overwriting an input receipt.
+snapshots. [Focused tests](test_mathics_summary.py) check these evidence
+boundaries, relative modular paths, line-ending normalization, and protection
+against overwriting an input receipt. Receipt hashes normalize CRLF to LF to
+match Git publication; embedded runtime source and suite hashes remain the
+exact historical fingerprints and are not normalized retroactively.
 
 ```text
 python -m pip install -r validation/requirements-mathics.txt

@@ -2,11 +2,15 @@
 
 import copy
 from contextlib import redirect_stderr
+import hashlib
 import io
+import json
+from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import patch
 
-from summarize_mathics_tests import build_summary, main, package_hashes, reconcile
+from summarize_mathics_tests import build_summary, main, package_hashes, read_receipt, reconcile
 
 
 class SummaryEvidenceTests(unittest.TestCase):
@@ -58,6 +62,35 @@ class SummaryEvidenceTests(unittest.TestCase):
         self.assertNotEqual(package_hashes(before), package_hashes(after))
         self.assertEqual(set(package_hashes(before)), {
             "src/Kernel/AsymptoticAnalysis.wl", "src/Kernel/SeriesOperations.wl"})
+
+    def test_receipt_hash_survives_crlf_publication_without_rehashing_tested_sources(self):
+        package_hash = hashlib.sha256(b"package\r\nsource\r\n").hexdigest()
+        suite_hash = hashlib.sha256(b"historical\r\nsuite\r\n").hexdigest()
+        report = {
+            "Runtime": "Mathics", "RunComplete": True, "SourcesUnchangedDuringRun": True,
+            "UTC": "2026-09-10T00:00:00+00:00", "Source": "src/Kernel/AsymptoticAnalysis.wl",
+            "TestedSourcesSHA256": {"src/Kernel/AsymptoticAnalysis.wl": package_hash},
+            "TestSuiteSnapshotSHA256": suite_hash,
+            "Selected": 1, "Executed": 1, "Succeeded": 1, "Failed": 0, "NotRun": 0,
+            "Results": [{"TestID": "exact-case", "Outcome": "Success"}],
+        }
+        published = (json.dumps(report, indent=2) + "\n").encode()
+        working_copy = published.replace(b"\n", b"\r\n")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "receipt.json"
+            path.write_bytes(working_copy)
+            from_crlf = read_receipt(path)
+            self.assertEqual(path.read_bytes(), working_copy)
+            path.write_bytes(published)
+            from_lf = read_receipt(path)
+            self.assertEqual(path.read_bytes(), published)
+        self.assertEqual(from_crlf, from_lf)
+        self.assertEqual(from_lf["ReceiptSHA256"], hashlib.sha256(published).hexdigest())
+        self.assertNotEqual(from_lf["ReceiptSHA256"], hashlib.sha256(working_copy).hexdigest())
+        self.assertEqual(from_lf["ReceiptSHA256Normalization"], "CRLF-to-LF; all other bytes unchanged")
+        self.assertEqual(from_lf["PackageSourcesSHA256"], {
+            "src/Kernel/AsymptoticAnalysis.wl": package_hash})
+        self.assertEqual(from_lf["TestSuiteSnapshotSHA256"], suite_hash)
 
 
 if __name__ == "__main__":

@@ -22,27 +22,39 @@ Thirteen additional cases covering public operations and the empty-list
 54 modules. Their package hashes differ from the earlier 77-case snapshots.
 The four remaining direct-export cases and four held inline-assumption
 contracts passed on both layouts of the latest 55-module candidate; the
-standalone batch also repeated its five loading cases. The original Wolfram
-kernel independently validated all 98 case expectations across separate
-batches. The combined evidence therefore covers 98 unique cases per layout
-across three package snapshots. A full 98-case run on one final snapshot is
-a separate acceptance check; this aggregate does not claim it has completed.
+standalone batch also repeated its five loading cases. Together, these
+receipts cover 98 unique cases per layout across three package snapshots.
 Three further cases for Newton inversion, retained Newton refinement,
 additional-block requests and product-recipe replay passed on the same
-55-module modular snapshot and in the original Wolfram kernel. Their
-standalone rerun is pending. All 101 current expectations have original
-Wolfram controls, across separate batches.
+55-module modular snapshot; their standalone rerun is pending. The current
+receipt totals are therefore **101 modular cases and 98 standalone cases**,
+each across three recorded package snapshots. A full 101-case run on one
+current snapshot remains a separate acceptance check.
+
+The [Wolfram preservation audit](../../validation/mathics-wolfram-preservation.json),
+under `PortableOriginalOracleCheck`, reports original-Wolfram controls for
+all 101 expectations across separate batches. It includes batch counts,
+selected test IDs and observed outputs for the three refinement cases.
+Complete portable-run Wolfram receipts containing every case's actual and
+expected output are not published alongside the Mathics receipts; the
+101-case control claim is the audit's reported aggregate, not an independently
+reconstructed union of complete per-case receipts.
 
 The [machine-readable evidence summary](../../validation/mathics-test-coverage.json)
-records each receipt hash, package source fingerprint, original outcome and
-reconciliation. Its underlying [full modular](../../validation/mathics-modular-tests.json)
+records each receipt's LF-normalized hash, package source fingerprint, original
+outcome and reconciliation. Its underlying [full modular](../../validation/mathics-modular-tests.json)
 and [full standalone](../../validation/mathics-standalone-tests.json) receipts
 remain unchanged. The [summary generator](../../validation/summarize_mathics_tests.py)
 rejects reconciliations between different package sources or with unresolved
 original failures. Additional operation receipts retain their own source scope.
-Each receipt retains the exact suite byte hash used for that run, including
-historical CRLF snapshots. Normalizing the published suite to LF does not
-rewrite those receipts or make their historical byte hashes identical.
+Schema version 2 computes `ReceiptSHA256` after replacing CRLF with LF and
+records that policy in `ReceiptSHA256Normalization`; all other receipt bytes
+are included unchanged. This makes the summary reproducible from a CRLF
+working copy or the published LF files. Each receipt still retains the exact
+package and suite byte hashes used for its run, including historical CRLF
+snapshots. The summary copies those source hashes without normalization;
+publishing the current suite with LF does not make its bytes identical to a
+historical tested snapshot.
 
 The table uses these evidence labels:
 
