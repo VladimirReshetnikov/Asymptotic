@@ -2339,6 +2339,75 @@ Normal[SeriesObservable[s, Sin[z], z, "Cutoff" -> 4]]
 x + x^2 - x^3/6
 ```
 
+For a general unary observable at a finite limiting argument, the returned
+Taylor series must use the requested local variable and center and establish
+all coefficients consumed by the operation. A shorter returned series does
+not make its unknown coefficients zero. The requested output cutoff cannot
+override the available Taylor order or the input remainder.
+
+When the input is proved to approach the limiting argument from one side,
+the observable uses that sided Taylor expansion, including its constant term.
+The sided limit can differ from the value at the endpoint.
+
+**Input**
+
+```wolfram
+left = AsymptoticExpansion[1 - x, {x, 0, 2}, "Backend" -> "Package"];
+Normal[SeriesObservable[left, FractionalPart[z], z]]
+```
+
+**Output**
+
+```wolfram
+1 - x
+```
+
+An exact constant input uses the point value:
+
+```wolfram
+point = AsymptoticExpansion[1, {x, 0, 2}, "Backend" -> "Package"];
+r = SeriesObservable[point, FractionalPart[z], z];
+{Normal[r], r["Remainder"]}
+```
+
+```wolfram
+{0, 0}
+```
+
+If truncation loses the approach side, the retained source is not silently
+refined. The observable must have compatible Taylor coefficients on both
+sides and the same limiting point value through the order used. Otherwise
+the operation returns `Failure["UnprovedObservableApproach", ...]`.
+
+```wolfram
+coarse = AsymptoticExpansion[1 - x, {x, 0, 1}, "Backend" -> "Package"];
+MatchQ[SeriesObservable[coarse, FractionalPart[z], z],
+  Failure["UnprovedObservableApproach", _Association]]
+```
+
+```wolfram
+True
+```
+
+| Failure | Meaning |
+| --- | --- |
+| `"InvalidObservableNativeChart"` | A returned Taylor object uses a different variable or expansion center. |
+| `"InsufficientObservableNativeOrder"` | The returned exclusive order does not establish every coefficient needed for this operation. |
+| `"UnprovedObservableApproach"` | The input has no proved approach side and the required sided and point-value contracts cannot be reconciled. |
+| `"UnprovedObservableArgument"` | An inner argument is not proved real on the input approach required by the real-sided Taylor expansion. |
+
+These checks preserve available Taylor information and approach conditions.
+Realness is checked on the complete inner argument, including terms omitted
+from its finite approximation. Temporary complex output coefficients may
+still cancel in the completed observable. For example, `ArcSin[2+z] + ArcCos[2+z]`
+has real input arguments and simplifies to a real constant. In contrast,
+`a Re[a z]` under `a^2 == -1` requires a complex input path for `Re` and is
+refused by this real-sided method.
+They do not establish analyticity for arbitrary user-defined functions or
+custom native series handlers. See the
+[observable Taylor notes](../../docs/development/OBSERVABLE_INGRESS.md) for
+the error-order convention, admission limits, and recorded validation scope.
+
 <a id="SeriesTruncate"></a>
 ### SeriesTruncate
 

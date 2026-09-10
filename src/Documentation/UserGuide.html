@@ -3582,6 +3582,77 @@ addition to the common operation options.</p>
 Normal[SeriesObservable[s, Sin[z], z, &quot;Cutoff&quot; -&gt; 4]]</code></pre>
 <p><strong>Output</strong></p>
 <pre class="wolfram"><code>x + x^2 - x^3/6</code></pre>
+<p>For a general unary observable at a finite limiting argument, the
+returned Taylor series must use the requested local variable and center
+and establish all coefficients consumed by the operation. A shorter
+returned series does not make its unknown coefficients zero. The
+requested output cutoff cannot override the available Taylor order or
+the input remainder.</p>
+<p>When the input is proved to approach the limiting argument from one
+side, the observable uses that sided Taylor expansion, including its
+constant term. The sided limit can differ from the value at the
+endpoint.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>left = AsymptoticExpansion[1 - x, {x, 0, 2}, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+Normal[SeriesObservable[left, FractionalPart[z], z]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>1 - x</code></pre>
+<p>An exact constant input uses the point value:</p>
+<pre class="wolfram"><code>point = AsymptoticExpansion[1, {x, 0, 2}, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+r = SeriesObservable[point, FractionalPart[z], z];
+{Normal[r], r[&quot;Remainder&quot;]}</code></pre>
+<pre class="wolfram"><code>{0, 0}</code></pre>
+<p>If truncation loses the approach side, the retained source is not
+silently refined. The observable must have compatible Taylor
+coefficients on both sides and the same limiting point value through the
+order used. Otherwise the operation returns
+<code>Failure[&quot;UnprovedObservableApproach&quot;, ...]</code>.</p>
+<pre class="wolfram"><code>coarse = AsymptoticExpansion[1 - x, {x, 0, 1}, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+MatchQ[SeriesObservable[coarse, FractionalPart[z], z],
+  Failure[&quot;UnprovedObservableApproach&quot;, _Association]]</code></pre>
+<pre class="wolfram"><code>True</code></pre>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;InvalidObservableNativeChart&quot;</code></td>
+<td>A returned Taylor object uses a different variable or expansion
+center.</td>
+</tr>
+<tr>
+<td><code>&quot;InsufficientObservableNativeOrder&quot;</code></td>
+<td>The returned exclusive order does not establish every coefficient
+needed for this operation.</td>
+</tr>
+<tr>
+<td><code>&quot;UnprovedObservableApproach&quot;</code></td>
+<td>The input has no proved approach side and the required sided and
+point-value contracts cannot be reconciled.</td>
+</tr>
+<tr>
+<td><code>&quot;UnprovedObservableArgument&quot;</code></td>
+<td>An inner argument is not proved real on the input approach required
+by the real-sided Taylor expansion.</td>
+</tr>
+</tbody>
+</table>
+<p>These checks preserve available Taylor information and approach
+conditions. Realness is checked on the complete inner argument,
+including terms omitted from its finite approximation. Temporary complex
+output coefficients may still cancel in the completed observable. For
+example, <code>ArcSin[2+z] + ArcCos[2+z]</code> has real input arguments
+and simplifies to a real constant. In contrast, <code>a Re[a z]</code>
+under <code>a^2 == -1</code> requires a complex input path for
+<code>Re</code> and is refused by this real-sided method. They do not
+establish analyticity for arbitrary user-defined functions or custom
+native series handlers. See the <a href="../../docs/development/OBSERVABLE_INGRESS.md">observable Taylor
+notes</a> for the error-order convention, admission limits, and recorded
+validation scope.</p>
 <p><a id="SeriesTruncate"></a></p>
 </section>
 <section id="seriestruncate" class="level3">

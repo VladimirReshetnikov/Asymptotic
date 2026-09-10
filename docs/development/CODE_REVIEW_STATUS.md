@@ -68,6 +68,13 @@ merged from `68b8e1e70731998c5bc1533be1bec0f5b507acd7` without editing them.
 Current source inspection does not turn their historical or unrun witnesses
 into current native reproductions.
 
+W3-06 now has independently reproduced native failures and
+[131/0 focused native acceptance](../../validation/observable-ingress-main-sync-tests.json).
+The [observable Taylor notes](OBSERVABLE_INGRESS.md)
+record returned-order checks, sided constants, and complete-argument reality,
+including an intermediate wrong result that final real-coefficient checking
+could not detect. C16's broader opaque-source regularity audit remains open.
+
 Status meanings:
 
 - **Focused verified:** the implementation and a named current native test record
@@ -551,8 +558,8 @@ adds all 44 entries from reports 19–27 and the consolidated `W3-*` work items.
 
 ## Next priorities and acceptance records
 
-1. Address wave-3 W3-06's observable Taylor precision/sided-germ obligations
-   and W3-10's branch-safe logarithm normalization. Establish public fixtures
+1. With W3-06's observable Taylor and real-input guards focused verified,
+   address W3-10's branch-safe logarithm normalization. Establish public fixtures
    before claiming native reproduction of source-only reports.
 2. Resolve W3-01–W3-03 with one coherent option/default and positional-role
    policy; retain explicit contracts and once-only evaluation. Track W3-04,
