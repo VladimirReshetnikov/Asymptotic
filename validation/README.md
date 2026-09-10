@@ -19,6 +19,14 @@ paclet registration and reloads. All 53 focused-test source hashes and all 45
 loading source hashes matched the final layout and stayed unchanged during
 their respective runs. The full package suite was skipped.
 
+The published [GitHub loader acceptance](source-layout-github-loading-tests.json)
+passes **36 checks in three fresh kernels**, including an explicit reload in
+each kernel, using the documented `Get[URLDownload[...]]` command with
+`main/AsymptoticAnalysis.wl`. Its remote SHA-256 matched the generated standalone
+file both before and after the run. The [publication receipt](source-layout-publication.json)
+ties that verification to the published commit and artifact; no local HTTP
+server was started.
+
 For a new local run, write separate evidence files:
 
 ```powershell
