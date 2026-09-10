@@ -9,6 +9,7 @@ Example (run from the repository root):
     --supplemental validation/mathics-modular-final-api-tests.json \
     --supplemental validation/mathics-standalone-final-tests.json \
     --supplemental validation/mathics-modular-refinement-tests.json \
+    --supplemental validation/mathics-standalone-refinement-tests.json \
     --output validation/mathics-test-coverage.json
 
 A reconciliation requires identical package hashes and successful reruns of

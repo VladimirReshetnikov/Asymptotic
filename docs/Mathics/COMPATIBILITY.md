@@ -25,7 +25,7 @@ reproducible evaluator gotchas in the same form as the Wolfram notes.
 | Assumptions and inverse branches | Conservative exact rules cover selected polynomial and affine-domain proofs. | Extend unresolved domains and sign/uniqueness proofs without weakening branch hypotheses. |
 | Native backends and special functions | Coverage depends on the interpreter's available functions and package adapters. | Close missing functionality and parameter-range gaps; an inert native symbol is not compatibility. |
 | Numerical checks, certificates, and display | Selected smoke checks and exact rational certificate examples are available. | Establish feature-specific numerical accuracy, certificate behavior, and usable front-end presentation. |
-| Consolidated acceptance | 98 distinct portable cases have successful evidence in each layout across three recorded snapshots; the full current-source Linux matrix is pending. | Complete reproducible runs against unchanged modular and standalone sources and compare public behavior with the Wolfram control. |
+| Consolidated acceptance | 101 distinct portable cases have successful evidence in each layout across three recorded snapshots; the full current-source Linux matrix is pending. | Complete reproducible runs against unchanged modular and standalone sources and compare public behavior with the Wolfram control. |
 
 The limitations below describe remaining work, not a permanently reduced
 Mathics feature target. Until a proof or operation is supported, a clear
@@ -197,11 +197,12 @@ record. The portable suite supplements the existing Wolfram MUnit suite.
 
 The [API inventory](API-COVERAGE.md) maps all 38 exported symbols to exact
 portable cases and remaining input/option gaps. The
-[receipt summary](../../validation/mathics-test-coverage.json) records 98
+[receipt summary](../../validation/mathics-test-coverage.json) records 101
 distinct cases with successful evidence in each package layout across three
 source snapshots. The two earlier full runs each retain their 76/77 outcome
 and a separately validated correction of an exact-normalization assertion;
-the later batches cover additional operations and held assumptions. This is
+the later batches cover additional operations, held assumptions and retained
+Newton and recipe refinement. This is
 not a single full run of the current source. The full Linux matrix remains
 pending. Individual examples do not establish every parameter range of a family.
 
@@ -234,10 +235,11 @@ and the subsequent matching full rerun instead of discarding that evidence.
 
 Independent review fixes were subsequently merged from `origin/main`.
 Native definition comparisons separately record the `021c584` review merge
-and the later `350c70f` control. The latest comparison uses `a55df16`, including
-its independent native rule-goal changes, as the control for the 55-module
-Mathics candidate with held inline-assumption protection. The earlier
-54-module comparison is retained separately. All 2,051 modular and 2,050 standalone package symbols
+and the later `350c70f` and `a55df16` controls. The latest comparison uses
+`ac91e66`, including its independent observable-series chart and real-domain
+repairs, as the control for the merged 55-module Mathics candidate at
+`ffe08b1`. The earlier 54-module and held inline-assumption comparisons are
+retained separately. All 2,059 modular and 2,058 standalone package symbols
 match across attributes, options, own/down/up/sub/numeric/default/format
 values, messages, and contexts. Six System builtins, including `Map`, retain
 their definitions before loading, after loading, and after reloading; eight

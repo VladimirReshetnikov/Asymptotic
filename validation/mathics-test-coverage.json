@@ -113,7 +113,7 @@
       "DistinctPackageSnapshots": 3
     },
     "standalone": {
-      "UniqueCasesWithSuccessfulEvidence": 98,
+      "UniqueCasesWithSuccessfulEvidence": 101,
       "DistinctPackageSnapshots": 3
     }
   },
@@ -170,7 +170,8 @@
     "validation/mathics-standalone-api-tests.json",
     "validation/mathics-modular-final-api-tests.json",
     "validation/mathics-standalone-final-tests.json",
-    "validation/mathics-modular-refinement-tests.json"
+    "validation/mathics-modular-refinement-tests.json",
+    "validation/mathics-standalone-refinement-tests.json"
   ],
   "SupplementalFailedObservations": [],
   "Receipts": [
@@ -846,6 +847,33 @@
         "src/Kernel/SpecialFunctionRealDomain.wl": "6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c"
       },
       "PackageFingerprintSHA256": "522690314eaab11d374b9deb8833967a2dbf8944621993022daadf60f3041457",
+      "TestSuiteSnapshotSHA256": "227d2d0ab8ca6f5f7e26df409ba2e4b00547740cb78f0f6f46c7db0979dfa541",
+      "RunComplete": true,
+      "SourcesUnchangedDuringRun": true,
+      "OriginalCounts": {
+        "Selected": 3,
+        "Executed": 3,
+        "Succeeded": 3,
+        "Failed": 0,
+        "NotRun": 0
+      },
+      "SuccessfulTestIDs": [
+        "operations-newton-inverse-and-retained-refinement",
+        "operations-refinement-additional-blocks-request",
+        "operations-refinement-replays-product-recipe"
+      ],
+      "FailedTestIDs": []
+    },
+    {
+      "Receipt": "validation/mathics-standalone-refinement-tests.json",
+      "ReceiptSHA256": "fb77bfdc5dcff6a67d11d1b2452e6a801fabae869c64016363df641032d4eb0b",
+      "UTC": "2026-09-10T02:41:08.965334+00:00",
+      "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-api98-candidate\\AsymptoticAnalysis.wl",
+      "PackageLayout": "standalone",
+      "PackageSourcesSHA256": {
+        "AsymptoticAnalysis.wl": "24fe90f3ef7d2391091fe19592b9c0edfc0366e0c6641911fe22887e5134ec80"
+      },
+      "PackageFingerprintSHA256": "7e585d786a03d15bcc7061c235a1ad9c6e9221dbc788b82d619112151e32f276",
       "TestSuiteSnapshotSHA256": "227d2d0ab8ca6f5f7e26df409ba2e4b00547740cb78f0f6f46c7db0979dfa541",
       "RunComplete": true,
       "SourcesUnchangedDuringRun": true,
