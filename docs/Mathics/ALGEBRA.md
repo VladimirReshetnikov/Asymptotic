@@ -43,8 +43,12 @@ construction sites before numerical specialization, while retaining ordinary
 are unchanged. Symbolic nonprincipal branches remain explicit, but this
 adapter does not supply their missing reliable numerical evaluation.
 
-Nonprincipal formulas remain available symbolically, including exact
-`s[value]` substitution. Applying native Mathics `N` afterward can leave some
+Nonprincipal formulas remain available symbolically for inputs Mathics retains
+correctly, including the checked exact `s[-1/100]` substitution below.
+This does not establish arbitrary exact specialization: even raw
+`ProductLog[-1, 0]` becomes the wrong one-argument `ProductLog[-1]` in the
+tested interpreter before a package adapter can inspect it.
+Applying native Mathics `N` afterward can leave some
 `ProductLog` terms unresolved while producing incorrect complex values for
 surrounding functions. For example,
 `N[Log[-ProductLog[-1, -1/100]], 30]` produces a nonreal value in the tested
@@ -58,3 +62,21 @@ formula at `y = -1/100`. Its `InverseNumericalCheck` returns a conservative
 failure when Mathics cannot establish the recorded branch condition; it does
 not report a successful numerical comparison. This one check does not
 establish every nonprincipal special-inverse numerical path.
+
+The conversion defect also affects exact proofs. Native Mathics returns
+`False` for `Simplify[ProductLog[-1, z] == -1]`, although `z = -1/E` satisfies
+the equality, and can return `True` for the corresponding inequality.
+Package `Simplify`, `FullSimplify`, `RootReduce`, `Refine`, and the direct
+assumption walker conservatively retain an expression if it or its assumptions
+still contain a two-argument `ProductLog`. The Taylor factorization check uses
+the same guarded simplifier. This deliberately leaves some valid proofs
+unresolved; it does not invent a replacement Lambert simplification engine.
+
+The guard applies before the assumption walk or native simplification, but
+after normal evaluation of its arguments. It cannot reconstruct a branch value
+or equality already changed in caller-side evaluation. In particular, embedding
+the explicit branch point directly in a raw Mathics equality can produce an
+incorrect Boolean before the package sees it. No `System` function or global
+evaluation attribute is replaced. The separate
+[numerical precision boundary](NUMERICAL.md) also applies to package reference
+root comparisons.

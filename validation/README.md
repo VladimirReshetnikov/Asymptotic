@@ -178,6 +178,63 @@ or establish completion of any of the three package-coverage goals.
 
 ## Mathics compatibility
 
+### Mathics wave-4 hardening
+
+The integrated package contains 56 modules. Its generated standalone is
+677,685 bytes, SHA-256
+`2490e5c82993cd69b9f6463fc73228915fd754a4748101fc42e392ddd6490820`.
+The maintained portable suite now has 107 cases. The new work addresses
+empty-list lookup cache corruption, incorrect exact nonprincipal Lambert
+simplification, unsupported numerical precision, and false-positive harness
+results after failed loading or observed source drift.
+
+The focused [modular](mathics-modular-wave4-tests.json) and
+[standalone](mathics-standalone-wave4-tests.json) runs each retain six successes
+and one failure in a new fixture whose unqualified `RootReduce` did not select
+the Mathics adapter. Explicitly qualifying that test's `System` symbol fixes
+the dispatch, and the [modular correction](mathics-modular-wave4-proof-tests.json)
+and [standalone correction](mathics-standalone-wave4-proof-tests.json) each
+pass on identical package bytes. The original failures are preserved.
+The official-kernel controls subsequently found an empty-list lookup oracle
+mismatch: `Lookup[{}, key, default]` evaluates the default once, treating the
+empty list as an empty rule collection. The first Mathics fixture expected
+list-of-associations mapping. That semantic boundary is being corrected;
+the first focused Mathics pass is not a claim of parity for that case.
+The four numerical contracts cover an exactly verified integer root, explicit
+30-digit refusals for rational and irrational noninteger roots, and a successful
+10-digit request. This is focused evidence, not a complete 107-case run.
+
+The [numerical characterization](mathics-numerical-precision-audit.json)
+separately retains the original machine-root/high-precision-label defects and
+the isolated candidate checks on frozen `cc1b06c` sources. It includes an
+initial invalid cutoff fixture excluded from conclusions.
+
+The [Mathics loading check](mathics-loading-gate.json) and
+[official loading check](mathics-wolfram-loading-gate.json) each pass 7/7:
+five incomplete loaders are rejected before the builtin-only assertion,
+and both real entry points pass. They identify the exact pre-fixture-correction
+suite hash and unchanged package bytes. Run them with:
+
+```text
+python validation/check_mathics_loading.py --python .venv/mathics/Scripts/python.exe --output loading-gate.json
+python validation/check_mathics_loading.py --wolfram wolfram.exe --output wolfram-loading-gate.json
+```
+
+The new [native definition comparison](mathics-wave4-native-definitions.json)
+against immutable `cc1b06c` passes for all 2,060 modular and 2,059 standalone
+symbols, every compared definition field, load/reload checks, six monitored
+System builtins, and eight behavior probes. It tests the actual integrated
+56-module candidate. Ambient CURL/OAuth startup contexts are reported
+separately. This is separate from the original full Wolfram suite below.
+
+All 50 Mathics-tool unit tests and all 14 standalone-builder tests pass.
+These cover harness integrity and generated loading isolation, rather than
+additional mathematical feature inputs. The Linux workflow now runs the
+loading integration once and permits all ten independent portable shards
+to run concurrently; each case retains its own process deadline.
+
+### Earlier full and focused compatibility evidence
+
 The [Mathics compatibility guide](../docs/Mathics/COMPATIBILITY.md) records
 installation, exact proof boundaries, evaluator differences, and tested
 features. The portable suite runs each case in a fresh Mathics or official

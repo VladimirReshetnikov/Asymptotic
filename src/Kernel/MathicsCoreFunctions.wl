@@ -1,6 +1,7 @@
-(* Loaded late in Private, only on Mathics. Mathics 10 passes the two
-   ProductLog arguments to mpmath in Wolfram order rather than mpmath order;
-   even N[ProductLog[0,E]] can therefore return -Infinity. The principal
+(* Loaded late in Private, only on Mathics. Mathics 10's generic SymPy
+   conversion preserves Wolfram's (branch, argument) order although LambertW
+   uses (argument, branch); its numerical evaluator also lacks two-argument
+   support. Even N[ProductLog[0,E]] can therefore return -Infinity. The principal
    branch has the exact one-argument spelling ProductLog[z]. Normalize at
    each package construction site, before the builtin can see numeric data.
    This neither changes System definitions nor asserts a numeric evaluator

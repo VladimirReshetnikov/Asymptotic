@@ -8,7 +8,15 @@ The [compatibility status](COMPATIBILITY.md) describes the broader goal.
 
 ## Evidence and current scope
 
-All **101 current cases pass in both package layouts on Linux** at the fixed
+The maintained suite has **107 cases** after wave-4 hardening. The additional
+contracts cover empty lookup state, the empty inverse multi-index, retained
+nonprincipal `ProductLog` proofs, and numerical precision. The quadratic
+integer-root test now also verifies the returned precision. Focused paired
+Windows checks are recorded separately in the
+[validation index](../../validation/README.md#mathics-wave-4-hardening);
+the complete historical acceptance below applies to its exact 101-case suite.
+
+All **101 cases at that checkpoint pass in both package layouts on Linux** at the fixed
 checkpoint `ffe08b1`. The [full acceptance record](../../validation/mathics-linux-ffe08b1-acceptance.json)
 checks all ten downloaded shards against that commit's package, suite and
 runner hashes and independently validates their raw kernel protocol. Each
@@ -40,7 +48,7 @@ Three further cases for Newton inversion, retained Newton refinement,
 additional-block requests and product-recipe replay passed on the same
 55-module modular and standalone snapshots and in the original Wolfram
 kernel. The full aggregate now covers **101 unique cases per layout across
-three package snapshots**. All 101 current expectations have original Wolfram
+three package snapshots**. All 101 expectations at that stage have original Wolfram
 controls, across separate batches. This historical aggregate remains separate
 from the subsequent complete Linux run and does not combine different package
 snapshots into one acceptance claim.

@@ -21,7 +21,8 @@ mathicsDefiningTaylor[expression_, {t_Symbol, 0, order_Integer}, ass_] := Module
       System`Hypergeometric0F1 | System`PolyLog, 2,
       System`Hypergeometric1F1 | System`HypergeometricPFQ, 3,
       System`Hypergeometric2F1, 4], Return[$Failed, Module]];
-  If[! FreeQ[factor, t] || ! TrueQ[System`Simplify[expression - factor atom] === 0],
+  If[! FreeQ[factor, t] ||
+      ! TrueQ[AsymptoticAnalysis`Mathics`Simplify[expression - factor atom] === 0],
     Return[$Failed, Module]];
   head = Head[atom]; argument = Last[atom];
   If[! PolynomialQ[argument, t], Return[$Failed, Module]];

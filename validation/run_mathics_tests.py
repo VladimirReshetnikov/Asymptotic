@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 import fnmatch
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -43,17 +44,32 @@ def available_cases() -> list[tuple[str, str]]:
     return cases
 
 
-def fingerprints(source: Path) -> dict[str, str]:
+def fingerprint_files(source: Path) -> set[Path]:
     files = {source, SUITE, Path(__file__).resolve()}
     if source.name == "AsymptoticAnalysis.wl" and source.parent.name == "Kernel":
         # --source can select a relocated modular tree, including an untouched
         # Wolfram baseline. Its sibling modules are part of the tested input.
         files.update(source.parent.glob("*.wl"))
+    return files
+
+
+def fingerprints(source: Path) -> dict[str, str]:
     return {
         path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path):
         hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted(files)
+        for path in sorted(fingerprint_files(source))
     }
+
+
+def report_input_collision(output: Path, source: Path) -> Path | None:
+    """Protect both report destinations, including aliases of existing inputs."""
+    for destination in (output, output.with_name(output.name + ".tmp")):
+        for protected in fingerprint_files(source):
+            if destination.resolve() == protected.resolve() or (
+                    destination.exists() and protected.exists() and
+                    destination.samefile(protected)):
+                return protected
+    return None
 
 
 def as_text(output: bytes | str | None) -> str:
@@ -124,6 +140,14 @@ def run_case(command: list[str], source: Path, test_id: str, group: str,
             captured, _ = process.communicate(timeout=10)
             output = as_text(captured)
             result = {"Outcome": "Timeout", "ExitCode": process.returncode}
+        except OverflowError as error:
+            # A finite float can exceed the platform's native timer range.
+            # Keep that configuration failure in the report and clean up the
+            # process already launched before communicate rejected its timer.
+            stop_process_tree(process)
+            captured, _ = process.communicate(timeout=10)
+            output = as_text(captured) + f"\nTimer setup failed: {type(error).__name__}: {error}\n"
+            result = {"Outcome": "LaunchError", "ExitCode": process.returncode}
         except BaseException:
             stop_process_tree(process)
             process.communicate(timeout=10)
@@ -186,11 +210,14 @@ def main() -> int:
         for name, group in cases:
             print(f"{group}\t{name}")
         return 0
-    if args.timeout <= 0:
-        parser.error("--timeout must be positive")
+    if not math.isfinite(args.timeout) or args.timeout <= 0:
+        parser.error("--timeout must be finite and positive")
     source = args.source.resolve()
     if not source.is_file():
         parser.error(f"Package source does not exist: {source}")
+    collision = report_input_collision(args.output, source)
+    if collision is not None:
+        parser.error(f"Report output or its temporary file would overwrite a tested input: {collision}")
     if args.wolfram:
         executable = str(Path(args.wolfram).resolve()) if Path(args.wolfram).is_file() else args.wolfram
         command = [executable, "-noinit", "-script", str(SUITE)]
@@ -204,9 +231,13 @@ def main() -> int:
     before = fingerprints(source)
     suite_snapshot = SUITE.read_bytes()
     results = []
+    first_observed_changed_sources = None
 
     def write_report(complete: bool) -> dict:
+        nonlocal first_observed_changed_sources
         after = fingerprints(source)
+        if before != after and first_observed_changed_sources is None:
+            first_observed_changed_sources = after
         succeeded = sum(result["Outcome"] == "Success" for result in results)
         report = {
             "Runtime": runtime_name, "Command": command,
@@ -216,11 +247,13 @@ def main() -> int:
             "FullPackageSuiteRun": False, "RunComplete": complete, "Selected": len(cases),
             "TestSuiteSnapshotSHA256": hashlib.sha256(suite_snapshot).hexdigest(),
             "Executed": len(results), "Succeeded": succeeded, "Failed": len(results) - succeeded,
-            "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": before == after,
+            "NotRun": len(cases) - len(results),
+            "SourcesUnchangedDuringRun": first_observed_changed_sources is None,
             "TestedSourcesSHA256": before, "Results": results,
         }
-        if before != after:
+        if first_observed_changed_sources is not None:
             report["SourcesSHA256AfterRun"] = after
+            report["FirstObservedChangedSourcesSHA256"] = first_observed_changed_sources
         args.output.parent.mkdir(parents=True, exist_ok=True)
         temporary_output = args.output.with_name(args.output.name + ".tmp")
         temporary_output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

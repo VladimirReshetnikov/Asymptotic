@@ -13,6 +13,13 @@ Print["ASYMPTOTIC_PORTABLE_KERNEL\t", $Version];
 If[StringContainsQ[$Version, "Mathics"], $IterationLimit = 1000000];
 Print["ASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t", $IterationLimit];
 portableLoadResult = Check[Get[portableSource], $Failed];
+(* Every selection requires a completed package load, including primitive
+   cases that could otherwise pass using only interpreter builtins. Keep
+   this check in a separate input from Get for Mathics Check semantics. *)
+If[portableLoadResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"] ||
+    ! MemberQ[$ContextPath, "AsymptoticAnalysis`"] || $Context =!= "Global`",
+  Print["ASYMPTOTIC_PORTABLE_LOAD_FAILED"];
+  Exit[2]];
 
 SetAttributes[portableTest, HoldAll];
 portableTest[id_String, group_String, actual_, expected_] :=
@@ -45,6 +52,8 @@ portablePrimitive[held_HoldComplete] := ReleaseHold[
       System`Element -> AsymptoticAnalysis`Mathics`Element,
       System`Simplify -> AsymptoticAnalysis`Mathics`Simplify,
       System`FullSimplify -> AsymptoticAnalysis`Mathics`FullSimplify,
+      System`RootReduce -> AsymptoticAnalysis`Mathics`RootReduce,
+      System`Refine -> AsymptoticAnalysis`Mathics`Refine,
       System`Map -> AsymptoticAnalysis`Private`mathicsMap,
       System`FirstPosition -> AsymptoticAnalysis`Mathics`FirstPosition}, held]];
 
@@ -86,6 +95,34 @@ portableTest["primitive-module-return-through-loop", "primitive",
   17];
 
 portableTest["primitive-check-is-unpolluted", "primitive", Check[1 + 1, $Failed], 2];
+
+(* A retained symbolic branch value must not become an unconditional truth
+   or falsehood through Mathics' reversed two-argument SymPy conversion.
+   The branch point is kept in assumptions so caller-side evaluation cannot
+   destroy the expression before it reaches the package adapter. *)
+portableTest["primitive-productlog-branch-proof-is-conservative", "primitive",
+  portablePrimitive[HoldComplete[Module[{z},
+    {Simplify[ProductLog[-1, z] == -1] =!= False,
+      FullSimplify[ProductLog[-1, z] != -1] =!= True,
+      Simplify[ProductLog[-1, z] == -1, z == -1/E] =!= False,
+      FullSimplify[ProductLog[-1, z] != -1, z == -1/E] =!= True,
+      System`RootReduce[ProductLog[-1, z]] === ProductLog[-1, z],
+      Refine[ProductLog[-1, z] == -1] =!= False}]]],
+  {True, True, True, True, True, True}];
+
+portableTest["primitive-empty-lookup-preserves-list-state", "primitive",
+  portablePrimitive[HoldComplete[Module[{keys = {}, associations = {}, count = 0, a, b},
+    a = Lookup[<|"present" -> 1|>, keys, count++; 9];
+    b = Lookup[associations, "present", count++; 9];
+    {a, b, count, {keys, associations, 2, 0}}]]],
+  {{}, {}, 0, {{}, {}, 2, 0}}];
+
+portableTest["operations-empty-inverse-multi-index", "operations",
+  Module[{index = {}, model, coefficient},
+    model = PowerLogModel[x, x];
+    coefficient = InverseExpansionCoefficient[model, index];
+    {coefficient["Weight"], coefficient["Exponent"], coefficient["Coefficient"], {index, 2, 0}}],
+  {0, 1, 1, {{}, 2, 0}}];
 
 portableTest["primitive-nested-module-return", "primitive",
   portablePrimitive[HoldComplete[Module[{value},
@@ -433,7 +470,36 @@ portableTest["numerical-exact-quadratic-inverse", "numerical",
   Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
     c = InverseNumericalCheck[s, 4, WorkingPrecision -> 30];
     AssociationQ[c] && TrueQ[Abs[c["ReferenceRoot"] - 2] < 10^-15] &&
+      TrueQ[N[Precision[c["ReferenceRoot"]]] >= 30] &&
       TrueQ[Abs[c["ForwardResidual"]] < 10^-15]],
+  True];
+
+(* These contracts explicitly distinguish an unavailable Mathics precision
+   from an official-kernel high-precision result. Both branches execute the
+   public numerical check and verify its actual result. *)
+portableTest["numerical-noninteger-quadratic-precision", "numerical",
+  Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
+    c = InverseNumericalCheck[s, 2, WorkingPrecision -> 30];
+    If[StringContainsQ[$Version, "Mathics"],
+      MatchQ[c, Failure["MathicsNumericalPrecisionUnavailable", _Association]],
+      AssociationQ[c] && TrueQ[Precision[c["ReferenceRoot"]] >= 25] &&
+        TrueQ[Abs[c["ReferenceRoot"] - Sqrt[2]] < 10^-25]]],
+  True];
+
+portableTest["numerical-rational-root-precision", "numerical",
+  Module[{x, y, s, c}, s = AsymptoticInverse[3 x, {x, 0}, {y, 2}];
+    c = InverseNumericalCheck[s, 1, WorkingPrecision -> 30];
+    If[StringContainsQ[$Version, "Mathics"],
+      MatchQ[c, Failure["MathicsNumericalPrecisionUnavailable", _Association]],
+      AssociationQ[c] && TrueQ[Precision[c["ReferenceRoot"]] >= 25] &&
+        TrueQ[Abs[c["ReferenceRoot"] - 1/3] < 10^-25]]],
+  True];
+
+portableTest["numerical-machine-capability-is-usable", "numerical",
+  Module[{x, y, s, c}, s = AsymptoticInverse[3 x, {x, 0}, {y, 2}];
+    c = InverseNumericalCheck[s, 1, WorkingPrecision -> 10];
+    AssociationQ[c] && TrueQ[N[Precision[c["ReferenceRoot"]]] >= 10] &&
+      TrueQ[Abs[c["ReferenceRoot"] - 1/3] < 10^-9]],
   True];
 
 portableTest["special-gamma-stirling", "special",

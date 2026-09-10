@@ -1,0 +1,117 @@
+{
+  "Runtime": "Mathics",
+  "Command": [
+    "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics\\Scripts\\python.exe",
+    "-m",
+    "mathics",
+    "--quiet",
+    "--no-readline",
+    "--file",
+    "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\validation\\MathicsTests.wl"
+  ],
+  "UTC": "2026-09-10T03:38:50.861706+00:00",
+  "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\AsymptoticAnalysis.wl",
+  "PerCaseTimeoutSeconds": 180.0,
+  "FreshKernelPerCase": true,
+  "MathicsIterationLimitConfiguredBySuite": 1000000,
+  "FullPackageSuiteRun": false,
+  "RunComplete": true,
+  "Selected": 7,
+  "TestSuiteSnapshotSHA256": "b28f3034a56165c35fe2a6f9c8736e5ef91d9bf2bc7d0a19c16c882d7304fb9f",
+  "Executed": 7,
+  "Succeeded": 6,
+  "Failed": 1,
+  "NotRun": 0,
+  "SourcesUnchangedDuringRun": true,
+  "TestedSourcesSHA256": {
+    "AsymptoticAnalysis.wl": "2490e5c82993cd69b9f6463fc73228915fd754a4748101fc42e392ddd6490820",
+    "validation/MathicsTests.wl": "b28f3034a56165c35fe2a6f9c8736e5ef91d9bf2bc7d0a19c16c882d7304fb9f",
+    "validation/run_mathics_tests.py": "5e8f6eed24398c2dbe23221266009876b132a4d4553aa23166b4c179a3b8b492"
+  },
+  "Results": [
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Failure",
+      "ActualOutput": "{True, True, True, True, False, True}",
+      "ExpectedOutput": "{True, True, True, True, True, True}",
+      "ExitCode": 1,
+      "TestID": "primitive-productlog-branch-proof-is-conservative",
+      "Group": "primitive",
+      "ElapsedSeconds": 18.514,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{True, True, True, True, False, True}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{True, True, True, True, True, True}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tprimitive-productlog-branch-proof-is-conservative\tFailure\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{{}, {}, 0, {{}, {}, 2, 0}}",
+      "ExpectedOutput": "{{}, {}, 0, {{}, {}, 2, 0}}",
+      "ExitCode": 0,
+      "TestID": "primitive-empty-lookup-preserves-list-state",
+      "Group": "primitive",
+      "ElapsedSeconds": 21.991,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{{}, {}, 0, {{}, {}, 2, 0}}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{{}, {}, 0, {{}, {}, 2, 0}}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tprimitive-empty-lookup-preserves-list-state\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{0, 1, 1, {{}, 2, 0}}",
+      "ExpectedOutput": "{0, 1, 1, {{}, 2, 0}}",
+      "ExitCode": 0,
+      "TestID": "operations-empty-inverse-multi-index",
+      "Group": "operations",
+      "ElapsedSeconds": 19.156,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{0, 1, 1, {{}, 2, 0}}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{0, 1, 1, {{}, 2, 0}}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\toperations-empty-inverse-multi-index\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "numerical-exact-quadratic-inverse",
+      "Group": "numerical",
+      "ElapsedSeconds": 29.027,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tnumerical-exact-quadratic-inverse\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "numerical-noninteger-quadratic-precision",
+      "Group": "numerical",
+      "ElapsedSeconds": 23.848,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tnumerical-noninteger-quadratic-precision\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "numerical-rational-root-precision",
+      "Group": "numerical",
+      "ElapsedSeconds": 19.902,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tnumerical-rational-root-precision\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "numerical-machine-capability-is-usable",
+      "Group": "numerical",
+      "ElapsedSeconds": 15.423,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tnumerical-machine-capability-is-usable\tSuccess\r\n"
+    }
+  ]
+}

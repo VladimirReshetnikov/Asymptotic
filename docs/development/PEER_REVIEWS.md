@@ -221,3 +221,33 @@ passes ten groups across both loaders on frozen source bytes. The separate
 native comparison records the new helper and changed `parseFinite`, while
 all Mathics adapters remain unchanged. The complete 101-case Linux result
 continues to identify its earlier `ffe08b1` source explicitly.
+
+## September 9, 2026 — Mathics wave-4 review intake
+
+The nine incoming reports in
+[`wave-4`](../../external-reports/code-review/README.md), imported through
+`108821e`, were treated as review claims to investigate. The compatibility
+lanes reproduced empty-list corruption through compatibility `Lookup`, an
+incorrect unconditional Boolean from symbolic nonprincipal `ProductLog`
+simplification, and machine-precision roots labeled as high-precision
+comparison evidence. The resulting adapters extend only Mathics-owned
+dispatch. The official package definition comparison against `cc1b06c`
+passes on both loading paths.
+
+The reports also exposed harness gaps: primitive-only tests could pass after
+a failed package load, nonfinite timeouts were accepted, report paths could
+overwrite tested inputs, and a final restored source snapshot could clear an
+earlier observed drift. Each is now guarded and tested. Five deliberately
+incomplete loaders are rejected in both kernels, and real modular/standalone
+controls pass. Exact raw evidence and fixture corrections are linked from the
+[wave-4 validation record](../../validation/README.md#mathics-wave-4-hardening).
+
+The public empty inverse multi-index already passed before the broadened
+mapping installer; no reproduced public crash is claimed for that example.
+Nonprincipal exact values corrupted before adapter entry remain an interpreter
+boundary, and unsupported arbitrary-precision root goals now return an explicit
+failure. Unrestricted branch proofs, dense polynomial fallback cost, finite
+neighborhood-search completeness, and broad special-function parameter ranges
+remain documented limitations. The imported reports themselves are neither
+executable acceptance receipts nor a claim that every suggested scenario was
+run, and this review did not rebuild or render their documents.

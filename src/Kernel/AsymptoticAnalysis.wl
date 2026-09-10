@@ -1372,6 +1372,7 @@ If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "Ma
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsInverseBranches.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsSpecialFunctions.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsInputAssumptions.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsNumerical.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsLists.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsFormatting.wl"}]]];
 

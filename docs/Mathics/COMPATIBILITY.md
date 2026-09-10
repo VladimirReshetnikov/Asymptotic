@@ -24,7 +24,7 @@ reproducible evaluator gotchas in the same form as the Wolfram notes.
 | Symbolic expansions and operations | Focused examples exercise inverse and forward calculus, arithmetic, refinement, and selected extended scales. | Validate the full supported public input and option space, including exceptional and resource-limited paths. |
 | Assumptions and inverse branches | Conservative exact rules cover selected polynomial and affine-domain proofs. | Extend unresolved domains and sign/uniqueness proofs without weakening branch hypotheses. |
 | Native backends and special functions | Coverage depends on the interpreter's available functions and package adapters. | Close missing functionality and parameter-range gaps; an inert native symbol is not compatibility. |
-| Numerical checks, certificates, and display | Selected smoke checks and exact rational certificate examples are available. | Establish feature-specific numerical accuracy, certificate behavior, and usable front-end presentation. |
+| Numerical checks, certificates, and display | Exact rational certificate examples and numerical precision contracts are checked; unavailable Mathics root precision is refused explicitly. | Supply reliable arbitrary-precision reference roots, extend certificate coverage, and validate front-end presentation. |
 | Consolidated acceptance | All 101 portable cases pass in both layouts on Linux at `ffe08b1`; later upstream logarithm changes have separate focused checks and native comparisons. | Extend acceptance to remaining input/option ranges and keep results tied to each tested source revision. |
 
 The limitations below describe remaining work, not a permanently reduced
@@ -103,7 +103,7 @@ checks reject the original forms.
   membership, updates, and key selection. A missing-key lookup evaluates its
   default only when needed; list-valued lookups preserve key order.
 * **Empty lists:** native Mathics mapping can invalidate the cache of a
-  reused empty list and crash later metadata construction. Private package
+  reused empty list and crash later metadata construction. Package-owned
   maps return an empty list directly in the exact two-argument empty case;
   other forms retain native behavior. This enables flat-sector operations
   and empty Fourier residuals. See [list semantics](LISTS.md).
@@ -122,6 +122,10 @@ checks reject the original forms.
   Unresolved ordered predicates are kept out of native simplification until
   their operands are proved real. This prevents cancellation of a common
   complex offset from manufacturing a real inequality.
+  Retained two-argument `ProductLog` values also bypass native simplification
+  and the assumption walker, because Mathics' SymPy conversion can return
+  an incorrect Boolean for a satisfiable branch equality. Already evaluated
+  caller values cannot be recovered; see [the precise boundary](ALGEBRA.md).
 * **Held callables:** named `Function` parameters require the three-argument
   held `Extract` operation that Mathics lacks. The adapter preserves held
   parameters and lexical binding while traversing the requested parts.
@@ -167,9 +171,15 @@ checks reject the original forms.
   Lambert expressions are normalized to one-argument `ProductLog` before
   numerical specialization, avoiding Mathics' unsupported two-argument
   numerical form and incorrect argument order when converting it to SymPy.
-  Exact nonprincipal formulas remain available; applying native Mathics `N`
+  Retained exact nonprincipal formulas remain available, subject to Mathics'
+  own exact pre-evaluation defects; applying native Mathics `N`
   to them can produce incorrect surrounding values. Numerical nonprincipal Lambert evaluation
   remains unsupported; see [algebra and core-function details](ALGEBRA.md).
+* **Numerical precision:** Mathics `FindRoot` can ignore working precision
+  and return machine digits. The package refuses unavailable reference-root
+  precision explicitly, except for an unchanged integer seed proved to be
+  an exact polynomial root by substitution. Lower precision requests still
+  check achieved precision. See [numerical contracts](NUMERICAL.md).
 * **Time budgets:** internal symbolic proof attempts receive four times their
   Wolfram wall-clock allowance because Mathics interpretation is slower.
   Proof criteria and fallbacks are unchanged. Explicit `CoreCheckTimeConstraint`
@@ -194,6 +204,17 @@ Each case has a fresh kernel and a process timeout. Reports retain exact
 expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
+
+The suite now contains **107 cases**. The latest additions cover reused empty
+lookup lists, an empty inverse multi-index, conservative nonprincipal branch
+proofs, and numerical precision. The first Mathics Windows checks pass the six
+new cases and the strengthened integer-root precision assertion, with the original
+misqualified `RootReduce` fixture failure retained alongside its successful
+explicit-context correction. The [wave-4 validation record](../../validation/README.md#mathics-wave-4-hardening)
+links the raw reports. The official controls identified different empty-list
+lookup semantics, which are being aligned before final acceptance.
+A complete 107-case run is not claimed by those focused
+checks; the earlier complete Linux checkpoint remains identified below.
 
 The [API inventory](API-COVERAGE.md) maps all 38 exported symbols to exact
 portable cases and remaining input/option gaps. The complete

@@ -154,6 +154,11 @@ mathicsRelationProof[left_, head_, right_, facts_] := Module[{signs, accepted},
     ListQ[signs] && signs =!= {} && Intersection[signs, accepted] === {}, False, True, None]];
 
 mathicsAssumptionSimplify[expression_, assumptions_] := Module[{facts, walk},
+  (* Direct Taylor-admission calls also reach this walker. Do not let its
+     Factor/Together path convert retained ProductLog[k,z] through Mathics'
+     incorrect SymPy argument order. Leave the proof unresolved. *)
+  If[! FreeQ[{expression, assumptions}, HoldPattern[System`ProductLog[_, _]]],
+    Return[expression, Module]];
   facts = mathicsAssumptionFacts[assumptions];
   walk[e_] := Module[{head = Head[e], value, proof, signs, base, results},
     If[AtomQ[e], Return[e, Module]];

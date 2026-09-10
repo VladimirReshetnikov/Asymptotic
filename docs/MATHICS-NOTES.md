@@ -108,16 +108,29 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   sources. Editing the suite while successive kernels read it can produce
   misleading syntax errors or mix different tests in one report. Partial,
   interrupted, and changed-source runs are explicitly incomplete.
+- Require successful package loading before selecting any assertion. A test
+  such as `Check[1 + 1, $Failed]` can pass even after an empty or failed load.
+  The suite checks the load result, registered package, context path, and
+  restored global context in a separate top-level input. The integration
+  checker exercises five failed/incomplete loaders and both real entry points.
+- Reject nonfinite or nonpositive process timeouts before starting a kernel.
+  Protect input paths from report output and its temporary sibling, including
+  aliases. Once source drift is observed, retain the failed stability flag
+  even if the original bytes later return. Receipt integrity is separate from
+  a mathematical feature assertion.
 
 ## Associations, lists, and held callables
 
 - Mapping over an empty list can invalidate its internal evaluation cache.
   Even `b = {}; f /@ b; {b, 2, 0}` can raise a Python `AssertionError` in
-  unadapted Mathics. Private package definitions use an adapter that returns
+  unadapted Mathics. Package-owned public, private, and compatibility definitions
+  use an adapter that returns
   an empty list directly for exactly this two-argument `Map` case. It
   retains evaluation of the function expression, applies that function zero
   times, and delegates other forms to native `Map`. Flat-sector operations
-  and Fourier residual metadata exercise this boundary. See
+  and Fourier residual metadata exercise this boundary. Empty-key and
+  empty-association `Lookup` calls require the same protection, including
+  preservation of unused-default laziness and subsequent list reuse. See
   [LISTS.md](Mathics/LISTS.md).
 - Mathics' three-argument `ToExpression` can evaluate the parsed expression
   before its wrapper holds it. When inspecting existing private symbols,
@@ -218,6 +231,17 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   surrounding functions while leaving `ProductLog` unresolved. The tested
   lower-branch numerical checker declines an unproved branch instead of
   reporting successful evidence. See [ALGEBRA.md](Mathics/ALGEBRA.md).
+- The same `ProductLog` conversion can turn a satisfiable symbolic equality
+  into `False`, even without numerical evaluation. Package simplifiers and
+  the assumption walker keep retained two-argument branch values unresolved.
+  Raw exact values and Booleans already changed before adapter entry cannot
+  be recovered; exact specialization is therefore also limited.
+- Native Mathics `FindRoot` can return a machine-precision reference while
+  ignoring a higher working precision. Package numerical consumers now
+  refuse unavailable reference precision explicitly. An unchanged integer
+  seed is accepted exactly only after exact polynomial substitution proves
+  the root. No nearby rational is guessed or approximate digits padded. See
+  [NUMERICAL.md](Mathics/NUMERICAL.md) for supported examples and limitations.
 - `Expand` can leave an exact cancellation such as matching `2^-x` terms
   or polynomial-logarithmic perturbative terms unreduced. In the Zeta and
   perturbative-inverse regressions, `Simplify`, `Together`, and

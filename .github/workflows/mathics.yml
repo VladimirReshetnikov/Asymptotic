@@ -39,7 +39,7 @@ jobs:
     timeout-minutes: 35
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 10
       matrix:
         entry: [modular, standalone]
         suite: [foundation, calculus, contracts, special, operations]
@@ -53,6 +53,15 @@ jobs:
       - run: python -m pip install -r validation/requirements-mathics.txt
       - run: python validation/build_standalone.py --check
       - run: python -m unittest discover -s validation -p 'test_*mathics*.py'
+      - name: Verify failed loads cannot pass a primitive regression
+        if: matrix.entry == 'modular' && matrix.suite == 'foundation'
+        run: python validation/check_mathics_loading.py --timeout 90 --output portable-loading-gate.json
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.entry == 'modular' && matrix.suite == 'foundation'
+        with:
+          name: portable-loading-gate
+          path: portable-loading-gate.json
+          if-no-files-found: error
       - name: Run exact portable regressions
         shell: bash
         run: |

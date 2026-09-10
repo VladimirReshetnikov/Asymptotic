@@ -27,6 +27,14 @@ AsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ[e_, ass_] := Module[
       If[Head[predicate] === Inequality, (List @@ predicate)[[1 ;; -1 ;; 2]],
         List @@ predicate])] /@ predicates)];
 AsymptoticAnalysis`Mathics`mathicsSimplify[e_, ass_, simplifier_] := Module[{prepared},
+  (* Mathics sends ProductLog[k,z] to SymPy as LambertW[k,z], although
+     SymPy expects LambertW[z,k]. It can therefore turn a satisfiable exact
+     equality into False. Keep retained two-argument forms out of both the
+     assumption walker and native simplifier, including in assumptions.
+     Package-created principal values already use ProductLog[z]. Values
+     corrupted by caller-side evaluation cannot be reconstructed here. *)
+  If[! FreeQ[{e, ass}, HoldPattern[System`ProductLog[_, _]]],
+    Return[e, Module]];
   prepared = AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[e, ass];
   If[! AsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ[prepared, ass],
     Return[prepared, Module]];

@@ -89,10 +89,10 @@ firstPosition[expr_, pattern_, default_HoldComplete, levels_, heads_] := System`
 (* The exact expression is retained when Mathics lacks Wolfram's algebraic
    number normalizer/radical converter.  Simplify can reduce elementary exact
    radicals without introducing approximate numbers or asserting a new root. *)
-RootReduce[e_] := System`Simplify[e];
+RootReduce[e_] := AsymptoticAnalysis`Mathics`Simplify[e];
 ToRadicals[e_] := e;
 Refine[e_, ass_] := AsymptoticAnalysis`Mathics`Simplify[e, ass];
-Refine[e_] := System`Simplify[e];
+Refine[e_] := AsymptoticAnalysis`Mathics`Simplify[e];
 
 $ContextPath = $contextPathBeforeCompatibility;
 End[];
