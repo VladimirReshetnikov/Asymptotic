@@ -62,7 +62,7 @@ requires all selected cases to succeed and no source difference to have been
 observed at any reporting checkpoint.
 
 Selection uses the literal declaration format
-`portableTest["case-id", "group", ...]`. The current inventory contains 119
+`portableTest["case-id", "group", ...]`. The current inventory contains 120
 cases. The Python inventory is a regular-expression scan, not a Wolfram Language
 parser: a semantically valid declaration written in a different format can be
 omitted from that inventory. Empty inventories and duplicate recognized IDs

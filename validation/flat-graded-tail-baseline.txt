@@ -1,0 +1,7 @@
+N=1 input tail InputForm[PowerLogRemainder[y, -2, 0]/E^(2/y)] square tail InputForm[PowerLogRemainder[y, -4, 0]/E^(2/y)] terms InputForm[{{0, y^2}, {1, -2*y}}] inner InputForm[{}]
+N=2 input tail InputForm[PowerLogRemainder[y, -4, 0]/E^(3/y)] square tail InputForm[PowerLogRemainder[y, -8, 0]/E^(3/y)] terms InputForm[{{0, y^2}, {1, -2*y}, {2, 1 + 2/y}}] inner InputForm[{}]
+N=3 input tail InputForm[PowerLogRemainder[y, -6, 0]/E^(4/y)] square tail InputForm[PowerLogRemainder[y, -12, 0]/E^(4/y)] terms InputForm[{{0, y^2}, {1, -2*y}, {2, 1 + 2/y}, {3, -3/y^3}}] inner InputForm[{}]
+1x3 InputForm[PowerLogRemainder[y, -8, 0]/E^(2/y)] depth 1
+trunc InputForm[{{{0, y}, {3, -3/(2*y^4)}}, {{1, PowerLogRemainder[y, 0, 0]}, {2, PowerLogRemainder[y, -2, 0]}, {3, PowerLogRemainder[y, -3, 0]}}, PowerLogRemainder[y, -6, 0]/E^(4/y)}]
+trunc square InputForm[{{{0, y^2}, {3, -3/y^3}}, {{1, PowerLogRemainder[y, 1, 0]}, {2, PowerLogRemainder[y, -1, 0]}, {3, PowerLogRemainder[y, -2, 0]}}, PowerLogRemainder[y, -12, 0]/E^(4/y)}]
+scalar InputForm[0] InputForm[PowerLogRemainder[y, -1, 0]/E^(2/y)]

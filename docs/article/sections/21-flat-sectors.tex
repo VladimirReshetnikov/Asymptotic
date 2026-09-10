@@ -94,6 +94,30 @@ Consequently its asymptotic class is
 This bound is allowed to be conservative; it is independent of whether the
 first omitted coefficient cancels.
 
+\paragraph{Products.}
+Let $s=\sum_{k\le N_a}E_0^kA_k+E_0^{N_a+1}R_a$ and
+$t=\sum_{k\le N_b}E_0^kB_k+E_0^{N_b+1}R_b$ with power--log bounds on the
+coefficients and tails. The product retains depth $N=\min(N_a,N_b)$, and
+every omitted contribution is a graded term $E_0^{k}\OO(u_0^{\beta}\M^{d})$
+with $k>N$: the coefficient products $A_iB_j$ with $i+j>N$ at grade $i+j$,
+the products $R_aB_j$ and $R_bA_i$ at grades $N_a+1+j$ and $N_b+1+i$, and
+$R_aR_b$ at grade $N_a+N_b+2$. For fixed data and $k_2>k_1$,
+\[
+ \frac{E_0^{k_2}u_0^{\beta_2}\M^{d_2}}{E_0^{k_1}u_0^{\beta_1}\M^{d_1}}
+ =\exp\!\Bigl(-\frac{(k_2-k_1)c}{u_0^{p}}\Bigr)\,u_0^{\beta_2-\beta_1}\M^{d_2-d_1}
+ \longrightarrow0,
+\]
+so the complete omitted tail is bounded by the candidates of least grade
+alone, combined by power--log dominance, and may then be weakened to grade
+$N+1$ for the representation above. Combining the algebraic pairs of all
+candidates before comparing grades is also valid but can be much weaker:
+for the depth-$N$ inverse of $y=x+e^{-1/x}$ squared, the dominant candidate
+is $R_a A_0$ at grade $N+1$ with power $1-2N$, whereas the tail product
+$R_aR_b$ at grade $2N+2$ has power $-4N$ and would otherwise control the
+bound. Exact cancellations among the coefficient products of the first
+omitted grade can be found by multiplying them out; deeper omitted grades
+need only their envelopes.
+
 To justify the estimate, set $u=u_0(1+u_0^p V)$ and divide the forward
 equation by $u_0^{q+p}$. The normalized monomial difference has the analytic
 extension

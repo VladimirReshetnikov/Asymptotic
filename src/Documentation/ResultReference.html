@@ -1016,10 +1016,12 @@ retains separate inner and sector errors.</td>
 <tr>
 <td><code>&quot;InnerCutoff&quot;</code>, <code>&quot;InnerRemainders&quot;</code>,
 <code>&quot;RetainedCoefficientPrecision&quot;</code>,
-<code>&quot;SectorRemainder&quot;</code></td>
+<code>&quot;SectorRemainder&quot;</code>, <code>&quot;SectorTailGrade&quot;</code></td>
 <td>Derived arithmetic metadata: exclusive inner power cutoff, each
-positive sector&#39;s coefficient error, and the complete omitted-sector
-error.</td>
+positive sector&#39;s coefficient error, the complete omitted-sector error,
+and the least exponential sector at which that error was established
+before weakening to sector <code>N + 1</code>; <code>Infinity</code> for
+an exact result.</td>
 </tr>
 <tr>
 <td><code>&quot;FlatAnalyticRemainder&quot;</code>,

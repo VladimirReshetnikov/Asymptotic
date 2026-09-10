@@ -38,6 +38,13 @@ as `x - (2^10000 + 1)` with an exact supplied center, now certifies at the
 lowest enclosure order instead of failing at every order. Nonlinear parts
 keep their outward enclosures.
 
+`FlatSeriesMultiply` selects the complete omitted-sector bound by exponential
+grade before weakening it to sector `N + 1`, and reports the selected sector
+as `"SectorTailGrade"`. The square of the depth-`N` inverse of `x + Exp[-1/x]`
+now carries the tail power `1 - 2 N` instead of `-4 N`; retained coefficients
+are unchanged. See the
+[flat product guide](../src/Documentation/UserGuide.md#FlatSeriesMultiply).
+
 On Mathics, the explicit `Erfc`, `LogGamma`, `Gamma` and `LambertThreshold`
 adapters now have portable cases, the numerical consumers reject
 `Indeterminate` values before realness tests instead of aborting the Mathics

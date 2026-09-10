@@ -90,6 +90,22 @@ suite was run.
   An early draft of the runner collected fields with `Lookup` over an
   empty list, which yields `Missing` and breaks the JSON export; the
   fixtures caught this before acceptance.
+* **C23 — graded flat product tails.** The
+  [baseline transcript](flat-graded-tail-baseline.txt) records the squares of
+  the depth-1, 2 and 3 inverses of `x + Exp[-1/x]` with tail powers `-4`,
+  `-8` and `-12`, a depth-1 by depth-3 product at `-8`, and a truncated square
+  at `-12`; after the graded selection they carry `-1`, `-3`, `-5`, `-1` and
+  `-5` with unchanged retained coefficients. The
+  [five-file run](flat-graded-tails-tests.json) from
+  [CheckFlatGradedTails.wl](CheckFlatGradedTails.wl) passes **82/82** after
+  one corrected expectation (an original inverse carries no
+  `"FlatRepresentation"`). The [official-kernel](wolfram-flat-graded-tail-tests.json)
+  and [Mathics](mathics-modular-flat-graded-tail-probe.json) flat groups pass
+  2/2 each with the new case `flat-graded-product-tail`. The article's flat
+  sector section gains a graded-products paragraph; the rebuilt PDF (103
+  pages, no overfull or underfull boxes, no undefined references) has SHA-256
+  `bc267bcdeaa35a1454b292c5ad02ed890a065888a5844a3ac961d355b7f77b1a`, and page
+  66 was inspected at full size.
 * **Article.** The certificates section gains a remark on exact affine
   ranges before rounding with the review witness, and the zeta subsection a
   remark on transporting an absolute tail bound through truncation. The

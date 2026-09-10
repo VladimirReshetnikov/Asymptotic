@@ -4415,7 +4415,7 @@ AsymptoticAnalysis`AsymptoticFlatInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: src/Kernel/FlatSectors.wl *)
 
 (* BEGIN SOURCE: src/Kernel/FlatSectorOperations.wl
-   Source SHA256 (UTF-8/LF): 3bbcc50a0c5ca167800ef29f3318235eccfb04b38f5ace0b6e5c215b06274d28 *)
+   Source SHA256 (UTF-8/LF): 6455c1ee9e6232d90d6a4e9b09d04e5c38dcdd4a3433c9066c758abaa9e75940 *)
 (* Two independent truncations: inclusive exponential degree and exclusive
    inner power. A discarded inner coefficient remains in its own sector. *)
 
@@ -4506,9 +4506,27 @@ flatOpsTruncateData[d0_, h_, limit_] := Module[{d = d0, jets, ell = d0["LogVaria
   Do[jets[[k + 1]] = seriesTrim[jets[[k + 1]], h, ell, d["Assumptions"]], {k, 1, d["SectorDepth"]}];
   flatOpsBudget[Join[d, <|"SectorJets" -> jets, "InnerCutoff" -> h|>], limit]];
 
+(* Graded omitted-tail candidates. Every contribution omitted from a
+   product or sum lives in an exponential sector k > N with an
+   algebraic/logarithmic bound pair; for fixed data, a later sector is
+   negligible relative to any earlier one whatever their algebraic powers,
+   because the phase decides. The dominant candidates are therefore those of
+   least sector, combined by the ordinary power-log dominance; only then is
+   the bound weakened to the schema's sector N+1, and the least sector is
+   recorded as SectorTailGrade. Combining every candidate's algebraic pair
+   first would let a remote tail/tail product with a large pole control the
+   whole bound and lose 2N+1 algebraic orders on a depth-N inverse square. *)
+flatOpsGrade[d_] := Lookup[d, "SectorTailGrade",
+  If[d["SectorTail"][[1]] === Infinity, Infinity, d["SectorDepth"] + 1]];
+flatOpsGradedTail[candidates_List] := Module[{finite, least},
+  finite = Select[candidates, #[[2, 1]] =!= Infinity && #[[1]] =!= Infinity &];
+  If[finite === {}, Return[{{Infinity, 0}, Infinity}, Module]];
+  least = Min[finite[[All, 1]]];
+  {Fold[flatOpsTailAdd, {Infinity, 0}, Select[finite, #[[1]] == least &][[All, 2]]], least}];
+
 flatOpsMultiplyData[a0_, b0_, limit_] := Module[
-  {a, b, n, na, nb, ell, ass, convolution, term, tail = {Infinity, 0}, aj, bj,
-   aIndices, bIndices, data},
+  {a, b, n, na, nb, ell, ass, convolution, first, term, aj, bj, aIndices, bIndices,
+   candidates = {}, tail, grade, aBounds, bBounds, data},
   {a, b} = flatOpsAlign[a0, b0];
   {na, nb} = {a["SectorDepth"], b["SectorDepth"]}; n = Min[na, nb];
   ell = a["LogVariable"]; ass = a["Assumptions"]; aj = a["SectorJets"]; bj = b["SectorJets"];
@@ -4518,17 +4536,28 @@ flatOpsMultiplyData[a0_, b0_, limit_] := Module[
      unknown inner remainder still contributes in its convolution sector. *)
   aIndices = Select[Range[na + 1], ! flatOpsExactZeroQ[aj[[#]]] &];
   bIndices = Select[Range[nb + 1], ! flatOpsExactZeroQ[bj[[#]]] &];
-  convolution = Table[flatOpsZero[ell, ass], {na + nb + 1}];
-  Do[term = pMul[aj[[i]], bj[[j]], ell, ass, limit];
-    convolution[[i + j - 1]] = pAdd[convolution[[i + j - 1]], term, ell, ass],
+  aBounds = flatOpsJetBound[#, ell] & /@ aj; bBounds = flatOpsJetBound[#, ell] & /@ bj;
+  (* Retained sectors k <= N use full coefficient products. The first omitted
+     sector N+1 is also multiplied out so that exact cancellations there are
+     found; deeper omitted pairs contribute envelope products only. *)
+  convolution = Table[flatOpsZero[ell, ass], {n + 1}];
+  first = flatOpsZero[ell, ass];
+  Do[Which[i + j - 2 <= n,
+      term = pMul[aj[[i]], bj[[j]], ell, ass, limit];
+      convolution[[i + j - 1]] = pAdd[convolution[[i + j - 1]], term, ell, ass],
+     i + j - 2 == n + 1,
+      first = pAdd[first, pMul[aj[[i]], bj[[j]], ell, ass, limit], ell, ass],
+     True,
+      AppendTo[candidates, {i + j - 2, flatOpsBoundProduct[aBounds[[i]], bBounds[[j]]]}]],
     {i, aIndices}, {j, bIndices}];
-  (* E^(k-N-1)<=1 for k>N. Keeping the coefficient's algebraic bound is
-     conservative; it does not move an inner error to a later sector. *)
-  Do[tail = flatOpsTailAdd[tail, flatOpsJetBound[convolution[[k + 1]], ell]], {k, n + 1, na + nb}];
-  Do[tail = flatOpsTailAdd[tail, flatOpsBoundProduct[a["SectorTail"], flatOpsJetBound[j, ell]]], {j, bj}];
-  Do[tail = flatOpsTailAdd[tail, flatOpsBoundProduct[b["SectorTail"], flatOpsJetBound[j, ell]]], {j, aj}];
-  tail = flatOpsTailAdd[tail, flatOpsBoundProduct[a["SectorTail"], b["SectorTail"]]];
-  data = Join[a, <|"SectorDepth" -> n, "SectorJets" -> Take[convolution, n + 1], "SectorTail" -> tail,
+  If[! flatOpsExactZeroQ[first], AppendTo[candidates, {n + 1, flatOpsJetBound[first, ell]}]];
+  (* An input tail sits at its recorded grade, which can exceed its depth+1. *)
+  Do[AppendTo[candidates, {flatOpsGrade[a] + j - 1, flatOpsBoundProduct[a["SectorTail"], bBounds[[j]]]}], {j, bIndices}];
+  Do[AppendTo[candidates, {flatOpsGrade[b] + i - 1, flatOpsBoundProduct[b["SectorTail"], aBounds[[i]]]}], {i, aIndices}];
+  AppendTo[candidates, {flatOpsGrade[a] + flatOpsGrade[b], flatOpsBoundProduct[a["SectorTail"], b["SectorTail"]]}];
+  {tail, grade} = flatOpsGradedTail[candidates];
+  data = Join[a, <|"SectorDepth" -> n, "SectorJets" -> convolution, "SectorTail" -> tail,
+    "SectorTailGrade" -> grade,
     "InnerCutoff" -> Automatic, "DerivativeContract" -> (TrueQ[a["DerivativeContract"]] && TrueQ[b["DerivativeContract"]]),
     "DerivativeProvenance" -> <|"Type" -> "ClosedUnderFlatOperations",
       "Inputs" -> {a["DerivativeProvenance"], b["DerivativeProvenance"]}|>|>];
@@ -4536,15 +4565,16 @@ flatOpsMultiplyData[a0_, b0_, limit_] := Module[
 
 flatOpsConstantData[e_, d_, limit_] := Module[{j = flatOpsParse[e, d, limit], jets},
   jets = Prepend[Table[flatOpsZero[d["LogVariable"], d["Assumptions"]], {d["SectorDepth"]}], j];
-  flatOpsBudget[Join[d, <|"SectorJets" -> jets, "SectorTail" -> {Infinity, 0},
+  flatOpsBudget[Join[d, <|"SectorJets" -> jets, "SectorTail" -> {Infinity, 0}, "SectorTailGrade" -> Infinity,
     "InnerCutoff" -> Infinity, "DerivativeContract" -> True,
     "DerivativeProvenance" -> <|"Type" -> "ExactFinitePowerLogCoefficient"|>|>], limit]];
 
-flatOpsAddData[a0_, b0_, limit_] := Module[{a, b, jets},
+flatOpsAddData[a0_, b0_, limit_] := Module[{a, b, jets, tail, grade},
   {a, b} = flatOpsAlign[a0, b0];
   If[a["SectorDepth"] =!= b["SectorDepth"], fail["FlatSectorInvariant", "Internal polynomial addition requires equal retained sector depths."]];
   jets = MapThread[pAdd[#1, #2, a["LogVariable"], a["Assumptions"]] &, {a["SectorJets"], b["SectorJets"]}];
-  flatOpsBudget[Join[a, <|"SectorJets" -> jets, "SectorTail" -> flatOpsTailAdd[a["SectorTail"], b["SectorTail"]],
+  {tail, grade} = flatOpsGradedTail[{{flatOpsGrade[a], a["SectorTail"]}, {flatOpsGrade[b], b["SectorTail"]}}];
+  flatOpsBudget[Join[a, <|"SectorJets" -> jets, "SectorTail" -> tail, "SectorTailGrade" -> grade,
     "InnerCutoff" -> Automatic, "DerivativeContract" -> (TrueQ[a["DerivativeContract"]] && TrueQ[b["DerivativeContract"]]),
     "DerivativeProvenance" -> <|"Type" -> "ClosedUnderFlatOperations",
       "Inputs" -> {a["DerivativeProvenance"], b["DerivativeProvenance"]}|>|>], limit]];
@@ -4608,6 +4638,7 @@ flatOpsMake[d_, recipe_] := Module[
     "Terms" -> Join[{{0, zero}}, sectors], "SectorDepth" -> d["SectorDepth"], "InnerCutoff" -> d["InnerCutoff"],
     "TermConvention" -> "Sector degrees k<=N are inclusive; positive-sector inner powers alpha<h are exclusive. Sector zero remains exact.",
     "InnerRemainders" -> inner, "SectorRemainder" -> sectorRemainder, "Remainder" -> remainder,
+    "SectorTailGrade" -> flatOpsGrade[d],
     "RemainderScaleExpression" -> envelope, "Exact" -> (remainder === 0),
     "RetainedCoefficientPrecision" -> Table[{k, jets[[k + 1, {2, 3}]]}, {k, 1, d["SectorDepth"]}],
     "MajorantContract" -> <|"Type" -> "AsymptoticExistence", "NumericCertificate" -> False,

@@ -8,7 +8,7 @@ The [compatibility status](COMPATIBILITY.md) describes the broader goal.
 
 ## Evidence and current scope
 
-The maintained suite has **119 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation, the local-coordinate numerical check, explicit coefficient power precedence, the residual offset label, and the four explicit special-function adapters with the Erfc numerical contract. The additional
+The maintained suite has **120 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation, the local-coordinate numerical check, explicit coefficient power precedence, the residual offset label, and the four explicit special-function adapters with the Erfc numerical contract. The additional
 contracts cover empty lookup state, shared lazy defaults, the empty inverse multi-index, retained
 nonprincipal `ProductLog` proofs, and numerical precision. The quadratic
 integer-root test now also verifies the returned precision. Focused paired
@@ -121,7 +121,7 @@ returned data head and its public evaluation behavior.
 | `AsymptoticLogarithmicInverse` | `logarithmic-reciprocal-core`, `operations-reciprocal-log-differentiate`, `operations-reciprocal-log-compose` | Reciprocal-log blocks for `x+x/Log[x]`, derivative and composition contracts. **Core**, **Operations**. |
 | `AsymptoticSpecialInverse` | `operations-special-inverse-quadratic-threshold`, `special-adapter-erfc-tail`, `special-adapter-loggamma-core`, `special-adapter-gamma-core`, `special-adapter-lambert-threshold-branches` | Direct quadratic-threshold adapter with translated source, target offset and negative target scale; exact remainder. **Operations**. The four tail and threshold adapters compare the finite expression numerically at one target each, with their remainders, cutoffs and selected sides; each needs about a minute on Mathics. |
 | `FlatSeriesDifferentiate` | `operations-flat-series-calculus-and-error` | Exact derivative of retained first sector and nonzero derivative remainder. **Operations**. |
-| `FlatSeriesMultiply` | `operations-flat-series-calculus-and-error` | Direct multiplication by an exact scalar. **Operations**. |
+| `FlatSeriesMultiply` | `operations-flat-series-calculus-and-error`, `flat-graded-product-tail` | Direct multiplication by an exact scalar. **Operations**. The graded case squares the depth-one inverse of `x + Exp[-1/x]` and checks the sector-2 tail power `-1` and `"SectorTailGrade"`. |
 | `FlatSeriesObservable` | `operations-flat-series-calculus-and-error` | Affine observable preserves the first flat correction. **Operations**. |
 | `FlatSeriesTruncate` | `operations-flat-series-calculus-and-error` | Inner truncation removes a displayed flat coefficient and records its nonzero inner remainder. **Operations**. |
 | `FourierInverseCoefficient` | `operations-fourier-coefficient-and-residual` | Exact single-index trigonometric coefficient and weight. **Operations**. |

@@ -4419,6 +4419,22 @@ same monomial target coordinate and phase. An exact finite power-log
 scalar may replace either operand. Options are
 <code>&quot;InnerCutoff&quot; -&gt; Automatic</code> and
 <code>&quot;MaxTerms&quot; -&gt; 20000</code>.</p>
+<p>The complete omitted-sector bound of a product is selected by
+exponential grade. Every omitted contribution, whether a discarded
+coefficient product, an input tail times a coefficient, or the product
+of both tails, lives in a sector above the retained depth
+<code>N</code>; a later sector is negligible relative to an earlier one
+for fixed data, so only the candidates of least sector are combined by
+power-log dominance, and that sector is reported as
+<code>&quot;SectorTailGrade&quot;</code> while <code>&quot;SectorRemainder&quot;</code>
+keeps the schema&#39;s sector <code>N + 1</code>. Retained sectors and the
+first omitted sector use full coefficient products, so exact
+cancellations there are found; deeper omitted pairs contribute envelopes
+only. For the depth-<code>N</code> inverse of <code>x + Exp[-1/x]</code>
+squared, the tail power is <code>1 - 2 N</code> instead of the
+<code>-4 N</code> obtained by combining every candidate&#39;s algebraic pair
+first. Sums, scalar products, polynomial observables and derivatives
+propagate the grade.</p>
 <p><a id="FlatSeriesObservable"></a></p>
 </section>
 <section id="flatseriesobservable" class="level3">

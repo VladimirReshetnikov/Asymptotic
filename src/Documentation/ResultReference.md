@@ -256,7 +256,7 @@ Source: [FlatSectors.wl](../Kernel/FlatSectors.wl) and
 | `"CoreInverseCoordinate"`, `"FlatScale"`, `"ZeroSector"` | Exact monomial core coordinate, exponential small parameter, and exact sector-zero expression. |
 | `"Terms"`, `"Sectors"`, `"SectorDepth"` | Sector terms with inclusive degree cutoff. `"Terms"` includes sector zero; `"Sectors"` contains retained nonzero positive-sector coefficients. |
 | `"FirstOmittedSector"` | Supplied by the inverse constructor. Derived flat arithmetic instead retains separate inner and sector errors. |
-| `"InnerCutoff"`, `"InnerRemainders"`, `"RetainedCoefficientPrecision"`, `"SectorRemainder"` | Derived arithmetic metadata: exclusive inner power cutoff, each positive sector's coefficient error, and the complete omitted-sector error. |
+| `"InnerCutoff"`, `"InnerRemainders"`, `"RetainedCoefficientPrecision"`, `"SectorRemainder"`, `"SectorTailGrade"` | Derived arithmetic metadata: exclusive inner power cutoff, each positive sector's coefficient error, the complete omitted-sector error, and the least exponential sector at which that error was established before weakening to sector `N + 1`; `Infinity` for an exact result. |
 | `"FlatAnalyticRemainder"`, `"RemainderDerivativeOrder"` | Specialized derivative provenance used by flat operations. |
 | `"FlatRepresentation"`, `"FlatRecipe"` | Derived arithmetic state and recipe; absent from the original inverse constructor. |
 | `"SeriesData"` | The inverse stores `Missing["IndependentFlatSectorTruncation"]`; derived arithmetic stores `Missing["IndependentFlatSectorTruncations"]`. Both deliberately decline a single native view. |

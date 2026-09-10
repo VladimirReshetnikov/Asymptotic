@@ -2858,6 +2858,8 @@ Inspect `"SectorDepth"`, `"Sectors"`, `"FirstOmittedSector"`, and `"Remainder"`.
 
 `FlatSeriesMultiply[s, t]` multiplies expansions in the same monomial target coordinate and phase. An exact finite power-log scalar may replace either operand. Options are `"InnerCutoff" -> Automatic` and `"MaxTerms" -> 20000`.
 
+The complete omitted-sector bound of a product is selected by exponential grade. Every omitted contribution, whether a discarded coefficient product, an input tail times a coefficient, or the product of both tails, lives in a sector above the retained depth `N`; a later sector is negligible relative to an earlier one for fixed data, so only the candidates of least sector are combined by power-log dominance, and that sector is reported as `"SectorTailGrade"` while `"SectorRemainder"` keeps the schema's sector `N + 1`. Retained sectors and the first omitted sector use full coefficient products, so exact cancellations there are found; deeper omitted pairs contribute envelopes only. For the depth-`N` inverse of `x + Exp[-1/x]` squared, the tail power is `1 - 2 N` instead of the `-4 N` obtained by combining every candidate's algebraic pair first. Sums, scalar products, polynomial observables and derivatives propagate the grade.
+
 <a id="FlatSeriesObservable"></a>
 ### FlatSeriesObservable
 

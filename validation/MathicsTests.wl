@@ -476,6 +476,13 @@ portableTest["flat-first-exponential-sector", "flat",
     {s["Sectors"], Expand[Normal[s] - (y - Exp[-1/y])]}],
   {{{1, -1}}, 0}];
 
+portableTest["flat-graded-product-tail", "flat",
+  Module[{x, y, s, a}, s = AsymptoticFlatInverse[x + Exp[-1/x], {x, 0}, {y, 1}];
+    a = FlatSeriesMultiply[s, s];
+    {a["SectorDepth"], Cases[a["SectorRemainder"], PowerLogRemainder[_, p_, d_] :> {p, d}, Infinity],
+      a["SectorTailGrade"], Expand[Normal[a] - (y^2 - 2 y Exp[-1/y])]}],
+  {1, {{-1, 0}}, 2, 0}];
+
 portableTest["certificate-exact-rational-root", "certificate",
   Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
     c = InverseCertificate[s, 4, "Interval" -> {1, 3}, "Center" -> 2,
