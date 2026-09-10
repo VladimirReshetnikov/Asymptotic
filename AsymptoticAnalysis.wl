@@ -135,7 +135,7 @@ Begin["`Private`"];
 (* Bind evaluator adapters only when loading in Mathics. The official Wolfram
    kernel continues to resolve every existing definition to System` symbols. *)
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsCompatibility.wl\n   Source SHA256 (UTF-8/LF): 629f079ebc7aaf34d47393aaf406a843223d0cec9431d16e148f7db902c4c1ad *)\n(* Mathics3 compatibility is isolated in its own context.  The official\n   Wolfram evaluator never adds this context to its search path, so the\n   streamed kernel sources retain their original System symbols there.\n   These are deliberately bounded helpers for the forms used by this package,\n   not replacements installed on Mathics' global System definitions. *)\n\nBegin[\"AsymptoticAnalysis`Mathics`\"];",
+"(* BEGIN SOURCE: src/Kernel/MathicsCompatibility.wl\n   Source SHA256 (UTF-8/LF): c5eaac433993ebff843f1590467469e91a52a72997f8532dd992358dc0e61c85 *)\n(* Mathics3 compatibility is isolated in its own context.  The official\n   Wolfram evaluator never adds this context to its search path, so the\n   streamed kernel sources retain their original System symbols there.\n   These are deliberately bounded helpers for the forms used by this package,\n   not replacements installed on Mathics' global System definitions. *)\n\nBegin[\"AsymptoticAnalysis`Mathics`\"];",
 "\n\nClearAll[AsymptoticAnalysis`Mathics`Module,\n  AsymptoticAnalysis`Mathics`Return,\n  AsymptoticAnalysis`Mathics`Lookup,\n  AsymptoticAnalysis`Mathics`FailureQ,\n  AsymptoticAnalysis`Mathics`MissingQ,\n  AsymptoticAnalysis`Mathics`KeyExistsQ,\n  AsymptoticAnalysis`Mathics`AssociateTo,\n  AsymptoticAnalysis`Mathics`KeyDrop,\n  AsymptoticAnalysis`Mathics`KeyTake,\n  AsymptoticAnalysis`Mathics`DeleteDuplicatesBy,\n  AsymptoticAnalysis`Mathics`FirstPosition,\n  AsymptoticAnalysis`Mathics`RootReduce,\n  AsymptoticAnalysis`Mathics`ToRadicals,\n  AsymptoticAnalysis`Mathics`Refine];",
 "\n\n$contextPathBeforeCompatibility = $ContextPath;",
 "\n$ContextPath = Prepend[DeleteCases[$ContextPath, \"AsymptoticAnalysis`Mathics`\"],\n  \"AsymptoticAnalysis`Mathics`\"];",
@@ -148,12 +148,14 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\n\nFailureQ[e_] := MatchQ[e, _System`Failure];",
 "\nMissingQ[e_] := MatchQ[e, _System`Missing];",
 "\nKeyExistsQ[a_Association, key_] := Or @@ (SameQ[#, key] & /@ Keys[a]);",
-"\n\n(* Hold only the default through argument evaluation; it must not run for a\n   present key.  Mathics 10's built-in Lookup rewrites to an unevaluated\n   FirstCase and does not implement the list-of-keys form used throughout\n   the package.  Association application supplies ordinary value semantics. *)\nSetAttributes[Lookup, HoldAllComplete];",
+"\n\n(* Hold the default through argument evaluation; it must not run for a\n   present key. Share one lazy value across all missing results of a call,\n   including lists of keys or associations. Mathics 10's built-in Lookup\n   rewrites to an unevaluated FirstCase and does not implement these forms.\n   Association application supplies ordinary value semantics. *)\nSetAttributes[Lookup, HoldAllComplete];",
 "\nLookup[a_, key_] := lookupRequired[a, key];",
-"\nLookup[a_, key_, default_] := lookupValue[a, key, HoldComplete[default]];",
+"\nLookup[a_, key_, default_] := System`Module[{lookupDefault},\n  lookupDefault := lookupDefault = default;\n  lookupValue[a, key, HoldComplete[lookupDefault]]];",
+"\n(* An empty first list is an empty rule collection in Wolfram Lookup, not a\n   list with zero associations. Its scalar lookup therefore uses the default. *)\nlookupRequired[{}, key_] := lookupRequired[<||>, key];",
 "\nlookupRequired[a_Association, keys_List] := lookupRequired[a, #] & /@ keys;",
 "\nlookupRequired[a_Association, key_] :=\n  If[KeyExistsQ[a, key], a[key], Missing[\"KeyAbsent\", key]];",
 "\nlookupRequired[associations_List, key_] := lookupRequired[#, key] & /@ associations;",
+"\nlookupValue[{}, key_, default_HoldComplete] := lookupValue[<||>, key, default];",
 "\nlookupValue[a_Association, keys_List, default_HoldComplete] :=\n  lookupValue[a, #, default] & /@ keys;",
 "\nlookupValue[a_Association, key_, default_HoldComplete] :=\n  If[KeyExistsQ[a, key], a[key], ReleaseHold[default]];",
 "\nlookupValue[associations_List, key_, default_HoldComplete] :=\n  lookupValue[#, key, default] & /@ associations;",

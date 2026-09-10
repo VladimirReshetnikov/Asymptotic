@@ -43,17 +43,24 @@ FailureQ[e_] := MatchQ[e, _System`Failure];
 MissingQ[e_] := MatchQ[e, _System`Missing];
 KeyExistsQ[a_Association, key_] := Or @@ (SameQ[#, key] & /@ Keys[a]);
 
-(* Hold only the default through argument evaluation; it must not run for a
-   present key.  Mathics 10's built-in Lookup rewrites to an unevaluated
-   FirstCase and does not implement the list-of-keys form used throughout
-   the package.  Association application supplies ordinary value semantics. *)
+(* Hold the default through argument evaluation; it must not run for a
+   present key. Share one lazy value across all missing results of a call,
+   including lists of keys or associations. Mathics 10's built-in Lookup
+   rewrites to an unevaluated FirstCase and does not implement these forms.
+   Association application supplies ordinary value semantics. *)
 SetAttributes[Lookup, HoldAllComplete];
 Lookup[a_, key_] := lookupRequired[a, key];
-Lookup[a_, key_, default_] := lookupValue[a, key, HoldComplete[default]];
+Lookup[a_, key_, default_] := System`Module[{lookupDefault},
+  lookupDefault := lookupDefault = default;
+  lookupValue[a, key, HoldComplete[lookupDefault]]];
+(* An empty first list is an empty rule collection in Wolfram Lookup, not a
+   list with zero associations. Its scalar lookup therefore uses the default. *)
+lookupRequired[{}, key_] := lookupRequired[<||>, key];
 lookupRequired[a_Association, keys_List] := lookupRequired[a, #] & /@ keys;
 lookupRequired[a_Association, key_] :=
   If[KeyExistsQ[a, key], a[key], Missing["KeyAbsent", key]];
 lookupRequired[associations_List, key_] := lookupRequired[#, key] & /@ associations;
+lookupValue[{}, key_, default_HoldComplete] := lookupValue[<||>, key, default];
 lookupValue[a_Association, keys_List, default_HoldComplete] :=
   lookupValue[a, #, default] & /@ keys;
 lookupValue[a_Association, key_, default_HoldComplete] :=

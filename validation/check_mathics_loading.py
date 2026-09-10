@@ -3,8 +3,9 @@
 python validation/check_mathics_loading.py --python .venv/mathics/Scripts/python.exe
 python validation/check_mathics_loading.py --wolfram wolfram.exe --output native-loading.json
 
-Five deliberately incomplete package inputs must stop before a builtin-only
-assertion. Real modular and standalone packages must pass that assertion.
+Incomplete or aborted package inputs must stop before a builtin-only
+assertion. Real modular and standalone packages and a legitimate wrapper
+returning a non-Null value must pass that assertion.
 This integration check requires Mathics or Wolfram; it is not an offline unit
 test and is intentionally separate from test discovery and the portable case
 inventory. Each process uses the runner's owned timeout/cleanup machinery.
@@ -16,7 +17,6 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
-import math
 from pathlib import Path
 import sys
 import tempfile
@@ -30,11 +30,17 @@ LOAD_FAILED = runner.PREFIX + "LOAD_FAILED"
 FAKE_SOURCES = {
     "failed-get": "$Failed\n",
     "empty-get": "Null\n",
+    "registered-but-empty": 'BeginPackage["AsymptoticAnalysis`"]; EndPackage[]; Null\n',
     "registered-but-failed": 'BeginPackage["AsymptoticAnalysis`"]; EndPackage[]; $Failed\n',
     "missing-public-context-path": (
         'BeginPackage["AsymptoticAnalysis`"]; EndPackage[]; '
         '$ContextPath = {"System`", "Global`"}; Null\n'),
     "unreturned-package-context": 'BeginPackage["AsymptoticAnalysis`"]; Null\n',
+}
+PACKAGE_WRAPPERS = {
+    "aborted-after-package-load": ("$Aborted", True),
+    "abort-after-package-load": ("Abort[]", True),
+    "non-null-package-wrapper": ("42", False),
 }
 
 
@@ -63,25 +69,23 @@ def main() -> int:
     parser.add_argument("--modular-source", type=Path,
                         default=ROOT / "src/Kernel/AsymptoticAnalysis.wl")
     parser.add_argument("--standalone-source", type=Path, default=ROOT / "AsymptoticAnalysis.wl")
-    parser.add_argument("--timeout", type=float, default=90, help="Hard seconds per fresh kernel")
+    parser.add_argument("--timeout", type=runner.case_timeout, default=90,
+                        help="Finite hard seconds per fresh kernel (0 < seconds <= 86400)")
     parser.add_argument("--output", type=Path, default=ROOT / "validation/mathics-loading-tests.json")
     args = parser.parse_args()
-    if not math.isfinite(args.timeout) or args.timeout <= 0:
-        parser.error("--timeout must be finite and positive")
     modular, standalone = args.modular_source.resolve(), args.standalone_source.resolve()
     for source in (modular, standalone):
         if not source.is_file():
             parser.error(f"Package source does not exist: {source}")
     def input_files() -> set[Path]:
-        return (runner.fingerprint_files(modular) | runner.fingerprint_files(standalone) |
+        return (runner.fingerprinted_inputs(modular) | runner.fingerprinted_inputs(standalone) |
                 {Path(__file__).resolve(), ROOT / "validation/requirements-mathics.txt"})
 
     inputs = input_files()
-    for output in (args.output, args.output.with_name(args.output.name + ".tmp")):
-        for source in inputs:
-            if output.resolve() == source.resolve() or (
-                    output.exists() and source.exists() and output.samefile(source)):
-                parser.error(f"Report output or its temporary file would overwrite an input: {source}")
+    try:
+        runner.protect_output_inputs(args.output, inputs)
+    except ValueError as error:
+        parser.error(str(error))
     before = source_hashes(inputs)
     suite_bytes = runner.SUITE.read_bytes()
     suite_hash = hashlib.sha256(suite_bytes).hexdigest()
@@ -90,12 +94,11 @@ def main() -> int:
     if (TEST_ID, "primitive") not in runner.CASE_PATTERN.findall(suite_bytes.decode("utf-8")):
         parser.error(f"The selected portable suite lacks {TEST_ID}")
     runtime_name = "Wolfram" if args.wolfram else "Mathics"
-    executable = args.wolfram or args.python or sys.executable
-    if Path(executable).is_file():
-        executable = str(Path(executable).resolve())
+    executable = runner.executable_path(args.wolfram or args.python or sys.executable)
     command = ([executable, "-noinit", "-script"] if args.wolfram else
                [executable, "-m", "mathics", "--quiet", "--no-readline", "--file"])
     results = []
+    selected = len(FAKE_SOURCES) + len(PACKAGE_WRAPPERS) + 2
     first_changed_sources = None
     suite_copy_changed = False
     frozen_suite = None
@@ -113,9 +116,9 @@ def main() -> int:
             "Scope": "PortableSuiteLoadGateIntegration", "Runtime": runtime_name,
             "UTC": datetime.now(timezone.utc).isoformat(), "CommandPrefix": command,
             "PerCaseTimeoutSeconds": args.timeout, "FreshKernelPerCase": True,
-            "SelectedPortableTestID": TEST_ID, "Selected": len(FAKE_SOURCES) + 2,
+            "SelectedPortableTestID": TEST_ID, "Selected": selected,
             "Executed": len(results), "Succeeded": passed, "Failed": len(results) - passed,
-            "NotRun": len(FAKE_SOURCES) + 2 - len(results), "RunComplete": complete,
+            "NotRun": selected - len(results), "RunComplete": complete,
             "TestedSourcesSHA256": before, "TestSuiteSnapshotSHA256": suite_hash,
             "TestSuiteCopyUnchangedDuringRun": not suite_copy_changed,
             "SourcesUnchangedDuringRun": first_changed_sources is None,
@@ -123,8 +126,12 @@ def main() -> int:
             "Results": results,
         }
         if first_changed_sources is not None:
-            report["FirstObservedChangedSourcesSHA256"] = first_changed_sources
+            report["FirstObservedSourceDriftSHA256"] = first_changed_sources
             report["SourcesSHA256AfterRun"] = after
+        try:
+            runner.protect_output_inputs(args.output, inputs | input_files())
+        except ValueError as error:
+            parser.error(str(error))
         args.output.parent.mkdir(parents=True, exist_ok=True)
         temporary_output = args.output.with_name(args.output.name + ".tmp")
         temporary_output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -143,6 +150,11 @@ def main() -> int:
             cases.append((name, source, True, body))
         cases.extend((("real-modular", modular, False, None),
                       ("real-standalone", standalone, False, None)))
+        for name, (last_expression, reject) in PACKAGE_WRAPPERS.items():
+            body = f"Get[{json.dumps(modular.as_posix())}]; {last_expression}\n"
+            source = directory / (name + ".wl")
+            source.write_bytes(body.encode("utf-8"))
+            cases.append((name, source, reject, body))
         for name, source, reject, body in cases:
             print(f"Running loading integration {name} ...", flush=True)
             result = runner.run_case(command + [str(frozen_suite)], source, TEST_ID,

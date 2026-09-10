@@ -12,12 +12,16 @@ Print["ASYMPTOTIC_PORTABLE_KERNEL\t", $Version];
    setting, not a package side effect; MaxTerms and OS timeouts still apply. *)
 If[StringContainsQ[$Version, "Mathics"], $IterationLimit = 1000000];
 Print["ASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t", $IterationLimit];
-portableLoadResult = Check[Get[portableSource], $Failed];
+portableLoadResult = CheckAbort[Check[Get[portableSource], $Failed], $Aborted];
 (* Every selection requires a completed package load, including primitive
    cases that could otherwise pass using only interpreter builtins. Keep
    this check in a separate input from Get for Mathics Check semantics. *)
-If[portableLoadResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"] ||
-    ! MemberQ[$ContextPath, "AsymptoticAnalysis`"] || $Context =!= "Global`",
+If[portableLoadResult === $Failed || portableLoadResult === $Aborted ||
+    ! MemberQ[$Packages, "AsymptoticAnalysis`"] ||
+    ! MemberQ[$ContextPath, "AsymptoticAnalysis`"] || $Context =!= "Global`" ||
+    Length[DownValues[AsymptoticAnalysis`AsymptoticInverse]] === 0 ||
+    Length[DownValues[AsymptoticAnalysis`AsymptoticExpansion]] === 0 ||
+    Length[SubValues[AsymptoticAnalysis`GeneralizedSeries]] === 0,
   Print["ASYMPTOTIC_PORTABLE_LOAD_FAILED"];
   Exit[2]];
 
@@ -115,7 +119,15 @@ portableTest["primitive-empty-lookup-preserves-list-state", "primitive",
     a = Lookup[<|"present" -> 1|>, keys, count++; 9];
     b = Lookup[associations, "present", count++; 9];
     {a, b, count, {keys, associations, 2, 0}}]]],
-  {{}, {}, 0, {{}, {}, 2, 0}}];
+  {{}, 9, 1, {{}, {}, 2, 0}}];
+
+portableTest["primitive-lookup-shares-one-lazy-default", "primitive",
+  portablePrimitive[HoldComplete[Module[{count = 0, a, b, c},
+    a = Lookup[<|"a" -> 7|>, {"a", "b", "c"}, ++count];
+    b = Lookup[{<||>, <|"a" -> 3|>, <||>}, "a", ++count];
+    c = Lookup[<|"a" -> 7|>, {"a", "a"}, ++count];
+    {a, b, c, count}]]],
+  {{7, 1, 1}, {2, 3, 2}, {7, 7}, 2}];
 
 portableTest["operations-empty-inverse-multi-index", "operations",
   Module[{index = {}, model, coefficient},

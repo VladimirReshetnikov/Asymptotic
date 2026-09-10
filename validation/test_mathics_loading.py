@@ -8,6 +8,7 @@ claim that any package or synthetic input was evaluated in a kernel.
 from contextlib import ExitStack, redirect_stderr, redirect_stdout
 import io
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -47,7 +48,8 @@ class LoadingEvidenceTests(unittest.TestCase):
         stack.enter_context(patch.object(loading.runner, "__file__", str(self.runner)))
 
     def result(self, command, source, test_id, group, timeout, work) -> dict:
-        reject = source not in (self.modular, self.standalone)
+        reject = (source.stem in loading.FAKE_SOURCES or
+                  loading.PACKAGE_WRAPPERS.get(source.stem, ("", False))[1])
         return {"Outcome": "KernelError" if reject else "Success",
                 "ExitCode": 2 if reject else 0, "Kernel": "Mathics3 10.0.1",
                 "KernelIterationLimit": 1000000, "ElapsedSeconds": 0.01,
@@ -101,7 +103,7 @@ class LoadingEvidenceTests(unittest.TestCase):
         self.assertEqual(report["Succeeded"], report["Selected"])
         self.assertFalse(report["SourcesUnchangedDuringRun"])
         self.assertEqual(report["SourcesSHA256AfterRun"], report["TestedSourcesSHA256"])
-        self.assertNotEqual(report["FirstObservedChangedSourcesSHA256"], report["TestedSourcesSHA256"])
+        self.assertNotEqual(report["FirstObservedSourceDriftSHA256"], report["TestedSourcesSHA256"])
 
     def test_added_modular_input_invalidates_the_original_fingerprint(self) -> None:
         def execute(*args):
@@ -112,7 +114,28 @@ class LoadingEvidenceTests(unittest.TestCase):
         report = json.loads(self.output.read_bytes())
         self.assertFalse(report["SourcesUnchangedDuringRun"])
         self.assertNotIn("src/Kernel/NewModule.wl", report["TestedSourcesSHA256"])
-        self.assertIn("src/Kernel/NewModule.wl", report["FirstObservedChangedSourcesSHA256"])
+        self.assertIn("src/Kernel/NewModule.wl", report["FirstObservedSourceDriftSHA256"])
+
+    def test_new_staging_alias_is_rejected_before_checkpoint_write(self) -> None:
+        def execute(*args):
+            staging = self.output.with_name(self.output.name + ".tmp")
+            try:
+                os.link(self.companion, staging)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"Hard links unavailable: {error}")
+            return self.result(*args)
+
+        with self.assertRaises(SystemExit) as stopped:
+            self.run_main(execute)
+        self.assertEqual(stopped.exception.code, 2)
+        self.assertEqual(self.companion.read_bytes(), self.originals[self.companion])
+        self.assertFalse(json.loads(self.output.read_bytes())["RunComplete"])
+
+    def test_selected_executable_uses_shared_virtual_environment_preserving_helper(self) -> None:
+        with patch.object(loading.runner, "executable_path", return_value="selected-venv-python") as select:
+            self.assertEqual(self.run_main(), 0)
+        select.assert_called_once_with(sys.executable)
+        self.assertEqual(json.loads(self.output.read_bytes())["CommandPrefix"][0], "selected-venv-python")
 
     def test_temporary_suite_change_stays_invalid_after_restoration(self) -> None:
         count = 0

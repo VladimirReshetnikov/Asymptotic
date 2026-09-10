@@ -8,8 +8,8 @@ The [compatibility status](COMPATIBILITY.md) describes the broader goal.
 
 ## Evidence and current scope
 
-The maintained suite has **107 cases** after wave-4 hardening. The additional
-contracts cover empty lookup state, the empty inverse multi-index, retained
+The maintained suite has **108 cases** after wave-4 hardening. The additional
+contracts cover empty lookup state, shared lazy defaults, the empty inverse multi-index, retained
 nonprincipal `ProductLog` proofs, and numerical precision. The quadratic
 integer-root test now also verifies the returned precision. Focused paired
 Windows checks are recorded separately in the

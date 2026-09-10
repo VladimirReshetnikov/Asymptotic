@@ -130,7 +130,10 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   times, and delegates other forms to native `Map`. Flat-sector operations
   and Fourier residual metadata exercise this boundary. Empty-key and
   empty-association `Lookup` calls require the same protection, including
-  preservation of unused-default laziness and subsequent list reuse. See
+  preservation of default evaluation counts and subsequent list reuse. An
+  empty first list denotes an empty rule collection: its scalar lookup uses
+  the default once. An empty key list uses it zero times; multiple missing
+  results share one lazy default. See
   [LISTS.md](Mathics/LISTS.md).
 - Mathics' three-argument `ToExpression` can evaluate the parsed expression
   before its wrapper holds it. When inspecting existing private symbols,

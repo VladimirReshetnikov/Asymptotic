@@ -41,7 +41,11 @@ extraction and an independently composed residual with no nonzero blocks.
 The initial installer covered only private definitions. Wave-4 review
 identified an omitted route through compatibility `Lookup`: both an empty
 key list and an empty association list could still corrupt the reused list.
-The regression now checks both forms, zero evaluations of the unused default,
-and subsequent construction of nested numeric metadata. The public empty
+The regression checks both forms and subsequent construction of nested numeric
+metadata. Official controls also establish an ambiguity at the empty first
+argument: `Lookup[{}, key, default]` treats it as an empty rule collection and
+returns the default once. An empty key list evaluates no default. Across
+multiple missing keys or associations, one lazily evaluated default is shared
+by the whole call. The adapter preserves these distinctions. The public empty
 inverse multi-index is also tested; that public example already passed before
 this extension and is not claimed as a reproduced crash.

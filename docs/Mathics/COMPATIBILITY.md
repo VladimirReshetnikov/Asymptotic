@@ -205,15 +205,16 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-The suite now contains **107 cases**. The latest additions cover reused empty
-lookup lists, an empty inverse multi-index, conservative nonprincipal branch
+The suite now contains **108 cases**. The latest additions cover reused empty
+lookup lists, shared lazy defaults, an empty inverse multi-index, conservative nonprincipal branch
 proofs, and numerical precision. The first Mathics Windows checks pass the six
 new cases and the strengthened integer-root precision assertion, with the original
 misqualified `RootReduce` fixture failure retained alongside its successful
 explicit-context correction. The [wave-4 validation record](../../validation/README.md#mathics-wave-4-hardening)
-links the raw reports. The official controls identified different empty-list
-lookup semantics, which are being aligned before final acceptance.
-A complete 107-case run is not claimed by those focused
+links the raw reports. Official controls identified different empty-list
+lookup semantics; the adapter now treats that first argument as an empty rule
+collection and shares one lazy default across missing results of each call.
+A complete 108-case run is not claimed by those focused
 checks; the earlier complete Linux checkpoint remains identified below.
 
 The [API inventory](API-COVERAGE.md) maps all 38 exported symbols to exact

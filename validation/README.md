@@ -285,10 +285,10 @@ or establish completion of any of the three package-coverage goals.
 
 ### Mathics wave-4 hardening
 
-The integrated package contains 56 modules. Its generated standalone is
+The initial wave-4 checkpoint `526e561` contains 56 modules. Its standalone is
 677,685 bytes, SHA-256
 `2490e5c82993cd69b9f6463fc73228915fd754a4748101fc42e392ddd6490820`.
-The maintained portable suite now has 107 cases. The new work addresses
+That checkpoint's portable suite has 107 cases. The new work addresses
 empty-list lookup cache corruption, incorrect exact nonprincipal Lambert
 simplification, unsupported numerical precision, and false-positive harness
 results after failed loading or observed source drift.
@@ -303,7 +303,9 @@ pass on identical package bytes. The original failures are preserved.
 The official-kernel controls subsequently found an empty-list lookup oracle
 mismatch: `Lookup[{}, key, default]` evaluates the default once, treating the
 empty list as an empty rule collection. The first Mathics fixture expected
-list-of-associations mapping. That semantic boundary is being corrected;
+list-of-associations mapping. The subsequent adapter correction treats the
+empty first list as an empty rule collection and shares one lazy default
+across every missing result of a call;
 the first focused Mathics pass is not a claim of parity for that case.
 The four numerical contracts cover an exactly verified integer root, explicit
 30-digit refusals for rational and irrational noninteger roots, and a successful
@@ -337,6 +339,19 @@ These cover harness integrity and generated loading isolation, rather than
 additional mathematical feature inputs. The Linux workflow now runs the
 loading integration once and permits all ten independent portable shards
 to run concurrently; each case retains its own process deadline.
+
+After merging upstream `1a183a8`, the package also includes the independently
+reviewed Fourier termination repair and current public help. The updated
+standalone has 56 modules, 679,426 bytes, SHA-256
+`13319a269729d01cf10180394d9fcd2abf9ec9e5237e761874ab967eed4320ce`.
+The suite has **108 cases**, including the shared-default contract and the
+corrected empty-rule-collection expectation. The expanded load gate rejects
+aborted loads and registered packages without required definitions, while
+accepting a fully loaded wrapper that returns a non-`Null` value. It has
+11 integration fixtures: eight rejections and three successful controls.
+All 66 merged Mathics-tool tests and 14 builder tests pass. Focused paired
+kernel checks and the next complete Linux acceptance run are recorded
+separately as they finish; the earlier checkpoint receipts remain unchanged.
 
 ### Earlier full and focused compatibility evidence
 
