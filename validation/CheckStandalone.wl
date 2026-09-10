@@ -38,6 +38,12 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"],
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[Quiet[Module[{x, s},
+    s = AsymptoticExpand[Exp[x], x -> 0, SeriesTermGoal -> 0];
+    {Normal[s], s["NativeBackend"], s["OrderConvention"],
+      Lookup[s["NativeAttempts"], "EvaluationStatus"]}]],
+    {1, "Series", "Native", {"Unresolved", "Computed"}},
+    TestID -> "loading-scalar-native-rule-goal-finds-successful-series"],
   VerificationTest[Module[{x, s, t, bound = 2^($SystemWordLength - 1)},
     s = AsymptoticExpansion[1 + x^(2^100), x -> 0, SeriesTermGoal -> 1];
     t = AsymptoticExpansion[x^-1 + x^(bound - 1), x -> 0, SeriesTermGoal -> 1];

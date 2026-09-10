@@ -1,5 +1,39 @@
 # Review and validation record
 
+## Wave-3 intake and explicit native rule goals
+
+All nine [wave-3 reports](../external-reports/code-review/wave-3/README.md)
+have been read and compared with the current source. The
+[maintained intake](../docs/development/WAVE_3_INTAKE.md) maps all 44 ledger
+entries and their unnumbered proposals into the implementation scope. This
+source audit does not rerun or validate every supplied native witness or
+candidate patch. The immutable report payloads remain unchanged.
+
+The [explicit rule-goal acceptance](native-rule-goal-tests.json) passes
+**116 tests, zero failures**, across [five selected files](CheckNativeRuleGoals.wl),
+including 15 new cases. Scalar rule requests now admit explicit native goals
+`Automatic`, zero and negative integers; native oracle comparisons cover
+their distinct finite parts. Delayed common options are consumed once,
+explicit package constraints remain binding, and triple cutoffs are unchanged.
+Configured backend/goal defaults, alias ownership and equivalent option names
+remain separate wave-3 items; this repair does not close them.
+
+The [first pass](native-rule-goal-first-pass.json) passed 115 cases and failed
+one new test because its helper incorrectly required automatic-only
+`OrderConvention` metadata on an explicit native result. The helper was
+corrected; production explicit-native behavior did not change. That first
+record describes the earlier test source, not the final committed test hash.
+
+The [local loading acceptance](native-rule-goal-loading-tests.json) passes
+**90 checks in five fresh kernels**, including the new scalar rule case,
+reloads, isolated standalone loading, modular entry, `init.m`, `Needs` and
+paclet registration. The generated guide and distribution match their sources;
+documentation link checks now include the new wave-3 index and intake.
+
+The native-boundary change does not alter the mathematical article's analytic
+theory. Its TeX/PDF are unchanged; the user guide and development notes describe
+the new routing behavior. The full package suite was not run.
+
 ## Native `SeriesData` integer and order-span limits
 
 The [focused C17 acceptance](review-native-index-range-tests.json) passes

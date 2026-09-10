@@ -161,5 +161,5 @@ VerificationTest[
     MatchQ[s, _GeneralizedSeries] && s["Kind"] =!= "Native" &&
       Normal[s] === 1 + x + x^2/2 && s["RemainderPower"] === 3 &&
       ! KeyExistsQ[s[[1]], "NativeAttempts"] &&
-      MatchQ[AsymptoticExpansion[Exp[x], x -> 0, SeriesTermGoal -> 0], Failure["InvalidCutoff", _Association]]],
+      MatchQ[AsymptoticExpansion[Exp[x], x -> 0, SeriesTermGoal -> 0, "Backend" -> "Package"], Failure["InvalidCutoff", _Association]]],
   True, TestID -> "native-search-keeps-successful-package-cutoffs-and-invalid-package-goals"]

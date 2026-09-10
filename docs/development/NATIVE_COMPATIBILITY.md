@@ -1,9 +1,12 @@
-# Native expansion compatibility: required coverage and implementation plan
+# Native expansion compatibility: review scope and implementation plan
 
-The accepted goal is for the package's expansion functionality to completely
-subsume the input coverage of ``System`Series`` and ``System`Asymptotic``, while
-allowing a different result representation. This includes their less familiar
-inputs and options, not only the examples in the current user guide.
+The earlier compatibility objective introduced a target of subsuming the input
+coverage of ``System`Series`` and ``System`Asymptotic`` with a different result
+representation permitted. The current user objective is to implement the
+recommendations in all three review waves and keep the documentation current.
+The coverage matrix remains a design and comparison target; specific review
+findings, including equivalent request forms and native result contracts,
+drive the implementation work. It is not a claim of complete current coverage.
 **Explicit native delegation and the held alias have focused acceptance.
 Structural automatic routing and a narrow representation fallback are now
 implemented; their current validation is recorded separately below.
@@ -108,8 +111,19 @@ AsymptoticExpand[{Exp[x], Sin[x]}, x -> 0, SeriesTermGoal -> 0]
 This native-shaped request now selects `Series` after trying `Asymptotic`.
 The same native difference occurs with term goal `-1`. These are native
 term-goal semantics, not a reinterpretation of a package block count.
-Scalar requests that reach package validation still reject those goals;
-resolving this remaining admission gap belongs to complete native coverage.
+Scalar rule requests with an explicit nonpositive integer term goal or
+`SeriesTermGoal -> Automatic` now enter the same native search. On this
+kernel, `Series[Exp[x], x -> 0, SeriesTermGoal -> 0]` and an explicit
+`Automatic` goal retain `1`; negative goals have an empty finite part.
+The complete native result is preserved in each case. Common delayed options
+are reused after their effective values have been read, so admission does not
+reexecute them. Explicit package mode and package direction/branch/resource
+constraints retain their validation. Triple cutoffs are unchanged.
+
+The [116/0 focused record](../../validation/native-rule-goal-tests.json)
+contains 15 new rule-goal cases plus search, dispatch, explicit native and
+assumption controls. Configured default goals, alias defaults, and equivalent
+option spellings remain separate wave-3 request-resolution obligations.
 
 ## Required coverage matrix
 
