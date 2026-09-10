@@ -291,27 +291,125 @@ AsymptoticAnalysis`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : Op
   GeneralizedSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,
     "InverseFunctionProvenance" -> DeleteDuplicates[$inverseFunctionProvenance]|>]]]]];
 
-AsymptoticAnalysis`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[Module[
-  {a, b, input, wj, term, result, p, deg, alpha, lc, ell, ass, h, limit = OptionValue["MaxTerms"]},
-  requireAnalyticSeries[outer]; requireAnalyticSeries[inner];
-  result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], limit];
-  If[result =!= $Failed, Return[result, Module]];
-  a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
-  If[a === $Failed || b === $Failed, fail["UnsupportedScale", "Composition currently requires a single power-log representation of both operands."]];
-  ell = b["LogVariable"]; ass = seriesAss[a] && seriesAss[b]; h = seriesWorkingCut[b, OptionValue["Cutoff"]];
+(* The coefficients alone do not record all fixed data of a remainder: a
+   parameter may occur only in the discarded source or an operand recipe.
+   Source variables of inverse equations and operand variables are bound. *)
+seriesCompositionScope[s : GeneralizedSeries[data_Association], variable_] := Module[
+  {outerVariable = Lookup[data, "Variable", None], sourceVariable, dependencies,
+   source, recipe, operands = {}, extra = {}, scopes, known, captured},
+  If[outerVariable === variable, Return[{True, False}, Module]];
+  sourceVariable = Lookup[data, "SourceVariable",
+    Replace[Lookup[data, "Variables", {}], {{x_Symbol, _Symbol} :> x, _ :> outerVariable}]];
+  dependencies = KeyTake[data, {"Expression", "Assumptions", "TargetDomain", "Remainder",
+    "RemainderScaleExpression", "RemainderPower", "RemainderLogDegree", "Prefactor", "Offset",
+    "ExpansionPoint", "FixedParameters"}];
+  source = If[sourceVariable === variable, {}, KeyTake[data, {"Function", "SourceDomain",
+    "ConditionalSourceReplay", "ForwardModel", "InputRemainder", "DeclaredInputRemainder", "InputDomains"}]];
+  recipe = Lookup[data, "SeriesRecipe", None];
+  If[ListQ[recipe] && Length[recipe] >= 2 && ListQ[recipe[[2]]],
+    operands = Select[recipe[[2]], MatchQ[#, _GeneralizedSeries] &];
+    extra = Drop[recipe, 2];
+    If[recipe[[1]] === "Observable" && Length[recipe] >= 4,
+      extra = If[recipe[[4]] === variable, {}, {recipe[[3]]}]]];
+  If[MatchQ[Lookup[data, "CoordinateSeries", None], _GeneralizedSeries],
+    AppendTo[operands, data["CoordinateSeries"]];
+    extra = {extra, Last /@ Lookup[data, "CoordinateSubstitution", {}]}];
+  scopes = seriesCompositionScope[#, variable] & /@ DeleteDuplicates[operands];
+  known = Lookup[data, "Remainder", None] === 0 || KeyExistsQ[data, "Function"] ||
+    (scopes =!= {} && And @@ scopes[[All, 1]]);
+  captured = ! FreeQ[{dependencies, source, extra}, variable] ||
+    (scopes =!= {} && Or @@ scopes[[All, 2]]);
+  {known, captured}];
+
+seriesCompositionJointData[a_, b_, limit_] := Module[{ignored, ass, condition, u, rule, d},
+  {ignored, ass, condition} = splitApproachInput[True, b["Variable"],
+    a["Assumptions"] && b["Assumptions"]];
+  If[TrueQ[Simplify[Not[ass]]], fail["IncompatibleDomains", "The operands have conflicting parameter assumptions."]];
+  d = Join[b, <|"Assumptions" -> ass|>];
+  u = Unique["jointScale$"]; rule = seriesCoordinateRule[d, u];
+  If[rule === $Failed || ! inverseFunctionEventually[condition /. rule, u, ass],
+    fail["IncompatibleCompositionParameters", "The outer parameter assumptions are not proved along the inner approach.",
+      <|"Condition" -> condition, "Variable" -> b["Variable"]|>]];
+  Join[d, <|"Domain" -> Lookup[d, "Domain", True] && condition|>]];
+
+seriesCompositionCoordinate[a_, b_, h_, limit_, ass_] := Module[{wj, lc, ell = b["LogVariable"]},
   wj = seriesJetApply[a["ScaleVariable"], a["Variable"], b["Jet"], b, h, limit];
   If[wj[[1]] === {} || ! less[0, jetValuation[wj[[1]]]],
     fail["IncompatibleLimits", "The inner expansion must approach the outer expansion point from its recorded positive local side."]];
-  alpha = jetValuation[wj[[1]]]; lc = wj[[1, 1, 2]];
+  lc = wj[[1, 1, 2]];
   If[! FreeQ[lc, ell] || ! provablyPositive[lc, ass],
     fail["UnsupportedCompositionScale", "Composition requires a positive monomial leading block for the outer local coordinate."]];
+  wj];
+
+(* Replay only a complete forward source along an exact forward inner germ.
+   The old outer tail is discarded, not relabeled as uniform. The strict
+   analytic constructor rechecks all original conditions in the new regime. *)
+seriesCompositionSourceReplay[outer_, inner_, cut_, limit_] := Module[
+  {oa = outer[[1]], ia = inner[[1]], source, a, b, h, expression, condition, result},
+  If[Lookup[oa, "Kind", None] =!= "Forward" || ! KeyExistsQ[oa, "Function"] ||
+     Lookup[ia, "Kind", None] =!= "Forward" || Lookup[ia, "Remainder", None] =!= 0 ||
+     ! TrueQ[Lookup[ia, "Exact", False]], Return[$Failed, Module]];
+  source = oa["Function"];
+  If[! FreeQ[source, _PowerLogRemainder | _GeneralizedSeries | _SeriesData | _InverseFunction],
+    Return[$Failed, Module]];
+  a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
+  If[a === $Failed || b === $Failed, Return[$Failed, Module]];
+  b = seriesCompositionJointData[a, b, limit]; h = seriesWorkingCut[b, cut];
+  seriesCompositionCoordinate[a, b, h, limit, seriesAss[b]];
+  If[! TrueQ[inverseFunctionConditionOnJet[Lookup[oa, "TargetDomain", True],
+      oa["Variable"], b["Jet"], b, h, limit]],
+    fail["IncompatibleTargetCondition", "The outer source condition is not proved on the joint approach.",
+      <|"Condition" -> Lookup[oa, "TargetDomain", True]|>]];
+  expression = Normal[inner];
+  condition = Lookup[ia, "TargetDomain", True] && (Lookup[oa, "TargetDomain", True] /. oa["Variable"] -> expression);
+  result = AsymptoticExpansion[ConditionalExpression[source /. oa["Variable"] -> expression, condition],
+    {ia["Variable"], ia["ExpansionPoint"], h}, Assumptions -> (oa["Assumptions"] && ia["Assumptions"]),
+    Direction -> ia["Direction"], "Backend" -> "Package", "MaxTerms" -> limit];
+  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
+  GeneralizedSeries[Join[result[[1]], <|"CompositionScope" -> <|
+    "Method" -> "ReplayExactForwardSources", "CapturedParameter" -> ia["Variable"],
+    "OuterVariable" -> oa["Variable"], "OriginalOuterRemainderTransported" -> False,
+    "UniformParameterBoundAsserted" -> False|>|>]]];
+
+seriesCompositionAdmission[outer_, inner_, cut_, limit_, replay_: True] := Module[{scope, captured, result},
+  requireAnalyticSeries[outer]; requireAnalyticSeries[inner];
+  If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
+  If[cut =!= Automatic && ! exactRealQ[cut], fail["InvalidCutoff", "A series operation cutoff must be an exact real number."]];
+  scope = seriesCompositionScope[outer, Lookup[inner[[1]], "Variable", None]]; captured = scope[[2]];
+  If[Lookup[outer[[1]], "Remainder", None] =!= 0,
+    If[captured,
+      result = If[TrueQ[replay], seriesCompositionSourceReplay[outer, inner, cut, limit], $Failed];
+      If[result =!= $Failed, Return[{True, result}, Module]];
+      fail["ParameterCapture", "The inner variable was fixed data of the outer remainder. A joint source expansion or a separately proved uniform bound is required.",
+        <|"OuterVariable" -> outer["Variable"], "CapturedParameter" -> inner["Variable"], "UniformityEstablished" -> False|>]];
+    If[! TrueQ[scope[[1]]], fail["MissingParameterScope", "The outer remainder has no retained source or operation provenance establishing its fixed-parameter scope."]]];
+  {captured, $Failed}];
+
+AsymptoticAnalysis`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[Module[
+  {a, b, wj, term, result, p, deg, alpha, ell, ass, h, captured,
+   cut = OptionValue["Cutoff"], limit = OptionValue["MaxTerms"]},
+  {captured, result} = seriesCompositionAdmission[outer, inner, cut, limit];
+  If[result =!= $Failed, Return[result, Module]];
+  If[! captured,
+    result = reciprocalLogCompose[outer, inner, cut, limit];
+    If[result =!= $Failed, Return[result, Module]]];
+  a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
+  If[a === $Failed || b === $Failed, fail["UnsupportedScale", "Composition currently requires a single power-log representation of both operands."]];
+  If[captured, b = seriesCompositionJointData[a, b, limit]];
+  ell = b["LogVariable"]; ass = If[captured, seriesAss[b], seriesAss[a] && seriesAss[b]];
+  h = seriesWorkingCut[b, cut];
+  wj = seriesCompositionCoordinate[a, b, h, limit, ass]; alpha = jetValuation[wj[[1]]];
+  If[captured && ! TrueQ[inverseFunctionConditionOnJet[Lookup[a, "Domain", True],
+      a["Variable"], b["Jet"], b, h, limit]],
+    fail["IncompatibleCompositionParameters", "The exact outer expression's domain is not proved on the joint approach."]];
   result = pConst[0, ell, ass];
   Do[term = pMul[fwdPower[wj, row[[1]], Unique["w$"], ell, ass, h, limit],
       seriesJetApply[row[[2]], a["LogVariable"], fwdLog[wj, Unique["w$"], ell, ass, h, limit], b, h, limit], ell, ass, limit];
     result = pAdd[result, term, ell, ass], {row, a["Jet"][[1]]}];
   {p, deg} = a["Jet"][[{2, 3}]];
   If[p =!= Infinity, result = pAdd[result, {{}, canon[alpha p], deg}, ell, ass]];
-  seriesMake[Join[b, <|"Jet" -> result, "Assumptions" -> a["Assumptions"] && b["Assumptions"],
+  seriesMake[Join[b, <|"Jet" -> result,
+    "Assumptions" -> If[captured, b["Assumptions"], a["Assumptions"] && b["Assumptions"]],
     "Domain" -> Lookup[b, "Domain", True] && (Lookup[a, "Domain", True] /.
       a["Variable"] -> seriesJetExpression[b["Jet"], b["ScaleVariable"], b["LogVariable"]]),
     "RemainderDerivativeOrder" -> Min[Lookup[a, "RemainderDerivativeOrder", 0], Lookup[b, "RemainderDerivativeOrder", 0]]|>], {"Compose", {outer, inner}}, h]]];

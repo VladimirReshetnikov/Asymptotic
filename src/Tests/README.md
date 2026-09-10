@@ -25,6 +25,9 @@ Use another entry script when its explicit selection matches the change:
 
 | Coverage | Entry script |
 | --- | --- |
+| Compatible native-backend retries, held evaluation, and adjacent native contracts | [CheckNativeSearch.wl](../../validation/CheckNativeSearch.wl) |
+| Equal-exponent collection and composition parameter scope, with arithmetic and scale neighbors | [CheckReviewNormalization.wl](../../validation/CheckReviewNormalization.wl) |
+| Only the equal-exponent and composition-scope regressions | [CheckReviewScopeAndEquality.wl](../../validation/CheckReviewScopeAndEquality.wl) |
 | Renamed package identity, native backends, inverse syntax and certificates | [CheckPackageRename.wl](../../validation/CheckPackageRename.wl) |
 | Native formal-order import and export within the analytic representation | [CheckReviewNativeTails.wl](../../validation/CheckReviewNativeTails.wl) |
 | Complete real coefficients and adjacent constructors | [CheckReviewRealCoefficients.wl](../../validation/CheckReviewRealCoefficients.wl) |
@@ -79,23 +82,31 @@ located without relying on the file's current test count.
 
 ## Focused native-backend acceptance
 
-Compatibility checks for explicit `"Backend" -> "Series"` and
-`"Backend" -> "Asymptotic"` delegation run through
-[CheckNativeCompatibility.wl](../../validation/CheckNativeCompatibility.wl).
-The implemented backends have a
-[130 passed, zero failed record](../../validation/native-compatibility-tests.json)
-across eight selected files on Wolfram 15.0.1 for Windows, with sources unchanged.
-The selected files cover native result metadata, argument/order/option behavior,
-operation guards, and adjacent existing behavior. The earlier focused
-harnesses listed above do not establish acceptance of this native result kind.
+[CheckNativeSearch.wl](../../validation/CheckNativeSearch.wl) records
+[179 passed, zero failed tests](../../validation/native-search-tests.json)
+across nine selected files on Wolfram 15.0.1 for Windows, with source hashes
+unchanged during the run. Its 16 [NativeSearch.wlt](NativeSearch.wlt) cases
+check successful second-backend selection, stopping after a first success,
+retaining the preferred unresolved result, explicit-native delegation, and
+once-only source and common-option evaluation. They also check unused delayed
+duplicates, nested option containers, native-exclusive options, and the ordered
+`NativeAttempts` metadata. Neighboring suites cover automatic routing,
+presentation, result contracts, assumptions, real coefficients, and inverse
+syntax. Protected directions and branch conditions remain separate coverage
+work; this acceptance does not establish the complete input-superset objective.
+
+The historical [130/0 explicit-native record](../../validation/native-compatibility-tests.json)
+and [163/0 automatic-routing record](../../validation/native-automatic-tests.json)
+describe earlier source snapshots. Their runners,
+[CheckNativeCompatibility.wl](../../validation/CheckNativeCompatibility.wl) and
+[CheckNativeAutomatic.wl](../../validation/CheckNativeAutomatic.wl), remain useful
+smaller selections. Those saved counts and hashes do not validate subsequent
+source changes.
 
 The [native compatibility plan](../../docs/development/NATIVE_COMPATIBILITY.md)
 describes the implementation and contract boundaries.
-[CheckNativeAutomatic.wl](../../validation/CheckNativeAutomatic.wl) selects
-automatic routing, argument evaluation, native option and branch constraints,
-and adjacent explicit-backend and inverse-callable regressions.
-This focused acceptance is separate from historical analytic-import evidence
-and does not establish the complete input-superset objective.
+Native-backend acceptance is separate from the analytic import/export checks:
+a preserved native result does not acquire an independently proved remainder.
 
 [CheckReviewCertificateAccuracy.wl](../../validation/CheckReviewCertificateAccuracy.wl)
 selects report 18 N01 / C19's relative-accuracy, retry, sharp-bound, best-result,
@@ -110,6 +121,25 @@ The existing [NativeSpecialIngress.wlt](NativeSpecialIngress.wlt),
 analytic representation and its native import/export boundaries. Their saved
 passing reports do not validate the new native result kind. A formal native
 order must not silently become a proved analytic remainder or exactness claim.
+
+## Equal exponents and composition scope
+
+[CheckReviewNormalization.wl](../../validation/CheckReviewNormalization.wl)
+records [276 passed, zero failed tests](../../validation/review-normalization-tests.json)
+across fifteen selected files, with source hashes unchanged during the run.
+The selection includes 23 [equal-exponent cases](ReviewExponentEquality.wlt)
+and 20 [composition-scope cases](ReviewCompositionScope.wlt), plus ordinary and
+inverse arithmetic, Fourier and logarithmic operations, assumptions, real
+coefficients, and native-special ingress.
+
+[CheckReviewScopeAndEquality.wl](../../validation/CheckReviewScopeAndEquality.wl)
+selects just those two regression files for a narrower run. The
+[equal-exponent notes](../../docs/development/EXPONENT_EQUALITY.md) explain
+collection before truncation and remainder calculations. The
+[composition-scope notes](../../docs/development/COMPOSITION_PARAMETER_SCOPE.md)
+explain fixed parameters, retained source and operation provenance, exact
+source replay, and refusals when a transported remainder lacks a uniform bound.
+These focused runs do not replace the full package suite.
 
 ## Full runner, generated campaigns, and benchmarks
 

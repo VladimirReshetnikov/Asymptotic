@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 8f4639ec1d4fda96e8ddb914205e2814c19ef21b165b0280717060698abaa60a *)
+   Source SHA256 (UTF-8/LF): 3674f826e60b5a5055c5abcb48c4dd6cc45a4920479d20c457f41fd6d3e9c3c9 *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -254,6 +254,18 @@ realCoefficientRows[rows0_List, ell_, ass_, symbolic_: False] := Module[{rows, c
 (* Sparse power-log jets: lists of {weight, polynomial in ell}          *)
 (* ------------------------------------------------------------------ *)
 
+(* Canonical expression trees need not identify equal exact real weights.
+   First bucket identical keys, then sort representatives and join adjacent
+   proved-equal buckets. Only the m structural representatives are sorted;
+   at most m-1 adjacent equality checks are needed, without all-pairs proofs.
+   Callers canonicalize weights and normalize coefficients in their own
+   algebra; a failed order proof retains the existing UndecidableOrder exit. *)
+orderedWeightGroups[rows_List] := Module[{groups},
+  groups = GatherBy[rows, First];
+  If[Length[groups] < 2, Return[groups, Module]];
+  groups = Sort[groups, less[#1[[1, 1]], #2[[1, 1]]] &];
+  Flatten[#, 1] & /@ Split[groups, equal[#1[[1, 1]], #2[[1, 1]]] &]];
+
 jetMerge[terms_List, ell_, ass_, symbolic_: False] := Module[{groups, out},
   If[terms === {}, Return[{}, Module]];
   If[symbolic,
@@ -267,7 +279,12 @@ jetMerge[terms_List, ell_, ass_, symbolic_: False] := Module[{groups, out},
   groups = GatherBy[{canon[#[[1]]], #[[2]]} & /@ terms, First];
   out = {#[[1, 1]], polyCanon[Total[#[[All, 2]]], ell, ass]} & /@ groups;
   out = Select[out, ! polyCanonicalZeroQ[#[[2]], ell, ass] &];
-  Sort[out, leq[#1[[1]], #2[[1]]] &]];
+  (* Preserve cheap structural cancellation before requiring cross-weight
+     order proofs, and only recanonicalize coefficients that actually merge. *)
+  groups = orderedWeightGroups[out];
+  out = If[Length[#] === 1, First[#],
+    {#[[1, 1]], polyCanon[Total[#[[All, 2]]], ell, ass]}] & /@ groups;
+  Select[out, ! polyCanonicalZeroQ[#[[2]], ell, ass] &]];
 
 jetTrim[u_List, cut_, ell_, ass_] := jetMerge[Select[u, less[#[[1]], cut] &], ell, ass];
 jetAdd[u_List, v_List, cut_, ell_, ass_] := jetTrim[Join[u, v], cut, ell, ass];
@@ -1880,7 +1897,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 8993956cb2cb83936e38179c428b0a4478389d88b79fe8d7f55ef57f1d5e6bfe *)
+   Source SHA256 (UTF-8/LF): eebae3475bccd69500a5e6846cbc07a3579bd924922c43d610a10ff178a7cbf7 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2174,27 +2191,125 @@ AsymptoticAnalysis`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : Op
   GeneralizedSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,
     "InverseFunctionProvenance" -> DeleteDuplicates[$inverseFunctionProvenance]|>]]]]];
 
-AsymptoticAnalysis`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[Module[
-  {a, b, input, wj, term, result, p, deg, alpha, lc, ell, ass, h, limit = OptionValue["MaxTerms"]},
-  requireAnalyticSeries[outer]; requireAnalyticSeries[inner];
-  result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], limit];
-  If[result =!= $Failed, Return[result, Module]];
-  a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
-  If[a === $Failed || b === $Failed, fail["UnsupportedScale", "Composition currently requires a single power-log representation of both operands."]];
-  ell = b["LogVariable"]; ass = seriesAss[a] && seriesAss[b]; h = seriesWorkingCut[b, OptionValue["Cutoff"]];
+(* The coefficients alone do not record all fixed data of a remainder: a
+   parameter may occur only in the discarded source or an operand recipe.
+   Source variables of inverse equations and operand variables are bound. *)
+seriesCompositionScope[s : GeneralizedSeries[data_Association], variable_] := Module[
+  {outerVariable = Lookup[data, "Variable", None], sourceVariable, dependencies,
+   source, recipe, operands = {}, extra = {}, scopes, known, captured},
+  If[outerVariable === variable, Return[{True, False}, Module]];
+  sourceVariable = Lookup[data, "SourceVariable",
+    Replace[Lookup[data, "Variables", {}], {{x_Symbol, _Symbol} :> x, _ :> outerVariable}]];
+  dependencies = KeyTake[data, {"Expression", "Assumptions", "TargetDomain", "Remainder",
+    "RemainderScaleExpression", "RemainderPower", "RemainderLogDegree", "Prefactor", "Offset",
+    "ExpansionPoint", "FixedParameters"}];
+  source = If[sourceVariable === variable, {}, KeyTake[data, {"Function", "SourceDomain",
+    "ConditionalSourceReplay", "ForwardModel", "InputRemainder", "DeclaredInputRemainder", "InputDomains"}]];
+  recipe = Lookup[data, "SeriesRecipe", None];
+  If[ListQ[recipe] && Length[recipe] >= 2 && ListQ[recipe[[2]]],
+    operands = Select[recipe[[2]], MatchQ[#, _GeneralizedSeries] &];
+    extra = Drop[recipe, 2];
+    If[recipe[[1]] === "Observable" && Length[recipe] >= 4,
+      extra = If[recipe[[4]] === variable, {}, {recipe[[3]]}]]];
+  If[MatchQ[Lookup[data, "CoordinateSeries", None], _GeneralizedSeries],
+    AppendTo[operands, data["CoordinateSeries"]];
+    extra = {extra, Last /@ Lookup[data, "CoordinateSubstitution", {}]}];
+  scopes = seriesCompositionScope[#, variable] & /@ DeleteDuplicates[operands];
+  known = Lookup[data, "Remainder", None] === 0 || KeyExistsQ[data, "Function"] ||
+    (scopes =!= {} && And @@ scopes[[All, 1]]);
+  captured = ! FreeQ[{dependencies, source, extra}, variable] ||
+    (scopes =!= {} && Or @@ scopes[[All, 2]]);
+  {known, captured}];
+
+seriesCompositionJointData[a_, b_, limit_] := Module[{ignored, ass, condition, u, rule, d},
+  {ignored, ass, condition} = splitApproachInput[True, b["Variable"],
+    a["Assumptions"] && b["Assumptions"]];
+  If[TrueQ[Simplify[Not[ass]]], fail["IncompatibleDomains", "The operands have conflicting parameter assumptions."]];
+  d = Join[b, <|"Assumptions" -> ass|>];
+  u = Unique["jointScale$"]; rule = seriesCoordinateRule[d, u];
+  If[rule === $Failed || ! inverseFunctionEventually[condition /. rule, u, ass],
+    fail["IncompatibleCompositionParameters", "The outer parameter assumptions are not proved along the inner approach.",
+      <|"Condition" -> condition, "Variable" -> b["Variable"]|>]];
+  Join[d, <|"Domain" -> Lookup[d, "Domain", True] && condition|>]];
+
+seriesCompositionCoordinate[a_, b_, h_, limit_, ass_] := Module[{wj, lc, ell = b["LogVariable"]},
   wj = seriesJetApply[a["ScaleVariable"], a["Variable"], b["Jet"], b, h, limit];
   If[wj[[1]] === {} || ! less[0, jetValuation[wj[[1]]]],
     fail["IncompatibleLimits", "The inner expansion must approach the outer expansion point from its recorded positive local side."]];
-  alpha = jetValuation[wj[[1]]]; lc = wj[[1, 1, 2]];
+  lc = wj[[1, 1, 2]];
   If[! FreeQ[lc, ell] || ! provablyPositive[lc, ass],
     fail["UnsupportedCompositionScale", "Composition requires a positive monomial leading block for the outer local coordinate."]];
+  wj];
+
+(* Replay only a complete forward source along an exact forward inner germ.
+   The old outer tail is discarded, not relabeled as uniform. The strict
+   analytic constructor rechecks all original conditions in the new regime. *)
+seriesCompositionSourceReplay[outer_, inner_, cut_, limit_] := Module[
+  {oa = outer[[1]], ia = inner[[1]], source, a, b, h, expression, condition, result},
+  If[Lookup[oa, "Kind", None] =!= "Forward" || ! KeyExistsQ[oa, "Function"] ||
+     Lookup[ia, "Kind", None] =!= "Forward" || Lookup[ia, "Remainder", None] =!= 0 ||
+     ! TrueQ[Lookup[ia, "Exact", False]], Return[$Failed, Module]];
+  source = oa["Function"];
+  If[! FreeQ[source, _PowerLogRemainder | _GeneralizedSeries | _SeriesData | _InverseFunction],
+    Return[$Failed, Module]];
+  a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
+  If[a === $Failed || b === $Failed, Return[$Failed, Module]];
+  b = seriesCompositionJointData[a, b, limit]; h = seriesWorkingCut[b, cut];
+  seriesCompositionCoordinate[a, b, h, limit, seriesAss[b]];
+  If[! TrueQ[inverseFunctionConditionOnJet[Lookup[oa, "TargetDomain", True],
+      oa["Variable"], b["Jet"], b, h, limit]],
+    fail["IncompatibleTargetCondition", "The outer source condition is not proved on the joint approach.",
+      <|"Condition" -> Lookup[oa, "TargetDomain", True]|>]];
+  expression = Normal[inner];
+  condition = Lookup[ia, "TargetDomain", True] && (Lookup[oa, "TargetDomain", True] /. oa["Variable"] -> expression);
+  result = AsymptoticExpansion[ConditionalExpression[source /. oa["Variable"] -> expression, condition],
+    {ia["Variable"], ia["ExpansionPoint"], h}, Assumptions -> (oa["Assumptions"] && ia["Assumptions"]),
+    Direction -> ia["Direction"], "Backend" -> "Package", "MaxTerms" -> limit];
+  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
+  GeneralizedSeries[Join[result[[1]], <|"CompositionScope" -> <|
+    "Method" -> "ReplayExactForwardSources", "CapturedParameter" -> ia["Variable"],
+    "OuterVariable" -> oa["Variable"], "OriginalOuterRemainderTransported" -> False,
+    "UniformParameterBoundAsserted" -> False|>|>]]];
+
+seriesCompositionAdmission[outer_, inner_, cut_, limit_, replay_: True] := Module[{scope, captured, result},
+  requireAnalyticSeries[outer]; requireAnalyticSeries[inner];
+  If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
+  If[cut =!= Automatic && ! exactRealQ[cut], fail["InvalidCutoff", "A series operation cutoff must be an exact real number."]];
+  scope = seriesCompositionScope[outer, Lookup[inner[[1]], "Variable", None]]; captured = scope[[2]];
+  If[Lookup[outer[[1]], "Remainder", None] =!= 0,
+    If[captured,
+      result = If[TrueQ[replay], seriesCompositionSourceReplay[outer, inner, cut, limit], $Failed];
+      If[result =!= $Failed, Return[{True, result}, Module]];
+      fail["ParameterCapture", "The inner variable was fixed data of the outer remainder. A joint source expansion or a separately proved uniform bound is required.",
+        <|"OuterVariable" -> outer["Variable"], "CapturedParameter" -> inner["Variable"], "UniformityEstablished" -> False|>]];
+    If[! TrueQ[scope[[1]]], fail["MissingParameterScope", "The outer remainder has no retained source or operation provenance establishing its fixed-parameter scope."]]];
+  {captured, $Failed}];
+
+AsymptoticAnalysis`SeriesCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[Module[
+  {a, b, wj, term, result, p, deg, alpha, ell, ass, h, captured,
+   cut = OptionValue["Cutoff"], limit = OptionValue["MaxTerms"]},
+  {captured, result} = seriesCompositionAdmission[outer, inner, cut, limit];
+  If[result =!= $Failed, Return[result, Module]];
+  If[! captured,
+    result = reciprocalLogCompose[outer, inner, cut, limit];
+    If[result =!= $Failed, Return[result, Module]]];
+  a = seriesFlat[seriesData[outer, limit], limit]; b = seriesFlat[seriesData[inner, limit], limit];
+  If[a === $Failed || b === $Failed, fail["UnsupportedScale", "Composition currently requires a single power-log representation of both operands."]];
+  If[captured, b = seriesCompositionJointData[a, b, limit]];
+  ell = b["LogVariable"]; ass = If[captured, seriesAss[b], seriesAss[a] && seriesAss[b]];
+  h = seriesWorkingCut[b, cut];
+  wj = seriesCompositionCoordinate[a, b, h, limit, ass]; alpha = jetValuation[wj[[1]]];
+  If[captured && ! TrueQ[inverseFunctionConditionOnJet[Lookup[a, "Domain", True],
+      a["Variable"], b["Jet"], b, h, limit]],
+    fail["IncompatibleCompositionParameters", "The exact outer expression's domain is not proved on the joint approach."]];
   result = pConst[0, ell, ass];
   Do[term = pMul[fwdPower[wj, row[[1]], Unique["w$"], ell, ass, h, limit],
       seriesJetApply[row[[2]], a["LogVariable"], fwdLog[wj, Unique["w$"], ell, ass, h, limit], b, h, limit], ell, ass, limit];
     result = pAdd[result, term, ell, ass], {row, a["Jet"][[1]]}];
   {p, deg} = a["Jet"][[{2, 3}]];
   If[p =!= Infinity, result = pAdd[result, {{}, canon[alpha p], deg}, ell, ass]];
-  seriesMake[Join[b, <|"Jet" -> result, "Assumptions" -> a["Assumptions"] && b["Assumptions"],
+  seriesMake[Join[b, <|"Jet" -> result,
+    "Assumptions" -> If[captured, b["Assumptions"], a["Assumptions"] && b["Assumptions"]],
     "Domain" -> Lookup[b, "Domain", True] && (Lookup[a, "Domain", True] /.
       a["Variable"] -> seriesJetExpression[b["Jet"], b["ScaleVariable"], b["LogVariable"]]),
     "RemainderDerivativeOrder" -> Min[Lookup[a, "RemainderDerivativeOrder", 0], Lookup[b, "RemainderDerivativeOrder", 0]]|>], {"Compose", {outer, inner}}, h]]];
@@ -3412,7 +3527,7 @@ AsymptoticAnalysis`InverseCertificate[___] := Failure["InvalidArguments", <|"Cer
 (* END SOURCE: src/Kernel/InverseCertificates.wl *)
 
 (* BEGIN SOURCE: src/Kernel/LogarithmicScales.wl
-   Source SHA256 (UTF-8/LF): 72138884f10994a4922d60cb4970da594966edae592b09b0ba7bf0eab81d34d2 *)
+   Source SHA256 (UTF-8/LF): 14626230208ac7d1f1606bb9768bb563916639867fb1ef704bea4748b20d3d09 *)
 (* Finite logarithmic hierarchies. Loaded in AsymptoticAnalysis`Private`.
    Exact source-coordinate charts live separately in SourceCoordinates.wl. *)
 
@@ -3426,7 +3541,10 @@ Options[AsymptoticAnalysis`AsymptoticLogarithmicInverse] = Join[Options[Asymptot
 logarithmicMerge[rows_, ass_] := Module[{g, merged},
   g = GatherBy[({canon[#[[1]]], #[[2]]} & /@ rows), First];
   merged = ({#[[1, 1]], Simplify[Total[#[[All, 2]]], ass]} & /@ g);
-  Sort[Select[merged, ! zeroQ[#[[2]], ass] &], less[#1[[1]], #2[[1]]] &]];
+  g = orderedWeightGroups[Select[merged, ! zeroQ[#[[2]], ass] &]];
+  merged = If[Length[#] === 1, First[#],
+    {#[[1, 1]], Simplify[Total[#[[All, 2]]], ass]}] & /@ g;
+  Select[merged, ! zeroQ[#[[2]], ass] &]];
 
 logarithmicLevels[u_, n_] := NestList[Log, -Log[u], n - 1];
 
@@ -4186,7 +4304,7 @@ AsymptoticAnalysis`FlatSeriesDifferentiate[___] := Failure["InvalidArguments", <
 (* END SOURCE: src/Kernel/FlatSectorOperations.wl *)
 
 (* BEGIN SOURCE: src/Kernel/FourierCoefficients.wl
-   Source SHA256 (UTF-8/LF): 9e22b0a627b792788dcfef12c2da60083fdba8f40a9da92dbd67ccbd9c4cfa70 *)
+   Source SHA256 (UTF-8/LF): baa06b557ee128dfc36edfaecddd02f862e47e620132c70a91f1c4abfb0a6e05 *)
 (* Finite Fourier-polynomial coefficient algebra in L = Log[u].
    A coefficient is {{omega,P_omega(L)},...}, representing
    Sum[P_omega(L) Exp[I omega L]]. Source weights remain separate. *)
@@ -4209,9 +4327,7 @@ fourierPoly[q_, ell_, ass_] := Module[{coefficients, canonical, expanded},
 
 (* The first entry is an exact source weight or frequency. Mathematical
    equality, rather than structural equality, groups algebraic resonances. *)
-fourierWeightGroups[rows_List] := Split[
-  Sort[MapAt[canon, #, 1] & /@ rows, less[#1[[1]], #2[[1]]] &],
-  equal[#1[[1]], #2[[1]]] &];
+fourierWeightGroups[rows_List] := orderedWeightGroups[MapAt[canon, #, 1] & /@ rows];
 fourierFrequencyBudget[count_, limit_] := If[count > limit,
   fail["FrequencyLimit", "The exact Fourier coefficient exceeds MaxFrequencies; no modes were silently discarded.",
     <|"MaxFrequencies" -> limit, "RequiredFrequencies" -> count|>]];
@@ -4966,7 +5082,7 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[_Association], request_Ass
 (* END SOURCE: src/Kernel/RefinementRequests.wl *)
 
 (* BEGIN SOURCE: src/Kernel/ReciprocalLogOperations.wl
-   Source SHA256 (UTF-8/LF): a32c53929053b8a39ef72ff6e4879a68e99d5cc04b3555ca0e760d96a4a587ea *)
+   Source SHA256 (UTF-8/LF): 68a6c6a1aee21c0ababaadd221de24e16e87cb15be17a91ffb0b527cfa8a1af3 *)
 (* Analytic calculus for C y^alpha A(epsilon/Log[y]), epsilon = +/-1.
    Hooks return $Failed outside their proved reciprocal-log scope. *)
 
@@ -5114,7 +5230,11 @@ reciprocalLogDifferentiate[s_, n_, declared_, cut_, limit_] := Module[
     {"Differentiate", {s}, n, Automatic}, h, limit]];
 
 AsymptoticAnalysis`ReciprocalLogCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[
-  Module[{result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},
+  Module[{result, captured, cut = OptionValue["Cutoff"], limit = OptionValue["MaxTerms"]},
+    {captured, result} = seriesCompositionAdmission[outer, inner, cut, limit, False];
+    If[result =!= $Failed, Return[result, Module]];
+    If[captured, fail["ParameterCapture", "A moving reciprocal-log carrier parameter requires a separately proved joint expansion."]];
+    result = reciprocalLogCompose[outer, inner, cut, limit];
     If[result === $Failed, fail["UnsupportedReciprocalLogComposition", "Use exact reciprocal-log-unit inverse carriers with zero offsets and positive monomial prefactors."], result]]];
 AsymptoticAnalysis`ReciprocalLogDifferentiate[s_GeneralizedSeries, n_Integer : 1, opts : OptionsPattern[]] := catch[
   Module[{result = reciprocalLogDifferentiate[s, n, Automatic, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},
@@ -7951,7 +8071,7 @@ dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_]
 (* END SOURCE: src/Kernel/DirichletSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 75d91565e8ad96d0e498bf41c055b3012aa07e45905c9010736100478d3382ed *)
+   Source SHA256 (UTF-8/LF): 7292639d9b1c6a37482deee38d054ddd40c7a7b1d39474a3410ea2c96fefb012 *)
 (* Import structured native asymptotic series without discarding their O terms.
    Native special-function expansions may contain several exact exponential
    carriers and oscillatory phases. Every tree operation transports an
@@ -8114,7 +8234,11 @@ specialNativeSectors[expression_, u_, ass_] := Module[{expanded, terms, groups, 
     rows = GatherBy[group, #[[2]] &];
     rows = {#[[1, 2]], specialNativeTry[FullSimplify[Total[#[[All, 3]]], ass && u > 0]]} & /@ rows;
     If[! FreeQ[rows, $Failed], fail["ResourceLimit", "Native amplitude simplification exceeded its time budget."]];
-    rows = Sort[Select[rows, #[[2]] =!= 0 &], less[#1[[1]], #2[[1]]] &];
+    rows = orderedWeightGroups[Select[rows, #[[2]] =!= 0 &]];
+    rows = If[Length[#] === 1, First[#], {#[[1, 1]],
+      specialNativeTry[FullSimplify[Total[#[[All, 2]]], ass && u > 0]]}] & /@ rows;
+    If[! FreeQ[rows, $Failed], fail["ResourceLimit", "Native amplitude simplification exceeded its time budget."]];
+    rows = Select[rows, #[[2]] =!= 0 &];
     If[rows === {}, Return[Nothing, Module]];
     oscillatory = ! FreeQ[rows, (Sin | Cos)[_]];
     alpha = If[carrier =!= 1 || oscillatory, rows[[1, 1]], 0];
@@ -8249,7 +8373,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
 (* END SOURCE: src/Kernel/NativeSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeCompatibility.wl
-   Source SHA256 (UTF-8/LF): 63844f835e6e8571bf3d45c01603666ff48346de23afe4ebfb9f3a748e1353be *)
+   Source SHA256 (UTF-8/LF): 1f4e525fd41add4202291335dc1e1646a236718773d5349b2d8b555016f03314 *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
    do not resolve native delayed options for a second metadata lookup. *)
@@ -8388,14 +8512,67 @@ automaticNativeBackend[request_HoldComplete] := Module[{keys, series, asymptotic
   If[MatchQ[specifications, {HoldComplete[{_Symbol, _, _}]}] || Length[specifications] > 1,
     "Series", "Asymptotic"]];
 
-automaticNativeResult[request_HoldComplete, original_HoldComplete, reason_, failure_: None] := Module[{backend, result},
-  backend = automaticNativeBackend[request];
-  If[FailureQ[backend], Return[backend, Module]];
-  result = nativeExpansion[request, backend, original];
-  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
-  GeneralizedSeries[Join[result[[1]], <|"BackendSelection" -> Automatic,
+automaticNativeBackends[request_HoldComplete] := Module[{preferred, keys, candidates},
+  preferred = automaticNativeBackend[request];
+  If[FailureQ[preferred], Return[preferred, Module]];
+  keys = nativeRequestOptionKeys[request];
+  candidates = Select[{"Series", "Asymptotic"}, Function[backend,
+    Complement[keys, HoldComplete /@ (First /@ Options[
+      If[backend === "Series", System`Series, System`Asymptotic]])] === {}]];
+  DeleteDuplicates[Prepend[DeleteCases[candidates, preferred], preferred]]];
+
+(* Two native attempts share effective common options. In particular, a
+   delayed option is not another program to run when retrying the request.
+   OptionValue preserves first-option precedence; unused duplicate delayed
+   values are not evaluated. Explicit and native-exclusive paths bypass this. *)
+automaticNativeOption[HoldComplete[(Rule | RuleDelayed)[key : (Assumptions | SeriesTermGoal), _]], values_] :=
+  With[{value = Lookup[values, key]}, HoldComplete[key -> value]];
+automaticNativeOption[HoldComplete[Sequence[args___]], values_] :=
+  Replace[nativeHeldJoin[automaticNativeOption[#, values] & /@
+      nativeHeldArguments[HoldComplete[args]]], HoldComplete[items___] :> HoldComplete[Sequence[items]]];
+automaticNativeOption[held : HoldComplete[List[args___]], values_] /; nativeOptionTreeQ[held] :=
+  Replace[nativeHeldJoin[automaticNativeOption[#, values] & /@
+      nativeHeldArguments[HoldComplete[args]]], HoldComplete[items___] :> HoldComplete[List[items]]];
+automaticNativeOption[held_, _] := held;
+
+automaticNativeSearchRequest[request_HoldComplete] := Module[{keys, options, values = <||>, ambient, parts},
+  keys = nativeRequestOptionKeys[request];
+  If[Intersection[keys, {HoldComplete[Assumptions], HoldComplete[SeriesTermGoal]}] === {},
+    Return[request, Module]];
+  options = Flatten[ReleaseHold /@ Select[nativeTailArguments[request],
+    nativeOptionTreeQ[#] && ! nativeSpecificationQ[#] &]];
+  ambient = If[TrueQ[$assumptionScopeActive], $entryAssumptions, $Assumptions];
+  Block[{$Assumptions = ambient},
+    If[MemberQ[keys, HoldComplete[Assumptions]],
+      AssociateTo[values, Assumptions -> optionAssumptions[AsymptoticExpansion, options]]];
+    If[MemberQ[keys, HoldComplete[SeriesTermGoal]],
+      AssociateTo[values, SeriesTermGoal -> OptionValue[AsymptoticExpansion, options, SeriesTermGoal]]]];
+  parts = nativeHeldArguments[request];
+  nativeHeldJoin[Prepend[automaticNativeOption[#, values] & /@ Rest[parts], First[parts]]]];
+
+nativeEvaluationStatus[result_] := Which[
+  ! FreeQ[result, $Aborted], "Aborted",
+  ! FreeQ[result, $Failed | _Failure], "Failed",
+  ! FreeQ[result, _System`Series | _System`Asymptotic], "Unresolved",
+  True, "Computed"];
+
+automaticNativeResult[request_HoldComplete, original_HoldComplete, reason_, failure_: None] := Module[
+  {backends, prepared, result, selected = None, attempts = {}, backend, status},
+  backends = automaticNativeBackends[request];
+  If[FailureQ[backends], Return[backends, Module]];
+  prepared = If[Length[backends] > 1, automaticNativeSearchRequest[request], request];
+  Do[
+    result = nativeExpansion[prepared, backend, original];
+    If[selected === None, selected = result];
+    status = If[MatchQ[result, _GeneralizedSeries], result["NativeEvaluationStatus"], "Failed"];
+    AppendTo[attempts, <|"Backend" -> backend, "EvaluationStatus" -> status,
+      "Request" -> If[MatchQ[result, _GeneralizedSeries], result["NativeRequest"], Missing["NotDelegated"]]|>];
+    If[MemberQ[{"Computed", "Aborted"}, status], selected = result; Break[]],
+    {backend, backends}];
+  If[! MatchQ[selected, _GeneralizedSeries], Return[selected, Module]];
+  GeneralizedSeries[Join[selected[[1]], <|"BackendSelection" -> Automatic,
     "BackendSelectionReason" -> reason, "OrderConvention" -> "Native",
-    "PackageFailure" -> failure|>]]];
+    "PackageFailure" -> failure, "NativeAttempts" -> attempts|>]]];
 
 (* Ordinary argument evaluation happens once at this entry, under the same
    neutral proof context as the established package entry. The resulting
@@ -8483,7 +8660,7 @@ nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module
     "NativeResult" -> result, "Expression" -> normal,
     "Remainder" -> Missing["NativeContract"], "Exact" -> Missing["NotEstablished"],
     "RemainderContract" -> If[backend === "Series", "NativeFormalOrder", "NativeAsymptotic"],
-    "NativeEvaluationStatus" -> If[FreeQ[result, _System`Series | _System`Asymptotic], "Computed", "Unresolved"],
+    "NativeEvaluationStatus" -> nativeEvaluationStatus[result],
     "NativeRequest" -> call, "OriginalArguments" -> original,
     "ExpansionSpecifications" -> specifications, "Variable" -> variable,
     "AmbientAssumptions" -> ambient, "Assumptions" -> Missing["NativeContract"],

@@ -470,15 +470,21 @@ explicitly supplied <code>Direction</code>, <code>&quot;MaxTerms&quot;</code>, o
 <code>&quot;InverseFunctionBranches&quot;</code>, keeps the package path. This
 conservative protection applies even when the explicitly supplied option
 has its default value.</p>
-<p>Native-specific options select a compatible backend:
+<p>Native-specific options determine which backends are compatible:
 <code>Series</code> is preferred when it accepts all such option keys,
 then <code>Asymptotic</code>. Conflicting option sets return
 <code>Failure[&quot;NativeOptionConflict&quot;, ...]</code>. Without those
-options, a triple specification or successive specifications select
+options, a triple specification or successive specifications prefer
 <code>Series</code>; a single order-<code>Infinity</code> request and
-ordinary rule forms select <code>Asymptotic</code>. The selected engine
-is called once; an unresolved result does not trigger a probe of the
-other engine.</p>
+ordinary rule forms prefer <code>Asymptotic</code>.</p>
+<p>If the preferred native result is <code>&quot;Unresolved&quot;</code> or
+<code>&quot;Failed&quot;</code>, <code>Automatic</code> tries the other backend
+when it accepts all supplied option keys. Search stops on
+<code>&quot;Computed&quot;</code> or <code>&quot;Aborted&quot;</code>. If every attempted
+result is unresolved or failed, the preferred result is retained. An
+explicit native backend, or an option set accepted by only one backend,
+permits one attempt. The ordered <code>&quot;NativeAttempts&quot;</code> records
+show which automatic native calls were made.</p>
 <pre class="wolfram"><code>Clear[x, y];
 s = AsymptoticExpand[Exp[I x], {x, 0, 3}];
 {s[&quot;NativeBackend&quot;], s[&quot;BackendSelectionReason&quot;],
@@ -496,6 +502,20 @@ nonzero-block count. Select <code>&quot;Backend&quot; -&gt; &quot;Package&quot;<
 those conventions must be enforced, or an explicit native backend when
 the native engine must be fixed. These routes extend coverage; they do
 not establish complete automatic coverage of every native input.</p>
+<p>For this list request, the preferred native <code>Asymptotic</code>
+call leaves the zero term goal unresolved, and the compatible
+<code>Series</code> call supplies the result:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = Quiet[AsymptoticExpansion[{Exp[x], Sin[x]}, x -&gt; 0,
+  SeriesTermGoal -&gt; 0]];
+{s[&quot;NativeBackend&quot;], Normal[s],
+ ({#[&quot;Backend&quot;], #[&quot;EvaluationStatus&quot;]} &amp; /@ s[&quot;NativeAttempts&quot;])}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{&quot;Series&quot;, {1, x}, {{&quot;Asymptotic&quot;, &quot;Unresolved&quot;}, {&quot;Series&quot;, &quot;Computed&quot;}}}</code></pre>
+<p>This uses native term-goal semantics. A package analytic request such
+as
+<code>AsymptoticExpansion[Exp[x], x -&gt; 0, SeriesTermGoal -&gt; 0]</code>
+still returns <code>Failure[&quot;InvalidCutoff&quot;, ...]</code>.</p>
 </section>
 <section id="basic-examples" class="level3">
 <h3>Basic Examples</h3>
@@ -606,10 +626,16 @@ independently reconstruct the backend&#39;s effective proof context.</td>
 </tr>
 <tr>
 <td><code>&quot;NativeEvaluationStatus&quot;</code></td>
-<td><code>&quot;Computed&quot;</code> when no unevaluated native
-<code>Series</code> or <code>Asymptotic</code> call remains; otherwise
-<code>&quot;Unresolved&quot;</code>. This is an evaluation status, not a
-correctness certificate.</td>
+<td>Syntactic evaluation status: <code>&quot;Computed&quot;</code>,
+<code>&quot;Unresolved&quot;</code>, <code>&quot;Failed&quot;</code>, or
+<code>&quot;Aborted&quot;</code>; see the definitions below.</td>
+</tr>
+<tr>
+<td><code>&quot;NativeAttempts&quot;</code></td>
+<td>For automatic native results, ordered records with
+<code>&quot;Backend&quot;</code>, <code>&quot;EvaluationStatus&quot;</code>, and held
+<code>&quot;Request&quot;</code>. Explicit native delegation does not add this
+history.</td>
 </tr>
 <tr>
 <td><code>&quot;NativeKernelVersion&quot;</code>,
@@ -636,26 +662,68 @@ attempt.</td>
 </tr>
 </tbody>
 </table>
+<p>Evaluation status is determined by inspecting the native result, in
+this order:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Aborted&quot;</code></td>
+<td>The result contains <code>$Aborted</code>.</td>
+</tr>
+<tr>
+<td><code>&quot;Failed&quot;</code></td>
+<td>The result contains <code>$Failed</code> or a <code>Failure</code>
+expression.</td>
+</tr>
+<tr>
+<td><code>&quot;Unresolved&quot;</code></td>
+<td>An unevaluated native <code>Series</code> or <code>Asymptotic</code>
+call remains.</td>
+</tr>
+<tr>
+<td><code>&quot;Computed&quot;</code></td>
+<td>None of the preceding forms remains.</td>
+</tr>
+</tbody>
+</table>
+<p>These statuses do not establish an analytic remainder, exactness, or
+mathematical correctness. In particular, <code>&quot;Computed&quot;</code> does
+not change the missing analytic contract of a native result.</p>
 <p>Literal explicit native calls keep their option expressions in the
 held request. The wrapper does not evaluate delayed native options again
 to fill metadata. A fallback after a package attempt instead reuses the
 prepared source and specifications, with the common assumptions and
 term-goal options materialized from that attempt.
 <code>&quot;OriginalArguments&quot;</code> retains the original input;
-<code>&quot;NativeRequest&quot;</code> records what was delegated.
-<code>&quot;AmbientAssumptions&quot;</code> does not include an explicitly
+<code>&quot;NativeRequest&quot;</code> records the selected call, and
+<code>&quot;NativeAttempts&quot;</code> records each automatic native call in
+order. <code>&quot;AmbientAssumptions&quot;</code> does not include an explicitly
 supplied <code>Assumptions</code> option; inspect the held request as
 well when reproducing a calculation.</p>
+<p>When automatic native search has two compatible candidates, it
+resolves the effective explicitly supplied <code>Assumptions</code> and
+<code>SeriesTermGoal</code> values once and reuses them across attempts.
+The first occurrence of each option wins; unused delayed duplicates are
+not evaluated. Omitted options remain omitted so that native defaults
+apply. Explicit native calls and automatic requests restricted to a
+single backend retain native option evaluation behavior.</p>
 <p>Automatic package preparation evaluates the source in the package&#39;s
 neutral proof context, where <code>$Assumptions</code> is
 <code>True</code>; captured assumptions are supplied separately to the
 engines. Literal explicit native calls release the source under the
 captured ambient context. Computed trailing argument or option
 containers are resolved before selecting the backend, while keeping the
-source held. The wrapper reuses prepared input instead of rerunning the
-original source program after a package failure. This does not freeze
-user definitions or guarantee an identical ordering of arbitrary side
-effects across automatic preparation and a direct native call.</p>
+source held. The wrapper reuses the prepared source, specifications, and
+option containers across native attempts and after a package failure.
+This does not freeze user definitions or guarantee an identical ordering
+of arbitrary side effects across automatic preparation and a direct
+native call.</p>
 <p><code>Normal</code> does not guarantee a finite polynomial or finite
 sum. An infinite sum or another ordinary expression returned by a native
 calculation can remain in <code>Normal[s]</code>. For example, a native
@@ -839,8 +907,11 @@ zero.</p>
 </table>
 <p>An ordinary block has the form <code>w^beta P[Log[w]]</code>. All
 terms at the same exponent belong to one block, including the complete
-logarithmic polynomial. Exact cancellation is performed before blocks
-are counted.</p>
+logarithmic polynomial. Provably equal exact exponents are combined even
+when they have different symbolic forms. Exact cancellation is performed
+before blocks are counted and before the logarithmic degree of a
+remainder is determined. See <a href="#equal-exponent-blocks">Equal
+Exponents and Complete Blocks</a>.</p>
 <p>For an inverse, the target coordinate also includes the limiting
 value and selected sign. Use <code>s[&quot;RemainderVariable&quot;]</code> to
 obtain the coordinate actually used; do not substitute <code>y</code>
@@ -1437,6 +1508,42 @@ Normal[s]</code></pre>
 <pre class="wolfram"><code>x^-Sqrt[2] - x^Sqrt[2]/3 - x^(3 Sqrt[2])/45</code></pre>
 <p>The cutoff refers to powers of <code>x</code>, not the number of
 terms in the trigonometric expansion.</p>
+<p><a id="equal-exponent-blocks"></a></p>
+</section>
+<section id="equal-exponents-and-complete-blocks" class="level4">
+<h4>Equal Exponents and Complete Blocks</h4>
+<p>The exact exponents <code>Sinh[1]^2</code> and
+<code>(Cosh[2] - 1)/2</code> are equal. Contributions at these exponents
+are collected before <code>SeriesTermGoal</code> counts nonzero
+blocks.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>With[{a = Sinh[1]^2, b = (Cosh[2] - 1)/2},
+  s = AsymptoticExpansion[x^a - x^b + x^2, {x, 0},
+    SeriesTermGoal -&gt; 1, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+  {Normal[s], s[&quot;Remainder&quot;], s[&quot;ReturnedTermCount&quot;]}
+]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{x^2, 0, 1}</code></pre>
+<p>The entire logarithmic coefficient belongs to the same block. Its
+degree also contributes to the remainder of a product.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>With[{a = Sinh[1]^2, b = (Cosh[2] - 1)/2},
+  s = AsymptoticExpansion[
+    1 + x^a + x^b Log[x]^3 + x^(2 a),
+    {x, 0, 2 a}, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+  t = SeriesMultiply[s, s];
+  {t[&quot;RemainderLogDegree&quot;], Length[t[&quot;Terms&quot;]]}
+]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{6, 2}</code></pre>
+<p>Writing <code>a = Sinh[1]^2</code>, the retained expression is
+<code>1 + 2 x^a (1 + Log[x]^3)</code>. Its remainder has power
+<code>2 a</code> and logarithmic degree <code>6</code>, because squaring
+the complete coefficient produces a <code>Log[x]^6</code> term.</p>
+<p>Distinct exact exponents remain distinct however small their
+difference. Equality is not inferred from numerical closeness.
+Equal-power collection also occurs before an ordinary inverse model
+selects its leading power and perturbation gaps.</p>
 <p><a id="example-logarithmic-inverse"></a></p>
 </section>
 <section id="inverse-with-logarithmic-coefficients" class="level4">
@@ -3165,13 +3272,51 @@ Normal[SeriesExp[s, 4]]</code></pre>
 <h3>SeriesCompose</h3>
 <p><code>SeriesCompose[outer, inner]</code> substitutes the inner
 expansion into the outer expansion. It transports both remainders and
-checks the inner limit and source side. The variables may differ.</p>
+checks the inner limit, source side, and parameter conditions. The
+variables may differ; a fixed outer parameter that becomes the inner
+expansion variable requires a new joint expansion.</p>
 <p><strong>Input</strong></p>
 <pre class="wolfram"><code>outer = AsymptoticExpansion[Sin[x], {x, 0, 5}];
 inner = AsymptoticExpansion[y^2 + y^3, {y, 0, 7}];
 Normal[SeriesCompose[outer, inner, &quot;Cutoff&quot; -&gt; 8]]</code></pre>
 <p><strong>Output</strong></p>
 <pre class="wolfram"><code>y^2 + y^3 - y^6/6 - y^7/2</code></pre>
+<p>For each fixed <code>a &gt; 0</code>, the expansion of
+<code>x/(a + x)</code> at <code>x = 0</code> starts with
+<code>x/a</code>, with an error bounded by a constant depending on
+<code>a</code> times <code>x^2</code>. That bound cannot be specialized
+directly to the path <code>x = a</code>. <code>SeriesCompose</code> uses
+the complete retained forward source and exact inner expression to
+expand the composed function in the new regime:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>Clear[x, a];
+outer = AsymptoticExpansion[x/(a + x), {x, 0, 2},
+  Assumptions -&gt; a &gt; 0, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+inner = AsymptoticExpansion[a, {a, 0, 4}, &quot;Backend&quot; -&gt; &quot;Package&quot;];
+Normal[SeriesCompose[outer, inner]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>1/2</code></pre>
+<p>This source replay requires a complete <code>&quot;Forward&quot;</code> outer
+source and an exact <code>&quot;Forward&quot;</code> inner expression. It checks
+both domains and the original parameter assumptions along the joint
+approach, using the strict package constructor. The result retains a new
+forward source for <code>SeriesRefine</code>; it does not assert that
+the original outer remainder was uniform in the moving parameter.</p>
+<p>Parameter dependencies are checked in the retained source and
+operation operands as well as the visible terms. A parameter can occur
+only in discarded terms. If the required joint replay is unavailable,
+composition returns <code>Failure[&quot;ParameterCapture&quot;, ...]</code>;
+insufficient retained scope returns
+<code>Failure[&quot;MissingParameterScope&quot;, ...]</code>. A truncated inner
+expansion is not silently replaced by its original exact source. A
+strict replay can return a more specific constructor failure when its
+source or conditions are unsupported.</p>
+<p>An exact outer expression can still transport uncertainty from the
+inner expansion. For example, the exact identity <code>x/a</code>,
+composed with <code>a + O(a^2)</code>, gives <code>1 + O(a)</code>. Its
+parameter and branch conditions must hold along the new approach. See <a href="../../docs/development/COMPOSITION_PARAMETER_SCOPE.md">Parameter
+scope in composition</a> for the supported replay forms and mathematical
+contract.</p>
 <p><a id="SeriesObservable"></a></p>
 </section>
 <section id="seriesobservable" class="level3">
@@ -4137,9 +4282,21 @@ package cutoff excludes it. Inspect the selected
 <tr>
 <td>Automatic returns a native result</td>
 <td>Inspect <code>&quot;BackendSelectionReason&quot;</code>,
-<code>&quot;NativeBackend&quot;</code>, and <code>&quot;OrderConvention&quot;</code>. Native
-order and term goals can differ from package cutoff and block
-goals.</td>
+<code>&quot;NativeBackend&quot;</code>, <code>&quot;NativeAttempts&quot;</code>, and
+<code>&quot;OrderConvention&quot;</code>. Native order and term goals can differ
+from package cutoff and block goals.</td>
+</tr>
+<tr>
+<td>A native result is unresolved or failed</td>
+<td>Inspect <code>&quot;NativeResult&quot;</code>,
+<code>&quot;NativeEvaluationStatus&quot;</code>, and the automatic
+<code>&quot;NativeAttempts&quot;</code>. Explicit backend selection and
+backend-specific options can restrict the call to one engine.</td>
+</tr>
+<tr>
+<td>Native evaluation is aborted</td>
+<td>Automatic search stops at <code>&quot;Aborted&quot;</code>; it does not retry
+the other engine.</td>
 </tr>
 <tr>
 <td>A native-specific option is rejected by Package mode</td>
@@ -4167,6 +4324,27 @@ errors can change the first omitted power.</td>
 <td>Refinement stops at an input error</td>
 <td>Supply stronger justified input information in a new
 construction.</td>
+</tr>
+<tr>
+<td><code>SeriesCompose</code> returns
+<code>&quot;ParameterCapture&quot;</code></td>
+<td>A formerly fixed outer parameter is varying. Joint replay currently
+needs a complete forward outer source and exact forward inner
+expression; a pointwise outer remainder alone cannot justify that
+substitution.</td>
+</tr>
+<tr>
+<td><code>SeriesCompose</code> returns
+<code>&quot;MissingParameterScope&quot;</code></td>
+<td>Retain the original constructor or operation provenance. Visible
+coefficients alone do not identify every parameter of a discarded
+error.</td>
+</tr>
+<tr>
+<td><code>SeriesCompose</code> returns
+<code>&quot;IncompatibleCompositionParameters&quot;</code></td>
+<td>Choose a joint approach on which the original parameter assumptions
+hold eventually.</td>
 </tr>
 <tr>
 <td>Derivative operation fails</td>

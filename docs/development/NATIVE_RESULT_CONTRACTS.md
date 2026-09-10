@@ -44,10 +44,11 @@ the actual backend convention. See the official
 | `ExpansionSpecifications` | Individually held recognized syntactic specification forms, in order. |
 | `AmbientAssumptions` | Actual assumption value at native entry. |
 | `Assumptions` | `Missing["NativeContract"]`. |
-| `NativeEvaluationStatus` | `"Computed"` if no native Series/Asymptotic call remains, otherwise `"Unresolved"`. |
+| `NativeEvaluationStatus` | `"Computed"`, `"Unresolved"`, `"Failed"`, or `"Aborted"`, determined syntactically from the native output. |
 | `NativeBackend`, `NativeKernelVersion`, `NativeSystemID` | Selected backend and producing runtime. |
 | `BackendSelection`, `BackendSelectionReason`, `OrderConvention` | Automatic native results record `Automatic`, their routing reason, and `"Native"` order semantics. |
 | `PackageFailure` | The representation failure leading to automatic fallback, or `None` for direct native routing. |
+| `NativeAttempts` | Automatic-only ordered records of each attempted backend, evaluation status, and actual held request. |
 
 Preserve nested `SeriesData`, lists, conditions, ordinary expressions, and
 infinite sums. Native `Asymptotic` may return a finite expression without
@@ -100,6 +101,15 @@ common-option callbacks. Ordinary evaluation inside either engine can still
 invoke user definitions. The native call itself restores the captured ambient
 context; this does not undo evaluation already performed for the package attempt.
 
+When both backends accept the supplied option keys, automatic search reuses
+the prepared request after an unresolved or failed first attempt. Explicit
+common `Assumptions` and `SeriesTermGoal` values are materialized once, with
+first-option precedence and without executing unused duplicate delayed values.
+Search stops at a computed result or an abort and otherwise keeps the preferred
+result when both attempts fail. A native-exclusive option limits search to its
+compatible engine; explicit backend selection likewise never changes engines.
+Surviving native subexpressions can still evaluate under ordinary Wolfram rules.
+
 Native delegation adds no independent real-branch proof. Explicit package-only
 `"MaxTerms"` and `"InverseFunctionBranches"` options return
 `Failure["NativeOptionConflict", ...]`; their restrictions are not discarded.
@@ -109,8 +119,10 @@ must not be described as a successfully computed expansion. Automatic fallback
 keeps callable/inverse and conditional source requests, existing package
 series/remainders, and explicit direction, branch and resource options on the
 package path. Its narrow failure classifier excludes malformed requests,
-domain/branch failures and resource exhaustion. No automatic second-backend
-search or complete coverage theorem is claimed; see the compatibility plan.
+domain/branch failures and resource exhaustion. Compatible second-backend
+search closes one availability gap; a complete coverage theorem remains open.
+In particular, `Computed` does not certify expansion of every nested inactive
+expression. See the [compatibility plan](NATIVE_COMPATIBILITY.md).
 
 ## Parameter dependence and analytic operations
 

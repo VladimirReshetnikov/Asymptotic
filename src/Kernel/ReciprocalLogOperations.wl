@@ -145,7 +145,11 @@ reciprocalLogDifferentiate[s_, n_, declared_, cut_, limit_] := Module[
     {"Differentiate", {s}, n, Automatic}, h, limit]];
 
 AsymptoticAnalysis`ReciprocalLogCompose[outer_GeneralizedSeries, inner_GeneralizedSeries, opts : OptionsPattern[]] := catch[
-  Module[{result = reciprocalLogCompose[outer, inner, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},
+  Module[{result, captured, cut = OptionValue["Cutoff"], limit = OptionValue["MaxTerms"]},
+    {captured, result} = seriesCompositionAdmission[outer, inner, cut, limit, False];
+    If[result =!= $Failed, Return[result, Module]];
+    If[captured, fail["ParameterCapture", "A moving reciprocal-log carrier parameter requires a separately proved joint expansion."]];
+    result = reciprocalLogCompose[outer, inner, cut, limit];
     If[result === $Failed, fail["UnsupportedReciprocalLogComposition", "Use exact reciprocal-log-unit inverse carriers with zero offsets and positive monomial prefactors."], result]]];
 AsymptoticAnalysis`ReciprocalLogDifferentiate[s_GeneralizedSeries, n_Integer : 1, opts : OptionsPattern[]] := catch[
   Module[{result = reciprocalLogDifferentiate[s, n, Automatic, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},

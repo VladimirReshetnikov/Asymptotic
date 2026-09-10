@@ -90,9 +90,26 @@ undecidable ordering and resource failures are not general fallback triggers.
 
 Native results record `BackendSelection -> Automatic`, a reason of
 `"NativeOptions"`, `"NativeSpecification"` or `"PackageRepresentation"`, and
-`PackageFailure` (the original failure or `None` for direct routing). One
-native backend is selected. An unresolved native result does not trigger a
-second backend probe; this is a concrete remaining coverage limitation.
+`PackageFailure` (the original failure or `None` for direct routing).
+The preferred backend is tried first. If it leaves an unresolved native call
+or returns a failure, the other backend is tried when its runtime options
+accept all supplied option keys. Search stops at a computed result or an
+abort. When neither backend computes a result, the preferred result is kept.
+`NativeAttempts` records the ordered backend names, evaluation statuses, and
+actual held requests. Explicit backend selections never search another engine.
+
+On Wolfram 15.0.1 Windows, `Asymptotic` leaves the following request unresolved,
+whereas `Series` returns a list whose normal form is `{1, x}`:
+
+```wolfram
+AsymptoticExpand[{Exp[x], Sin[x]}, x -> 0, SeriesTermGoal -> 0]
+```
+
+This native-shaped request now selects `Series` after trying `Asymptotic`.
+The same native difference occurs with term goal `-1`. These are native
+term-goal semantics, not a reinterpretation of a package block count.
+Scalar requests that reach package validation still reject those goals;
+resolving this remaining admission gap belongs to complete native coverage.
 
 ## Required coverage matrix
 
@@ -140,8 +157,10 @@ analytic envelope. See [native remainder contracts](NATIVE_SERIES_REMAINDERS.md)
 
 The result displays its native expression without an invented remainder, and
 `Normal` applies native normalization; infinite expressions can remain.
-`NativeEvaluationStatus` distinguishes remaining native calls from computed
-expressions without claiming analytic validity. Analytic operations decline
+`NativeEvaluationStatus` distinguishes `Computed`, `Unresolved`, `Failed`, and
+`Aborted` results syntactically. Absence of a remaining native call is not a
+proof that every nested inactive expression was expanded, nor a proof of
+analytic validity. Analytic operations decline
 native results with `NativeSeriesContract`. Numerical application requires one
 identified variable; other cases return `NativeVariables`. See the detailed
 [native result contracts](NATIVE_RESULT_CONTRACTS.md).
@@ -164,6 +183,15 @@ and specifications instead of replaying the original source program. Effective
 immediate rules; delayed common options are not consumed again for fallback.
 Other native defaults remain those of the selected backend.
 
+When two backends are eligible, the search also materializes explicitly
+supplied common `Assumptions` and `SeriesTermGoal` options once before the
+first native attempt. First-option precedence is retained; unused duplicate
+delayed values are not executed. The prepared source and specifications are
+reused across attempts. An option exclusive to one native backend limits the
+search to that engine and preserves its existing evaluation path. Diagnostics
+from an unresolved first attempt can still be emitted when a later attempt
+succeeds; suppressing messages is separate from inspecting the recorded result.
+
 `OriginalArguments` records the original held input, while `NativeRequest`
 records the actual delegated call. `AmbientAssumptions` does not absorb an
 explicit assumption option. These records do not freeze symbol definitions,
@@ -185,7 +213,34 @@ special-function real projection remains governed by
 
 ## Implementation stages and evidence
 
-The acceptance and artifact records in this section predate the package rename
+The [current nine-file native-search acceptance](../../validation/native-search-tests.json)
+passes **179 tests, zero failures**, including 16 new search cases, on Wolfram
+15.0.1 Windows with unchanged sources. The
+[runner](../../validation/CheckNativeSearch.wl) exercises actual second-backend
+success, both preference orders, unresolved-output retention, explicit and
+native-exclusive routes, delayed-option and source evaluation counts, and
+adjacent native/analytic/inverse contracts.
+
+The [baseline differential characterization](../../validation/native-search-baseline.json)
+records 47 observations against commit `6687962`; the
+[native-only candidate probe](../../validation/native-search-candidates-probe.json)
+records 32 built-in calls without loading the package. These are bounded
+observations, not acceptance suites. The baseline independently checks R17 N4:
+native `Series` and `Asymptotic` compute the selected `x^x` and Zeta expressions,
+and native `InverseSeries` computes the selected quadratic inverse. The
+package's retained analytic remainder and cutoff conventions are separate
+from those finite-expression comparisons.
+
+The same probes expose remaining automatic admission gaps: scalar native
+term goals rejected by package validation, explicit `Direction`, and
+conditional complex inputs. Runtime `Series` accepted the probed Direction
+values even though `Direction` was absent from its documented option list;
+option-list membership alone does not prove runtime rejection. Inactive
+nested results also require a stronger completeness criterion than the
+absence of outer `Series`/`Asymptotic` heads. These observations inform the
+next coverage work; the full input-superset goal remains open.
+
+The earlier acceptance and artifact records listed below predate the package rename
 to AsymptoticAnalysis. The 163/0 automatic record is preserved at checkpoint
 `01b18ab`; its original paths, context and source hashes remain historical
 evidence. These records do not establish acceptance of the renamed files.
@@ -198,8 +253,9 @@ evidence. These records do not establish acceptance of the renamed files.
 3. **Implemented; focused verified:** structural and option-based
    automatic routing, narrow fallback, source reuse, explicit package-contract
    protection and native order metadata. Remaining automatic coverage,
-   selection when only the other backend succeeds, and evaluation compatibility
-   require further work. Analytic promotion needs its own proof.
+   and evaluation compatibility require further work. Compatible second-backend
+   search is implemented with separate focused evidence below. Analytic
+   promotion needs its own proof.
 4. **Partial evidence recorded:** focused differential tests across the matrix, including
    unknown-function options, mixed complex/approximate data, multiple variables,
    conditions, infinite order, inactive transforms and existing package examples.

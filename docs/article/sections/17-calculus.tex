@@ -59,6 +59,30 @@ argument use their Taylor series and the same precision arithmetic.
 Poles, branch points and logarithmic leading coefficient functions require
 their respective scale normalizations; the regular Taylor-composition rule does not apply at a singular point.
 
+The outer estimate must also hold uniformly along the substituted parameter
+path. More precisely, a bound
+$|F(v;\lambda)-J(v;\lambda)|\le C(\lambda)v^P\M(v)^D$
+for $0<v<\delta(\lambda)$ can be used at
+$(v,\lambda)=(v(w),\lambda(w))$ only when this path remains in the stated
+domain. Its transported envelope still contains $C(\lambda(w))$;
+discarding that factor requires a uniform upper bound. Estimates proved
+separately for each fixed parameter do not provide such a bound, as in
+Section~\ref{sec:formal-successive-jets}. For example, at each fixed $a>0$,
+\[
+ \frac{x}{a+x}=\frac{x}{a}
+   -\frac{x^2}{a(a+x)}
+   =\frac{x}{a}+\OO_a(x^2),\qquad x\longrightarrow0^+.
+\]
+On the diagonal $x=a\longrightarrow0^+$ the exact value is $1/2$, whereas
+the displayed finite term is $1$ and the discarded term is $-1/2$.
+The parameter dependence can therefore matter even when it occurs only
+in a discarded term. Re-expanding the complete function along the joint
+path can supply a new valid estimate. An exact outer identity has no
+outer remainder to transport, but its parameter and branch conditions
+must still hold, and uncertainty in the inner argument must still be
+propagated. Refinement in the original fixed-parameter regime alone
+does not establish a uniform estimate on a new path.
+
 \paragraph{Differentiation requires derivative information.}
 An estimate $R(w)=\OO(w^P\M(w)^D)$ alone does not imply any estimate on
 $R'$. For example $w^P\sin(e^{1/w})$ has that magnitude bound and a much

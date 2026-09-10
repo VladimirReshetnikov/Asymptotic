@@ -38,6 +38,24 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"],
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[Module[{x, a = Sinh[1]^2, b = (Cosh[2] - 1)/2, s},
+    s = AsymptoticExpansion[x^a - x^b + x^2, {x, 0},
+      SeriesTermGoal -> 1, "Backend" -> "Package"];
+    {Normal[s] === x^2, s["Remainder"], s["ReturnedTermCount"]}],
+    {True, 0, 1}, TestID -> "loading-exact-equal-exponents-cancel-before-counting"],
+  VerificationTest[Module[{x, a, outer, inner, s},
+    outer = AsymptoticExpansion[x/(a + x), {x, 0, 2}, Assumptions -> a > 0,
+      "Backend" -> "Package"];
+    inner = AsymptoticExpansion[a, {a, 0, 4}, "Backend" -> "Package"];
+    s = SeriesCompose[outer, inner];
+    {Normal[s], s["Remainder"], s["Exact"]}],
+    {1/2, 0, True}, TestID -> "loading-diagonal-composition-replays-joint-source"],
+  VerificationTest[Quiet[Module[{x, s},
+    s = AsymptoticExpand[{Exp[x], Sin[x]}, x -> 0, SeriesTermGoal -> 0];
+    {Normal[s] === {1, x}, s["NativeBackend"],
+      Lookup[s["NativeAttempts"], "EvaluationStatus"]}]],
+    {True, "Series", {"Unresolved", "Computed"}},
+    TestID -> "loading-second-native-backend-finds-successful-result"],
   VerificationTest[{
       Context[AsymptoticInverse], Context[AsymptoticExpansion], Context[GeneralizedSeries],
       MemberQ[$Packages, "AsymptoticAnalysis`"],
