@@ -38,6 +38,14 @@ as `x - (2^10000 + 1)` with an exact supplied center, now certifies at the
 lowest enclosure order instead of failing at every order. Nonlinear parts
 keep their outward enclosures.
 
+On Mathics, the explicit `Erfc`, `LogGamma`, `Gamma` and `LambertThreshold`
+adapters now have portable cases, the numerical consumers reject
+`Indeterminate` values before realness tests instead of aborting the Mathics
+evaluator, and the Mathics numerical adapter retries a logarithm of a small
+positive product as a sum of logarithms. See the
+[numerical note](Mathics/NUMERICAL.md#logarithms-of-small-products) and
+[notes on Mathics behaviour](MATHICS-NOTES.md).
+
 `InverseExpansionCoefficient[s, k, "Power" -> p]` on a result object now
 lets the explicit option override the stored observable power, with the same
 infinite-endpoint conversion. `InverseResidual` reports `"TargetOffset"` and

@@ -93,7 +93,7 @@ coordinateNumericalCheck[a_, yv_, wp_] := Module[
   xr = With[{xx = x, ff = phase, tt = target, start = seed, prec = wp + 10, goal = wp},
     Quiet[Check[xx /. FindRoot[ff == tt, {xx, start}, WorkingPrecision -> prec,
       AccuracyGoal -> Infinity, PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
-  If[xr === $Failed || ! NumericQ[xr], fail["RootNotFound", "The transformed equation did not converge from the asymptotic seed."]];
+  If[xr === $Failed || ! finiteNumericQ[xr], fail["RootNotFound", "The transformed equation did not converge from the asymptotic seed."]];
   local = Which[a["ExpansionPoint"] === Infinity, 1/xr, a["ExpansionPoint"] === -Infinity, -1/xr,
     a["Direction"] === "FromAbove", xr - a["ExpansionPoint"], True, a["ExpansionPoint"] - xr];
   If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The numerical root is outside the selected source branch."]];

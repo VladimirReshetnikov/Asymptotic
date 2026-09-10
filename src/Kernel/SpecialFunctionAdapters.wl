@@ -193,7 +193,7 @@ specialNumerical[a_, target_, wp_] := Module[{x, y, approximate, reference, equa
   (* Substitute exact target expressions before N so small reflected erfc
      tails and Log[Exp[v]] do not lose digits by subtracting rounded values. *)
   approximate = N[a["Expression"] /. y -> target, wp + 20];
-  If[! NumericQ[approximate] || ! TrueQ[Im[approximate] == 0], fail["InvalidSeed", "The adapter did not produce a real numerical seed."]];
+  If[! finiteNumericQ[approximate] || ! TrueQ[Im[approximate] == 0], fail["InvalidSeed", "The adapter did not produce a real numerical seed."]];
   If[MemberQ[{"LambertThreshold", "QuadraticThreshold"}, a["Adapter"]],
     reference = N[a["ExactInverseExpression"] /. y -> target, wp + 20],
     equation = a["ExactTransformedFunction"]; tt = N[a["TargetCoordinateExpression"] /. y -> target, wp + 20];
@@ -201,12 +201,13 @@ specialNumerical[a_, target_, wp_] := Module[{x, y, approximate, reference, equa
     reference = With[{xx = x, ff = equation, rhs = tt, start = approximate, precision = wp + 20, goal = wp},
       Quiet[Check[xx /. FindRoot[ff == rhs, {xx, start}, WorkingPrecision -> precision,
         AccuracyGoal -> Infinity, PrecisionGoal -> goal, MaxIterations -> 200], $Failed]]]];
-  If[reference === $Failed || ! NumericQ[reference] || ! TrueQ[Im[reference] == 0], fail["ReferenceRootNotFound", "The original special-function equation did not yield a real numerical reference."]];
+  If[reference === $Failed || ! finiteNumericQ[reference] || ! TrueQ[Im[reference] == 0], fail["ReferenceRootNotFound", "The original special-function equation did not yield a real numerical reference."]];
   If[KeyExistsQ[a, "SourceDomain"] && ! TrueQ[a["SourceDomain"] /. x -> reference], fail["OutsideBranch", "The numerical reference left the selected source branch."]];
   bound = N[Lookup[a, "RemainderScaleExpression", a["Remainder"] /. rr_PowerLogRemainder :> remainderScale[rr]] /. y -> target, wp];
   <|"ReferenceRoot" -> N[reference, wp], "Approximation" -> N[approximate, wp],
     "Error" -> N[Abs[reference - approximate], wp], "RemainderScale" -> bound,
-    "Ratio" -> If[TrueQ[bound == 0], Indeterminate, N[Abs[reference - approximate]/bound, wp]],
+    (* A positive test: Mathics' tolerant Equal treats a small scale as zero. *)
+    "Ratio" -> If[TrueQ[bound > 0], N[Abs[reference - approximate]/bound, wp], Indeterminate],
     "Evidence" -> "High-precision comparison with the original special-function equation or exact local inverse; no interval certificate.",
     "Adapter" -> a["Adapter"], "Certified" -> False|>];
 

@@ -51,3 +51,28 @@ mathicsNumericalFindRoot[equation_, {variable_Symbol, start_}, options___] :=
 Scan[(DownValues[#] = DownValues[#] /. System`FindRoot -> mathicsNumericalFindRoot) &,
   {numericalInverseEvidence, coordinateNumericalCheck, sourceCoordinateNumericalCheck,
    gammaInverseNumerical, specialNumerical}];
+
+(* Mathics 10 returns Indeterminate from an arbitrary-precision N of
+   Log[c r] when c is an irrational constant and the rational r is below
+   about 10^-17, although N[Log[c] + Log[r]] evaluates. A tail target such as
+   Erfc[x] = 10^-20 reaches exactly this form. When a numerical evaluation
+   comes back Indeterminate, retry with logarithms of products whose factors
+   are all numerically positive split into sums; other logarithms and every
+   successful first evaluation are left unchanged. *)
+ClearAll[mathicsNumericalN, mathicsNumericalSplitLog, mathicsNumericalSplitLogs];
+mathicsNumericalSplitLog[factors_List] :=
+  If[And @@ (TrueQ[N[#] > 0] & /@ factors), Total[Log /@ factors], Log[Times @@ factors]];
+(* Log[p_Times] with List @@ p: in Mathics, Times[factors__] binds the
+   whole product to a single sequence element, so it never splits. The
+   factors are processed first, so Log[-Log[c r]] still splits its inner
+   logarithm although its own factor -1 is negative. *)
+mathicsNumericalSplitLogs[expr_] := expr /. Log[product_Times] :>
+  mathicsNumericalSplitLog[mathicsNumericalSplitLogs /@ (List @@ product)];
+mathicsNumericalN[expr_, precision_] := Module[{value = N[expr, precision], split},
+  If[FreeQ[value, Indeterminate], Return[value, Module]];
+  split = mathicsNumericalSplitLogs[expr];
+  If[split === expr, value, N[split, precision]]];
+mathicsNumericalN[expr_] := mathicsNumericalN[expr, MachinePrecision];
+Scan[(DownValues[#] = DownValues[#] /. System`N -> mathicsNumericalN) &,
+  {numericalInverseEvidence, coordinateNumericalCheck, sourceCoordinateNumericalCheck,
+   gammaInverseNumerical, specialNumerical}];

@@ -235,12 +235,12 @@ sourceCoordinateNumericalCheck[a_, yv_, wp_] := Module[
   zr = With[{zz = z, ff = phase, target = yy, start = seed, prec = wp + 10, goal = wp},
     Quiet[Check[zz /. FindRoot[ff == target, {zz, start}, WorkingPrecision -> prec,
       AccuracyGoal -> Infinity, PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
-  If[zr === $Failed || ! NumericQ[zr], fail["RootNotFound", "The source-chart equation did not converge from its asymptotic seed."]];
+  If[zr === $Failed || ! finiteNumericQ[zr], fail["RootNotFound", "The source-chart equation did not converge from its asymptotic seed."]];
   If[! TrueQ[Im[zr] == 0] || ! TrueQ[zr > 0], fail["OutsideBranch", "The numerical chart root is outside the selected positive source chart."]];
   xr = N[a["SourceTransformExpression"] /. z -> zr, wp + 10];
   local = Which[a["ExpansionPoint"] === Infinity, 1/xr, a["ExpansionPoint"] === -Infinity, -1/xr,
     a["Direction"] === "FromAbove", xr - a["ExpansionPoint"], True, a["ExpansionPoint"] - xr];
-  If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The reconstructed numerical root is outside the selected original source branch."]];
+  If[! finiteNumericQ[xr] || ! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The reconstructed numerical root is outside the selected original source branch."]];
   approx = N[a["Expression"] /. y -> yy, wp + 10];
   observed = Which[r === 1, xr, MemberQ[{Infinity, -Infinity}, a["ExpansionPoint"]], xr^r,
     True, (xr - a["ExpansionPoint"])^r];

@@ -409,6 +409,30 @@ or establish completion of any of the three package-coverage goals.
 
 ## Mathics compatibility
 
+### Explicit special-function adapters and finite-value guards
+
+The four explicit adapters `Erfc`, `LogGamma`, `Gamma` and `LambertThreshold`
+now have portable cases, together with an Erfc numerical contract. Their
+[official-kernel special group](wolfram-special-adapter-tests.json) passes
+**12/12**. On Mathics the [first probe batch](mathics-modular-special-adapter-probe-a.json)
+passes 3/3 (Erfc 124 s, LogGamma 35 s, Gamma 29 s), the
+[second batch](mathics-modular-special-adapter-probe-b.json) passes the
+two-branch Lambert case (216 s under concurrent load) and records the Erfc
+contract failing before the recursive logarithm split, and the
+[third probe](mathics-modular-special-adapter-probe-c.json) passes the Erfc
+contract after that repair (80 s). Before this work the Erfc numerical check
+aborted the Mathics evaluator with a Python `TypeError` from
+`Im[Indeterminate] == 0`; its `10^-20` target produces `Log[Sqrt[Pi] 10^-20]`,
+which Mathics cannot evaluate at arbitrary precision. The
+[thirteen-file Wolfram run](finite-numeric-guards-tests.json) from
+[CheckFiniteNumericGuards.wl](CheckFiniteNumericGuards.wl) passes **284/284**
+after every numerical consumer and the certificate helpers switched to the
+shared `finiteNumericQ` guard; Wolfram behavior is unchanged because its
+`NumericQ` already rejects `Indeterminate`. The
+[numerical note](../docs/Mathics/NUMERICAL.md#logarithms-of-small-products)
+describes the Mathics-only `N` retry.
+
+
 ### Mathics wave-4 hardening
 
 The initial wave-4 checkpoint `526e561` contains 56 modules. Its standalone is

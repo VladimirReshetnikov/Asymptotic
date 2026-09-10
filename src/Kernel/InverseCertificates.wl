@@ -225,7 +225,7 @@ certSourceInterval[a_, interval_, x_, ctx_] := Module[{endpoint, side},
 
 certSeed[a_, yv_, wp_] := Module[{value, power, side, endpoint},
   value = Quiet[Check[N[a["Expression"] /. a["Variable"] -> yv, wp], $Failed]];
-  If[value === $Failed || ! NumericQ[value] || ! TrueQ[Im[value] == 0], Return[$Failed, Module]];
+  If[value === $Failed || ! finiteNumericQ[value] || ! TrueQ[Im[value] == 0], Return[$Failed, Module]];
   power = Lookup[a, "Power", 1];
   If[power =!= 1,
    side = Which[a["ExpansionPoint"] === Infinity, 1, a["ExpansionPoint"] === -Infinity, -1,

@@ -49,16 +49,16 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
     endpoint symbolically and keep the local displacement. Other powers
     already approximate the local observable (x - x0)^power. *)
  localApproximate = N[If[power === 1, side (a["Expression"] - shift), a["Expression"]] /. y -> target, wp + 10];
- If[! NumericQ[localApproximate] || ! TrueQ[Im[localApproximate] == 0],
+ If[! finiteNumericQ[localApproximate] || ! TrueQ[Im[localApproximate] == 0],
   fail["OutsideBranch", "The expansion is not real at this target."]];
  localSeed = If[power === 1, localApproximate, Abs[localApproximate]^(1/power)];
- If[! NumericQ[localSeed] || ! TrueQ[Im[localSeed] == 0],
+ If[! finiteNumericQ[localSeed] || ! TrueQ[Im[localSeed] == 0],
   fail["OutsideBranch", "The observable does not provide a real source seed."]];
  localEquation = (a["Function"] /. x -> shift + side u) - target;
  localRoot = With[{uu = u, eq = localEquation, start = localSeed, precision = wp + 10, goal = wp},
    Quiet[Check[uu /. FindRoot[eq == 0, {uu, start}, WorkingPrecision -> precision,
      AccuracyGoal -> Infinity, PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
- If[localRoot === $Failed || ! NumericQ[localRoot], fail["RootNotFound", "The original equation did not converge from the expansion seed."]];
+ If[localRoot === $Failed || ! finiteNumericQ[localRoot], fail["RootNotFound", "The original equation did not converge from the expansion seed."]];
  If[! TrueQ[Im[localRoot] == 0] || ! TrueQ[localRoot > 0],
   fail["OutsideBranch", "The numerical root is outside the selected original source branch."]];
  root = shift + side localRoot;

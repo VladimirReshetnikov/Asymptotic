@@ -762,6 +762,48 @@ portableTest["operations-logarithmic-inverse-residual", "operations",
     {r["Residual"], r["Vanishes"], r["ZeroBelowCutoff"], r["Cutoff"]}],
   {0, True, True, 3}];
 
+(* Explicit special-function adapters. Each needs roughly a minute on
+   Mathics and the raised iteration limit; the numerical comparisons use
+   target values above the Mathics logarithm threshold noted in NUMERICAL.md. *)
+portableTest["special-adapter-erfc-tail", "special",
+  Module[{x, y, s}, s = AsymptoticSpecialInverse["Erfc", {x, Infinity}, {y, 2}];
+    {s["Adapter"], s["Cutoff"], s["Remainder"] === PowerLogRemainder[-Log[Sqrt[Pi] y]^(-1), 5/2, 3],
+      TrueQ[Abs[N[Normal[s] /. y -> 10^-12, 30] - 5.04202805648888290196979073669277689249`30] < 10^-25],
+      TrueQ[N[s["TargetDomain"] /. y -> 10^-12]], TrueQ[N[s["TargetDomain"] /. y -> 2]]}],
+  {"Erfc", 2, True, True, True, False}];
+
+portableTest["special-adapter-loggamma-core", "special",
+  Module[{x, y, s}, s = AsymptoticSpecialInverse["LogGamma", {x, Infinity}, {y, 2}];
+    {s["Adapter"], s["Remainder"] === PowerLogRemainder[ProductLog[y/E]/y, 2, 0], Head[s["Cutoff"]],
+      TrueQ[Abs[N[Normal[s] /. y -> 100, 30] - 38.18456678893774649523037246694577221682`30] < 10^-25]}],
+  {"LogGamma", True, Missing, True}];
+
+portableTest["special-adapter-gamma-core", "special",
+  Module[{x, y, s}, s = AsymptoticSpecialInverse["Gamma", {x, Infinity}, {y, 2}];
+    {s["Adapter"], s["Remainder"] === PowerLogRemainder[ProductLog[Log[y]/E]/Log[y], 2, 0],
+      TrueQ[Abs[N[Normal[s] /. y -> 10^6, 30] - 10.44558545471470570267073179441286046678`30] < 10^-25]}],
+  {"Gamma", True, True}];
+
+portableTest["special-adapter-lambert-threshold-branches", "special",
+  Module[{x, y, lower, upper}, lower = AsymptoticSpecialInverse["LambertThreshold", {x, -1}, {y, 5/2}, "LambertBranch" -> -1];
+    upper = AsymptoticSpecialInverse["LambertThreshold", {x, -1}, {y, 5/2}];
+    {lower["Direction"], upper["Direction"], lower["Remainder"] === PowerLogRemainder[E^(-1) + y, 5/2, 0], upper["Cutoff"],
+      TrueQ[Abs[N[Normal[lower] /. y -> -1/E + 1/100, 30] + 1.25345826325078657644580095450634453556`30] < 10^-25],
+      TrueQ[Abs[N[Normal[upper] /. y -> -1/E + 1/100, 30] + 0.78325620470237701626236718715732759449`30] < 10^-25]}],
+  {"FromBelow", "FromAbove", True, 5/2, True, True}];
+
+(* The Erfc numerical comparison must not abort the Mathics evaluator; it
+   either refuses the unavailable precision or returns a finite record. *)
+portableTest["special-adapter-erfc-numerical-contract", "special",
+  Module[{x, y, s, c}, s = AsymptoticSpecialInverse["Erfc", {x, Infinity}, {y, 2}];
+    c = SpecialInverseNumericalCheck[s, 10^-20, WorkingPrecision -> 20];
+    If[StringContainsQ[$Version, "Mathics"],
+      MatchQ[c, Failure["MathicsNumericalPrecisionUnavailable", _Association]] ||
+        (AssociationQ[c] && TrueQ[Abs[c["ReferenceRoot"] - 6.6015806223551425615`15] < 10^-8]),
+      AssociationQ[c] && TrueQ[Abs[c["ReferenceRoot"] - 6.60158062235514256151639163241870746486`20] < 10^-18] &&
+        TrueQ[0 < c["Ratio"] < 1] && c["Certified"] === False]],
+  True];
+
 portableTest["operations-special-numerical-exact-threshold", "operations",
   Module[{x, y, s, c}, s = AsymptoticSpecialInverse["QuadraticThreshold", {x, 3}, {y, 2},
       "TargetOffset" -> 7, "TargetScale" -> -2, "QuadraticCoefficient" -> 3];

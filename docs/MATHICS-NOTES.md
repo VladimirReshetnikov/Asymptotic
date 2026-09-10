@@ -141,6 +141,22 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   small numerical scale must therefore be written as `TrueQ[scale > 0]`
   rather than `TrueQ[scale == 0]`; the numerical checker's `"Ratio"` was
   `Indeterminate` on Mathics for every small remainder scale until it did.
+- `NumericQ[Indeterminate]` is `True` in Mathics 10.0.1 (`False` in Wolfram),
+  and `Im[Indeterminate] == 0` raises a Python `TypeError` ("Invalid NaN
+  comparison") that aborts the evaluator. Every package numerical consumer
+  now tests `finiteNumericQ`, which also excludes `Indeterminate` and
+  infinities, before any realness comparison.
+- Arbitrary-precision `N[Log[c r], n]` returns `Indeterminate` when `c` is an
+  irrational constant such as `Sqrt[Pi]`, `Pi` or `E` and the rational `r` is
+  below about `10^-17`, although `N[Log[c] + Log[r], n]` and the machine
+  precision `N[Log[c r]]` evaluate. A tail target `Erfc[x] = 10^-20` reaches
+  this form through `Log[Sqrt[Pi] y]`. The Mathics numerical adapter retries
+  a failed evaluation with logarithms of positive products split into sums;
+  see [NUMERICAL.md](Mathics/NUMERICAL.md).
+- The explicit `Erfc`, `LogGamma`, `Gamma` and `LambertThreshold` adapters of
+  `AsymptoticSpecialInverse` exceed the default `$IterationLimit` of 4096 and
+  need the raised session limit; each then takes roughly one to one and a
+  half minutes on the tested Windows interpreter.
 - `KeyExistsQ` is not implemented in Mathics 10.0.1: `KeyExistsQ[<|"k" -> 1|>, "k"]`
   stays unevaluated, even for a plain association. The package supplies its
   own adapter inside its compatibility context, so package code may use it,

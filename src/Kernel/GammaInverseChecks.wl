@@ -20,13 +20,13 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
   (* Substitute the exact target before numerical evaluation, preserving
      identities such as Log[Exp[v]] == v for a real exact v. *)
   coordinate = N[a["TargetCoordinateExpression"] /. y -> target, wp + 20];
-  If[! NumericQ[coordinate] || ! TrueQ[Im[coordinate] == 0],
+  If[! finiteNumericQ[coordinate] || ! TrueQ[Im[coordinate] == 0],
     fail["UnresolvedParameters", "The logarithmic target coordinate must have a real numerical value."]];
   If[Precision[coordinate] < wp,
     fail["InsufficientPrecision", "The transformed target lost precision through cancellation; supply a more precise or exact target."]];
   approximate = N[a["Expression"] /. y -> target, wp + 20];
   seed = N[Lookup[a, "RootSeedExpression", (a["CoreInverse"] - a["SourceOffset"])/a["SourceScale"]] /. y -> target, wp + 20];
-  If[! And @@ (NumericQ /@ {approximate, seed}) ||
+  If[! And @@ (finiteNumericQ /@ {approximate, seed}) ||
      ! TrueQ[Im[approximate] == 0 && Im[seed] == 0],
     fail["InvalidSeed", "The inverse Gamma/Barnes G expansion and retained core must give real numerical values."]];
   equation = a["ExactTransformedFunction"];
@@ -35,14 +35,14 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
     Quiet[Check[xx /. FindRoot[ff == rhs, {xx, start},
       WorkingPrecision -> precision, AccuracyGoal -> Infinity,
       PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
-  If[root === $Failed || ! NumericQ[root] || ! TrueQ[Im[root] == 0],
+  If[root === $Failed || ! finiteNumericQ[root] || ! TrueQ[Im[root] == 0],
     fail["ReferenceRootNotFound", "The exact logarithmic Gamma/Barnes equation did not yield a real numerical reference."]];
   numericalSourceDomainCheck[a, root, target, wp];
   observed = N[root^power, wp + 20];
-  If[! NumericQ[observed] || ! TrueQ[Im[observed] == 0],
+  If[! finiteNumericQ[observed] || ! TrueQ[Im[observed] == 0],
     fail["OutsideBranch", "The requested power observable is not real at the recovered source root."]];
   remainder = N[a["RemainderScaleExpression"] /. y -> target, wp];
-  If[! NumericQ[remainder] || ! TrueQ[Im[remainder] == 0 && remainder >= 0],
+  If[! finiteNumericQ[remainder] || ! TrueQ[Im[remainder] == 0 && remainder >= 0],
     fail["InvalidRemainderScale", "The stored absolute remainder scale must evaluate to a nonnegative real value."]];
   error = N[Abs[observed - approximate], wp];
   phaseResidual = N[(equation /. x -> seed) - coordinate, wp];

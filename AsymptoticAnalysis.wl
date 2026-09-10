@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 126c2e7149c5009a023f0f747582e247fc08b7bb707247d52e9b2f1685fb69f5 *)
+   Source SHA256 (UTF-8/LF): 850b4eb869c6023a7ac83c7da59600db6aa1e309dc6330681f09430672edad87 *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -288,6 +288,10 @@ withAssumptions[rules_List, ass_] := Prepend[withoutAssumptions[rules], Assumpti
 (* ------------------------------------------------------------------ *)
 
 exactQ[e_] := FreeQ[e, _Real | _Complex];
+(* A finite numerical value. Wolfram already excludes Indeterminate and
+   infinities from NumericQ; Mathics does not, and a realness test on an
+   Indeterminate value aborts its evaluator, so exclude them explicitly. *)
+finiteNumericQ[e_] := NumericQ[e] && FreeQ[e, Indeterminate | ComplexInfinity | _DirectedInfinity | Undefined];
 validateInput[f_, limit_] := (
   If[! exactQ[f], fail["InexactInput", "Exact real input is required; approximate and complex constants are rejected."]];
   If[! FreeQ[f, Indeterminate | _DirectedInfinity], fail["NonfiniteInput", "The forward expression must not contain nonfinite constants."]];
@@ -1794,7 +1798,7 @@ lambertResidual[a_Association, h_, limit_] := Module[
 (* END SOURCE: src/Kernel/LambertInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/CoordinateInverse.wl
-   Source SHA256 (UTF-8/LF): db983454b4c6ab9c5ed0bf3c389ce482adc6adecefbd9cc3f8ac608d074b7a1c *)
+   Source SHA256 (UTF-8/LF): 887e7b4f7fef47f5d13060105731585faeee7db6124050f7b9a4a419235adf59 *)
 (* Exact changes of coordinates around the existing inverse engines.
    Loaded inside AsymptoticAnalysis`Private`. *)
 
@@ -1890,7 +1894,7 @@ coordinateNumericalCheck[a_, yv_, wp_] := Module[
   xr = With[{xx = x, ff = phase, tt = target, start = seed, prec = wp + 10, goal = wp},
     Quiet[Check[xx /. FindRoot[ff == tt, {xx, start}, WorkingPrecision -> prec,
       AccuracyGoal -> Infinity, PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
-  If[xr === $Failed || ! NumericQ[xr], fail["RootNotFound", "The transformed equation did not converge from the asymptotic seed."]];
+  If[xr === $Failed || ! finiteNumericQ[xr], fail["RootNotFound", "The transformed equation did not converge from the asymptotic seed."]];
   local = Which[a["ExpansionPoint"] === Infinity, 1/xr, a["ExpansionPoint"] === -Infinity, -1/xr,
     a["Direction"] === "FromAbove", xr - a["ExpansionPoint"], True, a["ExpansionPoint"] - xr];
   If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The numerical root is outside the selected source branch."]];
@@ -2919,7 +2923,7 @@ refineStoredInverse[s : GeneralizedSeries[a_Association], cutoff_, limit_] := Mo
 (* END SOURCE: src/Kernel/RefinementState.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SourceCoordinates.wl
-   Source SHA256 (UTF-8/LF): d79d7d82152835aa5a804a9ab41a60ff77572f002b1a4135a7c0d19d917c0086 *)
+   Source SHA256 (UTF-8/LF): 92758cbbc06e63a99035735ee029074bda86e62414bf9c85a92ed6398e4478f0 *)
 (* Exact source charts, loaded in AsymptoticAnalysis`Private` after the series
    calculus. Each underlying inverse is for the chart variable itself; the
    requested original observable is reconstructed with transported precision. *)
@@ -3157,12 +3161,12 @@ sourceCoordinateNumericalCheck[a_, yv_, wp_] := Module[
   zr = With[{zz = z, ff = phase, target = yy, start = seed, prec = wp + 10, goal = wp},
     Quiet[Check[zz /. FindRoot[ff == target, {zz, start}, WorkingPrecision -> prec,
       AccuracyGoal -> Infinity, PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
-  If[zr === $Failed || ! NumericQ[zr], fail["RootNotFound", "The source-chart equation did not converge from its asymptotic seed."]];
+  If[zr === $Failed || ! finiteNumericQ[zr], fail["RootNotFound", "The source-chart equation did not converge from its asymptotic seed."]];
   If[! TrueQ[Im[zr] == 0] || ! TrueQ[zr > 0], fail["OutsideBranch", "The numerical chart root is outside the selected positive source chart."]];
   xr = N[a["SourceTransformExpression"] /. z -> zr, wp + 10];
   local = Which[a["ExpansionPoint"] === Infinity, 1/xr, a["ExpansionPoint"] === -Infinity, -1/xr,
     a["Direction"] === "FromAbove", xr - a["ExpansionPoint"], True, a["ExpansionPoint"] - xr];
-  If[! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The reconstructed numerical root is outside the selected original source branch."]];
+  If[! finiteNumericQ[xr] || ! TrueQ[Im[xr] == 0] || ! TrueQ[local > 0], fail["OutsideBranch", "The reconstructed numerical root is outside the selected original source branch."]];
   approx = N[a["Expression"] /. y -> yy, wp + 10];
   observed = Which[r === 1, xr, MemberQ[{Infinity, -Infinity}, a["ExpansionPoint"]], xr^r,
     True, (xr - a["ExpansionPoint"])^r];
@@ -3382,7 +3386,7 @@ AsymptoticAnalysis`AsymptoticCoreInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: src/Kernel/CorePerturbation.wl *)
 
 (* BEGIN SOURCE: src/Kernel/InverseCertificates.wl
-   Source SHA256 (UTF-8/LF): b5cd214ccfaadfcda6074e9c434dc57f89366a8d73747ca091d250632149724d *)
+   Source SHA256 (UTF-8/LF): 33a303e14eef1e97d95abb3db3df788f3db1d7c5fb213f62ec68517f23878b66 *)
 (* Exact rational residual certificates. Decimal arithmetic is used only to
    choose a center; every successful proof uses rational interval endpoints. *)
 
@@ -3610,7 +3614,7 @@ certSourceInterval[a_, interval_, x_, ctx_] := Module[{endpoint, side},
 
 certSeed[a_, yv_, wp_] := Module[{value, power, side, endpoint},
   value = Quiet[Check[N[a["Expression"] /. a["Variable"] -> yv, wp], $Failed]];
-  If[value === $Failed || ! NumericQ[value] || ! TrueQ[Im[value] == 0], Return[$Failed, Module]];
+  If[value === $Failed || ! finiteNumericQ[value] || ! TrueQ[Im[value] == 0], Return[$Failed, Module]];
   power = Lookup[a, "Power", 1];
   If[power =!= 1,
    side = Which[a["ExpansionPoint"] === Infinity, 1, a["ExpansionPoint"] === -Infinity, -1,
@@ -4911,7 +4915,7 @@ AsymptoticAnalysis`FourierInverseCoefficient[___] := Failure["InvalidArguments",
 (* END SOURCE: src/Kernel/FourierCoefficients.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SpecialFunctionAdapters.wl
-   Source SHA256 (UTF-8/LF): 374d1c7007a1736568fc52d2840b44840cacfbcce8441340d73f8f79c14b639a *)
+   Source SHA256 (UTF-8/LF): 4f805279e9661731594cef6b7b9187f58782f8bd64dc8041f6f9860e85c2ac7d *)
 (* Real special-function adapters with explicit forward-model provenance.
    Finite Poincare models are never labelled convergent exact forward data. *)
 
@@ -5107,7 +5111,7 @@ specialNumerical[a_, target_, wp_] := Module[{x, y, approximate, reference, equa
   (* Substitute exact target expressions before N so small reflected erfc
      tails and Log[Exp[v]] do not lose digits by subtracting rounded values. *)
   approximate = N[a["Expression"] /. y -> target, wp + 20];
-  If[! NumericQ[approximate] || ! TrueQ[Im[approximate] == 0], fail["InvalidSeed", "The adapter did not produce a real numerical seed."]];
+  If[! finiteNumericQ[approximate] || ! TrueQ[Im[approximate] == 0], fail["InvalidSeed", "The adapter did not produce a real numerical seed."]];
   If[MemberQ[{"LambertThreshold", "QuadraticThreshold"}, a["Adapter"]],
     reference = N[a["ExactInverseExpression"] /. y -> target, wp + 20],
     equation = a["ExactTransformedFunction"]; tt = N[a["TargetCoordinateExpression"] /. y -> target, wp + 20];
@@ -5115,12 +5119,13 @@ specialNumerical[a_, target_, wp_] := Module[{x, y, approximate, reference, equa
     reference = With[{xx = x, ff = equation, rhs = tt, start = approximate, precision = wp + 20, goal = wp},
       Quiet[Check[xx /. FindRoot[ff == rhs, {xx, start}, WorkingPrecision -> precision,
         AccuracyGoal -> Infinity, PrecisionGoal -> goal, MaxIterations -> 200], $Failed]]]];
-  If[reference === $Failed || ! NumericQ[reference] || ! TrueQ[Im[reference] == 0], fail["ReferenceRootNotFound", "The original special-function equation did not yield a real numerical reference."]];
+  If[reference === $Failed || ! finiteNumericQ[reference] || ! TrueQ[Im[reference] == 0], fail["ReferenceRootNotFound", "The original special-function equation did not yield a real numerical reference."]];
   If[KeyExistsQ[a, "SourceDomain"] && ! TrueQ[a["SourceDomain"] /. x -> reference], fail["OutsideBranch", "The numerical reference left the selected source branch."]];
   bound = N[Lookup[a, "RemainderScaleExpression", a["Remainder"] /. rr_PowerLogRemainder :> remainderScale[rr]] /. y -> target, wp];
   <|"ReferenceRoot" -> N[reference, wp], "Approximation" -> N[approximate, wp],
     "Error" -> N[Abs[reference - approximate], wp], "RemainderScale" -> bound,
-    "Ratio" -> If[TrueQ[bound == 0], Indeterminate, N[Abs[reference - approximate]/bound, wp]],
+    (* A positive test: Mathics' tolerant Equal treats a small scale as zero. *)
+    "Ratio" -> If[TrueQ[bound > 0], N[Abs[reference - approximate]/bound, wp], Indeterminate],
     "Evidence" -> "High-precision comparison with the original special-function equation or exact local inverse; no interval certificate.",
     "Adapter" -> a["Adapter"], "Certified" -> False|>];
 
@@ -5304,7 +5309,7 @@ AsymptoticAnalysis`AsymptoticExponentialCoreInverse[___] := Failure["InvalidArgu
 (* END SOURCE: src/Kernel/ExponentialCorePerturbation.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NumericalInverseChecks.wl
-   Source SHA256 (UTF-8/LF): 48bff9119e073de946c164e05a2fbcf0dbdee15a0d5834d721550f763d627d6a *)
+   Source SHA256 (UTF-8/LF): d9d30a2a3c5949052c51976d571dfe231c8674def43635b5d9dd0ab4930f6237 *)
 (* Numerical evidence for inverse objects and their power observables.
    Exact target substitution precedes numerical evaluation so large offsets
    do not erase the small target distance. This is not certification. *)
@@ -5356,16 +5361,16 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
     endpoint symbolically and keep the local displacement. Other powers
     already approximate the local observable (x - x0)^power. *)
  localApproximate = N[If[power === 1, side (a["Expression"] - shift), a["Expression"]] /. y -> target, wp + 10];
- If[! NumericQ[localApproximate] || ! TrueQ[Im[localApproximate] == 0],
+ If[! finiteNumericQ[localApproximate] || ! TrueQ[Im[localApproximate] == 0],
   fail["OutsideBranch", "The expansion is not real at this target."]];
  localSeed = If[power === 1, localApproximate, Abs[localApproximate]^(1/power)];
- If[! NumericQ[localSeed] || ! TrueQ[Im[localSeed] == 0],
+ If[! finiteNumericQ[localSeed] || ! TrueQ[Im[localSeed] == 0],
   fail["OutsideBranch", "The observable does not provide a real source seed."]];
  localEquation = (a["Function"] /. x -> shift + side u) - target;
  localRoot = With[{uu = u, eq = localEquation, start = localSeed, precision = wp + 10, goal = wp},
    Quiet[Check[uu /. FindRoot[eq == 0, {uu, start}, WorkingPrecision -> precision,
      AccuracyGoal -> Infinity, PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
- If[localRoot === $Failed || ! NumericQ[localRoot], fail["RootNotFound", "The original equation did not converge from the expansion seed."]];
+ If[localRoot === $Failed || ! finiteNumericQ[localRoot], fail["RootNotFound", "The original equation did not converge from the expansion seed."]];
  If[! TrueQ[Im[localRoot] == 0] || ! TrueQ[localRoot > 0],
   fail["OutsideBranch", "The numerical root is outside the selected original source branch."]];
  root = shift + side localRoot;
@@ -6888,7 +6893,7 @@ barnesInverseBranch[data_, target_, targetSide_, ass_, limit_, selection_] := Mo
 (* END SOURCE: src/Kernel/BarnesInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/GammaInverseChecks.wl
-   Source SHA256 (UTF-8/LF): 4a51a03be40b24a6d454d24ae5b717aacdc58a249bdf54974ab32c03a9050a8e *)
+   Source SHA256 (UTF-8/LF): efd10e38b88a8c7f8f3a395f6c410781851bfe121d7965ff1757544e73f1f76e *)
 (* Checks for inverse Gamma expansions in powers of the retained Lambert
    core. Numerical comparisons use the original logarithmic equation.
    Formal residuals independently expand a finite Stirling model; they do
@@ -6911,13 +6916,13 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
   (* Substitute the exact target before numerical evaluation, preserving
      identities such as Log[Exp[v]] == v for a real exact v. *)
   coordinate = N[a["TargetCoordinateExpression"] /. y -> target, wp + 20];
-  If[! NumericQ[coordinate] || ! TrueQ[Im[coordinate] == 0],
+  If[! finiteNumericQ[coordinate] || ! TrueQ[Im[coordinate] == 0],
     fail["UnresolvedParameters", "The logarithmic target coordinate must have a real numerical value."]];
   If[Precision[coordinate] < wp,
     fail["InsufficientPrecision", "The transformed target lost precision through cancellation; supply a more precise or exact target."]];
   approximate = N[a["Expression"] /. y -> target, wp + 20];
   seed = N[Lookup[a, "RootSeedExpression", (a["CoreInverse"] - a["SourceOffset"])/a["SourceScale"]] /. y -> target, wp + 20];
-  If[! And @@ (NumericQ /@ {approximate, seed}) ||
+  If[! And @@ (finiteNumericQ /@ {approximate, seed}) ||
      ! TrueQ[Im[approximate] == 0 && Im[seed] == 0],
     fail["InvalidSeed", "The inverse Gamma/Barnes G expansion and retained core must give real numerical values."]];
   equation = a["ExactTransformedFunction"];
@@ -6926,14 +6931,14 @@ gammaInverseNumerical[a_Association, target_, wp_] := Module[
     Quiet[Check[xx /. FindRoot[ff == rhs, {xx, start},
       WorkingPrecision -> precision, AccuracyGoal -> Infinity,
       PrecisionGoal -> goal, MaxIterations -> 500], $Failed]]];
-  If[root === $Failed || ! NumericQ[root] || ! TrueQ[Im[root] == 0],
+  If[root === $Failed || ! finiteNumericQ[root] || ! TrueQ[Im[root] == 0],
     fail["ReferenceRootNotFound", "The exact logarithmic Gamma/Barnes equation did not yield a real numerical reference."]];
   numericalSourceDomainCheck[a, root, target, wp];
   observed = N[root^power, wp + 20];
-  If[! NumericQ[observed] || ! TrueQ[Im[observed] == 0],
+  If[! finiteNumericQ[observed] || ! TrueQ[Im[observed] == 0],
     fail["OutsideBranch", "The requested power observable is not real at the recovered source root."]];
   remainder = N[a["RemainderScaleExpression"] /. y -> target, wp];
-  If[! NumericQ[remainder] || ! TrueQ[Im[remainder] == 0 && remainder >= 0],
+  If[! finiteNumericQ[remainder] || ! TrueQ[Im[remainder] == 0 && remainder >= 0],
     fail["InvalidRemainderScale", "The stored absolute remainder scale must evaluate to a nonnegative real value."]];
   error = N[Abs[observed - approximate], wp];
   phaseResidual = N[(equation /. x -> seed) - coordinate, wp];
@@ -9102,12 +9107,18 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\ncatch[body_] := Replace[mathicsProtectInputAssumptions[HoldComplete[body]],\n  HoldComplete[protected_] :> mathicsOriginalInputCatch[protected]];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsNumerical.wl\n   Source SHA256 (UTF-8/LF): dd093d2b36da83c2b91be124a4ef1b6de882bf981fc7e826a9a09b2768e4cb1c *)\n(* Loaded late, only on Mathics. Mathics 10's FindRoot evaluates its seed\n   and Newton updates at machine precision even when WorkingPrecision is\n   supplied. Do not label such a root as a higher-precision comparison.\n   An unchanged integer seed may instead be promoted to an exact root when\n   direct substitution proves an exact polynomial equation. No digits are\n   added to an approximate root and no nearby rational root is guessed. *)\n\nClearAll[mathicsNumericalFindRoot, mathicsNumericalExactIntegerSeed];",
+"(* BEGIN SOURCE: src/Kernel/MathicsNumerical.wl\n   Source SHA256 (UTF-8/LF): 0b2fa82207759926f20130ee8b56678f4ae2adb40bddad9064e282a987680ff5 *)\n(* Loaded late, only on Mathics. Mathics 10's FindRoot evaluates its seed\n   and Newton updates at machine precision even when WorkingPrecision is\n   supplied. Do not label such a root as a higher-precision comparison.\n   An unchanged integer seed may instead be promoted to an exact root when\n   direct substitution proves an exact polynomial equation. No digits are\n   added to an approximate root and no nearby rational root is guessed. *)\n\nClearAll[mathicsNumericalFindRoot, mathicsNumericalExactIntegerSeed];",
 "\n\nSetAttributes[mathicsNumericalExactIntegerSeed, HoldAllComplete];",
 "\nmathicsNumericalExactIntegerSeed[held_HoldComplete, variable_Symbol, seed_] :=\n  Block[{variable}, Module[{candidate, polynomial},\n    If[! NumericQ[seed] || ! TrueQ[Im[seed] == 0], Return[$Failed, Module]];\n    candidate = Round[seed];\n    If[! IntegerQ[candidate] || ! (SameQ[seed, candidate] ||\n        SameQ[seed, N[candidate, Precision[seed]]]), Return[$Failed, Module]];\n    If[! MatchQ[held, HoldComplete[Equal[_, _]]], Return[$Failed, Module]];\n    polynomial = ReleaseHold[held /. HoldPattern[Equal[left_, right_]] :>\n      (left - right)];\n    If[! exactQ[polynomial] || ! FreeQ[polynomial, Indeterminate | _DirectedInfinity] ||\n        ! PolynomialQ[polynomial, variable], Return[$Failed, Module]];\n    If[SameQ[polynomial /. variable -> candidate, 0], candidate, $Failed]]];",
 "\n\nSetAttributes[mathicsNumericalFindRoot, HoldAll];",
 "\nmathicsNumericalFindRoot[equation_, {variable_Symbol, start_}, options___] :=\n  Module[{goal, seed, exact, result, root, precision},\n    goal = PrecisionGoal /. {options};\n    seed = start;\n    exact = mathicsNumericalExactIntegerSeed[HoldComplete[equation], variable, seed];\n    If[exact =!= $Failed, Return[{variable -> exact}, Module]];\n    If[NumericQ[goal] && TrueQ[goal > N[MachinePrecision]],\n      fail[\"MathicsNumericalPrecisionUnavailable\",\n        \"Mathics FindRoot cannot supply the requested reference-root precision. No high-precision numerical comparison was produced.\",\n        <|\"RequestedPrecisionGoal\" -> goal, \"AvailablePrecision\" -> N[MachinePrecision],\n          \"ExactIntegerSeedVerified\" -> False|>]];\n    result = System`FindRoot[equation, {variable, seed}, options];\n    If[NumericQ[goal] && ListQ[result] && Length[result] === 1 &&\n        MatchQ[First[result], _Rule],\n      root = variable /. result;\n      If[NumericQ[root],\n        precision = N[Precision[root]];\n        If[! TrueQ[precision >= goal],\n          fail[\"MathicsNumericalPrecisionUnavailable\",\n            \"Mathics FindRoot returned fewer reference-root digits than requested. No high-precision numerical comparison was produced.\",\n            <|\"RequestedPrecisionGoal\" -> goal, \"ReturnedPrecision\" -> precision|>]]]];\n    result];",
-"\n\n(* These are the five package-owned numerical consumers of FindRoot.\n   Symbolic construction, direct exact special-inverse evaluation, and\n   caller uses of System`FindRoot keep their existing dispatch. *)\nScan[(DownValues[#] = DownValues[#] /. System`FindRoot -> mathicsNumericalFindRoot) &,\n  {numericalInverseEvidence, coordinateNumericalCheck, sourceCoordinateNumericalCheck,\n   gammaInverseNumerical, specialNumerical}];"
+"\n\n(* These are the five package-owned numerical consumers of FindRoot.\n   Symbolic construction, direct exact special-inverse evaluation, and\n   caller uses of System`FindRoot keep their existing dispatch. *)\nScan[(DownValues[#] = DownValues[#] /. System`FindRoot -> mathicsNumericalFindRoot) &,\n  {numericalInverseEvidence, coordinateNumericalCheck, sourceCoordinateNumericalCheck,\n   gammaInverseNumerical, specialNumerical}];",
+"\n\n(* Mathics 10 returns Indeterminate from an arbitrary-precision N of\n   Log[c r] when c is an irrational constant and the rational r is below\n   about 10^-17, although N[Log[c] + Log[r]] evaluates. A tail target such as\n   Erfc[x] = 10^-20 reaches exactly this form. When a numerical evaluation\n   comes back Indeterminate, retry with logarithms of products whose factors\n   are all numerically positive split into sums; other logarithms and every\n   successful first evaluation are left unchanged. *)\nClearAll[mathicsNumericalN, mathicsNumericalSplitLog, mathicsNumericalSplitLogs];",
+"\nmathicsNumericalSplitLog[factors_List] :=\n  If[And @@ (TrueQ[N[#] > 0] & /@ factors), Total[Log /@ factors], Log[Times @@ factors]];",
+"\n(* Log[p_Times] with List @@ p: in Mathics, Times[factors__] binds the\n   whole product to a single sequence element, so it never splits. The\n   factors are processed first, so Log[-Log[c r]] still splits its inner\n   logarithm although its own factor -1 is negative. *)\nmathicsNumericalSplitLogs[expr_] := expr /. Log[product_Times] :>\n  mathicsNumericalSplitLog[mathicsNumericalSplitLogs /@ (List @@ product)];",
+"\nmathicsNumericalN[expr_, precision_] := Module[{value = N[expr, precision], split},\n  If[FreeQ[value, Indeterminate], Return[value, Module]];\n  split = mathicsNumericalSplitLogs[expr];\n  If[split === expr, value, N[split, precision]]];",
+"\nmathicsNumericalN[expr_] := mathicsNumericalN[expr, MachinePrecision];",
+"\nScan[(DownValues[#] = DownValues[#] /. System`N -> mathicsNumericalN) &,\n  {numericalInverseEvidence, coordinateNumericalCheck, sourceCoordinateNumericalCheck,\n   gammaInverseNumerical, specialNumerical}];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "(* BEGIN SOURCE: src/Kernel/MathicsLists.wl\n   Source SHA256 (UTF-8/LF): 523f9e8af7cdc30bd9897d69e379ddbe0b4d01a91193e78d5a76304d16cd7da0 *)\n(* Mathics 10.0.1 Map[f, emptyList] can corrupt that list's cached element\n   properties. Reusing it in a nested numeric list then raises a Python\n   AssertionError. For example, without this package:\n     b = {}; f /@ b; {b, 2, 0}\n   Mapping at the default first level of an empty list has no applications\n   of f and returns an empty list. Bypass only that exact case. Other inputs,\n   explicit levels, Heads options, and invalid arguments retain native Map.\n\n   This late adapter changes references in package-owned public, private,\n   and compatibility definitions. In particular, the public empty inverse\n   multi-index and compatibility Lookup list forms need the same protection.\n   The interpreter and System`Map definitions are untouched. *)\n\nClearAll[mathicsMap, mathicsInstallMap];",

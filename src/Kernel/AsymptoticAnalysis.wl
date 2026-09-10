@@ -170,6 +170,10 @@ withAssumptions[rules_List, ass_] := Prepend[withoutAssumptions[rules], Assumpti
 (* ------------------------------------------------------------------ *)
 
 exactQ[e_] := FreeQ[e, _Real | _Complex];
+(* A finite numerical value. Wolfram already excludes Indeterminate and
+   infinities from NumericQ; Mathics does not, and a realness test on an
+   Indeterminate value aborts its evaluator, so exclude them explicitly. *)
+finiteNumericQ[e_] := NumericQ[e] && FreeQ[e, Indeterminate | ComplexInfinity | _DirectedInfinity | Undefined];
 validateInput[f_, limit_] := (
   If[! exactQ[f], fail["InexactInput", "Exact real input is required; approximate and complex constants are rejected."]];
   If[! FreeQ[f, Indeterminate | _DirectedInfinity], fail["NonfiniteInput", "The forward expression must not contain nonfinite constants."]];

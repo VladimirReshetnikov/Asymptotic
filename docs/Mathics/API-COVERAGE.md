@@ -8,7 +8,7 @@ The [compatibility status](COMPATIBILITY.md) describes the broader goal.
 
 ## Evidence and current scope
 
-The maintained suite has **114 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation, the local-coordinate numerical check, explicit coefficient power precedence and the residual offset label. The additional
+The maintained suite has **119 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation, the local-coordinate numerical check, explicit coefficient power precedence, the residual offset label, and the four explicit special-function adapters with the Erfc numerical contract. The additional
 contracts cover empty lookup state, shared lazy defaults, the empty inverse multi-index, retained
 nonprincipal `ProductLog` proofs, and numerical precision. The quadratic
 integer-root test now also verifies the returned precision. Focused paired
@@ -119,7 +119,7 @@ returned data head and its public evaluation behavior.
 | `AsymptoticFourierInverse` | `families-fourier-first-correction`, `operations-fourier-coefficient-and-residual` | One logarithmic sine frequency, complete first correction, coefficient and residual metadata. **Core**, **Operations**. |
 | `AsymptoticInverse` | `inverse-quadratic`, `inverse-depth-quadratic`, `inverse-logarithmic-coefficients`, `inverse-irrational-exponent`, `inverse-infinity`, `inverse-finite-point`, `inverse-ramified`, `inverse-exact-termination`; `families-lambert-negative-branch`, `families-gamma-inverse-first-correction`, `families-barnes-inverse-leading-core`; `operations-newton-inverse-and-retained-refinement` | Ordinary, logarithmic and ramified inversion; coordinate charts, depth frontier, exact termination, and selected Lambert/Gamma/Barnes families. **Core**. Exact Newton quadratic inversion is **Refinement**. |
 | `AsymptoticLogarithmicInverse` | `logarithmic-reciprocal-core`, `operations-reciprocal-log-differentiate`, `operations-reciprocal-log-compose` | Reciprocal-log blocks for `x+x/Log[x]`, derivative and composition contracts. **Core**, **Operations**. |
-| `AsymptoticSpecialInverse` | `operations-special-inverse-quadratic-threshold` | Direct quadratic-threshold adapter with translated source, target offset and negative target scale; exact remainder. **Operations**. |
+| `AsymptoticSpecialInverse` | `operations-special-inverse-quadratic-threshold`, `special-adapter-erfc-tail`, `special-adapter-loggamma-core`, `special-adapter-gamma-core`, `special-adapter-lambert-threshold-branches` | Direct quadratic-threshold adapter with translated source, target offset and negative target scale; exact remainder. **Operations**. The four tail and threshold adapters compare the finite expression numerically at one target each, with their remainders, cutoffs and selected sides; each needs about a minute on Mathics. |
 | `FlatSeriesDifferentiate` | `operations-flat-series-calculus-and-error` | Exact derivative of retained first sector and nonzero derivative remainder. **Operations**. |
 | `FlatSeriesMultiply` | `operations-flat-series-calculus-and-error` | Direct multiplication by an exact scalar. **Operations**. |
 | `FlatSeriesObservable` | `operations-flat-series-calculus-and-error` | Affine observable preserves the first flat correction. **Operations**. |
@@ -148,7 +148,7 @@ returned data head and its public evaluation behavior.
 | `SeriesPower` | `operations-series-power` | Negative power with leading-pole shift and transported remainder. **Operations**. |
 | `SeriesRefine` | `arithmetic-refinement`, `arithmetic-refinement-retained-state`, `operations-newton-inverse-and-retained-refinement`, `operations-refinement-additional-blocks-request`, `operations-refinement-replays-product-recipe` | Retained Lagrange state and unchanged original object are **Core**. Retained Newton steps, exact residual, additional complete blocks and product-recipe replay with honest work-count metadata are **Refinement**. |
 | `SeriesTruncate` | `arithmetic-truncation`, `operations-series-data-reconstruction`, `special-zeta-truncation-transports-bound` | Direct cutoff reduction is **Core**; explicit remainder data-head equality is **Latest**; the Zeta case checks that truncation transports the absolute tail bound and that a no-op truncation keeps every bound field. |
-| `SpecialInverseNumericalCheck` | `operations-special-numerical-exact-threshold` | Direct exact quadratic-threshold root smoke check; result remains explicitly uncertified. **Latest**. |
+| `SpecialInverseNumericalCheck` | `operations-special-numerical-exact-threshold`, `special-adapter-erfc-numerical-contract` | Direct exact quadratic-threshold root smoke check; result remains explicitly uncertified. **Latest**. The Erfc contract requires the `10^-20` tail comparison to return either the documented precision refusal or a finite record on Mathics, instead of aborting the evaluator. |
 
 ## Remaining input and option coverage
 
@@ -167,11 +167,13 @@ export in the relevant area has a representative fixture:
   and arithmetic across factored, Dirichlet, Gamma and Barnes envelopes
   require additional tests. The logarithmic residual API also has an explicit
   unsupported-residual contract for generalized coefficient jets.
-- **Special inverse adapters.** The direct `AsymptoticSpecialInverse` fixture
-  covers `"QuadraticThreshold"`. Its `"Erfc"`, `"LogGamma"`, `"Gamma"` and
-  `"LambertThreshold"` adapters, chart options, and resource limits remain
-  distinct targets. Testing `AsymptoticInverse[Gamma[x], ...]` does not cover
-  all those public adapter paths.
+- **Special inverse adapters.** The `AsymptoticSpecialInverse` fixtures now
+  cover `"QuadraticThreshold"` and one default request of each of `"Erfc"`,
+  `"LogGamma"`, `"Gamma"` and `"LambertThreshold"` (both real branches). Their
+  `"ModelTerms"`, `"TargetOffset"`, `"TargetScale"` and other chart options,
+  resource limits, and the numerical checks of the Gamma-family adapters
+  remain distinct targets. Testing `AsymptoticInverse[Gamma[x], ...]` does not
+  cover all those public adapter paths.
 - **Proof and rejection boundaries.** The suite checks affine-domain realness,
   selected complex and inexact inputs, ambiguous/disconnected branch behavior,
   and held inline assumptions. General nonlinear/disconnected domains,

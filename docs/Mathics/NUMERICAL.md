@@ -41,6 +41,23 @@ and returns the explicit Mathics precision failure. Similarly, the inverse of
 goal. These are bounded examples, not a guarantee for every low-precision
 input, convergence condition, or special inverse family.
 
+## Logarithms of small products
+
+Arbitrary-precision `N[Log[c r], n]` returns `Indeterminate` on the tested
+interpreter when `c` is an irrational constant and the rational `r` is below
+about `10^-17`; `N[Log[Sqrt[2]/10^16], 40]` evaluates while
+`N[Log[Sqrt[2]/10^17], 40]` does not, and `N[Log[Sqrt[Pi]] + Log[10^-20], 40]`
+evaluates. The same late adapter therefore also redirects `N` in the five
+numerical consumers: when an evaluation returns `Indeterminate`, it retries
+with every `Log` of a product whose factors are all numerically positive
+rewritten as the sum of their logarithms, and otherwise returns the first
+value unchanged. The rewrite is valid for positive real factors, which is
+the real-branch situation in which these logarithmic target coordinates
+arise; it is not applied to products with a nonpositive or nonnumeric factor.
+Values that still contain `Indeterminate` are rejected by the consumers'
+finite-value guards instead of reaching a realness comparison, which would
+abort the Mathics evaluator.
+
 Exact symbolic specialization, asymptotic remainders, interval certificates,
 and numerical root comparisons have different contracts. This adapter changes
 only package numerical reference-root calls on Mathics. Direct caller uses of
