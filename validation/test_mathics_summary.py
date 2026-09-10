@@ -63,7 +63,7 @@ class SummaryEvidenceTests(unittest.TestCase):
         self.assertEqual(set(package_hashes(before)), {
             "src/Kernel/AsymptoticAnalysis.wl", "src/Kernel/SeriesOperations.wl"})
 
-    def test_receipt_hash_survives_crlf_publication_without_rehashing_tested_sources(self):
+    def test_receipt_hashes_distinguish_bytes_and_preserve_normalized_content_and_sources(self):
         package_hash = hashlib.sha256(b"package\r\nsource\r\n").hexdigest()
         suite_hash = hashlib.sha256(b"historical\r\nsuite\r\n").hexdigest()
         report = {
@@ -84,10 +84,15 @@ class SummaryEvidenceTests(unittest.TestCase):
             path.write_bytes(published)
             from_lf = read_receipt(path)
             self.assertEqual(path.read_bytes(), published)
-        self.assertEqual(from_crlf, from_lf)
+        self.assertEqual({k: v for k, v in from_crlf.items() if k != "ReceiptSHA256"},
+                         {k: v for k, v in from_lf.items() if k != "ReceiptSHA256"})
         self.assertEqual(from_lf["ReceiptSHA256"], hashlib.sha256(published).hexdigest())
-        self.assertNotEqual(from_lf["ReceiptSHA256"], hashlib.sha256(working_copy).hexdigest())
-        self.assertEqual(from_lf["ReceiptSHA256Normalization"], "CRLF-to-LF; all other bytes unchanged")
+        self.assertEqual(from_crlf["ReceiptSHA256"], hashlib.sha256(working_copy).hexdigest())
+        self.assertNotEqual(from_lf["ReceiptSHA256"], from_crlf["ReceiptSHA256"])
+        self.assertEqual(from_lf["NormalizedReceiptSHA256"], hashlib.sha256(published).hexdigest())
+        self.assertEqual(from_crlf["NormalizedReceiptSHA256"], from_lf["NormalizedReceiptSHA256"])
+        self.assertEqual(from_lf["ReceiptSHA256Normalization"], "None; exact receipt bytes")
+        self.assertEqual(from_lf["NormalizedReceiptSHA256Normalization"], "CRLF-to-LF; all other bytes unchanged")
         self.assertEqual(from_lf["PackageSourcesSHA256"], {
             "src/Kernel/AsymptoticAnalysis.wl": package_hash})
         self.assertEqual(from_lf["TestSuiteSnapshotSHA256"], suite_hash)

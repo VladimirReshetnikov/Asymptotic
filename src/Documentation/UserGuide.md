@@ -1745,6 +1745,37 @@ Normal[s]
 y - a y^(1 + p) + a^2 (1 + p) y^(1 + 2 p)
 ```
 
+<a id="log-power-normalization"></a>
+##### Logarithms of Symbolic Powers
+
+The finite power-log model uses `Log[u^k] == k Log[u]` only when `u` is the
+positive local coordinate and the retained assumptions prove `k` real.
+The scaled form `Log[c u^k] == Log[c] + k Log[u]` also requires `c > 0`.
+Negative real exponents are permitted; an unspecified exponent is not
+implicitly real. For example, supply the real-parameter hypothesis explicitly:
+
+```wolfram
+AsymptoticInverse[x + x^2 Log[x^a]^2, {x, 0}, {y, 1},
+  "Truncation" -> "Depth", Assumptions -> Element[a, Reals]]
+```
+
+Under this hypothesis the source is `x + a^2 x^2 Log[x]^2`. The assumption
+`a^2 == -1` does not justify the same normalization. Although the original
+source is then real for positive `x`, its squared principal logarithm is a
+bounded periodic function of `Log[x]`. Replacing it by `-Log[x]^2` changes
+both the function and its inverse asymptotics. Such an unproved
+normalization returns `Failure["UnsupportedInput", ...]` in symbolic-depth
+inversion. Use a supported source representation or retain a separate native
+result where applicable.
+
+These conditions also apply when this finite parser is used by exact-core
+and flat-sector constructors. They do not restrict explicit native backends
+to real inputs. A periodic-coefficient inverse constructor is a separate
+development proposal. Targeted native before/after probes confirm the new
+refusals; focused suite acceptance is pending. The
+[normalization notes](../../docs/development/LOG_POWER_NORMALIZATION.md)
+record the mathematical contract and validation status.
+
 #### Declared Input Precision
 
 ```wolfram

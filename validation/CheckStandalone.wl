@@ -38,6 +38,14 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"],
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[Module[{x, y, a, refused, real},
+    refused = AsymptoticInverse[x + x^2 Log[x^a]^2, {x, 0}, {y, 1},
+      "Truncation" -> "Depth", Assumptions -> a^2 == -1];
+    real = AsymptoticInverse[x + x^2 Log[x^a]^2, {x, 0}, {y, 1},
+      "Truncation" -> "Depth", Assumptions -> a < 0];
+    {MatchQ[refused, Failure["UnsupportedInput", _Association]],
+      TrueQ[FullSimplify[Normal[real] == y - a^2 y^2 Log[y]^2, a < 0 && y > 0]]}],
+    {True, True}, TestID -> "loading-principal-log-normalization-requires-real-exponents"],
   VerificationTest[Module[{x, z, s, left, uncertain},
     s = AsymptoticExpansion[1 - x, {x, 0, 2}, "Backend" -> "Package"];
     left = SeriesObservable[s, FractionalPart[z], z];

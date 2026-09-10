@@ -21,13 +21,13 @@ Thirteen additional cases covering public operations and the empty-list
 `Map` regression passed on both modular and standalone snapshots containing
 54 modules. Their package hashes differ from the earlier 77-case snapshots.
 The four remaining direct-export cases and four held inline-assumption
-contracts passed on both layouts of the latest 55-module candidate; the
+contracts passed on both layouts of the recorded 55-module candidate; the
 standalone batch also repeated its five loading cases. Together, these
 receipts cover 98 unique cases per layout across three package snapshots.
 Three further cases for Newton inversion, retained Newton refinement,
 additional-block requests and product-recipe replay passed on the same
-55-module modular snapshot; their standalone rerun is pending. The current
-receipt totals are therefore **101 modular cases and 98 standalone cases**,
+55-module modular and standalone snapshots. The current receipt totals are
+therefore **101 modular cases and 101 standalone cases**,
 each across three recorded package snapshots. A full 101-case run on one
 current snapshot remains a separate acceptance check.
 
@@ -41,27 +41,34 @@ expected output are not published alongside the Mathics receipts; the
 reconstructed union of complete per-case receipts.
 
 The [machine-readable evidence summary](../../validation/mathics-test-coverage.json)
-records each receipt's LF-normalized hash, package source fingerprint, original
+records each receipt's exact byte hash, normalized comparison hash, package
+source fingerprint, original
 outcome and reconciliation. Its underlying [full modular](../../validation/mathics-modular-tests.json)
 and [full standalone](../../validation/mathics-standalone-tests.json) receipts
 remain unchanged. The [summary generator](../../validation/summarize_mathics_tests.py)
 rejects reconciliations between different package sources or with unresolved
 original failures. Additional operation receipts retain their own source scope.
-Schema version 2 computes `ReceiptSHA256` after replacing CRLF with LF and
-records that policy in `ReceiptSHA256Normalization`; all other receipt bytes
-are included unchanged. This makes the summary reproducible from a CRLF
-working copy or the published LF files. Each receipt still retains the exact
+Schema version 2 retains `ReceiptSHA256` as the hash of the exact receipt
+bytes. It additionally computes `NormalizedReceiptSHA256` after replacing
+CRLF with LF, with all other bytes unchanged; both policies are explicit
+in the corresponding `*Normalization` fields. The normalized hash allows
+comparison across line-ending variants without claiming their raw bytes
+are identical. Each receipt still retains the exact
 package and suite byte hashes used for its run, including historical CRLF
 snapshots. The summary copies those source hashes without normalization;
 publishing the current suite with LF does not make its bytes identical to a
 historical tested snapshot.
+The initial publication checkpoint `bc6d570` normalized those receipt files
+to LF. The publication correction restores their captured bytes and marks
+`validation/mathics-*-tests.json` with `-text`, so Git preserves their recorded
+hashes before final acceptance.
 
 The table uses these evidence labels:
 
 - **Core**: first 77 cases, with the explicit exact-normalization reconciliation above.
 - **Operations**: the additional 13 cases, passed on both package layouts.
 - **Latest**: the final eight direct-export and held-assumption cases, passed on both 55-module layouts.
-- **Refinement**: three additional cases passed on the 55-module modular layout and original Wolfram; standalone validation is pending.
+- **Refinement**: three additional cases passed on both recorded 55-module layouts and original Wolfram.
 
 All passing symbolic checks use exact values or exact logical predicates.
 The numerical checks below are explicitly limited smoke checks. The full

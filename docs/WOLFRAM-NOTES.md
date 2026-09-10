@@ -413,6 +413,22 @@ for local, offline, and commit-pinned forms.
   absorbs any fixed logarithmic degree. Compute an explicit omitted block
   and prove the native tail smaller before reporting a sharper boundary.
   The maximum degree among retained coefficients is not a tail-degree bound.
+- `Log[u^k]` cannot be replaced by `k Log[u]` merely because the coordinate
+  `u` is positive. The finite power-log parser also needs a proof that the
+  fixed exponent is real; the scaled identity for `Log[c u^k]` additionally
+  requires `c > 0`. Negative real exponents are valid. Under `a^2 == -1`,
+  `x + x^2 Log[x^a]^2` is a real monotone source near zero, but the rewrite
+  changes a bounded winding coefficient into `-Log[x]^2`. Checking the
+  resulting real coefficients cannot repair that lost source identity.
+  Use retained assumptions at the neutral proof boundary, leave unproved
+  logarithms unnormalized, and preserve exact cancellation before parsing.
+  The [13 baseline observations](../validation/log-power-normalization-baseline.json)
+  reproduce both public depth witnesses and changed flat coefficients;
+  the exact-core probe retains the logarithm and has a different admission concern.
+  The [logarithm normalization notes](development/LOG_POWER_NORMALIZATION.md)
+  record the proof, affected consumers, structured after-guard refusals,
+  and pending focused suite acceptance;
+  this is separate from preserving a complex result in explicit native mode.
 - A generic observable must inspect the returned Taylor chart and exclusive
   endpoint, not only the order requested from `Series`. A truthful custom
   provider returning `u + O(u^2)` cannot justify coefficients beyond that

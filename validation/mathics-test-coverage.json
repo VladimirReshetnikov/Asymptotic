@@ -1,5 +1,5 @@
 {
-  "SchemaVersion": 2,
+  "SchemaVersion": 3,
   "Scope": "Portable case evidence across the explicitly fingerprinted snapshots; not a single final-source full run or the complete original MUnit suite.",
   "SingleFullCurrentSourceAcceptanceClaimed": false,
   "OriginalReceiptsPreserved": true,
@@ -113,7 +113,7 @@
       "DistinctPackageSnapshots": 3
     },
     "standalone": {
-      "UniqueCasesWithSuccessfulEvidence": 98,
+      "UniqueCasesWithSuccessfulEvidence": 101,
       "DistinctPackageSnapshots": 3
     }
   },
@@ -170,14 +170,17 @@
     "validation/mathics-standalone-api-tests.json",
     "validation/mathics-modular-final-api-tests.json",
     "validation/mathics-standalone-final-tests.json",
-    "validation/mathics-modular-refinement-tests.json"
+    "validation/mathics-modular-refinement-tests.json",
+    "validation/mathics-standalone-refinement-tests.json"
   ],
   "SupplementalFailedObservations": [],
   "Receipts": [
     {
       "Receipt": "validation/mathics-modular-tests.json",
-      "ReceiptSHA256": "c11ea3133eb03baac3444516ce9ee3654be029ad82c543e7adb83dc36f47307d",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "5bde92157a8f256cf30644f41999872004e642d7c02a4bcc2836ab4e052de7c8",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "c11ea3133eb03baac3444516ce9ee3654be029ad82c543e7adb83dc36f47307d",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T02:02:42.830253+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-finalcandidate-77\\src\\Kernel\\AsymptoticAnalysis.wl",
       "PackageLayout": "modular",
@@ -331,8 +334,10 @@
     },
     {
       "Receipt": "validation/mathics-modular-normalization-tests.json",
-      "ReceiptSHA256": "7ac514237707909eaaf932479087111bba3dcbc5ca7c41fe33b7678ff63f1b1c",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "609eb1d973132b14864b3dd1d017ff1419e92a5858ab0f06e8fc641a24b80fba",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "7ac514237707909eaaf932479087111bba3dcbc5ca7c41fe33b7678ff63f1b1c",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T01:51:08.371934+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-finalcandidate-77\\src\\Kernel\\AsymptoticAnalysis.wl",
       "PackageLayout": "modular",
@@ -409,8 +414,10 @@
     },
     {
       "Receipt": "validation/mathics-standalone-tests.json",
-      "ReceiptSHA256": "adac6c811d399053abd6f8dabeeda8b2e05c4413382ad88ab2f607d74519bd20",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "13bc5cb7b808b3d590e9432dfe6d192344b20e708a98eb7ba11256ec34374b67",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "adac6c811d399053abd6f8dabeeda8b2e05c4413382ad88ab2f607d74519bd20",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T02:06:17.279527+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-final-standalone-77\\AsymptoticAnalysis.wl",
       "PackageLayout": "standalone",
@@ -512,8 +519,10 @@
     },
     {
       "Receipt": "validation/mathics-standalone-normalization-tests.json",
-      "ReceiptSHA256": "b5fe2421116be5360e5aa14db2371715e1d0ddc9674dd844d3b119f67d4c8b12",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "4a81c54558e38555ebb19554ca56fa3f61b0038be2a08a3e39fc410006fa9834",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "b5fe2421116be5360e5aa14db2371715e1d0ddc9674dd844d3b119f67d4c8b12",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T01:51:38.083424+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-final-standalone-77\\AsymptoticAnalysis.wl",
       "PackageLayout": "standalone",
@@ -538,8 +547,10 @@
     },
     {
       "Receipt": "validation/mathics-modular-api-tests.json",
-      "ReceiptSHA256": "abdb13027fd328f9ccd83716b40639a9df1816436452ad514cdbe57a5e5beb04",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "a356329f220d9f93ce57c0518a8b274bfa10611abcac02bc14b4900388c42461",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "abdb13027fd328f9ccd83716b40639a9df1816436452ad514cdbe57a5e5beb04",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T02:19:12.958584+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-api90-candidate\\src\\Kernel\\AsymptoticAnalysis.wl",
       "PackageLayout": "modular",
@@ -629,8 +640,10 @@
     },
     {
       "Receipt": "validation/mathics-standalone-api-tests.json",
-      "ReceiptSHA256": "5085269d33bbd0d888d76b0cc115a3b62ba162f08215b6f3de2c2da93ab72eef",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "3773857595e551865c926a82b7740d45f74d4c2a32aa39fdebca1246fb86b763",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "5085269d33bbd0d888d76b0cc115a3b62ba162f08215b6f3de2c2da93ab72eef",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T02:18:54.321006+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\AsymptoticAnalysis.wl",
       "PackageLayout": "standalone",
@@ -667,8 +680,10 @@
     },
     {
       "Receipt": "validation/mathics-modular-final-api-tests.json",
-      "ReceiptSHA256": "7b878e2ce7ba16b5f2491478800719f87b066ced61925f0f3254129691a7c103",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "c4a26013c67beb86a6f5b765f37c7efb2c18d7ce02288f2328869065aaee85d2",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "7b878e2ce7ba16b5f2491478800719f87b066ced61925f0f3254129691a7c103",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T02:27:45.330016+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-api98-candidate\\src\\Kernel\\AsymptoticAnalysis.wl",
       "PackageLayout": "modular",
@@ -754,8 +769,10 @@
     },
     {
       "Receipt": "validation/mathics-standalone-final-tests.json",
-      "ReceiptSHA256": "4c626d4009aea612f9925356c41458f79758f77396ece759e0b1f5f2c2797911",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "383c943704a154c0465656ad5b8b86e8745b9c9216c5479a6b61ba9570a7d725",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "4c626d4009aea612f9925356c41458f79758f77396ece759e0b1f5f2c2797911",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T02:29:27.898397+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-api98-candidate\\AsymptoticAnalysis.wl",
       "PackageLayout": "standalone",
@@ -792,8 +809,10 @@
     },
     {
       "Receipt": "validation/mathics-modular-refinement-tests.json",
-      "ReceiptSHA256": "d413c90f2404d001e10eb2cf70455166dc3dfb7181caea917bf5bddc5705fa46",
-      "ReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "ReceiptSHA256": "a19edbe949b0af0b9058e897ba321ae8a621c6b89c101c0f9721bff9c366ec77",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "d413c90f2404d001e10eb2cf70455166dc3dfb7181caea917bf5bddc5705fa46",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
       "UTC": "2026-09-10T02:32:52.559848+00:00",
       "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-api98-candidate\\src\\Kernel\\AsymptoticAnalysis.wl",
       "PackageLayout": "modular",
@@ -855,6 +874,36 @@
         "src/Kernel/SpecialFunctionRealDomain.wl": "6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c"
       },
       "PackageFingerprintSHA256": "522690314eaab11d374b9deb8833967a2dbf8944621993022daadf60f3041457",
+      "TestSuiteSnapshotSHA256": "227d2d0ab8ca6f5f7e26df409ba2e4b00547740cb78f0f6f46c7db0979dfa541",
+      "RunComplete": true,
+      "SourcesUnchangedDuringRun": true,
+      "OriginalCounts": {
+        "Selected": 3,
+        "Executed": 3,
+        "Succeeded": 3,
+        "Failed": 0,
+        "NotRun": 0
+      },
+      "SuccessfulTestIDs": [
+        "operations-newton-inverse-and-retained-refinement",
+        "operations-refinement-additional-blocks-request",
+        "operations-refinement-replays-product-recipe"
+      ],
+      "FailedTestIDs": []
+    },
+    {
+      "Receipt": "validation/mathics-standalone-refinement-tests.json",
+      "ReceiptSHA256": "fb77bfdc5dcff6a67d11d1b2452e6a801fabae869c64016363df641032d4eb0b",
+      "ReceiptSHA256Normalization": "None; exact receipt bytes",
+      "NormalizedReceiptSHA256": "ed9afa838a6110081671d1864914a23af1fe16551bf4a0ac75b8e882a74d28f2",
+      "NormalizedReceiptSHA256Normalization": "CRLF-to-LF; all other bytes unchanged",
+      "UTC": "2026-09-10T02:41:08.965334+00:00",
+      "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-api98-candidate\\AsymptoticAnalysis.wl",
+      "PackageLayout": "standalone",
+      "PackageSourcesSHA256": {
+        "AsymptoticAnalysis.wl": "24fe90f3ef7d2391091fe19592b9c0edfc0366e0c6641911fe22887e5134ec80"
+      },
+      "PackageFingerprintSHA256": "7e585d786a03d15bcc7061c235a1ad9c6e9221dbc788b82d619112151e32f276",
       "TestSuiteSnapshotSHA256": "227d2d0ab8ca6f5f7e26df409ba2e4b00547740cb78f0f6f46c7db0979dfa541",
       "RunComplete": true,
       "SourcesUnchangedDuringRun": true,

@@ -2701,6 +2701,36 @@ numerical exponent.</p>
 Normal[s]</code></pre>
 <p><strong>Output</strong></p>
 <pre class="wolfram"><code>y - a y^(1 + p) + a^2 (1 + p) y^(1 + 2 p)</code></pre>
+<p><a id="log-power-normalization"></a></p>
+<section id="logarithms-of-symbolic-powers" class="level5">
+<h5>Logarithms of Symbolic Powers</h5>
+<p>The finite power-log model uses <code>Log[u^k] == k Log[u]</code>
+only when <code>u</code> is the positive local coordinate and the
+retained assumptions prove <code>k</code> real. The scaled form
+<code>Log[c u^k] == Log[c] + k Log[u]</code> also requires
+<code>c &gt; 0</code>. Negative real exponents are permitted; an
+unspecified exponent is not implicitly real. For example, supply the
+real-parameter hypothesis explicitly:</p>
+<pre class="wolfram"><code>AsymptoticInverse[x + x^2 Log[x^a]^2, {x, 0}, {y, 1},
+  &quot;Truncation&quot; -&gt; &quot;Depth&quot;, Assumptions -&gt; Element[a, Reals]]</code></pre>
+<p>Under this hypothesis the source is
+<code>x + a^2 x^2 Log[x]^2</code>. The assumption <code>a^2 == -1</code>
+does not justify the same normalization. Although the original source is
+then real for positive <code>x</code>, its squared principal logarithm
+is a bounded periodic function of <code>Log[x]</code>. Replacing it by
+<code>-Log[x]^2</code> changes both the function and its inverse
+asymptotics. Such an unproved normalization returns
+<code>Failure[&quot;UnsupportedInput&quot;, ...]</code> in symbolic-depth
+inversion. Use a supported source representation or retain a separate
+native result where applicable.</p>
+<p>These conditions also apply when this finite parser is used by
+exact-core and flat-sector constructors. They do not restrict explicit
+native backends to real inputs. A periodic-coefficient inverse
+constructor is a separate development proposal. Targeted native
+before/after probes confirm the new refusals; focused suite acceptance
+is pending. The <a href="../../docs/development/LOG_POWER_NORMALIZATION.md">normalization
+notes</a> record the mathematical contract and validation status.</p>
+</section>
 </section>
 <section id="declared-input-precision" class="level4">
 <h4>Declared Input Precision</h4>

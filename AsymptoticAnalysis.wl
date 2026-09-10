@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 6ac19b767696590719ebf46c5acbc219662f2997557f9dc42ef52f40158f62dc *)
+   Source SHA256 (UTF-8/LF): fb3d4d584255d03f2e923956391efac5bfab225a481748dca3bac0bb56cd24b1 *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -1080,7 +1080,12 @@ inverseFrontierWithCount[region0_, d_, polys_, p_, rint_, ell_, ass_, limit_] :=
 
 (* finite power-log parser that tolerates symbolic exponents (used by depth truncation) *)
 parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, ok = True},
-  ex = Expand[e //. {Log[u^k_] /; FreeQ[k, u] :> k Log[u], Log[c_ u^k_.] /; FreeQ[c, u] && FreeQ[k, u] && TrueQ[Simplify[c > 0, ass]] :> Log[c] + k Log[u]} /. Log[u] -> ell];
+  (* The positive local base does not remove principal-log winding for a
+     complex exponent. Require a real exponent before either identity. *)
+  ex = Expand[e //. {
+    Log[u^k_] /; FreeQ[k, u] && TrueQ[Simplify[Element[k, Reals], ass]] :> k Log[u],
+    Log[c_ u^k_.] /; FreeQ[c, u] && FreeQ[k, u] &&
+      TrueQ[Simplify[c > 0, ass]] && TrueQ[Simplify[Element[k, Reals], ass]] :> Log[c] + k Log[u]} /. Log[u] -> ell];
   summands = If[Head[ex] === Plus, List @@ ex, {ex}];
   Do[Module[{factors, expo = 0, coef = 1},
     factors = If[Head[term] === Times, List @@ term, {term}];
