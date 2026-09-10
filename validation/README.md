@@ -1031,9 +1031,13 @@ proved positive and negative branches of the coordinate rule, the refusal
 without a proved sign, and the unchanged composite fallback for an
 exponential-scale operand. The portable cases
 `callable-tiny-neighbourhood-condition` and
-`callable-eventual-sign-certificate-primitives` pin W4-03 on both kernels;
-their Mathics receipts are recorded with the `callable` group below once
-the runs complete.
+`callable-eventual-sign-certificate-primitives` pin W4-03 on both kernels:
+the Mathics `callable` group passes **11/11** in the
+[modular](mathics-modular-wave7-callable-tests.json) and
+[standalone](mathics-standalone-wave7-callable-tests.json) layouts with
+unchanged sources, and the official kernel gives the same values through its
+general prover (the official-kernel receipt of the two cases is recorded
+below once a batch seat is free).
 
 ## Refinement postconditions and canonical budgets
 
