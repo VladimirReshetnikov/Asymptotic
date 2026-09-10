@@ -63,6 +63,13 @@ suite was run.
   An early draft of the runner collected fields with `Lookup` over an
   empty list, which yields `Missing` and breaks the JSON export; the
   fixtures caught this before acceptance.
+* **Article.** The certificates section gains a remark on exact affine
+  ranges before rounding with the review witness, and the zeta subsection a
+  remark on transporting an absolute tail bound through truncation. The
+  rebuilt PDF (103 pages, three `pdflatex` passes, no overfull or underfull
+  boxes, no undefined references) has SHA-256
+  `fcc582a7e02dd96562c76f94b6d3cfaa8bb6d3fa2a76a8a901e611711aaa4c14`; pages
+  57 and 76 were inspected at full size and all contact sheets were rendered.
 * **D08 — license identifier.** The paclet and standalone header now declare
   `MIT-0`; the maintainer confirmed the intended identifier. The regenerated
   standalone was verified with `--check`.

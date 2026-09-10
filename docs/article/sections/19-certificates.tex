@@ -82,6 +82,20 @@ endpoint by $\lceil q/\eta\rceil\eta$. These directed roundings preserve
 containment by exact inequalities. A rational endpoint can first be scaled
 by an integer power of two to control the relative grid size.
 
+Rounding must not precede exact cancellation. If a subexpression is a
+rational affine function $ax+b$ of the source variable, its range on
+$[l,r]$ is the exact interval with endpoints $al+b$ and $ar+b$, which is
+then rounded outward once. Enclosing the summands separately loses this:
+for $f(x)=x-A$ with $A=2^{10000}+1$, target $1/2$, exact centre $A+1/2$
+and verification interval $[A+1/4,A+3/4]$, the constant $-A-1/2$ rounded
+to $B$ significant bits acquires an uncertainty $2^{10000-B+1}$, which for
+every admissible $B$ exceeds the quarter-unit margin to the interval
+endpoints, so neither residual containment nor endpoint signs can be
+established, although the exact residual is $0$ and the exact derivative
+is $1$. The affine range is recognized structurally from rational
+constants, the variable, sums and products with at most one nonconstant
+factor; anything else keeps the outward enclosures.
+
 For $0\le t\le\tfrac12$, the exponential has the bounds
 \[
  S_N(t)=\sum_{j=0}^N\frac{t^j}{j!},\qquad

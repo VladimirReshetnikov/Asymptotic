@@ -28,7 +28,9 @@ JSON export gains per-file summaries and rejected-file names. The paclet and
 standalone header declare the SPDX identifier `MIT-0`, matching the root MIT
 No Attribution license. The
 [implementation register](development/CODE_REVIEW_STATUS.md) links the
-focused evidence (D04, D08, V02).
+focused evidence (D04, D08, V02). The mathematical article records the
+affine-range rule and the truncation transport of tail bounds in its
+certificate and zeta sections.
 
 `InverseCertificate` evaluates rational affine subexpressions exactly before
 interval rounding, so a linear equation translated by a huge constant, such

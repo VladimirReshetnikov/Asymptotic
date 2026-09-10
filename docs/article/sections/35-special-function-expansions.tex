@@ -541,6 +541,20 @@ $S=ax+b\to+\infty$ preserves both bounds on $ax+b>1$.
 In contrast, all corrections to $1$ are flat in $1/S$; an
 inverse-power expansion in that coordinate cannot distinguish them.
 
+Quantitative bounds of this kind survive a later truncation. If an
+expansion with $m$ retained terms is cut back to $m'<m$ terms, the
+omitted remainder is the discarded finite part plus $R_m$, so
+\[
+ |R_{m'}(S)|\le\sum_{n=m'}^{m-1}n^{-S}+m^{-S}\Bigl(1+\frac{m}{S-1}\Bigr)
+\]
+on the same condition $S>1$; the triangle inequality transports an
+absolute bound, and the same argument applies to the Lerch bound
+\eqref{eq:special-function-lerch-bound}. A signed lower bound, or the
+constant form $C_Na^{-s-N}$, describes only the original tail and is
+not transported. The transported bound is weaker than the direct bound
+for $m'$ terms, which uses the first omitted term $m'^{-S}$, but it
+needs no new analysis of the defining sum.
+
 The zeta representation is a convergent generalized power series on
 its stated interval. The Lerch expansion follows from a convergent
 defining sum but is asserted only at each fixed asymptotic order.
