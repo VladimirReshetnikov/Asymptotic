@@ -52,6 +52,17 @@ instead of `r^2`, so 2080 rather than 4096 at support 64), the reason a positive
 leading coefficient does not license the shortcut, and the reason a valid
 magnitude bound does not transport a classical derivative contract.
 
+## Implementation status
+
+The [maintained register](../../../docs/development/CODE_REVIEW_STATUS.md)
+records the current state; this table maps the wave's entries to it.
+
+| Entries | Status |
+| --- | --- |
+| 37 F01 (with retired 40 ABS-01, 41 ABS-01) | **Implemented.** The forward modulus applies the sign rule only to provably real retained coefficients and otherwise uses the article's norm-square construction on the real coordinate; the logarithmic witness is refused as leaving the power-log scale. Pinned in [ReviewModulusReality.wlt](../../../src/Tests/ReviewModulusReality.wlt) and the [wave-5 modulus run](../../../validation/wave5-modulus-tests.json). |
+| 42 N01 (with retired 40 ABS-02) | **Implemented.** A modulus of a nonzero remainder records `RemainderDerivativeOrder -> 0`; report 42's differentiated pure-remainder chain now refuses a further derivative. |
+| 37 F02, F03; 38 N1, N2; 39 N01–N03; 42 N02, N03; 43 F01–F03, E01; 44 T01–T04, P01, Q01; 45 N01 | Open; unprocessed review material as described above. |
+
 ## Evidence boundary
 
 No package in this wave executed the repository in Wolfram or in Mathics beyond

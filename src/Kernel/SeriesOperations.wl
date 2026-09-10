@@ -309,7 +309,7 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
     h === Power && e[[1]] === E, fwdExp[seriesJetApply[e[[2]], x, input, d, cut, limit], x, ell, ass, cut, limit],
     h === Power && FreeQ[e[[2]], x], fwdPower[seriesJetApply[e[[1]], x, input, d, cut, limit], e[[2]], x, ell, ass, cut, limit],
     h === Log && Length[e] === 1, fwdLog[seriesJetApply[e[[1]], x, input, d, cut, limit], x, ell, ass, cut, limit],
-    h === Abs, fwdAbs[seriesJetApply[e[[1]], x, input, d, cut, limit], ell, ass],
+    h === Abs, fwdAbs[seriesJetApply[e[[1]], x, input, d, cut, limit], ell, ass, x, cut, limit],
     Length[e] === 1,
       j = seriesJetApply[e[[1]], x, input, d, cut, limit]; parts = splitJet[j[[1]]];
       If[parts[[1]] =!= {} || ! FreeQ[parts[[2]], ell] || ! less[0, j[[2]]],
@@ -382,8 +382,14 @@ AsymptoticAnalysis`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : Op
       "Power", seriesPower[s, body[[2]], OptionValue["Cutoff"], limit]];
     Return[GeneralizedSeries[Join[result[[1]], <|"SeriesRecipe" -> {"Observable", {s}, e, x},
       "ObservableCondition" -> condition|>]], Module]];
-  j = seriesJetApply[body, x, d["Jet"], d, h, limit];
-  result = seriesMake[Join[d, <|"Jet" -> j|>], {"Observable", {s}, e, x}, h];
+  (* A modulus of a nonzero remainder keeps only the magnitude bound: a
+     smooth input with infinitely many sign changes gives |F| infinitely many
+     cusps, so no classical derivative contract survives (report 42 N01). *)
+  j = Block[{$absorbedAbsRemainder = False},
+    {seriesJetApply[body, x, d["Jet"], d, h, limit], $absorbedAbsRemainder}];
+  result = seriesMake[Join[d, <|"Jet" -> j[[1]]|>,
+    If[TrueQ[j[[2]]] && j[[1, 2]] =!= Infinity, <|"RemainderDerivativeOrder" -> 0|>, <||>]],
+    {"Observable", {s}, e, x}, h];
   GeneralizedSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,
     "InverseFunctionProvenance" -> DeleteDuplicates[$inverseFunctionProvenance]|>]]]]];
 

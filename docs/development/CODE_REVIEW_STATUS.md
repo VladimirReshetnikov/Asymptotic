@@ -112,23 +112,34 @@ the same signed-real absolute-value shortcut, and two reported the same
 observable derivative-contract loss; reports 40 and 41 were retired as the
 duplicate copies.
 
-That modulus finding is no longer only source-predicted. The
-[three-case characterization](../../validation/wave5-modulus-witness.json),
+That modulus finding was reproduced and is now **repaired and focused
+verified**. The [three-case characterization](../../validation/wave5-modulus-witness.json),
 produced by [ProbeModulusReality](../../validation/ProbeModulusReality.wl) on
-Wolfram 15.0.1 Windows with unchanged sources, reproduces two public wrong
-results on the current source: under `a^2 == -1` the package returns exact `0`
-with `RemainderPower -> Infinity` for `Abs[1 + a x] + Abs[1 - a x] - 2`, whose
-true value is `2 Sqrt[1 + x^2] - 2 = x^2 + O(x^4)`, and `-2 Log[x]` for
+Wolfram 15.0.1 Windows with unchanged sources, records the behaviour before the
+repair: under `a^2 == -1` the package returned exact `0` with
+`RemainderPower -> Infinity` for `Abs[1 + a x] + Abs[1 - a x] - 2`, whose true
+value is `2 Sqrt[1 + x^2] - 2 = x^2 + O(x^4)`, and `-2 Log[x]` for
 `Abs[Log[x] + a] + Abs[Log[x] - a]`, whose true value is
-`2 Sqrt[Log[x]^2 + 1]` and omits `-1/Log[x]`. The real-parameter control is
-correct. This is a characterization probe, not an acceptance suite, and no
-repair is applied here. The underlying mathematics — why a positive leading
-coefficient does not license the sign rule, the norm-square construction that
-does compute a modulus on the real coordinate, and the scale boundary at a
-nonconstant logarithmic leading block — is now in the
-[mathematical article](../article/sections/03-forward.tex), together with the
+`2 Sqrt[Log[x]^2 + 1]`. The forward modulus now applies the sign rule only when
+every retained coefficient polynomial is provably real; otherwise it forms the
+norm square `T Conjugate[T]` on the real coordinate, whose blocks are real by
+construction, and takes the positive root, exactly the construction recorded in
+the [mathematical article](../article/sections/03-forward.tex). The first
+witness returns `x^2 (Abs[a]^2 - Re[a]^2) + O(x^4)`, which is `x^2 + O(x^4)` at
+`a = ±I`; the squared witness returns `2 + 2 Abs[a]^2 x^2`; the logarithmic
+witness is refused with `LogarithmicLeadingPower` because its modulus leaves
+the power-log scale; the real-parameter controls are unchanged. A modulus that
+consumes a nonzero remainder keeps its magnitude bound but records
+`RemainderDerivativeOrder -> 0`, so report 42's chain — a differentiated pure
+remainder with a declared contract passed through `Abs` — now refuses a further
+derivative with `UnprovedRemainderDerivative`, the
 [separate reason](../article/sections/17-calculus.tex) a faithful magnitude
-bound does not transport a classical derivative contract.
+bound does not transport a classical derivative contract. The
+[modulus regressions](../../src/Tests/ReviewModulusReality.wlt) and their
+neighbouring suites pass in the
+[wave-5 modulus run](../../validation/wave5-modulus-tests.json) from
+[CheckWave5Modulus](../../validation/CheckWave5Modulus.wl); see the
+[validation record](../../validation/README.md#wave-5-modulus-witnesses-on-nonreal-retained-coefficients).
 
 Wave 6 supplied reports 46–55 at `8cee870`, all ten retained and indexed in the
 [wave-6 index](../../external-reports/code-review/wave-6/README.md). **It has no

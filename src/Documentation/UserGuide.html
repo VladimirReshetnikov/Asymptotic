@@ -3379,11 +3379,22 @@ SeriesMultiply[s, 1 + x]</code></pre>
 and <code>ArcTan[s]</code> use the regular observable calculus when the
 argument tends to an admissible finite real value. <code>Abs[s]</code>,
 <code>Log[s]</code>, and <code>Exp[s]</code> use their corresponding
-sign, branch, and remainder rules. When no ordered expansion is
-available, <code>Abs</code>, <code>Sin</code>, <code>Cos</code>,
-<code>Log</code>, and <code>Exp</code> can instead return the <a href="#composite-series-results">composite bounds</a> described below.
-This does not assert an ordered expansion at every pole, branch point,
-or infinite argument.</p>
+sign, branch, and remainder rules. The modulus uses the eventual sign of
+the leading block only when every retained coefficient is provably real
+under the assumptions; a jet with nonreal coefficients, such as
+<code>Abs[1 + a x]</code> under <code>a^2 == -1</code>, is squared
+against its coefficientwise conjugate on the real coordinate and the
+positive root is taken, so <code>Abs[1 + a x] + Abs[1 - a x] - 2</code>
+expands to <code>x^2 (Abs[a]^2 - Re[a]^2) + O[x^4]</code> rather than to
+<code>0</code>. A nonconstant logarithmic leading block with nonreal
+coefficients leaves the power-log scale and is refused. A modulus of a
+nonzero remainder keeps only the magnitude bound and reports
+<code>&quot;RemainderDerivativeOrder&quot; -&gt; 0</code>. When no ordered
+expansion is available, <code>Abs</code>, <code>Sin</code>,
+<code>Cos</code>, <code>Log</code>, and <code>Exp</code> can instead
+return the <a href="#composite-series-results">composite bounds</a>
+described below. This does not assert an ordered expansion at every
+pole, branch point, or infinite argument.</p>
 <pre class="wolfram"><code>Sin[t]
 Exp[t]
 Log[s]</code></pre>

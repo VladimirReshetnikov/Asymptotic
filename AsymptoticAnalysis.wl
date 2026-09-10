@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): c17b456e9447eed3650c93a9e87f755197311d0fd666084c978e8f1ec7c5c57f *)
+   Source SHA256 (UTF-8/LF): 5281b74572ed5760146c9cad6237ebb465f19e0f87dcc6306eff181c1a665f9c *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -579,16 +579,48 @@ fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e], parameterized},
    h === Log && Length[e] == 2, fwd[Log[e[[2]]]/Log[e[[1]]], u, ell, ass, Kw, limit],
    h === Exp, fwdExp[fwd[e[[1]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
    h === Sqrt, fwdPower[fwd[e[[1]], u, ell, ass, Kw, limit], 1/2, u, ell, ass, Kw, limit],
-   h === Abs, fwdAbs[fwd[e[[1]], u, ell, ass, Kw, limit], ell, ass],
+   h === Abs, fwdAbs[fwd[e[[1]], u, ell, ass, Kw, limit], ell, ass, u, Kw, limit],
    Length[e] == 1, fwdAnalytic[h, fwd[e[[1]], u, ell, ass, Kw, limit], e, u, ell, ass, Kw, limit],
    True, fwdSeries[e, u, ell, ass, Kw, limit]]];
 
-fwdAbs[j : {T_, P_, D_}, ell_, ass_] := Module[{q, c, degree},
+(* |F| for a power-log jet F = T + O(w^P M^D) on the real coordinate w.
+
+   When every retained coefficient polynomial is provably real, the eventual
+   sign of the leading block gives |T| = +-T, and the reverse triangle
+   inequality ||F| - |T|| <= |F - T| carries the remainder unchanged. That
+   sign rule is false for a jet with nonreal coefficients even when its
+   leading coefficient is positive: |1 + a w| + |1 - a w| - 2 under a^2 == -1
+   is 2 Sqrt[1 + w^2] - 2, not 0, and the imaginary parts cancel so the wrong
+   result even looks real (wave-5 report 37 F01 and retired reports 40, 41).
+   Such a jet is handled on the real coordinate by the norm square
+   Q = T Conjugate[T], whose blocks are real by construction, followed by the
+   positive square root; a nonconstant logarithmic leading block leaves the
+   power-log scale and is refused by that root. A remainder consumed by the
+   modulus keeps its magnitude bound only, which the flag below reports so
+   consumers drop any classical derivative contract (report 42 N01). *)
+$absorbedAbsRemainder = False;
+fwdAbs[j : {T_, P_, D_}, ell_, ass_, u_: None, Kw_: Infinity, limit_: 20000] := Module[
+  {q, c, degree, conjugate, square},
+  If[P =!= Infinity, $absorbedAbsRemainder = True];
   If[T === {}, Return[j, Module]];
-  q = T[[1, 2]]; degree = polyDegree[q, ell];
-  c = (-1)^degree Coefficient[q, ell, degree];
-  Which[provablyPositive[c, ass], j, provablyNegative[c, ass], pScale[j, -1, ell, ass],
-    True, fail["UnprovedSign", "The eventual sign of the absolute-value argument could not be proved."]]];
+  If[And @@ (TrueQ[realPolynomialCondition[#[[2]], ell, ass]] & /@ T),
+   q = T[[1, 2]]; degree = polyDegree[q, ell];
+   c = (-1)^degree Coefficient[q, ell, degree];
+   Return[Which[provablyPositive[c, ass], j, provablyNegative[c, ass], pScale[j, -1, ell, ass],
+     True, fail["UnprovedSign", "The eventual sign of the absolute-value argument could not be proved."]], Module]];
+  conjugate = {{#[[1]], coefficientConjugate[#[[2]], ell, ass]} & /@ T, P, D};
+  square = pMul[j, conjugate, ell, ass, limit];
+  square = {{#[[1]], coefficientConjugateCanon[#[[2]], ell, ass]} & /@ square[[1]], square[[2]], square[[3]]};
+  fwdPower[square, 1/2, u, ell, ass, Kw, limit]];
+
+(* Coefficientwise conjugation of a polynomial in the real logarithm ell,
+   and the canonical real forms Wolfram gives z + Conjugate[z] -> 2 Re[z]
+   and z Conjugate[z] -> Abs[z]^2, which the realness checks recognize. *)
+coefficientConjugate[p_, ell_, ass_] := Module[{k},
+  Sum[Simplify[Conjugate[Coefficient[p, ell, k]], ass] ell^k, {k, 0, polyDegree[p, ell]}]];
+coefficientConjugateCanon[p_, ell_, ass_] := Module[{k},
+  Sum[TimeConstrained[FullSimplify[Coefficient[p, ell, k], ass], 2, Coefficient[p, ell, k]] ell^k,
+    {k, 0, polyDegree[p, ell]}]];
 
 fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, U, PU, DU, cutRel, res, rr},
   If[! (NumericQ[r] && exactQ[r]), fail["SymbolicExponent", "Exponents must be exact numbers.", <|"Exponent" -> r|>]];
@@ -2113,7 +2145,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 2a6d9c0429c8e77b7176903c2c8476238268f14edb7643895dba7375d71ab368 *)
+   Source SHA256 (UTF-8/LF): 39d2827226ba3245bc43cda3883c0b6d7c30496f758eaf0ac5ac3cc81606fa39 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2425,7 +2457,7 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
     h === Power && e[[1]] === E, fwdExp[seriesJetApply[e[[2]], x, input, d, cut, limit], x, ell, ass, cut, limit],
     h === Power && FreeQ[e[[2]], x], fwdPower[seriesJetApply[e[[1]], x, input, d, cut, limit], e[[2]], x, ell, ass, cut, limit],
     h === Log && Length[e] === 1, fwdLog[seriesJetApply[e[[1]], x, input, d, cut, limit], x, ell, ass, cut, limit],
-    h === Abs, fwdAbs[seriesJetApply[e[[1]], x, input, d, cut, limit], ell, ass],
+    h === Abs, fwdAbs[seriesJetApply[e[[1]], x, input, d, cut, limit], ell, ass, x, cut, limit],
     Length[e] === 1,
       j = seriesJetApply[e[[1]], x, input, d, cut, limit]; parts = splitJet[j[[1]]];
       If[parts[[1]] =!= {} || ! FreeQ[parts[[2]], ell] || ! less[0, j[[2]]],
@@ -2498,8 +2530,14 @@ AsymptoticAnalysis`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : Op
       "Power", seriesPower[s, body[[2]], OptionValue["Cutoff"], limit]];
     Return[GeneralizedSeries[Join[result[[1]], <|"SeriesRecipe" -> {"Observable", {s}, e, x},
       "ObservableCondition" -> condition|>]], Module]];
-  j = seriesJetApply[body, x, d["Jet"], d, h, limit];
-  result = seriesMake[Join[d, <|"Jet" -> j|>], {"Observable", {s}, e, x}, h];
+  (* A modulus of a nonzero remainder keeps only the magnitude bound: a
+     smooth input with infinitely many sign changes gives |F| infinitely many
+     cusps, so no classical derivative contract survives (report 42 N01). *)
+  j = Block[{$absorbedAbsRemainder = False},
+    {seriesJetApply[body, x, d["Jet"], d, h, limit], $absorbedAbsRemainder}];
+  result = seriesMake[Join[d, <|"Jet" -> j[[1]]|>,
+    If[TrueQ[j[[2]]] && j[[1, 2]] =!= Infinity, <|"RemainderDerivativeOrder" -> 0|>, <||>]],
+    {"Observable", {s}, e, x}, h];
   GeneralizedSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,
     "InverseFunctionProvenance" -> DeleteDuplicates[$inverseFunctionProvenance]|>]]]]];
 

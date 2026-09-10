@@ -457,16 +457,48 @@ fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e], parameterized},
    h === Log && Length[e] == 2, fwd[Log[e[[2]]]/Log[e[[1]]], u, ell, ass, Kw, limit],
    h === Exp, fwdExp[fwd[e[[1]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
    h === Sqrt, fwdPower[fwd[e[[1]], u, ell, ass, Kw, limit], 1/2, u, ell, ass, Kw, limit],
-   h === Abs, fwdAbs[fwd[e[[1]], u, ell, ass, Kw, limit], ell, ass],
+   h === Abs, fwdAbs[fwd[e[[1]], u, ell, ass, Kw, limit], ell, ass, u, Kw, limit],
    Length[e] == 1, fwdAnalytic[h, fwd[e[[1]], u, ell, ass, Kw, limit], e, u, ell, ass, Kw, limit],
    True, fwdSeries[e, u, ell, ass, Kw, limit]]];
 
-fwdAbs[j : {T_, P_, D_}, ell_, ass_] := Module[{q, c, degree},
+(* |F| for a power-log jet F = T + O(w^P M^D) on the real coordinate w.
+
+   When every retained coefficient polynomial is provably real, the eventual
+   sign of the leading block gives |T| = +-T, and the reverse triangle
+   inequality ||F| - |T|| <= |F - T| carries the remainder unchanged. That
+   sign rule is false for a jet with nonreal coefficients even when its
+   leading coefficient is positive: |1 + a w| + |1 - a w| - 2 under a^2 == -1
+   is 2 Sqrt[1 + w^2] - 2, not 0, and the imaginary parts cancel so the wrong
+   result even looks real (wave-5 report 37 F01 and retired reports 40, 41).
+   Such a jet is handled on the real coordinate by the norm square
+   Q = T Conjugate[T], whose blocks are real by construction, followed by the
+   positive square root; a nonconstant logarithmic leading block leaves the
+   power-log scale and is refused by that root. A remainder consumed by the
+   modulus keeps its magnitude bound only, which the flag below reports so
+   consumers drop any classical derivative contract (report 42 N01). *)
+$absorbedAbsRemainder = False;
+fwdAbs[j : {T_, P_, D_}, ell_, ass_, u_: None, Kw_: Infinity, limit_: 20000] := Module[
+  {q, c, degree, conjugate, square},
+  If[P =!= Infinity, $absorbedAbsRemainder = True];
   If[T === {}, Return[j, Module]];
-  q = T[[1, 2]]; degree = polyDegree[q, ell];
-  c = (-1)^degree Coefficient[q, ell, degree];
-  Which[provablyPositive[c, ass], j, provablyNegative[c, ass], pScale[j, -1, ell, ass],
-    True, fail["UnprovedSign", "The eventual sign of the absolute-value argument could not be proved."]]];
+  If[And @@ (TrueQ[realPolynomialCondition[#[[2]], ell, ass]] & /@ T),
+   q = T[[1, 2]]; degree = polyDegree[q, ell];
+   c = (-1)^degree Coefficient[q, ell, degree];
+   Return[Which[provablyPositive[c, ass], j, provablyNegative[c, ass], pScale[j, -1, ell, ass],
+     True, fail["UnprovedSign", "The eventual sign of the absolute-value argument could not be proved."]], Module]];
+  conjugate = {{#[[1]], coefficientConjugate[#[[2]], ell, ass]} & /@ T, P, D};
+  square = pMul[j, conjugate, ell, ass, limit];
+  square = {{#[[1]], coefficientConjugateCanon[#[[2]], ell, ass]} & /@ square[[1]], square[[2]], square[[3]]};
+  fwdPower[square, 1/2, u, ell, ass, Kw, limit]];
+
+(* Coefficientwise conjugation of a polynomial in the real logarithm ell,
+   and the canonical real forms Wolfram gives z + Conjugate[z] -> 2 Re[z]
+   and z Conjugate[z] -> Abs[z]^2, which the realness checks recognize. *)
+coefficientConjugate[p_, ell_, ass_] := Module[{k},
+  Sum[Simplify[Conjugate[Coefficient[p, ell, k]], ass] ell^k, {k, 0, polyDegree[p, ell]}]];
+coefficientConjugateCanon[p_, ell_, ass_] := Module[{k},
+  Sum[TimeConstrained[FullSimplify[Coefficient[p, ell, k], ass], 2, Coefficient[p, ell, k]] ell^k,
+    {k, 0, polyDegree[p, ell]}]];
 
 fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, U, PU, DU, cutRel, res, rr},
   If[! (NumericQ[r] && exactQ[r]), fail["SymbolicExponent", "Exponents must be exact numbers.", <|"Exponent" -> r|>]];

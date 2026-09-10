@@ -15,6 +15,22 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Modulus of nonreal expansions
+
+The forward `Abs` no longer replaces a modulus by its signed argument when a
+retained coefficient is not provably real. Under `a^2 == -1`,
+`Abs[1 + a x] + Abs[1 - a x] - 2` previously expanded to exact `0`; it now
+expands to `x^2 (Abs[a]^2 - Re[a]^2) + O[x^4]`, which is `x^2 + O[x^4]` at
+`a = ±I`, through the norm square on the real coordinate and its positive
+root. A nonconstant logarithmic leading block with nonreal coefficients is
+refused with `LogarithmicLeadingPower`. A modulus applied to a nonzero
+remainder records `"RemainderDerivativeOrder" -> 0`, so `SeriesDifferentiate`
+refuses a derivative that the magnitude bound cannot justify. Real-coefficient
+behaviour is unchanged. See the
+[operations guide](../src/Documentation/UserGuide.md#series-operations) and the
+[implementation register](development/CODE_REVIEW_STATUS.md) (wave-5 reports
+37 F01 and 42 N01).
+
 ### Wave-6 public-boundary repairs
 
 Seven public behaviours reported by the sixth review wave changed.

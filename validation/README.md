@@ -1174,6 +1174,21 @@ text modules pass, and `check_documentation.py` passes on the current tree.
 
 ## Wave-5 modulus witnesses on nonreal retained coefficients
 
+**Repaired.** The [eight-file run](wave5-modulus-tests.json) from
+[CheckWave5Modulus.wl](CheckWave5Modulus.wl) passes **165/165** on Wolfram
+15.0.1 for Windows with unchanged sources. Its five new cases in
+[ReviewModulusReality.wlt](../src/Tests/ReviewModulusReality.wlt) pin the
+norm-square modulus of the cancellation and squared witnesses, checked at
+`a = I` and `a = -I` against the exact values `x^2` and `2 + 2 x^2`, the
+`LogarithmicLeadingPower` refusal of the logarithmic witness, the unchanged
+real-parameter controls, and report 42's chain: a modulus of a nonzero
+remainder records `RemainderDerivativeOrder -> 0`, so a differentiated pure
+remainder passed through `Abs` refuses a further derivative while its
+magnitude bound is kept. The other seven files are the real-coefficient,
+operation, expanded-input, observable, envelope, logarithmic-scale and
+callable-expansion suites that share the forward `Abs` path. The
+characterization below records the behaviour before this repair.
+
 The [five-case characterization](wave5-modulus-witness.json) from
 [ProbeModulusReality.wl](ProbeModulusReality.wl) reproduces the wave-5 modulus
 finding that three separate reports raised. On Wolfram 15.0.1 for Windows, with
