@@ -164,6 +164,28 @@ VerificationTest[
   True, TestID -> "review-log-power-infinity-coordinate-preserves-real-exponent-sign-change"]
 
 VerificationTest[
+  Module[{u, ell, a, b, c, ass},
+    ass = Element[{a, b}, Reals] && c > 0;
+    reviewLogPowerEqual[
+      reviewLogPowerParsed[u + u^2 Log[(c (1/u)^a)^b]^2, u, ell, ass],
+      u + b^2 u^2 (Log[c] - a Log[u])^2, ass && u > 0]],
+  True, TestID -> "review-log-power-recurses-through-positive-scaled-real-power-trees"]
+
+VerificationTest[
+  Module[{u, ell, a, b},
+    And @@ (reviewLogPowerParsed[#, u, ell, a^2 == -1 && Element[b, Reals]] === $Failed & /@
+      {u + u^2 Log[(1/u)^a]^2, u + u^2 Log[(u^a)^b]^2,
+       u + u^2 Log[(-u)^b]^2})],
+  True, TestID -> "review-log-power-recursion-does-not-rescue-complex-or-negative-inner-bases"]
+
+VerificationTest[
+  Module[{x, y, a, s},
+    s = AsymptoticFlatInverse[x + x^2 Exp[-1/x + Log[x^a]^2 - a^2 Log[x]^2],
+      {x, 0}, {y, 1}, Assumptions -> a^2 == -1];
+    MatchQ[s, Failure["UnsupportedFlatPhase", _Association]]],
+  True, TestID -> "review-log-power-flat-phase-cannot-manufacture-monomial-by-erasing-winding"]
+
+VerificationTest[
   Module[{x, a, native, s},
     native = Series[Log[x^a], {x, 1, 2}, Assumptions -> a^2 == -1];
     s = AsymptoticExpansion[Log[x^a], {x, 1, 2},

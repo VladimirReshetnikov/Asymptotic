@@ -3,9 +3,9 @@
 This note records W3-10 from [report 23, N01](../../external-reports/code-review/wave-3/code-review-23/results/novelty_ledger.json).
 The [wave-3 intake](WAVE_3_INTAKE.md) and [review register](CODE_REVIEW_STATUS.md)
 track the implementation milestone. The source mechanism and mathematical
-counterexample have been independently reviewed. The two guards are implemented
-and the targeted before/after probes are recorded; **focused native suite
-acceptance is pending**. The report's Python models and proposed Wolfram
+counterexample have been independently reviewed. The guarded normalization
+is implemented; **207 focused native tests pass**, including 21 dedicated
+logarithm cases. The report's Python models and proposed Wolfram
 tests are not executions of the current package. No full-suite result is claimed.
 
 The [13-observation baseline](../../validation/log-power-normalization-baseline.json),
@@ -27,9 +27,24 @@ positive-scaled real controls. Both public depth witnesses now return
 `$Failed`. These are bounded characterizations, not the acceptance suite.
 
 The [focused acceptance runner](../../validation/CheckLogPowerNormalization.wl)
-will record its result in `validation/log-power-normalization-tests.json`.
-The baseline characterizes the defect; it does not establish acceptance of
-the guard or correctness of every parser consumer.
+records [207 passes with no failures](../../validation/log-power-normalization-tests.json)
+across eight selected files, with 65 unchanged input hashes. The baseline
+characterizes the defect; it does not establish correctness of every parser
+consumer. The full package and Mathics feature suites were not run.
+The [local loading check](../../validation/log-power-normalization-loading-tests.json)
+also passes 100 checks in five fresh kernels, including the standalone and
+four package-loading routes. These are separate from mathematical acceptance.
+
+The preserved [first pass](../../validation/log-power-normalization-first-pass.json)
+had 201 passes and two failures. The new infinity control exposed the retained
+nested base `Log[(1/u)^a]`, which the original two patterns did not recognize.
+The [follow-up observations](../../validation/log-power-normalization-followup.json)
+separate this unsupported chart from the winding defect. The final recursive
+positive-base proof handles that chart without a new complex-branch assumption.
+The other failure was an older test demanding automatic rejection of inexact
+coefficients, although automatic routing now delegates them to native `Series`.
+That refusal check now selects `"Backend" -> "Package"`; a separate test
+compares the automatic result with native `Series`.
 
 ## Identity required before constructing a model
 
@@ -47,14 +62,19 @@ the discarded winding vanish throughout the positive approach. This is
 an identity obligation, before the reality and ordering checks of a
 finite coefficient model.
 
-Both logarithm rules in
-[`parseFinite`](../../src/Kernel/AsymptoticAnalysis.wl) now require
-`TrueQ[Simplify[Element[k, Reals], ass]]`, in addition to independence from
-the local variable and the scaled rule's existing positivity check.
-An inconclusive proof leaves the logarithm unnormalized; the finite parser
-then returns `$Failed` and its caller retains the applicable unsupported-input
-failure. Do not replace this with a sign condition on `k`, a numerical sample,
-or a blanket rejection of temporary complex expressions.
+[`parseFinite`](../../src/Kernel/AsymptoticAnalysis.wl) uses
+`finitePositiveMonomialLog` to prove positivity recursively. The local
+coordinate is positive; each constant factor must be proved positive; a
+product requires positive factors; and a power requires a positive base and
+`TrueQ[Simplify[Element[k, Reals], ass]]` for its variable-independent exponent.
+Only then does the helper add logarithms or multiply by an exponent.
+This includes nested real powers of reciprocal and positively scaled bases,
+such as `Log[(c (1/u)^a)^b]`. An inconclusive proof at any inner or outer
+node leaves the entire logarithm unnormalized. The finite parser then returns
+`$Failed` and its caller retains the applicable unsupported-input failure.
+Do not replace this with a sign condition on the exponent, a numerical sample,
+or a blanket rejection of temporary complex expressions. A product whose
+positivity depends on cancelling negative factors may remain unsupported.
 
 The proof uses the retained `ass` inside the public
 [neutral assumption scope](ASSUMPTION_CONTEXT.md). Later ambient assumptions
@@ -120,6 +140,8 @@ stored-assumption reuse. Representative exact-core and flat consumers check
 that the shared fix preserves their existing valid logarithmic inputs.
 Record actual failure tags rather than assuming every caller takes the same
 route. Native principal-log evaluations provide independent branch controls.
+The flat-phase regression also prevents winding erasure from cancelling
+`Log[x^a]^2 - a^2 Log[x]^2` and manufacturing a permitted monomial phase.
 
 ## Constructive periodic extension remains separate
 
