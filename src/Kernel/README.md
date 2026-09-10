@@ -85,6 +85,7 @@ requirements, evaluation differences, and the scope of recorded tests.
 | Implementation | Contract and reading path |
 | --- | --- |
 | [MathicsCompatibility.wl](MathicsCompatibility.wl), [MathicsCalls.wl](MathicsCalls.wl) | Scoped returns, association helpers, and held call evaluation; [runtime subtleties](../../docs/Mathics/COMPATIBILITY.md#compatibility-subtleties). |
+| [MathicsLists.wl](MathicsLists.wl) | Package-private empty-list mapping repair that preserves argument effects and native behavior for other forms; [list semantics](../../docs/Mathics/LISTS.md). |
 | [MathicsAssumptions.wl](MathicsAssumptions.wl), [MathicsSimplification.wl](MathicsSimplification.wl) | Conservative realness and sign reasoning; [assumption contracts](../../docs/Mathics/ASSUMPTIONS.md). |
 | [MathicsAlgebra.wl](MathicsAlgebra.wl), [MathicsTaylor.wl](MathicsTaylor.wl), [MathicsCalculus.wl](MathicsCalculus.wl) | Bounded exact algebra, local Taylor work, and calculus adapters; [algebra contracts](../../docs/Mathics/ALGEBRA.md). |
 | [MathicsInverseBranches.wl](MathicsInverseBranches.wl) | Callable evaluation and supported inverse-domain proofs; [callable contracts](../../docs/Mathics/CALLABLES.md). |

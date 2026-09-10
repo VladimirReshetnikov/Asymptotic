@@ -33,6 +33,47 @@ corrected `test_mathics_runner.py` invocation supplies the 14-test result.
 These tool tests do not establish Mathics feature acceptance. The full
 package suite remains skipped.
 
+This page preserves evidence from individual source snapshots. A historical
+passing count does not validate today's checkout. The project-wide
+[coverage targets](../docs/development/COVERAGE_TARGETS.md) remain open;
+consult the [native deviations](../docs/development/NATIVE_COMPATIBILITY.md),
+[Mathics status](../docs/Mathics/COMPATIBILITY.md), and
+[vendored article coverage](../docs/development/VENDORED_ASYMPTOTICS.md)
+for known implementation and acceptance gaps.
+
+| Task | Current instructions |
+| --- | --- |
+| Check documentation sources and generated artifacts | [Documentation maintenance](../docs/MAINTAINING.md) |
+| Select a Wolfram regression check | [Focused checks](#choose-a-focused-check) and [test guide](../src/Tests/README.md) |
+| Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
+| Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
+| Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
+
+## Documentation quality and coverage register
+
+The [September 9 documentation receipt](documentation-quality-2026-09-09.json)
+records the source and artifact hashes for the documentation-quality milestone.
+It covers the unified three-goal register, the full 48-root vendored source
+index, native and Mathics status, regenerated HTML, and the rebuilt mathematical
+article. The source audit incorporated `main` through `7d1bc83`, including the
+explicit native rule-goal repair, concurrent Mathics evaluator notes,
+empty-list adapter, and frozen native-definition capture script.
+
+The 99-page article completed three serial strict LaTeX passes with no
+overfull/underfull boxes or unresolved references. All pages were rendered
+and visually reviewed in contact sheets; changed and dense pages were also
+inspected at full size. The guide was checked in a browser at 1440-pixel and
+390-pixel widths, including the coverage matrix and long function names.
+The receipt distinguishes those visual checks from automatic geometry and
+link validation and retains the build logs and representative screenshots.
+
+The expanded documentation checker automatically includes new maintained
+notes and review-wave indexes, checks Markdown and raw-HTML links/images and
+section fragments, and preserves imported report bodies and six historical
+engineering files. Five parser/discovery regressions pass. This milestone
+does not run a Wolfram or Mathics package suite, prove new mathematical results,
+or establish completion of any of the three package-coverage goals.
+
 ## Mathics compatibility
 
 The [Mathics compatibility guide](../docs/Mathics/COMPATIBILITY.md) records

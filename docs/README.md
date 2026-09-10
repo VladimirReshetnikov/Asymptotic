@@ -22,22 +22,31 @@ established. The [compatibility guide](Mathics/COMPATIBILITY.md) distinguishes
 the tested runtime and feature scope from remaining implementation and
 validation work.
 
+**All asymptotics developed in the vendored articles under `vendor/proveit/docs`
+must also be computable by the package, including q-analogs, their inverses,
+and combinatorial sequences.** The [vendored coverage matrix](development/VENDORED_ASYMPTOTICS.md)
+maps the article families to existing building blocks and outstanding work;
+it does not claim that those families are already implemented. The
+[coverage register](development/COVERAGE_TARGETS.md) records all three goals
+and the evidence needed to establish them.
+
 | Read or do | Start here |
 | --- | --- |
 | Learn the theory, hypotheses, and proofs | [Mathematical article (PDF)](article/asymptotic-inverse.pdf) · [LaTeX source and build instructions](article/README.md) |
 | Load and use the package | [User guide (HTML)](../src/Documentation/UserGuide.html) · [Markdown source](../src/Documentation/UserGuide.md) |
-| Install and use the package in Mathics3 | [Mathics compatibility guide](Mathics/COMPATIBILITY.md) · [Interpreter background and contracts](Mathics/README.md) |
 | Rebuild the guide or inspect its examples | [Guide build instructions](../src/Documentation/README.md) · [Examples](../src/Examples/README.md) |
 | Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients · [Wolfram evaluation notes](WOLFRAM-NOTES.md) · [Mathics evaluation notes](MATHICS-NOTES.md) |
 | Use the package in Mathics3 | [Compatibility and validation guide](Mathics/COMPATIBILITY.md) · [Exact assumptions](Mathics/ASSUMPTIONS.md) · [Callable branch proofs](Mathics/CALLABLES.md) |
 | Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Twenty-seven code review packages in three waves](../external-reports/code-review/README.md) · [Wave-3 intake](development/WAVE_3_INTAKE.md) |
 | Check what was actually validated | [Validation record](../validation/README.md), with focused test results and artifact-specific build and review evidence |
 | Explore related asymptotic and inverse theory | [Vendored ProveIt article catalog](../vendor/proveit/README.md), with TeX/PDF sources, reading lists, and provenance |
+| Track the three complete-coverage requirements | [Coverage register](development/COVERAGE_TARGETS.md) · [Vendored asymptotics matrix](development/VENDORED_ASYMPTOTICS.md) |
 | Read submitted research and reviews | [External reports](../external-reports/README.md): nine original proposals and twenty-seven later code reviews |
 
 The [native compatibility plan](development/NATIVE_COMPATIBILITY.md) records
-the native comparison target and the interface findings now included in the
-review implementation scope. Explicit native delegation, the held alias, and
+the accepted requirement to completely subsume `Series`, `Asymptotic`, and
+`DiscreteAsymptotic`, together with known deviations and interface repairs.
+Explicit `Series`/`Asymptotic` delegation, the held alias, and
 automatic routing for selected native forms and representation limitations
 are implemented. The [226-test rename record](../validation/package-rename-tests.json)
 checks selected cases at checkpoint `a6c90ce`, before the documentation and
@@ -55,6 +64,8 @@ and CSS sources and regenerate its HTML. Their linked build instructions
 describe the commands and visual checks. Keep changed sources with their
 generated outputs. A test run, a successful document build, and a visual review
 are separate evidence, each tied to the source or artifact it checked.
+The [documentation maintenance guide](MAINTAINING.md) describes source
+ownership, generated outputs, link checks, and the review workflow.
 
 ## Historical material
 

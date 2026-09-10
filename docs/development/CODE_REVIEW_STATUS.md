@@ -1,5 +1,25 @@
 # Code review implementation status
 
+The review work serves three active requirements, consolidated in
+[Coverage targets and current gaps](COVERAGE_TARGETS.md):
+
+- **Complete compatibility with both the official Wolfram kernel and Mathics3.**
+  Current bounded adapters are a stage toward that goal; their verified scope
+  is recorded in the [Mathics compatibility plan](../Mathics/COMPATIBILITY.md).
+- **Completely subsume `Series`, `Asymptotic`, and `DiscreteAsymptotic`.** Every
+  input successfully handled by any of them must be handled correctly and
+  successfully by AsymptoticAnalysis. The result representation may differ.
+  The [native compatibility plan](NATIVE_COMPATIBILITY.md) records known gaps.
+- **Support all asymptotics documented in `vendor/proveit/docs`**, including
+  q-analogs, inverses, and combinatorial sequences. The
+  [vendored asymptotics register](VENDORED_ASYMPTOTICS.md) maps the mathematical
+  source material to package coverage and remaining work.
+
+These requirements are not yet achieved. Closing a review item establishes
+only its stated implementation and validation scope; it does not establish
+complete native, Mathics, or vendored-corpus coverage. Known deviations must
+remain visible in the linked plans as the implementation develops.
+
 The maintained package is now named AsymptoticAnalysis. Public function names,
 including `AsymptoticInverse`, are unchanged. Source and test links below follow
 the renamed directory; saved review payloads and validation records retain
@@ -65,7 +85,9 @@ Status meanings:
 - **Audit candidate:** a proof obligation or possible public route remains to be
   reproduced. It is not a demonstrated wrong result.
 - **Decision / deferred:** an API, release-policy, or mathematical extension needs
-  an explicit scope decision. It is not silently part of a correctness repair.
+  an implementation or scope decision. This status does not waive behavior
+  required by the accepted coverage targets; any additional generality remains
+  distinct from a correctness repair.
 
 The current user instruction is to **skip the full suite**. Focused native
 acceptance remains appropriate; the broader release-gate proposal below is
@@ -80,11 +102,14 @@ the separately identified wave-2 characterization probes.
 
 The updated user objective is to implement recommendations from all three
 review waves and keep the mathematical article, user guide and development
-notes current. The earlier native input-superset objective produced B01–B04
-and the compatibility matrix. They remain a design/comparison target;
-concrete native-interface findings in the reviews now drive this work stream.
-The public function `AsymptoticExpansion` also has the held alias
-`AsymptoticExpand`. Complete native coverage is not established.
+notes current while pursuing the complete coverage requirements above.
+B01–B04 and the compatibility matrix track the active requirement to subsume
+every successful input of `Series`, `Asymptotic`, and `DiscreteAsymptotic`.
+Concrete native-interface findings identify part of the remaining work;
+resolving them does not exhaust that requirement. The current dispatcher
+implements `Series` and `Asymptotic` delegation; a `DiscreteAsymptotic` backend
+is still absent. The public function `AsymptoticExpansion` also has the held
+alias `AsymptoticExpand`. Complete native coverage is not established.
 
 | ID | Required work and acceptance boundary |
 | --- | --- |
@@ -467,14 +492,24 @@ observations, and include peak memory and unchanged controls.
 | V01 | **Deferred by current user instruction.** The reviews propose a full native release gate and CI semantic coverage. The present workflow checks standalone generation with Python; focused native records remain scoped evidence. Record source hashes, kernel version, selected suites, messages and failed/aborted cases. Do not claim or run a full-suite gate for this task. | [R1 A05][R1], [R4 A07][R4], [R6 A07][R6], [R7 E01][R7], [R8 F07][R8]; [validation record](../../validation/README.md). |
 | V02 | **Pending — source inspected.** Make the legacy aggregate runner reject zero discovered/executed tests and failed report/export construction. Reuse the stronger focused runner's checks without running the aggregate suite. Validate the runner itself with isolated empty/aborted fixtures. | [R6 A08][R6]; [RunTests](../../src/Tests/RunTests.wl), [FocusedTests](../../validation/FocusedTests.wl). |
 
-## Deferred mathematical and architectural extensions
+<a id="deferred-mathematical-and-architectural-extensions"></a>
+## Mathematical and architectural extension proposals
 
-These are explicit **scope decisions**, not defects in a documented unsupported
-case. They remain visible for future work but are not prerequisites for closing
-C01–C23 or the wave-3 intake. Native compatibility review items B01–B04 remain
-tracked above. Each additional
-custom extension needs a finite admitted domain, independent
-coefficient oracles, remainder/branch obligations, and refusal cases.
+The proposals retain their review identifiers and their distinction from
+defects in currently supported behavior. Their relationship to the active
+[coverage targets](COVERAGE_TARGETS.md) must now be mapped explicitly:
+behavior needed to cover a successful native input or an asymptotic result
+in the vendored corpus is required project work. Historical scope-decision
+labels below leave the implementation approach and any additional generality
+open; they do not exclude required coverage or make it optional.
+
+Closing C01–C23 or the wave-3 intake remains a narrower milestone than meeting
+the project goals. Native compatibility items B01–B04, the
+[Mathics plan](../Mathics/COMPATIBILITY.md), and the
+[vendored coverage register](VENDORED_ASYMPTOTICS.md) track the broader work.
+Each new analytic extension still needs an admitted domain, independent
+coefficient oracles, remainder and branch obligations, and refusal cases for
+inputs outside its proved contract.
 
 | ID | Proposal and boundary | Report source |
 | --- | --- | --- |
@@ -540,8 +575,9 @@ adds all 44 entries from reports 19–27 and the consolidated `W3-*` work items.
    fixes, followed by measured P04/P05 work.
 6. Address C20–C23, C09/C10, D04/D08, V02 and remaining W3 items with focused contract checks.
    Resolve D10's lower-cutoff refinement policy separately from a soundness fix.
-   Keep concrete native-interface defects separate from optional mathematical
-   research when evaluating the recorded proposals.
+   Distinguish correctness repairs, required coverage gaps, and additional
+   mathematical generality when evaluating the recorded proposals. Map every
+   native or vendored asymptotic requirement to the coverage plans.
 
 For each completed item, record the implementation revision, exact source hashes,
 focused tests and kernel, independent oracle, relevant benchmark/control results,

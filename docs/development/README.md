@@ -11,6 +11,17 @@ to distinguish implemented adapters, focused evidence, and remaining work.
 Wolfram preservation checks and Mathics acceptance are separate requirements;
 success on one interpreter does not establish success on the other.
 
+The [coverage targets](COVERAGE_TARGETS.md) also require every input handled
+by `Series`, `Asymptotic`, or `DiscreteAsymptotic`, and all asymptotics developed
+in the vendored ProveIt articles, including q-analogs, inverses, and
+combinatorial sequences. A different result representation is permitted;
+incomplete coverage remains work to do. See the
+[known native deviations](NATIVE_COMPATIBILITY.md) and
+[vendored article coverage map](VENDORED_ASYMPTOTICS.md).
+
+The [documentation maintenance guide](../MAINTAINING.md) gives the
+source/output map, consistency checks, and build and visual-review workflow.
+
 The maintained package and Wolfram context are named `AsymptoticAnalysis`;
 the modular sources are under `src/`. Public `AsymptoticInverse` calls remain unchanged.
 Saved validation records from before the rename describe their original
@@ -41,9 +52,10 @@ recommendations, with each repair tied to its own focused validation.
 worktrees and incoming `main` changes, with committed work distinguished from
 pending changes and source review separated from executed validation.
 
-The [native compatibility plan](NATIVE_COMPATIBILITY.md) records the
-expansion-API coverage investigation for built-in `Series` and `Asymptotic`, including formal,
-complex and multivariable results. Explicit native backends and the held
+The [native compatibility plan](NATIVE_COMPATIBILITY.md) records the required
+input coverage of `Series`, `Asymptotic`, and `DiscreteAsymptotic`, including
+formal, complex, multivariable, and discrete results. The currently implemented
+native backends cover only `Series` and `Asymptotic`. Those backends and the held
 `AsymptoticExpand` alias are implemented, with
 [130 passed, zero failed focused checks](../../validation/native-compatibility-tests.json)
 across eight selected files and unchanged sources at that pre-rename milestone.
