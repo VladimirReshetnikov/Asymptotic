@@ -2602,7 +2602,7 @@ supported examples and remaining precision limits, and
 <a id="InverseCertificate"></a>
 ### InverseCertificate
 
-`InverseCertificate[s, y1, "Interval" -> {lo, hi}]` attempts to certify a unique real source root in a verification interval. Successful output is an association with a rational center, rational root enclosure, and certified error bounds.
+`InverseCertificate[s, y1, "Interval" -> {lo, hi}]` attempts to certify a unique real source root in a verification interval. Successful output is an association with a rational center, rational root enclosure, and certified error bounds. Rational affine subexpressions of the equation are evaluated exactly before interval rounding, so a large translation of the source coordinate does not consume certificate precision; other subexpressions use outward rational enclosures.
 
 | Option | Default | Meaning |
 | --- | --- | --- |

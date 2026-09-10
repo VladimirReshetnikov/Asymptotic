@@ -3373,7 +3373,7 @@ AsymptoticAnalysis`AsymptoticCoreInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: src/Kernel/CorePerturbation.wl *)
 
 (* BEGIN SOURCE: src/Kernel/InverseCertificates.wl
-   Source SHA256 (UTF-8/LF): e59820a67002d1745796ba077195019403b22fe0046e62dc13cc6d6e571cd80f *)
+   Source SHA256 (UTF-8/LF): b5cd214ccfaadfcda6074e9c434dc57f89366a8d73747ca091d250632149724d *)
 (* Exact rational residual certificates. Decimal arithmetic is used only to
    choose a center; every successful proof uses rational interval endpoints. *)
 
@@ -3468,11 +3468,38 @@ certLogExpression[argument_, x_, interval_, ctx_] := Module[{candidate},
   (* A positive product can have negative factors: retain the direct route. *)
   certLog[certEnclose[argument, x, interval, ctx], ctx]];
 
-certEnclose[expression_, x_Symbol, interval_, ctx_] := Module[{args, base, exponent, upper},
+(* Exact range of a rational affine tree a x + b built from rational constants,
+   the source symbol, Plus and Times. The pair {a, b} is combined exactly; a
+   product of two nonconstant pairs is nonlinear and fails, as does any other
+   head. No expansion or solver is used, so the cost is linear in the tree.
+   Evaluating the range before any rounding preserves cancellation between a
+   huge translation and the interval that carries it; rounding the individually
+   enclosed terms first can widen the constant by more than the whole
+   verification interval at every admitted precision. *)
+certAffinePair[e_, x_Symbol] := Module[{pairs, acc},
+  Which[e === x, {1, 0}, certRationalQ[e], {0, e},
+   Head[e] === Plus,
+    pairs = certAffinePair[#, x] & /@ (List @@ e);
+    If[MemberQ[pairs, $Failed], $Failed, Total[pairs]],
+   Head[e] === Times,
+    pairs = certAffinePair[#, x] & /@ (List @@ e);
+    If[MemberQ[pairs, $Failed], Return[$Failed, Module]];
+    acc = {0, 1};
+    Do[If[acc[[1]] pair[[1]] =!= 0, Return[$Failed, Module]];
+      acc = {acc[[1]] pair[[2]] + acc[[2]] pair[[1]], acc[[2]] pair[[2]]}, {pair, pairs}];
+    acc,
+   True, $Failed]];
+certAffineRange[e_, x_Symbol, interval_] := Module[{pair = certAffinePair[e, x]},
+  If[pair === $Failed, $Failed, Sort[pair[[1]] interval + pair[[2]]]]];
+
+certEnclose[expression_, x_Symbol, interval_, ctx_] := Module[{args, base, exponent, upper, affine},
   Which[
    expression === x, interval,
    certRationalQ[expression], {expression, expression},
    expression === E, certExpPoint[1, ctx],
+   MemberQ[{Plus, Times}, Head[expression]] &&
+     (affine = certAffineRange[expression, x, interval]) =!= $Failed,
+    certRoundInterval[affine, ctx],
    Head[expression] === Plus,
     Fold[certAdd[#1, #2, ctx] &, {0, 0}, certEnclose[#, x, interval, ctx] & /@ (List @@ expression)],
    Head[expression] === Times,

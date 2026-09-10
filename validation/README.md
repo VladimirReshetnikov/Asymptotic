@@ -43,6 +43,17 @@ suite was run.
   constructor's `2^-x` form with the calculus form `(E^-x)^Log[2]`, and a
   `Module`-local symbol in an expected value. These were fixture errors, not
   package failures.
+* **C20 — exact affine ranges in certificates.** The
+  [baseline transcript](affine-certificate-baseline.txt) reproduces the review
+  witness `x - (2^10000 + 1)` failing with `ResidualBracketOutsideInterval`
+  before the fix, together with a slope-3 variant at `2^300`. After the fix the
+  [two-file certificate run](certificate-affine-tests.json) passes **46/46**,
+  with three new tests: the witness at `"EnclosureOrder" -> 2`, the slope-3
+  variant, and the private affine-range helper's acceptance of nested
+  rational trees and rejection of nonlinear or transcendental ones. The
+  [official-kernel certificate group](wolfram-certificate-affine-tests.json)
+  passes 4/4 and the [Mathics probe](mathics-modular-affine-probe.json) passes
+  the new case `certificate-exact-affine-translation`.
 * **V02 — aggregate runner gates.** The
   [gate fixture receipt](run-tests-gate-fixtures.json) from
   [check_run_tests_gate.py](check_run_tests_gate.py) records **8/8** synthetic

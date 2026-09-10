@@ -255,3 +255,32 @@ VerificationTest[
  {{True, True, True}, {"InvalidInterval", "InvalidInterval", "InvalidInterval"},
   "IntervalNotSupplied", "MalformedInterval", "MalformedInterval", False, {1/5, 1/20}},
  TestID -> "certificate-omitted-interval-is-diagnosed-separately-from-malformed-endpoints"]
+
+VerificationTest[
+ Module[{x, y, a = 2^10000 + 1, s, c},
+  s = AsymptoticInverse[x - a, {x, a}, {y, 2}];
+  c = InverseCertificate[s, 1/2, "Interval" -> {a + 1/4, a + 3/4}, "Center" -> a + 1/2,
+    "EnclosureOrder" -> 2, "MaxRefinements" -> 0, "RefineExpansion" -> False];
+  {c["Certified"], c["CertifiedErrorBound"], c["RootEnclosure"] - a, c["ResidualEnclosure"],
+   c["DerivativeLowerBound"]}],
+ {True, 0, {1/2, 1/2}, {0, 0}, 1},
+ TestID -> "certificate-exact-affine-cancellation-survives-a-huge-translation-at-the-lowest-order"]
+
+VerificationTest[
+ Module[{x, y, b = 2^300 + 1, s, c},
+  s = AsymptoticInverse[3 x - 3 b, {x, b}, {y, 2}];
+  c = InverseCertificate[s, 3/2, "Interval" -> {b + 1/4, b + 3/4}, "Center" -> b + 1/2,
+    "MaxRefinements" -> 0, "RefineExpansion" -> False];
+  {c["Certified"], c["CertifiedErrorBound"], c["RootEnclosure"] - b, c["DerivativeLowerBound"]}],
+ {True, 0, {1/2, 1/2}, 3},
+ TestID -> "certificate-affine-range-handles-nonunit-slopes-and-nested-rational-products"]
+
+VerificationTest[
+ Module[{x, ctx = <|"Bits" -> 40, "SeriesOrder" -> 4, "ExponentMagnitudeLimit" -> 100|>, a = 2^500},
+  {AsymptoticAnalysis`Private`certAffineRange[2 (x - a) + (a - x)/2 + 1/3, x, {a, a + 1}],
+   AsymptoticAnalysis`Private`certAffineRange[x (x - a), x, {a, a + 1}],
+   AsymptoticAnalysis`Private`certAffineRange[Exp[x] - a, x, {a, a + 1}],
+   AsymptoticAnalysis`Private`certEnclose[x - a + 1/3, x, {a, a}, ctx] === {1/3, 1/3},
+   AsymptoticAnalysis`Private`certEnclose[x^2 - x, x, {2, 2}, ctx]}],
+ {{1/3, 11/6}, $Failed, $Failed, False, {2, 2}},
+ TestID -> "certificate-affine-range-recognizes-rational-affine-trees-and-rejects-nonlinear-ones"]

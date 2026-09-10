@@ -487,6 +487,14 @@ portableTest["certificate-omitted-interval-diagnostic", "certificate",
       unordered[[2]]["Reason"], unordered[[2]]["Interval"]}],
   {True, "IntervalNotSupplied", False, True, "MalformedInterval", {3, 1}}];
 
+portableTest["certificate-exact-affine-translation", "certificate",
+  Module[{x, y, a = 2^300 + 1, s, c}, s = AsymptoticInverse[x - a, {x, a}, {y, 2}];
+    c = InverseCertificate[s, 1/2, "Interval" -> {a + 1/4, a + 3/4}, "Center" -> a + 1/2,
+      "EnclosureOrder" -> 2, "MaxRefinements" -> 0, "RefineExpansion" -> False];
+    AssociationQ[c] && TrueQ[c["Certified"]] && c["CertifiedErrorBound"] === 0 &&
+      c["RootEnclosure"] === {a + 1/2, a + 1/2} && c["ResidualEnclosure"] === {0, 0}],
+  True];
+
 portableTest["numerical-exact-quadratic-inverse", "numerical",
   Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
     c = InverseNumericalCheck[s, 4, WorkingPrecision -> 30];

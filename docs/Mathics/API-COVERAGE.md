@@ -8,7 +8,7 @@ The [compatibility status](COMPATIBILITY.md) describes the broader goal.
 
 ## Evidence and current scope
 
-The maintained suite has **109 cases** after wave-4 hardening and the omitted-interval certificate diagnostic. The additional
+The maintained suite has **111 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation. The additional
 contracts cover empty lookup state, shared lazy defaults, the empty inverse multi-index, retained
 nonprincipal `ProductLog` proofs, and numerical precision. The quadratic
 integer-root test now also verifies the returned precision. Focused paired
@@ -127,7 +127,7 @@ returned data head and its public evaluation behavior.
 | `FourierInverseCoefficient` | `operations-fourier-coefficient-and-residual` | Exact single-index trigonometric coefficient and weight. **Operations**. |
 | `FourierInverseResidual` | `operations-fourier-coefficient-and-residual` | Exact empty residual blocks below the declared cutoff. **Operations**. |
 | `GeneralizedSeries` | `loading-reload`, `operations-series-data-reconstruction` | Returned head, `Normal`, properties and reload are **Core**; explicit reconstruction from stored association and exact point evaluation are **Latest**. |
-| `InverseCertificate` | `certificate-exact-rational-root`, `certificate-fixed-center-accuracy-floor`, `certificate-omitted-interval-diagnostic` | Exact rational quadratic-root certificate, explicit fixed-center accuracy-floor failure, and the distinct omitted-interval and malformed-interval refusals. **Core**. |
+| `InverseCertificate` | `certificate-exact-rational-root`, `certificate-fixed-center-accuracy-floor`, `certificate-omitted-interval-diagnostic`, `certificate-exact-affine-translation` | Exact rational quadratic-root certificate, explicit fixed-center accuracy-floor failure, the distinct omitted-interval and malformed-interval refusals, and exact affine cancellation under a `2^300` translation. **Core**. |
 | `InverseExpansionCoefficient` | `families-single-index-coefficient`, `operations-empty-inverse-multi-index` | Direct Euler coefficient at index `{2}` with a degree-two formal-log polynomial. **Core**; empty inverse multi-index checked in the later wave-4 batch. |
 | `InverseNumericalCheck` | `numerical-exact-quadratic-inverse`, `numerical-noninteger-quadratic-precision`, `numerical-rational-root-precision`, `numerical-machine-capability-is-usable` | Exact quadratic-root numerical smoke check is **Core**. The wave-4 checks additionally require sufficient returned precision, explicit Mathics refusals for unavailable 30-digit noninteger roots, and a successful 10-digit request. This is not a general numerical-stability certificate. |
 | `InverseResidual` | `inverse-residual` | Exact vanished residual below a quadratic inverse cutoff. **Core**. |
@@ -147,7 +147,7 @@ returned data head and its public evaluation behavior.
 | `SeriesObservable` | `operations-series-observable` | Direct nonlinear sine observable through cubic order. **Operations**. |
 | `SeriesPower` | `operations-series-power` | Negative power with leading-pole shift and transported remainder. **Operations**. |
 | `SeriesRefine` | `arithmetic-refinement`, `arithmetic-refinement-retained-state`, `operations-newton-inverse-and-retained-refinement`, `operations-refinement-additional-blocks-request`, `operations-refinement-replays-product-recipe` | Retained Lagrange state and unchanged original object are **Core**. Retained Newton steps, exact residual, additional complete blocks and product-recipe replay with honest work-count metadata are **Refinement**. |
-| `SeriesTruncate` | `arithmetic-truncation`, `operations-series-data-reconstruction` | Direct cutoff reduction is **Core**; explicit remainder data-head equality is **Latest**. |
+| `SeriesTruncate` | `arithmetic-truncation`, `operations-series-data-reconstruction`, `special-zeta-truncation-transports-bound` | Direct cutoff reduction is **Core**; explicit remainder data-head equality is **Latest**; the Zeta case checks that truncation transports the absolute tail bound and that a no-op truncation keeps every bound field. |
 | `SpecialInverseNumericalCheck` | `operations-special-numerical-exact-threshold` | Direct exact quadratic-threshold root smoke check; result remains explicitly uncertified. **Latest**. |
 
 ## Remaining input and option coverage

@@ -30,6 +30,12 @@ No Attribution license. The
 [implementation register](development/CODE_REVIEW_STATUS.md) links the
 focused evidence (D04, D08, V02).
 
+`InverseCertificate` evaluates rational affine subexpressions exactly before
+interval rounding, so a linear equation translated by a huge constant, such
+as `x - (2^10000 + 1)` with an exact supplied center, now certifies at the
+lowest enclosure order instead of failing at every order. Nonlinear parts
+keep their outward enclosures.
+
 `SeriesTruncate` now transports the explicit tail bound of a large-argument
 `Zeta` or `LerchPhi` expansion instead of discarding it: the truncated result's
 `"AbsoluteRemainderBound"` adds the absolute discarded part, recorded as

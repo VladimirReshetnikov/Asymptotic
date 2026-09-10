@@ -208,8 +208,8 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-The suite now contains **109 cases**. The newest case checks the omitted-interval
-certificate diagnostic; the earlier wave-4 additions cover reused empty
+The suite now contains **111 cases**. The newest cases check the omitted-interval
+certificate diagnostic, Zeta truncation bound transport and exact affine certificate translation; the earlier wave-4 additions cover reused empty
 lookup lists, shared lazy defaults, an empty inverse multi-index, conservative
 nonprincipal branch proofs, and numerical precision. The final focused Windows
 checks pass **8/8 in both layouts on both kernels**, including the strengthened
