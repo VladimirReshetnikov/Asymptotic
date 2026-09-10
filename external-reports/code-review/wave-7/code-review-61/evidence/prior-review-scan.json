@@ -1,0 +1,55 @@
+{
+  "commit": "efa1aeec4845a9c35e140963a0333d0c9ec33b05",
+  "description": "Manual transcription of successful remote Import and lexical-scan responses. Whole articles were not all semantically reread.",
+  "discovery": "Pinned recursive GitHub tree: 72 TeX files under external-reports/code-review, including article components and reference files.",
+  "successful_file_counts_by_wave": {
+    "wave-1": 27,
+    "wave-2": 12,
+    "wave-3": 8,
+    "wave-4": 8,
+    "wave-5": 7,
+    "wave-6": 10
+  },
+  "total_successful_files": 72,
+  "common_terms": [
+    "inverseFunctionConditionOnJet",
+    "realness predicate",
+    "reality predicate",
+    "Hermitian",
+    "half[- ]spectrum",
+    "predicate.{0,40}truncat",
+    "truncat.{0,40}predicate"
+  ],
+  "case_insensitive": true,
+  "common_term_matches": [],
+  "wave1_extra_patterns": "The initial wave-1 scan also used 50-character predicate windows and cancellation/parameter-singularity terms. Its one extra match, report 8 line 162, concerned held arithmetic cancelling denominators, not N01 or H01.",
+  "not_semantic_absence_proof": true,
+  "limits": [
+    "Patterns are line-local; alternative wording or line breaks can evade them.",
+    "No claim is made that all scripts, JSON findings and binary artifacts were exhaustively searched.",
+    "All six review indexes and substantial portions of the maintained status register were read; selected nearest original discussions were read separately.",
+    "Failed remote scan calls were retried in smaller batches; failed calls contributed no results."
+  ],
+  "nearest_semantic_comparisons": [
+    {
+      "path": "wave-1/code-review-4/evidence/findings.json",
+      "entry": "R01",
+      "distinction": "Concerns real finite trigonometric arguments versus unknown errors. N01 instead uses an exact real input x and falsely accepts a conditional Element predicate."
+    },
+    {
+      "path": "wave-3/code-review-25/article/article.tex",
+      "entry": "N01/N02",
+      "distinction": "One-sided observable Taylor constants and returned oracle precision. N01 here is a Boolean admission rule for the condition, before constructing the constant body."
+    },
+    {
+      "path": "wave-6/code-review-52/article.tex",
+      "entry": "Conditional observable fast paths",
+      "distinction": "The new witness uses constant body 1 and follows the condition-checking route, rather than the Log/Exp/Power early return described by the existing review."
+    },
+    {
+      "path": "docs/development/CODE_REVIEW_STATUS.md",
+      "entry": "C13, P08, X02",
+      "distinction": "These broad workstreams preexist. The report does not re-list them as new findings. H01 supplies a specific conjugacy-preserving coefficient representation and exact operation-count model."
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+{
+  "kind": "Manual transcription of successful Wolfram connector responses; not an upstream TestReport",
+  "commit": "efa1aeec4845a9c35e140963a0333d0c9ec33b05",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "package_load": "Import pinned standalone as Text, Export to temporary local file, Get that file",
+  "observations": [
+    {
+      "id": "load-control",
+      "input": "AsymptoticExpansion[Exp[x],{x,0,3},\"Backend\"->\"Package\"]",
+      "observed_expression": "1+x+x^2/2",
+      "public_symbol_count": 38
+    },
+    {
+      "id": "predicate-family-baseline",
+      "input_source": "s=AsymptoticExpansion[x,{x,0,3},Assumptions->a==I,\"Backend\"->\"Package\"]",
+      "source_expression": "x",
+      "source_remainder": 0,
+      "condition": "Element[a (Exp[z]-Sum[z^k/k!,{k,0,m}]),Reals]",
+      "observable": "ConditionalExpression[1,condition]",
+      "cases": [
+        {
+          "m": 0,
+          "cutoff": 1,
+          "result": {
+            "Expression": "1",
+            "Remainder": 0,
+            "Exact": true,
+            "Assumptions": "a==I"
+          }
+        },
+        {
+          "m": 0,
+          "cutoff": 2,
+          "result": {
+            "FailureTag": "IncompatibleObservableCondition"
+          }
+        },
+        {
+          "m": 1,
+          "cutoff": 2,
+          "result": {
+            "Expression": "1",
+            "Remainder": 0,
+            "Exact": true,
+            "Assumptions": "a==I"
+          }
+        },
+        {
+          "m": 1,
+          "cutoff": 3,
+          "result": {
+            "FailureTag": "IncompatibleObservableCondition"
+          }
+        },
+        {
+          "m": 2,
+          "cutoff": 3,
+          "result": {
+            "Expression": "1",
+            "Remainder": 0,
+            "Exact": true,
+            "Assumptions": "a==I"
+          }
+        },
+        {
+          "m": 2,
+          "cutoff": 4,
+          "result": {
+            "FailureTag": "IncompatibleObservableCondition"
+          }
+        },
+        {
+          "m": 3,
+          "cutoff": 4,
+          "result": {
+            "Expression": "1",
+            "Remainder": 0,
+            "Exact": true,
+            "Assumptions": "a==I"
+          }
+        },
+        {
+          "m": 3,
+          "cutoff": 5,
+          "result": {
+            "FailureTag": "IncompatibleObservableCondition"
+          }
+        },
+        {
+          "m": 4,
+          "cutoff": 5,
+          "result": {
+            "Expression": "1",
+            "Remainder": 0,
+            "Exact": true,
+            "Assumptions": "a==I"
+          }
+        },
+        {
+          "m": 4,
+          "cutoff": 6,
+          "result": {
+            "FailureTag": "IncompatibleObservableCondition"
+          }
+        }
+      ]
+    },
+    {
+      "id": "predicate-independent-native-identity",
+      "input": "FullSimplify[Element[a (Exp[x]-1-x),Reals],a==I&&x>0]",
+      "result": false
+    },
+    {
+      "id": "backend-default-drift-control",
+      "description": "Changing public backend default to Series did NOT change this analytic refinement result. This rejected hypothesis is not a finding.",
+      "source": "Exp[x], package cutoff 3",
+      "operation": "SeriesRefine[s,5]",
+      "default_cases": [
+        "Series",
+        "restored default"
+      ],
+      "both_results": {
+        "Kind": "Forward",
+        "Expression": "1+x+x^2/2+x^3/6+x^4/24",
+        "Remainder": "PowerLogRemainder[x,5,0]",
+        "Exact": false
+      }
+    },
+    {
+      "id": "finite-complex-polynomial-control",
+      "assumptions": "a^2==-1",
+      "condition": "Element[a z^2,Reals]",
+      "cutoffs": [
+        1,
+        3
+      ],
+      "both_results": "Failure[\"IncompatibleObservableCondition\",...]",
+      "description": "Unlike the cancelled Taylor tail, the exact polynomial retains its nonreal coefficient and is refused."
+    },
+    {
+      "id": "patched-predicate-focused",
+      "patch": "Insert j[[2]] === Infinity && before the real-coefficient conjunction in inverseFunctionConditionOnJet; one exact source anchor replaced in imported pinned standalone",
+      "matched_anchors": 1,
+      "SyntaxQ": true,
+      "false_condition": "Element[a (Exp[z]-1-z),Reals]",
+      "source_assumptions": "a==I",
+      "cutoff": 2,
+      "false_condition_result": "Failure[\"IncompatibleObservableCondition\",...]",
+      "exact_control": "Element[z^2,Reals]",
+      "exact_control_result": {
+        "Expression": "1",
+        "Remainder": 0
+      },
+      "scope": "Two focused public observations, not a full package integration run"
+    },
+    {
+      "id": "patched-predicate-family-and-exact-zero",
+      "patch": "Same one-anchor exact-jet guard as patched-predicate-focused",
+      "low_cutoff_cases": [
+        {
+          "m": 0,
+          "cutoff": 1,
+          "refused_with_expected_tag": true
+        },
+        {
+          "m": 1,
+          "cutoff": 2,
+          "refused_with_expected_tag": true
+        },
+        {
+          "m": 2,
+          "cutoff": 3,
+          "refused_with_expected_tag": true
+        },
+        {
+          "m": 3,
+          "cutoff": 4,
+          "refused_with_expected_tag": true
+        },
+        {
+          "m": 4,
+          "cutoff": 5,
+          "refused_with_expected_tag": true
+        }
+      ],
+      "exact_zero_control": {
+        "source": "AsymptoticExpansion[0,{x,0,3},Assumptions->a==I,\"Backend\"->\"Package\"]",
+        "condition": "Element[a (Exp[z]-1-z),Reals]",
+        "cutoff": 1,
+        "Expression": "1",
+        "Remainder": 0,
+        "Exact": true
+      },
+      "scope": "Six additional focused observations, not execution of the whole supplied WL regression file"
+    }
+  ],
+  "non_observations": [
+    "Mathics3 was not executed.",
+    "A direct remote Get produced an incomplete-transfer syntax message; the full imported source passed SyntaxQ and loaded locally, so no repository syntax defect is claimed.",
+    "Several remote calls failed at the connector/network layer; they do not establish package failures.",
+    "The complete distributed regression file and full upstream suite were not run; the native patch check modified the downloaded standalone text, not a rebuilt modular checkout."
+  ]
+}

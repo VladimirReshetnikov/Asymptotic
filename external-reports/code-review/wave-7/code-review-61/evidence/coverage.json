@@ -1,0 +1,45 @@
+{
+  "commit": "efa1aeec4845a9c35e140963a0333d0c9ec33b05",
+  "mode": "Connector-backed bounded source review; not a full local checkout or line-by-line review of every file.",
+  "close_inspection": {
+    "src/Kernel/AsymptoticAnalysis.wl": "Public declarations, assumptions, exact arithmetic, sparse jets, forward analytic/power routines, local coordinates; selected ranges.",
+    "src/Kernel/SeriesOperations.wl": "Series representation, observable/condition entry, composition, truncation, differentiation and refinement; substantial ranges.",
+    "src/Kernel/InverseFunctionExpressions.wl": "Applied inverse and forward entry, condition-on-jet checker; lines 1-175.",
+    "src/Kernel/InverseFunctionSyntax.wl": "Callable parsing and condition extraction.",
+    "src/Kernel/FourierCoefficients.wl": "Complete coefficient, convolution, Euler, constructor and residual paths.",
+    "src/Kernel/SeriesEnvelopeArithmetic.wl": "Composite approach and scalar error transport.",
+    "src/Kernel/DirichletSpecialFunctions.wl": "Zeta and Lerch constructors and bounds.",
+    "src/Kernel/GammaForward.wl": "Product/log normalization and factored forward construction.",
+    "src/Kernel/GammaInverseOperations.wl": "Powered inverse replay and inherited precision.",
+    "src/Kernel/InverseCertificates.wl": "Interval/source-domain/seed/proof paths; selected ranges.",
+    "src/Kernel/IncrementalInverse.wl": "State, cache, frontier and Newton/grouped helpers; selected ranges.",
+    "src/Kernel/MathicsCompatibility.wl": "Private Module/Return, lookup/key and matching adapters.",
+    "src/Kernel/MathicsAssumptions.wl": "Assumption compatibility and proof paths.",
+    "src/Kernel/MathicsNumerical.wl": "Numerical compatibility helpers.",
+    "src/Kernel/MathicsTaylor.wl": "Defining Taylor fallback and native Series routing."
+  },
+  "supporting_sources": [
+    "src/Kernel/init.m",
+    ".github/workflows/standalone.yml",
+    "docs/development/CODE_REVIEW_STATUS.md",
+    "external-reports/code-review/README.md",
+    "all six wave indexes"
+  ],
+  "executed": [
+    "Focused pinned-standalone Wolfram 15 observations, including modified-standalone N01 checks.",
+    "12 independent Python unittest methods: eight Fourier-algebra methods and four patch-anchor fixture methods."
+  ],
+  "not_executed": [
+    "Mathics3 package runtime",
+    "Full upstream test suite",
+    "Full distributed WL regression file",
+    "Native Fourier half-spectrum implementation or benchmark",
+    "Actual staging against a complete local git checkout"
+  ],
+  "not_claimed": [
+    "Absence of additional defects",
+    "Whole-repository compatibility certification",
+    "Measured Wolfram/Mathics speedup",
+    "Novelty of Hermitian symmetry as a mathematical fact"
+  ]
+}

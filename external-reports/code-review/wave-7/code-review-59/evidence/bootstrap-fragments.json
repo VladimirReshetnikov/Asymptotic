@@ -1,0 +1,14 @@
+{
+  "source": "settings = <| counter = 1; \"key\" -> counter |>;\nafter = 2;\n",
+  "reference": [
+    "settings = <| counter = 1;",
+    " \"key\" -> counter |>;",
+    "\nafter = 2;"
+  ],
+  "candidate": [
+    "settings = <| counter = 1; \"key\" -> counter |>;",
+    "\nafter = 2;"
+  ],
+  "WL_parsing_executed": false,
+  "interpretation": "Python splitting observed; WL parse failure of unmatched association fragments is grammar-derived."
+}

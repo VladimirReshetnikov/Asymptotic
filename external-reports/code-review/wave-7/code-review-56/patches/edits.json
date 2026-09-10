@@ -1,0 +1,20 @@
+[
+  {
+    "id": "N01",
+    "file": "src/Kernel/SeriesEnvelopeArithmetic.wl",
+    "old": "    Abs | Sin | Cos,\n      remainder = a[\"Remainder\"];\n      transport = \"The real scalar function is globally 1-Lipschitz, so its output error is O(R) without a smallness or nonvanishing hypothesis.\";\n      evidence = <|\"LipschitzConstant\" -> 1|>];",
+    "new": "    Abs | Sin | Cos,\n      (* A real finite part does not prove that the omitted error is real.\n         Until a complete-real-germ contract is retained, use the complex\n         local bound only for a provably vanishing envelope. Abs is globally\n         Lipschitz on C and does not need this extra condition. *)\n      If[MemberQ[{Sin, Cos}, head] && a[\"Remainder\"] =!= 0,\n        boundLimit = seriesEnvelopeLimit[a[\"Bound\"], a[\"Variable\"],\n          a[\"Approach\"], a[\"Assumptions\"], domain];\n        If[boundLimit =!= 0,\n          fail[\"UnprovedRealRemainder\",\n            \"A real finite approximation alone does not justify a global real sine/cosine error bound. The conservative guard requires a vanishing envelope.\",\n            <|\"EnvelopeLimit\" -> boundLimit, \"FunctionHead\" -> head|>]]];\n      remainder = a[\"Remainder\"];\n      If[head === Abs,\n        transport = \"Complex modulus is globally 1-Lipschitz, so its error is O(R).\";\n        evidence = <|\"LipschitzConstant\" -> 1, \"ArgumentDomain\" -> \"Complex\"|>,\n        transport = \"For a real finite part and a complex error O(R) with R tending to zero, sine and cosine have a bounded derivative on the intervening complex strip, hence output error O(R).\";\n        evidence = <|\"AbsoluteRemainderLimit\" -> 0,\n          \"ErrorTransportType\" -> \"LocalComplexStripBound\",\n          \"LipschitzConstant\" -> Missing[\"NotAsserted\"]|>]];"
+  },
+  {
+    "id": "N02a",
+    "file": "src/Kernel/SeriesOperations.wl",
+    "old": "seriesAlign[a_, b_] := Join[b /. b[\"LogVariable\"] -> a[\"LogVariable\"],\n  <|\"Assumptions\" -> a[\"Assumptions\"] && b[\"Assumptions\"],\n    \"Domain\" -> Lookup[a, \"Domain\", True] && Lookup[b, \"Domain\", True]|>];",
+    "new": "(* Structural idempotence only: no assumption-dependent simplification. *)\nseriesStructuralAnd[conditions_List] := And @@ DeleteDuplicates[\n  Flatten[(If[Head[#] === And, List @@ #, {#}] &) /@ conditions, 1]];\n\nseriesAlign[a_, b_] := Join[b /. b[\"LogVariable\"] -> a[\"LogVariable\"],\n  <|\"Assumptions\" -> seriesStructuralAnd[{a[\"Assumptions\"], b[\"Assumptions\"]}],\n    \"Domain\" -> seriesStructuralAnd[{Lookup[a, \"Domain\", True], Lookup[b, \"Domain\", True]}]|>];"
+  },
+  {
+    "id": "N02b",
+    "file": "src/Kernel/SeriesOperations.wl",
+    "old": "  d = Join[d, <|\"Assumptions\" -> a[\"Assumptions\"] && b[\"Assumptions\"],\n    \"Domain\" -> Lookup[a, \"Domain\", True] && Lookup[b, \"Domain\", True], \"RemainderDerivativeOrder\" -> order|>];",
+    "new": "  d = Join[d, <|\"Assumptions\" -> seriesStructuralAnd[{a[\"Assumptions\"], b[\"Assumptions\"]}],\n    \"Domain\" -> seriesStructuralAnd[{Lookup[a, \"Domain\", True], Lookup[b, \"Domain\", True]}],\n    \"RemainderDerivativeOrder\" -> order|>];"
+  }
+]

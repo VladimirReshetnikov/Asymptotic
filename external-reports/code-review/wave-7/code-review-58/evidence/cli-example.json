@@ -1,0 +1,34 @@
+{
+  "lambda": "1",
+  "s": "2",
+  "order": 2,
+  "leading_term": "a**(1-s) * exp(lambda) * lambda**(s-1) * Gamma(1-s,lambda)",
+  "correction_rows": [
+    [
+      "2",
+      "1/2"
+    ],
+    [
+      "3",
+      "1/4"
+    ],
+    [
+      "5",
+      "-49/720"
+    ]
+  ],
+  "remainder_power": "7",
+  "absolute_bound_coefficient": "233/4320",
+  "remainder_sign": 1,
+  "conditions": "a>0; fixed lambda>0 and fixed s>=0; exact parameters",
+  "statement": "0 <= remainder_sign*(Phi-S_K) <= C*a**(-remainder_power)",
+  "numerical_evaluation": {
+    "approximation": "0.045614583212125037010336594507516506837026658429189566287095953396211722532957003",
+    "analytic_bound_value": "0.0000000053935185185185185185185185185185185185185185185185185185185185185185185185185185",
+    "signed_first_omitted_term": "0.0000000053935185185185185185185185185185185185185185185185185185185185185185185185185185",
+    "leading_integral": "0.40365263767680592565892150063072062392582213984745121842651508951767278088512558",
+    "dps": 80,
+    "outward_rounded": false,
+    "interval_certificate": false
+  }
+}

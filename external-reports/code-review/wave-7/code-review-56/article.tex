@@ -1,0 +1,749 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=25mm,headheight=15pt]{geometry}
+\usepackage{microtype,amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{xcolor,listings,enumitem}
+\usepackage{xurl,fancyhdr,hyperref}
+\definecolor{ink}{HTML}{17354B}
+\definecolor{accent}{HTML}{176D7C}
+\definecolor{light}{HTML}{F3F6F8}
+\hypersetup{colorlinks=true,linkcolor=ink,citecolor=accent,urlcolor=accent,
+ pdftitle={AsymptoticAnalysis: discarded-tail reality, condition growth, and negative-Lerch enclosures},
+ pdfauthor={Technical audit prepared for Vladimir Reshetnikov},
+ pdfsubject={Incremental repository audit, 10 September 2026}}
+\pagestyle{fancy}
+\fancyhf{}\fancyhead[L]{\small\sffamily AsymptoticAnalysis / incremental audit}
+\fancyhead[R]{\small\sffamily 10 September 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\parskip}{5pt}\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{2em}
+\setcounter{tocdepth}{2}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\lstset{basicstyle=\small\ttfamily,backgroundcolor=\color{light},
+ breaklines=true,breakatwhitespace=false,columns=fullflexible,keepspaces=true,
+ showstringspaces=false,frame=single,rulecolor=\color{light},
+ xleftmargin=4pt,xrightmargin=4pt,aboveskip=9pt,belowskip=9pt,
+ framesep=5pt,tabsize=2}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\rev}{efa1aeec4845a9c35e140963a0333d0c9ec33b05}
+\newcommand{\reposource}[1]{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/#1}{\nolinkurl{#1}}}
+\newcommand{\finding}[2]{\subsection{#1: #2}}
+\begin{document}
+\begin{titlepage}
+\thispagestyle{empty}
+{\sffamily\color{accent}\large TECHNICAL AUDIT\par}
+\vspace{18mm}
+{\sffamily\bfseries\color{ink}\fontsize{30}{35}\selectfont AsymptoticAnalysis\par}
+\vspace{6mm}
+{\sffamily\fontsize{21}{27}\selectfont Discarded-tail reality,\par condition growth, and\par negative-Lerch enclosures\par}
+\vspace{12mm}
+{\large An incremental review for Wolfram 15 and Mathics3\par}
+\vspace{8mm}
+{Prepared for Vladimir Reshetnikov\par 10 September 2026\par}
+\vfill
+\rule{\textwidth}{0.6pt}
+\vspace{4mm}
+\textbf{Reviewed repository}\quad VladimirReshetnikov/Asymptotic\par
+\textbf{Pinned revision}\par
+{\small\ttfamily efa1aeec4845a9c35e140963a0333d0c9ec33b05\par}
+\textbf{Commit timestamp}\quad 10 September 2026, 19:09:04 UTC\par
+\vspace{5mm}
+\begin{tabularx}{\textwidth}{@{}Y Y@{}}
+\textbf{Established here} & \textbf{Not claimed}\\[3pt]
+Two public Wolfram 15 reproductions; focused in-memory candidate checks; exact counterexample proofs; independent rational-reference tests.
+& Mathics execution, full upstream-suite acceptance, an installed patched release, or native timing improvements.\\
+\end{tabularx}
+\end{titlepage}
+
+\begin{abstract}
+This incremental audit isolates two defects not reissued from the inspected six-wave review baseline. First, a public operation chain hides a complex source coefficient beyond the computed jet, amplifies the discarded tail, and sends the resulting pure remainder through sine or cosine. The composite arithmetic fallback proves that the finite approximation is real, but then uses a global real-line Lipschitz bound for a complete function that need not be real. Wolfram 15 returns an algebraic error envelope where the true error grows exponentially. Second, repeated self-addition of a one-block expansion triples retained assumptions and target-domain predicates at each step, because condition combination occurs both during alignment and again during finalization. Both defects are reproduced through public calls; three narrowly scoped source replacements were exercised in memory on the complete retrieved standalone.
+
+A separate development contribution supplies a proved, nested rational enclosure for the Lerch transcendent at negative arguments, including the endpoint $z=-1$. It uses the classical Euler transformation with positive finite differences, rather than absolute moments of an alternating source. Independent Python and Wolfram Language reference implementations accompany the proof. The report records exact source scope, nearby prior findings, actual versus unexecuted tests, candidate limitations, and a focused integration plan. Mathics behavior remains an explicit acceptance obligation, not an inference from shared source.
+\end{abstract}
+\tableofcontents
+\newpage
+
+\section{Executive assessment}
+\label{sec:executive}
+The useful additional review surface is not another general list of missing asymptotic features. The repository already has six waves of external reviews and a development status register. This report therefore concentrates on three specific contributions with executable artifacts and explicit novelty boundaries. The reviewed object is the pinned snapshot above, not an unspecified future state of \texttt{main}. Source links in the bibliography identify that same snapshot.\cite{repo,index,status}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}P{12mm}P{21mm}Y P{37mm}@{}}
+\toprule
+ID & Priority & Contribution & Evidence\\
+\midrule
+N01 & High & Incorrect sine/cosine error transport after amplification of an omitted complex tail. & Public Wolfram 15 reproduction and exact counterexample.\\[4pt]
+N02 & Medium & Exponential growth of persisted conditions during repeated one-block arithmetic. & Public counts through depth five; source recurrence.\\[4pt]
+E01 & Development & Negative-Lerch interval provider based on positive Euler differences, including $z=-1$. & Proof; exact Python tests; 64 Wolfram reference combinations.\\
+\bottomrule
+\end{tabularx}
+\caption{Additional findings and development work. Priority describes this audit's assessment, not an upstream issue status.}
+\end{table}
+
+N01 deserves the first repair because it produces a plausible \texttt{GeneralizedSeries} with a mathematically false magnitude claim. It is not merely a conservative refusal, an unsupported function left unevaluated, or a correct complex result with inconsistent labeling. A refusal is a suitable minimal repair: the package need not implement a complete complex transseries algebra to stop asserting an unjustified real-line theorem.
+
+N02 is a structural performance problem with an especially clean witness. The finite expression remains $2^n a x$ and the number of coefficient blocks remains one, while a single logical predicate occurs $3^n$ times. The measured quantity is expression structure, not wall-clock time. The proposed fix preserves the mathematical hypotheses and removes their duplication in the tested path.
+
+E01 is deliberately separated from the bug findings. It is a useful provider design with a complete proof and exact arithmetic implementation, not a claim that the existing package already computes the proposed intervals. Classical Euler acceleration is not new; the contribution is its tailored enclosure contract, endpoint coverage, independent implementation, and integration specification for the current negative-Lerch use case.\cite{euler,dirichlet}
+
+\subsection{What actually ran}
+The native service reported:
+\begin{lstlisting}
+15.0.0 for Linux x86 (64-bit) (May 6, 2026)
+\end{lstlisting}
+The successful package experiments imported the entire pinned root standalone as text and evaluated that string. Each successful baseline import inspected here had \texttt{StringLength} 692380. The two findings and the focused patched controls below are actual native observations, preserved as transcribed records with their inputs in the archive. The canonical-module patch emitter was separately exercised with synthetic source fixtures; this is a different evidence population.
+
+The independent Python suite passed 17 test methods, including a 700-case exact-rational Lerch grid, 84 comparisons with an independently bounded logarithmic reference, and 45 overlaps with alternating-series reference intervals. The independent Wolfram reference passed 64 parameter combinations. These numbers must not be added together and described as upstream package tests. The two-test \texttt{WLT} acceptance file and file-based native wrappers are supplied but were not separately executed as complete suites.
+
+No Mathics kernel ran. No full upstream suite ran. No installed candidate build or native performance benchmark ran. Those limits do not weaken the exact counterexample to a conjecture, but they do limit the scope of compatibility and release-readiness claims.
+
+\section{Scope, source grounding, and review discipline}
+\label{sec:scope}
+\subsection{Snapshot and inspected surface}
+The source was inspected through commit-pinned GitHub reads. A complete local checkout was not available. Native successful experiments independently obtained the pinned standalone; that execution does not imply that every line in the distribution was manually reviewed. The inspected areas include the main jet engine, ordinary and composite arithmetic, several inverse and certificate paths, Fourier and reciprocal-log operations, Gamma-related normalization, the Dirichlet special-function provider, and selected Mathics compatibility modules. Appendix~\ref{app:coverage} records module-level coverage and its limits.\cite{core,ops,arithmetic,envelope,dirichlet,mathics}
+
+The most important architectural boundary for this audit is the difference between a finite expression and what its remainder permits. An object may retain
+\[
+ f(x)=e(x)+\OO(R(x))
+\]
+on a recorded approach without establishing that $f$ is real merely because $e$ is real. Likewise, condition metadata can be logically unchanged while its expression tree grows dramatically. Both boundaries cross module interfaces, so isolated coefficient tests can miss the failure.
+
+The package also has specialized representations and exact interval certificates. This report does not collapse them into one contract. A formal finite-model residual, an asymptotic magnitude bound, a derivative regularity assertion, and a quantitative closed interval are distinct evidence types. N01 concerns an asymptotic magnitude assertion; N02 concerns stored predicates; E01 constructs a quantitative forward interval independently of the package's inverse-certificate machinery.\cite{ops,envelope,certificates}
+
+\subsection{Excluding earlier findings}
+The exclusion baseline comprised the umbrella external-review index, all six wave indexes, the first 380 lines of the development status register, and the closest original report READMEs. In particular, reviews 11, 37, 42, 47, and 49 were consulted directly for their nearby mechanisms. This was not a new cover-to-cover reading of every retained or retired article, PDF, code artifact, and appendix. The novelty claim is therefore a specific mechanism-level contribution relative to that inspected baseline, not a formal exhaustive text-search guarantee.\cite{index,status,r11,r37,r42,r47,r49}
+
+This qualification matters because several tempting leads are already represented in the archive. The present report does not reissue the complex-modulus sign shortcut, the derivative regularity of absolute value, generic coefficient-realness inconsistency, mutually recursive Mathics proof-search duplication, or positive-parameter Lerch enclosures as new findings. Section~\ref{sec:novelty} explains exactly where the new mechanisms differ.
+
+\subsection{Evidence classes and failed infrastructure attempts}
+The report uses four practical evidence classes. A \emph{native observation} is an actual result returned by the Wolfram service for a recorded input. A \emph{source trace} identifies the functions that explain it. A \emph{mathematical proof} establishes the relevant contract violation or enclosure independently of evaluator output. A \emph{candidate acceptance obligation} is a test that should be run during integration but was not necessarily executed here.
+
+Some remote calls failed with service/network errors. Some direct URL \texttt{Get} attempts received incomplete source streams and produced syntax errors at varying positions. Those attempts are excluded from package findings and test counts. Complete-text import followed by \texttt{Get[StringToStream[src]]} succeeded for the reported package experiments. The service was stateless between calls, so each successful experiment loaded its own source. Public package symbols were fully qualified in the recorded successful inputs to avoid parsing them into \texttt{Global`} before the package loaded.
+
+These operational details are recorded so that a later reader can distinguish an upstream defect from an unsuccessful transport or an authoring mistake. They are not proposed as new repository defects.
+
+\section{N01: a real finite part does not make the omitted tail real}
+\label{sec:n01}
+\subsection{Public reproduction and observed output}
+Run the following in a fresh Wolfram kernel after loading the pinned package. The witness constructs its objects through public operations; it does not forge an association or invoke a private remainder helper.
+\begin{lstlisting}
+s = AsymptoticAnalysis`AsymptoticExpansion[
+  1/(1-a x^3), {x,0,1},
+  Assumptions -> a^2 == -1, "Backend" -> "Package"];
+t = AsymptoticAnalysis`SeriesMultiply[
+  AsymptoticAnalysis`SeriesAdd[s,-1], x^-4];
+{Sin[t], Cos[t]}
+\end{lstlisting}
+Table~\ref{tab:n01} lists selected actual fields. The original source assumption is $a^2=-1$ and the target domain is $x>0$; the latter objects contain duplicated copies of these predicates, discussed separately in N02.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}P{22mm}P{27mm}P{24mm}Y@{}}
+\toprule
+Object & Kind / scale & Finite expression & Returned remainder\\
+\midrule
+\texttt{s} & Forward & $1$ & \texttt{PowerLogRemainder[x,2,0]}\\
+\texttt{t} & Derived / PowerLog & $0$ & \texttt{PowerLogRemainder[x,-2,0]}\\
+\texttt{Sin[t]} & Derived / Composite & $0$ & \texttt{PowerLogRemainder[x,-2,0]}\\
+\texttt{Cos[t]} & Derived / Composite & $1$ & \texttt{PowerLogRemainder[x,-2,0]}\\
+\bottomrule
+\end{tabularx}
+\caption{Native baseline observations. The final two rows assert errors of order $x^{-2}$ as $x\to0^+$.}
+\label{tab:n01}
+\end{table}
+
+The exact source is deliberately outside a purely real-valued source class. That is not a request that the package promise unrestricted complex support. It is a test of admission and subsequent error transport: the package accepts the source, retains its defining function and assumptions, and returns a magnitude contract without rejecting the missing real-germ hypothesis. The defect can be repaired conservatively by refusal. It cannot be dismissed as an arbitrary malformed object, because the accepted object and all subsequent operations are public results.
+
+The cubic source term is important. The ordinary forward engine starts this request with a working order above the user cutoff; the first possibly imaginary coefficient is still beyond that computed jet. Merely checking all \emph{computed} rows for realness therefore does not encounter it. The returned $\OO(x^2)$ is conservative for the true $\OO(x^3)$ source correction. The subtraction and multiplication then faithfully turn that uncertainty into $\OO(x^{-2})$. It is the final trigonometric rule that becomes false.\cite{core,ops,arithmetic,envelope}
+
+\subsection{Exact counterexample}
+Choose $a=i$, which satisfies the retained assumption. The exact function represented by \texttt{t} is
+\begin{align}
+g(x)&=x^{-4}\left(\frac1{1-i x^3}-1\right)
+ =\frac{i}{x(1-i x^3)}\\
+&=-\frac{x^2}{1+x^6}
+  +i\frac1{x(1+x^6)}
+ =u(x)+iv(x).
+\label{eq:g}
+\end{align}
+The package's $g(x)=0+\OO(x^{-2})$ is valid: in fact $|g(x)|$ is asymptotic to $x^{-1}$. Thus this example does not rely on an already false input envelope.
+
+For real $u,v$, direct expansion of the sine and cosine gives
+\begin{align}
+|\sin(u+iv)|^2&=\sin^2u+\sinh^2v,\label{eq:sincomplex}\\
+|\cos(u+iv)|^2&=\cos^2u+\sinh^2v.
+\end{align}
+Consequently,
+\[
+ |\sin g(x)|\ge\sinh v(x),\qquad
+ |\cos g(x)-1|\ge\sinh v(x)-1.
+\]
+These identities are consistent with the complex sine definition; the argument below is an exact elementary derivation, not a numerical comparison with a special-function evaluator.\cite{sin}
+
+\begin{proposition}
+Neither of the two trigonometric remainder assertions in Table~\ref{tab:n01} is valid for the retained source family.
+\end{proposition}
+\begin{proof}
+It is enough to exhibit one permitted parameter specialization and one sequence on the recorded approach. Set $a=i$ and $x=1/n$, with positive integers $n$. From \eqref{eq:g},
+\[
+ v(1/n)=\frac{n}{1+n^{-6}}\ge\frac n2.
+\]
+The positive Taylor coefficients of $\sinh$ imply
+\[
+ n^{-2}|\sin g(1/n)|
+ \ge n^{-2}\sinh(n/2)
+ \ge \frac{n^5}{2^7\,7!}
+ =\frac{n^5}{645120}\longrightarrow\infty.
+\]
+Similarly,
+\[
+ n^{-2}|\cos g(1/n)-1|
+ \ge\frac{n^5}{645120}-\frac1{n^2}\longrightarrow\infty.
+\]
+An $\OO(x^{-2})$ error would make both normalized quantities bounded for sufficiently small positive $x$. Hence both returned claims fail. The actual growth is exponential in $1/x$; the displayed polynomial lower bounds already suffice to prove the violation.
+\end{proof}
+
+This proof does not assume a particular branch chosen for $a$ by a solver. The other specialization $a=-i$ conjugates the function and yields the same magnitude contradiction. It also does not depend on a floating-point threshold, an estimated leading coefficient, or an interpretation of a numerical plot.
+
+\subsection{Source-level failure chain}
+The failure is explained by the interaction of four layers. In the main engine, \texttt{forwardJet} chooses working precision and \texttt{makeForwardObject} validates the coefficient rows it receives. That is a check of the available finite expansion, not a proof about every discarded source term.\cite{core}
+
+In ordinary series arithmetic, the source correction is discarded, the constant part cancels, and multiplication by $x^{-4}$ shifts the uncertainty. No incorrect estimate is needed at this stage. \texttt{SeriesAdd} and \texttt{SeriesMultiply} preserve the finite approximation and its available magnitude information.\cite{ops,arithmetic}
+
+When sine or cosine is applied, the ordinary observable path cannot use a finite-limit Taylor argument with the nonvanishing error precision. \texttt{seriesArithmeticUnary} admits a conservative composite fallback for supported unary heads. This fallback is a legitimate architectural option; it is not itself the bug.\cite{arithmetic}
+
+Finally, \texttt{seriesEnvelopeUnary} proves that the finite \texttt{Expression} is eventually real, then groups \texttt{Abs}, \texttt{Sin}, and \texttt{Cos} under a global real-line one-Lipschitz statement. In this example the finite expression is exactly zero, so its realness test is immediate. The test says nothing about the imaginary component of $g$. The stored source and its remainder do not supply the missing complete-real-germ proof.\cite{envelope}
+
+The distinction between these three heads is decisive. Complex modulus satisfies
+\[
+ \bigl||z|-|w|\bigr|\le|z-w| \quad(z,w\in\mathbb C).
+\]
+Sine and cosine do not have a corresponding global bound on $\mathbb C$: their derivatives grow along imaginary directions. A shared implementation branch based only on a common real-line statement conceals that difference.
+
+\subsection{Minimal repair and its proof}
+The supplied N01 edit is deliberately conservative. Before transporting a nonzero remainder through sine or cosine, it requires the existing envelope-limit mechanism to prove
+\[
+ R(x)\longrightarrow0.
+\]
+If it cannot, the operation returns \texttt{Failure["UnprovedRealRemainder",\ldots]}. Modulus does not receive this additional requirement. The candidate changes only the relevant composite unary branch; it is not a general rewrite of source admission or a solution to every complex-modulus issue previously reviewed.
+
+The additional requirement has a simple independent justification.
+\begin{proposition}
+Let $e(x)$ be real on the approach, let $\delta(x)$ be complex, and suppose $\delta(x)=\OO(R(x))$ for a nonnegative $R(x)\to0$. Then
+\[
+ \sin(e+\delta)-\sin e=\OO(R),\qquad
+ \cos(e+\delta)-\cos e=\OO(R).
+\]
+No boundedness assumption on the real finite part $e$ is needed.
+\end{proposition}
+\begin{proof}
+Integrate the complex derivative along the straight segment from $e$ to $e+\delta$. Since $e$ is real,
+\[
+ |\cos(e+t\delta)|,\ |\sin(e+t\delta)|
+ \le e^{|\operatorname{Im}(t\delta)|}
+ \le e^{|\delta|}\qquad(0\le t\le1).
+\]
+Both differences have magnitude at most $|\delta|e^{|\delta|}$. Because $\delta\to0$, this is $\OO(R)$.
+\end{proof}
+
+The candidate also corrects the proof metadata. For the local complex argument, retaining \path{LipschitzConstant} equal to one would be inaccurate: even $|\sin(it)|=\sinh t$ exceeds $t$ for positive $t$. The patched sine/cosine result instead records a local complex-strip bound and the vanishing-envelope limit, without asserting a global numerical constant. The modulus case retains its genuine global constant one.
+
+\subsection{Native candidate observations}
+All three anchors for the combined N01/N02 candidate were found exactly once in the full imported standalone. The edited string was evaluated in Wolfram 15. On that source, the two unsafe trigonometric requests both returned the intended \texttt{UnprovedRealRemainder} failure. Sine and cosine of the ordinary real expansion of $1/(1-x)$ to cutoff three still returned \texttt{GeneralizedSeries}. Applying \texttt{Abs} to the amplified witness still returned $0+\OO(x^{-2})$, which is a valid conservative modulus bound.
+
+These are focused acceptance observations, not a claim that all unary routes, all public options, every special representation, or the full regression suite pass. The complete replacement strings and native input are shipped; the observed output is recorded in \path{evidence/wolfram_observations.md}.
+
+\subsection{Limitations and a precise development path}
+A vanishing-envelope requirement can reject valid real problems with large uncertain remainders. That loss is intentional in the minimal fix. For a proved real complete function, sine and cosine are globally one-Lipschitz even when the magnitude of its difference from the finite approximation grows. Recovering that useful behavior requires an independent proof of the represented germ's value domain, not another check of its displayed coefficients.
+
+A more precise follow-on interface could retain a capability such as \emph{complete represented germ is eventually real}, supported by a source proof or by sound transport from operands. This is a design proposal, not a property already present or validated. It should have a stated approach and assumptions, and it should survive an operation only when the operation preserves realness on that domain. A formal derivative contract or a row-realness flag is not a substitute.
+
+There is also a safe intermediate extension: an eventually bounded envelope, rather than a vanishing one, suffices for the local strip argument with an existential constant. The narrow candidate uses the existing zero-limit predicate to minimize the change. An extension to arbitrary bounded envelopes should prove boundedness explicitly and distinguish it from a finite numerical derivative certificate.
+
+For unbounded complex uncertainty, writing $\OO(e^{R})$ is not automatically a repair. If $\delta=\OO(R)$, the unknown constant can move into the exponential, producing $e^{C R}$ rather than $\OO(e^R)$. Either an explicit bound on the imaginary perturbation or a scale family accommodating that constant is required. Failing closed until such evidence exists is preferable to replacing one false envelope with another.
+
+\section{N02: duplicated conditions grow while the coefficient jet stays small}
+\label{sec:n02}
+\subsection{Public experiment}
+Construct the exact one-block expansion
+\begin{lstlisting}
+s = AsymptoticAnalysis`AsymptoticExpansion[
+  a x, {x,0,2}, Assumptions -> a > 0,
+  "Backend" -> "Package"];
+(* Repeat: s = AsymptoticAnalysis`SeriesAdd[s,s] *)
+\end{lstlisting}
+The recorded baseline measured the number of blocks, \texttt{LeafCount} of the assumptions and target domain, and occurrences of the predicate $a>0$ before each update. Table~\ref{tab:conditions} is the native result, not a simulated expression-growth model.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+Depth & Blocks & Copies of $a>0$ & Assumption leaves & Domain leaves\\
+\midrule
+0 & 1 & 1 & 3 & 3\\
+1 & 1 & 3 & 10 & 10\\
+2 & 1 & 9 & 28 & 28\\
+3 & 1 & 27 & 82 & 82\\
+4 & 1 & 81 & 244 & 244\\
+5 & 1 & 243 & 730 & 730\\
+\bottomrule
+\end{tabular}
+\caption{Baseline structural growth in public self-addition. The corresponding finite expression is $2^n a x$.}
+\label{tab:conditions}
+\end{table}
+
+The domain shows the same pattern with $x>0$. Neither the mathematical parameter restriction nor the target approach changes under self-addition. The input and output require the same two logical facts throughout.
+
+\subsection{Why the recurrence is exactly three in this path}
+\texttt{seriesAlign[a,b]} already combines the two operands' assumptions and domains while aligning the formal logarithm variable. In schematic notation it replaces the second operand's assumption by
+\[
+ B' = A\wedge B.
+\]
+Later, \texttt{seriesBinary} finalizes its result with the first operand's assumption and the \emph{already aligned} second assumption:
+\[
+ A\wedge B'=A\wedge(A\wedge B).
+\]
+The same construction is used for the domain. Both source locations are in \path{SeriesOperations.wl}.\cite{ops}
+
+For self-addition, suppose the current assumption expression contains $C_n$ copies of the original predicate. The next aligned second operand contains $2C_n$ copies; finalization adds the first operand's $C_n$ copies again. Therefore
+\[
+ C_0=1,\qquad C_{n+1}=3C_n,\qquad C_n=3^n.
+\]
+For $n\ge1$, the displayed flat conjunction in this witness has one \texttt{And} head and three leaves for each $a>0$ predicate, explaining the observed count $1+3\cdot3^n$. At depth zero there is no conjunction head, so the count is three.
+
+The source recurrence and the measurements agree through all six observed states. This is not an extrapolated claim about undocumented Wolfram simplifier internals: it is the expression structure actually retained by the package on these requests. Structural deletion of repeated conjuncts is semantically justified by idempotence of conjunction.\cite{and}
+
+\subsection{Impact without overstating a benchmark}
+The witness separates coefficient complexity from metadata complexity. Each result needs one coefficient block and a constant-size list of distinct hypotheses. The duplicated predicates can nevertheless increase the input presented to later simplification, domain checks, property inspection, serialization, and expression traversal.
+
+It would be unjustified to convert these counts directly into an elapsed-time ratio or a physical-memory allocation ratio. The evaluator may share expression subtrees, short-circuit predicates, or canonicalize some inputs during later operations. None of that was benchmarked. The finding is that unnecessary exponentially growing logical syntax is generated and retained; the subsequent cost depends on its consumers.
+
+The operation recipe can also retain its own operand history. Removing condition duplication does not eliminate that independent provenance growth and does not prove that an entire arithmetic expression DAG has constant memory. The proposed repair is intentionally limited to the observed assumptions/domain amplification.
+
+\subsection{Candidate: structural idempotence, not assumption erasure}
+The candidate introduces a small helper:
+\begin{lstlisting}
+seriesStructuralAnd[conditions_List] := And @@ DeleteDuplicates[
+  Flatten[(If[Head[#] === And, List @@ #, {#}] &) /@ conditions, 1]];
+\end{lstlisting}
+It is used for both assumption and domain joins in \texttt{seriesAlign} and in the final \texttt{seriesBinary} result. Existing top-level conjunctions are combined and structurally identical predicates are retained once. Other expressions are treated as whole predicates. The helper does not enter held subexpressions or perform a solver-driven logical minimization.
+
+Using \texttt{FullSimplify[conditions, conditions]} would be a different and dangerous operation: it can return \texttt{True} precisely because the hypotheses were supplied as assumptions, thereby deleting restrictions from the result. The candidate instead applies the elementary identity $P\wedge P=P$ to already retained mathematical predicates. Distinct conditions remain distinct; this is not permission to specialize an object under a new ambient assumption context.
+
+A further implementation refinement could calculate the combined predicates once and pass the same value to alignment and finalization. That may avoid small repeated construction work, but it is not necessary for the tested structural invariant. The supplied change is kept narrow so that its effect and proof obligation are easy to inspect.
+
+\subsection{Native candidate result and acceptance criteria}
+After applying the candidate to the full standalone string, the observed rows at depths zero through five were
+\begin{lstlisting}
+{0,1,1,True}, {1,1,1,True}, {2,1,1,True},
+{3,1,1,True}, {4,1,1,True}, {5,1,1,True}
+\end{lstlisting}
+Each row is \texttt{\{depth, assumptionOccurrences, domainOccurrences, correctExpression\}}. The final boolean checks exact structural equality of the normal expression with $2^n a x$. Thus the predicates remained present once and the finite expression remained correct throughout the tested sequence.
+
+Integration should additionally test unequal operands with independent hypotheses, contradictory domains, shared versus distinct conjuncts, and target-coordinate alignment. The acceptance invariant is not that every logical formula has a globally minimal representation. It is that combining an operand with itself does not multiply structurally identical retained assumptions or domains, while every distinct hypothesis still survives.
+
+The candidate is shared Wolfram Language code. Its Mathics behavior is not established by the native Wolfram run; in particular, host evaluation of conjunctions and association operations must be tested directly. This difference in evidence is retained in the intake record rather than hidden behind a generic portability label.
+
+\section{E01: a negative-Lerch enclosure provider with positive transformed terms}
+\label{sec:lerch}
+\subsection{Why this is a distinct development opportunity}
+The inspected Dirichlet provider admits fixed real Lerch parameters with $|z|<1$, builds a large-argument moment expansion, and obtains a quantitative bound by summing absolute geometric moments. Its proof is appropriate to that construction, but it suppresses the cancellation of a negative argument when it replaces $z$ by $|z|$. The dedicated provider also excludes the endpoint $z=-1$.\cite{dirichlet}
+
+This does not imply that no other package route or native simplification can evaluate any expression at $z=-1$. The narrow statement is about the source-admission condition and bound mechanism of the inspected dedicated provider. The proposed method is an additional forward-enclosure route, not a replacement for the existing moment expansion and not a universal Lerch implementation.
+
+Review 49's nearby contribution concerns positive-parameter signed Lerch enclosures. The method here instead covers $z=-q$ for $0\le q\le1$ using a positive Euler-transformed series. It includes a boundary case excluded by the inspected defining-sum provider and has a geometric interval-width bound uniform in $q$ on that interval.\cite{r49}
+
+The starting point is the defining series
+\begin{equation}
+ \Phi(-q,s,a)=\sum_{j=0}^{\infty}\frac{(-q)^j}{(a+j)^s},
+ \qquad 0\le q\le1,\quad s>0,\quad a>0.
+\label{eq:lerchdef}
+\end{equation}
+At $q=1$ it converges by the alternating-series criterion. The defining series and integral representations are classical; so is the Euler transformation used below. The bounds are derived explicitly to make the reference implementation independently auditable.\cite{lerchref,euler}
+
+\subsection{Positive differences and the transformed expansion}
+Set
+\begin{equation}
+ b_j=(a+j)^{-s},\qquad
+ D_k=\sum_{j=0}^{k}(-1)^j\binom{k}{j}b_j,
+ \qquad r=\frac{q}{1+q}.
+\label{eq:diff}
+\end{equation}
+The sign convention makes $D_k$ the positive alternating finite difference of a completely monotone sequence, rather than the usual unsigned forward difference with a possible factor $(-1)^k$.
+
+\begin{theorem}[Positive Euler representation]
+For the parameters in \eqref{eq:lerchdef},
+\begin{equation}
+ 0<D_{k+1}\le D_k\le a^{-s},
+ \qquad
+ \Phi(-q,s,a)=\frac1{1+q}\sum_{k=0}^{\infty}r^k D_k.
+\label{eq:eulerrep}
+\end{equation}
+In particular, $0\le r\le1/2$ and the transformed series is absolutely convergent, including $q=1$.
+\end{theorem}
+\begin{proof}
+The elementary Laplace integral for a positive real power gives
+\[
+ b_j=\frac1{\Gamma(s)}\int_0^\infty t^{s-1}e^{-(a+j)t}\,dt.
+\]
+Substitute this expression into the finite sum defining $D_k$ and use the binomial theorem:
+\begin{equation}
+ D_k=\frac1{\Gamma(s)}\int_0^\infty
+ t^{s-1}e^{-at}(1-e^{-t})^k\,dt.
+\label{eq:diffintegral}
+\end{equation}
+Its integrand is positive for $t>0$, and the factor $1-e^{-t}$ lies strictly between zero and one. Positivity, monotonicity in $k$, and the bound by $D_0=a^{-s}$ follow.
+
+For $q<1$, summing the original geometric factor inside the Laplace integral gives
+\[
+ \Phi(-q,s,a)=\frac1{\Gamma(s)}\int_0^\infty
+ \frac{t^{s-1}e^{-at}}{1+q e^{-t}}\,dt.
+\]
+The identity
+\[
+ \frac1{1+q e^{-t}}
+ =\frac1{1+q}\frac1{1-r(1-e^{-t})}
+ =\frac1{1+q}\sum_{k=0}^{\infty}r^k(1-e^{-t})^k
+\]
+has nonnegative summands. Monotone convergence and \eqref{eq:diffintegral} yield the transformed formula. The denominator of the integral is at least one; the integrable function $t^{s-1}e^{-at}$ therefore also permits passage to $q=1$. Equivalently, the limit agrees with the endpoint alternating series. Since $D_k\le a^{-s}$ and $r\le1/2$, the transformed series is absolutely bounded by a geometric series throughout the stated domain.
+\end{proof}
+
+\subsection{Nested, explicit intervals}
+Define the $K$-term transformed partial sum, with $K\ge0$, by
+\[
+ E_K=\frac1{1+q}\sum_{k=0}^{K-1}r^kD_k,
+ \qquad E_0=0.
+\]
+Empty powers are interpreted in the combinatorial sense: $r^0=1$, including when $r=0$. This convention is implemented explicitly in the Wolfram code, where the raw expression \texttt{0\^{}0} must not be used as an ordinary numerical value.
+
+\begin{theorem}[Negative-Lerch enclosure]
+Let
+\begin{equation}
+ L_K=E_K+\frac{r^KD_K}{1+q},\qquad
+ U_K=E_K+r^KD_K.
+\label{eq:bounds}
+\end{equation}
+Then
+\begin{equation}
+ L_K\le\Phi(-q,s,a)\le U_K,
+ \qquad
+ U_K-L_K=r^{K+1}D_K\le\frac{a^{-s}}{2^{K+1}}.
+\label{eq:width}
+\end{equation}
+The closed intervals $[L_K,U_K]$ are nested as $K$ increases.
+\end{theorem}
+\begin{proof}
+The omitted transformed tail is
+\[
+ T_K=\frac1{1+q}\sum_{k=K}^{\infty}r^kD_k.
+\]
+Its first term is a lower bound. Monotonicity $D_k\le D_K$ for $k\ge K$ and the geometric sum give
+\[
+ \frac{r^KD_K}{1+q}\le T_K
+ \le\frac{r^KD_K}{(1+q)(1-r)}=r^KD_K.
+\]
+This proves enclosure. Subtracting the endpoints gives
+\[
+ r^KD_K\left(1-\frac1{1+q}\right)=r^{K+1}D_K,
+\]
+and the universal width estimate follows from $D_K\le a^{-s}$ and $r\le1/2$.
+
+For nestedness, $L_K=E_{K+1}$ increases. The upper endpoints satisfy
+\[
+ U_K-U_{K+1}=r^{K+1}(D_K-D_{K+1})\ge0.
+\]
+At $q=0$ the two endpoints coincide with $a^{-s}$ for every $K$, including $K=0$, by the empty-power convention.
+\end{proof}
+
+A convenient sufficient order for a requested positive absolute width $\varepsilon$ is any nonnegative integer $K$ with
+\[
+ 2^{-(K+1)}a^{-s}\le\varepsilon.
+\]
+The actual width $r^{K+1}D_K$ is often much smaller. An adaptive implementation should test this exact width rather than confuse the sufficient estimate with the achieved result. A relative-error stopping rule would require a positive lower bound for the represented value; the positive $L_K$ already supplies one, so a separately defined sufficient criterion can be used. Neither stopping rule changes the meaning of an asymptotic exponent cutoff in the existing package.
+
+\subsection{Exact reference implementation and resource model}
+The theorem allows all real $s>0$. The shipped implementation deliberately narrows the executable domain to positive integer $s$ and rational $q,a$, so all samples $b_j$ and all interval endpoints are exact rationals. It does not approximate an irrational power and then label its result rationally certified.
+
+The Python public entry is:
+\begin{lstlisting}
+lerch_negative_interval(q, s, a, order=16)
+\end{lstlisting}
+It accepts integers or \texttt{fractions.Fraction} for $q,a$, rejects floats and booleans, requires $0\le q\le1$ and $a>0$, and bounds $1\le s\le1000$ and $0\le K\le256$. It also imposes a 4096-bit input-rational size limit. These are explicit defensive limits of the reference, not a theorem about feasible arithmetic cost at the largest accepted combination.
+
+The finite differences are formed by a shrinking table. Starting from
+\[
+ (b_0,b_1,\ldots,b_K),
+\]
+record the first entry, replace each adjacent pair $(v_j,v_{j+1})$ by $v_j-v_{j+1}$, and repeat until the row is empty. The recorded first entries are $D_0,\ldots,D_K$. The implementation uses $\OO(K^2)$ exact subtractions and $\OO(K)$ live rational entries, in addition to the output list. Those are arithmetic-operation and entry counts, not bit-complexity bounds. Numerators and denominators can grow substantially.
+
+Floating-point evaluation of this difference table would be a different algorithm with cancellation risk. The exact rational implementation does not justify a naive machine-real translation. A numerical production version should use independently bounded arithmetic or exploit \eqref{eq:diffintegral} with a proved quadrature/bound method. The narrow integer/rational reference is valuable precisely because it does not need those additional analytic or rounding contracts.
+
+The independent Wolfram entry is:
+\begin{lstlisting}
+AsymptoticAudit`NegativeLerchInterval[q,s,a,k]
+\end{lstlisting}
+It returns an association containing lower and upper endpoints, width, partial sum, the frontier difference $D_K$, parameters, and a theorem identifier. It uses its own context and changes no \texttt{AsymptoticAnalysis`} or \texttt{System`} definitions. Its parameter/order limits match the principal rational/integer restrictions; the Python-only input bit-size guard is not advertised as present in the WL reference.
+
+\subsection{Concrete endpoint and near-endpoint examples}
+For $q=s=a=1$, the original value is $\log2$, and the difference coefficients simplify to $D_k=1/(k+1)$. At $K=8$, the native reference returned
+\[
+ \frac{447047}{645120}\le\log2\le\frac{447187}{645120},
+ \qquad U_8-L_8=\frac1{4608}.
+\]
+This endpoint example is intentionally modest in order: it is a transparent rational check of the theorem and the $q=1$ path, not a claim of competitive high-precision logarithm evaluation. The Euler expansion for this classical alternating logarithmic series is a standard special case.\cite{euler}
+
+At $q=9/10$, $s=2$, $a=100$, $K=8$, the returned exact width was
+\begin{equation}
+ \frac{22679550475318225809}
+ {7679474155727325039983857353312740000}
+ \approx 2.953\times10^{-18}.
+\end{equation}
+This is an enclosure width for a fixed positive argument, not an experimentally fitted remainder constant and not an assertion that an asymptotic Taylor truncation has changed order.
+
+\subsection{Independent validation and its limits}
+The 700-case grid uses
+\[
+\begin{split}
+ q&\in\{0,1/10,1/2,9/10,1\},\quad s\in\{1,2,3,5\},\\
+ a&\in\{1/4,1,3/2,10,100\},\quad K\in\{0,1,2,4,8,16,32\}.
+\end{split}
+\]
+It checks exact width, endpoint order, the universal bound, and nestedness between successive selected orders. Separate tests compare the difference table with the explicit binomial sum and verify positivity and monotonicity on the tested parameter grid. A JSON record preserves every enclosure.
+
+An independent reference for $s=1$ and positive integer $a=m$ is
+\begin{equation}
+ \Phi(-q,1,m)=(-q)^{-m}
+ \left[-\log(1+q)-\sum_{j=1}^{m-1}\frac{(-q)^j}{j}\right],
+ \qquad q>0.
+\label{eq:logreference}
+\end{equation}
+The test implementation bounds the logarithm independently with the positive atanh series, using $u=q/(2+q)$ and an explicit geometric tail. Across 84 cases, the resulting tight reference interval lay inside the Euler enclosure. This comparison does not reuse the Euler difference table.
+
+A further 45 cases compare with an independently bounded alternating partial sum. They check \emph{overlap}, not containment; wide endpoint alternating intervals can make overlap a weak test. The article's proof, rather than a count of overlapping intervals, establishes universal validity.
+
+The independent native Wolfram run checked 64 combinations: four $q$ values, two $s$ values, two $a$ values, and four orders. All exact width and ordering predicates returned true; an approximate input returned \texttt{Failure}. This was the fully qualified arithmetic core evaluated through the connector. The packaged file loader and wrapper were not separately run, and Mathics execution remains unperformed.
+
+\subsection{Integration without conflating precision contracts}
+A practical integration would expose this as a quantitative negative-Lerch forward provider, initially on the exact-rational reference domain. Its result should identify the argument $-q$, parameters, interval endpoints, transformed order $K$, and the theorem supporting containment. It should not impersonate the existing inverse root certificate or attach a numerical certificate to a bare $\OO$ statement without constants.
+
+There are two distinct uses. For a fixed target argument $a$, the interval can provide a certified numerical reference independent of the asymptotic polynomial. For a large-$a$ asymptotic result, subtracting its exact rational finite approximation from both interval endpoints yields a quantitative interval for that particular truncation error. This does not automatically alter the stored asymptotic exponent or logarithmic degree. If the finite approximation has irrational coefficients, subtraction requires their own enclosures.
+
+The method also gives a concrete development path at $z=-1$ without an absolute-moment blowup. It does not cover $q>1$, arbitrary complex $z$, negative or singular $a$, or nonpositive $s$ under the theorem stated here. Those cases should not be admitted by extrapolating the reference's name or output shape.
+
+\section{Cross-runtime assessment and focused acceptance plan}
+\label{sec:runtime}
+\subsection{What can and cannot be transferred from Wolfram to Mathics}
+The inspected package uses shared WL source together with isolated Mathics compatibility helpers and late-loaded adapters. Those helpers address evaluation semantics, assumptions, numerical routines, and other host differences. The existence of that architecture does not establish that a particular public witness reaches the same branch in both evaluators.\cite{core,mathics,mathicsassumptions,mathicsnumerical}
+
+For N01, Mathics might refuse the complex parameter condition earlier, retain a different working jet, or reach the same unsafe composite fallback. Only the last case reproduces the native wrong result; the first two need to be recorded as distinct behavior. The source-level missing hypothesis in the shared fallback is still a reason to repair it, but this report does not label the public Mathics path as reproduced.
+
+For N02, host handling of \texttt{And}, associations, and simplification may affect the visible condition expression. The recurrence is observed in Wolfram and explained by shared source joins. It is not a measured Mathics allocation or timing curve. The structural idempotence patch should be checked on the selected Mathics version with the same predicate-count invariant.
+
+For E01, the exact reference avoids native \texttt{LerchPhi}, \texttt{PolyLog}, and root-finding facilities. That reduces dependencies but does not amount to a compatibility certificate: exact rational arithmetic, list operations, association construction, local scoping, and failure behavior still need a real Mathics run.
+
+\subsection{Acceptance matrix}
+\begin{longtable}{@{}P{20mm}P{41mm}P{44mm}P{42mm}@{}}
+\toprule
+Area & Executed here & Required integration check & Failure interpretation\\
+\midrule
+\endfirsthead
+\toprule Area & Executed here & Required integration check & Failure interpretation\\\midrule
+\endhead
+N01 baseline & Public Wolfram sine/cosine witness and exact proof. & Same source, cutoff, assumptions, and public sequence in Mathics. & Early conservative refusal is not the false-envelope bug.\\[4pt]
+N01 candidate & Both unsafe results refused; real and modulus controls preserved. & Real nonvanishing error; exact input; small complex error; all supported unary entry routes. & A new conservative refusal needs classification, not concealment.\\[4pt]
+N02 baseline & Six Wolfram states with $3^n$ predicate counts. & Exact counts on Mathics and mixed-condition operands. & Do not infer cost from block count alone.\\[4pt]
+N02 candidate & One copy of each predicate; exact $2^n a x$ through depth five. & Independent hypotheses and contradictory domains preserved. & Dropping a distinct hypothesis is a correctness regression.\\[4pt]
+E01 & Python exact tests and 64 native reference cases. & File-loaded reference and endpoint cases on Mathics. & Unevaluated output is not a certified interval.\\[4pt]
+Release & No full upstream suite or installed build. & Regenerate standalone and run upstream integration validation. & Focused in-memory success is not release acceptance.\\
+\bottomrule
+\end{longtable}
+
+\subsection{A useful classification of new test results}
+A future run should record the exact runtime version, repository revision, constructor result head, failure tag if any, finite expression, remainder, and retained assumptions/domain. A completed call that returns an unevaluated expression, a native formatting artifact, or \texttt{Failure} must not be counted as a successful expansion solely because it did not abort.
+
+For the N01 family, the most informative progression is to vary the source exponent and the amplification exponent while keeping the first complex coefficient beyond the working precision. This tests the missing hypothesis, not one hard-coded polynomial. The deterministic cubic witness should remain as the smallest shipped regression because its expected behavior and proof are clear.
+
+For N02, doubling an exact one-block source isolates metadata growth from asymptotic coefficient generation. Mixed conjunctions then test that the repair preserves semantics rather than merely shrinking expression size. Native elapsed-time measurements may be added later, but they must separate simplifier time, source replay, and provenance storage from the narrow condition-join cost.
+
+These are acceptance tasks directly tied to the new findings, not a repetition of the repository's previously proposed general testing roadmap.
+
+\section{Recommendations and development priorities}
+\label{sec:priorities}
+\subsection{First: close the invalid trigonometric fallback}
+Adopt the conservative N01 guard, or an equivalently justified complete-real-germ check, before broadening complex behavior. The key acceptance requirement is that a real displayed polynomial cannot authorize an unbounded complex sine/cosine error transport. Keep modulus separate because its global complex theorem really is stronger. Keep the proof metadata consistent with the theorem actually used.
+
+A broader capability-based realness design should follow only with explicit source and transport proofs. Merely adding a new boolean field defaulted from coefficient realness would encode the same defect under a different name. The cubic witness must continue to be rejected or bounded correctly even if all retained coefficients remain real.
+
+\subsection{Second: make condition transport structurally idempotent}
+The N02 candidate is small and has a direct invariant. Apply it at the canonical module level, regenerate the distribution, and preserve tests for both idempotence and distinct-hypothesis retention. Do not replace duplicate elimination with simplification under the conditions themselves. Treat operation recipes as a separate provenance concern; this patch neither promises nor requires their wholesale redesign.
+
+\subsection{Third: add the bounded negative-Lerch provider}
+Integrate the exact-rational E01 reference behind a deliberately narrow admission predicate. Keep transformed-series order, achieved interval width, and the existing asymptotic cutoff as distinct user-facing quantities. Expose the $q=1$ endpoint only with the positive-real $a,s$ assumptions of the proof, and fail clearly outside the implemented arithmetic domain.
+
+The uniform geometric width bound gives a transparent initial work estimate, while the exact achieved width gives the actual stop condition. The method is especially attractive as an independent checking route for negative-argument examples, because it avoids asking the same asymptotic moment engine to certify its own coefficients.
+
+\subsection{Decision gates rather than unsupported completion claims}
+The candidate edits have passed the small native observations documented here. They should enter the repository as reviewed candidates until the canonical rebuild and required upstream tests pass. The negative-Lerch reference has stronger independent mathematical coverage, but it is not integrated, so its result must not be advertised as a package capability yet. Mathics should receive its own observation and acceptance record rather than a status copied from Wolfram.
+
+This ordering addresses one false mathematical claim, one avoidable structural growth mechanism, and one implementable new provider. It does not depend on restating any of the old general feature backlog.
+
+\section{Artifacts and reproduction}
+\label{sec:artifacts}
+\subsection{Archive contents}
+The article's complete editable source is \path{article.tex}; the compiled reading version is \path{article.pdf}. The archive contains independent Lerch implementations, executable Python checks, public native observation requests, two desired-contract WLT tests, three guarded source replacement records, a patch emitter, and actual evidence records. It does not contain a full upstream distribution, checksum files, Python caches, or separate font files.
+
+The compact machine-readable intake is \path{findings.json}. The source and execution boundary is recorded in \path{evidence/audit_manifest.json}. The manually transcribed native record is \path{evidence/wolfram_observations.md}, alongside the actual successful connector input texts. These files identify which results were observed and which wrappers remain unexecuted.
+
+\subsection{Independent tests}
+From the extracted archive directory, using Python 3.10 or later:
+\begin{lstlisting}
+python -S -m unittest discover -s tests -p 'test_*.py' -v
+\end{lstlisting}
+The suite uses only the standard library. It regenerates the mathematical grid and counterexample-bound records. Its patch tests use synthetic fixtures to check unique anchors, missing/duplicate anchors, selection, and output behavior. They are not represented as an actual canonical-source integration run.
+
+For the WL reference, load the file in a fresh kernel and then the reference wrapper:
+\begin{lstlisting}
+Get["/path/to/archive/code/NegativeLerchInterval.wl"];
+Get["/path/to/archive/tests/reference_wl.wl"];
+\end{lstlisting}
+The standalone reference package is independent of the audited repository. Its arithmetic was tested through the connector, while the file-based wrapper remains a reproduction artifact rather than an executed receipt.
+
+\subsection{Review-only candidate patch generation}
+Use a disposable local checkout of the pinned revision:
+\begin{lstlisting}
+python patches/emit_candidate_patch.py /path/to/Asymptotic > candidate.patch
+\end{lstlisting}
+The emitter verifies Git \texttt{HEAD} unless explicitly overridden, reads the two canonical modules named in \path{edits.json}, requires a unique occurrence of each exact anchor, and prints a unified diff. It does not apply changes or write to the checkout. It also rejects a resolved source path escaping the selected root. It is not a full repository-cleanliness or security validator; unique anchors and a revision check do not prove that unrelated worktree changes are absent.
+
+Use \texttt{--finding N01} or \texttt{--finding N02} for a single finding. The explicit \texttt{--allow-other-revision} option skips the Git pin check but retains the anchor checks. The anchors are LF text, so a CRLF-only source copy may require reviewed line-ending normalization. The archive does not silently normalize an unknown source and claim it matched exactly.
+
+After reviewing and applying the changes in a separate worktree, run the upstream standalone builder:
+\begin{lstlisting}
+python validation/build_standalone.py
+\end{lstlisting}
+Testing an unchanged generated root distribution after editing only modular sources would not exercise the candidate. Conversely, this audit's in-memory replacement in the retrieved standalone does not prove that the canonical rebuild pipeline passes. Those two routes are intentionally distinguished.
+
+\subsection{Native observation and desired-contract tests}
+The supplied \path{tests/run_native.wls} uses a local path selected by \texttt{ASYMPTOTIC\_REPO}. It prints observations and exits zero when the wrapper reaches its end; zero is not a claim that the known baseline defects are fixed. Confirm the checkout revision separately because this observation wrapper does not enforce the pin.
+\begin{lstlisting}
+ASYMPTOTIC_REPO=/path/to/Asymptotic \
+  wolframscript -file tests/run_native.wls
+\end{lstlisting}
+For the two focused patched invariants:
+\begin{lstlisting}
+Get["/path/to/patched/AsymptoticAnalysis.wl"];
+TestReport["/path/to/archive/tests/patch_acceptance.wlt"]
+\end{lstlisting}
+The file should be evaluated in a fresh kernel without definitions for its symbols. It is a small desired-contract suite, not the complete upstream acceptance suite. The archive does not claim that these file-based commands were run on Mathics or as a Wolfram CLI process during the audit.
+
+\subsection{Building the article}
+\begin{lstlisting}
+sh build.sh
+\end{lstlisting}
+The source uses common pdfLaTeX packages, no shell escape, and no external bibliography database. Source links remain pinned, so later changes to \texttt{main} do not silently alter the cited code. The delivery PDF was compiled and rendered for visual inspection; build intermediates are excluded from the ZIP.
+
+\section{Conclusion}
+The additional correctness defect is an invalid change of domain in a remainder theorem: real coefficients in a finite approximation were treated as evidence that an uncertain complete function remained on the real line. The public cubic witness makes the failure exact and unambiguous. A small, conservative candidate closes that route without pretending to solve general complex asymptotics.
+
+The additional structural defect is equally localized: alignment combines conditions, and finalization combines one operand again. Repeated one-block arithmetic thereby grows $3^n$ copies of the same predicates. Structural idempotence restores the intended invariant without discarding assumptions or relying on a solver.
+
+The development contribution turns a classical Euler transform into a narrow, usable negative-Lerch enclosure provider with a proof, explicit endpoint coverage, and exact implementations. Its intervals offer independent checking information rather than merely another expansion produced by the same moment algebra.
+
+The verified scope is Wolfram 15 public observations, focused in-memory edits, and independent reference computations. The remaining Mathics and full-integration work is specified as acceptance work, not described as completed. That separation is essential to making the findings actionable without overstating what the evidence establishes.
+
+\appendix
+\section{Novelty crosswalk}
+\label{sec:novelty}
+\begin{longtable}{@{}P{13mm}P{39mm}P{45mm}P{50mm}@{}}
+\toprule
+Item & Nearest earlier record & Excluded earlier mechanism & Additional mechanism here\\
+\midrule
+\endfirsthead
+\toprule Item & Nearest earlier record & Excluded earlier mechanism & Additional mechanism here\\\midrule
+\endhead
+N01 & Review 11, N04\cite{r11} & Public routes disagreed about admission of nonreal coefficients. & All stored coefficients are real; an omitted complex tail is amplified and then assigned a false trigonometric magnitude envelope.\\[5pt]
+N01 & Review 37, F01\cite{r37} & Sign-based \texttt{fwdAbs} shortcut with retained complex subleading terms. & Composite sine/cosine fallback on a pure remainder; no retained imaginary coefficient is needed.\\[5pt]
+N01 & Review 42, N01\cite{r42} & A real absolute-value observable can lose classical derivative regularity. & A magnitude bound fails, rather than a derivative contract; modulus itself remains globally complex-Lipschitz.\\[5pt]
+N02 & Review 47, N01\cite{r47} & Duplicate work in mutually recursive Mathics sign/real proof search. & The shared arithmetic operation persists exponentially many condition copies, reproduced in Wolfram.\\[5pt]
+E01 & Review 49, E1\cite{r49} & Signed enclosures for positive Lerch parameters. & Negative arguments, positive Euler differences, nested geometric-tail intervals, and the $z=-1$ endpoint.\\
+\bottomrule
+\end{longtable}
+The exclusion comparison used the registers and nearby originals described in Section~\ref{sec:scope}. None of the above distinctions should be expanded into a claim of exhaustive semantic comparison with every archived file.
+
+\section{Source coverage record}
+\label{app:coverage}
+The ranges below identify the retrieved modular source windows used during investigation. A range is a retrieval scope, not a claim that every definition in it has a new finding. Function names and commit-pinned paths remain the authoritative locators if line presentation changes.
+\small
+\begin{longtable}{@{}P{57mm}P{33mm}P{59mm}@{}}
+\toprule
+Canonical source & Inspected extent & Purpose in the audit\\
+\midrule
+\endfirsthead
+\toprule Canonical source & Inspected extent & Purpose in the audit\\\midrule
+\endhead
+\path{src/Kernel/AsymptoticAnalysis.wl} & Selected ranges 1--315, 390--470, 470--900, 1210--end & Entry/assumption scope, jet precision, real coefficient boundary, forward working order, model/residual and loader paths.\\[4pt]
+\path{src/Kernel/SeriesOperations.wl} & Broad sequential reads through end; some tool displays truncated & Representation, alignment, binary arithmetic, observables, composition, derivative and refinement transport. Finding anchors rechecked in native full source.\\[4pt]
+\path{src/Kernel/SeriesArithmetic.wl} & First 230 lines; long display truncated & Public unary fallback and regular-operand arithmetic dispatch.\\[4pt]
+\path{src/Kernel/SeriesEnvelopeArithmetic.wl} & Sequential reads through end & Composite representation, envelope algebra, unary domain/error theorem.\\[4pt]
+\path{src/Kernel/DirichletSpecialFunctions.wl} & Complete returned module & Zeta/Lerch admission, moments, quantitative remainder formulas.\\[4pt]
+\path{src/Kernel/InverseCertificates.wl} & 1--210, 215--265, 260--420 & Interval arithmetic, source-domain checks, seed and certificate scope; no new certificate finding asserted.\\[4pt]
+\path{src/Kernel/GammaForward.wl} and \path{GammaInverseOperations.wl} & Returned module texts & Product logarithms, exactness and inverse-observable transport.\\[4pt]
+\path{src/Kernel/SourceCoordinates.wl} & 1--190; long display truncated & Source reconstruction and replay context.\\[4pt]
+\path{src/Kernel/FourierCoefficients.wl} & 1--200; long display truncated & Fourier coefficient algebra and constructor budgets.\\[4pt]
+\path{src/Kernel/ReciprocalLogOperations.wl} & Complete returned module & Specialized composition/derivative contracts.\\[4pt]
+\path{src/Kernel/MathicsCompatibility.wl}, \path{MathicsAssumptions.wl}, \path{MathicsTaylor.wl}, \path{MathicsCoreFunctions.wl}, \path{MathicsNumerical.wl} & Returned module texts & Host compatibility boundaries, proof and numerical helpers. Mathics not executed.\\
+\bottomrule
+\end{longtable}
+\normalsize
+Complete-text native loading supplied the actual runtime source for the successful probes, including sections beyond the manually inspected windows. No full local checkout, exhaustive test-source audit, or full CI execution is implied by this coverage record.
+
+\section{Evidence inventory}
+\begin{tabularx}{\textwidth}{@{}P{61mm}Y@{}}
+\toprule
+Artifact & Meaning\\
+\midrule
+\path{evidence/python_tests.log} & Actual 17-method Python run; independent reference and synthetic patch mechanics.\\[4pt]
+\path{evidence/lerch_grid.json} & 700 exact interval records, regenerated by the Python suite.\\[4pt]
+\path{evidence/counterexample_exact_bounds.json} & Exact rational values illustrating the diverging lower bound in N01.\\[4pt]
+\path{evidence/wolfram_observations.md} & Manually transcribed native results and excluded infrastructure attempts.\\[4pt]
+\path{evidence/*_connector_input.wl} & Successful baseline, metadata, candidate, and independent-reference native inputs.\\[4pt]
+\path{patches/edits.json} & Three exact replacement specifications, targeting two canonical modules.\\[4pt]
+\path{tests/patch_acceptance.wlt} & Two desired-contract tests; not executed as a file-based suite.\\[4pt]
+\path{evidence/audit_manifest.json} & Revision, runtime, evidence counts, and explicit execution limitations.\\
+\bottomrule
+\end{tabularx}
+
+\begin{thebibliography}{99}
+\small
+\bibitem{repo} Vladimir Reshetnikov, \emph{Asymptotic}, reviewed snapshot of 10 September 2026, commit identified by the following pinned link. \url{https://github.com/VladimirReshetnikov/Asymptotic/commit/efa1aeec4845a9c35e140963a0333d0c9ec33b05}.
+\bibitem{index} \emph{External code-review index and six wave indexes}, reviewed snapshot. \reposource{external-reports/code-review/README.md}. Wave directories 1--6 were used as the exclusion map.
+\bibitem{status} \emph{Code-review development status}, inspected lines 1--380. \reposource{docs/development/CODE_REVIEW_STATUS.md}.
+\bibitem{core} \emph{Main package and jet engine}. \reposource{src/Kernel/AsymptoticAnalysis.wl}. In particular \texttt{forwardJet}, \texttt{makeForwardObject}, \texttt{realCoefficientRows}, and the module loader.
+\bibitem{ops} \emph{Series operations}. \reposource{src/Kernel/SeriesOperations.wl}. In particular \texttt{seriesData}, \texttt{seriesAlign}, \texttt{seriesBinary}, and \texttt{seriesJetApply}.
+\bibitem{arithmetic} \emph{Arithmetic dispatch}. \reposource{src/Kernel/SeriesArithmetic.wl}. In particular \texttt{seriesArithmeticUnary} and \texttt{seriesArithmeticFallbackQ}.
+\bibitem{envelope} \emph{Composite envelope arithmetic}. \reposource{src/Kernel/SeriesEnvelopeArithmetic.wl}. In particular \texttt{seriesEnvelopeData}, \texttt{seriesEnvelopeLimit}, and \texttt{seriesEnvelopeUnary}.
+\bibitem{dirichlet} \emph{Dirichlet special-function providers}. \reposource{src/Kernel/DirichletSpecialFunctions.wl}. In particular \texttt{dirichletLerchForward} and \texttt{dirichletLerchBoundConstant}.
+\bibitem{certificates} \emph{Inverse certificates}. \reposource{src/Kernel/InverseCertificates.wl}. The inspected source distinguishes explicit-function interval certification from unspecified input remainders.
+\bibitem{mathics} \emph{Mathics compatibility layer}. \reposource{src/Kernel/MathicsCompatibility.wl}.
+\bibitem{mathicsassumptions} \emph{Mathics assumption helpers}. \reposource{src/Kernel/MathicsAssumptions.wl}.
+\bibitem{mathicsnumerical} \emph{Mathics numerical adapters}. \reposource{src/Kernel/MathicsNumerical.wl}.
+\bibitem{r11} \emph{Review 11: additional contract audit}, retained README, especially N04. \reposource{external-reports/code-review/wave-2/code-review-11/README.md}.
+\bibitem{r37} \emph{Review 37: differential code audit}, retained README, especially F01. \reposource{external-reports/code-review/wave-5/code-review-37/README.md}.
+\bibitem{r42} \emph{Review 42: regularity contracts and structural work}, retained README, especially N01. \reposource{external-reports/code-review/wave-5/code-review-42/README.md}.
+\bibitem{r47} \emph{Review 47: incremental technical audit}, retained README, especially Mathics proof-search duplication. \reposource{external-reports/code-review/wave-6/code-review-47/README.md}.
+\bibitem{r49} \emph{Review 49: incremental contract audit}, retained README, especially E1's positive-parameter Lerch enclosure. \reposource{external-reports/code-review/wave-6/code-review-49/README.md}.
+\bibitem{euler} NIST Digital Library of Mathematical Functions, \S3.9(ii), \emph{Euler's Transformation}, including the classical alternating-series transform and logarithm example. \url{https://dlmf.nist.gov/3.9.ii}. Consulted 10 September 2026.
+\bibitem{lerchref} NIST Digital Library of Mathematical Functions, \S25.14, \emph{Lerch's Transcendent}, defining series and integral representations. \url{https://dlmf.nist.gov/25.14}. Consulted 10 September 2026.
+\bibitem{sin} Wolfram Research, \emph{Sin}, Wolfram Language documentation, complex-valued function definition. \url{https://reference.wolfram.com/language/ref/Sin.html}. Consulted 10 September 2026.
+\bibitem{and} Wolfram Research, \emph{And}, Wolfram Language documentation. \url{https://reference.wolfram.com/language/ref/And.html}. Consulted 10 September 2026.
+\end{thebibliography}
+\end{document}

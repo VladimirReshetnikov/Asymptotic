@@ -1,0 +1,25 @@
+{
+  "lambda": "1",
+  "s": "2",
+  "order": 2,
+  "leading_term": "a**(1-s) * exp(lambda) * lambda**(s-1) * Gamma(1-s,lambda)",
+  "correction_rows": [
+    [
+      "2",
+      "1/2"
+    ],
+    [
+      "3",
+      "1/4"
+    ],
+    [
+      "5",
+      "-49/720"
+    ]
+  ],
+  "remainder_power": "7",
+  "absolute_bound_coefficient": "233/4320",
+  "remainder_sign": 1,
+  "conditions": "a>0; fixed lambda>0 and fixed s>=0; exact parameters",
+  "statement": "0 <= remainder_sign*(Phi-S_K) <= C*a**(-remainder_power)"
+}

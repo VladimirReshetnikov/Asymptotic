@@ -1,0 +1,32 @@
+[
+  {
+    "id": "N01",
+    "severity": "High",
+    "title": "Complex omitted tails invalidate real sine/cosine composite envelopes",
+    "status": "Reproduced in public Wolfram 15 calls; rigorous counterexample",
+    "file": "src/Kernel/SeriesEnvelopeArithmetic.wl",
+    "mechanism": "Only finite expression reality is proved; a discarded complex tail can be amplified to an unbounded envelope before using the real global Lipschitz rule.",
+    "candidate": "Conservative vanishing-envelope guard and truthful transport metadata; actual in-memory native checks succeeded.",
+    "mathics_status": "Not executed; shared source path, reachability must be checked."
+  },
+  {
+    "id": "N02",
+    "severity": "Medium",
+    "title": "Binary arithmetic triplicates conjunctions across repeated self-additions",
+    "status": "Public Wolfram 15 observations at depths 0 through 5",
+    "file": "src/Kernel/SeriesOperations.wl",
+    "mechanism": "Alignment joins input conditions; finalization joins the first input again. Self-addition gives 3^n retained condition occurrences with one coefficient block.",
+    "candidate": "Structural idempotent conjunction, preserving hypotheses rather than simplifying them under themselves.",
+    "mathics_status": "Not executed; same shared source, host simplification behavior not inferred."
+  },
+  {
+    "id": "E01",
+    "severity": "Development opportunity",
+    "title": "Positive Euler-difference interval backend for negative Lerch arguments, including z=-1",
+    "status": "Proof and independent exact-rational implementations; 700-case Python grid, 84 independent log checks, and 64 native Wolfram reference combinations",
+    "file": "code/negative_lerch.py",
+    "mechanism": "For 0<=q<=1, s>0, a>0, complete monotonicity supplies decreasing positive differences and nested geometric-tail enclosures.",
+    "candidate": "Independent Python/WL references; not integrated into package.",
+    "mathics_status": "Not executed."
+  }
+]

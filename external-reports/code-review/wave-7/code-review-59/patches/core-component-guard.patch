@@ -1,0 +1,7 @@
+--- a/src/Kernel/CorePerturbation.wl
++++ b/src/Kernel/CorePerturbation.wl
+@@ -126,2 +126,2 @@
+-  validateInput[core + perturbation, limit];
+-  If[x === y || ! FreeQ[core + perturbation, y], fail["InvalidVariables", "Use distinct source and target symbols, with no target symbol in the forward data."]];
++  validateInput[{core, perturbation}, limit];
++  If[x === y || ! FreeQ[{core, perturbation}, y], fail["InvalidVariables", "Use distinct source and target symbols; the core and perturbation must each be independent of the target symbol."]];

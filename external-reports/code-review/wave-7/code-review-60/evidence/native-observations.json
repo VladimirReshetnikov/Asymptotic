@@ -1,0 +1,155 @@
+{
+  "kind": "manual transcription of successful Wolfram connector responses",
+  "revision": "efa1aeec4845a9c35e140963a0333d0c9ec33b05",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "package_entry": "AsymptoticAnalysis.wl",
+  "fresh_stateless_kernel_per_query": true,
+  "mathics_executed": false,
+  "full_repository_suite_executed": false,
+  "complete_supplied_wlt_executed": false,
+  "baseline": [
+    {
+      "id": "ordinary-inverse-smoke",
+      "load": "Null",
+      "expression": "y-y^2+2 y^3-5 y^4",
+      "remainder": "PowerLogRemainder[y,5,0]"
+    },
+    {
+      "id": "plain-y-negative-candidate",
+      "request": "AsymptoticCoreInverse[x-y,y+1/x,{x,Infinity},{y,2}]",
+      "result": "Failure[\"UnprovedCoreData\",...]",
+      "classification": "not a successful wrong-result witness"
+    },
+    {
+      "id": "N01-large",
+      "request": "AsymptoticCoreInverse[x-Re[y],Re[y]+1/x,{x,Infinity},{y,2}]",
+      "head": "GeneralizedSeries",
+      "expression": "y-(y+Re[y])^(-1)-(Re[y]+(y+Re[y])^(-1))/(y+Re[y])^2",
+      "remainder": "PowerLogRemainder[(y+Re[y])^(-1),2,0]",
+      "remainder_scale": "(y+Re[y])^(-2)",
+      "target_domain": "y+Re[y]>0 && Element[(y+Re[y])^(-1),Reals] && 0<(y+Re[y])^(-1)<E^(-1)",
+      "function": "x^(-1)+x"
+    },
+    {
+      "id": "N01-small",
+      "request": "AsymptoticCoreInverse[1/x-Re[y],Re[y]+x,{x,0},{y,2}]",
+      "head": "GeneralizedSeries",
+      "expression_simplified_under_y_gt_3": "(1+5 y^2+14 y^4)/(16 y^5)",
+      "remainder_scale": "(y+Re[y])^(-4)",
+      "target_domain": "y+Re[y]>0 && Element[(y+Re[y])^(-1),Reals] && 0<(y+Re[y])^(-1)<E^(-1)"
+    },
+    {
+      "id": "inexact-negative-control",
+      "request": "AsymptoticCoreInverse[x+0.1,-0.1+1/x,{x,Infinity},{y,0}]",
+      "result": "Failure[\"InexactInput\",...]",
+      "classification": "baseline already rejects; not an additional admission defect"
+    },
+    {
+      "id": "varying-observable-control",
+      "input": "s=AsymptoticExpansion[Sin[x],{x,0,4},\"Backend\"->\"Package\"]; SeriesObservable[s,z/x^4,z]",
+      "expression": "x^(-3)-1/(6 x)",
+      "remainder": "PowerLogRemainder[x,1,0]"
+    }
+  ],
+  "forward_screen": {
+    "cases": 17,
+    "successful_result_heads": 17,
+    "differences_below_power_4": [
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "returned_remainder_powers": [
+      "5",
+      "4",
+      "4",
+      "4",
+      "4",
+      "5",
+      "4",
+      "4",
+      "4",
+      "4",
+      "4",
+      "4",
+      "4",
+      "4",
+      "5",
+      "4",
+      "Infinity"
+    ],
+    "returned_remainder_log_degrees": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "case_source": "code/ForwardScreen.wl",
+    "scope": "inline case-list execution, not the entire supplied file or all returned remainder orders"
+  },
+  "patch": {
+    "kind": "two literal replacements in a temporary downloaded standalone copy; canonical repo unchanged",
+    "old_anchor_counts": [
+      1,
+      1
+    ],
+    "requests": [
+      {
+        "id": "CV01",
+        "result": "Failure[\"InvalidVariables\",...]"
+      },
+      {
+        "id": "CV08",
+        "head": "GeneralizedSeries",
+        "expression": "y-1/y-1/y^3",
+        "remainder_scale": "y^(-5)"
+      },
+      {
+        "id": "CV03",
+        "result": "Failure[\"InvalidVariables\",...]"
+      },
+      {
+        "id": "CV12",
+        "depth": 1,
+        "result": "Failure[\"InexactInput\",...]"
+      },
+      {
+        "id": "CV10",
+        "head": "GeneralizedSeries",
+        "difference_from_expected": "0",
+        "remainder_scale": "(1+y)^(-2)"
+      }
+    ],
+    "request_count": 5,
+    "validation_scope": "these five public requests only; not a full acceptance suite"
+  },
+  "failed_calls": "Several connection/HTTP-502 calls returned no usable result and are excluded; no result inferred from them.",
+  "first_omitted_marker_term": "Formula in article is independently derived from inspected recurrence; a later native projection attempt failed and adds no native observation."
+}

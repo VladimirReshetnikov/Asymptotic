@@ -1,0 +1,1065 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm,amssymb,mathtools}
+\usepackage{newpxtext,newpxmath}
+\usepackage[margin=25mm,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{booktabs,longtable,array,enumitem}
+\usepackage{xcolor,listings,xurl,hyperref,fancyhdr}
+\definecolor{ink}{HTML}{173044}
+\definecolor{accent}{HTML}{176B72}
+\definecolor{papergray}{HTML}{F3F5F6}
+\hypersetup{colorlinks=true,linkcolor=ink,citecolor=accent,urlcolor=accent,
+ pdftitle={Asymptotic: incremental audit and a uniform Lerch extension},
+ pdfauthor={Independent technical review}}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\textsc{Asymptotic / incremental audit}}
+\fancyhead[R]{\small 10 September 2026}
+\fancyfoot[L]{\small Revision \texttt{efa1aee}}
+\fancyfoot[R]{\thepage}
+\setlength{\parskip}{5pt}\setlength{\parindent}{0pt}
+\setlist{nosep,leftmargin=1.4em}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,
+ keepspaces=true,showstringspaces=false,backgroundcolor=\color{papergray},
+ frame=single,rulecolor=\color{papergray},framesep=5pt,xleftmargin=5pt,xrightmargin=5pt,
+ aboveskip=9pt,belowskip=9pt}
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\makeatletter
+\newcommand{\tableinput}[1]{\@@input #1 }
+\makeatother
+\newcommand{\OO}{\mathcal O}
+\newcommand{\erfc}{\operatorname{erfc}}
+\newcommand{\PhiL}{\Phi}
+\newcommand{\Pm}{P}
+\newcommand{\commit}{\texttt{efa1aeec4845a9c35e140963a0333d0c9ec33b05}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newenvironment{scopebox}{\begin{quote}\small\color{ink}}{\end{quote}}
+\begin{document}
+\begin{titlepage}
+\vspace*{12mm}
+{\color{accent}\Large\textsc{Independent technical review}\par}
+\vspace{12mm}
+{\color{ink}\Huge\bfseries Asymptotic\par}
+\vspace{5mm}
+{\color{ink}\LARGE An incremental audit and a\par uniform Lerch extension\par}
+\vspace{10mm}
+{\Large A reflected-Erfc frontier defect,\par a reproduced unsupported parameter regime,\par and an additive implementation with a signed bound\par}
+\vspace{15mm}
+\rule{\textwidth}{0.6pt}\par
+\vspace{5mm}
+\textbf{Repository}\quad VladimirReshetnikov/Asymptotic\\[4pt]
+\textbf{Reviewed revision}\\[3pt]
+{\small\commit}\\[8pt]
+\textbf{Review date}\quad 10 September 2026\\[6pt]
+\textbf{Targets}\quad Wolfram Language 15 and Mathics3\par
+\vspace{6mm}
+\rule{\textwidth}{0.6pt}\par
+\vfill
+\begin{scopebox}
+\textbf{Evidence boundary.} Targeted execution succeeded in Wolfram Language
+15.0.0. The independent Python suite passed 12 test methods, including 96
+numerical signed-bound subcases. No Mathics execution or complete upstream
+acceptance run was performed. The supplied patch was checked in memory on one
+native reproduction; the distributed integration-test file remains unexecuted.
+\end{scopebox}
+\end{titlepage}
+
+\begingroup
+\small
+\tableofcontents
+\endgroup
+\newpage
+
+\section{Executive assessment}
+
+The principal new defect established in this review is narrow but definite:
+the negative-source \code{Erfc} inverse adapter reflects its finite
+approximation and its displayed terms, but inherits an unreflected, signed
+\code{FrontierTerm}. A consumer that adds that field as the next correction
+moves in the wrong direction. The stored magnitude remainder is not the part
+that needs negation. The minimal repair adds a single reflected field at the
+adapter's object-assembly boundary, preserving an unknown frontier as
+\code{Missing} rather than multiplying it by a sign. Both the original behavior
+and the one-case in-memory repair were observed in Wolfram 15.0.0.
+The responsible canonical source is \code{SpecialFunctionAdapters.wl},
+particularly lines 47--68.\cite{adapters}
+
+A second result is a concrete, conservatively rejected input rather than a
+wrong answer. The current package does not produce an expansion for
+\[
+ \PhiL(e^{-1/x},2,x),\qquad x\longrightarrow+\infty,
+\]
+under the tested explicit package-backend request. It returns
+\code{Failure["UnsupportedNativeCoefficient",...]}.
+This is a parameter-transition problem: the first Lerch parameter approaches
+one while the third grows. The dedicated provider admits a fixed first
+parameter, so simply relaxing its admission guard would not be a sound fix.
+Its fixed-parameter expansion changes asymptotic character in this regime.
+\cite{dirichlet}
+
+The report supplies an additive implementation proposal for that missing
+regime. For fixed $\lambda>0$, $s\geq0$, and integer $K\geq0$, it constructs an
+expansion of $\PhiL(e^{-\lambda/a},s,a)$ with a globally valid, signed
+next-term remainder bound. Its leading term is
+\[
+ a^{1-s}e^\lambda\lambda^{s-1}\Gamma(1-s,\lambda),
+\]
+not the leading term obtained by substituting a moving parameter into the
+fixed-parameter series. The article proves the bound and gives exact-rational
+coefficient generation, a Python evaluator, a Wolfram Language prototype,
+and proposed integration tests. These are companion artifacts, not changes
+already merged into the repository.
+
+\begin{center}
+\begin{tabular}{@{}p{0.09\textwidth}p{0.34\textwidth}p{0.47\textwidth}@{}}
+\toprule
+ID & Classification & Evidence and disposition\\
+\midrule
+F01 & Signed-frontier correctness defect & Reproduced natively; minimal
+in-memory patch checked. Fix before relying on reflected frontiers.\\[5pt]
+G01 & Unsupported parameter regime & One explicit public request reproduced
+as a conservative failure. Not a false expansion.\\[5pt]
+E01 & Proposed solution to G01 & Full analytic derivation, additive code,
+independent exact and numerical tests, and a native coefficient check.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+G01 and E01 are the gap and its proposed solution, not two independent bugs.
+No claim is made that this review has established the absence of other defects.
+In particular, one successful native load is not a Wolfram-wide acceptance
+result, and source-level portability is not a Mathics execution result.
+
+The current review directory already contains a substantial accumulated body
+of analysis: its index organizes 45 retained reports into six waves. This
+report deliberately does not republish that backlog. The conclusions above
+were selected after comparing the maintained indexes and relevant nearby
+ledgers, and after inspecting substantial portions of twenty canonical
+modules. The remainder of this article explains what that evidence does and
+does not establish.\cite{reviewindex}
+
+\section{Revision, method, and evidence discipline}
+
+\subsection{The source snapshot}
+
+The review is tied to \commit, not to a moving \code{main} URL.
+The native probes imported the generated root \code{AsymptoticAnalysis.wl}
+from the commit-pinned raw URL. Canonical-source inspection used the
+corresponding \code{src/Kernel} files through the GitHub connector.
+No repository write, pull request, or external commit was made.
+
+A local clone and local network downloads were unavailable in the working
+container. Consequently, there was no local checkout on which to run a complete
+build or source-wide test command. The connector nevertheless provided the
+source passages used in the analysis, and the native service successfully
+fetched and evaluated the pinned standalone on several calls. Other native
+calls failed at the service or network layer. Those failures are not package
+failures and are excluded from the mathematical conclusions.
+
+The native environment identified itself as
+\begin{quote}\small
+\code{15.0.0 for Linux x86 (64-bit) (May 6, 2026)}.
+\end{quote}
+The local independent tests used Python 3.13.5, SymPy 1.14.0, and mpmath 1.3.0.
+Exact environment details are retained in \code{evidence/environment.json}.
+The repository's own Mathics compatibility document names Mathics3 10.0.1,
+scanner 10.0.1, SymPy 1.14.0, and Python 3.11 as its development configuration;
+that is a statement about the pinned project's documentation, not a new run
+of that environment.\cite{mathicsguide}
+
+\subsection{What was actually executed}
+
+A native load control produced $y-y^2+2y^3$ for the inverse of $x+x^2$ through
+exclusive target cutoff four. The original reflected-Erfc probe returned the
+incorrectly oriented frontier shown in Section~\ref{sec:erfc}. Replacing the
+single object-assembly anchor in the fetched standalone text and rerunning
+that one probe changed only the frontier's sign among the three fields
+observed. The unsupported Lerch transition request was also executed.
+
+For the proposed Lerch model, a fully qualified native coefficient routine
+returned the expected exact terms and bound, and a thirty-digit comparison at
+$a=10$ agreed with the independent implementation. The complete distributed
+\code{UniformLerch.wl} file was not loaded as a file in that service, and the
+complete \code{ReviewProbes.wlt} file was not run. An initial declaration
+attempt suffered a parsing-context error and was discarded; it supplied no
+prototype acceptance evidence.
+
+The local suite executed twelve \code{unittest} methods. These include exact
+rational identities, symbolic coefficient equations, patch-generation guards,
+input validation, and 96 numerical checks of the signed Lerch bound. They are
+\emph{independent companion tests}, not twelve upstream tests and not 96
+native-package acceptance cases.
+
+Native observations in the archive are explicitly labeled manual
+transcriptions of returned values. They are not downloaded machine-verifiable
+service receipts. This distinction matters: a reproducible input and an exact
+reported output are useful evidence, but should not be silently converted into
+a claim about the repository's own acceptance ledger.
+
+\subsection{An exploratory oracle that was rejected}
+
+A twenty-four-expression forward screen considered elementary functions of
+$x+x^n$, $n=2,3,4$. Eighteen integral-power cases produced no low-order
+discrepancy in that screen. Six fractional-power cases yielded invalid oracle
+flags because the comparator substituted $x=t^2$ without establishing $t>0$
+and then attempted polynomial coefficient extraction on expressions whose
+form did not support it. Those flags were discarded.
+
+This is an important limitation, not an upstream defect. The report does not
+count those six flags as wrong package results and does not count the full
+screen as twenty-four passing tests. Diagnostic messages from that exploratory
+call were not independently isolated, so no additional UX finding is made from
+them. The test transcript describes the rejected oracle rather than hiding it.
+
+\subsection{Non-duplication policy}
+
+The exclusion comparison used the root review index, all six wave indexes,
+the central development register and selected nearby original ledgers.
+It was not a word-for-word reading of every historical article and attachment.
+No absolute absence-of-anticipation claim is therefore appropriate. The
+claim-specific distinctions are as follows.\cite{reviewindex,status}
+
+\begin{longtable}{@{}p{0.12\textwidth}p{0.27\textwidth}p{0.52\textwidth}@{}}
+\toprule
+This item & Nearest prior material & Different mechanism or regime\\
+\midrule\endhead
+F01 & Wave 5, report 43, F01 & That item concerns coefficient reconstruction
+through \code{InverseExpansionCoefficient}. Here the Erfc wrapper already
+reflects its approximation correctly, but copies a separate signed field
+without reflection. The coefficient-query path is not involved.\\[7pt]
+G01/E01 & Wave 6, report 49, E1 & The nearby signed Lerch construction concerns
+a fixed geometric parameter. Here $z=e^{-\lambda/a}$ varies with $a$, the
+leading power changes, and a Gamma-moment resummation is required.\\[7pt]
+G01/E01 & Wave 6, reports 50 and 55 & Fixed-parameter moment evaluation and
+provider dispatch/closure are different from this coupled parameter limit.
+The proposal is not to repeat a moment-table optimization or to remove a
+bare-atom restriction.\\
+\bottomrule
+\end{longtable}
+
+The present derivation uses classical identities. ``New'' here refers to the
+concrete review contribution relative to the examined repository material,
+not to a claim of mathematical priority over the literature.
+\cite{review43,review49}
+
+\section{Source inspection and negative results}
+
+The table below is an inspection map, not a list of newly found defects.
+``Selected passages'' means exactly that; in particular, it does not imply
+line-by-line inspection of every branch in the named module. A lack of a new
+finding is not a proof of correctness.
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.32\textwidth}>{\raggedright\arraybackslash}p{0.34\textwidth}>{\raggedright\arraybackslash}p{0.25\textwidth}@{}}
+\toprule
+Canonical source area & Inspected mechanisms & Review outcome\\
+\midrule\endhead
+\nolinkurl{AsymptoticAnalysis.wl} & Public entry points; local coordinates;
+sparse jets; precision arithmetic; inverse regions and coefficients;
+construction; residuals; object assembly & No additional independently
+established defect published.\\[5pt]
+\nolinkurl{SeriesOperations.wl} & Selected representation, composition,
+truncation, differentiation and refinement passages & No new claim about the
+uninspected arithmetic branches.\\[5pt]
+\nolinkurl{SpecialFunctionAdapters.wl} & Erfc, Gamma and threshold construction;
+checks and metadata & F01 isolated to reflected frontier transport.\\[5pt]
+\nolinkurl{DirichletSpecialFunctions.wl} & Fixed-parameter Lerch moments, admission,
+Zeta/Lerch object construction and bounds & G01/E01 concerns a distinct
+coupled limit, not unsoundness of fixed-parameter bounds.\\[5pt]
+\nolinkurl{BarnesForward.wl};\newline
+\nolinkurl{ParameterizedSpecialFunctions.wl};\newline
+\nolinkurl{SpecialFunctionIdentities.wl} & Barnes asymptotic coefficients;
+parameterized Frobenius factors; terminating and half-integer identities &
+Representative formulas checked algebraically; no new counterexample established.\\[5pt]
+\nolinkurl{GammaInverseOperations.wl};\newline
+\nolinkurl{GammaInverseChecks.wl} & Powered observables and selected independent
+residual construction & No new defect established; not exhaustive numerical
+or parameter-domain acceptance.\\[5pt]
+\nolinkurl{CorePerturbation.wl};\newline
+\nolinkurl{LogarithmicScales.wl} & Selected model admission, exact-core identities,
+marker coefficients and logarithmic-unit construction & No additional
+publication-quality counterexample.\\[5pt]
+\nolinkurl{SourceCoordinates.wl};\newline
+\nolinkurl{CoordinateInverse.wl} & Source-chart reconstruction and logarithmic
+target transformations & Inspected chart semantics; no new general
+transformation claim.\\[5pt]
+\nolinkurl{NativeSpecialFunctions.wl} & Selected native tree import, error
+transport and sector admission & The G01 native coefficient failure was traced
+to an unexpanded moving-parameter coefficient.\\[5pt]
+\nolinkurl{MathicsCalls.wl};\newline
+\nolinkurl{MathicsAlgebra.wl};\newline
+\nolinkurl{MathicsAssumptions.wl} & Selected held extraction, algebraic adapters,
+realness and sign reasoning & Source review only; no Mathics execution claim.\\[5pt]
+\nolinkurl{MathicsSimplification.wl};\newline
+\nolinkurl{MathicsCalculus.wl};\newline
+\nolinkurl{MathicsSpecialFunctions.wl} & Simplification/limit adapters,
+finite derivative tables and Stirling fallback & No additional new defect
+established in the passages inspected.\\
+\bottomrule
+\end{longtable}
+
+Several candidate concerns did not survive inspection. For example, the
+ordinary inverse constructor explicitly rejects a relative cutoff that does
+not exceed its leading observable exponent; an empty multi-index region at
+such a cutoff is not a valid public counterexample. The precise guard occurs
+in the construction path before region enumeration. Likewise, ordinary
+truncation is routed through a derived series representation rather than
+silently preserving an arbitrary inverse-model interpretation.
+These are observations about the current source, not recommendations to
+repair already guarded behavior.\cite{core,seriesops}
+
+The checked special-function formulas also supplied useful controls. The
+Barnes logarithm uses the expected Bernoulli coefficient pattern, and the
+inspected terminating hypergeometric and half-integer Bessel identities did
+not yield a separate error after accounting for their admission conditions.
+This review therefore does not turn ``complicated code'' into a defect claim.
+\cite{barnes,identities,parameterized}
+
+\section{F01: the reflected Erfc frontier has the wrong sign}
+\label{sec:erfc}
+
+\subsection{Minimal public reproduction}
+
+After loading the pinned standalone in Wolfram 15.0.0, evaluate:
+\begin{lstlisting}
+s = AsymptoticAnalysis`AsymptoticSpecialInverse[
+  "Erfc", {x, -Infinity}, {y, 1}];
+{Normal[s], s["FrontierTerm"], s["RemainderPower"]}
+\end{lstlisting}
+Put
+\[
+ v=-\log\bigl(\sqrt\pi(2-y)\bigr),\qquad L=\log v.
+\]
+The three returned values, with only this editorial abbreviation, are
+\begin{align}
+ g_-(y)&=-\sqrt v+\frac{L}{4\sqrt v},\label{eq:negative-kept}\\
+ F_{\rm stored}(y)&=\frac{B(L)}{v^{3/2}},\qquad
+ B(L)=-\frac14+\frac L8-\frac{L^2}{32},\label{eq:stored}\\
+ \rho&=\frac32.
+\end{align}
+The finite approximation is correctly reflected. The signed frontier is not.
+Notice the identity
+\[
+ B(L)=-\frac{(L-2)^2+4}{32}<0\qquad(L\in\mathbb R).
+\]
+Thus this is not merely an ambiguity at a coefficient zero.
+
+\subsection{Independent derivation of the correction}
+
+For the positive inverse branch, let $z>0$ and define
+$v=-\log(\sqrt\pi\,\erfc z)$. The standard positive-real Erfc asymptotic
+expansion implies
+\begin{equation}
+ v=z^2+\log z+\frac{1}{2z^2}+\OO(z^{-4}).
+ \label{eq:erfc-phase}
+\end{equation}
+The source of this relation is the expansion of the original special
+function, not the package's stored frontier.\cite{erfcasymptotic}
+
+Substitute
+\[
+ z=\sqrt v+\frac{A(L)}{\sqrt v}
+       +\frac{B(L)}{v^{3/2}}
+       +\OO\!\left(\frac{(1+L)^3}{v^{5/2}}\right).
+\]
+Equating the constant and $v^{-1}$ terms in \eqref{eq:erfc-phase} gives
+\[
+ 2A+\frac L2=0,\qquad
+ A^2+2B+A+\frac12=0.
+\]
+Consequently
+\[
+ A=-\frac L4,\qquad
+ B=-\frac14+\frac L8-\frac{L^2}{32}.
+\]
+These two coefficient equations are checked independently in
+\code{test_review.py} using exact symbolic arithmetic.
+
+The reflection identity $\erfc(-z)=2-\erfc(z)$ now determines the negative
+inverse branch without a second inversion calculation.\cite{erfcsymmetry}
+It has expansion
+\begin{equation}
+ \erfc^{-1}(y)
+ =-\sqrt v+\frac{L}{4\sqrt v}
+  -\frac{B(L)}{v^{3/2}}
+  +\OO\!\left(\frac{(1+L)^3}{v^{5/2}}\right),
+ \qquad y\to2^-.
+ \label{eq:correct-negative}
+\end{equation}
+The correct signed next block is therefore $-B(L)v^{-3/2}$, the negative of
+the stored field in \eqref{eq:stored}.
+
+This derivation also explains the practical impact. If a consumer adds the
+stored frontier to \eqref{eq:negative-kept}, the new error is asymptotic to
+$-2B(L)v^{-3/2}$ instead of $-B(L)v^{-3/2}$. The leading error is approximately
+doubled. Adding the corrected frontier eliminates that block.
+
+\subsection{Root cause and affected contract}
+
+In the canonical adapter, \code{sign} is $1$ at positive source infinity and
+$-1$ at negative source infinity. The code multiplies the finite expression
+and the \code{Terms} coefficients by that sign. It also reflects the stored
+series representation's prefactor and offset. It then joins the original
+\code{innerData} association with the adapter-specific replacement fields.
+\code{FrontierTerm} is not among those replacements, so the inner positive
+source's signed frontier survives.\cite{adapters}
+
+The relevant boundary is not the Lagrange coefficient recurrence and not
+\code{InverseExpansionCoefficient}. It is the adapter's copying and replacing
+of fields after the positive-tail inversion has already succeeded. This is
+why the smallest repair belongs at object assembly.
+
+The \code{Remainder} and \code{RemainderScaleExpression} fields describe
+magnitude scales. Their lack of a negative sign is correct; reflecting a
+source value does not make an absolute error bound negative. The repair must
+not indiscriminately multiply every inherited field by \code{sign}.
+Similarly, a missing frontier is absence of coefficient information, not a
+symbolic coefficient to be negated.
+
+The concrete reproduction uses the default model order and cutoff one, where
+the displayed next coefficient is available. No broader claim is made here
+that every model-limited frontier is an exact next coefficient of the original
+special function. The sign error is established in a case where the
+independent original-function calculation supplies that coefficient.
+
+\subsection{Minimal patch}
+
+The supplied patch inserts the following field immediately after the Erfc
+adapter's expression and terms:
+\begin{lstlisting}
+"FrontierTerm" -> If[MissingQ[innerData["FrontierTerm"]],
+  innerData["FrontierTerm"], sign innerData["FrontierTerm"]],
+\end{lstlisting}
+The positive-source case is unchanged. A numerical or symbolic signed block
+is reflected at negative source infinity; \code{Missing[...]} is preserved.
+The guard is intentionally local and does not introduce a new metadata schema.
+
+The native in-memory test first required the old assembly anchor to occur
+exactly once. After insertion, the same public probe returned the same finite
+expression and remainder power, with $-B(L)v^{-3/2}$ as its frontier.
+This is targeted validation of the proposed mechanism. It is not a claim that
+the canonical modular source was rebuilt into a standalone and then accepted
+by every upstream test.
+
+\subsection{Independent numerical evidence}
+
+The following table solves the original positive-tail equation at ninety
+working decimal digits and reflects the resulting root. It avoids subtracting
+a tiny tail from two by using $v$ directly in
+$\log(\erfc z)+v+\tfrac12\log\pi=0$.
+Let $e=\erfc^{-1}(y)-g_-(y)$ and $F=B(L)v^{-3/2}$.
+The last two columns compare the errors after adding the stored or corrected
+frontier, respectively.
+
+\begin{center}
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+$v$ & $e/(-F)$ & $|e-F|/|e|$ & $|e+F|/|e|$\\
+\midrule
+\tableinput{erfc-table.tex}
+\bottomrule
+\end{tabular}
+\end{center}
+
+The second column approaches one, the incorrect correction approaches a
+factor-two worsening, and the corrected correction removes the leading error.
+These numerical values corroborate the exact coefficient derivation; they do
+not replace it with an interval certificate.
+
+\subsection{Integration acceptance for F01}
+
+The proposed \code{ReviewProbes.wlt} includes the negative-source witness, an
+unchanged positive-source control, preservation of the approximation and
+remainder power, and a reflected case with an affine target transformation.
+For the general target equation
+\[
+ y=\alpha+\beta\,\erfc(x),\qquad \beta\ne0,
+\]
+source reflection corresponds to $y\mapsto2\alpha+2\beta-y$. The signed
+frontier must transform with the same source sign as the finite approximation,
+regardless of the sign of $\beta$.
+
+The remaining acceptance work is specific: apply the canonical-source patch,
+regenerate the standalone using the repository's existing builder, and run
+those proposed cases in both layouts and both target engines. This report
+supplies the cases but does not report those unperformed runs as passing.
+
+\section{G01: a coupled Lerch limit is conservatively unsupported}
+
+\subsection{The reproduced request}
+
+The following request was executed against the same native-loaded revision:
+\begin{lstlisting}
+AsymptoticAnalysis`AsymptoticExpansion[
+ LerchPhi[Exp[-1/x], 2, x], {x, Infinity, 4},
+ "Backend" -> "Package"]
+\end{lstlisting}
+It returned \code{UnsupportedNativeCoefficient}, with an unexpanded
+\code{LerchPhi[Exp[-u],2,1/u]} coefficient in the positive local coordinate.
+The exact fresh symbol name is immaterial. The native importer does not
+admit that amplitude as a polynomial-logarithmic coefficient.
+
+The dedicated Lerch path is designed for a fixed first parameter $z$ and fixed
+$s$, with the large third argument as the varying quantity. Its admission
+restriction is appropriate for the theorem it uses. The reproduced failure
+therefore identifies a useful unsupported regime, not a reason to weaken that
+restriction.\cite{dirichlet,nativeimport}
+
+\subsection{Why the existing fixed-parameter series cannot just be reused}
+
+For fixed $|z|<1$, expansion of $(a+n)^{-s}$ gives coefficients involving
+\[
+ M_j(z)=\sum_{n=0}^{\infty}n^jz^n.
+\]
+When $z=e^{-\lambda/a}$ with fixed $\lambda>0$, these moments grow as
+$a^{j+1}$ times constants depending on $\lambda$. The nominal term
+$a^{-s-j}M_j(z)$ is consequently of order $a^{1-s}$ for every fixed $j$.
+Terms that were an ordered asymptotic hierarchy at fixed $z$ now contribute
+at the same leading scale. This is a change of regime, not an inadequate
+truncation cutoff.
+
+Even the first term demonstrates the problem. At $\lambda=1,s=2$, the
+fixed-$z$ leading expression after substitution is
+\[
+ \frac{a^{-2}}{1-e^{-1/a}}\sim\frac1a.
+\]
+The correct coefficient of $a^{-1}$ is instead
+\[
+ J_2(1)=\int_0^\infty\frac{e^{-t}}{(1+t)^2}\,dt
+       =e\Gamma(-1,1)\approx0.4036526377.
+\]
+Thus extending the guard while retaining the old finite formula would give
+an incorrect leading coefficient. A new provider must sum this moving
+parameter's leading contribution before generating corrections.
+
+The next section does exactly that. It does not change the existing fixed-$z$
+provider or reinterpret its parameter-only assumptions as uniformity claims.
+
+\section{E01: a uniform expansion with a signed next-term bound}
+\label{sec:uniform}
+
+\subsection{Definitions and result}
+
+For $a>0$, $\lambda>0$, and $s\geq0$, define
+\[
+ F(a;\lambda,s)=\PhiL(e^{-\lambda/a},s,a)
+ =\sum_{n=0}^{\infty}\frac{e^{-\lambda n/a}}{(a+n)^s}.
+\]
+The defining sum and the standard integral representation of Lerch's
+transcendent provide the starting point.\cite{lerch}
+Let
+\begin{align}
+ J_s(\lambda)&=\int_0^\infty e^{-\lambda t}(1+t)^{-s}\,dt
+ =e^\lambda\lambda^{s-1}\Gamma(1-s,\lambda),\label{eq:J}\\
+ P_m(\lambda,s)&=\sum_{j=0}^m\binom mj\lambda^{m-j}(s)_j,
+ \qquad P_0=1,\label{eq:P}
+\end{align}
+where $(s)_j$ is the rising factorial. At $s=0$, \eqref{eq:J} equals
+$1/\lambda$ and $P_m(\lambda,0)=\lambda^m$.
+For $K\geq0$, set
+\begin{equation}
+ S_K(a)=a^{1-s}J_s(\lambda)+\frac12a^{-s}
+ +\sum_{k=1}^K\frac{B_{2k}}{(2k)!}
+       P_{2k-1}(\lambda,s)a^{-s-2k+1}.
+ \label{eq:SK}
+\end{equation}
+An empty sum is intended when $K=0$.
+
+\begin{theorem}[Signed, globally valid remainder bound]
+\label{thm:bound}
+For every $a>0$, $\lambda>0$, $s\geq0$, and integer $K\geq0$,
+\begin{equation}
+ 0\leq(-1)^K\bigl(F(a;\lambda,s)-S_K(a)\bigr)
+ \leq C_K(\lambda,s)a^{-s-2K-1},
+ \label{eq:bound}
+\end{equation}
+where
+\begin{equation}
+ C_K(\lambda,s)=\frac{|B_{2K+2}|}{(2K+2)!}
+                P_{2K+1}(\lambda,s).
+ \label{eq:boundconstant}
+\end{equation}
+In particular, the remainder has the sign of the first omitted Bernoulli
+term and is bounded in magnitude by that term.
+\end{theorem}
+
+This is an exact-expression theorem. Computing its endpoints in ordinary
+floating-point arithmetic does not by itself produce outward-rounded
+numerical intervals. The supplied prototype makes that distinction explicit.
+
+\subsection{A scalar kernel inequality}
+
+The proof can be reduced to an elementary positive-kernel remainder. Put
+\[
+ H(v)=\frac1{1-e^{-v}},\qquad v>0.
+\]
+The classical partial fraction expansion of the hyperbolic cotangent gives
+\begin{equation}
+ H(v)=\frac1v+\frac12+
+       2v\sum_{n=1}^{\infty}\frac1{(2\pi n)^2+v^2}.
+ \label{eq:kernel}
+\end{equation}
+This follows from $H(v)=\tfrac12+\tfrac12\coth(v/2)$ and the standard
+cotangent/cotangent-hyperbolic partial fractions.\cite{coth}
+
+\begin{lemma}
+For $v>0$ and integer $K\geq0$,
+\[
+ H(v)=\frac1v+\frac12+
+       \sum_{k=1}^{K}\frac{B_{2k}}{(2k)!}v^{2k-1}+r_K(v),
+\]
+with
+\[
+ 0\leq(-1)^K r_K(v)
+ \leq\frac{|B_{2K+2}|}{(2K+2)!}v^{2K+1}.
+\]
+\end{lemma}
+
+\begin{proof}
+For $b>0$, the finite geometric identity gives
+\[
+ \frac1{b^2+v^2}
+ =\sum_{j=0}^{K-1}\frac{(-1)^jv^{2j}}{b^{2j+2}}
+  +\frac{(-1)^Kv^{2K}}{b^{2K}(b^2+v^2)}.
+\]
+There is no requirement that $v/b<1$: the identity is finite, and its
+remainder is exact. Substitution into \eqref{eq:kernel} yields
+\[
+ r_K(v)=2(-1)^Kv^{2K+1}
+ \sum_{n=1}^{\infty}
+ \frac1{(2\pi n)^{2K}\bigl((2\pi n)^2+v^2\bigr)}.
+\]
+The summands are positive. Replacing the final denominator by $(2\pi n)^2$
+bounds its magnitude by
+\[
+ \frac{2\zeta(2K+2)}{(2\pi)^{2K+2}}v^{2K+1}
+ =\frac{|B_{2K+2}|}{(2K+2)!}v^{2K+1}.
+\]
+The same even-zeta identity identifies the finite coefficients with the
+Bernoulli coefficients in the statement.\cite{bernoulli}
+\end{proof}
+
+The proof is valuable computationally because it avoids estimating a large
+number of tail terms independently. The sign and the first-neglected-term
+bound come from a positive denominator and survive subsequent integration.
+
+\subsection{Proof of the Lerch theorem}
+
+\begin{proof}[Proof of Theorem~\ref{thm:bound}]
+First assume $s>0$. The Gamma integral for $(a+n)^{-s}$ and positivity permit
+interchange of summation and integration. After the change of variable
+$r=at$, the Lerch integral becomes
+\begin{equation}
+ F(a;\lambda,s)=\frac{a^{-s}}{\Gamma(s)}
+ \int_0^\infty r^{s-1}e^{-r}
+ H\!\left(\frac{r+\lambda}{a}\right)\,dr.
+ \label{eq:gammaaverage}
+\end{equation}
+Thus the varying geometric parameter has become a shift by $\lambda$ inside
+a scalar kernel averaged against a positive Gamma weight.
+
+The $1/v$ term in the kernel contributes
+\[
+ \frac{a^{1-s}}{\Gamma(s)}
+ \int_0^\infty\frac{r^{s-1}e^{-r}}{r+\lambda}\,dr
+ =a^{1-s}J_s(\lambda).
+\]
+For example, the equality with the integral in \eqref{eq:J} follows by writing
+$(r+\lambda)^{-1}=\int_0^\infty e^{-(r+\lambda)t}\,dt$ and interchanging the
+positive integrals. The substitution $u=\lambda(1+t)$ then gives the incomplete
+Gamma representation in \eqref{eq:J}.
+
+For each nonnegative integer $m$, the remaining polynomial moments satisfy
+\[
+ \frac1{\Gamma(s)}\int_0^\infty r^{s-1}e^{-r}(r+\lambda)^m\,dr
+ =\sum_{j=0}^m\binom mj\lambda^{m-j}\frac{\Gamma(s+j)}{\Gamma(s)}
+ =P_m(\lambda,s).
+\]
+The finite kernel terms therefore give exactly \eqref{eq:SK}. Its remainder
+has sign $(-1)^K$ because the averaging weight is positive. Averaging the
+scalar upper bound yields precisely \eqref{eq:boundconstant} times
+$a^{-s-2K-1}$.
+
+At $s=0$, the defining sum is geometric:
+$F(a;\lambda,0)=H(\lambda/a)$. The scalar lemma gives the statement directly,
+with $J_0(\lambda)=1/\lambda$ and $P_m(\lambda,0)=\lambda^m$.
+No singular Gamma density at $s=0$ needs to be manipulated.
+\end{proof}
+
+\subsection{Uniformity and boundary checks}
+
+For fixed $K$, the bound is uniform when $\lambda$ lies in a compact positive
+interval and $s$ lies in a compact subset of $[0,\infty)$. Indeed,
+$P_{2K+1}(\lambda,s)$ is continuous and bounded on such a parameter set.
+The positive leading integral has a uniform lower bound, for example by
+restricting its defining integral to $0\leq t\leq1$. Consequently the relative
+remainder after the terms in \eqref{eq:SK} is uniformly
+$\OO(a^{-2K-2})$ on that compact set.
+
+The theorem's absolute inequality holds for every positive $a$ and
+$\lambda$, but that does not imply a useful small relative error when
+$\lambda$ itself grows on the scale of $a$. This is why automatic dispatch
+must recognize a fixed transition parameter rather than merely detect an
+exponential expression in the first argument.
+
+There are two useful exact consistency checks. At $s=0$, the formula reduces
+to the Bernoulli expansion of the elementary geometric denominator. As
+$\lambda\downarrow0$ with $s>1$, $J_s(\lambda)$ tends to $1/(s-1)$ and
+$P_m(0,s)=(s)_m$, recovering the familiar large-$a$ Hurwitz-zeta coefficient
+pattern. For $s\leq1$, that leading integral diverges at $\lambda=0$, so the
+prototype deliberately retains the strict restriction $\lambda>0$.
+The boundary comparison is a consistency check, not an additional implemented
+provider claim.
+
+\subsection{A fully explicit example}
+
+For $\lambda=1$ and $s=2$, the first relevant moments are
+\[
+ P_1(1,2)=3,\quad P_3(1,2)=49,\quad P_5(1,2)=1631.
+\]
+With $K=2$,
+\begin{equation}
+ S_2(a)=\frac{e\Gamma(-1,1)}a+\frac1{2a^2}
+             +\frac1{4a^3}-\frac{49}{720a^5},
+ \label{eq:example}
+\end{equation}
+ and
+\begin{equation}
+ 0\leq\PhiL(e^{-1/a},2,a)-S_2(a)
+ \leq\frac{233}{4320a^7}.
+ \label{eq:example-bound}
+\end{equation}
+The coefficient $233/4320$ is $1631/30240$ in reduced form.
+The native coefficient routine returned exactly these coefficients and this
+bound. At $a=10$, its numerical ratio of error to upper bound was
+\[
+ 0.985632727002140196667077137474\ldots,
+\]
+consistent with the independently computed table below.
+
+\begin{center}
+\small
+\begin{tabular}{@{}rrlll@{}}
+\toprule
+$a$ & $K$ & $F-S_K$ & Analytic bound $C_Ka^{-s-2K-1}$ & $(-1)^K(F-S_K)/\text{bound}$\\
+\midrule
+\tableinput{lerch-table.tex}
+\bottomrule
+\end{tabular}
+\end{center}
+
+These are ninety-digit numerical comparisons subsequently rounded for display.
+The proof supplies the mathematical inequality; the displayed floating-point
+values are not outward-rounded certificates.
+
+\section{Implementation and performance implications}
+
+\subsection{The additive interface}
+
+The Wolfram companion exposes
+\begin{lstlisting}
+AsymptoticAudit`UniformLerchModel[lambda, s, a, K]
+\end{lstlisting}
+in its own context. It returns a plain association containing the expression,
+terms in the coordinate $1/a$, the signed first omitted term, upper and lower
+remainder bounds, and validity conditions. It does not install a new definition
+on \code{LerchPhi}, mutate \code{System`} symbols, or pretend to be an already
+integrated \code{GeneralizedSeries} backend.
+
+The prototype accepts positive rational $\lambda$, nonnegative rational $s$,
+an unset nonnumeric coordinate symbol, and $0\leq K\leq64$. These are deliberate
+implementation limits, not limits of Theorem~\ref{thm:bound}. Exact-rational
+parameters make positivity and coefficient generation transparent across
+engines without invoking a broad assumption prover. The theorem itself admits
+arbitrary real parameters in its stated range.
+
+The Python companion makes the same rational-parameter restriction and rejects
+floating-point inputs rather than silently claiming an exact parameter theorem
+for rounded data. It keeps exact coefficient generation separate from mpmath
+evaluation. Both companions explicitly deny an outward-rounded numerical
+certificate in their result metadata.
+
+\subsection{Coefficient construction}
+
+Equation~\eqref{eq:P} gives a finite nonnegative sum for every moment in the
+admitted parameter range. This is the reference algorithm used by the
+prototype. It is straightforward to test against the recurrence
+\begin{equation}
+ P_{m+1}=(\lambda+s+m)P_m-\lambda mP_{m-1},\qquad
+ P_0=1,\quad P_1=\lambda+s.
+ \label{eq:recurrence}
+\end{equation}
+To derive it, differentiate the moment-generating function
+$e^{\lambda t}(1-t)^{-s}$, multiply by $1-t$, and compare coefficients.
+The exact independent tests compare the finite sum and recurrence for twelve
+rational parameter pairs through degree ten.
+
+For exact arithmetic the recurrence can reduce repeated construction work.
+For floating-point arithmetic its subtraction can be undesirable, especially
+near $s=0$, where substantial cancellation can leave a simple $\lambda^{m+1}$.
+The positive finite sum is therefore retained as the numerical reference
+rather than replaced by a recurrence solely because it has fewer arithmetic
+operations. A future integrated implementation can choose between them using
+measured coefficient size and working-precision behavior.
+
+\subsection{Work as the large parameter grows}
+
+Generating all required moments by finite sums takes quadratically many scalar
+arithmetic steps in $K$, apart from integer/rational bit complexity. Evaluation
+of the resulting correction polynomial uses $O(K)$ terms and one leading
+integral or incomplete-Gamma value. Increasing $a$ does not increase the
+number of coefficients at a fixed $K$.
+
+This is the concrete performance opportunity: the coupled regime need not be
+handled by summing a geometric tail whose effective length grows with $a$, or
+by repeatedly computing fixed-$z$ moments that all contribute at the same
+leading order. It is not an empirical claim that the current package is slower
+by a measured factor. No benchmark of the upstream package against the new
+prototype was run.
+
+A useful implementation should also separate coefficient caching from numerical
+lead-term evaluation. The cache key for the polynomial data is
+$(\lambda,s,K)$ with exact parameter semantics; the large coordinate $a$ is not
+part of that data. The prototype bounds its supported order and does not claim
+to be a general resource sandbox for enormous rational inputs.
+
+\subsection{Numerical stability of the leading term}
+
+The symbolic representation $e^\lambda\lambda^{s-1}\Gamma(1-s,\lambda)$ is
+compact and exact. Its factorization can be numerically awkward for large
+$\lambda$ because separately large and small factors compensate.
+The equivalent positive integral in \eqref{eq:J} is a useful independent
+reference. For small $\lambda$, behavior near $s=1$ must also be handled
+without claiming uniformity at a singular endpoint that the theorem excludes.
+
+The present Python evaluator uses arbitrary-precision incomplete Gamma
+arithmetic and does not certify the rounding error of that evaluation.
+A production numerical enclosure would additionally need a rigorously bounded
+value of $J_s(\lambda)$ and outward-rounded evaluation of the finite terms.
+That is a distinct deliverable from the analytic tail bound already proved
+here. The result's \code{interval_certificate} and \code{OutwardRounded} fields
+remain false for precisely this reason.
+
+\subsection{A bounded integration path}
+
+The first integration step should be an explicit transition provider whose
+input states that $\lambda$ and $s$ are fixed. It should preserve the existing
+fixed-$z$ admission guard. Once a dedicated test matrix passes, the outer
+dispatcher may recognize an exact expression of the form
+\code{LerchPhi[Exp[-lambda/a],s,a]} with proved fixed parameters.
+An arbitrary expression in the first argument is not sufficient evidence of
+this regime.
+
+Mapping the companion association into \code{GeneralizedSeries} requires a
+recorded positive scale $1/a$, the leading coefficient $J_s(\lambda)$, the
+source function with its fixed-parameter contract, and the signed analytic
+bound. It must not automatically acquire an all-orders derivative permission
+merely because its magnitude tail is known. No such permission is installed
+by the companion code.
+
+The explicit $K$ interface is intentionally separate from a request for a
+number of nonzero exponent blocks: the Bernoulli pattern omits many powers.
+An integrated term-goal interface must count actual retained blocks rather
+than silently identify $K$ with a generic power cutoff. This recommendation
+is confined to the new provider's API design.
+
+\section{Wolfram 15 and Mathics3 assessment}
+
+The observed Wolfram result establishes that the pinned generated standalone
+loads and executes the particular requests recorded in the evidence file.
+It does not establish that every advertised feature works under version 15.
+The native built-in asymptotic facility provides a useful reference interface,
+but its availability is not evidence that a package's explicit analytic
+contract, branch record, or copied metadata is correct.\cite{wolframasymptotic}
+
+The pinned Mathics document explicitly describes complete compatibility as a
+project goal that has not yet been achieved. It distinguishes selected loading
+and acceptance milestones from comprehensive public-operation coverage.
+This review adopts that evidence distinction rather than overriding it with a
+new compatibility label.\cite{mathicsguide}
+
+For F01, the defect is in common adapter object assembly. Nothing in the
+inspected \code{MathicsSpecialFunctions.wl} fallback repairs that field; that
+module adds a large-positive LogGamma path instead. However, the original
+Erfc reproduction must still be run in Mathics before asserting its observed
+end-to-end manifestation there. Source sharing identifies where to test; it
+does not make an unperformed execution happen.\cite{mathicsspecial}
+
+The E01 companion avoids relying on a native joint Lerch asymptotic expansion.
+Its coefficient path uses finite integer loops, exact rational arithmetic,
+Bernoulli numbers, binomial coefficients and rising factorials. Its leading
+incomplete-Gamma expression may remain symbolic in an engine without the
+needed numerical support; that is acceptable for an exact symbolic model but
+not for a claimed numerical enclosure. The distributed WL file and proposed
+WLT cases remain Mathics-unverified.
+
+The native and Mathics acceptance work should therefore be reported in three
+separate categories: coefficient/formula construction, successful evaluation
+of required special-function constants, and validated numerical or interval
+comparison with the original function. Combining these into one ``works'' flag
+would obscure the new provider's actual capabilities. This is an acceptance
+plan for E01, not a reclassification of the existing repository-wide ledger.
+
+\section{Priorities and concrete deliverables}
+
+The immediate change is F01's local field replacement. It is small enough to
+review directly and targets a reproduced contract violation. The acceptance
+criterion is reflection covariance of the signed frontier together with
+unchanged finite approximation and magnitude remainder. The prepared patch
+and the proposed integration cases are in the archive.
+
+The next development item is G01/E01: add the transition expansion as an
+explicit provider, initially within the theorem's positive-parameter range.
+The delivered theorem, exact coefficients, signed bound and independent tests
+supply more than a request to ``support more special functions.'' They define
+a particular admissible input family and a concrete mathematical contract.
+
+Only after that provider is accepted should automatic recognition of the
+moving-parameter pattern be enabled. Recognition must establish fixed
+$\lambda$ and $s$; its success must not relax the original provider's
+fixed-parameter assumptions. Numerical interval certification, broader
+parameter ranges and optimized moment evaluation are separate follow-on
+milestones with separate acceptance requirements.
+
+No additional high-severity defect is asserted on the basis of the source
+areas where this review did not establish one. The practical conclusion is
+therefore deliberately specific: repair the reflected signed frontier, retain
+conservative failure for the unsupported transition until its provider exists,
+and evaluate the supplied transition implementation under the two target
+engines without promoting independent tests into upstream acceptance evidence.
+
+\appendix
+\section{Artifact inventory and reproduction}
+
+\begin{longtable}{@{}p{0.42\textwidth}p{0.49\textwidth}@{}}
+\toprule
+Artifact & Purpose\\
+\midrule\endhead
+\nolinkurl{article/article.tex}, \nolinkurl{article/article.pdf} & Editable report
+and compiled article.\\[4pt]
+\nolinkurl{patches/erfc-frontier.patch} & Minimal canonical-source F01 insertion.\\[4pt]
+\nolinkurl{code/prepare_erfc_patch.py} & Emit a diff after checking one exact
+assembly anchor; does not modify a checkout or verify its revision.\\[4pt]
+\nolinkurl{code/uniform_lerch.py} & Exact-rational model generator and clearly
+non-interval numerical evaluator.\\[4pt]
+\nolinkurl{code/UniformLerch.wl} & Additive Wolfram Language prototype in a
+separate context; no upstream definitions replaced.\\[4pt]
+\nolinkurl{code/ReviewProbes.wlt} & Proposed integration tests. Complete file
+not executed in this review.\\[4pt]
+\nolinkurl{code/test_review.py} & Twelve independent test methods, including
+96 numerical signed-bound subcases.\\[4pt]
+\nolinkurl{code/make_tables.py} & Regenerate the independent numerical tables.\\[4pt]
+\nolinkurl{evidence/native-observations.md} & Native inputs, transcribed outputs,
+and explicit rejected/incomplete execution scope.\\[4pt]
+\nolinkurl{evidence/novelty-ledger.csv} & Claim-specific non-overlap rationale.\\[4pt]
+\nolinkurl{evidence/environment.json} & Observed local environment and major
+unperformed validation steps.\\
+\bottomrule
+\end{longtable}
+
+From the archive root, the independent checks and an example evaluation are:
+\begin{lstlisting}
+python -m pip install -r code/requirements.txt
+python code/test_review.py
+python code/make_tables.py
+python code/uniform_lerch.py --lambda 1 --s 2 --order 2 --a 10 --dps 80
+\end{lstlisting}
+The actual execution transcript is retained; rerunning the commands does not
+turn these into native or Mathics upstream tests.
+
+To prepare a patch against a local checkout:
+\begin{lstlisting}
+python code/prepare_erfc_patch.py /path/to/Asymptotic > erfc-frontier.patch
+\end{lstlisting}
+The generator refuses a missing, duplicated or already-patched anchor. It is
+an exact-fragment guard, not a source-integrity verifier. After reviewing and
+applying the canonical change, use the repository's existing standalone builder
+and test runners rather than editing only the generated root file.
+
+The PDF can be rebuilt from \code{article/} with three ordinary
+\code{pdflatex -interaction=nonstopmode -halt-on-error article.tex} runs.
+The numerical-table inputs are included. No checksum files or font files are
+part of the distribution.
+
+\section{The independent test matrix}
+
+The twelve method names in \code{evidence/independent-tests.txt} correspond to
+separate categories, not a hidden claim of comprehensive package testing.
+The exact checks verify Bernoulli constants against an independent CAS,
+Gamma-moment recurrence identities, the finite geometric-remainder identity,
+the explicit example's coefficients, the $s=0$ limit, and the Erfc coefficient
+equations. Guard tests cover the patch generator and companion input contract.
+
+The 96 numerical signed-bound subcases use
+\[
+ \lambda\in\{1/3,1,3\},\quad
+ s\in\{0,1,2,3/2\},\quad
+ a\in\{10,50\},\quad K\in\{0,1,2,3\}.
+\]
+Each checks the numerical ratio in \eqref{eq:bound}, with a very small tolerance
+for numerical evaluation. The proof, not those samples, establishes the
+inequality outside the grid. Four independent original-Erfc root comparisons
+check the wrong-versus-correct correction behavior. A final numerical control
+shows that the fixed-$z$ first term has the wrong leading coefficient after
+substitution onto the transition curve.
+
+The full proposed WLT integration file, negative-scale affine Erfc control,
+Mathics execution, modular-layout execution, and rebuilt standalone acceptance
+remain work to perform. These omissions are stated in the article and in the
+archive README so that the delivered files cannot reasonably be mistaken for
+a completed cross-engine acceptance release.
+
+\begin{thebibliography}{99}
+\small
+\bibitem{reviewindex} Vladimir Reshetnikov, \emph{Asymptotic code-review index},
+reviewed revision \texttt{efa1aee}, including the six linked wave indexes.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/tree/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review}.
+\bibitem{status} \emph{Code review status}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/docs/development/CODE_REVIEW_STATUS.md}.
+\bibitem{adapters} \emph{SpecialFunctionAdapters.wl}, especially Erfc construction,
+lines 20--87 and assembly lines 47--68, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/SpecialFunctionAdapters.wl}.
+\bibitem{dirichlet} \emph{DirichletSpecialFunctions.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/DirichletSpecialFunctions.wl}.
+\bibitem{core} \emph{Canonical AsymptoticAnalysis.wl}, same revision;
+relative-cutoff validation in the inverse constructor.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/AsymptoticAnalysis.wl}.
+\bibitem{seriesops} \emph{SeriesOperations.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/SeriesOperations.wl}.
+\bibitem{barnes} \emph{BarnesForward.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/BarnesForward.wl}.
+\bibitem{identities} \emph{SpecialFunctionIdentities.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/SpecialFunctionIdentities.wl}.
+\bibitem{parameterized} \emph{ParameterizedSpecialFunctions.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/ParameterizedSpecialFunctions.wl}.
+\bibitem{nativeimport} \emph{NativeSpecialFunctions.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/NativeSpecialFunctions.wl}.
+\bibitem{mathicsguide} \emph{Running AsymptoticAnalysis in Mathics3}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/docs/Mathics/COMPATIBILITY.md}.
+\bibitem{mathicsspecial} \emph{MathicsSpecialFunctions.wl}, same revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/MathicsSpecialFunctions.wl}.
+\bibitem{review43} \emph{Code review 43: focused source-review deltas}, README and
+claim-specific scope, retained in wave 5 at the reviewed revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/wave-5/code-review-43/README.md}.
+\bibitem{review49} \emph{Code review 49: mechanism-level novelty crosswalk},
+retained in wave 6 at the reviewed revision.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/wave-6/code-review-49/evidence/novelty_crosswalk.md}.
+\bibitem{erfcsymmetry} NIST Digital Library of Mathematical Functions,
+\S7.4, especially equation 7.4.2, Erfc reflection.
+\url{https://dlmf.nist.gov/7.4.E2}.
+\bibitem{erfcasymptotic} NIST DLMF, \S7.12(i), positive-real Erfc asymptotics.
+\url{https://dlmf.nist.gov/7.12.i}.
+\bibitem{lerch} NIST DLMF, \S25.14, especially equations 25.14.1 and 25.14.5,
+defining series and integral representation of Lerch's transcendent.
+\url{https://dlmf.nist.gov/25.14}.
+\bibitem{coth} NIST DLMF, \S4.36, infinite products and partial fractions for
+hyperbolic functions.
+\url{https://dlmf.nist.gov/4.36}.
+\bibitem{bernoulli} NIST DLMF, equation 25.6.2, even zeta values and Bernoulli numbers.
+\url{https://dlmf.nist.gov/25.6.E2}.
+\bibitem{wolframasymptotic} Wolfram Research, \emph{Asymptotic}, Wolfram Language documentation.
+\url{https://reference.wolfram.com/language/ref/Asymptotic.html}.
+\end{thebibliography}
+\end{document}

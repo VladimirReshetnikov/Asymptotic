@@ -1,0 +1,13 @@
+--- a/src/Kernel/CorePerturbation.wl
++++ b/src/Kernel/CorePerturbation.wl
+@@ -123,8 +123,8 @@
+    expression, firstOmitted, n, p, q, delta, degree, rint, pd, truncationPair,
+    inputPair = None, rho, logdegree, domain, side, targetLimit, rem, scale,
+    exactPerturbation, majorant, sourceAssumptions, observable, coreObservable},
+-  validateInput[core + perturbation, limit];
+-  If[x === y || ! FreeQ[core + perturbation, y], fail["InvalidVariables", "Use distinct source and target symbols, with no target symbol in the forward data."]];
++  validateInput[{core, perturbation}, limit];
++  If[x === y || ! FreeQ[{core, perturbation}, y], fail["InvalidVariables", "Use distinct source and target symbols, with no target symbol in the forward data."]];
+   If[! FreeQ[ass, x | y], fail["InvalidAssumptions", "Assumptions concern parameters; the source branch is specified by endpoint and direction."]];
+   If[! IntegerQ[depth] || depth < 0, fail["InvalidDepth", "The marker depth must be a nonnegative integer."]];
+   If[! exactRealQ[r] || r === 0, fail["InvalidOption", "Power must be a nonzero exact real number."]];
