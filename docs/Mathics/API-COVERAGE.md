@@ -21,17 +21,18 @@ Thirteen additional cases covering public operations and the empty-list
 `Map` regression passed on both modular and standalone snapshots containing
 54 modules. Their package hashes differ from the earlier 77-case snapshots.
 The four remaining direct-export cases and four held inline-assumption
-contracts passed on both layouts of the latest 55-module candidate; the
+contracts passed on both layouts of the recorded 55-module candidate; the
 standalone batch also repeated its five loading cases. The original Wolfram
 kernel independently validated all 98 case expectations across separate
-batches. The combined evidence therefore covers 98 unique cases per layout
-across three package snapshots. A full 98-case run on one final snapshot is
-a separate acceptance check; this aggregate does not claim it has completed.
+batches. The combined evidence for those batches covers 98 unique cases per
+layout across three package snapshots.
 Three further cases for Newton inversion, retained Newton refinement,
 additional-block requests and product-recipe replay passed on the same
-55-module modular snapshot and in the original Wolfram kernel. Their
-standalone rerun is pending. All 101 current expectations have original
-Wolfram controls, across separate batches.
+55-module modular and standalone snapshots and in the original Wolfram
+kernel. The full aggregate now covers **101 unique cases per layout across
+three package snapshots**. All 101 current expectations have original Wolfram
+controls, across separate batches. A full run on one final source snapshot is
+a separate acceptance check; this aggregate does not claim it has completed.
 
 The [machine-readable evidence summary](../../validation/mathics-test-coverage.json)
 records each receipt hash, package source fingerprint, original outcome and
@@ -43,13 +44,17 @@ original failures. Additional operation receipts retain their own source scope.
 Each receipt retains the exact suite byte hash used for that run, including
 historical CRLF snapshots. Normalizing the published suite to LF does not
 rewrite those receipts or make their historical byte hashes identical.
+The initial publication checkpoint `bc6d570` normalized those receipt files
+to LF. The publication correction restores their captured bytes and marks
+`validation/mathics-*-tests.json` with `-text`, so Git preserves their recorded
+hashes before final acceptance.
 
 The table uses these evidence labels:
 
 - **Core**: first 77 cases, with the explicit exact-normalization reconciliation above.
 - **Operations**: the additional 13 cases, passed on both package layouts.
 - **Latest**: the final eight direct-export and held-assumption cases, passed on both 55-module layouts.
-- **Refinement**: three additional cases passed on the 55-module modular layout and original Wolfram; standalone validation is pending.
+- **Refinement**: three additional cases passed on both recorded 55-module layouts and original Wolfram.
 
 All passing symbolic checks use exact values or exact logical predicates.
 The numerical checks below are explicitly limited smoke checks. The full
