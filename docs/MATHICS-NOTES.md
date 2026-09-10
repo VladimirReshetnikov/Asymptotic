@@ -6,6 +6,12 @@ observations about the tested interpreter, not promises about every Mathics
 release. Linux CI exercises the same pinned Python packages separately.
 
 This is the practical companion to [WOLFRAM-NOTES.md](WOLFRAM-NOTES.md).
+A Mathics workaround never changes what the Wolfram kernel does, and no
+`System` symbol is ever redefined; the two files are kept separate for that
+reason. The sections through the compatibility-campaign review come from
+AsymptoticAnalysis; the [final section](#findings-from-the-unified-algebraic-package-mathics3-1001-september-2026)
+was merged from the separate `Algebraic` project's notes, whose evaluator
+observations are general even though its examples are that project's.
 The [compatibility guide](Mathics/COMPATIBILITY.md) records installation and
 achieved package coverage; the [background comparison](Mathics/README.md)
 provides broader context. Native Mathics examples below describe the
@@ -342,3 +348,311 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   reruns of every upstream review package. Their own validation receipts
   retain their separate scopes. Later upstream code changes require a fresh
   native control and relevant Mathics checks, even if a Git merge is clean.
+
+## Findings from the unified `Algebraic` package (Mathics3 10.0.1, September 2026)
+
+Collected in the separate `Algebraic` project while making its unified
+`algebraic/Algebraic.wl` package (root decomposition, polynomial
+decomposition, root-to-radicals and radical denesting) run in Mathics3 10.0.1
+(scanner 10.0.1, SymPy 1.14.0, mpmath 1.3.0, NumPy 2.4.6, Python 3.11.15 on
+Windows) alongside Wolfram 15.0.1. Every item was reproduced on that
+interpreter; none is a claim about other Mathics releases. Throughout this
+section "the package" means that project's package, not AsymptoticAnalysis;
+its function names and file paths belong to that repository. The Wolfram side
+of the same investigation, including the contracts the portable layer has to
+reproduce, is in
+[WOLFRAM-NOTES.md](WOLFRAM-NOTES.md#findings-from-merging-the-four-packages-into-algebraicalgebraicwl-wolfram-1501-september-2026).
+Several entries restate, with that project's witnesses, behaviour already
+recorded above for AsymptoticAnalysis; the cross-references say which.
+
+The package confines all of this to one layer: names beginning with a
+lower-case `k` in ``Algebraic`Private` `` stand in for System functions, and
+the algorithms call only those. No `System` symbol is redefined, and the
+Wolfram kernel takes the native branch of every one of them.
+
+### Running it
+
+- Install into an isolated **Python 3.11** environment: `python -m venv env`
+  then `env/Scripts/python -m pip install Mathics3 packaging`. `packaging` is
+  needed explicitly; Mathics 10.0.1 imports it from its number-theory module
+  without declaring the dependency.
+- Run a script with `python -X utf8 -m mathics --no-readline -q -f file.m`.
+  The `-f`/`--file` option is the one that works: `-script file.m` and
+  `-e file.m` were both accepted on the command line and then evaluated
+  nothing, printing only the banner and `Goodbye!`. UTF-8 mode is needed on
+  Windows so the printer can emit Wolfram syntax characters, and
+  `--no-readline` avoids a startup error there.
+- Set `$IterationLimit = 1000000` at the top of a script (see also
+  [control flow and evaluation budgets](#control-flow-and-evaluation-budgets)). The default 4096
+  counts ownvalue substitutions across a whole input evaluation and stops
+  valid work well short of an infinite loop.
+- Standard output is block-buffered when redirected, and a Python-level crash
+  loses whatever had not been flushed. When bisecting a crash, print a marker
+  before each step and read the *last* marker, not the error.
+- An unbalanced bracket is reported as `Syntax::sntxi` at the **end** of the
+  file, with the last line's number, not at the opening bracket.
+
+### Speed is not the problem; coverage is
+
+`MinimalPolynomial`, `PossibleZeroQ`, `Factor` over the rationals, `Solve` up
+to degree 4, `N[Root[f, k], 200]`, and `Det`/`NullSpace`/`RowReduce`/`Inverse`
+on exact rational matrices of order 20 to 24 all return in milliseconds,
+because they go straight to SymPy and mpmath. What costs time is Wolfram
+Language interpretation between those calls, so the package scales its own
+internal time allowances (`$kTimeScale`) rather than its algorithms.
+
+### Rule ordering: a catch-all can beat an exact zero-argument definition
+
+```wolfram
+f[] := "specific"; f[___] := "catchall";
+f[]        (* "catchall" *)
+```
+
+The order of the two definitions does not matter. Definitions with a fixed
+positive arity *are* ranked correctly against `___` (`g[a_, b_] := ...` and
+`h[a_Integer] := ...` both win over `g[___]`/`h[___]`), so this bites exactly
+the zero-argument case. `AlgebraicKernelReport[]` was returning `$Failed` for
+this reason; its argument-error definition is now `AlgebraicKernelReport[__]`.
+
+### Control flow: only tagged `Catch`/`Throw` is portable
+
+AsymptoticAnalysis reaches the same conclusion through its private module
+adapter (see [control flow and evaluation budgets](#control-flow-and-evaluation-budgets));
+the table records what each construct actually did.
+
+| Construct | Wolfram 15.0.1 | Mathics 10.0.1 |
+| --- | --- | --- |
+| `Return[x]` directly in `Module` | returns from the function | same |
+| `Return[x]` inside `Do` or `Table` | returns from the loop only | same |
+| `Return[x]` inside `While` | returns from the function | **loop only** |
+| `Return[x, Module]` anywhere | returns from the `Module` | **falls through** |
+| `Throw[x, tag]` / `Catch[..., tag]` | returns from the `Catch` | same |
+
+`Return[x, Module]` is not implemented at all — not inside a loop and not
+directly inside a `Module`. It does not message; the value is discarded and
+evaluation continues after the `Return`, so the function returns whatever
+follows. The twelve `Return[..., Module]` calls in the radical descent and the
+`Return[result]` inside the `While` of the precision-escalation loop were
+therefore silently taking the wrong branch, and are now tagged throws or
+loops restructured to exit through their condition.
+
+### `Check` counts messages for the whole top-level evaluation
+
+The [messages and test harnesses](#messages-and-test-harnesses) section above
+records the same contamination for AsymptoticAnalysis; this is the fuller
+characterization.
+
+A two-argument `Check` takes its failure branch when *anything* earlier in the
+same top-level evaluation issued a message or performed a `Print`:
+
+```wolfram
+{Take[{1, 2, 3}, UpTo[5]], Check[1 + 1, "poisoned"]}   (* {Take[...], "poisoned"} *)
+{Print["progress"], Quiet[Check[1 + 1, "poisoned"]]}   (* {Null, "poisoned"} *)
+Module[{}, Print["inner"]; Quiet[Check[1 + 1, "poisoned"]]]   (* "poisoned" *)
+```
+
+An inner `Quiet` does not help, and the `Print` may be several calls deep. An
+outer `Quiet` that stops the earlier message from being issued at all does
+prevent it (`Quiet[{1/0, Check[1 + 1, $Failed]}]` gives `2`), but
+`Quiet[Print[...]]` still prints and still poisons.
+
+The consequence for a package is that `Check` cannot be used anywhere, because
+a caller's progress output — or the package's own `"Verbose"` option — turns
+every later `Check` into a spurious failure. The unified package replaced all
+eleven `Quiet[Check[expr, fail]]` calls with a `kCheck` that suppresses
+messages and decides from the returned value. That is what the call sites
+needed anyway: each one goes on to test the value with `PolynomialQ`, `ListQ`
+or a degree check.
+
+The first symptom was subtle: the load-time feature probes were written as one
+association of `Check`-based comparisons, the `UpTo` probe messages, and every
+probe after it in the association reported a missing builtin — including
+`MinimalPolynomial`, which Mathics implements and the package depends on.
+
+### Results that are wrong without any diagnostic
+
+These are more dangerous than the crashes further down, because the value
+looks plausible.
+
+- **`Select` on an association tests the wrong object.**
+  `Select[<|"p" -> True, "q" -> False|>, TrueQ]` is `<||>`, and
+  `Select[..., ! TrueQ[#] &]` is the whole association. Both directions are
+  wrong. Filter `Keys[assoc]` as a list and index back into the association.
+- **Assignment through a negative part index writes a different element.**
+  `Module[{l = {1, 2, 3}}, l[[-1]] = 9; l]` gives `{1, 9, 3}`. The positive
+  form `l[[Length[l]]] = 9` is correct. (The package had one such assignment,
+  in the recursive product split.)
+- **An unimplemented function inside an accessor yields the accessor's view of
+  the unevaluated expression.** `MinimalBy` is not implemented, so
+  `First[MinimalBy[list, f]]` evaluates to `First[MinimalBy[list, f]]` —
+  that is, to `list`. A routine that picked the shortest vector of a lattice
+  basis silently returned the entire basis. Whenever an unevaluated call is
+  passed to `First`, `Last`, `Part` or `Length`, expect a plausible wrong
+  value rather than an error.
+- **`RandomChoice[list]` returns a one-element list**, where the Wolfram
+  kernel returns the chosen element: `RandomChoice[{1, 2, 3}]` is `{2}`.
+  The Galois engine drew a random integer weight this way, and the weight,
+  the primitive element built from it and every conjugate that followed
+  were lists; the group search then reported failure after its twelve
+  tries. `First[RandomChoice[list]]` is what the package uses there.
+- **Assignment into an association part is refused**, with
+  `Set::write: Tag Association ... is Protected`, and the association is
+  left unchanged: `assoc[key] = value` does nothing. A subgroup table built
+  that way stayed a single entry and the whole subgroup lattice collapsed to
+  the trivial subgroup; two caches never filled. Extend with `AssociateTo`
+  (or, since that is missing too, `Join[assoc, <|key -> value|>]`).
+- **`Association` applied to anything but a literal list of rules retains
+  the unevaluated expression.** `Association[Table[k -> k^2, {k, 2}]]` is
+  `<|Table[k -> k^2, {k, 2}]|>`, and so is `Association[Thread[...]]` and
+  `Association[Options[f]]`; every key lookup on such an object misses.
+  Evaluate the rules first and apply: `Association @@ Table[...]`. (Also recorded under
+  [associations, lists, and held callables](#associations-lists-and-held-callables)
+  above; it cost the denester its whole configuration.)
+- **A string option name is stored as a symbol, and the option as
+  `RuleDelayed`.** After `Options[f] = {"MaxTrials" -> 120}`, `Options[f]`
+  is `{MaxTrials :> 120}`, so `First /@ Options[f]` are symbols and an
+  association keyed by them answers `Missing` to `"MaxTrials"`.
+  `OptionValue[f, rules, "MaxTrials"]` still works with the string. The
+  package recovers the declared names with `SymbolName` on a kernel whose
+  probe shows the conversion.
+- **Applying a function through a `Part` expression makes a `Return` inside
+  it return from the caller's loop.** With `g[q_] := Catch[Module[{u, v = q},
+  If[True, Return["ret"]]; "no"], tg]` and `tbl = {{"name", g}}`,
+  `Do[r = g[1]; Print[r], {k, 2}]` prints twice, but
+  `Do[r = tbl[[1, 2]][1]; Print[r], {k, 2}]` prints nothing: the `Return`
+  ends the `Do`. Binding first, `With[{fn = m[[2]]}, r = fn[1]]`, behaves
+  correctly. The structural radical search dispatched its recognizers as
+  `m[[2]][a, p, depth]`; the first one that declined ended the search, and
+  no structural form was ever found.
+- `Missing[key]` uses the **symbol** `KeyAbsent`, not the string:
+  `<|"a" -> 1|>["b"]` is `Missing[KeyAbsent, "b"]` where Wolfram gives
+  `Missing["KeyAbsent", "b"]`. Test with a `MissingQ` equivalent, never by
+  comparing the literal.
+- `Equal` on arbitrary-precision numbers is tolerant here, so a zero test on a
+  small numerical scale must be written as `TrueQ[scale > 0]` rather than
+  `TrueQ[scale == 0]`. (Also recorded under
+  [associations, lists, and held callables](#associations-lists-and-held-callables) above.)
+
+### Crashes that no `Quiet` or `Check` can catch
+
+Each of these raises a Python exception that terminates the interpreter, so
+they must be avoided structurally rather than guarded.
+
+- `Simplify` applied to an expression containing a `Root` object:
+  `AssertionError`. The package's `kSimplify` therefore refuses `Root` and
+  `AlgebraicNumber` arguments on a kernel without `RootReduce`.
+- `Root` with a named-argument pure function, `Root[Function[y, y^3 - 2], 1]`:
+  `Root::nuni`, then `NotImplementedError` from the pure-function to SymPy
+  conversion. Only the slot form `Root[Function @@ {poly /. x -> Slot[1]}, k]`
+  works — which is what the packages already used.
+- Part assignment through a list of indices,
+  `b[[{i, j}]] = b[[{j, i}]]`: `AttributeError: 'NoneType' object has no
+  attribute 'replace'`. The LLL reduction now swaps rows with `ReplacePart`.
+- `Im[Indeterminate] == 0`: `TypeError: Invalid NaN comparison`. Test for
+  `Indeterminate` and the infinities before any comparison on a numeric
+  value. (Also recorded under
+  [associations, lists, and held callables](#associations-lists-and-held-callables) above.)
+
+### Part specifications and level arguments
+
+Working: `m[[All, 1]]`, `m[[i ;;]]`, `m[[;; i]]`, `m[[{j, i}]]` for reading,
+`Map[f, l, {2}]`, `Cases[e, patt, {0, Infinity}]`, `Cases[l, patt, {2}]`,
+`Subsets[l, {k}]`, `Replace[l, r, {1}]`, `Flatten[l, 1]`, `Total`, `Pick`,
+`Outer`, `Tuples`, nested part assignment `m[[i, j]] = v`.
+
+Not working:
+
+- `list[[All, "key"]]` and `list[[i ;;, "key"]]` on a list of associations:
+  `Part::pspec`, left unevaluated. Use `#["key"] & /@ list`.
+- `Join[m1, m2, 2]` (joining matrices horizontally): left unevaluated. Use
+  `MapThread[Join, {m1, m2}]`.
+- `Take[list, UpTo[n]]`: `Take::seqs`. Use `Take[list, Min[n, Length[list]]]`.
+- `Position[expr, patt, {1}, 1]` and `FirstPosition` with a level
+  specification, a default or `Heads -> False`: left unevaluated.
+
+### `Root` objects, and what the algebraic engine does provide
+
+Mathics' algebraic engine is stronger than the missing-function list suggests,
+which is what makes the package portable at all.
+
+- `Root[f, k]` exists, with the **same root ordering as Wolfram** — real roots
+  first in increasing order, then conjugate pairs — checked on `#^3 - 2`,
+  `#^4 - # - 1` and `#^2 - 2`.
+- `N[Root[f, k], p]` works at arbitrary precision and for non-real roots, and
+  so does `N[expr, p]` for an `expr` built from `Root` objects by `Plus`,
+  `Times`, `Power` and `Sqrt`.
+- `MinimalPolynomial` handles radicals, `Root` objects, and arithmetic
+  combinations of them: `MinimalPolynomial[Root[#^3 - 2 &, 1] + Sqrt[2], x]`
+  is the correct degree-6 polynomial, in about five milliseconds. It refuses
+  `AlgebraicNumber` objects (`MinimalPolynomial::nalg`).
+- `PossibleZeroQ` decides exact algebraic differences correctly, including
+  `Sqrt[5 + 2 Sqrt[6]] - Sqrt[2] - Sqrt[3]` and
+  `Root[#^3 - 2 &, 1]^3 - 2`. `FullSimplify` proves the same nested-radical
+  identity. Do not pass `Method -> "ExactAlgebraics"`; the option is not
+  recognised and leaves the call unevaluated.
+- **`N[Root[f, k], p]` does not deliver the `p` digits it reports.** The
+  result carries precision `p`, and `Precision` and `Accuracy` say so, but
+  substituting it back into `f` shows how many digits are right: for
+  `#^3 - 2` about sixteen (the imaginary part of `r^3 + 2` at the complex
+  root is `1.8*10^-16`, not `0``59` as in Wolfram), and for
+  `27436 + 112 #^3 + #^6` about eleven (`27436 + 112 r^3 + r^6` is
+  `-1.1*10^-11`). `N[Sqrt[2], 60]^2 - 2` is `0``60` as expected, so the
+  loss is specific to `Root`. Any algorithm that rounds high-precision root
+  values to integers -- the numerical-resolvent Galois engine here -- would
+  round noise, and the reported precision cannot warn it. The package
+  measures the residual in a load-time probe and refuses the engine when
+  it fails, rather than trusting `Precision`. `N[Root[deg 6, k], 180]` also
+  did not return within a minute, where 60 digits took milliseconds.
+- `MinimalPolynomial` on a **sum or product of `Root` objects** of degree
+  six and up did not finish in a minute (`Root[27436 + #^6 + 112 #^3 &, 5]
+  + 7 Root[#^3 - 2 &, 3]`), although on radicals and on single `Root`
+  objects it takes milliseconds. Resultants by Sylvester determinant --
+  `Det` of a 9x9 matrix with polynomial entries takes 0.6 s -- are the
+  practical route; a Euclidean resultant recursion over polynomial
+  coefficients exceeded `$RecursionLimit` (200) and returned a wrong
+  value.
+- `Root[f, k]` does **not** auto-simplify to radicals in low degree:
+  `Root[#^2 - 2 &, 1]` stays a `Root` object where Wolfram gives `-Sqrt[2]`.
+  A `RootReduce` replacement has to reproduce Wolfram's three regimes — see
+  the Wolfram notes — or the two kernels print different (equal) answers.
+- `NumericQ[Root[...]]` is `False` (Wolfram: `True`), and
+  `Element[Root[...], Algebraics]` and `Element[Root[...], Reals]` are left
+  unevaluated. `Root` arithmetic does not auto-evaluate either:
+  `Root[#^3 - 2 &, 1]^3` stays unevaluated rather than becoming `2`.
+- Not implemented: `RootReduce`, `ToRadicals`, `Decompose`, `Resultant`,
+  `Discriminant`, `FactorList` (with or without `Modulus`),
+  `Factor[..., Extension -> ...]`, `PolynomialQuotient`,
+  `PolynomialRemainder`, `PolynomialGCD`, `PolynomialMod`,
+  `IrreduciblePolynomialQ`, `SquareFreeQ`, `CoefficientRules`, `Cyclotomic`,
+  `NSolve`, `NRoots`, `Roots`, `Reduce`, `Eliminate`, `GroebnerBasis`,
+  `LatticeReduce`, `FindIntegerNullVector`, `Surd`, and `AlgebraicNumber`
+  arithmetic. `Expand[expr, Modulus -> p]` *is* implemented, which is enough
+  to build modular polynomial arithmetic.
+- Also not implemented, from the list and association vocabulary the packages
+  use: `Lookup`, `KeyExistsQ`, `AssociateTo`, `Merge`, `KeyDrop`, `MissingQ`,
+  `FailureQ`, `SelectFirst`, `MinimalBy`, `DeleteDuplicatesBy`, `Ordering`,
+  `ArrayReshape`, `ListConvolve`, `MemoryConstrained`, `Nothing`, and `Normal`
+  on an association. `assoc[key]` reading and `Join` on associations work;
+  `assoc[key] = value` is refused because `Association` is `Protected`.
+- `TimeConstrained` works, including the three-argument form.
+  `MemoryConstrained` does not, so a memory budget is simply not enforced
+  there; the time budget still is.
+
+### Testing
+
+`VerificationTest`, `TestReport` and `TestResultObject` are absent; the
+names are not even in ``System` ``, so `VerificationTest[1 + 1, 2]` is the
+inert `VerificationTest[2, 2]`. That absence is what makes a portable runner
+possible: a `VerificationTest` defined in `` Global` `` before the suite is
+read is the one the suite's calls resolve to, and the same `.wlt` file runs
+under `TestReport` in the Wolfram kernel and under that definition here.
+`BeginTestSection`/`EndTestSection` need the same treatment.
+
+### Package loading
+
+`BeginPackage`, `Begin["`Private`"]`, `End`, `EndPackage`, usage messages,
+`Options`/`OptionValue`/`OptionsPattern`, `SetAttributes`, `Unique`, message
+definitions and `$Packages` all behave as expected, and after `Get` the
+context path is `{"Algebraic`", "System`", "Global`"}` exactly as in Wolfram.
+A `Get` of a single self-contained file needs no path handling, which is why
+the merged package is one file.

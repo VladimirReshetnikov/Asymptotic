@@ -2,7 +2,12 @@
 
 For observations from the alternate interpreter, see the maintained
 [Mathics evaluation notes](MATHICS-NOTES.md). Their workarounds are confined
-to Mathics; they do not replace the native behaviours recorded here.
+to Mathics; they do not replace the native behaviours recorded here. Unless a
+section says otherwise, the kernel is **Wolfram 15.0.1 for Microsoft Windows
+(64-bit)**. Three sections merged from the separate `Algebraic` project's
+notes (root-to-radicals, radical denesting, and the unified `Algebraic.wl`
+package) keep that project's examples and file paths; the evaluator
+behaviour they record is general.
 
 The maintained package is now named AsymptoticAnalysis; its standalone entry
 point is `AsymptoticAnalysis.wl` and its Wolfram context is
@@ -98,10 +103,22 @@ native reproduction and the preserved empty-index and infinity cases.
 
 ## Control flow
 
-- `Return[expr]` inside `Do`, `While`, `Table`, ... returns from the *loop*, not
-  from the enclosing `Module`.  Either use the documented second argument,
-  `Return[expr, Module]`, or a uniquely tagged `Catch`/`Throw`.  The package uses
-  tagged `Catch`/`Throw` everywhere a loop must abort a function.
+- `Do` and `Table` intercept `Return[expr]`: the tail of an enclosing
+  `Module` can still execute. For example,
+  `f[] := Module[{}, Do[Return[1], {1}]; 2]` returns `2`, as does the
+  corresponding `Table` example. This broke complete-chain search in two
+  original polynomial-decomposition reports.
+- Do not generalize this behavior to every loop. With
+  `f[] := Module[{}, While[True, Return[1]]; 2]`, `f[]` returns `1`:
+  `While` propagates the return to the enclosing function. A bare `Module`
+  in the same probe can leave `Return[1]` unevaluated instead. These exact
+  `Do`, `Table`, and `While` cases were checked in Wolfram 15.0.1; an earlier
+  version of this entry wrongly listed `While` with the loop-only cases.
+  Use a uniquely tagged `Catch`/`Throw` for an explicit function-wide exit,
+  or store the result and use `Break[]` when only the loop must stop. The
+  package uses tagged `Catch`/`Throw` everywhere a loop must abort a
+  function; `Return[expr, Module]` is correct here but is not implemented
+  in Mathics (see the [portability table](#return-and-loops-restated-as-a-portability-table)).
 - `Break[]` and `Continue[]` in a nested `Do` act on the innermost loop only.
 
 ## Number-field functions (performance)
@@ -132,11 +149,16 @@ native reproduction and the preserved empty-index and infinity cases.
 
 ## Root objects
 
-- Ordering of `Root[f, k]`: real roots first in increasing order, then the
-  non-real roots in conjugate pairs ordered by increasing real part and
-  then by increasing `|Im|`, with the root of negative imaginary part first
-  within a pair.  (Checked on `#^5-#-1`, `#^8-4#^6-16#^4-8#^2+4`,
-  `#^6+#^4+3#^2-2#+5` and `#^4+1`.)
+- Observed ordering of `Root[f, k]` in the examples: real roots first in
+  increasing order, then the non-real roots in conjugate pairs ordered by
+  increasing real part and then by increasing `|Im|`, with the root of
+  negative imaginary part first within a pair.  (Checked on `#^5-#-1`,
+  `#^8-4#^6-16#^4-8#^2+4`, `#^6+#^4+3#^2-2#+5` and `#^4+1`.) This complex
+  ordering is not a universal interchange guarantee: the third `Root`
+  argument records the isolation method, which can change the non-real
+  ordering. See the
+  [official Root documentation](https://reference.wolfram.com/language/ref/Root.html).
+  Check the selected branch when exchanging non-real roots with another system.
 - Roots of polynomials of degree at most 4 may auto-simplify to radicals or
   rationals (`Root[#^2-2&,1]` evaluates to `-Sqrt[2]`).  Measure degree with
   `MinimalPolynomial`, never with `Head` or the exponent of the displayed
@@ -225,6 +247,181 @@ native reproduction and the preserved empty-index and infinity cases.
 - Kernel seats are shared with other sessions on the machine; never run
   `taskkill /F /IM wolfram.exe` blindly.  Track the PIDs of kernels started
   by the session and kill only those.
+
+## Findings from the root-to-radicals work (Wolfram 15.0.1, September 2026)
+
+- `Join[Failure[...], <|...|>]` does not add keys to a `Failure`; it returns
+  unevaluated, and a downstream `FailureQ` test then fails silently.  Rebuild the
+  object: `Failure[f[[1]], Join[f[[2]], extra]]`.
+- `N[expr, 40]` on an expression that is exactly zero but not syntactically zero
+  (a factor of `Factor[p, Extension -> y0]` evaluated at the root it vanishes at)
+  emits `N::meprec` and returns a tiny number; substitute numerical approximations
+  for the algebraic numbers instead of asking `N` for digits of an exact zero.
+- `VerificationTest` marks a test as `MessagesFailure` when the input emits any
+  message, even the documented one; list the expected messages as the third
+  argument (`VerificationTest[in, out, {RootToRadicals::notsolv}, TestID -> ...]`).
+- `Simplify` on a polynomial in `(-1)^(2/q)` rewrites products of roots of unity
+  into forms such as `(-1)^(8/9)`; harmless but surprising in a radical expression.
+  `Expand` keeps the monomial form.
+- `Decompose[p, x]` lists the outer polynomial first, as does SymPy's `decompose`.
+- The numerical-resolvent Galois engine of that project's `RootDecomposition.wl` needs 18 minutes for
+  the group $S_5$ of `x^5 - x - 1` (splitting field of degree 120); prime-degree
+  nonsolvability should be settled by Frobenius cycle types
+  (`FactorList[p, Modulus -> q]`) before any group computation.
+- Arb/python-flint: the principal branch of `z^(1/q)` is discontinuous on the negative
+  real axis, so the enclosure of a root of a radicand whose ball straddles that axis
+  (an exactly real negative number written as a sum of complex conjugate radicals) is
+  useless at every precision.  Decide reality and sign from exact data (the
+  conjugation automorphism, or the root ordering of an algebraic number) and rewrite
+  the root as `(-1)^(1/q) (-Q)^(1/q)`.
+- Recognizing which factor of `Factor[p, Extension -> {...}]` vanishes at a root by
+  `Abs[N[fac /. x -> N[a, 40]]] < 10^-15` fails silently when the coefficients have
+  height 10^100: the terms cancel catastrophically and every factor leaves a residual
+  of size 10^60.  Evaluate at a precision of 60 digits plus the coefficient height and
+  compare the residual with the largest term (`vanishesAtQ` in RootToRadicals.wl).
+  `SelectFirst` without a default returns `Missing["NotFound"]`, which is not `$Failed`
+  and has `Exponent[..., x] == 0`; always pass an explicit default.
+- `Factor[p, Extension -> {3^(1/6), theta}]` on a degree-27 polynomial did not finish
+  in an hour; factoring first over `3^(1/6)` (12 s), then the degree-9 factor over both
+  generators (4 min), gives the same result.  Factor cumulatively.
+- Substituting a nested radical expression for a `Root` object into polynomial
+  coefficients of degree 8 in it and calling `Expand` blows up (multinomial expansion of
+  nested radicals with auto-simplification).  Keep the `Root` object as an atom through
+  the formula steps and substitute once at the end, without `Expand`.
+- `RootReduce[expr - a]` for an expression with 10^5 leaves does not finish in 5
+  minutes; report the numerical check honestly instead of waiting.
+
+## Findings from the radical-denesting review (Wolfram 15.0.1, September 2026)
+
+Collected in the `Algebraic` project's `radical-denest/code-review/`; each was
+observed in a kernel there, and the parenthetical references name that
+project's review files.
+
+- `PossibleZeroQ[a - b]` with the default method **assumes zero** when it cannot
+  decide, and says so only through the message `PossibleZeroQ::ztest1`. The
+  denesting battery drew it on 20 of 31 classical inputs and 272 of 340 random
+  ones, so a checker that quiets messages silently accepts every undecided
+  candidate. Test with `RootReduce[a - b] === 0` first and
+  `PossibleZeroQ[a - b, Method -> "ExactAlgebraics"]` as a fallback, each under
+  a time limit, and treat undecided as not equal.
+  (`unified-A/sec_findings.tex`, `unified-A/sec_experiments.tex`)
+- `Catch[expr, _]` does **not** catch an untagged `Throw[x]`: the throw escapes
+  and the enclosing call returns `Hold[Throw[x]]` instead of a value.
+  Quarantining a user-supplied function needs a plain `Catch[expr]` nested
+  inside the tagged one. (`unified-C`, issue C20)
+- `Sort[list, pred]` with a predicate that is `False` for every pair returns the
+  list **reversed** — non-strict comparators are legal, so a typo such as
+  `#1[[1]] <= #[[2]] &` silently feeds reversed input to the next stage instead
+  of failing. Prefer `SortBy[list, First]`. (`unified-A/sec_findings.tex`)
+- A `Root` object need not be an algebraic number: `Root[#^5 + # - Pi &, 1]` and
+  `Root[#^3 - # + a &, 1]` stay unevaluated, have `Precision` `Infinity`, and
+  pass any test for an exact head. Validate the defining polynomial, its
+  coefficients and the root index before treating a `Root` as algebraic.
+  (`unified-C`, issue C01)
+- `Root` with algebraic, non-rational coefficients auto-evaluates into a
+  triangular-system form: `Root[#^3 + Sqrt[2] # + 1 &, 1]` becomes
+  `Root[{-2 + #1^2 &, 1 + #1 #2 + #2^3 &}, {2, 1}]` — a *list* of pure functions
+  with a list of indices, which the pattern `Root[f_Function, k_Integer]` misses.
+  (`unified-C`, issue C01)
+- `Factor` and `FactorList` of `x^k - rho` with `Extension -> Automatic` may
+  canonicalize the radicals of `rho` into `Root` objects, after which the linear
+  factors come back opaque. Pass the radicals of `rho` as an explicit
+  `Extension` when the factors must stay in radical form.
+  (`radical-denest/corrected/StradFixed3.wl`, `radicalExtension`)
+- `Sqrt[-rho]` for a `rho` that evaluates to a positive number becomes
+  `I Sqrt[rho]` before any helper sees it, so a routine meant to handle a
+  negative radicand must be handed the radicand, not the square root.
+  (`unified-C`, Section 9)
+
+## Findings from merging the four packages into `algebraic/Algebraic.wl` (Wolfram 15.0.1, September 2026)
+
+Observations made in the `Algebraic` project while putting its four operations
+into one package and one context, and while pinning down the exact contracts the portable layer has to
+reproduce on Mathics3. The Mathics side of the same investigation is in
+[MATHICS-NOTES.md](MATHICS-NOTES.md#findings-from-the-unified-algebraic-package-mathics3-1001-september-2026);
+each item below was checked against a live 15.0.1 kernel.
+
+### Root objects and `RootReduce`
+
+- `RootReduce` returns the **three-argument** form: `RootReduce[Sqrt[2] +
+  Sqrt[3]]` is `Root[1 - 10 #1^2 + #1^4 &, 4, 0]`. This is not a hazard for
+  structural comparison, because `Root[f, k]` itself auto-evaluates to
+  `Root[f, k, 0]`, so `Root[f, k] === Root[f, k, 0]` is `True`. Do not,
+  however, pattern-match a `Root` object with a fixed arity.
+- `RootReduce` is a canonical form with three regimes: rationals and Gaussian
+  rationals come back unchanged (`RootReduce[1 + I]` is `1 + I`), a number of
+  degree 1 or 2 comes back as a rational or a radical (`RootReduce[Sqrt[2]]`
+  is `Sqrt[2]`), and degree 3 and above becomes a `Root` object
+  (`RootReduce[2^(1/3)]` is `Root[-2 + #1^3 &, 1, 0]`). The reason is that
+  `Root` auto-evaluates to radicals only up to degree 2: `Root[#^2 - 2 &, 1]`
+  is `-Sqrt[2]`, while `Root[#^3 - 2 &, 1]` and `Root[#^4 - # - 1 &, 1]` stay
+  `Root` objects. Any reimplementation of `RootReduce` has to follow the same
+  three regimes to produce identical output.
+- `Root` accepts a named-argument pure function, `Root[Function[y, y^3 - 2],
+  1]`, as well as the slot form. Only the slot form is portable, so
+  `Root[Function @@ {poly /. x -> Slot[1]}, k]` remains the way to build a
+  `Root` object from a polynomial in a symbol.
+
+### Function contracts worth knowing before reimplementing them
+
+- `FactorList` puts the numeric content in the first entry, and that entry's
+  exponent can be **negative**: `FactorList[x^2/2 - 2]` is
+  `{{2, -1}, {-2 + x, 1}, {2 + x, 1}}`. Code that consumes the list by
+  selecting `Exponent[#[[1]], x] > 0` is unaffected; code that assumes the
+  content entry is `{c, 1}` is not.
+- `Factor[x^2 - 2, Extension -> Sqrt[2]]` is `-((Sqrt[2] - x) (Sqrt[2] + x))`:
+  an overall `-1` is pulled out. A test for "did the extension split this
+  polynomial" must look at the structure (`Head` is `Times`) rather than
+  compare against an expected product.
+- `LinearSolve` on an inconsistent system emits `LinearSolve::nosol` and
+  returns its own **unevaluated expression**. An unsolvable system can
+  therefore be recognised from `ListQ` of the result, with no need to convert
+  the message into a failure with `Check`. Mathics 10.0.1 does exactly the
+  same thing, so the result test is the portable one.
+- `Chop[N[a, 20] - N[b, 20]]` for equal `a` and `b` returns a zero that
+  carries precision, not the integer `0`, so a following `=== 0` is `False`.
+  Compare `Abs[N[a, p] - N[b, p]] < 10^-k` instead.
+
+### `Return` and loops, restated as a portability table
+
+The [control-flow section](#control-flow) records the Wolfram behaviour; the
+table is repeated here with the Mathics column, because the merge had to
+choose one idiom for both kernels.
+
+| Construct | Wolfram 15.0.1 | Mathics 10.0.1 |
+| --- | --- | --- |
+| `Return[x]` directly in `Module` | returns from the function | same |
+| `Return[x]` inside `Do` or `Table` | returns from the loop only | same |
+| `Return[x]` inside `While` | returns from the function | **returns from the loop only** |
+| `Return[x, Module]` anywhere | returns from the `Module` | **not implemented; falls through** |
+| `Throw[x, tag]` / `Catch[..., tag]` | returns from the `Catch` | same |
+
+A uniquely tagged `Catch`/`Throw` is the only construct that means the same
+thing in both kernels, which is what the merged package now uses wherever a
+loop has to abort a function.
+
+### `TestReport` from a script
+
+- `TestReport["suite.wlt"]` run under `wolfram -script` redraws its progress
+  line (`TestReport: suite.wlt | 97 Success ... Elapsed time 5s`) continuously
+  to standard output. A 490-test suite had written **two gigabytes** of such
+  lines before it was half done, and the redirected log stopped being
+  readable. Set `$ProgressReporting = False` before `TestReport` in any
+  script whose output is captured; the report object is unaffected.
+
+### Two silently wrong constructs the merge removed
+
+Both were correct in Wolfram and wrong in Mathics, so they were rewritten in
+forms that are correct in both. They are listed here rather than only in the
+Mathics notes because the rewritten forms are the ones now in the code.
+
+- `list[[-1]] = value` is correct in Wolfram. The merged package uses
+  `list[[Length[list]]] = value`, which is equally correct here and does not
+  write the wrong element on Mathics.
+- `MinimalBy[list, Norm[...] &]` is correct in Wolfram. The merged package
+  minimises the **squared** norm `# . # &` instead: the minimiser is the same,
+  the key stays an exact rational instead of a `Sqrt`, and the comparison
+  never leaves the rationals.
 
 ## Findings from the asymptotic-inverse work (Wolfram 15.0.1, September 2026)
 
