@@ -57,7 +57,7 @@ boundaries. Complete built-in input coverage is not established.
 | **[User guide (HTML)](src/Documentation/UserGuide.html)** · [Markdown source](src/Documentation/UserGuide.md) | Loading the package, function syntax, options, worked inputs and outputs, branch selection, result properties, and possible issues. |
 | **[Result properties (HTML)](src/Documentation/ResultReference.html)** · [Markdown source](src/Documentation/ResultReference.md) | Family-specific metadata, missing values, exactness, native outcomes, and the meaning of object accessors. |
 | **[Recent development changes](docs/CHANGES.md)** | User-visible milestones and migration notes, with links to implementation commits and current coverage limits. |
-| **[Code review reports](external-reports/code-review/README.md)** | Thirty-six reports in four waves: [reports 1–9](external-reports/code-review/wave-1/README.md), [reports 10–18](external-reports/code-review/wave-2/README.md), [reports 19–27](external-reports/code-review/wave-3/README.md), and [reports 28–36](external-reports/code-review/wave-4/README.md), with pinned revisions, findings, evidence, regression candidates, and proposed patches. |
+| **[Code review reports](external-reports/code-review/README.md)** | Thirty-five retained reports in five waves: [1, 4–9](external-reports/code-review/wave-1/README.md), [11, 15–18](external-reports/code-review/wave-2/README.md), [19–25, 27](external-reports/code-review/wave-3/README.md), [28–31, 33–36](external-reports/code-review/wave-4/README.md), and [37–39, 42–45](external-reports/code-review/wave-5/README.md), with pinned revisions, findings, evidence, regression candidates, and proposed patches. Ten retired packages are listed in the [retirement register](external-reports/code-review/README.md#retired-review-packages). |
 | **[Vendored ProveIt articles](vendor/proveit/README.md)** | A revision-pinned TeX/PDF library on asymptotic expansions, transseries, q-analogs, combinatorial sequences, and their interpolated inverses, with topic reading lists and build provenance. |
 
 The article is independent of software syntax. The guide follows the
@@ -191,7 +191,7 @@ regression records are separate from the official Wolfram test results.
 | [docs/article/](docs/article/README.md) | Mathematical article and its build instructions. |
 | [docs/](docs/README.md) | Reading paths and links between mathematical, user, and contributor documentation. |
 | [docs/development/](docs/development/README.md) | Current review status, implementation plans, gotcha notes, and preserved historical engineering chapters. |
-| [external-reports/](external-reports/README.md) | Nine original research proposals and thirty-six later code reviews, with articles, evidence, comparisons, and provenance. |
+| [external-reports/](external-reports/README.md) | Nine original research proposals and thirty-five retained code reviews, with articles, evidence, comparisons, and provenance. |
 | [vendor/](vendor/README.md) | Revision-pinned ProveIt articles on asymptotic expansions and inverses, with TeX, PDFs, topic reading lists, and upstream build provenance. |
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
 | [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/README.md) | The two motivating questions, original online sources, and saved snapshots. |

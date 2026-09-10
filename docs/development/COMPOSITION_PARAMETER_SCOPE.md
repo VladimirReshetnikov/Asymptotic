@@ -3,8 +3,9 @@
 C15 concerns the fixed parameters of an outer remainder when the inner
 expansion introduces a new varying symbol. It consolidates
 [R11 N02](../../external-reports/code-review/wave-2/code-review-11/evidence/findings-delta.json)
-and [R14 N01](../../external-reports/code-review/wave-2/code-review-14/evidence/findings.json)
-in the [review register](CODE_REVIEW_STATUS.md).
+and R14 N01 in the [review register](CODE_REVIEW_STATUS.md); report 14 is now
+[retired](../../external-reports/code-review/README.md#retired-review-packages),
+its C15, C20, C21 and C22 entries having been implemented and verified.
 All 20 focused scope tests pass within the
 [276-test acceptance](../../validation/review-normalization-tests.json).
 This is a bounded repair of parameter capture, not a general uniform-asymptotic
@@ -66,9 +67,9 @@ calls; this is a characterization report, not an acceptance suite.
 
 R11 separately records selected native observations on its historical
 revision; [its README](../../external-reports/code-review/wave-2/code-review-11/README.md#what-ran)
-states that scope. R14 supplies source tracing and independent mathematical
-checks, with [no native Wolfram execution](../../external-reports/code-review/wave-2/code-review-14/README.md#what-actually-ran).
-Neither report is current acceptance evidence.
+states that scope. R14 supplied source tracing and independent mathematical
+checks, with no native Wolfram execution. Neither report is current acceptance
+evidence, and the acceptance records linked above are.
 
 ## Admission and replay contract
 

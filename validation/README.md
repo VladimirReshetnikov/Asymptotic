@@ -1016,6 +1016,33 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Wave-5 modulus witnesses on nonreal retained coefficients
+
+The [three-case characterization](wave5-modulus-witness.json) from
+[ProbeModulusReality.wl](ProbeModulusReality.wl) reproduces the wave-5 finding
+that three separate reports raised. On Wolfram 15.0.1 for Windows, with all
+kernel source hashes recorded and unchanged during the run:
+
+- `Abs[1 + a x] + Abs[1 - a x] - 2` under `Assumptions -> a^2 == -1` returns the
+  finite expression `0` with `Exact -> True` and `RemainderPower -> Infinity`.
+  The exact value is `2 Sqrt[1 + x^2] - 2`, whose leading term is `x^2`. The
+  sign-based absolute-value shortcut rewrote two nonreal retained jets, and the
+  cancellation that follows leaves real coefficients, so the final
+  real-coefficient check has no evidence left to reject.
+- `Abs[Log[x] + a] + Abs[Log[x] - a]` under the same assumption returns
+  `-2 Log[x]`. The exact value is `2 Sqrt[Log[x]^2 + 1]`, so the reported
+  expansion omits `-1/Log[x]`. This witness also sits on a scale boundary: the
+  exact value is not a power-logarithmic expansion at all.
+- The real-parameter control `Assumptions -> Element[a, Reals]` correctly
+  returns `0`.
+
+The two independent identities are checked in the same run with `FullSimplify`
+under the relevant real assumptions. This is a **characterization probe, not an
+acceptance suite**, and no repair is applied. The finding, its retained report
+and the duplicate copies that were retired are recorded in the
+[wave-5 index](../external-reports/code-review/wave-5/README.md); the underlying
+mathematics is in the [mathematical article](../docs/article/README.md).
+
 This directory contains focused runners, characterization probes, build and
 provenance tools, benchmarks, and saved evidence from individual milestones.
 The [test directory guide](../src/Tests/README.md) explains test

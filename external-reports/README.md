@@ -7,12 +7,17 @@ different collections with separate numbering, source snapshots, and evidence.
 | Collection | Contents | Start here |
 | --- | --- | --- |
 | Original proposals | Nine independent mathematical and Wolfram Language implementations, numbered 01–09. | [Proposal index](original-proposals/README.md) · [Analysis and comparison](original-proposals/COMPARISON.md) |
-| Code reviews, wave 1 | Nine review packages, numbered 1–9, concerning the recorded `07a9781` or `75de875` snapshot. | [Wave 1 index](code-review/wave-1/README.md) |
-| Code reviews, wave 2 | Nine incremental review packages, numbered 10–18, concerning snapshot `921387e`. | [Wave 2 index](code-review/wave-2/README.md) |
-| Code reviews, wave 3 | Nine incremental review packages, numbered 19–27, concerning snapshot `6687962`. | [Wave 3 index](code-review/wave-3/README.md) |
-| Code reviews, wave 4 | Nine incremental review packages, numbered 28–36, concerning snapshots `7d1bc83` or `513917b`. | [Wave 4 index](code-review/wave-4/README.md) |
+| Code reviews, wave 1 | Seven retained review packages, numbered 1 and 4–9, concerning the recorded `07a9781` or `75de875` snapshot. | [Wave 1 index](code-review/wave-1/README.md) |
+| Code reviews, wave 2 | Five retained incremental review packages, numbered 11 and 15–18, concerning snapshot `921387e`. | [Wave 2 index](code-review/wave-2/README.md) |
+| Code reviews, wave 3 | Eight retained incremental review packages, numbered 19–25 and 27, concerning snapshot `6687962`. | [Wave 3 index](code-review/wave-3/README.md) |
+| Code reviews, wave 4 | Eight retained incremental review packages, numbered 28–31 and 33–36, concerning snapshots `7d1bc83` or `513917b`. | [Wave 4 index](code-review/wave-4/README.md) |
+| Code reviews, wave 5 | Seven retained incremental review packages, numbered 37–39 and 42–45, concerning snapshots `8e85996` or `651f202`. | [Wave 5 index](code-review/wave-5/README.md) |
 
-The thirty-six code reviews are separate from the nine original proposals.
+The thirty-five retained code reviews are separate from the nine original
+proposals. Ten further packages were retired once every entry they carried was
+implemented, settled, or restated by a retained report; the
+[retirement register](code-review/README.md#retired-review-packages) records
+what each one contributed and where its open entries are still carried.
 The [code review index](code-review/README.md) explains the reviewed revisions
 and evidence categories. For current implementation decisions, use the
 [maintained status register](../docs/development/CODE_REVIEW_STATUS.md), which

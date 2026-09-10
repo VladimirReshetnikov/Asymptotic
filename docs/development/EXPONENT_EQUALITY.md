@@ -36,11 +36,13 @@ their summed coefficient.
 
 Report 13 inspected revision
 [`921387e5ba1239bfda96e63e64e89bf63d9c41e6`](https://github.com/VladimirReshetnikov/Asymptotic/tree/921387e5ba1239bfda96e63e64e89bf63d9c41e6).
-Its [selected native observations](../../external-reports/code-review/wave-2/code-review-13/results/native_observations.json)
-record Wolfram Language 15.0.0 on Linux. These are historical transcriptions
-of selected calls, not a current checkout's aggregate test report. The
-[report README](../../external-reports/code-review/wave-2/code-review-13/README.md#principal-results)
-states the execution scope and limitations.
+Its selected native observations recorded Wolfram Language 15.0.0 on Linux.
+These were historical transcriptions of selected calls, not a current
+checkout's aggregate test report. The package has since been
+[retired](../../external-reports/code-review/README.md#retired-review-packages),
+because C14, C07 and C21 are focused verified and its remaining C12 component
+is carried by report 6; the current evidence for this item is the baseline and
+acceptance record linked above, not the historical transcription.
 
 Set
 

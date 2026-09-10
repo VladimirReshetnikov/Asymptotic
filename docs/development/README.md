@@ -33,11 +33,16 @@ The maintained reader-facing documentation consists of the
 [mathematical article](../article/asymptotic-inverse.pdf) and the
 [package user guide](../../src/Documentation/UserGuide.html).
 
-The [code review library](../../external-reports/code-review/README.md) contains thirty-six
-packages in four waves: [reports 1–9](../../external-reports/code-review/wave-1/README.md),
-[reports 10–18](../../external-reports/code-review/wave-2/README.md),
-[reports 19–27](../../external-reports/code-review/wave-3/README.md), and
-[reports 28–36](../../external-reports/code-review/wave-4/README.md). The maintained
+The [code review library](../../external-reports/code-review/README.md) retains
+thirty-five packages in five waves:
+[reports 1, 4–9](../../external-reports/code-review/wave-1/README.md),
+[reports 11, 15–18](../../external-reports/code-review/wave-2/README.md),
+[reports 19–25, 27](../../external-reports/code-review/wave-3/README.md),
+[reports 28–31, 33–36](../../external-reports/code-review/wave-4/README.md), and
+[reports 37–39, 42–45](../../external-reports/code-review/wave-5/README.md). Ten
+packages whose entries were implemented or duplicated elsewhere are listed in the
+[retirement register](../../external-reports/code-review/README.md#retired-review-packages).
+The maintained
 [code review status](CODE_REVIEW_STATUS.md) consolidates findings, links current
 implementation evidence, and keeps pending repairs separate from deferred API
 and research proposals. The wave indexes record each package's pinned snapshot

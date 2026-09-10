@@ -295,6 +295,11 @@ observation. Read the linked primary ledger and package README for details.
 | [36 N07][R36] | Terminating PFQ provider admission; exact identities, integration unexecuted. | W4-08 |
 | [36 A01][R36] | AST rewrite match counts/postconditions; preventive proposal, no current failed rewrite reproduced. | W4-15 |
 
+Report 32 is retired: T01's work item is closed, and its other seven entries are
+each carried by two or more retained packages. Its rows stay above so the 64-entry
+crosswalk remains complete, and its `[R32]` references resolve to the retirement
+register.
+
 ## Proposals, disagreements, and acceptance decisions
 
 These are maintained proposal groups, not additional authored finding IDs.
@@ -373,7 +378,7 @@ recorded in W4-01 and W4-02.
 [R29]: ../../external-reports/code-review/wave-4/code-review-29/results/novelty-ledger.json
 [R30]: ../../external-reports/code-review/wave-4/code-review-30/evidence/findings.json
 [R31]: ../../external-reports/code-review/wave-4/code-review-31/evidence/novelty_ledger.csv
-[R32]: ../../external-reports/code-review/wave-4/code-review-32/evidence/novelty-ledger.csv
+[R32]: ../../external-reports/code-review/README.md#retired-review-packages
 [R33]: ../../external-reports/code-review/wave-4/code-review-33/evidence/source-novelty-ledger.json
 [R34]: ../../external-reports/code-review/wave-4/code-review-34/evidence/novelty-ledger.csv
 [R35]: ../../external-reports/code-review/wave-4/code-review-35/evidence/novelty_ledger.csv

@@ -40,11 +40,11 @@ and the evidence needed to establish them.
 | Rebuild the guide or inspect its examples | [Guide build instructions](../src/Documentation/README.md) · [Examples](../src/Examples/README.md) |
 | Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients · [Wolfram evaluation notes](WOLFRAM-NOTES.md) · [Mathics evaluation notes](MATHICS-NOTES.md) |
 | Use the package in Mathics3 | [Compatibility and validation guide](Mathics/COMPATIBILITY.md) · [Exact assumptions](Mathics/ASSUMPTIONS.md) · [Callable branch proofs](Mathics/CALLABLES.md) |
-| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Thirty-six code review packages in four waves](../external-reports/code-review/README.md) · [Wave-4 intake](development/WAVE_4_INTAKE.md) |
+| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Thirty-five retained code review packages in five waves](../external-reports/code-review/README.md) · [Wave-4 intake](development/WAVE_4_INTAKE.md) |
 | Check what was actually validated | [Validation record](../validation/README.md), with focused test results and artifact-specific build and review evidence |
 | Explore related asymptotic and inverse theory | [Vendored ProveIt article catalog](../vendor/proveit/README.md), with TeX/PDF sources, reading lists, and provenance |
 | Track the three complete-coverage requirements | [Coverage register](development/COVERAGE_TARGETS.md) · [Vendored asymptotics matrix](development/VENDORED_ASYMPTOTICS.md) |
-| Read submitted research and reviews | [External reports](../external-reports/README.md): nine original proposals and thirty-six later code reviews |
+| Read submitted research and reviews | [External reports](../external-reports/README.md): nine original proposals and thirty-five retained code reviews |
 
 The [native compatibility plan](development/NATIVE_COMPATIBILITY.md) records
 the accepted requirement to completely subsume `Series`, `Asymptotic`, and

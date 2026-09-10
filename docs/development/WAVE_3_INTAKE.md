@@ -81,7 +81,7 @@ W3-02's equivalent-key cases, or W3-09's conditional-source policy.**
 | [23](../../external-reports/code-review/wave-3/code-review-23/README.md) — 4 | N01 → W3-10; N02 → W3-01; N03 → W3-11; N04 → W3-05. |
 | [24](../../external-reports/code-review/wave-3/code-review-24/README.md) — 4 | N01 → W3-01; N02 → W3-02; N03 → W3-12; F01 → W3-13. |
 | [25](../../external-reports/code-review/wave-3/code-review-25/README.md) — 6 | N01, N02 → W3-06; N03 → W3-01; N04 → W3-14; N05 → W3-02; N06 → W3-04. |
-| [26](../../external-reports/code-review/wave-3/code-review-26/README.md) — 4 | N1 → W3-01; N2, N3 → W3-02; P-N1 → W3-04. |
+| [26](../../external-reports/code-review/README.md#retired-review-packages) — 4, package retired | N1 → W3-01; N2, N3 → W3-02; P-N1 → W3-04. Every entry is also carried by a retained report, so nothing here is lost. |
 | [27](../../external-reports/code-review/wave-3/code-review-27/README.md) — 5 | N01 → W3-01; N02 → W3-02; N03 → W3-03; N04 → W3-15; N05 → W3-16. |
 
 ## Proposals and implementation decisions
@@ -97,7 +97,7 @@ coverage remain obligations even where no wave-3 finding names them.
 | Proposal | Sources, decision and validation boundary |
 | --- | --- |
 | One resolved request shared by routing, forwarding, metadata and diagnostics | Reports 19–21 and 24–27; W3-01/W3-02/W3-15. Retain original held syntax, positional role, effective value, explicit/default origin and consumption state; evaluate the proposed explanation facility from that record. Resolve computed keys separately from name equivalence; a rule inside data is not an option. |
-| Alias/default ownership | Reports 20 and 26 propose policies beyond the primary-only repairs in 19/21/25/27. Independent alias defaults and alias-overrides-primary inheritance are distinct alternatives. Choose a coherent policy and test internal analytic replay rather than combining incompatible patch fragments. |
+| Alias/default ownership | Reports 20 and 26 proposed policies beyond the primary-only repairs in 19/21/25/27; report 26 is retired and report 20 remains. Independent alias defaults and alias-overrides-primary inheritance are distinct alternatives, and both are retained here as options. Choose a coherent policy and test internal analytic replay rather than combining incompatible patch fragments. |
 | Shared native coefficient-provider admission | Reports 21/22/25; W3-06, C06/C16. Track chart, lattice, coefficient independence, endpoint, exact termination and regularity separately. The regular Taylor endpoint `q >= Ceiling[c/alpha]` supports indices below that bound; equality can suffice. A continuity screen or `Analytic -> False` alone does not prove a Taylor remainder. |
 | Demand-driven native expression views | Reports 19/20/25/26; W3-04. Specify first/repeated evaluation and serialization before adding caching; measure growth independently of analytic-to-native export. |
 | Orthogonal native outcome metadata | Reports 19/22/23; W3-05. Distinguish actual failures, held residual syntax and legitimate nonfinite results without promoting a syntactically computed output to an analytic theorem. |
