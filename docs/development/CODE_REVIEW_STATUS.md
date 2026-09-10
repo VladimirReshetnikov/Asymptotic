@@ -692,11 +692,20 @@ Finding: [R5 F05][R5]. The calculated residual did not share the label's defect.
 
 ### C11 — Validate externally constructed or restored result associations
 
-**Decision / pending.** A raw `GeneralizedSeries[association]` can present
+**Decision / pending; current boundary probed.** A raw `GeneralizedSeries[association]` can present
 inconsistent finite terms, internal jets, or metadata. Specify which construction
 and import boundaries are supported, then validate invariants there. Avoid
 revalidating every trusted internal operation. Include malformed and older
-saved-object fixtures; coordinate with D02–D03.
+saved-object fixtures; coordinate with D02–D03. On Wolfram 15.0.1 a hand-built
+`GeneralizedSeries[<|"Expression" -> 1 + x, "Variable" -> x|>]` returns its
+stored fields from `Normal`, `s[value]` and property access (a missing key is
+`Missing["KeyAbsent", ...]`), while every operation refuses with a structured
+failure (`InvalidCompositeOperand`, `UnsupportedScale`,
+`MissingRefinementSource`, `Unsupported`); no operation consumed the malformed
+object silently. `InputForm` round-trips an operation result to a `SameQ`
+object within one kernel session. The supported construction boundary is
+therefore "constructors and operations only"; accessor-level validation of
+imported objects remains the open decision.
 Source: [result accessors](../../src/Kernel/AsymptoticAnalysis.wl).
 Finding: [R4 A05][R4]. No claim is made that arbitrary hand-built associations
 already have a documented validity guarantee.
