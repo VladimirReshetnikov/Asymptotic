@@ -31,6 +31,7 @@ Load either entry point from the repository root:
 ```wolfram
 Get["src/Kernel/AsymptoticAnalysis.wl"];
 (* Or use the generated, self-contained AsymptoticAnalysis.wl. *)
+If[StringContainsQ[$Version, "Mathics"], $IterationLimit = 1000000];
 
 s = AsymptoticInverse[x + x^2, {x, 0}, {y, 4}];
 Normal[s]
@@ -42,6 +43,13 @@ Evaluate `Get` before parsing subsequent package calls. A command-line
 as one expression; its previously unknown function names can bind to
 `Global``. Separate input expressions or a `.wl` script preserve streaming
 package context resolution.
+
+The larger iteration budget is an explicit Mathics session setting. Mathics
+counts nonliteral ownvalue substitutions throughout an input evaluation;
+its default of 4096 can stop valid package calculations, including a modest
+Gamma expansion. The package does not change this global setting itself.
+Package term limits and the regression runner's process timeout remain in
+force independently of the evaluator budget.
 
 ## Isolation from the Wolfram kernel
 
@@ -73,12 +81,36 @@ checks reject the original forms.
   assumptions in two-argument simplification. The adapter passes an
   equivalent list of assumptions. Its algebraic and inequality reasoning
   remains more limited than Wolfram's.
+  A conservative [exact assumption adapter](ASSUMPTIONS.md) proves finite
+  realness and signs from explicit conjunctions, preserving unresolved
+  branches. It does not implement quantifier elimination.
+* **Held callables:** named `Function` parameters require the three-argument
+  held `Extract` operation that Mathics lacks. The adapter preserves held
+  parameters and lexical binding while traversing the requested parts.
+* **Messages and `Check`:** Mathics 10's two-argument `Check` can treat an
+  earlier `Print` in the same input evaluation as an error from its checked
+  expression. Evaluate progress output in a separate input. Regression
+  diagnostics are emitted after the tested calculation for this reason.
+* **Finite derivative sums:** Mathics can evaluate a symbolic derivative
+  index before binding a finite `Sum`. The perturbative inverse and
+  logarithmic Euler adapters use equivalent finite tables.
+* **Certificates:** the Mathics adapter updates the final history entry
+  using its positive list index. Mathics 10 can otherwise raise a Python
+  `IndexError` for the equivalent negative-index assignment.
 * **Exact numbers:** unsupported algebraic-number normalization retains an
   exact symbolic expression and uses exact simplification. It never replaces
   an exact exponent or coefficient by a floating-point approximation.
 * **Taylor series:** local package Taylor calls apply assumptions in a
   scope because Mathics `Series` does not accept the Wolfram assumptions
   option. Native backend requests retain their distinct native contract.
+  The limit adapter maps Wolfram direction strings to Mathics' numeric
+  direction convention; Mathics' native limit engine has limited assumption
+  handling, so parameter-dependent limits still need individual validation.
+* **Gamma asymptotics:** a finite large-positive-argument Stirling model
+  supplies the missing native `LogGamma` series to the existing jet algebra.
+  Its Bernoulli tail remains a Poincare remainder, with term limits enforced;
+  it is never reported as an exact expansion. See
+  [DLMF 5.11](https://dlmf.nist.gov/5.11).
 * **Display:** Mathics and Wolfram front ends have different box support.
   Use `Normal[s]`, `s["Remainder"]`, and `InputForm[s]` when inspecting
   computation results independently of their display.
@@ -99,11 +131,22 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-Initial live checks established ordinary quadratic inversion and the local
-sine expansion. Broader feature acceptance is still in progress; no general
-claim of parity with Wolfram is made. Symbolic branch proofs, sophisticated
-native asymptotics, special-function evaluator coverage, numerical checks,
-and notebook display require feature-specific testing.
+Live checks now cover ordinary and generalized inversion, elementary forward
+expansions, symbolic positive coefficients, named and slot callables,
+arithmetic and truncation, flat exponential sectors, perturbative formulas,
+and an exact rational certificate. A direct Gamma check also recovers the
+first three Stirling coefficients and cubic relative remainder. A frozen
+34-case feature run passed 29 cases before subsequent targeted fixes; a
+consolidated acceptance run is still pending. The numerical smoke check uses
+an exact quadratic root and does not establish arbitrary-precision accuracy.
+
+Symbolic branch proofs, sophisticated native asymptotics, remaining special
+functions, refinement, nontrivial numerical certificates, and notebook
+display require feature-specific testing. Mathics does not implement all
+Wolfram builtins, and an explicit native backend request is limited to the
+interpreter's actual implementation. Unsupported proofs must remain failures
+or unresolved expressions; they are not replaced by guessed domains or
+numerical evidence.
 
 The unmodified Wolfram baseline at `6687962` produced **1,452 passes and
 12 failures across 79 suites** on Wolfram 15.0.1 for Windows. Preservation

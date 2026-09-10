@@ -150,6 +150,10 @@ Version 1.8.0 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)
 for the exact scope of each run.
 
+Mathics3 compatibility is also under active validation. See the
+[Mathics compatibility guide](docs/Mathics/COMPATIBILITY.md) for installation,
+tested features, interpreter settings, and remaining limitations.
+
 ## Repository
 
 | Location | Content |

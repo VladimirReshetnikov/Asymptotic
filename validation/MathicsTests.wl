@@ -6,12 +6,20 @@ portableSource = Environment["ASYMPTOTIC_PORTABLE_SOURCE"];
 portableSelection = Environment["ASYMPTOTIC_PORTABLE_CASE"];
 If[! StringQ[portableSource] || ! StringQ[portableSelection], Exit[2]];
 Print["ASYMPTOTIC_PORTABLE_KERNEL\t", $Version];
+(* Mathics counts every nonliteral OwnValue substitution against the current
+   input's iteration budget. Complex finite package requests need a larger
+   session budget than its default 4096. This is an explicit test environment
+   setting, not a package side effect; MaxTerms and OS timeouts still apply. *)
+If[StringContainsQ[$Version, "Mathics"], $IterationLimit = 1000000];
+Print["ASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t", $IterationLimit];
 portableLoadResult = Check[Get[portableSource], $Failed];
 
 SetAttributes[portableTest, HoldAll];
 portableTest[id_String, group_String, actual_, expected_] :=
   If[id === portableSelection, Module[{a, e, success},
-    Print["ASYMPTOTIC_PORTABLE_START\t", id];
+    (* Mathics 10's two-argument Check mistakes any earlier Print in the
+       current evaluation for a message. Emit diagnostics only after the
+       assertion has evaluated; Python supplies progress before each case. *)
     a = actual; e = expected; success = SameQ[a, e];
     Print["ASYMPTOTIC_PORTABLE_ACTUAL_BEGIN"];
     Print[ToString[a, InputForm]];
@@ -34,6 +42,9 @@ portablePrimitive[held_HoldComplete] := ReleaseHold[
       System`AssociateTo -> AsymptoticAnalysis`Mathics`AssociateTo,
       System`KeyDrop -> AsymptoticAnalysis`Mathics`KeyDrop,
       System`KeyTake -> AsymptoticAnalysis`Mathics`KeyTake,
+      System`Element -> AsymptoticAnalysis`Mathics`Element,
+      System`Simplify -> AsymptoticAnalysis`Mathics`Simplify,
+      System`FullSimplify -> AsymptoticAnalysis`Mathics`FullSimplify,
       System`FirstPosition -> AsymptoticAnalysis`Mathics`FirstPosition}, held]];
 
 portableTest["loading-no-messages", "loading", portableLoadResult =!= $Failed, True];
@@ -73,6 +84,8 @@ portableTest["primitive-module-return-through-loop", "primitive",
     Do[If[k === 2, Return[17, Module]], {k, 1, 3}]; 99]]],
   17];
 
+portableTest["primitive-check-is-unpolluted", "primitive", Check[1 + 1, $Failed], 2];
+
 portableTest["primitive-nested-module-return", "primitive",
   portablePrimitive[HoldComplete[Module[{value},
     value = Module[{}, Do[Return[7, Module], {2}]; 90]; value + 1]]],
@@ -91,8 +104,8 @@ portableTest["primitive-lookup-key-lists", "primitive",
 
 portableTest["primitive-association-update", "primitive",
   portablePrimitive[HoldComplete[Module[{a = <|"a" -> 1, "b" -> 2|>},
-    AssociateTo[a, {"a" -> 3, "c" -> 4}];
-    {a, KeyDrop[a, {"b"}], KeyTake[a, {"c", "a"}]}]]],
+    System`AssociateTo[a, {"a" -> 3, "c" -> 4}];
+    {a, System`KeyDrop[a, {"b"}], System`KeyTake[a, {"c", "a"}]}]]],
   {<|"a" -> 3, "b" -> 2, "c" -> 4|>, <|"a" -> 3, "c" -> 4|>, <|"c" -> 4, "a" -> 3|>}];
 
 portableTest["primitive-first-position-pattern", "primitive",
@@ -101,6 +114,42 @@ portableTest["primitive-first-position-pattern", "primitive",
     absent = FirstPosition[{a, b}, _Integer, count++; {99}];
     {found, absent, count}]]],
   {{2}, {99}, 1}];
+
+portableTest["assumptions-positive-real-calculus", "assumptions",
+  portablePrimitive[HoldComplete[Module[{u},
+    {TrueQ[FullSimplify[Element[-1/u, Reals], u > 0]],
+      TrueQ[FullSimplify[1/u > 0, u > 0]],
+      TrueQ[FullSimplify[Element[Log[u], Reals], u > 0]],
+      Expand[FullSimplify[Sqrt[(1 + 2 u)^2], u > 0] - (1 + 2 u)]}]]],
+  {True, True, True, 0}];
+
+portableTest["assumptions-nonreal-branches-are-not-admitted", "assumptions",
+  portablePrimitive[HoldComplete[Module[{a},
+    {FullSimplify[Element[Log[a], Reals], a < 0],
+      TrueQ[FullSimplify[Element[Log[a], Reals], Element[a, Reals]]],
+      TrueQ[FullSimplify[Element[(-a)^(1/3), Reals], a > 0]]}]]],
+  {False, False, False}];
+
+portableTest["assumptions-square-root-keeps-sign", "assumptions",
+  portablePrimitive[HoldComplete[Module[{a},
+    {FullSimplify[Sqrt[a^2], a < 0] === -a,
+      FullSimplify[Sqrt[a^2], Element[a, Reals]] === Abs[a]}]]],
+  {True, True}];
+
+portableTest["assumptions-disjunction-does-not-imply-a-disjunct", "assumptions",
+  portablePrimitive[HoldComplete[Module[{a, b}, TrueQ[FullSimplify[a > 0, a > 0 || b > 0]]]]],
+  False];
+
+portableTest["assumptions-symbolic-inverse-coefficient", "assumptions",
+  Module[{a, x, y, s}, s = AsymptoticInverse[a x + x^2, {x, 0}, {y, 4}, Assumptions -> a > 0];
+    Together[Normal[s] - (y/a - y^2/a^3 + 2 y^3/a^5)]],
+  0];
+
+portableTest["assumptions-positive-product-coefficient", "assumptions",
+  Module[{a, b, x, y, s}, s = AsymptoticInverse[a b x + x^2, {x, 0}, {y, 4},
+      Assumptions -> a b > 0];
+    Together[Normal[s] - (y/(a b) - y^2/(a b)^3 + 2 y^3/(a b)^5)]],
+  0];
 
 portableTest["forward-polynomial-exact", "forward",
   Module[{x, s}, s = AsymptoticExpansion[1 + x + x^2, {x, 0, 4}, "Backend" -> "Package"];
@@ -133,6 +182,22 @@ portableTest["forward-decaying-exponential", "forward",
   Module[{x, s}, s = AsymptoticExpansion[Exp[-1/x], {x, 0, 2}, "Backend" -> "Package"];
     {Normal[s] === Exp[-1/x], s["Remainder"], s["Exact"], s["Terms"]}],
   {True, 0, True, {{0, 1}}}];
+
+portableTest["callable-named-function", "callable",
+  Module[{t, x, s}, s = AsymptoticExpansion[Function[{t}, Exp[t]], {x, 0, 4}];
+    {Expand[Normal[s] - (1 + x + x^2/2 + x^3/6)], s["RemainderPower"]}],
+  {0, 4}];
+
+portableTest["callable-slot-function", "callable",
+  Module[{x, s}, s = AsymptoticExpansion[Sin[#] &, {x, 0, 5}];
+    {Expand[Normal[s] - (x - x^3/6)], s["RemainderPower"]}],
+  {0, 5}];
+
+portableTest["callable-inverse-function", "callable",
+  Module[{y, s}, s = AsymptoticExpansion[
+      InverseFunction[ConditionalExpression[# + #^2, 0 < # < 1] &], {y, 0, 4}];
+    {Expand[Normal[s] - (y - y^2 + 2 y^3)], s["RemainderPower"]}],
+  {0, 4}];
 
 portableTest["inverse-quadratic", "inverse",
   Module[{x, y, s}, s = AsymptoticInverse[x + x^2, {x, 0}, {y, 4}];
@@ -181,6 +246,15 @@ portableTest["inverse-perturbative-formula", "inverse",
   Module[{x, y}, Expand[PerturbativeInverse[x^2 (1 + Log[x]), {x, y}, 2] -
     (y - y^2 (1 + Log[y]) + y^3 (2 Log[y]^2 + 5 Log[y] + 3))]],
   0];
+
+portableTest["inverse-perturbative-general-core", "inverse",
+  Module[{x, y}, Expand[PerturbativeInverse[Sqrt[y], x^3, {x, y}, 2] -
+    (Sqrt[y] - y/2 + 5 y^(3/2)/8)]],
+  0];
+
+portableTest["inverse-perturbative-zero-order", "inverse",
+  Module[{x, y}, PerturbativeInverse[x^2, {x, y}, 0] === y],
+  True];
 
 portableTest["arithmetic-add", "arithmetic",
   Module[{x, a, b, s}, a = AsymptoticExpansion[Sin[x], {x, 0, 5}];
@@ -235,6 +309,38 @@ portableTest["contracts-cutoff-below-leading", "contracts",
 portableTest["contracts-input-remainder", "contracts",
   Module[{x, y}, MatchQ[AsymptoticInverse[x + x^2 (1 + Log[x]), {x, 0}, {y, 4},
       "InputRemainder" -> {3, 1}], _Failure]],
+  True];
+
+portableTest["contracts-perturbative-variables", "contracts",
+  Module[{x, y},
+    {MatchQ[PerturbativeInverse[x^2, {x, x}, 2], Failure["InvalidVariables", _Association]],
+      MatchQ[PerturbativeInverse[x^2 + y, {x, y}, 2], Failure["InvalidVariables", _Association]]}],
+  {True, True}];
+
+portableTest["contracts-complex-inputs", "contracts",
+  Module[{x, y},
+    {MatchQ[AsymptoticExpansion[I + x, {x, 0, 3}, "Backend" -> "Package"], _Failure],
+      MatchQ[AsymptoticInverse[I x + x^2, {x, 0}, {y, 3}], _Failure]}],
+  {True, True}];
+
+portableTest["flat-first-exponential-sector", "flat",
+  Module[{x, y, s}, s = AsymptoticFlatInverse[x + Exp[-1/x], {x, 0}, {y, 1}];
+    {s["Sectors"], Expand[Normal[s] - (y - Exp[-1/y])]}],
+  {{{1, -1}}, 0}];
+
+portableTest["certificate-exact-rational-root", "certificate",
+  Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
+    c = InverseCertificate[s, 4, "Interval" -> {1, 3}, "Center" -> 2,
+      "TargetError" -> 10^-20, "MaxRefinements" -> 0, "RefineExpansion" -> False];
+    AssociationQ[c] && TrueQ[c["Certified"]] && TrueQ[c["AccuracyGoalReached"]] &&
+      c["CertifiedErrorBound"] === 0 && TrueQ[c["RootEnclosure"][[1]] <= 2 <= c["RootEnclosure"][[2]]]],
+  True];
+
+portableTest["numerical-exact-quadratic-inverse", "numerical",
+  Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
+    c = InverseNumericalCheck[s, 4, WorkingPrecision -> 30];
+    AssociationQ[c] && TrueQ[Abs[c["ReferenceRoot"] - 2] < 10^-15] &&
+      TrueQ[Abs[c["ForwardResidual"]] < 10^-15]],
   True];
 
 portableTest["special-gamma-stirling", "special",
