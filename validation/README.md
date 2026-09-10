@@ -1019,6 +1019,36 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Refinement postconditions and canonical budgets
+
+The [eighteen-file run](refinement-postcondition-tests.json) from
+[CheckRefinementPostconditions.wl](CheckRefinementPostconditions.wl) passes
+**291/291** on Wolfram 15.0.1 for Windows with unchanged sources. The three
+cases in
+[ReviewRefinementPostconditions.wlt](../src/Tests/ReviewRefinementPostconditions.wlt)
+pin C08 and W3-07: the negative tenth power of a truncated `Exp[x] - 1`
+refined to cutoff 5 reaches the fresh expansion in two replay rounds; a
+direct `SeriesPower[s, -10, 5]` on a cutoff-3 operand records `"Cutoff" -> -8`
+beside `"RequestedCutoff" -> 5`, and a replay whose ancestor cannot supply
+the demand still fails with `InsufficientInputOrder`; an exact derived zero
+and `0 inv + 5` refine with `"Strategy" -> "ExactDerivedValue"`, zero
+coefficient evaluations and unchanged assumptions and domains, while a lower
+request keeps the retargeting path. The three cases in
+[ReviewCanonicalBudgets.wlt](../src/Tests/ReviewCanonicalBudgets.wlt) pin P01
+and P05: `SeriesPower[e, 100, 3]` on an exact 41-term operand and the forward
+expansion of `(1 + x + ... + x^10)^300` at cutoff 3 finish in well under five
+seconds with the correct leading terms, trimmed intermediate products keep
+valid remainder powers, and `Log[(2^521 - 1) (2^607 - 1)]` canonicalizes
+within the factoring budget as an opaque cofactor beside exact prime-factor
+forms for small, prime and mixed arguments. The other fifteen files are the
+refinement, provenance, operation, arithmetic, result, inverse, exponent,
+unit-precision, core, Fourier, logarithmic, normalization, wave-5, Dirichlet,
+bound-transport and composition-scope suites that share recipe replay,
+integer powers and logarithm canonicalization. The run was executed in a
+Wolfram MCP kernel through an `Exit`-free copy of the runner because another
+session held the batch license seat; the receipt records the same source
+hashes. No full package suite was run.
+
 ## Lifted-operand templates and provenance measurements
 
 [MeasureProvenanceGrowth.wl](MeasureProvenanceGrowth.wl) is a read-only

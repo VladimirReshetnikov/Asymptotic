@@ -3621,20 +3621,26 @@ has an ordered scale.</p>
 <section id="seriespower" class="level3">
 <h3>SeriesPower</h3>
 <p><code>SeriesPower[s, r]</code> takes a power using the same dispatch
-and remainder rules as <code>s^r</code>. A fixed exponent must be an
-exact real numeric value. Supported varying exponents use the real
-logarithm and exponential calculus. <code>SeriesPower[s, r, h]</code>
-supplies an explicit cutoff. Noninteger and varying powers require the
-appropriate positive-base branch. Reciprocal powers can reduce absolute
-precision. The zeroth power is the constant <code>1</code> only where
-the base is nonzero: it requires a retained leading term whose
-coefficient is provably nonzero on the parameter domain, so
-<code>a x + x^2</code> with merely real <code>a</code> returns
-<code>Failure[&quot;UnprovedNonvanishing&quot;, ...]</code> while
-<code>a &gt; 0</code> or <code>a != 0</code> gives <code>1</code>, and a
-pure remainder returns <code>Failure[&quot;IndeterminatePower&quot;, ...]</code>.
-On a Gamma or Barnes inverse the requested cutoff is recorded on the
-constant result.</p>
+and remainder rules as <code>s^r</code>. A nonnegative integer power
+trims every intermediate product to the working cutoff, so a many-term
+exact operand raised to a large power at a small cutoff costs only the
+retained terms; with an <code>Automatic</code> cutoff an exact operand&#39;s
+integer power stays exact. When the requested cutoff exceeds the
+precision the operand carries, the result records the achieved value in
+<code>&quot;Cutoff&quot;</code> and the request in <code>&quot;RequestedCutoff&quot;</code>.
+A fixed exponent must be an exact real numeric value. Supported varying
+exponents use the real logarithm and exponential calculus.
+<code>SeriesPower[s, r, h]</code> supplies an explicit cutoff.
+Noninteger and varying powers require the appropriate positive-base
+branch. Reciprocal powers can reduce absolute precision. The zeroth
+power is the constant <code>1</code> only where the base is nonzero: it
+requires a retained leading term whose coefficient is provably nonzero
+on the parameter domain, so <code>a x + x^2</code> with merely real
+<code>a</code> returns <code>Failure[&quot;UnprovedNonvanishing&quot;, ...]</code>
+while <code>a &gt; 0</code> or <code>a != 0</code> gives <code>1</code>,
+and a pure remainder returns
+<code>Failure[&quot;IndeterminatePower&quot;, ...]</code>. On a Gamma or Barnes
+inverse the requested cutoff is recorded on the constant result.</p>
 <p>A pure remainder does not establish the sign needed for a noninteger
 power. This also applies to powers nested inside an observable: for
 example, <code>SeriesObservable[s, 1 + Sqrt[z], z]</code> returns
@@ -3901,17 +3907,28 @@ blocks without touching the retained state, and compare
 accepts the options of <a href="#InverseCertificate">InverseCertificate</a> as association keys.
 Do not mix <code>&quot;AdditionalBlocks&quot;</code> with a numerical request.</p>
 <p>Refinement preserves the original function, assumptions, selected
-branch, and declared input precision. A derived result retains its
-operands in an operation recipe for replay; a scalar or regular operand
-lifted beside an expansion retains only a chart template of that
-expansion, so <code>s + 1</code> and <code>s Sin[x]</code> chains grow
-linearly, while an expression that names the same object twice, such as
-<code>SeriesAdd[t, t]</code>, stores it twice in <code>InputForm</code>.
-Refinement ignores later ambient <code>$Assumptions</code>, including
-when replaying a constructor or an operation recipe; see <a href="#assumption-context">Assumptions and Parameter Domains</a>. Exact
-terminating results can stop before an additional-block goal. A
-numerical request returns a certificate for the source root; it does not
-replace the symbolic remainder with a numerical tolerance.</p>
+branch, and declared input precision. Replaying an operation recomputes
+its operands with a margin and, when the replayed operation transports
+less precision than requested, repeats with the observed shortfall added
+to the operand demand (up to three extra rounds, reported as
+<code>&quot;ReplayRounds&quot;</code>); a request that stays short records the
+achieved value in <code>&quot;Cutoff&quot;</code> with the request in
+<code>&quot;RequestedCutoff&quot;</code> and <code>&quot;AchievedCutoff&quot;</code> in the
+statistics. A derived result with remainder <code>0</code> is exact at
+every cutoff and is refined without recomputing its operands
+(<code>&quot;Strategy&quot; -&gt; &quot;ExactDerivedValue&quot;</code>). A derived result
+retains its operands in an operation recipe for replay; a scalar or
+regular operand lifted beside an expansion retains only a chart template
+of that expansion, so <code>s + 1</code> and <code>s Sin[x]</code>
+chains grow linearly, while an expression that names the same object
+twice, such as <code>SeriesAdd[t, t]</code>, stores it twice in
+<code>InputForm</code>. Refinement ignores later ambient
+<code>$Assumptions</code>, including when replaying a constructor or an
+operation recipe; see <a href="#assumption-context">Assumptions and
+Parameter Domains</a>. Exact terminating results can stop before an
+additional-block goal. A numerical request returns a certificate for the
+source root; it does not replace the symbolic remainder with a numerical
+tolerance.</p>
 <p>Special-function adapters replay their own order convention. For
 standalone exact-core, exponential-core, flat, and Fourier constructors,
 request additional terms by calling the corresponding constructor again;

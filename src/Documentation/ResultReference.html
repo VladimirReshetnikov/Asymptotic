@@ -1182,8 +1182,10 @@ inverse-log factor.</td>
 <td>On construction, <code>&quot;RequestedCutoff&quot;</code> preserves the
 incoming cutoff, including <code>Automatic</code>; <code>&quot;Cutoff&quot;</code>
 records the retained boundary chosen for a term goal or the explicit
-cutoff. Later operations can add their own requested/effective precision
-metadata.</td>
+cutoff. An operation result records the cutoff it actually transports:
+when a request exceeds the precision the operands carry,
+<code>&quot;Cutoff&quot;</code> is the achieved value and
+<code>&quot;RequestedCutoff&quot;</code> the request.</td>
 </tr>
 <tr>
 <td><code>&quot;SourceScale&quot;</code>, <code>&quot;SourceOffset&quot;</code>,
@@ -1661,8 +1663,11 @@ not simply transported as a uniform bound.</td>
 <td><code>&quot;RefinementStatistics&quot;</code>,
 <code>&quot;RefinementHistory&quot;</code></td>
 <td>Operation-specific counts and history added by supported refinement.
-They are not a mathematical error certificate or a uniform performance
-guarantee.</td>
+A replayed operation reports <code>&quot;ReplayRounds&quot;</code> and, when the
+request stayed short, <code>&quot;AchievedCutoff&quot;</code>; an exact derived
+value reports <code>&quot;Strategy&quot; -&gt; &quot;ExactDerivedValue&quot;</code> with
+zero coefficient evaluations. They are not a mathematical error
+certificate or a uniform performance guarantee.</td>
 </tr>
 <tr>
 <td><code>&quot;RefinementRequest&quot;</code></td>

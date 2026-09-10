@@ -98,27 +98,31 @@ seriesFlat[d_, limit_] := Module[{p, b, j, ass = seriesAss[d], ell = d["LogVaria
   j = pAdd[pMul[p, d["Jet"], ell, ass, limit], b, ell, ass];
   Join[d, <|"Prefactor" -> 1, "Offset" -> 0, "Jet" -> j|>]];
 
-seriesMake[d0_, recipe_, cutoff_: Automatic] := Module[{d = d0, j, w, ell, p, off, expr, rem, terms},
+seriesMake[d0_, recipe_, cutoff_: Automatic] := Module[{d = d0, j, w, ell, p, off, expr, rem, terms, achieved},
   {j, w, ell, p, off} = Lookup[d, {"Jet", "ScaleVariable", "LogVariable", "Prefactor", "Offset"}];
   j = {realCoefficientRows[j[[1]], ell, seriesAss[d]], j[[2]], j[[3]]};
   If[cutoff =!= Automatic, j = seriesTrim[j, cutoff, ell, seriesAss[d]]];
   If[j[[1]] === {} && j[[2]] === Infinity, p = 1];
-  d = Join[d, <|"Jet" -> j, "Prefactor" -> p, "Cutoff" -> cutoff,
+  (* A request the transported precision cannot meet is recorded as the
+     achieved cutoff beside the request, never as the request alone (C08). *)
+  achieved = If[cutoff =!= Automatic && j[[2]] =!= Infinity && less[j[[2]], cutoff], j[[2]], cutoff];
+  d = Join[d, <|"Jet" -> j, "Prefactor" -> p, "Cutoff" -> achieved,
     "RemainderDerivativeOrder" -> If[j[[2]] === Infinity, Infinity, Lookup[d, "RemainderDerivativeOrder", 0]]|>];
   expr = off + p seriesJetExpression[j, w, ell];
   rem = If[j[[2]] === Infinity, 0, Abs[p] PowerLogRemainder[w, j[[2]], j[[3]]]];
   terms = {#[[1]], #[[2]] /. ell -> Log[w]} & /@ j[[1]];
-  GeneralizedSeries[<|"Kind" -> "Derived", "Scale" -> If[p === 1, "PowerLog", "Factored"],
+  GeneralizedSeries[Join[<|"Kind" -> "Derived", "Scale" -> If[p === 1, "PowerLog", "Factored"],
     "Expression" -> expr, "Remainder" -> rem,
     "RemainderScaleExpression" -> If[rem === 0, 0, Abs[p] w^j[[2]] (1 + Abs[Log[w]])^j[[3]]],
     "RemainderPower" -> j[[2]], "RemainderLogDegree" -> j[[3]], "RemainderVariable" -> w,
     "Prefactor" -> p, "Offset" -> off, "Blocks" -> j[[1]], "Terms" -> terms,
     "TermConvention" -> "Offset + Prefactor Sum[w^beta C[Log[w]]]; the cutoff applies inside the prefactor.",
     "LogVariable" -> ell, "Variable" -> d["Variable"], "Assumptions" -> d["Assumptions"],
-    "TargetDomain" -> Lookup[d, "Domain", True], "Cutoff" -> cutoff,
+    "TargetDomain" -> Lookup[d, "Domain", True], "Cutoff" -> achieved,
     "Exact" -> (rem === 0), "RemainderDerivativeOrder" -> Lookup[d, "RemainderDerivativeOrder", 0],
     "SeriesRepresentation" -> d, "SeriesRecipe" -> recipe,
-    "SeriesData" -> Missing["ExplicitCalculus"]|>]];
+    "SeriesData" -> Missing["ExplicitCalculus"]|>,
+    If[achieved === cutoff, <||>, <|"RequestedCutoff" -> cutoff|>]]]];
 
 seriesCompatible[a_, b_] := Module[{ass = seriesAss[a] && seriesAss[b]},
   If[TrueQ[Simplify[Not[ass]]], fail["IncompatibleDomains", "The operands have conflicting branch domains."]];
@@ -239,7 +243,8 @@ seriesPower[s_, r_, cut_, limit_, truncate_: True] := Module[{d, flat, ell, ass,
     If[d["Jet"][[2]] =!= Infinity, h = Max[h, d["Jet"][[2]] + alpha (r - 1)]]];
   If[! IntegerQ[r] && ! provablyPositive[d["Prefactor"], ass],
     fail["NonpositiveBase", "A fractional observable power needs a provably positive exact prefactor."]];
-  j = fwdPower[d["Jet"], r, Unique["w$"], ell, ass, h, limit];
+  j = fwdPower[d["Jet"], r, Unique["w$"], ell, ass,
+    If[cut === Automatic && d["Jet"][[2]] === Infinity && IntegerQ[r] && r >= 0, Infinity, h], limit];
   seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> d["Prefactor"]^r|>], {"Power", {s}, r},
     If[cut === Automatic || ! TrueQ[truncate], Automatic, h]]];
 AsymptoticAnalysis`SeriesPower[s_GeneralizedSeries, r_, opts : OptionsPattern[]] :=
@@ -656,11 +661,14 @@ seriesRefinementResult[result_, original_, cutoff_] := Module[{data, stats},
     "ModelReused" -> False, "ReusedBlocks" -> 0,
     "NewCoefficientEvaluations" -> Missing["ReplayNotInstrumented"],
     "Evidence" -> "Recomputed from retained source or operation recipe; no coefficient reuse or work count is claimed."|>;
+  If[IntegerQ[$replayRounds], stats = Join[stats, <|"ReplayRounds" -> $replayRounds|>]];
+  If[KeyExistsQ[data, "RequestedCutoff"], stats = Join[stats, <|"AchievedCutoff" -> data["Cutoff"]|>]];
   GeneralizedSeries[Join[data, <|"RefinementStatistics" -> stats,
     "RefinementHistory" -> Append[Lookup[original[[1]], "RefinementHistory", {}], stats]|>]]];
 
-AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := catch[seriesRefinementResult[Module[
-  {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared},
+$replayRounds = None;
+AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := Block[{$replayRounds = None}, catch[seriesRefinementResult[Module[
+  {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared, extra, rounds, achieved},
   requireAnalyticSeries[s];
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
   If[KeyExistsQ[a, "InverseFunctionExpression"],
@@ -704,14 +712,35 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
     Return[seriesMake[Join[r, <|"Variable" -> a["Variable"]|>], {"CoordinateRefine", {s}}, h], Module]];
   recipe = Lookup[a, "SeriesRecipe", Missing["NoRecipe"]];
   If[MissingQ[recipe], fail["MissingRefinementSource", "The expansion has no retained source or operation recipe; its existing remainder cannot be improved by truncation."]];
+  (* An exact derived value is valid at every cutoff: a request at or above
+     its cutoff needs no operand work, and must not demand coefficients an
+     uncertain ancestor cannot supply (W3-07). A lower request keeps the
+     documented retargeting path. *)
+  If[Lookup[a, "Remainder", None] === 0 && (Lookup[a, "Cutoff", Automatic] === Automatic || ! less[h, a["Cutoff"]]),
+    Return[seriesExactRefinement[s, h], Module]];
   operands = recipe[[2]];
   (* Recompute operands with a guard margin. The final operation still clips
      to its actual transported precision, so this never invents coefficients.
      A lifted operand's chart template is not an operand: it is passed as
      stored, and the lifted expression is re-expanded to the working cutoff. *)
-  args = If[seriesRecipeTemplateQ[recipe], operands,
-    AsymptoticAnalysis`SeriesRefine[#, h + 2 + Abs[Min[0, Lookup[seriesData[#, limit], "Jet"][[2]] /. Infinity -> 0]], "MaxTerms" -> limit] & /@ operands];
-  If[AnyTrue[args, FailureQ], Return[First[Select[args, FailureQ]], Module]];
+  (* The margin is a first estimate. When the replayed operation transports
+     less precision than requested, the observed shortfall is added to the
+     operand demand and the operation replayed, up to three more times;
+     seriesMake then records the achieved cutoff beside the request (C08). *)
+  extra = 0; rounds = 0;
+  While[True,
+    args = If[seriesRecipeTemplateQ[recipe], operands,
+      AsymptoticAnalysis`SeriesRefine[#, h + 2 + extra + Abs[Min[0, Lookup[seriesData[#, limit], "Jet"][[2]] /. Infinity -> 0]], "MaxTerms" -> limit] & /@ operands];
+    If[AnyTrue[args, FailureQ], Return[First[Select[args, FailureQ]], Module]];
+    r = seriesReplayOperation[recipe, args, a, h, limit];
+    rounds++;
+    achieved = If[MatchQ[r, _GeneralizedSeries], Lookup[r[[1]], "RemainderPower", Infinity], Infinity];
+    If[seriesRecipeTemplateQ[recipe] || ! exactRealQ[achieved] || ! less[achieved, h] || rounds > 3, Break[]];
+    extra += h - achieved];
+  $replayRounds = rounds;
+  r], s, h]]];
+
+seriesReplayOperation[recipe_, args_, a_, h_, limit_] :=
   Switch[recipe[[1]],
     "Add", seriesBinary["Add", args[[1]], args[[2]], h, limit],
     "Multiply", seriesBinary["Multiply", args[[1]], args[[2]], h, limit],
@@ -728,4 +757,12 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
       Lookup[seriesData[First[args], limit], "RemainderDerivativeOrder", 0] < recipe[[3]],
         fail["UnprovedRefinedDerivative", "A derivative bound declared for the old remainder does not establish the stronger bound for the refined remainder. Refine the source first, then supply its derivative contract."]];
       seriesDerivative[First[args], recipe[[3]], Automatic, h, limit],
-    _, fail["MissingRefinementSource", "This internal derived representation has no replayable public recipe."]]], s, h]];
+    _, fail["MissingRefinementSource", "This internal derived representation has no replayable public recipe."]];
+
+seriesExactRefinement[s : GeneralizedSeries[a_Association], h_] := Module[{stats},
+  stats = <|"Strategy" -> "ExactDerivedValue", "SourceCutoff" -> Lookup[a, "Cutoff", Missing["NotAvailable"]],
+    "RequestedCutoff" -> h, "ModelReused" -> True, "ReusedBlocks" -> Length[Lookup[a, "Blocks", {}]],
+    "NewCoefficientEvaluations" -> 0,
+    "Evidence" -> "An exact derived value is valid at every cutoff; no operand was recomputed."|>;
+  GeneralizedSeries[Join[a, <|"Cutoff" -> h, "RefinementStatistics" -> stats,
+    "RefinementHistory" -> Append[Lookup[a, "RefinementHistory", {}], stats]|>]]];

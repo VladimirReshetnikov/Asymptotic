@@ -15,6 +15,23 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Honest cutoffs, shortfall-driven replay, and bounded budgets
+
+An operation result whose request exceeds the transported precision now
+records the achieved value in `"Cutoff"` and keeps the request in
+`"RequestedCutoff"`; `SeriesRefine` replays an operation again with the
+observed shortfall added to its operand demand (up to three extra rounds,
+reported as `"ReplayRounds"`), so the negative tenth power of a truncated
+`Exp[x] - 1` refined to cutoff 5 now matches the fresh expansion instead of
+reporting cutoff 5 with an `O(x^-4)` remainder (C08). An exact derived value
+is refined without recomputing an uncertain ancestor
+(`"Strategy" -> "ExactDerivedValue"`, W3-07). Integer powers trim every
+intermediate product to the working cutoff, so a many-term exact operand
+raised to a large power at a small cutoff no longer exhausts `MaxTerms`
+(P01), and exact logarithm canonicalization factors integers only up to
+`10^30`, keeping a large composite cofactor as an opaque `Log[m]` instead of
+hanging in `FactorInteger` (P05).
+
 ### Lifted-operand templates and provenance measurements
 
 A scalar or regular operand lifted beside an expansion (`s + 1`, `s Sin[x]`)

@@ -293,7 +293,7 @@ Source: [GammaInverse.wl](../Kernel/GammaInverse.wl),
 | `"Terms"`, `"Blocks"`, `"CoefficientVariable"`, `"CoefficientSubstitution"` | Each `{beta, C}` contributes `CoreInverse^(-beta) C` after the stored coefficient substitution. `C` is a complete polynomial in the formal inverse-logarithmic coefficient variable; do not truncate that polynomial as a separate term count. |
 | `"CoefficientFrontier"`, `"FrontierTerm"` | First omitted coefficient block and its target expression. |
 | `"RemainderInverseLogPower"` | Inverse-logarithmic power multiplying the inverse-core remainder. It supplements `"RemainderPower"`; `"RemainderLogDegree" -> 0` does not mean the error has no inverse-log factor. |
-| `"Cutoff"`, `"RequestedCutoff"` | On construction, `"RequestedCutoff"` preserves the incoming cutoff, including `Automatic`; `"Cutoff"` records the retained boundary chosen for a term goal or the explicit cutoff. Later operations can add their own requested/effective precision metadata. |
+| `"Cutoff"`, `"RequestedCutoff"` | On construction, `"RequestedCutoff"` preserves the incoming cutoff, including `Automatic`; `"Cutoff"` records the retained boundary chosen for a term goal or the explicit cutoff. An operation result records the cutoff it actually transports: when a request exceeds the precision the operands carry, `"Cutoff"` is the achieved value and `"RequestedCutoff"` the request. |
 | `"SourceScale"`, `"SourceOffset"`, `"TargetScale"`, `"TargetOffset"`, `"TargetCoordinateExpression"` | Retained affine transformations and normalized target equation. |
 | `"GammaFamily"`, `"GammaPower"` or `"BarnesFamily"`, `"BarnesPower"` | The selected function family and forward-function power. These are different from the inverse observable `"Power"`. Only the applicable family pair is stored. |
 | `"ModelTerms"`, `"ForwardRemainderContract"`, `"ExactTransformedFunction"` | Finite Stirling/Barnes forward-model scope and original logarithmic equation. `"Exact"` and `"ExactModel"` are false in these constructors. |
@@ -415,7 +415,7 @@ formal operations.
 | `"InverseFunctionBranches"`, `"InverseFunctionProvenance"` | Branch selections and records accumulated during expression construction or observable evaluation. |
 | `"OriginalExpression"`, `"ConditionalSourceReplay"` | Conditional-source reconstruction data where retained. |
 | `"CompositionScope"` | Optional exact-source replay record for composition involving a varying parameter. It records that an old fixed-parameter remainder was not simply transported as a uniform bound. |
-| `"RefinementStatistics"`, `"RefinementHistory"` | Operation-specific counts and history added by supported refinement. They are not a mathematical error certificate or a uniform performance guarantee. |
+| `"RefinementStatistics"`, `"RefinementHistory"` | Operation-specific counts and history added by supported refinement. A replayed operation reports `"ReplayRounds"` and, when the request stayed short, `"AchievedCutoff"`; an exact derived value reports `"Strategy" -> "ExactDerivedValue"` with zero coefficient evaluations. They are not a mathematical error certificate or a uniform performance guarantee. |
 | `"RefinementRequest"` | Nested additional-block request and outcome when that structured refinement path returns a new series. A numerical-tolerance refinement request instead returns a certificate association, not a `GeneralizedSeries`. |
 
 Sources: [inverse-expression admission](../Kernel/InverseFunctionExpressions.wl),

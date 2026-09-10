@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): c4101675a4d7626fd25eea21edafb87fda251dada10030847ad7c6fc9171d788 *)
+   Source SHA256 (UTF-8/LF): ad350baae6a0be7421dab866f6eb2e79deb0056c8f567f5e5f3581db7e8716ba *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -344,8 +344,28 @@ symbolicEqualQ[a_, b_, ass_] := a === b || TrueQ[Simplify[a - b == 0, ass]];
 (* Coefficient normalization                                            *)
 (* ------------------------------------------------------------------ *)
 
-logCanon[e_] := e /. Log[r_Rational] :> Total[(#[[2]] Log[#[[1]]]) & /@ FactorInteger[r]] /.
-   Log[n_Integer] /; n > 1 :> Total[(#[[2]] Log[#[[1]]]) & /@ FactorInteger[n]];
+(* Exact logarithms of integers and rationals are written over prime
+   factors so that Log[4] and 2 Log[2] cancel. Factoring is bounded: an
+   argument above 10^30 that is not prime is divided by the primes below
+   1000 and its remaining cofactor stays an opaque Log[m], since a general
+   factorization of a 300-digit composite need not finish (P05). Equal
+   opaque cofactors still cancel structurally; Log[p q] with two large
+   primes does not reduce to Log[p] + Log[q] under this budget. *)
+$logCanonSmallPrimes = Select[Range[2, 1000], PrimeQ];
+$logCanonFactorBound = 10^30;
+logCanonFactor[n_Integer] := Module[{m = Abs[n], factors = {}, k},
+  If[n < 0, factors = {{-1, 1}}];
+  If[m <= 1, Return[factors, Module]];
+  If[m <= $logCanonFactorBound, Return[Join[factors, FactorInteger[m]], Module]];
+  If[PrimeQ[m], Return[Append[factors, {m, 1}], Module]];
+  Do[If[Mod[m, p] === 0, k = 0; While[Mod[m, p] === 0, m = Quotient[m, p]; k++]; AppendTo[factors, {p, k}]],
+    {p, $logCanonSmallPrimes}];
+  Which[m === 1, factors,
+   m <= $logCanonFactorBound, Join[factors, FactorInteger[m]],
+   True, Append[factors, {m, 1}]]];
+logCanonInteger[n_Integer] := Total[(#[[2]] Log[#[[1]]]) & /@ logCanonFactor[n]];
+logCanon[e_] := e /. Log[r_Rational] :> logCanonInteger[Numerator[r]] - logCanonInteger[Denominator[r]] /.
+   Log[n_Integer] /; n > 1 :> logCanonInteger[n];
 
 coefCanon[c_, ass_] := Module[{e},
   If[Head[c] === Integer || Head[c] === Rational, Return[c, Module]];
@@ -525,12 +545,23 @@ pMul[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_, limit_] := Module[{v1, v2, e1
   pd = combinePrecision[{If[P1 === Infinity, Infinity, P1 + v2], D1 + e2}, {If[P2 === Infinity, Infinity, P2 + v1], D2 + e1}];
   If[pd[[1]] =!= Infinity, pd[[2]] = Max[pd[[2]], jetProductBoundaryDegree[T1, T2, pd[[1]], ell]]];
   {jetMul[T1, T2, pd[[1]], ell, ass, limit], pd[[1]], pd[[2]]}];
-pIntegerPower[j_, n_Integer?NonNegative, ell_, ass_, limit_] := Module[{r = pConst[1, ell, ass], b = j, k = n},
-  (* Binary powering also preserves the precision propagation of pMul. *)
+(* Drop the rows of a jet at or above a working cutoff; the precision
+   becomes the least omitted weight with its logarithmic degree, so an
+   exact operand truncated inside a computation keeps a valid remainder. *)
+pTrimTo[{T_, P_, D_}, cut_, ell_, ass_] := Module[{omitted},
+  If[cut === Infinity || ! less[cut, P], Return[{T, P, D}, Module]];
+  omitted = Select[T, ! less[#[[1]], cut] &];
+  If[omitted === {}, Return[{T, P, D}, Module]];
+  {jetTrim[T, cut, ell, ass], Sequence @@ combinePrecision[{P, D}, {omitted[[1, 1]], polyDegree[omitted[[1, 2]], ell]}]}];
+pIntegerPower[j_, n_Integer?NonNegative, ell_, ass_, limit_, cut_: Infinity] := Module[{r = pConst[1, ell, ass], b = pTrimTo[j, cut, ell, ass], k = n},
+  (* Binary powering also preserves the precision propagation of pMul.
+     Every intermediate product is trimmed to the working cutoff, so an
+     exact many-term operand is never expanded to a degree the request
+     discards (P01); with an infinite cutoff exact operands stay exact. *)
   While[k > 0,
-   If[OddQ[k], r = pMul[r, b, ell, ass, limit]];
+   If[OddQ[k], r = pTrimTo[pMul[r, b, ell, ass, limit], cut, ell, ass]];
    k = Quotient[k, 2];
-   If[k > 0, b = pMul[b, b, ell, ass, limit]]];
+   If[k > 0, b = pTrimTo[pMul[b, b, ell, ass, limit], cut, ell, ass]]];
   r];
 
 (* tail bound of a unit series truncated at relative weight cut, with argument U known to relative precision {PU, DU} *)
@@ -636,7 +667,7 @@ fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, 
    If[! TrueQ[Simplify[Coefficient[T[[1, 2]], ell, polyDegree[T[[1, 2]], ell]] != 0, ass]],
     fail["UnprovedNonvanishing", "A zeroth power requires the leading coefficient to be provably nonzero on the parameter domain.",
      <|"Coefficient" -> T[[1, 2]], "Assumptions" -> ass|>]]];
-  If[IntegerQ[rr] && rr >= 0, Return[pIntegerPower[{T, P, D}, rr, ell, ass, limit], Module]];
+  If[IntegerQ[rr] && rr >= 0, Return[pIntegerPower[{T, P, D}, rr, ell, ass, limit, Kw], Module]];
   If[T === {},
    If[P =!= Infinity && ! IntegerQ[rr],
     fail["UnknownLeadingTerm", "A pure remainder does not establish the real branch required by a noninteger power."]];
@@ -862,10 +893,13 @@ forwardJet[fu_, u_, ell_, ass_, K_, limit_, extra_: 1] := Module[{Kw, res, tries
    Kw = Kw + (K - res[[2]]) + 1];
   res];
 
-(* exact jet of a finite power-log expression, or $Failed when an infinite series would be needed *)
+(* exact jet of a finite power-log expression, or $Failed when an infinite
+   series would be needed or the exact expansion exceeds the term budget;
+   the truncated attempt that follows works at the requested cutoff (P01) *)
 exactJet[fu_, u_, ell_, ass_, limit_] := Module[{r = Catch[fwd[fu, u, ell, ass, Infinity, limit], $tag]},
   Which[FailureQ[r] && r[[1]] === "InfiniteSeries", $Failed,
    FailureQ[r] && r[[1]] === "UnsupportedInput", $Failed,
+   FailureQ[r] && r[[1]] === "ResourceLimit", $Failed,
    FailureQ[r], Throw[r, $tag],
    True, r]];
 
@@ -2188,7 +2222,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 292104e6428b44faa6dffeac504e6deecb5bb653910f77099c974d020b119ca0 *)
+   Source SHA256 (UTF-8/LF): 81773cd9262daccdf1c23963eb1579e65e8573785cc6dfa54606a79e97e84a8f *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2289,27 +2323,31 @@ seriesFlat[d_, limit_] := Module[{p, b, j, ass = seriesAss[d], ell = d["LogVaria
   j = pAdd[pMul[p, d["Jet"], ell, ass, limit], b, ell, ass];
   Join[d, <|"Prefactor" -> 1, "Offset" -> 0, "Jet" -> j|>]];
 
-seriesMake[d0_, recipe_, cutoff_: Automatic] := Module[{d = d0, j, w, ell, p, off, expr, rem, terms},
+seriesMake[d0_, recipe_, cutoff_: Automatic] := Module[{d = d0, j, w, ell, p, off, expr, rem, terms, achieved},
   {j, w, ell, p, off} = Lookup[d, {"Jet", "ScaleVariable", "LogVariable", "Prefactor", "Offset"}];
   j = {realCoefficientRows[j[[1]], ell, seriesAss[d]], j[[2]], j[[3]]};
   If[cutoff =!= Automatic, j = seriesTrim[j, cutoff, ell, seriesAss[d]]];
   If[j[[1]] === {} && j[[2]] === Infinity, p = 1];
-  d = Join[d, <|"Jet" -> j, "Prefactor" -> p, "Cutoff" -> cutoff,
+  (* A request the transported precision cannot meet is recorded as the
+     achieved cutoff beside the request, never as the request alone (C08). *)
+  achieved = If[cutoff =!= Automatic && j[[2]] =!= Infinity && less[j[[2]], cutoff], j[[2]], cutoff];
+  d = Join[d, <|"Jet" -> j, "Prefactor" -> p, "Cutoff" -> achieved,
     "RemainderDerivativeOrder" -> If[j[[2]] === Infinity, Infinity, Lookup[d, "RemainderDerivativeOrder", 0]]|>];
   expr = off + p seriesJetExpression[j, w, ell];
   rem = If[j[[2]] === Infinity, 0, Abs[p] PowerLogRemainder[w, j[[2]], j[[3]]]];
   terms = {#[[1]], #[[2]] /. ell -> Log[w]} & /@ j[[1]];
-  GeneralizedSeries[<|"Kind" -> "Derived", "Scale" -> If[p === 1, "PowerLog", "Factored"],
+  GeneralizedSeries[Join[<|"Kind" -> "Derived", "Scale" -> If[p === 1, "PowerLog", "Factored"],
     "Expression" -> expr, "Remainder" -> rem,
     "RemainderScaleExpression" -> If[rem === 0, 0, Abs[p] w^j[[2]] (1 + Abs[Log[w]])^j[[3]]],
     "RemainderPower" -> j[[2]], "RemainderLogDegree" -> j[[3]], "RemainderVariable" -> w,
     "Prefactor" -> p, "Offset" -> off, "Blocks" -> j[[1]], "Terms" -> terms,
     "TermConvention" -> "Offset + Prefactor Sum[w^beta C[Log[w]]]; the cutoff applies inside the prefactor.",
     "LogVariable" -> ell, "Variable" -> d["Variable"], "Assumptions" -> d["Assumptions"],
-    "TargetDomain" -> Lookup[d, "Domain", True], "Cutoff" -> cutoff,
+    "TargetDomain" -> Lookup[d, "Domain", True], "Cutoff" -> achieved,
     "Exact" -> (rem === 0), "RemainderDerivativeOrder" -> Lookup[d, "RemainderDerivativeOrder", 0],
     "SeriesRepresentation" -> d, "SeriesRecipe" -> recipe,
-    "SeriesData" -> Missing["ExplicitCalculus"]|>]];
+    "SeriesData" -> Missing["ExplicitCalculus"]|>,
+    If[achieved === cutoff, <||>, <|"RequestedCutoff" -> cutoff|>]]]];
 
 seriesCompatible[a_, b_] := Module[{ass = seriesAss[a] && seriesAss[b]},
   If[TrueQ[Simplify[Not[ass]]], fail["IncompatibleDomains", "The operands have conflicting branch domains."]];
@@ -2430,7 +2468,8 @@ seriesPower[s_, r_, cut_, limit_, truncate_: True] := Module[{d, flat, ell, ass,
     If[d["Jet"][[2]] =!= Infinity, h = Max[h, d["Jet"][[2]] + alpha (r - 1)]]];
   If[! IntegerQ[r] && ! provablyPositive[d["Prefactor"], ass],
     fail["NonpositiveBase", "A fractional observable power needs a provably positive exact prefactor."]];
-  j = fwdPower[d["Jet"], r, Unique["w$"], ell, ass, h, limit];
+  j = fwdPower[d["Jet"], r, Unique["w$"], ell, ass,
+    If[cut === Automatic && d["Jet"][[2]] === Infinity && IntegerQ[r] && r >= 0, Infinity, h], limit];
   seriesMake[Join[d, <|"Jet" -> j, "Prefactor" -> d["Prefactor"]^r|>], {"Power", {s}, r},
     If[cut === Automatic || ! TrueQ[truncate], Automatic, h]]];
 AsymptoticAnalysis`SeriesPower[s_GeneralizedSeries, r_, opts : OptionsPattern[]] :=
@@ -2847,11 +2886,14 @@ seriesRefinementResult[result_, original_, cutoff_] := Module[{data, stats},
     "ModelReused" -> False, "ReusedBlocks" -> 0,
     "NewCoefficientEvaluations" -> Missing["ReplayNotInstrumented"],
     "Evidence" -> "Recomputed from retained source or operation recipe; no coefficient reuse or work count is claimed."|>;
+  If[IntegerQ[$replayRounds], stats = Join[stats, <|"ReplayRounds" -> $replayRounds|>]];
+  If[KeyExistsQ[data, "RequestedCutoff"], stats = Join[stats, <|"AchievedCutoff" -> data["Cutoff"]|>]];
   GeneralizedSeries[Join[data, <|"RefinementStatistics" -> stats,
     "RefinementHistory" -> Append[Lookup[original[[1]], "RefinementHistory", {}], stats]|>]]];
 
-AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := catch[seriesRefinementResult[Module[
-  {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared},
+$replayRounds = None;
+AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts : OptionsPattern[]] := Block[{$replayRounds = None}, catch[seriesRefinementResult[Module[
+  {recipe, args, operands, r, limit = OptionValue["MaxTerms"], rules, base, x, y, sourceOptions, declared, extra, rounds, achieved},
   requireAnalyticSeries[s];
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
   If[KeyExistsQ[a, "InverseFunctionExpression"],
@@ -2895,14 +2937,35 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
     Return[seriesMake[Join[r, <|"Variable" -> a["Variable"]|>], {"CoordinateRefine", {s}}, h], Module]];
   recipe = Lookup[a, "SeriesRecipe", Missing["NoRecipe"]];
   If[MissingQ[recipe], fail["MissingRefinementSource", "The expansion has no retained source or operation recipe; its existing remainder cannot be improved by truncation."]];
+  (* An exact derived value is valid at every cutoff: a request at or above
+     its cutoff needs no operand work, and must not demand coefficients an
+     uncertain ancestor cannot supply (W3-07). A lower request keeps the
+     documented retargeting path. *)
+  If[Lookup[a, "Remainder", None] === 0 && (Lookup[a, "Cutoff", Automatic] === Automatic || ! less[h, a["Cutoff"]]),
+    Return[seriesExactRefinement[s, h], Module]];
   operands = recipe[[2]];
   (* Recompute operands with a guard margin. The final operation still clips
      to its actual transported precision, so this never invents coefficients.
      A lifted operand's chart template is not an operand: it is passed as
      stored, and the lifted expression is re-expanded to the working cutoff. *)
-  args = If[seriesRecipeTemplateQ[recipe], operands,
-    AsymptoticAnalysis`SeriesRefine[#, h + 2 + Abs[Min[0, Lookup[seriesData[#, limit], "Jet"][[2]] /. Infinity -> 0]], "MaxTerms" -> limit] & /@ operands];
-  If[AnyTrue[args, FailureQ], Return[First[Select[args, FailureQ]], Module]];
+  (* The margin is a first estimate. When the replayed operation transports
+     less precision than requested, the observed shortfall is added to the
+     operand demand and the operation replayed, up to three more times;
+     seriesMake then records the achieved cutoff beside the request (C08). *)
+  extra = 0; rounds = 0;
+  While[True,
+    args = If[seriesRecipeTemplateQ[recipe], operands,
+      AsymptoticAnalysis`SeriesRefine[#, h + 2 + extra + Abs[Min[0, Lookup[seriesData[#, limit], "Jet"][[2]] /. Infinity -> 0]], "MaxTerms" -> limit] & /@ operands];
+    If[AnyTrue[args, FailureQ], Return[First[Select[args, FailureQ]], Module]];
+    r = seriesReplayOperation[recipe, args, a, h, limit];
+    rounds++;
+    achieved = If[MatchQ[r, _GeneralizedSeries], Lookup[r[[1]], "RemainderPower", Infinity], Infinity];
+    If[seriesRecipeTemplateQ[recipe] || ! exactRealQ[achieved] || ! less[achieved, h] || rounds > 3, Break[]];
+    extra += h - achieved];
+  $replayRounds = rounds;
+  r], s, h]]];
+
+seriesReplayOperation[recipe_, args_, a_, h_, limit_] :=
   Switch[recipe[[1]],
     "Add", seriesBinary["Add", args[[1]], args[[2]], h, limit],
     "Multiply", seriesBinary["Multiply", args[[1]], args[[2]], h, limit],
@@ -2919,7 +2982,15 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
       Lookup[seriesData[First[args], limit], "RemainderDerivativeOrder", 0] < recipe[[3]],
         fail["UnprovedRefinedDerivative", "A derivative bound declared for the old remainder does not establish the stronger bound for the refined remainder. Refine the source first, then supply its derivative contract."]];
       seriesDerivative[First[args], recipe[[3]], Automatic, h, limit],
-    _, fail["MissingRefinementSource", "This internal derived representation has no replayable public recipe."]]], s, h]];
+    _, fail["MissingRefinementSource", "This internal derived representation has no replayable public recipe."]];
+
+seriesExactRefinement[s : GeneralizedSeries[a_Association], h_] := Module[{stats},
+  stats = <|"Strategy" -> "ExactDerivedValue", "SourceCutoff" -> Lookup[a, "Cutoff", Missing["NotAvailable"]],
+    "RequestedCutoff" -> h, "ModelReused" -> True, "ReusedBlocks" -> Length[Lookup[a, "Blocks", {}]],
+    "NewCoefficientEvaluations" -> 0,
+    "Evidence" -> "An exact derived value is valid at every cutoff; no operand was recomputed."|>;
+  GeneralizedSeries[Join[a, <|"Cutoff" -> h, "RefinementStatistics" -> stats,
+    "RefinementHistory" -> Append[Lookup[a, "RefinementHistory", {}], stats]|>]]];
 (* END SOURCE: src/Kernel/SeriesOperations.wl *)
 
 (* BEGIN SOURCE: src/Kernel/RefinementState.wl

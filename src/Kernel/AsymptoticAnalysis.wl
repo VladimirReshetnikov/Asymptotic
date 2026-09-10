@@ -221,8 +221,28 @@ symbolicEqualQ[a_, b_, ass_] := a === b || TrueQ[Simplify[a - b == 0, ass]];
 (* Coefficient normalization                                            *)
 (* ------------------------------------------------------------------ *)
 
-logCanon[e_] := e /. Log[r_Rational] :> Total[(#[[2]] Log[#[[1]]]) & /@ FactorInteger[r]] /.
-   Log[n_Integer] /; n > 1 :> Total[(#[[2]] Log[#[[1]]]) & /@ FactorInteger[n]];
+(* Exact logarithms of integers and rationals are written over prime
+   factors so that Log[4] and 2 Log[2] cancel. Factoring is bounded: an
+   argument above 10^30 that is not prime is divided by the primes below
+   1000 and its remaining cofactor stays an opaque Log[m], since a general
+   factorization of a 300-digit composite need not finish (P05). Equal
+   opaque cofactors still cancel structurally; Log[p q] with two large
+   primes does not reduce to Log[p] + Log[q] under this budget. *)
+$logCanonSmallPrimes = Select[Range[2, 1000], PrimeQ];
+$logCanonFactorBound = 10^30;
+logCanonFactor[n_Integer] := Module[{m = Abs[n], factors = {}, k},
+  If[n < 0, factors = {{-1, 1}}];
+  If[m <= 1, Return[factors, Module]];
+  If[m <= $logCanonFactorBound, Return[Join[factors, FactorInteger[m]], Module]];
+  If[PrimeQ[m], Return[Append[factors, {m, 1}], Module]];
+  Do[If[Mod[m, p] === 0, k = 0; While[Mod[m, p] === 0, m = Quotient[m, p]; k++]; AppendTo[factors, {p, k}]],
+    {p, $logCanonSmallPrimes}];
+  Which[m === 1, factors,
+   m <= $logCanonFactorBound, Join[factors, FactorInteger[m]],
+   True, Append[factors, {m, 1}]]];
+logCanonInteger[n_Integer] := Total[(#[[2]] Log[#[[1]]]) & /@ logCanonFactor[n]];
+logCanon[e_] := e /. Log[r_Rational] :> logCanonInteger[Numerator[r]] - logCanonInteger[Denominator[r]] /.
+   Log[n_Integer] /; n > 1 :> logCanonInteger[n];
 
 coefCanon[c_, ass_] := Module[{e},
   If[Head[c] === Integer || Head[c] === Rational, Return[c, Module]];
@@ -402,12 +422,23 @@ pMul[{T1_, P1_, D1_}, {T2_, P2_, D2_}, ell_, ass_, limit_] := Module[{v1, v2, e1
   pd = combinePrecision[{If[P1 === Infinity, Infinity, P1 + v2], D1 + e2}, {If[P2 === Infinity, Infinity, P2 + v1], D2 + e1}];
   If[pd[[1]] =!= Infinity, pd[[2]] = Max[pd[[2]], jetProductBoundaryDegree[T1, T2, pd[[1]], ell]]];
   {jetMul[T1, T2, pd[[1]], ell, ass, limit], pd[[1]], pd[[2]]}];
-pIntegerPower[j_, n_Integer?NonNegative, ell_, ass_, limit_] := Module[{r = pConst[1, ell, ass], b = j, k = n},
-  (* Binary powering also preserves the precision propagation of pMul. *)
+(* Drop the rows of a jet at or above a working cutoff; the precision
+   becomes the least omitted weight with its logarithmic degree, so an
+   exact operand truncated inside a computation keeps a valid remainder. *)
+pTrimTo[{T_, P_, D_}, cut_, ell_, ass_] := Module[{omitted},
+  If[cut === Infinity || ! less[cut, P], Return[{T, P, D}, Module]];
+  omitted = Select[T, ! less[#[[1]], cut] &];
+  If[omitted === {}, Return[{T, P, D}, Module]];
+  {jetTrim[T, cut, ell, ass], Sequence @@ combinePrecision[{P, D}, {omitted[[1, 1]], polyDegree[omitted[[1, 2]], ell]}]}];
+pIntegerPower[j_, n_Integer?NonNegative, ell_, ass_, limit_, cut_: Infinity] := Module[{r = pConst[1, ell, ass], b = pTrimTo[j, cut, ell, ass], k = n},
+  (* Binary powering also preserves the precision propagation of pMul.
+     Every intermediate product is trimmed to the working cutoff, so an
+     exact many-term operand is never expanded to a degree the request
+     discards (P01); with an infinite cutoff exact operands stay exact. *)
   While[k > 0,
-   If[OddQ[k], r = pMul[r, b, ell, ass, limit]];
+   If[OddQ[k], r = pTrimTo[pMul[r, b, ell, ass, limit], cut, ell, ass]];
    k = Quotient[k, 2];
-   If[k > 0, b = pMul[b, b, ell, ass, limit]]];
+   If[k > 0, b = pTrimTo[pMul[b, b, ell, ass, limit], cut, ell, ass]]];
   r];
 
 (* tail bound of a unit series truncated at relative weight cut, with argument U known to relative precision {PU, DU} *)
@@ -513,7 +544,7 @@ fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, 
    If[! TrueQ[Simplify[Coefficient[T[[1, 2]], ell, polyDegree[T[[1, 2]], ell]] != 0, ass]],
     fail["UnprovedNonvanishing", "A zeroth power requires the leading coefficient to be provably nonzero on the parameter domain.",
      <|"Coefficient" -> T[[1, 2]], "Assumptions" -> ass|>]]];
-  If[IntegerQ[rr] && rr >= 0, Return[pIntegerPower[{T, P, D}, rr, ell, ass, limit], Module]];
+  If[IntegerQ[rr] && rr >= 0, Return[pIntegerPower[{T, P, D}, rr, ell, ass, limit, Kw], Module]];
   If[T === {},
    If[P =!= Infinity && ! IntegerQ[rr],
     fail["UnknownLeadingTerm", "A pure remainder does not establish the real branch required by a noninteger power."]];
@@ -739,10 +770,13 @@ forwardJet[fu_, u_, ell_, ass_, K_, limit_, extra_: 1] := Module[{Kw, res, tries
    Kw = Kw + (K - res[[2]]) + 1];
   res];
 
-(* exact jet of a finite power-log expression, or $Failed when an infinite series would be needed *)
+(* exact jet of a finite power-log expression, or $Failed when an infinite
+   series would be needed or the exact expansion exceeds the term budget;
+   the truncated attempt that follows works at the requested cutoff (P01) *)
 exactJet[fu_, u_, ell_, ass_, limit_] := Module[{r = Catch[fwd[fu, u, ell, ass, Infinity, limit], $tag]},
   Which[FailureQ[r] && r[[1]] === "InfiniteSeries", $Failed,
    FailureQ[r] && r[[1]] === "UnsupportedInput", $Failed,
+   FailureQ[r] && r[[1]] === "ResourceLimit", $Failed,
    FailureQ[r], Throw[r, $tag],
    True, r]];
 
