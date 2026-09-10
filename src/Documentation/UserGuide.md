@@ -2539,7 +2539,7 @@ A value-only Big-O remainder does not establish a derivative remainder. Supply `
 <a id="InverseResidual"></a>
 ### InverseResidual
 
-`InverseResidual[s]` checks composition of the retained forward model with the finite inverse. `InverseResidual[s, h]` supplies a relative residual cutoff in the recorded uniformizing coordinate. The option is `"MaxTerms" -> 200000`.
+`InverseResidual[s]` returns a report association checking composition of the retained forward model with the finite inverse. The report includes the normalized residual, cutoff, and scope. `InverseResidual[s, h]` supplies a relative residual cutoff in the recorded uniformizing coordinate. The option is `"MaxTerms" -> 200000`.
 
 **Input**
 
@@ -2559,7 +2559,7 @@ Read the returned `"Scope"` when checking a transformed, logarithmic, Fourier, o
 <a id="InverseNumericalCheck"></a>
 ### InverseNumericalCheck
 
-`InverseNumericalCheck[s, y1]` compares the finite inverse with a numerical root of the retained original equation on its selected branch. Its option is `WorkingPrecision -> 50`.
+`InverseNumericalCheck[s, y1]` returns an association comparing the finite expansion with the requested source observable of a numerical root of the retained original equation on its selected branch. Its option is `WorkingPrecision -> 50`.
 
 ```wolfram
 s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
@@ -2580,7 +2580,7 @@ Use exact targets or targets with sufficient input precision. Exact target offse
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `"Interval"` | `Automatic` | Verification interval. Supply exact rational endpoints for an explicit request. |
+| `"Interval"` | `Automatic` | Required verification interval with ordered exact rational endpoints. Leaving the default `Automatic` returns `Failure["InvalidInterval", ...]`. |
 | `"Center"` | `Automatic` | Initial or fixed rational approximation. An explicitly supplied center remains fixed. |
 | `"TargetError"` | `Automatic` | Positive exact rational absolute error goal for the returned center. |
 | `"RelativeError"` | `Automatic` | Positive exact rational relative error goal using a proved root-magnitude bound. |
@@ -2646,7 +2646,7 @@ Inspect `"LeadingPower"`, `"LeadingCoefficient"`, `"Gaps"`, `"Polynomials"`, and
 <a id="InverseExpansionCoefficient"></a>
 ### InverseExpansionCoefficient
 
-`InverseExpansionCoefficient[s, {k1, k2, ...}]` returns the exact block associated with an ordinary inverse multi-index. A `PowerLogModel` association may replace `s`; for that form, `"Power" -> 1` selects the observable.
+`InverseExpansionCoefficient[s, {k1, k2, ...}]` returns an association describing the exact contribution of one ordinary inverse multi-index. A `PowerLogModel` association may replace `s`; for that form, `"Power" -> 1` selects the observable.
 
 The coefficient query inherits the model's assumptions and ignores later ambient assumptions:
 

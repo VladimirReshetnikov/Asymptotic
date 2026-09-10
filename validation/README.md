@@ -1,5 +1,19 @@
 # Review and validation record
 
+## Wave-4 integration and merged artifacts
+
+The wave-4 integration merges `origin/main` through `38aa253`, preserving the
+Fourier recurrence repair and the incoming public-help corrections. The
+[merged loading receipt](wave4-merge-loading-tests.json) records **105/0** in
+five fresh Wolfram kernels, with 61 unchanged input hashes and no local HTTP
+server. Seven receipt-summary tests and sixteen acceptance-verifier tests
+pass separately; these are Python tooling checks, not Mathics feature runs.
+The [merged PDF build](wave4-merge-pdf-build.json) records three serial strict
+LaTeX passes over 32 unchanged TeX files. Its [layout record](wave4-merge-pdf-layout.json)
+records all 102 pages rendered, visual inspection of pages 1–6 and 67–72 plus
+full page 68, and no text outside page bounds. Earlier repair receipts retain
+their exact historical inputs; the full package suite remains skipped.
+
 ## Fourier composition stops before unused products
 
 The [four-file native run](fourier-termination-tests.json) passes **68/68**
@@ -161,6 +175,17 @@ for known implementation and acceptance gaps.
 
 ## Documentation quality and coverage register
 
+The [public-help consistency pass](documentation-help-2026-09-09.json) corrects
+seven usage messages and the corresponding guide descriptions: positive
+target coordinates, stored expressions and missing properties, report
+associations, source observables, certificate planning, individual coefficient
+contributions, and sided Taylor contracts. Only help strings changed in the
+kernel. The regenerated standalone package passes [95 local loading and reload
+checks in five fresh Wolfram kernels](documentation-help-loading-2026-09-09.json).
+This pass also repairs reproducible Mathics receipt hashing and the documented
+summary command, preserving historical runtime hashes and outcomes. It does
+not rerun the full package suite or establish new Mathics runtime acceptance.
+
 The [merged documentation receipt](documentation-deep-review-2026-09-09.json)
 incorporates `origin/main` through `41ac72d`, including observable admission
 and held Mathics membership assumptions. The [merged example run](documentation-examples-2026-09-09-merged.json)
@@ -225,8 +250,10 @@ evaluates their `InverseFunction` before package dispatch.
 The [public API inventory](../docs/Mathics/API-COVERAGE.md) maps all 38 exports
 to representative cases. The [receipt summary](mathics-test-coverage.json)
 records **101 distinct cases with successful Mathics evidence in each layout,
-across three explicitly identified package snapshots**. All 101 expectations
-also have original Wolfram controls across separate batches.
+across three explicitly identified package snapshots**. The maintained suite
+contains 101 cases. The [Wolfram preservation audit](mathics-wolfram-preservation.json)
+also reports controls for all 101 expectations across separate batches;
+per-case Wolfram execution receipts for those batches are not published here.
 
 | Snapshot | Modular evidence | Standalone evidence |
 | --- | --- | --- |
@@ -250,10 +277,13 @@ python validation/summarize_mathics_tests.py --reconcile validation/mathics-modu
 Reconciliation requires identical package hashes and successful targeted
 corrections for every original failing case. The summarizer rejects incomplete,
 drifting, or inconsistent receipts and retains the distinct supplemental
-snapshots. Six focused tests check these evidence boundaries, relative
-modular paths, and protection against overwriting an input receipt.
-The raw receipts are exempt from Git newline conversion, preserving the
-captured bytes identified by the summary's SHA-256 values.
+snapshots. [Focused tests](test_mathics_summary.py) check these evidence
+boundaries, relative modular paths, line-ending comparison, and protection
+against overwriting an input receipt. Raw receipts are exempt from Git newline
+conversion: `ReceiptSHA256` identifies their exact captured bytes. The separate
+`NormalizedReceiptSHA256` hashes CRLF-to-LF-normalized bytes for comparison.
+Embedded runtime source and suite hashes remain the exact historical
+fingerprints and are not normalized retroactively.
 
 ```text
 python -m pip install -r validation/requirements-mathics.txt

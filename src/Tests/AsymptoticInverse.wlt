@@ -1,5 +1,6 @@
-(* MUnit regression suite for AsymptoticInverse.  Run with Tests/RunTests.wl or
-   TestReport after loading Kernel/AsymptoticAnalysis.wl. *)
+(* Core MUnit regression suite for AsymptoticAnalysis. From the repository root,
+   run src/Tests/RunTests.wl, or use TestReport after loading
+   src/Kernel/AsymptoticAnalysis.wl. *)
 If[! MemberQ[$Packages, "AsymptoticAnalysis`"],
   Get[FileNameJoin[{DirectoryName[DirectoryName[$TestFileName]], "Kernel", "AsymptoticAnalysis.wl"}]]];
 ClearAll[x, y, z, a, b, alpha];

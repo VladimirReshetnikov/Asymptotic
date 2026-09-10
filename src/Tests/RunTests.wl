@@ -1,4 +1,6 @@
-(* Run with:  wolfram -script src/Tests/RunTests.wl   (from the repository root or anywhere) *)
+(* From the repository root: wolfram.exe -noinit -script src/Tests/RunTests.wl
+   From another directory, supply the absolute path to this script.
+   Package and test discovery are relative to the script's own location. *)
 root = DirectoryName[DirectoryName[$InputFileName]];
 Get[FileNameJoin[{root, "Kernel", "AsymptoticAnalysis.wl"}]];
 testFiles = FileNames["*.wlt", FileNameJoin[{root, "Tests"}]];

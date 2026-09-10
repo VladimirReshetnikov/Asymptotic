@@ -197,14 +197,21 @@ record. The portable suite supplements the existing Wolfram MUnit suite.
 
 The [API inventory](API-COVERAGE.md) maps all 38 exported symbols to exact
 portable cases and remaining input/option gaps. The
-[receipt summary](../../validation/mathics-test-coverage.json) records 101
-distinct cases with successful evidence in each package layout across three
-source snapshots. The two earlier full runs each retain their 76/77 outcome
+[receipt summary](../../validation/mathics-test-coverage.json) records **101
+modular cases and 101 standalone cases** with successful evidence across three
+source snapshots per layout. The three latest refinement cases have evidence
+in both layouts. The two earlier full runs
+each retain their 76/77 outcome
 and a separately validated correction of an exact-normalization assertion;
 the later batches cover additional operations, held assumptions and retained
 Newton and recipe refinement. This is
 not a single full run of the current source. The full Linux matrix remains
 pending. Individual examples do not establish every parameter range of a family.
+The summary retains exact receipt-byte hashes and adds separate CRLF-to-LF
+normalized comparison hashes, with explicit policies for both. Git preserves
+the captured receipt bytes; historical package and suite byte hashes remain unchanged.
+The API inventory separately identifies the reported original-Wolfram
+control evidence and the limits of its published per-case records.
 
 A separate [observable merge audit](../../validation/mathics-observable-merge-audit.json)
 checks the new observable helpers on a frozen 55-module snapshot after

@@ -3826,8 +3826,9 @@ information automatically.</p>
 <p><a id="InverseResidual"></a></p>
 <section id="inverseresidual" class="level3">
 <h3>InverseResidual</h3>
-<p><code>InverseResidual[s]</code> checks composition of the retained
-forward model with the finite inverse.
+<p><code>InverseResidual[s]</code> returns a report association checking
+composition of the retained forward model with the finite inverse. The
+report includes the normalized residual, cutoff, and scope.
 <code>InverseResidual[s, h]</code> supplies a relative residual cutoff
 in the recorded uniformizing coordinate. The option is
 <code>&quot;MaxTerms&quot; -&gt; 200000</code>.</p>
@@ -3845,9 +3846,10 @@ remainder.</p>
 </section>
 <section id="inversenumericalcheck" class="level3">
 <h3>InverseNumericalCheck</h3>
-<p><code>InverseNumericalCheck[s, y1]</code> compares the finite inverse
-with a numerical root of the retained original equation on its selected
-branch. Its option is <code>WorkingPrecision -&gt; 50</code>.</p>
+<p><code>InverseNumericalCheck[s, y1]</code> returns an association
+comparing the finite expansion with the requested source observable of a
+numerical root of the retained original equation on its selected branch.
+Its option is <code>WorkingPrecision -&gt; 50</code>.</p>
 <pre class="wolfram"><code>s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
 check = InverseNumericalCheck[s, 1/100, WorkingPrecision -&gt; 60];
 check[&quot;ReferenceRoot&quot;]
@@ -3883,8 +3885,9 @@ rational root enclosure, and certified error bounds.</p>
 <tr>
 <td><code>&quot;Interval&quot;</code></td>
 <td><code>Automatic</code></td>
-<td>Verification interval. Supply exact rational endpoints for an
-explicit request.</td>
+<td>Required verification interval with ordered exact rational
+endpoints. Leaving the default <code>Automatic</code> returns
+<code>Failure[&quot;InvalidInterval&quot;, ...]</code>.</td>
 </tr>
 <tr>
 <td><code>&quot;Center&quot;</code></td>
@@ -4072,10 +4075,11 @@ the correction variables used by a coefficient request.</p>
 </section>
 <section id="inverseexpansioncoefficient" class="level3">
 <h3>InverseExpansionCoefficient</h3>
-<p><code>InverseExpansionCoefficient[s, {k1, k2, ...}]</code> returns
-the exact block associated with an ordinary inverse multi-index. A
-<code>PowerLogModel</code> association may replace <code>s</code>; for
-that form, <code>&quot;Power&quot; -&gt; 1</code> selects the observable.</p>
+<p><code>InverseExpansionCoefficient[s, {k1, k2, ...}]</code> returns an
+association describing the exact contribution of one ordinary inverse
+multi-index. A <code>PowerLogModel</code> association may replace
+<code>s</code>; for that form, <code>&quot;Power&quot; -&gt; 1</code> selects the
+observable.</p>
 <p>The coefficient query inherits the model&#39;s assumptions and ignores
 later ambient assumptions:</p>
 <pre class="wolfram"><code>Clear[x, a];

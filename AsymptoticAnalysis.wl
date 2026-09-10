@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 368a839a6114d0a5396df3ae0a82a20e7c9cf30f06bd47d74edcc689d45acb2b *)
+   Source SHA256 (UTF-8/LF): cd116cb984a1a059510506072f00c22e36afa046e8d1115f2db6a077dfb0136e *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -55,8 +55,9 @@ Use \"Backend\" -> \"Series\" or \"Asymptotic\" for explicit native delegation."
 AsymptoticInverse::usage =
 "AsymptoticInverse[f, {x, x0}, {y, cutoff}] gives the asymptotic expansion of the real \
 branch of the inverse function of f near x = x0 (x0 may be a real number, Infinity or \
--Infinity) as a GeneralizedSeries object in y. Every complete block with exponent strictly \
-less than cutoff in the local variable (y - y0, or 1/y when y0 is infinite) is retained.
+-Infinity) as a GeneralizedSeries object in y. For ordinary power-log results, every complete \
+block with exponent strictly less than cutoff in the positive target coordinate recorded \
+in s[\"RemainderVariable\"] is retained; this coordinate includes the target limit and selected sign.
 AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n] retains the first n nonzero blocks.
 Recognized leading-logarithmic and exponential cores return Scale -> \"Logarithmic\": \
 the cutoff and term count apply to the unit bracket after extracting Prefactor, in \
@@ -69,13 +70,14 @@ Power specifies a fixed real source observable, with integer powers required on 
 
 GeneralizedSeries::usage =
 "GeneralizedSeries[assoc] represents a generalized asymptotic expansion together with its \
-remainder and provenance. StandardForm and TraditionalForm display the finite expression \
-and remainder without the GeneralizedSeries head. Normal[s] drops the remainder and returns \
-the ordinary finite expression. InputForm retains the complete object. s[\"Remainder\"], \
-s[\"Terms\"], s[\"SeriesData\"], s[\"Properties\"] and other properties are available; \
-s[value] evaluates the finite expression at a numerical value of the variable. \
-Native results preserve NativeResult and display its own notation; Normal follows the native Normal operation, \
-which can retain an infinite sum. A native formal order or asymptotic output does not establish an analytic remainder or exactness.";
+remainder and provenance. StandardForm and TraditionalForm display an analytic finite expression \
+and remainder, or the stored native result, without the GeneralizedSeries head. InputForm retains \
+the complete object. Normal[s] returns the stored Expression. For native results, \
+Expression is Normal[NativeResult] computed during construction and may contain an infinite sum \
+or unresolved expression. s[\"Properties\"] lists stored keys; an absent s[\"key\"] returns \
+Missing[\"KeyAbsent\", \"key\"]. s[value] substitutes a numerical value into the stored expression \
+when its expansion variable is identified; this evaluation does not certify the domain or an error bound. \
+A native formal order or asymptotic output does not establish an analytic remainder or exactness.";
 
 PowerLogRemainder::usage =
 "PowerLogRemainder[w, beta, k] is an inert descriptor of the remainder class \
@@ -83,18 +85,21 @@ O[w^beta (1 + Abs[Log[w]])^k] as w -> 0+.";
 
 InverseResidual::usage =
 "InverseResidual[s] composes the forward model with the truncated inverse in the exact \
-power-log jet algebra and returns the normalized residual f(g(y))/(a z^p) - 1 below the \
-residual cutoff; InverseResidual[s, h] uses the relative cutoff h in the uniformizer.
+power-log jet algebra and returns a report association containing the normalized residual \
+f(g(y))/(a z^p) - 1 below the residual cutoff, together with its cutoff and scope. \
+InverseResidual[s, h] uses the relative cutoff h in the uniformizer.
 For GammaInverse with Power -> 1, it checks the finite Stirling residual normalized by CoreInverse Log[CoreInverse], \
 reporting the separate forward-model error and the exact logarithmic equation residual expression. \
 BarnesGInverse uses CoreInverse^2 CoreLogExpression and a finite Barnes logarithmic model.";
 
 InverseNumericalCheck::usage =
 "InverseNumericalCheck[s, y1] solves f(x) = y1 numerically on the selected branch and \
-compares a high-precision reference root with the truncated expansion at y = y1. \
+returns an association comparing the truncated expansion with the requested source observable \
+of a high-precision reference root at y = y1. ReferenceRoot records the root; \
+ReferenceObservable records the observable selected by Power and compared with the approximation. \
 This comparison is numerical evidence, not an interval certificate.";
 
-InverseCertificate::usage = "InverseCertificate[s,y1,\"Interval\"->{lo,hi}] proves a unique root enclosure by exact rational interval arithmetic and explicit elementary-function tail bounds. TargetError requests adaptive absolute accuracy; a rational Center may be fixed explicitly. WorkingPrecision affects seed selection only.";
+InverseCertificate::usage = "InverseCertificate[s,y1,\"Interval\"->{lo,hi}] proves a unique root enclosure by exact rational interval arithmetic and explicit elementary-function tail bounds. TargetError requests adaptive absolute accuracy; a rational Center may be fixed explicitly. WorkingPrecision controls numerical seed selection and planning of the automatic initial enclosure order; certified bounds use exact enclosure arithmetic.";
 
 PerturbativeInverse::usage =
 "PerturbativeInverse[phi, h, {x, y}, n] gives the Lagrange-Buermann expansion \
@@ -103,8 +108,10 @@ F0(x) + h(x) == y, where phi is the inverse of the core F0. PerturbativeInverse[
 uses the identity core. It is a formula generator; no asymptotic ordering is asserted.";
 
 InverseExpansionCoefficient::usage =
-"InverseExpansionCoefficient[s, {k1, k2, ...}] gives the exact logarithmic-polynomial \
-coefficient attached to one multi-index of the inverse expansion s (or of a PowerLogModel).";
+"InverseExpansionCoefficient[s, {k1, k2, ...}] returns an association describing the exact \
+contribution of one ordinary inverse multi-index, including its logarithmic-polynomial \
+Coefficient and weight metadata. A PowerLogModel association may replace s. Several \
+multi-index contributions may belong to the same complete block.";
 
 PowerLogModel::usage =
 "PowerLogModel[f, {x, x0}] parses f near x0 into the normalized model \
@@ -116,7 +123,7 @@ SeriesPower::usage = "SeriesPower[s,r] expands a real power with a proved branch
 SeriesLog::usage = "SeriesLog[s] expands the real logarithm of an eventually positive expansion; SeriesLog[s,h] uses cutoff h.";
 SeriesExp::usage = "SeriesExp[s] exponentiates an expansion with an absolute remainder tending to zero, retaining any unbounded exponential prefactor exactly; SeriesExp[s,h] uses cutoff h.";
 SeriesCompose::usage = "SeriesCompose[outer,inner] composes compatible expansion objects and transports the outer and inner remainders.";
-SeriesObservable::usage = "SeriesObservable[s,expr,z] applies a supported real analytic expression expr in z to the expansion s while preserving precision.";
+SeriesObservable::usage = "SeriesObservable[s,expr,z] applies a supported real expression expr in z to the expansion s, transporting its input remainder. Generic unary Taylor expansions require the complete inner argument to be provably real and enough Taylor information on the selected approach. Exact point values and supported one-sided limits are distinguished; the input remainder and available Taylor order limit output precision.";
 SeriesTruncate::usage = "SeriesTruncate[s,h] discards complete blocks at or above the exclusive cutoff h, retaining a valid remainder.";
 SeriesRefine::usage = "SeriesRefine[s,h] extends a compatible retained inverse computation or replays its source or operation recipe at cutoff h. A request association with AdditionalBlocks asks for more complete ordinary blocks; Target with TargetError or RelativeError and Interval returns a numerical certificate. RefinementStatistics records reused and new work; precision never improves without source evidence.";
 SeriesDifferentiate::usage = "SeriesDifferentiate[s,n] differentiates n times when matching remainder derivative bounds are known. RemainderDerivativeOrder declares such bounds; a magnitude Big-O bound alone is insufficient.";
