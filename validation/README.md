@@ -1090,9 +1090,14 @@ the linear node counts of `t + 1`, `2 t` and `t Sin[x] + 1` chains, the
 template without a recipe, and replayed refinements of sum, product, mixed
 and negative-valuation chains against fresh expansions, beside the
 refinement, arithmetic, operation, bound-transport, composite, flat-sector,
-envelope, result and composition-scope suites. The `operations` and
-`primitive` Mathics groups are rerun below once complete. No full package
-suite was run.
+envelope, result and composition-scope suites. After the chart-template,
+honest-cutoff, exact-derived-refinement, trimmed-power, bounded-factoring
+and scale-coordinate-branch changes, the Mathics `primitive` and
+`operations` groups pass **33/33** on Mathics 10.0.1 in the
+[modular](mathics-modular-wave7-operations-tests.json) and
+[standalone](mathics-standalone-wave7-operations-tests.json) layouts with
+unchanged sources; the two runs took about two hours each on the tested
+Windows interpreter. No full package suite was run.
 
 ## Composite target charts, refinement policy, and tooling
 
