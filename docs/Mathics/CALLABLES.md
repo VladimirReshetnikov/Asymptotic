@@ -27,6 +27,16 @@ supplies three exact facts for a bounded class of conditional inverse calls:
   combination of its values at the two endpoints. Endpoint sign proofs can
   therefore establish an inequality throughout the interval, including a
   strict inequality when one endpoint value is zero.
+- As `u -> 0+`, a polynomial in `u` with real coefficients has the sign of
+  its lowest-order coefficient whose sign is proved under the retained
+  assumptions. An eventual approach condition that is polynomial in the
+  local coordinate is therefore decided exactly, on its own arbitrarily
+  small neighbourhood: `0 < x < 10^-30` and `u < a` under `a > 0` are proved,
+  `u^2 - u > 0` is refuted, and a coefficient whose sign or realness is not
+  proved leaves the condition unproved rather than false. Conjunctions and
+  relational chains are decided clause by clause. Only nonpolynomial
+  conditions still use the seven dyadic trial radii `2^-j`, whose failure at
+  every radius says nothing about smaller neighbourhoods (wave-4 W4-03).
 
 The existing branch validator still checks the conditional source domain,
 the target limit, the approach side, and the local derivative sign. When a
