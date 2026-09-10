@@ -1019,6 +1019,22 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Scale-coordinate branches and eventual-sign certificates
+
+The [twelve-file run](scale-coordinate-branch-tests.json) from
+[CheckScaleCoordinateBranches.wl](CheckScaleCoordinateBranches.wl) passes
+**208/208** on Wolfram 15.0.1 for Windows with unchanged sources. Its two
+cases in
+[ReviewScaleCoordinateBranches.wlt](../src/Tests/ReviewScaleCoordinateBranches.wlt)
+pin W3-12: the Lerch product and quotient in `x^-2`, their refinement, the
+proved positive and negative branches of the coordinate rule, the refusal
+without a proved sign, and the unchanged composite fallback for an
+exponential-scale operand. The portable cases
+`callable-tiny-neighbourhood-condition` and
+`callable-eventual-sign-certificate-primitives` pin W4-03 on both kernels;
+their Mathics receipts are recorded with the `callable` group below once
+the runs complete.
+
 ## Refinement postconditions and canonical budgets
 
 The [eighteen-file run](refinement-postcondition-tests.json) from

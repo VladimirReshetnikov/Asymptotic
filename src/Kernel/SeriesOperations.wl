@@ -79,8 +79,22 @@ seriesCoordinateRule[d_, u_] := Module[{w = d["ScaleVariable"], x = d["Variable"
   offset = w + x;
   If[FreeQ[offset, x] && exactRealQ[offset], Return[x -> offset - u, Module]];
   sol = Quiet[TimeConstrained[Solve[w == u, x, Reals], 3, $Failed]];
-  If[! ListQ[sol] || Length[sol] =!= 1 || ! MatchQ[First[sol], {_Rule}], Return[$Failed, Module]];
-  First[First[sol]]];
+  If[! ListQ[sol] || ! MatchQ[sol, {{_Rule} ..}], Return[$Failed, Module]];
+  If[Length[sol] === 1, Return[First[First[sol]], Module]];
+  (* Several real branches (a signed quadratic or monomial chart such as
+     w = 1/x^2): keep the one branch the retained domain proves for small
+     positive u and refuse otherwise, so the product of a Lerch expansion
+     in x^-2 with x stays a power-log series in x^-2 instead of a composite
+     envelope (W3-12). An unproved or ambiguous domain keeps the failure. *)
+  (* The real solver states its branch conditions as ConditionalExpression
+     values; u > 0 is the standing assumption of every scale coordinate. *)
+  sol = Select[(First[#] /. ConditionalExpression[v_, _] :> v) & /@ sol, seriesCoordinateBranchQ[d, #, u] &];
+  If[Length[sol] =!= 1, Return[$Failed, Module]];
+  First[sol]];
+seriesCoordinateBranchQ[d_, rule_Rule, u_] := Module[{domain = Lookup[d, "Domain", True], ass = Lookup[d, "Assumptions", True], claim},
+  If[domain === True, Return[False, Module]];
+  claim = Simplify[domain /. rule, ass && u > 0];
+  claim === True || TrueQ[Quiet[TimeConstrained[inverseFunctionEventually[domain /. rule, u, ass], 3, False]]]];
 
 seriesExpressionJet[e_, d_, limit_] := Module[{u = Unique["w$"], rule, q, probe, ass = seriesAss[d], ell = d["LogVariable"]},
   If[FreeQ[e, d["Variable"]], Return[pConst[e, ell, ass], Module]];

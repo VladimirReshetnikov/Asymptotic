@@ -2222,7 +2222,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 81773cd9262daccdf1c23963eb1579e65e8573785cc6dfa54606a79e97e84a8f *)
+   Source SHA256 (UTF-8/LF): 4b5b30c57328a2747d36cf0a7bdcb3bfa6877486ae71922ff7ea1c691eb4c05b *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2304,8 +2304,22 @@ seriesCoordinateRule[d_, u_] := Module[{w = d["ScaleVariable"], x = d["Variable"
   offset = w + x;
   If[FreeQ[offset, x] && exactRealQ[offset], Return[x -> offset - u, Module]];
   sol = Quiet[TimeConstrained[Solve[w == u, x, Reals], 3, $Failed]];
-  If[! ListQ[sol] || Length[sol] =!= 1 || ! MatchQ[First[sol], {_Rule}], Return[$Failed, Module]];
-  First[First[sol]]];
+  If[! ListQ[sol] || ! MatchQ[sol, {{_Rule} ..}], Return[$Failed, Module]];
+  If[Length[sol] === 1, Return[First[First[sol]], Module]];
+  (* Several real branches (a signed quadratic or monomial chart such as
+     w = 1/x^2): keep the one branch the retained domain proves for small
+     positive u and refuse otherwise, so the product of a Lerch expansion
+     in x^-2 with x stays a power-log series in x^-2 instead of a composite
+     envelope (W3-12). An unproved or ambiguous domain keeps the failure. *)
+  (* The real solver states its branch conditions as ConditionalExpression
+     values; u > 0 is the standing assumption of every scale coordinate. *)
+  sol = Select[(First[#] /. ConditionalExpression[v_, _] :> v) & /@ sol, seriesCoordinateBranchQ[d, #, u] &];
+  If[Length[sol] =!= 1, Return[$Failed, Module]];
+  First[sol]];
+seriesCoordinateBranchQ[d_, rule_Rule, u_] := Module[{domain = Lookup[d, "Domain", True], ass = Lookup[d, "Assumptions", True], claim},
+  If[domain === True, Return[False, Module]];
+  claim = Simplify[domain /. rule, ass && u > 0];
+  claim === True || TrueQ[Quiet[TimeConstrained[inverseFunctionEventually[domain /. rule, u, ass], 3, False]]]];
 
 seriesExpressionJet[e_, d_, limit_] := Module[{u = Unique["w$"], rule, q, probe, ass = seriesAss[d], ell = d["LogVariable"]},
   If[FreeQ[e, d["Variable"]], Return[pConst[e, ell, ass], Module]];
@@ -9647,7 +9661,7 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\nmathicsRefinementAssociation[rules_List] := Association @@ rules;"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsInverseBranches.wl\n   Source SHA256 (UTF-8/LF): 79ecef295c917a8a53c809b49e181f718811c9fe481693b440f3ca942d4ce022 *)\n(* Loaded late in Private, only on Mathics. Two bounded exact facts fill the\n   polynomial branch-inference path without emulating Reduce: a polynomial\n   with real constant coefficients is real on the whole real axis, and an\n   intersection of affine real half-lines is convex. The ordinary branch\n   validator still proves the source condition, limit, target side and local\n   derivative sign. Unsupported domains retain the conservative failure. *)\n\nmathicsPolynomialFunctionDomain[body_, x_Symbol, Reals] :=\n  If[PolynomialQ[body, x] && And @@ (exactRealQ /@ CoefficientList[body, x]),\n    True, System`FunctionDomain[body, x, Reals]];",
+"(* BEGIN SOURCE: src/Kernel/MathicsInverseBranches.wl\n   Source SHA256 (UTF-8/LF): 117bbe908b1381177e96f7d39427d78493888e812d635fc16dc4f05856133fc8 *)\n(* Loaded late in Private, only on Mathics. Two bounded exact facts fill the\n   polynomial branch-inference path without emulating Reduce: a polynomial\n   with real constant coefficients is real on the whole real axis, and an\n   intersection of affine real half-lines is convex. The ordinary branch\n   validator still proves the source condition, limit, target side and local\n   derivative sign. Unsupported domains retain the conservative failure. *)\n\nmathicsPolynomialFunctionDomain[body_, x_Symbol, Reals] :=\n  If[PolynomialQ[body, x] && And @@ (exactRealQ /@ CoefficientList[body, x]),\n    True, System`FunctionDomain[body, x, Reals]];",
 "\n\n(* Replace only this private consumer's unavailable FunctionDomain call.\n   No definition or attribute of a System symbol is changed. *)\nDownValues[inverseFunctionSelectBranchInternal] =\n  DownValues[inverseFunctionSelectBranchInternal] /.\n    System`FunctionDomain -> mathicsPolynomialFunctionDomain;",
 "\n\nmathicsAffineRealExpressionQ[expression_, x_, ass_] :=\n  PolynomialQ[expression, x] && Exponent[expression, x] <= 1 &&\n    And @@ (TrueQ[FullSimplify[Element[#, Reals], ass]] & /@ CoefficientList[expression, x]);",
 "\n\nmathicsConvexRealDomainQ[domain_, x_, ass_] := Module[{head = Head[domain], parts},\n  If[FreeQ[domain, x], Return[True, Module]];\n  If[head === And,\n    Return[And @@ (mathicsConvexRealDomainQ[#, x, ass] & /@ List @@ domain), Module]];\n  If[MemberQ[{Element, System`Element}, head],\n    Return[SameQ[domain[[1]], x] && SameQ[domain[[2]], Reals], Module]];\n  If[MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal}, head],\n    parts = List @@ domain;\n    If[head =!= Equal &&\n      ! And @@ (mathicsAffineRealExpressionQ[#, x, ass] & /@ parts), Return[False, Module]];\n    Return[And @@ (mathicsAffineRealExpressionQ[Subtract @@ #, x, ass] & /@\n      Partition[parts, 2, 1]), Module]];\n  If[head === Inequality,\n    parts = List @@ domain;\n    If[! And @@ (MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal}, #] & /@\n        parts[[2 ;; -1 ;; 2]]), Return[False, Module]];\n    If[! And @@ (mathicsAffineRealExpressionQ[#, x, ass] & /@ parts[[1 ;; -1 ;; 2]]),\n      Return[False, Module]];\n    Return[And @@ (mathicsAffineRealExpressionQ[Subtract @@ #, x, ass] & /@\n      Partition[parts[[1 ;; -1 ;; 2]], 2, 1]), Module]];\n  False];",
@@ -9659,9 +9673,12 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\n\nIf[DownValues[mathicsOriginalBranchEventualQ] === {},\n  DownValues[mathicsOriginalBranchEventualQ] = DownValues[inverseBranchEventualQ] /.\n    inverseBranchEventualQ -> mathicsOriginalBranchEventualQ];",
 "\nClear[inverseBranchEventualQ];",
 "\ninverseBranchEventualQ[predicate_, u_, ass_, radius_] := Module[{truth},\n  If[exactRealQ[radius] && less[0, radius],\n    truth = mathicsAffineIntervalTruth[predicate, u, ass, radius];\n    If[truth === True || truth === False, Return[truth, Module]]];\n  mathicsOriginalBranchEventualQ[predicate, u, ass, radius]];",
-"\n\n(* Proving one explicit positive neighborhood suffices for eventual truth.\n   Failure at any trial radius says nothing about smaller neighborhoods. *)\nIf[DownValues[mathicsOriginalFunctionEventually] === {},\n  DownValues[mathicsOriginalFunctionEventually] = DownValues[inverseFunctionEventually] /.\n    inverseFunctionEventually -> mathicsOriginalFunctionEventually];",
+"\n\n(* Exact eventual sign of a real polynomial in u as u -> 0+: the lowest-\n   order coefficient with a proved sign decides, so a condition such as\n   0 < u < 10^-30 is proved on its own arbitrarily small neighborhood\n   without trial radii. A coefficient whose sign or realness is unproved\n   gives None; unproved is not false (wave-4 W4-03). *)\nmathicsPolynomialEventualSign[difference_, u_, ass_] := Module[{coefficients, k},\n  If[! PolynomialQ[difference, u], Return[None, Module]];\n  coefficients = CoefficientList[difference, u];\n  If[! And @@ (TrueQ[FullSimplify[Element[#, Reals], ass]] & /@ coefficients), Return[None, Module]];\n  Do[Which[TrueQ[FullSimplify[coefficients[[k]] == 0, ass]], Null,\n     provablyPositive[coefficients[[k]], ass], Return[1, Module],\n     provablyNegative[coefficients[[k]], ass], Return[-1, Module],\n     True, Return[None, Module]], {k, Length[coefficients]}];\n  0];",
+"\nmathicsPolynomialEventualRelation[left_, head_, right_, u_, ass_] := Module[{sign},\n  If[MemberQ[{Less, LessEqual, Greater, GreaterEqual}, head] &&\n    ! (TrueQ[FullSimplify[Element[left, Reals], ass && Element[u, Reals]]] &&\n       TrueQ[FullSimplify[Element[right, Reals], ass && Element[u, Reals]]]),\n    Return[None, Module]];\n  sign = mathicsPolynomialEventualSign[Expand[left - right], u, ass];\n  If[sign === None, Return[None, Module]];\n  Switch[head,\n    Greater, sign === 1, GreaterEqual, sign >= 0, Less, sign === -1, LessEqual, sign <= 0,\n    Equal, sign === 0, Unequal, sign =!= 0, _, None]];",
+"\nmathicsPolynomialEventualTruth[predicate_, u_, ass_] := Module[{head = Head[predicate], parts, truths},\n  If[predicate === True || predicate === False, Return[predicate, Module]];\n  If[head === Unequal && Length[predicate] =!= 2, Return[None, Module]];\n  If[head === And,\n    truths = mathicsPolynomialEventualTruth[#, u, ass] & /@ List @@ predicate,\n    If[MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal, Unequal}, head],\n      truths = mathicsPolynomialEventualRelation[#[[1]], head, #[[2]], u, ass] & /@\n        Partition[List @@ predicate, 2, 1],\n      If[head === Inequality,\n        parts = List @@ predicate;\n        truths = Table[mathicsPolynomialEventualRelation[parts[[j]], parts[[j + 1]],\n          parts[[j + 2]], u, ass], {j, 1, Length[parts] - 2, 2}],\n        Return[None, Module]]]];\n  Which[MemberQ[truths, False], False, And @@ (TrueQ /@ truths), True, True, None]];",
+"\n\n(* The exact eventual-sign certificate comes first; the seven dyadic trial\n   radii remain for nonpolynomial conditions, since failure at any trial\n   radius says nothing about smaller neighborhoods. *)\nIf[DownValues[mathicsOriginalFunctionEventually] === {},\n  DownValues[mathicsOriginalFunctionEventually] = DownValues[inverseFunctionEventually] /.\n    inverseFunctionEventually -> mathicsOriginalFunctionEventually];",
 "\nClear[inverseFunctionEventually];",
-"\ninverseFunctionEventually[condition_, u_, ass_] := Module[{simple},\n  simple = FullSimplify[condition, ass && u > 0];\n  If[simple === True || simple === False, Return[simple, Module]];\n  Do[If[TrueQ[mathicsAffineIntervalTruth[simple, u, ass, 2^-j]],\n    Return[True, Module]], {j, 0, 6}];\n  mathicsOriginalFunctionEventually[condition, u, ass]];"
+"\ninverseFunctionEventually[condition_, u_, ass_] := Module[{simple, exact},\n  simple = FullSimplify[condition, ass && u > 0];\n  If[simple === True || simple === False, Return[simple, Module]];\n  exact = mathicsPolynomialEventualTruth[simple, u, ass];\n  If[exact === True || exact === False, Return[exact, Module]];\n  Do[If[TrueQ[mathicsAffineIntervalTruth[simple, u, ass, 2^-j]],\n    Return[True, Module]], {j, 0, 6}];\n  mathicsOriginalFunctionEventually[condition, u, ass]];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "(* BEGIN SOURCE: src/Kernel/MathicsSpecialFunctions.wl\n   Source SHA256 (UTF-8/LF): 78ab28f9dcf8f87f2a22413ebc263788552333a91f485c2edc2e126a1030383b *)\n(* Mathics does not implement the large-positive-argument LogGamma Series\n   used by the Wolfram path. Use the classical finite Stirling model in the\n   existing jet algebra. This is a Poincare expansion with an explicit tail,\n   never an exact or convergent power series. DLMF 5.11.1 and 5.11(ii). *)\n\nmathicsGrowingPositiveJetQ[rows_List, ell_, ass_] := rows =!= {} &&\n  less[rows[[1, 1]], 0] && FreeQ[rows[[1, 2]], ell] &&\n  provablyPositive[rows[[1, 2]], ass];",

@@ -15,6 +15,18 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Proved scale-coordinate branches and exact eventual signs
+
+A regular operand beside an expansion whose scale coordinate has several
+real branches, such as `w = x^-2`, is now expanded on the one branch the
+retained domain proves, so `SeriesMultiply[s, x]` for a Lerch expansion in
+`x^-2` stays a power-log series with powers `{3/2, 5/2, 7/2}` instead of a
+composite envelope (W3-12). On Mathics, an approach condition that is a
+polynomial in the local coordinate is decided by the sign of its lowest
+nonzero coefficient, so `ConditionalExpression[Sqrt[x], 0 < x < 10^-30]`
+expands at `0` where the dyadic trial radii could not reach the
+neighbourhood (W4-03).
+
 ### Honest cutoffs, shortfall-driven replay, and bounded budgets
 
 An operation result whose request exceeds the transported precision now

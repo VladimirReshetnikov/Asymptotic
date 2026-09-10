@@ -550,6 +550,22 @@ portableTest["certificate-logarithm-near-one-relative-precision", "certificate",
        "EnclosureOrder" -> 2, "MaxRefinements" -> 0], -d]}],
   {True, True, True}];
 
+(* W4-03: an approach condition confined to an arbitrarily small
+   neighbourhood is proved by the exact polynomial eventual-sign certificate
+   on Mathics, where the seven dyadic trial radii could not reach it; the
+   official kernel proves it with its general prover. *)
+portableTest["callable-tiny-neighbourhood-condition", "callable",
+  Module[{x, s}, s = AsymptoticExpansion[ConditionalExpression[Sqrt[x], 0 < x < 10^-30], {x, 0, 2}];
+    If[MatchQ[s, _GeneralizedSeries], {Expand[Normal[s] - Sqrt[x]], s["Remainder"]}, s[[1]]]],
+  {0, 0}];
+
+portableTest["callable-eventual-sign-certificate-primitives", "callable",
+  Module[{u, a, prove},
+    prove[predicate_, ass_] := AsymptoticAnalysis`Private`inverseFunctionEventually[predicate, u, ass];
+    {prove[u < 10^-100, True], prove[u^2 - u > 0, True], prove[a u + 1 > 0, Element[a, Reals]],
+     prove[u < a, a > 0], prove[u - u^3 < 0, True], prove[Inequality[0, Less, u, Less, 10^-40], True]}],
+  {True, False, True, True, False, True}];
+
 portableTest["numerical-exact-quadratic-inverse", "numerical",
   Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
     c = InverseNumericalCheck[s, 4, WorkingPrecision -> 30];
