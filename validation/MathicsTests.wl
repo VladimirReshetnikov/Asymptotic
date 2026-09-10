@@ -613,6 +613,65 @@ portableTest["primitive-empty-map-preserves-list-state", "primitive",
       Map[g, {}, {0}] === g[{}], Map[g, {}, {1}, Heads -> True] === g[List][]}]]],
   {{1, 0}, {{}, 2, 0}, {}, {2, 3}, True, True, True}];
 
+portableTest["operations-explicit-series-binary-wrappers", "operations",
+  Module[{x, s, a, b, c, d}, s = AsymptoticExpansion[Exp[x], {x, 0, 3}];
+    a = SeriesAdd[s, 2]; b = SeriesAdd[2, s];
+    c = SeriesMultiply[s, 2]; d = SeriesMultiply[2, s];
+    {Simplify[Normal[a] - (3 + x + x^2/2)], Simplify[Normal[a] - Normal[b]],
+      Simplify[Normal[c] - (2 + 2 x + x^2)], Simplify[Normal[c] - Normal[d]],
+      a["RemainderPower"], c["RemainderPower"]}],
+  {0, 0, 0, 0, 3, 3}];
+
+portableTest["operations-logarithmic-inverse-residual", "operations",
+  Module[{x, y, s, r}, s = AsymptoticLogarithmicInverse[x + x/Log[x], {x, 0}, {y, 3}];
+    r = LogarithmicInverseResidual[s];
+    {r["Residual"], r["Vanishes"], r["ZeroBelowCutoff"], r["Cutoff"]}],
+  {0, True, True, 3}];
+
+portableTest["operations-special-numerical-exact-threshold", "operations",
+  Module[{x, y, s, c}, s = AsymptoticSpecialInverse["QuadraticThreshold", {x, 3}, {y, 2},
+      "TargetOffset" -> 7, "TargetScale" -> -2, "QuadraticCoefficient" -> 3];
+    c = SpecialInverseNumericalCheck[s, 1, WorkingPrecision -> 30];
+    {AssociationQ[c], TrueQ[Abs[c["ReferenceRoot"] - 4] < 10^-20],
+      TrueQ[c["Error"] == 0], c["Adapter"], c["Certified"]}],
+  {True, True, True, "QuadraticThreshold", False}];
+
+portableTest["operations-series-data-reconstruction", "operations",
+  Module[{x, s, copy, truncated}, s = AsymptoticExpansion[1 + x, {x, 0, 3}];
+    copy = GeneralizedSeries[s[[1]]];
+    truncated = SeriesTruncate[AsymptoticExpansion[x + x^2, {x, 0, 3}], 2];
+    {Normal[copy] === 1 + x, copy[1/2], copy["Exact"], copy["Remainder"],
+      truncated["Remainder"] === PowerLogRemainder[x, 2, 0]}],
+  {True, 3/2, True, 0, True}];
+
+(* Keep inline assumptions held until package dispatch. Mathics otherwise weakens
+   Element[Sin[a], Reals] to Element[a, Reals] before the realness proof. *)
+portableTest["assumptions-inline-composite-does-not-prove-argument-real", "assumptions",
+  Module[{a, x, s}, s = AsymptoticExpansion[a x, {x, 0, 2},
+      Assumptions -> Element[Sin[a], Reals], "Backend" -> "Package"];
+    MatchQ[s, Failure["UnprovedRealCoefficient", _]]],
+  True];
+
+portableTest["assumptions-delayed-inline-evaluates-once", "assumptions",
+  Module[{a, x, s, count = 0}, s = AsymptoticExpansion[a x, {x, 0, 2},
+      Assumptions :> (count++; Element[Sin[a], Reals]), "Backend" -> "Package"];
+    {count, MatchQ[s, Failure["UnprovedRealCoefficient", _]]}],
+  {1, True}];
+
+portableTest["assumptions-nested-delayed-composite-coefficient", "assumptions",
+  Module[{a, x, s, count = 0}, s = AsymptoticExpansion[Sin[a] x, {x, 0, 2},
+      {Assumptions :> (count++; Element[Sin[a], Reals])}, "Backend" -> "Package"];
+    {count, Simplify[Normal[s] - Sin[a] x], s["Remainder"]}],
+  {1, 0, 0}];
+
+portableTest["assumptions-inline-inverse-and-model-preserve-composite", "assumptions",
+  Module[{a, x, y, s, m}, s = AsymptoticInverse[x + a x^2, {x, 0}, {y, 3},
+      Assumptions -> Element[Sin[a], Reals]];
+    m = PowerLogModel[x + a x^2, {x, 0}, Assumptions -> Element[Sin[a], Reals]];
+    {MatchQ[s, Failure["UnprovedRealCoefficient", _]],
+      MatchQ[m, Failure["UnprovedRealCoefficient", _]]}],
+  {True, True}];
+
 (* A typo in the Python/WL test selection must never look like an empty pass. *)
 Print["No portable test matched: ", portableSelection];
 Exit[2];

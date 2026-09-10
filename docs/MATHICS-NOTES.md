@@ -148,6 +148,14 @@ unadapted interpreter. Package-owned workarounds do not redefine its
 
 ## Exact assumptions and branch proofs
 
+- Inline option values need protection as well as internal proof questions.
+  Mathics rewrites `Element[Sin[a], Reals]` to `Element[a, Reals]`, although
+  `a = Pi/2 + I` satisfies the first condition and violates the second. The
+  held analytic boundary preserves membership heads inside inline immediate,
+  delayed, and nested `Assumptions` rules before option evaluation. It keeps
+  side effects under the original once-only option resolution. A value
+  already rewritten in caller-side evaluation cannot be reconstructed. See
+  [INPUT-ASSUMPTIONS.md](Mathics/INPUT-ASSUMPTIONS.md) for the precise boundary.
 - Native symbolic `Element[Log[a], Reals]` can lose the logarithm's positive
   domain before assumptions are considered. Internal realness questions
   therefore use a held adapter. Already evaluated caller input cannot be

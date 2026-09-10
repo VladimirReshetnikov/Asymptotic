@@ -87,3 +87,25 @@ Root's separate post-merge acceptance is recorded in the
 [validation index](../../validation/README.md). Focused native tests,
 standalone-builder tests and portable-runner tests do not establish complete
 Mathics runtime acceptance. The full package suite was skipped.
+
+## September 9, 2026 — documentation and observable follow-ups
+
+The documentation checkpoint `db8ea41`, merged through `a4e1a3e`, temporarily
+linked to two uncommitted coverage registers. Running the documentation
+checker reproduced those missing destinations. The completed `513917b` and
+`699a973` updates supply the registers and regenerated guide. After merging
+them, the checker passes across 45 maintained Markdown pages, 1,603 local
+links and 209 local fragments, including the Mathics assumption notes.
+The broader link checker uses the same GFM parser as the guide builder;
+source review confirmed that imported report bodies remain outside its
+maintained-page scope. Its artifact-specific checks are separate from kernel
+acceptance.
+
+The uncommitted observable repair in the `codex/fix-inverse-asymptotic-expansion`
+worktree was also inspected read-only. Its new helpers validate the returned
+Taylor chart and exclusive endpoint before indexing coefficients, retain the
+selected one-sided constant, and require two-sided/point agreement when the
+input does not prove an approach side. These address concrete information-loss
+cases. This inspection is not acceptance of that worktree's pending files;
+a later merge still requires an updated native control and relevant Mathics
+observable regressions. No files in either peer worktree were edited.
