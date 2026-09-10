@@ -14,9 +14,9 @@ session.
 From the repository root, run one script at a time:
 
 ```powershell
-wolfram.exe -noinit -script AsymptoticAnalysis/Examples/Examples.wl
-wolfram.exe -noinit -script AsymptoticAnalysis/Examples/Arithmetic.wl
-wolfram.exe -noinit -script AsymptoticAnalysis/Examples/SpecialFunctions.wl
+wolfram.exe -noinit -script src/Examples/Examples.wl
+wolfram.exe -noinit -script src/Examples/Arithmetic.wl
+wolfram.exe -noinit -script src/Examples/SpecialFunctions.wl
 ```
 
 For interactive exploration, open a script and evaluate selected expressions

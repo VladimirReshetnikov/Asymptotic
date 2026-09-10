@@ -13,19 +13,19 @@ The complete input-superset goal remains open.**
 
 The public function `AsymptoticExpansion` and its held alias `AsymptoticExpand`
 share `"Backend" -> Automatic`. In
-[NativeCompatibility.wl](../../AsymptoticAnalysis/Kernel/NativeCompatibility.wl),
+[NativeCompatibility.wl](../../src/Kernel/NativeCompatibility.wl),
 explicit `"Series"` and `"Asymptotic"` modes delegate before real-coordinate
 admission and return a distinct native result. `"Package"` selects only the
 existing analytic engines. `Automatic` retains their successful results,
 routes selected native forms and options directly, and permits a native
 fallback for selected representation failures. The package path's
-[held entry and ordinary engine](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl)
+[held entry and ordinary engine](../../src/Kernel/AsymptoticAnalysis.wl)
 accept one expansion variable and use an exclusive power cutoff. The
-[forward dispatcher](../../AsymptoticAnalysis/Kernel/InverseFunctionExpressions.wl)
+[forward dispatcher](../../src/Kernel/InverseFunctionExpressions.wl)
 constructs a positive real local coordinate before selecting an engine.
 Exact real input, admissible real coefficients and supported coefficient
 scales are required by these paths. The
-[structured special-function importer](../../AsymptoticAnalysis/Kernel/NativeSpecialFunctions.wl)
+[structured special-function importer](../../src/Kernel/NativeSpecialFunctions.wl)
 also requires a real-domain proof and a supported finite error representation.
 Those analytic contracts remain in force for package results; the native
 result kind preserves outputs outside those representations without

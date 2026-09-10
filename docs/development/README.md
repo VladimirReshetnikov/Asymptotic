@@ -4,20 +4,20 @@ This directory connects current implementation work to its mathematical
 hypotheses, public contracts, and validation evidence. Return to the
 [documentation index](../README.md) for reader-facing and historical material.
 
-The maintained package is now `AsymptoticAnalysis`, with the matching Wolfram
-context and source directory. Public `AsymptoticInverse` calls remain unchanged.
+The maintained package and Wolfram context are named `AsymptoticAnalysis`;
+the modular sources are under `src/`. Public `AsymptoticInverse` calls remain unchanged.
 Saved validation records from before the rename describe their original
 paths, contexts and source hashes. In particular, checkpoint `01b18ab` contains
 the pre-rename 163/0 routing, 58/0 certificate and 11/0 standalone results;
 these are not validation of the renamed source files.
 
 The maintained reader-facing documentation consists of the
-[mathematical article](../../article/asymptotic-inverse.pdf) and the
-[package user guide](../../AsymptoticAnalysis/Documentation/UserGuide.html).
+[mathematical article](../article/asymptotic-inverse.pdf) and the
+[package user guide](../../src/Documentation/UserGuide.html).
 
-The [code review library](../../code-review/README.md) contains eighteen
-packages in two waves: [reports 1–9](../../code-review/wave-1/README.md) and
-[reports 10–18](../../code-review/wave-2/README.md). The maintained
+The [code review library](../../external-reports/code-review/README.md) contains eighteen
+packages in two waves: [reports 1–9](../../external-reports/code-review/wave-1/README.md) and
+[reports 10–18](../../external-reports/code-review/wave-2/README.md). The maintained
 [code review status](CODE_REVIEW_STATUS.md) consolidates findings, links current
 implementation evidence, and keeps pending repairs separate from deferred API
 and research proposals. The wave indexes record each package's pinned snapshot
@@ -41,7 +41,7 @@ native output, held request metadata, option conflicts, and the absence of
 an independently proved analytic remainder.
 
 Report 18's certificate accuracy stall is addressed in
-[InverseCertificates.wl](../../AsymptoticAnalysis/Kernel/InverseCertificates.wl).
+[InverseCertificates.wl](../../src/Kernel/InverseCertificates.wl).
 The [focused certificate runner](../../validation/CheckReviewCertificateAccuracy.wl)
 checks relative-aware planning, arithmetic retries, sharp root-interval bounds,
 best-result retention, and the distinction between a proved enclosure and
@@ -62,7 +62,7 @@ observables, and distinguish this check from a proof that the source is real.
 1. Check the [implementation register](CODE_REVIEW_STATUS.md) and the relevant
    pinned review. Reproduce the issue on the current source before treating a
    historical observation as a current defect.
-2. Use the [kernel source map](../../AsymptoticAnalysis/Kernel/README.md) to
+2. Use the [kernel source map](../../src/Kernel/README.md) to
    locate the implementation, then update the relevant tests and contract
    notes. Preserve the distinction between formal order, asymptotic remainder,
    numerical comparison, and a quantitative certificate.
@@ -73,12 +73,12 @@ observables, and distinguish this check from a proof that the source is real.
    Keep proposed behavior and unexecuted regression specifications labeled as
    pending until their implementation and focused acceptance are available.
 
-Update the [user guide source](../../AsymptoticAnalysis/Documentation/UserGuide.md)
+Update the [user guide source](../../src/Documentation/UserGuide.md)
 and rebuild its HTML for public behavior changes. Update the
-[mathematical article](../../article/README.md) when its hypotheses, results,
+[mathematical article](../article/README.md) when its hypotheses, results,
 or examples change, and rebuild its PDF using the documented three-pass
 procedure. Wolfram-specific evaluation subtleties belong in these development
-notes or [WOLFRAM-NOTES.md](../../WOLFRAM-NOTES.md).
+notes or [WOLFRAM-NOTES.md](../WOLFRAM-NOTES.md).
 
 ## Historical engineering material
 
@@ -96,15 +96,15 @@ guide for supported behavior and the [validation record](../../validation/README
 for the precise revision and scope of each test run. Historical validation
 manifests retain their original artifact paths and hashes.
 
-The [original reports](../../reports/README.md), their
-[comparison](../../reports/COMPARISON.md), and
-[Wolfram development notes](../../WOLFRAM-NOTES.md) remain separate sources
+The [original reports](../../external-reports/original-proposals/README.md), their
+[comparison](../../external-reports/original-proposals/COMPARISON.md), and
+[Wolfram development notes](../WOLFRAM-NOTES.md) remain separate sources
 of engineering history.
 
 ## Standalone package
 
 The canonical implementation is the modular package under
-`AsymptoticAnalysis/Kernel/`. The repository-root `AsymptoticAnalysis.wl` is a
+`src/Kernel/`. The repository-root `AsymptoticAnalysis.wl` is a
 generated distribution for HTTP `Get` and single-file offline loading.
 It preserves the original module order and top-level context transitions.
 Each included source carries its path and SHA-256 hash, calculated after

@@ -1,11 +1,11 @@
 (* Bounded characterization of report 18 on current source, not acceptance. *)
 review18Root = DirectoryName[DirectoryName[$InputFileName]];
-review18Files = Join[FileNames["*.wl", FileNameJoin[{review18Root, "AsymptoticAnalysis", "Kernel"}]], {$InputFileName}];
+review18Files = Join[FileNames["*.wl", FileNameJoin[{review18Root, "src", "Kernel"}]], {$InputFileName}];
 review18Hashes[] := Association[(StringReplace[
   FileNameJoin[Drop[FileNameSplit[ExpandFileName[#]], Length[FileNameSplit[review18Root]]]], "\\" -> "/"] ->
   IntegerString[FileHash[#, "SHA256"], 16, 64]) & /@ review18Files];
 review18Before = review18Hashes[];
-Get[FileNameJoin[{review18Root, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]];
+Get[FileNameJoin[{review18Root, "src", "Kernel", "AsymptoticAnalysis.wl"}]];
 SetAttributes[review18Record, HoldRest];
 review18Records = {};
 review18Record[id_, expression_] := Module[{seconds, result, messages},

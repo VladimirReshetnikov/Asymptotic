@@ -1,5 +1,5 @@
 (* Run in a fresh kernel:
-     wolfram -script AsymptoticAnalysis/Tests/BenchmarkIncremental.wl
+     wolfram -script src/Tests/BenchmarkIncremental.wl
    Optionally set ASYMPTOTIC_BENCHMARK_OUTPUT to write the JSON result.
    Timings are observations on this kernel and machine, never test thresholds.
    The reference routines freeze the pre-incremental control flow; they call

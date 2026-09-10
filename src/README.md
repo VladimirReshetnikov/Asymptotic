@@ -5,6 +5,10 @@ The package was renamed from AsymptoticInverse. Its context is
 their names. See [fixed-version loading](Documentation/UserGuide.md#loading-fixed-versions)
 when using a commit from before the rename.
 
+This `src/` directory contains the modular package. The directory name does
+not change the package context or the repository-root standalone filename
+`AsymptoticAnalysis.wl`.
+
 Real asymptotic expansions of functions and selected inverse branches in Wolfram
 Language, with exact exponents, logarithmic coefficients, and retained remainders.
 Explicit native backends also preserve built-in `Series` and `Asymptotic`
@@ -13,9 +17,9 @@ results under a distinct formal or native asymptotic contract.
 - **[User guide](Documentation/UserGuide.html)** — syntax, options, worked
   examples, result properties, supported scales, and possible issues.
   [Read the Markdown version](Documentation/UserGuide.md).
-- **[Mathematical article](../article/asymptotic-inverse.pdf)** — definitions,
+- **[Mathematical article](../docs/article/asymptotic-inverse.pdf)** — definitions,
   theorems, proofs, branch selection, and error estimates.
-  [Read the LaTeX source](../article/asymptotic-inverse.tex).
+  [Read the LaTeX source](../docs/article/asymptotic-inverse.tex).
 
 ## Loading
 
@@ -39,13 +43,13 @@ complete single-file package with local `Get` offline.
 From the repository root of a local checkout, use the modular entry point:
 
 ```wolfram
-Get["AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl"];
+Get["src/Kernel/AsymptoticAnalysis.wl"];
 ```
 
 Or register the local paclet directory and load its context:
 
 ```wolfram
-PacletDirectoryLoad["/absolute/path/to/AsymptoticAnalysis"];
+PacletDirectoryLoad["/absolute/path/to/src"];
 Needs["AsymptoticAnalysis`"];
 ```
 

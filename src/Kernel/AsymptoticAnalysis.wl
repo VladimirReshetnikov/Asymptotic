@@ -5,7 +5,7 @@
 
    Written after analysing nine independent reports on Mathematica Stack Exchange
    question 236367 and question "Asymptotic expansion for a function containing
-   irrational exponents".  Theory: article/asymptotic-inverse.tex.
+   irrational exponents".  Theory: docs/article/asymptotic-inverse.tex.
 
    SPDX-License-Identifier: MIT
 *)

@@ -33,7 +33,7 @@ class StandaloneBuilderTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory(prefix="standalone-builder-")
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
-        self.kernel = self.root / "AsymptoticAnalysis" / "Kernel"
+        self.kernel = self.root / "src" / "Kernel"
         self.kernel.mkdir(parents=True)
         self.target = self.root / "AsymptoticAnalysis.wl"
         globals_patch = patch.multiple(

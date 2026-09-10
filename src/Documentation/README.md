@@ -6,9 +6,9 @@ Language usage forms, Details and Options, Examples, Applications,
 Properties & Relations, Possible Issues, See Also, and Related Guides.
 It documents this custom package and is not an official Wolfram reference page.
 
-The separate **[mathematical article](../../article/asymptotic-inverse.pdf)**
+The separate **[mathematical article](../../docs/article/asymptotic-inverse.pdf)**
 contains definitions, theorems, and proofs; its
-[LaTeX source](../../article/asymptotic-inverse.tex) is maintained separately.
+[LaTeX source](../../docs/article/asymptotic-inverse.tex) is maintained separately.
 
 ## Find a topic
 

@@ -106,7 +106,7 @@ Other notable differences:
 
 So every package computes correct expansions on its own test suite; the two
 failures are zero-recognition defects of residual checkers, not wrong
-coefficients (see `../WOLFRAM-NOTES.md`).
+coefficients (see the [Wolfram development notes](../../docs/WOLFRAM-NOTES.md)).
 
 ## 4. Errors and weak points found
 
@@ -136,8 +136,8 @@ coefficients (see `../WOLFRAM-NOTES.md`).
 
 ## 5. What the unified work keeps
 
-The article `../article/asymptotic-inverse.tex` and the package originally
-named AsymptoticInverse (now [AsymptoticAnalysis](../AsymptoticAnalysis/README.md))
+The [mathematical article](../../docs/article/asymptotic-inverse.tex) and the package originally
+named AsymptoticInverse (now [AsymptoticAnalysis](../../src/README.md))
 were written after this comparison and adopt:
 
 - the marker (auxiliary-parameter) Lagrange–Bürmann theorem with a residue

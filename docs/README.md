@@ -7,20 +7,23 @@ Wolfram reference page.
 
 | Read or do | Start here |
 | --- | --- |
-| Learn the theory, hypotheses, and proofs | [Mathematical article (PDF)](../article/asymptotic-inverse.pdf) · [LaTeX source and build instructions](../article/README.md) |
-| Load and use the package | [User guide (HTML)](../AsymptoticAnalysis/Documentation/UserGuide.html) · [Markdown source](../AsymptoticAnalysis/Documentation/UserGuide.md) |
-| Rebuild the guide or inspect its examples | [Guide build instructions](../AsymptoticAnalysis/Documentation/README.md) · [Examples](../AsymptoticAnalysis/Examples/README.md) |
-| Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients |
-| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Eighteen code review packages in two waves](../code-review/README.md) |
+| Learn the theory, hypotheses, and proofs | [Mathematical article (PDF)](article/asymptotic-inverse.pdf) · [LaTeX source and build instructions](article/README.md) |
+| Load and use the package | [User guide (HTML)](../src/Documentation/UserGuide.html) · [Markdown source](../src/Documentation/UserGuide.md) |
+| Rebuild the guide or inspect its examples | [Guide build instructions](../src/Documentation/README.md) · [Examples](../src/Examples/README.md) |
+| Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients · [Wolfram evaluation notes](WOLFRAM-NOTES.md) |
+| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Eighteen code review packages in two waves](../external-reports/code-review/README.md) |
 | Check what was actually validated | [Validation record](../validation/README.md), with focused test results and artifact-specific build and review evidence |
 | Explore related asymptotic and inverse theory | [Vendored ProveIt article catalog](../vendor/proveit/README.md), with TeX/PDF sources, reading lists, and provenance |
+| Read submitted research and reviews | [External reports](../external-reports/README.md): nine original proposals and eighteen later code reviews |
 
 The [native compatibility plan](development/NATIVE_COMPATIBILITY.md) records
 the accepted requirement to cover every input successfully handled by built-in
-`Series` or `Asymptotic`. Explicit native delegation and the held alias are
-implemented, with a [130 passed, zero failed focused record](../validation/native-compatibility-tests.json).
-Automatic native fallback
-remains required work. The [native result contracts](development/NATIVE_RESULT_CONTRACTS.md)
+`Series` or `Asymptotic`. Explicit native delegation, the held alias, and
+automatic routing for selected native forms and representation limitations
+are implemented. The [226-test rename record](../validation/package-rename-tests.json)
+checks selected cases at checkpoint `a6c90ce`, before the documentation and
+report directories moved; it does not prove complete native coverage.
+The [native result contracts](development/NATIVE_RESULT_CONTRACTS.md)
 distinguish preserved formal output from analytic remainder proofs. The current
 guide and implementation status distinguish supported behavior from pending
 changes; mathematical existence results and successful examples alone do not
@@ -49,7 +52,7 @@ Their accompanying PDFs and source URL files are preserved beside the text.
 Their original observations about Wolfram behavior are historical examples,
 not current compatibility tests. The [question index](mathematica.stackexchange.com/README.md)
 links their original online sources and local formats. The
-[original reports index](../reports/README.md) introduces the nine independent
+[original reports index](../external-reports/original-proposals/README.md) introduces the nine independent
 research and implementation submissions developed from these questions.
 
 Return to the [repository README](../README.md) for a quick start and directory map.

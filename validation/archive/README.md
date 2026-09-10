@@ -18,5 +18,7 @@ The supported form downloads the complete standalone file before calling `Get`:
 Get[URLDownload[url]]
 ```
 
-Current acceptance records are in the parent directory. The archived
-successful record documents the earlier experiment, not current reliability.
+Current acceptance records are in the [validation index](../README.md).
+The [loading guide](../../src/Documentation/UserGuide.md#getting-started)
+gives the maintained package name and download URL. The archived successful
+record documents the earlier experiment, not current reliability.

@@ -17,7 +17,7 @@ from urllib.parse import unquote, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DOCS = ROOT / "AsymptoticAnalysis" / "Documentation"
+DOCS = ROOT / "src" / "Documentation"
 
 
 class Document(HTMLParser):
@@ -57,7 +57,7 @@ def build(check: bool = False) -> dict:
         elif not (DOCS / unquote(url.path)).exists():
             errors.append(f"Missing local destination: {href}")
     kernel = "\n".join(path.read_text(encoding="utf-8") for path in
-                       sorted((ROOT / "AsymptoticAnalysis" / "Kernel").rglob("*.wl")))
+                       sorted((ROOT / "src" / "Kernel").rglob("*.wl")))
     public = sorted(set(re.findall(r"^(?:AsymptoticAnalysis`)?([A-Za-z][A-Za-z0-9]*)::usage\s*=", kernel, re.M)))
     for symbol in public:
         if document.ids.count(symbol) != 1:

@@ -68,7 +68,7 @@ particular operation remain separate obligations from realness.
 
 ## Source reality and the resolved-coefficient theorem
 
-[The power-log scale](../../article/sections/02-scale.tex),
+[The power-log scale](../article/sections/02-scale.tex),
 `lem:real-resolved-coefficients`, proves that a real-valued function with a
 finite complex-coefficient approximation and error `O[w^P M^D]` has real
 complete coefficients at every resolved exponent strictly below `P`.
@@ -93,19 +93,19 @@ source `F` has independently been proved real on the selected approach and
 `F - A = O[R]` with `R >= 0`, then `F - Re[A] = O[R]`. Taking the real part
 does not increase that absolute bound. This is
 `prop:special-function-real-projection` in
-[the special-function chapter](../../article/sections/35-special-function-expansions.tex).
+[the special-function chapter](../article/sections/35-special-function-expansions.tex).
 
 That theorem justifies a specific projection after a source-domain proof;
 it is not a general conversion of complex inputs into real expansions.
 Keep the original source, proof assumptions and transported envelope.
 Projection alone establishes neither a real source nor cancellation of an
 unknown error. The relevant source boundaries are
-[special-function real domains](../../AsymptoticAnalysis/Kernel/SpecialFunctionRealDomain.wl)
-and [structured native ingress](../../AsymptoticAnalysis/Kernel/NativeSpecialFunctions.wl).
+[special-function real domains](../../src/Kernel/SpecialFunctionRealDomain.wl)
+and [structured native ingress](../../src/Kernel/NativeSpecialFunctions.wl).
 
 ## Focused acceptance obligations
 
-The [23 public regressions](../../AsymptoticAnalysis/Tests/ReviewRealCoefficients.wlt)
+The [23 public regressions](../../src/Tests/ReviewRealCoefficients.wlt)
 cover rejection, acceptance, cancellation, diagnostic states and signed
 observable increments. Together with ten selected existing files, they pass
 280 checks on Wolfram 15.0.1 for Windows. The immutable `7d98eca` baseline
@@ -133,7 +133,7 @@ become representation-specific: a native/formal result is permitted, while
 an invalid object claiming the ordinary real analytic contract is not.
 
 Primary implementation sites are the
-[ordinary forward/model core](../../AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl)
-and [series operations](../../AsymptoticAnalysis/Kernel/SeriesOperations.wl).
+[ordinary forward/model core](../../src/Kernel/AsymptoticAnalysis.wl)
+and [series operations](../../src/Kernel/SeriesOperations.wl).
 The review register maps C07 to review 4 R02, review 7 F04 and review 9 F04;
 those findings identify audit scope rather than establish current behavior.

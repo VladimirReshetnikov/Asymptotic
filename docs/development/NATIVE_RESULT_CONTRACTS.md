@@ -1,7 +1,7 @@
 # Native expansion result contracts
 
 This note records the explicit native-backend contract implemented in
-[NativeCompatibility.wl](../../AsymptoticAnalysis/Kernel/NativeCompatibility.wl).
+[NativeCompatibility.wl](../../src/Kernel/NativeCompatibility.wl).
 [Focused acceptance](../../validation/native-compatibility-tests.json) records
 130 passed, zero failed across eight selected files on Wolfram 15.0.1 for
 Windows, with sources unchanged. This is explicit-mode evidence, not proof
@@ -119,7 +119,7 @@ with exact error `-x/(a + x)` bounded by `x/a`. On the diagonal `a = x` its
 value is `1/2`. Neither a fixed-parameter expansion nor successive formal
 expansions supply the uniform estimate needed to justify that substitution.
 The pure mathematical account is in
-[the scale chapter](../../article/sections/02-scale.tex), subsection
+[the scale chapter](../article/sections/02-scale.tex), subsection
 `sec:formal-successive-jets`.
 
 Package analytic arithmetic, truncation, and refinement return

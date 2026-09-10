@@ -1,4 +1,4 @@
-(* Run from a kernel or with wolfram.exe -script AsymptoticAnalysis/Examples/Arithmetic.wl. *)
+(* Run from a kernel or with wolfram.exe -script src/Examples/Arithmetic.wl. *)
 Get[FileNameJoin[{DirectoryName[DirectoryName[$InputFileName]], "Kernel", "AsymptoticAnalysis.wl"}]];
 Clear[x, y, a, b, exact];
 a = AsymptoticExpansion[Sin[x], {x, 0, 5}];

@@ -4,7 +4,7 @@ The maintained package is now named AsymptoticAnalysis; its standalone entry
 point is `AsymptoticAnalysis.wl` and its Wolfram context is
 ``"AsymptoticAnalysis`"``. Public `AsymptoticInverse` calls are unchanged.
 Historical observations below keep the package names and filenames used in
-their recorded runs. See the [current loading guide](AsymptoticAnalysis/Documentation/UserGuide.md#getting-started).
+their recorded runs. See the [current loading guide](../src/Documentation/UserGuide.md#getting-started).
 
 Findings collected while developing `RootDecomposition.wl` and
 `AsymptoticInverse` (Wolfram 15.0.1, Windows). Kept as a checklist for exact

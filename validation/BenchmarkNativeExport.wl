@@ -4,10 +4,13 @@
 root = Environment["ASYMPTOTIC_BENCHMARK_ROOT"];
 If[! StringQ[root] || root === "", root = DirectoryName[DirectoryName[$InputFileName]]];
 (* Keep immutable pre-rename roots usable with the same timed fixtures. *)
-benchmarkPackage = If[FileExistsQ[FileNameJoin[{root, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]],
-  "AsymptoticAnalysis", "AsymptoticInverse"];
+benchmarkDirectory = Which[
+  FileExistsQ[FileNameJoin[{root, "src", "Kernel", "AsymptoticAnalysis.wl"}]], "src",
+  FileExistsQ[FileNameJoin[{root, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]], "AsymptoticAnalysis",
+  True, "AsymptoticInverse"];
+benchmarkPackage = If[benchmarkDirectory === "AsymptoticInverse", "AsymptoticInverse", "AsymptoticAnalysis"];
 benchmarkContext = benchmarkPackage <> "`";
-benchmarkKernel = FileNameJoin[{root, benchmarkPackage, "Kernel"}];
+benchmarkKernel = FileNameJoin[{root, benchmarkDirectory, "Kernel"}];
 sources = FileNames["*.wl", benchmarkKernel];
 hashes[] := Association[(FileNameTake[#] -> IntegerString[FileHash[#, "SHA256"], 16, 64]) & /@ sources];
 before = hashes[];
@@ -47,7 +50,7 @@ output = Environment["ASYMPTOTIC_BENCHMARK_OUTPUT"];
 If[! StringQ[output] || output === "", output = FileNameJoin[{DirectoryName[$InputFileName], "review-native-export-benchmark.json"}]];
 Export[output, <|"Kernel" -> $Version, "WarmupRuns" -> 1, "MeasuredRuns" -> 3,
   "Scope" -> "Native-view allocation and selected public controls; optional cache refusal is checked by regressions, while public benchmark equality compares finite expressions and remainders.",
-  "PackageContext" -> benchmarkContext, "SourcesUnchangedDuringRun" -> unchanged, "TestedSourceSHA256" -> before,
+  "PackageContext" -> benchmarkContext, "PackageDirectory" -> benchmarkDirectory, "SourcesUnchangedDuringRun" -> unchanged, "TestedSourceSHA256" -> before,
   "BenchmarkSHA256" -> IntegerString[FileHash[$InputFileName, "SHA256"], 16, 64],
   "Results" -> results|>, "RawJSON"];
 Exit[If[unchanged && And @@ Lookup[results, "StableResult"], 0, 1]];

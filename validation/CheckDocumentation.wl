@@ -5,8 +5,8 @@
    Every check, including its exact comparison, has a 60-second bound. *)
 
 documentationRoot = DirectoryName[DirectoryName[$InputFileName]];
-Get[FileNameJoin[{documentationRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]];
-documentationGuide = Import[FileNameJoin[{documentationRoot, "AsymptoticAnalysis",
+Get[FileNameJoin[{documentationRoot, "src", "Kernel", "AsymptoticAnalysis.wl"}]];
+documentationGuide = Import[FileNameJoin[{documentationRoot, "src",
   "Documentation", "UserGuide.md"}], "Text"];
 
 documentationEqual[s_, expected_, assumptions_: True] :=

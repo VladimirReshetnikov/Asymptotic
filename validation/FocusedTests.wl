@@ -20,7 +20,7 @@ testResult[suite_, result_] := Module[{details},
 runSuite[root_, suite_, timeout_] := Module[{seconds, report, summary},
   Print["Checking: ", suite];
   {seconds, report} = AbsoluteTiming[TimeConstrained[
-    TestReport[FileNameJoin[{root, "AsymptoticAnalysis", "Tests", suite}],
+    TestReport[FileNameJoin[{root, "src", "Tests", suite}],
       ProgressReporting -> False], timeout, $Aborted]];
   If[Head[report] =!= TestReportObject,
     Print["ABORTED: ", suite];
@@ -40,12 +40,12 @@ FocusedValidation`Run[root0_String, entry_String, config_Association] := Module[
     sources, before, runs, summaries, unchanged, succeeded, failed, output, exported},
   If[! MatchQ[suites, {__String}], Print["Select at least one explicit test file."]; Return[1, Module]];
   sources = DeleteDuplicates[Join[
-    FileNames["*.wl", FileNameJoin[{root, "AsymptoticAnalysis", "Kernel"}]],
-    FileNameJoin[{root, "AsymptoticAnalysis", "Tests", #}] & /@ suites, {entry, runnerFile}]];
+    FileNames["*.wl", FileNameJoin[{root, "src", "Kernel"}]],
+    FileNameJoin[{root, "src", "Tests", #}] & /@ suites, {entry, runnerFile}]];
   If[! AllTrue[sources, FileExistsQ], Print["Missing validation source: ", Select[sources, ! FileExistsQ[#] &]];
     Return[1, Module]];
   before = sourceHashes[root, sources];
-  If[Check[Get[FileNameJoin[{root, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]], $Failed] === $Failed ||
+  If[Check[Get[FileNameJoin[{root, "src", "Kernel", "AsymptoticAnalysis.wl"}]], $Failed] === $Failed ||
       ! MemberQ[$Packages, "AsymptoticAnalysis`"],
     Print["Package loading failed; no test suites were run."]; Return[1, Module]];
   runs = runSuite[root, #, timeout] & /@ suites;

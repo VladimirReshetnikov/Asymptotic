@@ -3,14 +3,14 @@ name: Standalone package freshness
 on:
   push:
     paths:
-      - 'AsymptoticAnalysis/Kernel/**'
+      - 'src/Kernel/**'
       - 'AsymptoticAnalysis.wl'
       - 'validation/build_standalone.py'
       - 'validation/test_standalone.py'
       - '.github/workflows/standalone.yml'
   pull_request:
     paths:
-      - 'AsymptoticAnalysis/Kernel/**'
+      - 'src/Kernel/**'
       - 'AsymptoticAnalysis.wl'
       - 'validation/build_standalone.py'
       - 'validation/test_standalone.py'

@@ -124,8 +124,8 @@ Wolfram Language <code>Series</code> and <code>Asymptotic</code> results
 in the same result head, with a separate formal or native asymptotic
 contract. See <a href="#native-backend-expansions">Native Expansion
 Backends</a>.</p>
-<p>This guide describes the Wolfram Language interface. See the <a href="../../article/asymptotic-inverse.pdf">mathematical article</a> for
-definitions, results, and proofs.</p>
+<p>This guide describes the Wolfram Language interface. See the <a href="../../docs/article/asymptotic-inverse.pdf">mathematical
+article</a> for definitions, results, and proofs.</p>
 <section id="getting-started" class="level2">
 <h2>Getting Started</h2>
 <p>The package requires Wolfram Language 15.0 or later. Load the current
@@ -164,13 +164,13 @@ once for offline use:</p>
 </section>
 <section id="loading-a-local-checkout" class="level3">
 <h3>Loading a Local Checkout</h3>
-<p>The file under <code>AsymptoticAnalysis/Kernel/</code> loads
-companion files from a local checkout. From that checkout&#39;s repository
-directory, load it with:</p>
-<pre class="wolfram"><code>Get[&quot;AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl&quot;];</code></pre>
+<p>The file under <code>src/Kernel/</code> loads companion files from a
+local checkout. From that checkout&#39;s repository directory, load it
+with:</p>
+<pre class="wolfram"><code>Get[&quot;src/Kernel/AsymptoticAnalysis.wl&quot;];</code></pre>
 <p>Alternatively, register the local package directory and load its
 context:</p>
-<pre class="wolfram"><code>PacletDirectoryLoad[&quot;AsymptoticAnalysis&quot;];
+<pre class="wolfram"><code>PacletDirectoryLoad[&quot;src&quot;];
 Needs[&quot;AsymptoticAnalysis`&quot;];</code></pre>
 </section>
 <section id="first-expansion" class="level3">
@@ -4232,7 +4232,7 @@ unsupported scale, available precision, or best expansion.</p>
 <section id="related-guides" class="level2">
 <h2>Related Guides</h2>
 <ul>
-<li><a href="../../article/asymptotic-inverse.pdf">Mathematical
+<li><a href="../../docs/article/asymptotic-inverse.pdf">Mathematical
 article</a>: mathematical definitions, results, and proofs.</li>
 <li><a href="../Examples/Examples.wl">Executable examples</a>:
 additional package expressions.</li>

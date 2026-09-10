@@ -1,6 +1,6 @@
 """Build the single-file Wolfram package used by Get[raw-GitHub-URL].
 
-The canonical implementation remains in AsymptoticAnalysis/Kernel. Companion
+The canonical implementation remains in src/Kernel. Companion
 loads are expanded in place, preserving Wolfram's streaming context changes.
 Run with --check to verify freshness without writing any files.
 """
@@ -14,7 +14,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-KERNEL = ROOT / "AsymptoticAnalysis" / "Kernel"
+KERNEL = ROOT / "src" / "Kernel"
 TARGET = ROOT / "AsymptoticAnalysis.wl"
 LOAD = re.compile(r'^Get\[FileNameJoin\[\{\$kernelDirectory, "([A-Za-z0-9_]+\.wl)"\}\]\];[ \t]*$', re.M)
 DIRECTORY = '$kernelDirectory = DirectoryName[$InputFileName];'
@@ -86,13 +86,13 @@ def assemble() -> tuple[bytes, list[str]]:
         dependency = re.search(r'(?<![\w$])(?:Get|Needs|Import|OpenRead|ReadList|Read|BinaryRead|URLRead|URLExecute|URLDownload)\s*\[|\$(?:InputFileName|Input|kernelDirectory)\b', code)
         if dependency:
             raise ValueError(f"Unresolved load or file-dependent code in {name}: {dependency[0]}")
-        return (f"(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/{name}\n"
+        return (f"(* BEGIN SOURCE: src/Kernel/{name}\n"
                 f"   Source SHA256 (UTF-8/LF): {digest} *)\n" + text.rstrip() +
-                f"\n(* END SOURCE: AsymptoticAnalysis/Kernel/{name} *)\n")
+                f"\n(* END SOURCE: src/Kernel/{name} *)\n")
 
     body = inline("AsymptoticAnalysis.wl")
     header = ("(* ::Package:: *)\n"
-              "(* GENERATED FILE. Edit AsymptoticAnalysis/Kernel/*.wl instead.\n"
+              "(* GENERATED FILE. Edit src/Kernel/*.wl instead.\n"
               "   Rebuild: python validation/build_standalone.py\n"
               "   Verify:  python validation/build_standalone.py --check\n"
               "   This file is self-contained and can be loaded directly by URL.\n"
