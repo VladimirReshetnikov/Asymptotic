@@ -7,18 +7,39 @@
 ClearAll[AsymptoticAnalysis`Mathics`Simplify,
   AsymptoticAnalysis`Mathics`FullSimplify,
   AsymptoticAnalysis`Mathics`Series,
-  AsymptoticAnalysis`Mathics`Limit];
+  AsymptoticAnalysis`Mathics`Limit,
+  AsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ,
+  AsymptoticAnalysis`Mathics`mathicsSimplify];
+
+(* Mathics can cancel an unknown complex offset in a real inequality before
+   checking its operands' domains (a+u>a becomes u>0). Keep unresolved
+   ordered predicates out of native simplification until every operand is
+   proved finite real. The exact assumption callback can still simplify
+   other parts and prove predicates directly. *)
+AsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ[e_, ass_] := Module[
+  {facts, predicates},
+  predicates = Cases[e, _Less | _LessEqual | _Greater | _GreaterEqual | _Inequality,
+    {0, Infinity}];
+  If[predicates === {}, Return[True, Module]];
+  facts = AsymptoticAnalysis`Mathics`mathicsAssumptionFacts[ass];
+  And @@ (Function[predicate,
+    And @@ (TrueQ[AsymptoticAnalysis`Mathics`mathicsRealProof[#, facts, 24]] & /@
+      If[Head[predicate] === Inequality, (List @@ predicate)[[1 ;; -1 ;; 2]],
+        List @@ predicate])] /@ predicates)];
+AsymptoticAnalysis`Mathics`mathicsSimplify[e_, ass_, simplifier_] := Module[{prepared},
+  prepared = AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[e, ass];
+  If[! AsymptoticAnalysis`Mathics`mathicsNativeSimplificationSafeQ[prepared, ass],
+    Return[prepared, Module]];
+  AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[simplifier[prepared, {ass}], ass]];
 
 AsymptoticAnalysis`Mathics`Simplify[e_] :=
   AsymptoticAnalysis`Mathics`Simplify[e, $Assumptions];
 AsymptoticAnalysis`Mathics`Simplify[e_, ass_] :=
-  AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[
-    System`Simplify[AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[e, ass], {ass}], ass];
+  AsymptoticAnalysis`Mathics`mathicsSimplify[e, ass, System`Simplify];
 AsymptoticAnalysis`Mathics`FullSimplify[e_] :=
   AsymptoticAnalysis`Mathics`FullSimplify[e, $Assumptions];
 AsymptoticAnalysis`Mathics`FullSimplify[e_, ass_] :=
-  AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[
-    System`FullSimplify[AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify[e, ass], {ass}], ass];
+  AsymptoticAnalysis`Mathics`mathicsSimplify[e, ass, System`FullSimplify];
 
 (* Mathics' Series does not accept Assumptions as an option. Retain the
    assumptions as an evaluation scope for the package's local Taylor calls. *)

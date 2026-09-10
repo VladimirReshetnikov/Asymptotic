@@ -17,7 +17,8 @@ SetAttributes[Element, HoldAll];
 (* Preserve the original symbolic realness question. Mathics' native Element
    can otherwise replace Element[Log[a],Reals] by Element[a,Reals], losing the
    positive-domain requirement before the assumptions are considered. *)
-Element[e_, Reals] /; NumericQ[e] := System`Element[e, Reals];
+Element[e_, Reals] /; NumericQ[e] &&
+    MemberQ[{True, False}, System`Element[e, Reals]] := System`Element[e, Reals];
 Element[e_, domain_] /; domain =!= Reals := System`Element[e, domain];
 
 mathicsAssumptionAtoms[a_] := If[MemberQ[{And, List}, Head[a]],

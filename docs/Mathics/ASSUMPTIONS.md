@@ -47,6 +47,10 @@ not use approximate numerical samples, generic nonzero assumptions, or
   treated as a real root. Wolfram Language `Power` uses the principal complex
   branch.
 - A real argument alone does not establish a finite real tangent at a pole.
+- A real difference does not make ordered operands real: neither
+  `u + I > I` nor `u + a > a` is admitted merely from `u > 0`.
+  Native simplification is withheld while an ordered operand's realness is
+  unresolved, so canceling an unknown complex offset cannot bypass this check.
 
 Mathics 10 can eagerly weaken a symbolic native membership expression. For
 example, its `Element[Log[a], Reals]` can become `Element[a, Reals]` before a

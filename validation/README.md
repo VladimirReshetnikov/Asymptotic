@@ -2,6 +2,20 @@
 
 ## Wave-3 intake and explicit native rule goals
 
+After merging immutable `main` revision
+`5d4ff7c569f747245741d940a5a774d51917912f`, the
+[merged five-file acceptance](native-rule-goal-merge-tests.json) again passes
+**116/116**. The incoming Mathics adapter and standalone-splitting changes
+were [reviewed separately](../docs/development/PEER_REVIEWS.md); one finding
+concerns a pending peer validation tool outside that commit. The standalone
+was regenerated from the merged sources, and the 14 standalone-builder and
+14 portable-runner Python tests passed. Those Python results are not Mathics
+feature acceptance.
+The [merged local loading record](native-rule-goal-merge-loading-tests.json)
+also passes **90/90 in five fresh kernels**, including native adapter isolation
+and the new scalar-goal case in every loading mode. These merged records
+carry their own source hashes; they do not reuse the pre-merge fingerprints.
+
 All nine [wave-3 reports](../external-reports/code-review/wave-3/README.md)
 have been read and compared with the current source. The
 [maintained intake](../docs/development/WAVE_3_INTAKE.md) maps all 44 ledger

@@ -44,6 +44,7 @@ def check() -> dict:
               ROOT / "external-reports/code-review/wave-2/README.md",
               ROOT / "external-reports/code-review/wave-3/README.md",
               ROOT / "docs/development/WAVE_3_INTAKE.md",
+              ROOT / "docs/development/PEER_REVIEWS.md",
               ROOT / "external-reports/original-proposals/README.md",
               ROOT / "vendor/README.md", ROOT / "vendor/proveit/README.md"]
     local_links = 0

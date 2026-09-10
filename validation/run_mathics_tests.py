@@ -5,9 +5,10 @@ Install Mathics in an isolated environment with validation/requirements-mathics.
   python validation/run_mathics_tests.py --case 'inverse-*' --timeout 180
   python validation/run_mathics_tests.py --wolfram wolfram.exe --output native.json
 
-The same independent expected values run on both kernels. No MUnit or Mathics
-JSON exporter is needed. Every case has an OS-enforced timeout and a fresh
-kernel, so an interpreter crash or unsupported operation cannot hide later
+The suite uses independent exact expected values on both kernels; explicitly
+documented runtime-contract cases cover different native pre-evaluation of
+InverseFunction. No MUnit or Mathics JSON exporter is needed. Every case has an
+OS-enforced timeout and a fresh kernel, so an interpreter crash or unsupported operation cannot hide later
 results. Failures, crashes, timeouts, protocol errors, and changed sources all
 produce a nonzero exit status. --list never starts a kernel.
 """

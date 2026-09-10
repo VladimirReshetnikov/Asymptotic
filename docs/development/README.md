@@ -30,6 +30,10 @@ the reports before overlapping findings are grouped; they are not 167
 distinct current defects. Current work implements and documents the reviewed
 recommendations, with each repair tied to its own focused validation.
 
+[Periodic peer-work reviews](PEER_REVIEWS.md) record inspections of other
+worktrees and incoming `main` changes, with committed work distinguished from
+pending changes and source review separated from executed validation.
+
 The [native compatibility plan](NATIVE_COMPATIBILITY.md) records the
 expansion-API coverage investigation for built-in `Series` and `Asymptotic`, including formal,
 complex and multivariable results. Explicit native backends and the held

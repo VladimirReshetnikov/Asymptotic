@@ -11,7 +11,7 @@ feature has passed a regression test.
 
 ## Install and load
 
-Use an isolated Python environment:
+Use an isolated **Python 3.11** environment:
 
 ```text
 python -m venv .venv/mathics
@@ -84,9 +84,16 @@ checks reject the original forms.
   A conservative [exact assumption adapter](ASSUMPTIONS.md) proves finite
   realness and signs from explicit conjunctions, preserving unresolved
   branches. It does not implement quantifier elimination.
+  Unresolved ordered predicates are kept out of native simplification until
+  their operands are proved real. This prevents cancellation of a common
+  complex offset from manufacturing a real inequality.
 * **Held callables:** named `Function` parameters require the three-argument
   held `Extract` operation that Mathics lacks. The adapter preserves held
   parameters and lexical binding while traversing the requested parts.
+  See [callable and inverse-branch contracts](CALLABLES.md) for the bounded
+  polynomial and affine-domain proofs. Wolfram can evaluate `InverseFunction`
+  before package dispatch; two regression cases explicitly record the
+  resulting runtime difference instead of requiring a false parity claim.
 * **Messages and `Check`:** Mathics 10's two-argument `Check` can treat an
   earlier `Print` in the same input evaluation as an error from its checked
   expression. Evaluate progress output in a separate input. Regression
@@ -97,6 +104,9 @@ checks reject the original forms.
 * **Certificates:** the Mathics adapter updates the final history entry
   using its positive list index. Mathics 10 can otherwise raise a Python
   `IndexError` for the equivalent negative-index assignment.
+* **Retained refinement:** computed association rule lists are evaluated
+  before constructing refinement frontiers and depth regions. Successive
+  refinements preserve the original source object and transport its remainder.
 * **Exact numbers:** unsupported algebraic-number normalization retains an
   exact symbolic expression and uses exact simplification. It never replaces
   an exact exponent or coefficient by a floating-point approximation.
@@ -106,11 +116,28 @@ checks reject the original forms.
   The limit adapter maps Wolfram direction strings to Mathics' numeric
   direction convention; Mathics' native limit engine has limited assumption
   handling, so parameter-dependent limits still need individual validation.
+  Bounded defining-series adapters additionally support `Hypergeometric0F1`,
+  `Hypergeometric1F1`, `Hypergeometric2F1`, convergent `HypergeometricPFQ`, and
+  `PolyLog` at a vanishing monomial argument. Positive denominator parameters,
+  exact function arity, a constant outer multiplier, and an explicit order
+  term prevent unsupported continuation or lost tails. This also supplies the
+  ordinary Bessel J origin expansion through the existing Frobenius identity.
 * **Gamma asymptotics:** a finite large-positive-argument Stirling model
   supplies the missing native `LogGamma` series to the existing jet algebra.
   Its Bernoulli tail remains a Poincare remainder, with term limits enforced;
   it is never reported as an exact expansion. See
   [DLMF 5.11](https://dlmf.nist.gov/5.11).
+* **Fourier and exact cores:** bounded coefficient rules and trigonometric
+  identities preserve inverse coefficients and sector metadata. Principal
+  Lambert expressions are normalized to one-argument `ProductLog` before
+  numerical specialization, avoiding Mathics' incorrect argument order in
+  the two-argument evaluator. Numerical nonprincipal Lambert evaluation
+  remains unsupported; see [algebra and core-function details](ALGEBRA.md).
+* **Time budgets:** internal symbolic proof attempts receive four times their
+  Wolfram wall-clock allowance because Mathics interpretation is slower.
+  Proof criteria and fallbacks are unchanged. Explicit `CoreCheckTimeConstraint`
+  values and the documented five-second callable-application guard keep their
+  original deadlines. User calls to `System`TimeConstrained` are unaffected.
 * **Display:** Mathics and Wolfram front ends have different box support.
   Use `Normal[s]`, `s["Remainder"]`, and `InputForm[s]` when inspecting
   computation results independently of their display.
@@ -120,8 +147,8 @@ checks reject the original forms.
 Run the portable exact regression suite with:
 
 ```text
-python validation/run_mathics_tests.py --python .venv/mathics/Scripts/python.exe
-python validation/run_mathics_tests.py --python .venv/mathics/Scripts/python.exe --source AsymptoticAnalysis.wl
+python validation/run_mathics_tests.py --python .venv/mathics/Scripts/python.exe --timeout 300
+python validation/run_mathics_tests.py --python .venv/mathics/Scripts/python.exe --source AsymptoticAnalysis.wl --timeout 300
 python validation/run_mathics_tests.py --wolfram wolfram.exe
 ```
 
@@ -131,25 +158,42 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-Live checks now cover ordinary and generalized inversion, elementary forward
-expansions, symbolic positive coefficients, named and slot callables,
-arithmetic and truncation, flat exponential sectors, perturbative formulas,
-and an exact rational certificate. A direct Gamma check also recovers the
-first three Stirling coefficients and cubic relative remainder. A frozen
-34-case feature run passed 29 cases before subsequent targeted fixes; a
-consolidated acceptance run is still pending. The numerical smoke check uses
-an exact quadratic root and does not establish arbitrary-precision accuracy.
+Focused live checks establish the following examples. A consolidated run of
+the final source snapshot is pending; individual examples do not establish
+every parameter range of a family.
 
-Symbolic branch proofs, sophisticated native asymptotics, remaining special
-functions, refinement, nontrivial numerical certificates, and notebook
-display require feature-specific testing. Mathics does not implement all
+| Area | Checked behavior |
+| --- | --- |
+| Loading and evaluator primitives | Clean load, reload, public contexts, held returns, association operations, pattern positions. |
+| Ordinary inverse calculus | Finite and infinite source points, ramification, irrational powers, logarithmic coefficients, exact termination, residuals, perturbative formulas. |
+| Forward calculus | Exact polynomial, exponential, logarithmic and irrational-power terms, finite approach from below, decaying exponential. |
+| Algebra and state | Addition, multiplication, cancellation with retained error, truncation, two-stage refinement, depth enumeration. |
+| Function input | Named and slot callables, binding and capture avoidance, conditional polynomial inverse branches, explicit conservative domain failures. |
+| Special forward examples | Gamma and Barnes G Stirling corrections, Bessel J and Erf at zero, PolyLog at zero, Zeta Dirichlet terms. |
+| Other inverse scales | Reciprocal-logarithmic, Lambert, Fourier, Gamma, Barnes G, exponential-core, first flat exponential sector. |
+| Exact error checks | Rational quadratic root certificate and inaccurate fixed-center `AccuracyFloor` with retained history. |
+| Numerical smoke checks | Exact quadratic root and principal Lambert specialization at `E`. These do not establish general numerical accuracy. |
+
+Unrestricted symbolic branch proofs, sophisticated native asymptotics,
+remaining special-function parameter ranges, nontrivial numerical
+certificates, and notebook display require further feature-specific testing.
+Mathics does not implement all
 Wolfram builtins, and an explicit native backend request is limited to the
 interpreter's actual implementation. Unsupported proofs must remain failures
 or unresolved expressions; they are not replaced by guessed domains or
 numerical evidence.
 
-The unmodified Wolfram baseline at `6687962` produced **1,452 passes and
-12 failures across 79 suites** on Wolfram 15.0.1 for Windows. Preservation
-checks compare against those original outcomes as well as the definitions
-of existing package symbols. Passing newly selected examples alone does not
-establish preservation of the original package.
+The [Wolfram preservation receipt](../../validation/mathics-wolfram-preservation.json)
+records **1,452 passes and the same 12 existing failures across 79 suites**
+on Wolfram 15.0.1 for Windows. All 1,464 per-test records match the untouched
+`6687962` baseline. The receipt retains an earlier run with one extra failure
+and the subsequent matching full rerun instead of discarding that evidence.
+
+Independent review fixes were subsequently merged from `origin/main`.
+Native definition comparisons therefore separately use `021c584` as the
+updated control: all 2,047 modular and 2,046 standalone package symbols match
+across attributes, options, own/down/up/sub/numeric/default/format values,
+messages, and contexts. The earlier full-suite result is not relabeled as a
+full run of the later upstream changes. Each receipt identifies its exact
+source hashes; absolute source-directory strings are the only normalized
+definition content.
