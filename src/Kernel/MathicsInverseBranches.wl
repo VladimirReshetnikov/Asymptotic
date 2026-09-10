@@ -27,12 +27,16 @@ mathicsConvexRealDomainQ[domain_, x_, ass_] := Module[{head = Head[domain], part
     Return[SameQ[domain[[1]], x] && SameQ[domain[[2]], Reals], Module]];
   If[MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal}, head],
     parts = List @@ domain;
+    If[head =!= Equal &&
+      ! And @@ (mathicsAffineRealExpressionQ[#, x, ass] & /@ parts), Return[False, Module]];
     Return[And @@ (mathicsAffineRealExpressionQ[Subtract @@ #, x, ass] & /@
       Partition[parts, 2, 1]), Module]];
   If[head === Inequality,
     parts = List @@ domain;
     If[! And @@ (MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal}, #] & /@
         parts[[2 ;; -1 ;; 2]]), Return[False, Module]];
+    If[! And @@ (mathicsAffineRealExpressionQ[#, x, ass] & /@ parts[[1 ;; -1 ;; 2]]),
+      Return[False, Module]];
     Return[And @@ (mathicsAffineRealExpressionQ[Subtract @@ #, x, ass] & /@
       Partition[parts[[1 ;; -1 ;; 2]], 2, 1]), Module]];
   False];
@@ -68,6 +72,10 @@ mathicsAffineIntervalRelation[left_, head_, right_, u_, ass_, radius_] := Module
   {difference = Expand[left - right], endpoints, nonnegative, nonpositive,
    positive, negative, zero},
   If[! mathicsAffineRealExpressionQ[difference, u, ass], Return[None, Module]];
+  If[MemberQ[{Less, LessEqual, Greater, GreaterEqual}, head] &&
+    ! (TrueQ[FullSimplify[Element[left, Reals], ass && Element[u, Reals]]] &&
+       TrueQ[FullSimplify[Element[right, Reals], ass && Element[u, Reals]]]),
+    Return[None, Module]];
   endpoints = {difference /. u -> 0, difference /. u -> radius};
   nonnegative = And @@ (TrueQ[FullSimplify[# >= 0, ass]] & /@ endpoints);
   nonpositive = And @@ (TrueQ[FullSimplify[# <= 0, ass]] & /@ endpoints);

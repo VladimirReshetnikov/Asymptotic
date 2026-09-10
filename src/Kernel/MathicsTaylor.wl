@@ -17,6 +17,10 @@ mathicsDefiningTaylor[expression_, {t_Symbol, 0, order_Integer}, ass_] := Module
       ! FreeQ[node, t], {0, Infinity}]];
   If[Length[atoms] =!= 1, Return[$Failed, Module]];
   atom = First[atoms]; factor = expression /. atom -> 1;
+  If[Length[atom] =!= Switch[Head[atom],
+      System`Hypergeometric0F1 | System`PolyLog, 2,
+      System`Hypergeometric1F1 | System`HypergeometricPFQ, 3,
+      System`Hypergeometric2F1, 4], Return[$Failed, Module]];
   If[! FreeQ[factor, t] || ! TrueQ[System`Simplify[expression - factor atom] === 0],
     Return[$Failed, Module]];
   head = Head[atom]; argument = Last[atom];

@@ -119,6 +119,7 @@ $kernelDirectory = DirectoryName[$InputFileName];
 (* Bind evaluator adapters only when loading in Mathics. The official Wolfram
    kernel continues to resolve every existing definition to System` symbols. *)
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCompatibility.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsTimeBudget.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCalls.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsAlgebra.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsAssumptions.wl"}]]];
@@ -1340,6 +1341,7 @@ Get[FileNameJoin[{$kernelDirectory, "DirichletSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NativeSpecialFunctions.wl"}]];
 Get[FileNameJoin[{$kernelDirectory, "NativeCompatibility.wl"}]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCalculus.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCoreFunctions.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCertificate.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsRefinement.wl"}]]];
 If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsInverseBranches.wl"}]]];
