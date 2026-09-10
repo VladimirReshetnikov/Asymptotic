@@ -1,5 +1,5 @@
 {
-  "RecordedAt": "2026-09-10T03:09:19.953504+00:00",
+  "RecordedAt": "2026-09-10T03:53:06.918218+00:00",
   "Scope": "Fresh official Wolfram kernels: historical full-suite and definition comparisons on the original frozen package, followed by separate native definition, context, load/reload, and builtin-isolation comparisons against each independently updated upstream control.",
   "BaselineCommit": "6687962f3c858a4f93623cfc496f33e35c6763d4",
   "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
@@ -2225,6 +2225,289 @@
     "FullSuiteRerunOnThisUpstreamRevision": false,
     "Original101FixtureOracleChecksRepeatedOnThisUpstreamRevision": false,
     "EvidenceLimit": "This stage provides evidence from exact native definitions, contexts, load/reload observations, selected builtin isolation checks on Wolfram 15.0.1, and committed package-byte identity with the updated upstream control. It does not prove every observable behavior, verify remote publication, repeat the original 101-case oracle validation, or apply historical full-suite counts to these later sources.",
+    "Passed": true
+  },
+  "Wave4InitialBoundaryRepairs": {
+    "RecordedAt": "2026-09-10T03:37:40.075213+00:00",
+    "UpstreamNativeBaselineCommit": "cc1b06c72b0576074666825bea9e9b6e0db0cfee",
+    "ComparedCommittedCandidate": "526e561b7d9df04d2a734707aade3923e9d48ced",
+    "CandidatePackageInputsMatchCommit": true,
+    "RawDefinitionReceipt": "validation/mathics-wave4-native-definitions.json",
+    "SourceFiles": 56,
+    "StandaloneSHA256": "2490e5c82993cd69b9f6463fc73228915fd754a4748101fc42e392ddd6490820",
+    "NativeDefinitionComparisons": {
+      "modular": {
+        "Passed": true,
+        "BaselineSymbols": 2060,
+        "CandidateSymbols": 2060,
+        "AddedSymbols": [],
+        "RemovedSymbols": [],
+        "ChangedSymbols": {},
+        "MetadataDifferences": {},
+        "AmbientStartupPackageDifferences": {},
+        "BaselineLoadReloadAndBuiltinChecksPassed": true,
+        "CandidateLoadReloadAndBuiltinChecksPassed": true
+      },
+      "standalone": {
+        "Passed": true,
+        "BaselineSymbols": 2059,
+        "CandidateSymbols": 2059,
+        "AddedSymbols": [],
+        "RemovedSymbols": [],
+        "ChangedSymbols": {},
+        "MetadataDifferences": {},
+        "AmbientStartupPackageDifferences": {
+          "AmbientPackagesAfterLoad": {
+            "Added": [
+              "CURLInfo`",
+              "CURLLink`",
+              "CURLLink`Cookies`",
+              "CURLLink`HTTP`",
+              "CURLLink`URLFetchProgressLogger`",
+              "CURLLink`URLFetch`",
+              "CURLLink`URLResponseTime`",
+              "CURLLink`Utilities`",
+              "OAuthSigning`"
+            ],
+            "Removed": []
+          },
+          "AmbientPackagesAfterReload": {
+            "Added": [
+              "CURLInfo`",
+              "CURLLink`",
+              "CURLLink`Cookies`",
+              "CURLLink`HTTP`",
+              "CURLLink`URLFetchProgressLogger`",
+              "CURLLink`URLFetch`",
+              "CURLLink`URLResponseTime`",
+              "CURLLink`Utilities`",
+              "OAuthSigning`"
+            ],
+            "Removed": []
+          }
+        },
+        "BaselineLoadReloadAndBuiltinChecksPassed": true,
+        "CandidateLoadReloadAndBuiltinChecksPassed": true
+      }
+    },
+    "DefinitionCaptureFields": [
+      "Attributes",
+      "Options",
+      "OwnValues",
+      "DownValues",
+      "UpValues",
+      "SubValues",
+      "NValues",
+      "DefaultValues",
+      "FormatValues",
+      "Messages"
+    ],
+    "SourceSnapshotChecks": {
+      "Baseline": {
+        "SnapshotMatchedSource": true,
+        "SnapshotUnchangedDuringRun": true,
+        "OriginalSourcesUnchangedDuringRun": true
+      },
+      "Candidate": {
+        "SnapshotMatchedSource": true,
+        "SnapshotUnchangedDuringRun": true,
+        "OriginalSourcesUnchangedDuringRun": true
+      }
+    },
+    "ToolSHA256": {
+      "CheckMathicsDefinitions.wl": "2456b7adcd7c9583feee34cb2f87d53782adf7e2dd90de3604588b3eaa6e4f03",
+      "check_mathics_definitions.py": "6d2dd62708919a6398fe031fa32996bf77065d4fb79fdd2ab2da4e6b28082780"
+    },
+    "ToolImmutability": {
+      "CaptureSnapshotSHA256": "2456b7adcd7c9583feee34cb2f87d53782adf7e2dd90de3604588b3eaa6e4f03",
+      "CaptureSnapshotMatchedSource": true,
+      "CaptureSnapshotUnchangedDuringRun": true,
+      "OriginalToolsUnchangedDuringRun": true
+    },
+    "NativeBuiltinChecks": "All six tracked System builtins retain ten definition fields before load, after load, and after reload; all eight behavior probes pass in every capture.",
+    "PortableFirstPass": {
+      "ModularReceipt": "validation/mathics-wave4-native-modular-first-pass.json",
+      "StandaloneReceipt": "validation/mathics-wave4-native-standalone-first-pass.json",
+      "SucceededPerLayout": 6,
+      "FailedPerLayout": 1,
+      "Failure": "The empty Lookup fixture expected an empty list for Lookup[{},key,default]. Native Wolfram returns the default once; this revealed an adapter semantics mismatch and an incorrect oracle, corrected separately after this checkpoint."
+    },
+    "FullSuiteRerun": false,
+    "EvidenceLimit": "Exact package definitions, contexts, load/reload, selected builtin observations, and committed package-byte identity on Wolfram15.0.1. This is not a proof of all possible observable behavior, not a complete portable-suite pass, and predates the subsequent Lookup correction and upstream Fourier/usage merge.",
+    "Passed": true
+  },
+  "Wave4FinalUpstreamIntegration": {
+    "RecordedAt": "2026-09-10T03:49:57.999044+00:00",
+    "UpstreamNativeBaselineCommit": "1a183a8c0d1897fb09a50ff7e4004fcc387bd9c4",
+    "ComparedCommittedCandidate": "26a1154c304b50b5a9a74fa392c23a7d2fdad996",
+    "CandidatePackageAndCaptureToolInputsMatchCommit": true,
+    "RawDefinitionReceipt": "validation/mathics-wave4-final-native-definitions.json",
+    "SourceFiles": 56,
+    "StandaloneSHA256": "13319a269729d01cf10180394d9fcd2abf9ec9e5237e761874ab967eed4320ce",
+    "ChangedPackageInputsAgainstUpdatedControl": [
+      "AsymptoticAnalysis.wl",
+      "src/Kernel/AsymptoticAnalysis.wl",
+      "src/Kernel/MathicsAssumptions.wl",
+      "src/Kernel/MathicsCompatibility.wl",
+      "src/Kernel/MathicsCoreFunctions.wl",
+      "src/Kernel/MathicsLists.wl",
+      "src/Kernel/MathicsNumerical.wl",
+      "src/Kernel/MathicsSimplification.wl",
+      "src/Kernel/MathicsTaylor.wl"
+    ],
+    "NativeUpstreamChangeScope": "The updated upstream control contains the separately authored usage and Fourier termination repairs. Their native definition changes are not attributed to the Mathics adapters.",
+    "PackageChangeScope": "Outside the generated artifact and main loader, changed source inputs are Mathics-only modules. The main loader adds the guarded MathicsNumerical module. Native package definitions are identical to the updated control in both forms.",
+    "NativeDefinitionComparisons": {
+      "modular": {
+        "Passed": true,
+        "BaselineSymbols": 2060,
+        "CandidateSymbols": 2060,
+        "AddedSymbols": [],
+        "RemovedSymbols": [],
+        "ChangedSymbols": {},
+        "MetadataDifferences": {},
+        "AmbientStartupPackageDifferences": {
+          "AmbientPackagesAfterLoad": {
+            "Added": [],
+            "Removed": [
+              "CURLInfo`",
+              "CURLLink`",
+              "CURLLink`Cookies`",
+              "CURLLink`HTTP`",
+              "CURLLink`URLFetchProgressLogger`",
+              "CURLLink`URLFetch`",
+              "CURLLink`URLResponseTime`",
+              "CURLLink`Utilities`",
+              "OAuthSigning`"
+            ]
+          },
+          "AmbientPackagesAfterReload": {
+            "Added": [],
+            "Removed": [
+              "CURLInfo`",
+              "CURLLink`",
+              "CURLLink`Cookies`",
+              "CURLLink`HTTP`",
+              "CURLLink`URLFetchProgressLogger`",
+              "CURLLink`URLFetch`",
+              "CURLLink`URLResponseTime`",
+              "CURLLink`Utilities`",
+              "OAuthSigning`"
+            ]
+          }
+        },
+        "BaselineLoadReloadAndBuiltinChecksPassed": true,
+        "CandidateLoadReloadAndBuiltinChecksPassed": true
+      },
+      "standalone": {
+        "Passed": true,
+        "BaselineSymbols": 2059,
+        "CandidateSymbols": 2059,
+        "AddedSymbols": [],
+        "RemovedSymbols": [],
+        "ChangedSymbols": {},
+        "MetadataDifferences": {},
+        "AmbientStartupPackageDifferences": {
+          "AmbientPackagesAfterReload": {
+            "Added": [],
+            "Removed": [
+              "CURLInfo`",
+              "CURLLink`",
+              "CURLLink`Cookies`",
+              "CURLLink`HTTP`",
+              "CURLLink`URLFetchProgressLogger`",
+              "CURLLink`URLFetch`",
+              "CURLLink`URLResponseTime`",
+              "CURLLink`Utilities`",
+              "OAuthSigning`"
+            ]
+          }
+        },
+        "BaselineLoadReloadAndBuiltinChecksPassed": true,
+        "CandidateLoadReloadAndBuiltinChecksPassed": true
+      }
+    },
+    "DefinitionCaptureFields": [
+      "Attributes",
+      "Options",
+      "OwnValues",
+      "DownValues",
+      "UpValues",
+      "SubValues",
+      "NValues",
+      "DefaultValues",
+      "FormatValues",
+      "Messages"
+    ],
+    "SourceSnapshotChecks": {
+      "Baseline": {
+        "SnapshotMatchedSource": true,
+        "SnapshotUnchangedDuringRun": true,
+        "OriginalSourcesUnchangedDuringRun": true
+      },
+      "Candidate": {
+        "SnapshotMatchedSource": true,
+        "SnapshotUnchangedDuringRun": true,
+        "OriginalSourcesUnchangedDuringRun": true
+      }
+    },
+    "ToolSHA256": {
+      "CheckMathicsDefinitions.wl": "2456b7adcd7c9583feee34cb2f87d53782adf7e2dd90de3604588b3eaa6e4f03",
+      "check_mathics_definitions.py": "6d2dd62708919a6398fe031fa32996bf77065d4fb79fdd2ab2da4e6b28082780"
+    },
+    "ToolImmutability": {
+      "CaptureSnapshotSHA256": "2456b7adcd7c9583feee34cb2f87d53782adf7e2dd90de3604588b3eaa6e4f03",
+      "CaptureSnapshotMatchedSource": true,
+      "CaptureSnapshotUnchangedDuringRun": true,
+      "OriginalToolsUnchangedDuringRun": true
+    },
+    "NativeBuiltinChecks": "All six tracked System builtins retain ten definition fields before load, after load, and after reload; all eight behavior probes pass in every capture.",
+    "FocusedNativeOracles": {
+      "modular": {
+        "Receipt": "validation/mathics-wave4-final-native-modular-tests.json",
+        "Selected": 8,
+        "Succeeded": 8,
+        "Failed": 0,
+        "FreshKernelPerCase": true,
+        "SuiteSHA256": "0bdbbbc911cac0127d83733c5f3ae7d4d7ae02df498d2bc0d4ebb7805c9fbf29",
+        "FixtureAndPackageInputsMatchCommit": true,
+        "TestIDs": [
+          "primitive-productlog-branch-proof-is-conservative",
+          "primitive-empty-lookup-preserves-list-state",
+          "primitive-lookup-shares-one-lazy-default",
+          "operations-empty-inverse-multi-index",
+          "numerical-exact-quadratic-inverse",
+          "numerical-noninteger-quadratic-precision",
+          "numerical-rational-root-precision",
+          "numerical-machine-capability-is-usable"
+        ]
+      },
+      "standalone": {
+        "Receipt": "validation/mathics-wave4-final-native-standalone-tests.json",
+        "Selected": 8,
+        "Succeeded": 8,
+        "Failed": 0,
+        "FreshKernelPerCase": true,
+        "SuiteSHA256": "0bdbbbc911cac0127d83733c5f3ae7d4d7ae02df498d2bc0d4ebb7805c9fbf29",
+        "FixtureAndPackageInputsMatchCommit": true,
+        "TestIDs": [
+          "primitive-productlog-branch-proof-is-conservative",
+          "primitive-empty-lookup-preserves-list-state",
+          "primitive-lookup-shares-one-lazy-default",
+          "operations-empty-inverse-multi-index",
+          "numerical-exact-quadratic-inverse",
+          "numerical-noninteger-quadratic-precision",
+          "numerical-rational-root-precision",
+          "numerical-machine-capability-is-usable"
+        ]
+      }
+    },
+    "FocusedCharacterizationReceipt": "validation/mathics-wave4-proof-and-lookup-characterization.json",
+    "NativeLoadingGateReceipt": "validation/mathics-wolfram-final-loading-gate.json",
+    "FirstPassHistory": "The preserved initial modular and standalone native runs each passed six of seven cases. The empty Lookup fixture expected an empty result for an empty rule collection, but Wolfram returns the default once. Both the inferred oracle and the Mathics adapter semantics were corrected; the final eight-case receipts include the corrected empty lookup and a separate shared-lazy-default regression.",
+    "FullSuiteRerun": false,
+    "Full108PortableSuiteRunOnOfficialKernel": false,
+    "EvidenceLimit": "Fresh Wolfram15.0.1 definition/context/load/reload/builtin comparisons and eight focused tests per loader on the committed candidate. This does not prove all observable behavior, transfer historical full-suite counts to the current source, or claim a full108-case official-kernel run. Raw nonprincipal ProductLog values corrupted before adapter entry remain outside the retained-expression guard.",
     "Passed": true
   }
 }

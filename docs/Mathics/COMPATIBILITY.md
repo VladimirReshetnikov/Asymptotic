@@ -209,16 +209,17 @@ An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
 The suite now contains **108 cases**. The latest additions cover reused empty
-lookup lists, shared lazy defaults, an empty inverse multi-index, conservative nonprincipal branch
-proofs, and numerical precision. The first Mathics Windows checks pass the six
-new cases and the strengthened integer-root precision assertion, with the original
-misqualified `RootReduce` fixture failure retained alongside its successful
-explicit-context correction. The [wave-4 validation record](../../validation/README.md#mathics-wave-4-hardening)
-links the raw reports. Official controls identified different empty-list
-lookup semantics; the adapter now treats that first argument as an empty rule
-collection and shares one lazy default across missing results of each call.
-A complete 108-case run is not claimed by those focused
-checks; the earlier complete Linux checkpoint remains identified below.
+lookup lists, shared lazy defaults, an empty inverse multi-index, conservative
+nonprincipal branch proofs, and numerical precision. The final focused Windows
+checks pass **8/8 in both layouts on both kernels**, including the strengthened
+integer-root precision assertion. The corrected empty-rule-collection semantics
+match the official controls, and earlier incorrect inferred fixtures remain
+preserved. Both runtimes also pass **11/11 loading fixtures**. The
+[wave-4 validation record](../../validation/README.md#mathics-wave-4-hardening)
+links those raw reports and seven successful Fourier contracts per loader.
+A complete 108-case run is not claimed by these focused checks; its separate
+Linux run uses immutable `26a1154`, while the earlier complete checkpoint is
+identified below.
 
 The [API inventory](API-COVERAGE.md) maps all 38 exported symbols to exact
 portable cases and remaining input/option gaps. The complete
@@ -300,9 +301,18 @@ on Wolfram 15.0.1 for Windows. All 1,464 per-test records match the untouched
 `6687962` baseline. The receipt retains an earlier run with one extra failure
 and the subsequent matching full rerun instead of discarding that evidence.
 
+The latest wave-4 native comparison uses updated upstream `1a183a8`, including
+its Fourier termination repair and public help, as the control for the
+56-module `26a1154` candidate. All 2,060 modular and 2,059 standalone package
+symbols match across all ten captured fields and contexts, with load/reload,
+six monitored System builtins and eight behavior probes passing. Eight
+focused portable cases also pass in each official-kernel layout. The complete
+108-case official suite was not run at this stage. The historical comparisons
+below remain separate.
+
 Independent review fixes were subsequently merged from `origin/main`.
 Native definition comparisons separately record the `021c584` review merge
-and the later `350c70f`, `a55df16`, `ac91e66` and `a76c0b5` controls. The latest
+and the later `350c70f`, `a55df16`, `ac91e66` and `a76c0b5` controls. An earlier
 comparison uses `cc1b06c`, including its recursive positive-monomial logarithm
 recognizer, as the control for the merged 55-module candidate at `07f283c`.
 Relative to the preceding capture, only the private `parseFinite` downvalues

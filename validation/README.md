@@ -370,9 +370,42 @@ corrected empty-rule-collection expectation. The expanded load gate rejects
 aborted loads and registered packages without required definitions, while
 accepting a fully loaded wrapper that returns a non-`Null` value. It has
 11 integration fixtures: eight rejections and three successful controls.
-All 66 merged Mathics-tool tests and 14 builder tests pass. Focused paired
-kernel checks and the next complete Linux acceptance run are recorded
-separately as they finish; the earlier checkpoint receipts remain unchanged.
+All 66 merged Mathics-tool tests and 14 builder tests pass. The final
+[Mathics modular](mathics-modular-wave4-final-tests.json),
+[Mathics standalone](mathics-standalone-wave4-final-tests.json),
+[Wolfram modular](mathics-wave4-final-native-modular-tests.json), and
+[Wolfram standalone](mathics-wave4-final-native-standalone-tests.json)
+focused runs each pass **8/8** on the committed `26a1154` inputs. The corrected
+empty-list contract and shared lazy default are checked in every run. The
+two original [native modular](mathics-wave4-native-modular-first-pass.json) and
+[native standalone](mathics-wave4-native-standalone-first-pass.json) 6/7 outcomes
+remain preserved with their original incorrect inferred expectation.
+
+The final [Mathics loading gate](mathics-final-loading-gate.json) and
+[Wolfram loading gate](mathics-wolfram-final-loading-gate.json) each pass
+**11/11**, with identical source maps and suite hashes and no drift. The
+[final native definition comparison](mathics-wave4-final-native-definitions.json)
+uses updated upstream `1a183a8` as its control and matches every captured
+field of all **2,060 modular / 2,059 standalone** package symbols. The
+[preservation history](mathics-wolfram-preservation.json) identifies both
+the initial `526e561` and final `26a1154` stages without transferring the old
+full MUnit result to a new source. The
+[ProductLog and Lookup characterization](mathics-wave4-proof-and-lookup-characterization.json)
+retains the wrong native Mathics Booleans, exact corrected lookup outputs,
+Taylor positive control, and caller-side evaluation limitations.
+
+The [Fourier integration audit](mathics-fourier-termination-audit.json) passes
+seven distinct contracts in each loader: exhausted support and absorbing zero
+recurrences stop before unnecessary work, genuine product-budget failures
+remain, nonzero frequency prevents false termination, and the public
+budget-seven inverse has the expected polynomial and exact empty residual.
+Two original fixture syntax errors and their successful corrected repeats
+remain in its 16 observations. There are no package-result failures or
+timeouts, and all frozen package bytes remain unchanged.
+
+The complete 108-case Linux run is separate from these focused records and
+is being collected at immutable `26a1154`. Earlier checkpoint receipts remain
+unchanged.
 
 ### Earlier full and focused compatibility evidence
 

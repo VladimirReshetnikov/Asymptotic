@@ -128,8 +128,8 @@ returned data head and its public evaluation behavior.
 | `FourierInverseResidual` | `operations-fourier-coefficient-and-residual` | Exact empty residual blocks below the declared cutoff. **Operations**. |
 | `GeneralizedSeries` | `loading-reload`, `operations-series-data-reconstruction` | Returned head, `Normal`, properties and reload are **Core**; explicit reconstruction from stored association and exact point evaluation are **Latest**. |
 | `InverseCertificate` | `certificate-exact-rational-root`, `certificate-fixed-center-accuracy-floor` | Exact rational quadratic-root certificate and explicit fixed-center accuracy-floor failure. **Core**. |
-| `InverseExpansionCoefficient` | `families-single-index-coefficient` | Direct Euler coefficient at index `{2}` with a degree-two formal-log polynomial. **Core**. |
-| `InverseNumericalCheck` | `numerical-exact-quadratic-inverse` | Exact quadratic-root numerical smoke check. **Core**; this is not a general precision or numerical-stability certificate. |
+| `InverseExpansionCoefficient` | `families-single-index-coefficient`, `operations-empty-inverse-multi-index` | Direct Euler coefficient at index `{2}` with a degree-two formal-log polynomial. **Core**; empty inverse multi-index checked in the later wave-4 batch. |
+| `InverseNumericalCheck` | `numerical-exact-quadratic-inverse`, `numerical-noninteger-quadratic-precision`, `numerical-rational-root-precision`, `numerical-machine-capability-is-usable` | Exact quadratic-root numerical smoke check is **Core**. The wave-4 checks additionally require sufficient returned precision, explicit Mathics refusals for unavailable 30-digit noninteger roots, and a successful 10-digit request. This is not a general numerical-stability certificate. |
 | `InverseResidual` | `inverse-residual` | Exact vanished residual below a quadratic inverse cutoff. **Core**. |
 | `LogarithmicInverseResidual` | `operations-logarithmic-inverse-residual` | Exact zero, vanishing and cutoff metadata for reciprocal-log inversion. **Latest**. |
 | `PerturbativeInverse` | `inverse-perturbative-formula`, `inverse-perturbative-general-core`, `inverse-perturbative-zero-order`, `contracts-perturbative-variables` | Finite formula, nonidentity core, order-zero identity and invalid-variable contract. **Core**, with the explicit normalization reconciliation. |
@@ -184,6 +184,9 @@ export in the relevant area has a representative fixture:
   relative tolerances and nonpolynomial elementary-tail certificates need
   dedicated accuracy and enclosure evidence. An exact-root smoke check does
   not validate these capabilities.
+  The later [precision adapter](NUMERICAL.md) explicitly refuses unsupported
+  reference-root goals; successful refusal is a tested contract, not a claim
+  that Mathics now computes the requested high-precision root.
 - **Runtime and presentation.** The portable suite covers clean loading,
   reloads, context isolation and selected evaluator primitives. Notebook
   front-end presentation, other Mathics releases, and all Wolfram language

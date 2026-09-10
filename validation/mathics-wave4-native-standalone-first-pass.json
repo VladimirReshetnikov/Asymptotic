@@ -1,0 +1,114 @@
+{
+  "Runtime": "Wolfram",
+  "Command": [
+    "wolfram.exe",
+    "-noinit",
+    "-script",
+    "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-wave4-native-portable\\validation\\MathicsTests.wl"
+  ],
+  "UTC": "2026-09-10T03:41:21.006533+00:00",
+  "Source": "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-native-wave4-candidate\\AsymptoticAnalysis.wl",
+  "PerCaseTimeoutSeconds": 180.0,
+  "FreshKernelPerCase": true,
+  "MathicsIterationLimitConfiguredBySuite": null,
+  "FullPackageSuiteRun": false,
+  "RunComplete": true,
+  "Selected": 7,
+  "TestSuiteSnapshotSHA256": "642cf8c812ba821729a94e8f3d4be84ae4cd5b72f1cee84ad3daebb04b510c72",
+  "Executed": 7,
+  "Succeeded": 6,
+  "Failed": 1,
+  "NotRun": 0,
+  "SourcesUnchangedDuringRun": true,
+  "TestedSourcesSHA256": {
+    "C:\\Users\\vresh\\.codex\\worktrees\\726f\\Asymptotic\\.venv\\mathics-native-wave4-candidate\\AsymptoticAnalysis.wl": "2490e5c82993cd69b9f6463fc73228915fd754a4748101fc42e392ddd6490820",
+    "validation/MathicsTests.wl": "642cf8c812ba821729a94e8f3d4be84ae4cd5b72f1cee84ad3daebb04b510c72",
+    "validation/run_mathics_tests.py": "5e8f6eed24398c2dbe23221266009876b132a4d4553aa23166b4c179a3b8b492"
+  },
+  "Results": [
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "KernelIterationLimit": 4096,
+      "Outcome": "Success",
+      "ActualOutput": "{True, True, True, True, True, True}",
+      "ExpectedOutput": "{True, True, True, True, True, True}",
+      "ExitCode": 0,
+      "TestID": "primitive-productlog-branch-proof-is-conservative",
+      "Group": "primitive",
+      "ElapsedSeconds": 2.203,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\t15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t4096\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{True, True, True, True, True, True}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{True, True, True, True, True, True}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tprimitive-productlog-branch-proof-is-conservative\tSuccess\r\n"
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "KernelIterationLimit": 4096,
+      "Outcome": "Failure",
+      "ActualOutput": "{{}, 9, 1, {{}, {}, 2, 0}}",
+      "ExpectedOutput": "{{}, {}, 0, {{}, {}, 2, 0}}",
+      "ExitCode": 1,
+      "TestID": "primitive-empty-lookup-preserves-list-state",
+      "Group": "primitive",
+      "ElapsedSeconds": 2.016,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\t15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t4096\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{{}, 9, 1, {{}, {}, 2, 0}}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{{}, {}, 0, {{}, {}, 2, 0}}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tprimitive-empty-lookup-preserves-list-state\tFailure\r\n"
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "KernelIterationLimit": 4096,
+      "Outcome": "Success",
+      "ActualOutput": "{0, 1, 1, {{}, 2, 0}}",
+      "ExpectedOutput": "{0, 1, 1, {{}, 2, 0}}",
+      "ExitCode": 0,
+      "TestID": "operations-empty-inverse-multi-index",
+      "Group": "operations",
+      "ElapsedSeconds": 1.875,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\t15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t4096\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{0, 1, 1, {{}, 2, 0}}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{0, 1, 1, {{}, 2, 0}}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\toperations-empty-inverse-multi-index\tSuccess\r\n"
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "KernelIterationLimit": 4096,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "numerical-exact-quadratic-inverse",
+      "Group": "numerical",
+      "ElapsedSeconds": 1.875,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\t15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t4096\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tnumerical-exact-quadratic-inverse\tSuccess\r\n"
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "KernelIterationLimit": 4096,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "numerical-noninteger-quadratic-precision",
+      "Group": "numerical",
+      "ElapsedSeconds": 1.828,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\t15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t4096\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tnumerical-noninteger-quadratic-precision\tSuccess\r\n"
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "KernelIterationLimit": 4096,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "numerical-rational-root-precision",
+      "Group": "numerical",
+      "ElapsedSeconds": 1.844,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\t15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t4096\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tnumerical-rational-root-precision\tSuccess\r\n"
+    },
+    {
+      "Kernel": "15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+      "KernelIterationLimit": 4096,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "numerical-machine-capability-is-usable",
+      "Group": "numerical",
+      "ElapsedSeconds": 1.859,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\t15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t4096\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tnumerical-machine-capability-is-usable\tSuccess\r\n"
+    }
+  ]
+}
