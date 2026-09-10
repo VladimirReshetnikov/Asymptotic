@@ -1,0 +1,22 @@
+{
+  "status": "unavailable",
+  "successful_native_kernel_probe": false,
+  "native_baseline_loaded": false,
+  "native_candidate_loaded": false,
+  "native_regressions_run": false,
+  "native_benchmarks_run": false,
+  "attempted_probe": "{$Version, 1 + 1}",
+  "observed_service_failures": [
+    "Network connection failure",
+    "HTTP 502 upstream/external service error"
+  ],
+  "interpretation": "The service failed before package loading. These are infrastructure errors, not package test failures.",
+  "supplied_unrun_artifacts": [
+    "code/fixtures.wl",
+    "code/native_regressions.wlt",
+    "code/characterize.wls",
+    "code/benchmark_native.wls"
+  ],
+  "expected_native_test_methods": 15,
+  "fixture_precondition": "D01 provider-establishment test must succeed before interpreting its public-path observation."
+}

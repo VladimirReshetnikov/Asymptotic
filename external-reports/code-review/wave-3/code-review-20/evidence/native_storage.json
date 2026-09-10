@@ -1,0 +1,46 @@
+{
+  "snapshot": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "expression": "1/(1-x-y)",
+  "specifications": "{x,0,n},{y,0,n}",
+  "execution_order": "Native Series, then Normal of its result, then explicit Series wrapper, for n=8,16,24 in one fresh kernel. The native cache was NOT cleared between paired calls.",
+  "limitations": "ByteCount is an expression-storage measure, not process RSS or peak allocation. The timing order is cache-confounded and is retained for transparency, not for speed comparisons.",
+  "observations": [
+    {
+      "n": 8,
+      "native_seconds": 0.111461,
+      "normal_seconds": 0.001547,
+      "wrapper_seconds": 0.002475,
+      "native_bytes": 3936,
+      "normal_bytes": 11312,
+      "wrapper_bytes": 20824,
+      "equal_native": true,
+      "equal_normal": true,
+      "wrapper_to_native_bytecount": 5.290650406504065
+    },
+    {
+      "n": 16,
+      "native_seconds": 0.054175,
+      "normal_seconds": 0.000964,
+      "wrapper_seconds": 0.002616,
+      "native_bytes": 10528,
+      "normal_bytes": 42160,
+      "wrapper_bytes": 60248,
+      "equal_native": true,
+      "equal_normal": true,
+      "wrapper_to_native_bytecount": 5.722644376899696
+    },
+    {
+      "n": 24,
+      "native_seconds": 0.030004,
+      "normal_seconds": 0.004021,
+      "wrapper_seconds": 0.015786,
+      "native_bytes": 20192,
+      "normal_bytes": 92464,
+      "wrapper_bytes": 117832,
+      "equal_native": true,
+      "equal_normal": true,
+      "wrapper_to_native_bytecount": 5.835578446909667
+    }
+  ]
+}

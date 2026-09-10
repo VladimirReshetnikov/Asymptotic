@@ -1,0 +1,41 @@
+{
+  "repository": "https://github.com/VladimirReshetnikov/Asymptotic",
+  "commit": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "commit_time_utc": "2026-09-10T00:18:17Z",
+  "commit_time_pacific": "2026-09-09T17:18:17-07:00",
+  "review_date_pacific": "2026-09-09",
+  "package_context": "AsymptoticAnalysis`",
+  "retrieval": "Connected GitHub source reads pinned to the commit; official Wolfram documentation web reads.",
+  "complete_local_checkout_obtained": false,
+  "native_package_loaded": false,
+  "full_upstream_suite_run": false,
+  "fully_inspected_new_dispatch_file": "src/Kernel/NativeCompatibility.wl",
+  "other_inspected_areas": [
+    "SeriesOperations.wl: result representation, arithmetic, observable, composition, differentiation and refinement paths",
+    "AsymptoticAnalysis.wl: declarations, assumptions, sparse jet and precision routines, forward analytic/native conversion, inverse construction, accessors and residual interfaces",
+    "SeriesArithmetic.wl: held normalization and regular operand/arithmetic dispatch",
+    "RefinementState.wl: retained inverse states and exact finite inverse fast path",
+    "InverseCertificates.wl: exact interval arithmetic, domain checks and adaptive certificate control",
+    "CoordinateInverse.wl and ExactTermination.wl",
+    "NativeCompatibility.wlt: representative direct-native and option/evaluation controls",
+    "README, modular kernel map, native compatibility plan, code-review register and review indexes"
+  ],
+  "prior_review_depth": {
+    "maintained_register": "Read its status, 18-report/123-entry crosswalk, and roadmap mapping.",
+    "indexes": "Read overall and wave indexes, especially wave-2 evidence boundaries.",
+    "original_ledgers_explicitly_consulted": [
+      "wave-1/code-review-4/evidence/findings.json",
+      "wave-2/code-review-11/evidence/findings-delta.json"
+    ],
+    "limitation": "Not an independent re-verification of every sentence or artifact in all eighteen earlier review packages."
+  },
+  "patch_validation": "12 source-anchor substitutions checked by synthetic fixtures and manually compared against connector-returned source ranges; no real-checkout integration or native validation.",
+  "performance_evidence": "Structural work-elimination argument and an unrun native benchmark harness only; no measured package speedup or peak-memory result.",
+  "evidence_populations": [
+    "Source-established control flow",
+    "Mathematical proofs and independent symbolic/contract models",
+    "Synthetic patch mechanics",
+    "Unrun native regression and measurement specifications"
+  ],
+  "temporal_limit": "Findings apply to the pinned snapshot, not subsequent main changes."
+}
