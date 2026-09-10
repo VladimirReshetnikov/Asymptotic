@@ -8,7 +8,17 @@ The [compatibility status](COMPATIBILITY.md) describes the broader goal.
 
 ## Evidence and current scope
 
-The suite currently contains **101 cases**. Its first 77 cases have complete
+All **101 current cases pass in both package layouts on Linux** at the fixed
+checkpoint `ffe08b1`. The [full acceptance record](../../validation/mathics-linux-ffe08b1-acceptance.json)
+checks all ten downloaded shards against that commit's package, suite and
+runner hashes and independently validates their raw kernel protocol. Each
+case occurs exactly once per layout. Subsequent upstream principal-logarithm
+changes have separate focused Mathics and native-preservation records; the
+full run is evidence for its stated commit. These are representative public
+contracts, not every possible input or the original MUnit suite.
+
+The historical Windows batches below preserve the development evidence.
+The first 77 cases have complete
 modular and standalone runs on the recorded earlier source snapshots. Each
 full run reported **76 successes and one failure** in the exact-normalization
 assertion for `inverse-perturbative-formula`. Replacing `Expand` with `Simplify`
@@ -31,8 +41,9 @@ additional-block requests and product-recipe replay passed on the same
 55-module modular and standalone snapshots and in the original Wolfram
 kernel. The full aggregate now covers **101 unique cases per layout across
 three package snapshots**. All 101 current expectations have original Wolfram
-controls, across separate batches. A full run on one final source snapshot is
-a separate acceptance check; this aggregate does not claim it has completed.
+controls, across separate batches. This historical aggregate remains separate
+from the subsequent complete Linux run and does not combine different package
+snapshots into one acceptance claim.
 
 The [machine-readable evidence summary](../../validation/mathics-test-coverage.json)
 records each receipt hash, package source fingerprint, original outcome and
@@ -49,7 +60,8 @@ to LF. The publication correction restores their captured bytes and marks
 `validation/mathics-*-tests.json` with `-text`, so Git preserves their recorded
 hashes before final acceptance.
 
-The table uses these evidence labels:
+The following labels identify the historical Windows batches. The complete Linux run
+also passes every case listed below on its single recorded source snapshot.
 
 - **Core**: first 77 cases, with the explicit exact-normalization reconciliation above.
 - **Operations**: the additional 13 cases, passed on both package layouts.

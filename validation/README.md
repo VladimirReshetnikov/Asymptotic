@@ -186,6 +186,17 @@ immutability where relevant, and explicit failure contracts. Two callable
 cases deliberately record different runtime contracts because Wolfram
 evaluates their `InverseFunction` before package dispatch.
 
+The complete [Linux acceptance record](mathics-linux-ffe08b1-acceptance.json)
+verifies **101/101 cases in each layout** at immutable commit
+`ffe08b18ea2a6a72546503b135b47b4979e7d010`. All ten jobs of
+[workflow 34430399328](https://github.com/VladimirReshetnikov/Asymptotic/actions/runs/34430399328)
+succeeded; the [captured workflow response](mathics-linux-34430399328-workflow.json)
+records its exact head and job conclusions. The downloaded raw shards are preserved under
+`validation/mathics-linux-34430399328/`. Every maintained case occurs exactly
+once per layout, with successful raw protocol and exact source/suite/runner
+hashes. Later upstream logarithm repairs have separate focused and native
+checks; this full run remains tied to its original source.
+
 The [public API inventory](../docs/Mathics/API-COVERAGE.md) maps all 38 exports
 to representative cases. The [receipt summary](mathics-test-coverage.json)
 records **101 distinct cases with successful Mathics evidence in each layout,
@@ -203,7 +214,8 @@ The first failing fixture used `Expand` where Mathics required `Simplify` to
 recognize the same exact zero. Its corrected oracle also passes the untouched
 Wolfram package. The summary preserves the original failure and counter values;
 it does not rewrite either full run as 77/77 or claim one full 101-case run on
-the last snapshot. The full Linux matrix for the current package is pending.
+the last snapshot. The complete Linux record above is separate from this
+historical Windows aggregate.
 
 Regenerate that explicitly scoped summary with:
 
@@ -240,21 +252,37 @@ full original-suite outcomes and native symbol-definition comparisons
 separate. It records the unchanged original 1,452 passes and 12 failures,
 as well as subsequent definition comparisons against updated upstream
 controls. Consult each stage's source hashes before attributing it to a
-later commit. The latest stage compares the merged principal-logarithm guard
-against `a76c0b5`: all 2,059 modular and 2,058 standalone package symbol
+later commit. The latest stage compares the merged recursive logarithm guard
+against `cc1b06c`: all 2,060 modular and 2,059 standalone package symbol
 definitions match, as do the six monitored System builtins and eight behavior
-probes across load and reload. Only the private `parseFinite` downvalues change
-relative to the preceding observable stage; all Mathics adapters are unchanged.
+probes across load and reload. Relative to the preceding first-guard stage,
+the private `parseFinite` downvalues change and `finitePositiveMonomialLog` is
+added; all Mathics adapters are unchanged.
 This is a definition comparison, separate
 from the earlier full MUnit run. The [Mathics CI workflow](../.github/workflows/mathics.yml)
 runs both package entry points on Linux and uploads complete per-shard
 receipts even when a case fails.
+
+The later logarithm changes have separate Mathics evidence:
+[first guard](mathics-log-power-guard-audit.json) and
+[recursive positive-monomial recognition](mathics-recursive-log-power-guard-audit.json).
+The recursive version at `cc1b06c` passes ten groups across both loaders,
+including reciprocal/scaled controls and nested unproved-branch refusals,
+with unchanged frozen package bytes and no timeouts. The first-stage report
+retains the original two incorrect row-comparison assertions and their exact
+reconstruction corrections. Neither focused report is a full portable run.
 
 To verify a complete set of downloaded portable shards against one immutable
 commit, use the independent [acceptance verifier](check_mathics_acceptance.py):
 
 ```text
 python validation/check_mathics_acceptance.py --receipts EXTRACTED_ARTIFACTS --revision IMMUTABLE_COMMIT --output acceptance.json
+```
+
+Recheck the committed Linux shards with:
+
+```text
+python validation/check_mathics_acceptance.py --receipts validation/mathics-linux-34430399328 --revision ffe08b18ea2a6a72546503b135b47b4979e7d010 --output acceptance.json --run-url https://github.com/VladimirReshetnikov/Asymptotic/actions/runs/34430399328
 ```
 
 It requires every maintained test ID exactly once in each layout, successful

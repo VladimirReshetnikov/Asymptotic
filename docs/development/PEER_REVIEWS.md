@@ -212,3 +212,12 @@ promoted to passing portable-suite evidence. Stage diagnostics are marked
 non-acceptance evidence because their progress output shares a compound
 input with the calculation, which can affect Mathics `Check`. No incorrect
 mathematical result was observed, and no package source changes were made.
+
+The later `cc1b06c` logarithm repair was also reviewed: recursion proves
+positivity of every base/factor and realness of each power exponent before
+applying a logarithm identity. A real outer exponent cannot erase an
+unproved inner branch. The [focused Mathics audit](../../validation/mathics-recursive-log-power-guard-audit.json)
+passes ten groups across both loaders on frozen source bytes. The separate
+native comparison records the new helper and changed `parseFinite`, while
+all Mathics adapters remain unchanged. The complete 101-case Linux result
+continues to identify its earlier `ffe08b1` source explicitly.

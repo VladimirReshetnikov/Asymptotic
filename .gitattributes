@@ -5,6 +5,9 @@
 
 # Preserve the exact captured receipt bytes referenced by Mathics evidence hashes.
 validation/mathics-*-tests.json -text -whitespace
+validation/mathics-*-guard-audit.json -text -whitespace
+validation/mathics-linux-*/**/*.json -text -whitespace
+validation/mathics-linux-*-workflow.json -text -whitespace
 
 # Preserve binary artifacts byte-for-byte.
 *.png binary

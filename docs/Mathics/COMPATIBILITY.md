@@ -25,7 +25,7 @@ reproducible evaluator gotchas in the same form as the Wolfram notes.
 | Assumptions and inverse branches | Conservative exact rules cover selected polynomial and affine-domain proofs. | Extend unresolved domains and sign/uniqueness proofs without weakening branch hypotheses. |
 | Native backends and special functions | Coverage depends on the interpreter's available functions and package adapters. | Close missing functionality and parameter-range gaps; an inert native symbol is not compatibility. |
 | Numerical checks, certificates, and display | Selected smoke checks and exact rational certificate examples are available. | Establish feature-specific numerical accuracy, certificate behavior, and usable front-end presentation. |
-| Consolidated acceptance | 101 distinct portable cases have successful evidence in each layout across three recorded snapshots; the full current-source Linux matrix is pending. | Complete reproducible runs against unchanged modular and standalone sources and compare public behavior with the Wolfram control. |
+| Consolidated acceptance | All 101 portable cases pass in both layouts on Linux at `ffe08b1`; later upstream logarithm changes have separate focused checks and native comparisons. | Extend acceptance to remaining input/option ranges and keep results tied to each tested source revision. |
 
 The limitations below describe remaining work, not a permanently reduced
 Mathics feature target. Until a proof or operation is supported, a clear
@@ -196,15 +196,26 @@ An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
 The [API inventory](API-COVERAGE.md) maps all 38 exported symbols to exact
-portable cases and remaining input/option gaps. The
+portable cases and remaining input/option gaps. The complete
+[Linux acceptance record](../../validation/mathics-linux-ffe08b1-acceptance.json)
+verifies **101 successes per layout**, with every case occurring exactly once,
+across all ten shards of the
+[successful workflow](https://github.com/VladimirReshetnikov/Asymptotic/actions/runs/34430399328).
+Its immutable source is `ffe08b18ea2a6a72546503b135b47b4979e7d010`.
+The verifier checks raw kernel output and package, suite and runner hashes
+against that commit. Later upstream principal-logarithm changes are covered
+by separate focused integration checks; this full run is not relabeled as
+testing those later sources.
+
+The earlier Windows
 [receipt summary](../../validation/mathics-test-coverage.json) records 101
 distinct cases with successful evidence in each package layout across three
 source snapshots. The two earlier full runs each retain their 76/77 outcome
 and a separately validated correction of an exact-normalization assertion;
 the later batches cover additional operations, held assumptions and retained
-Newton and recipe refinement. This is
-not a single full run of the current source. The full Linux matrix remains
-pending. Individual examples do not establish every parameter range of a family.
+Newton and recipe refinement. This historical aggregate is separate from
+the complete Linux run. Individual examples do not establish every parameter
+range of a family.
 
 A separate [observable merge audit](../../validation/mathics-observable-merge-audit.json)
 checks the new observable helpers on a frozen 55-module snapshot after
@@ -218,6 +229,18 @@ symbolic complex-tail and varying-source-coordinate fixtures reach their
 180-second process limits and remain unvalidated. This bounded modular audit
 does not add passing cases to the portable receipt summary or establish
 standalone or Wolfram acceptance.
+
+The subsequent principal-logarithm repairs have their own
+[first-guard audit](../../validation/mathics-log-power-guard-audit.json) and
+[recursive-guard audit](../../validation/mathics-recursive-log-power-guard-audit.json).
+The recursive version at `cc1b06c` passes all ten focused groups, five per
+loader: real and unknown exponent controls, complex-exponent refusals,
+a public depth inverse, reciprocal/scaled nested positive monomials, and
+refusal of unproved inner branches. Its 55 modules and standalone artifact
+remain unchanged during the checks. The earlier audit preserves two faulty
+row-comparison assertions alongside corrected coefficient reconstructions;
+it does not rewrite those initial outcomes. These checks cover the later
+source delta without extending the full Linux run's source claim.
 
 | Area | Checked behavior |
 | --- | --- |
@@ -248,13 +271,14 @@ and the subsequent matching full rerun instead of discarding that evidence.
 
 Independent review fixes were subsequently merged from `origin/main`.
 Native definition comparisons separately record the `021c584` review merge
-and the later `350c70f`, `a55df16` and `ac91e66` controls. The latest comparison
-uses `a76c0b5`, including its independent principal-logarithm real-exponent
-guard, as the control for the merged 55-module Mathics candidate at
-`9fd7669`. Relative to the preceding capture, only the private `parseFinite`
-downvalues change; every Mathics adapter hash is unchanged. The earlier
+and the later `350c70f`, `a55df16`, `ac91e66` and `a76c0b5` controls. The latest
+comparison uses `cc1b06c`, including its recursive positive-monomial logarithm
+recognizer, as the control for the merged 55-module candidate at `07f283c`.
+Relative to the preceding capture, only the private `parseFinite` downvalues
+change and `finitePositiveMonomialLog` is added; every Mathics adapter hash
+is unchanged. The earlier
 54-module, held inline-assumption and observable comparisons are retained
-separately. All 2,059 modular and 2,058 standalone package symbols
+separately. All 2,060 modular and 2,059 standalone package symbols
 match across attributes, options, own/down/up/sub/numeric/default/format
 values, messages, and contexts. Six System builtins, including `Map`, retain
 their definitions before loading, after loading, and after reloading; eight

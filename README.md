@@ -18,9 +18,10 @@ and [native backend guide](src/Documentation/UserGuide.md#native-backend-expansi
 record implemented behavior and known deviations from the requirement.
 
 **Complete Mathics3 compatibility, alongside support for the official Wolfram
-kernel, is a project goal.** Mathics support is under active development:
-focused checks cover loading, core expansion and inverse operations, and
-selected special functions. Complete compatibility is not yet established.
+kernel, is a project goal.** The documented Mathics3 10.0.1 Linux checkpoint
+passes 101 portable cases with both loaders, covering representative uses of
+all 38 exports. Later upstream changes have separately scoped checks.
+Complete compatibility for every input and option is not yet established.
 The [Mathics compatibility guide](docs/Mathics/COMPATIBILITY.md) records the
 tested environments, supported cases, and remaining work.
 
