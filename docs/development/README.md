@@ -48,6 +48,11 @@ the reports before overlapping findings are grouped; they are not 167
 distinct current defects. Current work implements and documents the reviewed
 recommendations, with each repair tied to its own focused validation.
 
+The [request-resolution workplan](REQUEST_RESOLUTION.md) connects W3-01–W3-03
+and W3-15 through shared argument roles, effective defaults, and once-only
+option evaluation. Its design and characterization matrix remain pending
+implementation and native acceptance.
+
 [Periodic peer-work reviews](PEER_REVIEWS.md) record inspections of other
 worktrees and incoming `main` changes, with committed work distinguished from
 pending changes and source review separated from executed validation.
@@ -89,6 +94,12 @@ the analytic hypotheses needed to transport a Taylor remainder.
 The [real-coefficient notes](REAL_COEFFICIENTS.md) explain why complete
 coefficients are checked after collection, including target offsets and
 observables, and distinguish this check from a proof that the source is real.
+The [log-power normalization notes](LOG_POWER_NORMALIZATION.md) explain why
+rewriting a principal logarithm requires a recursively proved positive
+monomial base and real exponents before coefficient validation. They record
+W3-10's native baseline, intermediate guard evidence and preserved first-pass
+failures, 207/0 focused acceptance, and the separate open periodic
+coefficient proposal.
 The [equal-exponent notes](EXPONENT_EQUALITY.md) describe exact mathematical
 collection before block counts, logarithmic frontier degrees and inverse
 enumeration, while preserving genuinely distinct close powers.

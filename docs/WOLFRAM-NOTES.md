@@ -422,6 +422,10 @@ for local, offline, and commit-pinned forms.
   resulting real coefficients cannot repair that lost source identity.
   Use retained assumptions at the neutral proof boundary, leave unproved
   logarithms unnormalized, and preserve exact cancellation before parsing.
+  Prove positivity recursively for nested bases such as `(1/u)^a`; every
+  power needs a real exponent, including inner powers. The focused infinity
+  control caught the gap in the original two-pattern implementation. The
+  final helper retains the whole logarithm when any such proof is missing.
   The [13 baseline observations](../validation/log-power-normalization-baseline.json)
   reproduce both public depth witnesses and changed flat coefficients;
   the exact-core probe retains the logarithm and has a different admission concern.

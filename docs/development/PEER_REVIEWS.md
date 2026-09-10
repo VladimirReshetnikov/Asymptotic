@@ -121,6 +121,63 @@ cases. This inspection is not acceptance of that worktree's pending files;
 a later merge still requires an updated native control and relevant Mathics
 observable regressions. No files in either peer worktree were edited.
 
+## September 9, 2026 — incoming mathematical and result-reference changes
+
+Reviewed the immutable changes from
+[`41ac72d52f654465e2ce62e081326df70e5f4d26`](https://github.com/VladimirReshetnikov/Asymptotic/commit/41ac72d52f654465e2ce62e081326df70e5f4d26)
+to incoming main
+[`1e7a71373d92fb81df20b33700e866ee1326713d`](https://github.com/VladimirReshetnikov/Asymptotic/commit/1e7a71373d92fb81df20b33700e866ee1326713d).
+The bounded review covered three mathematical chapters and the new
+[result reference](../../src/Documentation/ResultReference.md). No
+mathematical or API integration blocker was found in those changes.
+
+The [scale chapter](../article/sections/02-scale.tex) correctly separates
+remainder classes from coefficients, restricts the finite quotient algebra
+to nonnegative exponents, and distinguishes shifted jets and their precision.
+Its zero-substitution and local-finiteness qualifications preserve the
+existing hypotheses. The [remainder chapter](../article/sections/08-remainders.tex)
+correctly distinguishes the first possible omitted weight from nonzero
+support. Its resonance cancellation, infinite-target inverse and depth-one
+partial-coefficient examples were checked algebraically; zero layers still
+participate in frontier generation. The zero-depth and nonpositive-cutoff
+cases do not weaken the stated remainder theorem. The
+[inverse-Gamma change](../article/sections/33-gamma-inverse.tex) only groups an
+existing aligned display; its formula, hypotheses and error order are unchanged.
+
+Selected result-reference claims were compared with the production source:
+property enumeration and missing keys, `Normal` and numerical application,
+ordinary forward/inverse metadata differences, the distinct exactness fields,
+Gamma/Barnes term coordinates and cutoffs, and native result contracts.
+The reference correctly distinguishes structural native evaluation status
+from analytic evidence and does not turn numerical application into a domain
+check. It explicitly identifies its inspected source snapshot. This is a
+source review of selected contracts, not runtime validation of every listed
+property or acceptance of new package behavior.
+
+The review did not edit the incoming files or run kernels, tests, document
+builders or PDF rendering. Root's merged-artifact checks and W3-10 acceptance
+are separate evidence; no acceptance claim is inferred from this review.
+
+## September 9, 2026 — incoming Mathics evidence reconciliation
+
+The independent native-agent review of incoming
+[`9512ef4`](https://github.com/VladimirReshetnikov/Asymptotic/commit/9512ef4)
+and [`1b10fa8`](https://github.com/VladimirReshetnikov/Asymptotic/commit/1b10fa8)
+found no integration blocker in the receipt summarizer or its documentation.
+It verified that all ten raw receipt SHA-256 values match the
+[coverage summary](../../validation/mathics-test-coverage.json). The summary
+tracks 101 distinct successful case IDs per layout across three explicitly
+identified package snapshots; it is not a single current-source 101-case pass.
+The original full-run failures remain visible, and their targeted corrections
+are reconciled only against matching source or artifact hashes.
+
+Root separately ran the six
+[summarizer unit tests](../../validation/test_mathics_summary.py), which passed.
+These test receipt integrity and reconciliation, not package features in
+Mathics. No Mathics feature run was performed as part of this review. The
+[validation index](../../validation/README.md) retains the per-snapshot runtime
+evidence and the pending current-package matrix.
+
 ## September 9, 2026 — merged documentation and Mathics observable audit
 
 A bounded read-only review of `ce55fd2` and the documentation merge

@@ -1,5 +1,49 @@
 # Review and validation record
 
+## Principal-logarithm normalization and positive nested bases
+
+The [eight-file native run](log-power-normalization-tests.json) passes
+**207 tests with zero failures** on Wolfram 15.0.1, including 21 dedicated
+[logarithm regressions](../src/Tests/ReviewLogPowerNormalization.wlt).
+All 65 input hashes remain unchanged during the run. The recursive proof
+accepts positive monomial bases and real exponents at every nesting level,
+including reciprocal source coordinates at infinity. Unsupported winding
+remains visible to the parser and receives the caller's structured refusal.
+The [development note](../docs/development/LOG_POWER_NORMALIZATION.md)
+separates the source-identity obligation from coefficient reality and the
+still-open periodic coefficient constructor.
+
+The [first pass](log-power-normalization-first-pass.json) records 201 passes
+and two failures against the earlier implementation in `a76c0b5`. One exposed
+the nested reciprocal-base gap. The other was an old automatic-backend test
+whose blanket inexact-input refusal no longer matched native delegation.
+That check now selects the package backend explicitly, and a separate
+automatic/native comparison verifies the supported route. The
+[seven follow-up observations](log-power-normalization-followup.json) retain
+the actual unsupported chart and a representative inexact-input comparison;
+they are characterization evidence rather than acceptance.
+
+The [13 baseline observations](log-power-normalization-baseline.json) refer
+to `41ac72d`; the [13 after-guard observations](log-power-normalization-after-guard.json)
+refer to the first two-pattern repair preserved in `290f1af`. They distinguish
+the wrong finite depth and flat expressions from the exact-core admission
+issue, whose finite expression retained its winding logarithm.
+
+The [local loading run](log-power-normalization-loading-tests.json) passes
+**100 checks in five fresh kernels**, covering isolated standalone, modular,
+`init.m`, `Needs`, and paclet loading. It records 61 unchanged input hashes,
+20 checks per mode, and no local HTTP server. The 55-module standalone matches
+its sources. All 14 standalone-builder tests and the six incoming Mathics
+summary tests also pass; no full package or Mathics feature suite was run.
+
+The [article build](log-power-normalization-pdf-build.json) records exactly
+three serial strict LaTeX passes. The final **102-page PDF** has no unresolved
+references or overflowing boxes. The [render record](log-power-normalization-pdf-layout.json)
+records all 102 rendered pages and visual inspection of contact pages 1–12,
+25–30, 37–42, and 91–102, plus full page 40. Other pages were rendered but
+were not visually inspected in this checkpoint. The final source and artifact
+checks are recorded in [the hash audit](log-power-normalization-artifacts.json).
+
 ## Observable Taylor information, approach sides, and real arguments
 
 After the final sync through immutable `main` revision `b4c2a2d`, the

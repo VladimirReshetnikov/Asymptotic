@@ -53,8 +53,16 @@ VerificationTest[
   8 (1 + Log[4]), TestID -> "review-negative-target-remainder-rendering-scale"]
 
 VerificationTest[
-  Module[{x}, FailureQ[AsymptoticExpansion[1.5 x + x^2, {x, 0, 3}]]],
+  Module[{x}, FailureQ[AsymptoticExpansion[1.5 x + x^2, {x, 0, 3}, "Backend" -> "Package"]]],
   True, TestID -> "review-forward-rejects-inexact-coefficients"]
+
+VerificationTest[
+  Module[{x, s, native},
+    native = Series[1.5 x + x^2, {x, 0, 3}];
+    s = AsymptoticExpansion[1.5 x + x^2, {x, 0, 3}];
+    MatchQ[s, _GeneralizedSeries] && s["Kind"] === "Native" &&
+      s["NativeResult"] === native && Normal[s] === Normal[native]],
+  True, TestID -> "review-automatic-inexact-forward-preserves-native-series-result"]
 
 VerificationTest[
   Module[{x, y}, FailureQ[AsymptoticInverse[1.5 x + x^2, {x, 0}, {y, 3}]]],
