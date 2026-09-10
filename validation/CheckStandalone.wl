@@ -38,6 +38,13 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"],
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[Module[{x, z, s, left, uncertain},
+    s = AsymptoticExpansion[1 - x, {x, 0, 2}, "Backend" -> "Package"];
+    left = SeriesObservable[s, FractionalPart[z], z];
+    uncertain = SeriesObservable[SeriesTruncate[s, 1], FractionalPart[z], z];
+    {Normal[left] === 1 - x,
+      MatchQ[uncertain, Failure["UnprovedObservableApproach", _Association]]}],
+    {True, True}, TestID -> "loading-observable-sided-constant-and-uncertain-jump"],
   VerificationTest[Quiet[Module[{x, s},
     s = AsymptoticExpand[Exp[x], x -> 0, SeriesTermGoal -> 0];
     {Normal[s], s["NativeBackend"], s["OrderConvention"],

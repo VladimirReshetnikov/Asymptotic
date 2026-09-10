@@ -25,6 +25,7 @@ Use another entry script when its explicit selection matches the change:
 
 | Coverage | Entry script |
 | --- | --- |
+| Observable Taylor endpoints, sided constants and complete-argument reality, with calculus neighbors | [CheckObservableIngress.wl](../../validation/CheckObservableIngress.wl) |
 | Merged-source normalization, native search and package identity: 425/0 across 23 selected files | [CheckMergedReviewFixes.wl](../../validation/CheckMergedReviewFixes.wl) |
 | Compatible native-backend retries, held evaluation, and adjacent native contracts | [CheckNativeSearch.wl](../../validation/CheckNativeSearch.wl) |
 | Equal-exponent collection and composition parameter scope, with arithmetic and scale neighbors | [CheckReviewNormalization.wl](../../validation/CheckReviewNormalization.wl) |

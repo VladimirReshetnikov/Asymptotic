@@ -409,6 +409,31 @@ for local, offline, and commit-pinned forms.
   absorbs any fixed logarithmic degree. Compute an explicit omitted block
   and prove the native tail smaller before reporting a sharper boundary.
   The maximum degree among retained coefficients is not a tail-degree bound.
+- A generic observable must inspect the returned Taylor chart and exclusive
+  endpoint, not only the order requested from `Series`. A truthful custom
+  provider returning `u + O(u^2)` cannot justify coefficients beyond that
+  boundary as zero. For a local increment bounded by `w^alpha M^d`, Taylor
+  order `N = Ceiling[C/alpha]` suffices below exclusive power `C`; equality
+  at the power boundary still contributes logarithmic degree `N d`.
+- A real-sided Taylor bound requires a real input path. Prove reality of the
+  whole inner argument before truncation: an imaginary term can be hidden in
+  a discarded tail, and the completed output coefficients may still be real.
+  Under `a^2 == -1`, `a Re[a z]` is a useful witness; substituting the real-axis
+  Taylor rule for `Re` along `a x` would produce the false result `-x`.
+  Keep the formal input value separate from the actual expansion coordinate
+  when using assumptions, and do not promote a fixed-parameter neighborhood
+  to a joint-domain proof. Complex output cancellation remains permitted.
+- The constant of a sided expansion need not equal the point value.
+  `FractionalPart[1-u]` has constant `1` for positive `u`, whereas
+  `FractionalPart[1]` is `0`. Use the native sided constant when the full
+  inner germ has a proved side. An exact point uses its actual value; a
+  pure uncertainty such as `1 + O(w)` requires compatible information on
+  both sides and at the point. `Analytic -> False` alone cannot repair a
+  consumer that replaces a correct sided constant with the endpoint value.
+  The [nine baseline observations](../validation/observable-ingress-baseline.json)
+  reproduce both errors on Wolfram 15.0.1 Windows with unchanged sources.
+  The [observable Taylor notes](development/OBSERVABLE_INGRESS.md) separate
+  these checks from the still-open general analyticity-admission question.
 - Native `SeriesData` index limits are separate from dense coefficient
   allocation. Probes on Wolfram 15.0.1 for 64-bit Windows admit a positive
   denominator through `2^63-1` and individual signed indices from `-2^63`
