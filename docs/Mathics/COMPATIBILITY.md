@@ -13,6 +13,8 @@ The [background notes](README.md) describe the language and evaluator
 differences. This page tracks the package's actual compatibility work;
 background claims about an interpreter are not evidence that a package
 feature has passed a regression test.
+The maintained [Mathics implementation notes](../MATHICS-NOTES.md) collect
+reproducible evaluator gotchas in the same form as the Wolfram notes.
 
 ## Goal and current status
 
@@ -213,10 +215,25 @@ on Wolfram 15.0.1 for Windows. All 1,464 per-test records match the untouched
 and the subsequent matching full rerun instead of discarding that evidence.
 
 Independent review fixes were subsequently merged from `origin/main`.
-Native definition comparisons therefore separately use `021c584` as the
-updated control: all 2,047 modular and 2,046 standalone package symbols match
+Native definition comparisons separately record the `021c584` review merge
+and the later `350c70f` control: the latter preserves all 2,051 modular and
+2,050 standalone package symbols
 across attributes, options, own/down/up/sub/numeric/default/format values,
 messages, and contexts. The earlier full-suite result is not relabeled as a
 full run of the later upstream changes. Each receipt identifies its exact
 source hashes; absolute source-directory strings are the only normalized
 definition content.
+
+To reproduce a native definition comparison, provide a baseline checkout or
+extracted Git archive and run:
+
+```text
+python validation/check_mathics_definitions.py --baseline BASELINE_REPOSITORY --candidate . --wolfram wolfram.exe --output native-definitions.json --captures .venv/native-captures
+```
+
+Both entry points are checked by default. The tool copies immutable inputs,
+runs fresh kernels serially, verifies load/reload and selected builtin state,
+and checks that source hashes remain unchanged. Its deliberate changed-value
+fixture was rejected, as required. Definition comparisons and finite
+regressions are scoped evidence; neither proves every possible surrounding
+program or every Wolfram version behaves identically.

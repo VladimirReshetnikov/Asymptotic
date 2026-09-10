@@ -317,7 +317,7 @@ portableTest["inverse-residual", "inverse",
   True];
 
 portableTest["inverse-perturbative-formula", "inverse",
-  Module[{x, y}, Expand[PerturbativeInverse[x^2 (1 + Log[x]), {x, y}, 2] -
+  Module[{x, y}, Simplify[PerturbativeInverse[x^2 (1 + Log[x]), {x, y}, 2] -
     (y - y^2 (1 + Log[y]) + y^3 (2 Log[y]^2 + 5 Log[y] + 3))]],
   0];
 

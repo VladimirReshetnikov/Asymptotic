@@ -1,5 +1,9 @@
 # Notes on subtle Wolfram Language behaviour
 
+For observations from the alternate interpreter, see the maintained
+[Mathics evaluation notes](MATHICS-NOTES.md). Their workarounds are confined
+to Mathics; they do not replace the native behaviours recorded here.
+
 The maintained package is now named AsymptoticAnalysis; its standalone entry
 point is `AsymptoticAnalysis.wl` and its Wolfram context is
 ``"AsymptoticAnalysis`"``. Public `AsymptoticInverse` calls are unchanged.
@@ -431,6 +435,16 @@ for local, offline, and commit-pinned forms.
   integer `-2^63` produced malformed numeric text. Boundary diagnostics
   serialize lattice indices as `InputForm` strings; they do not infer
   successful JSON encoding from successful evaluation of the exact integer.
+- Native rule-form term goals are not package nonzero-block counts. On
+  Wolfram 15.0.1 Windows, `Series[Exp[x], x -> 0, SeriesTermGoal -> 0]`
+  retains the constant term, while negative integer goals return an empty
+  finite part. An explicit `Automatic` goal also produces a leading series;
+  the corresponding `Asymptotic` calls remain unresolved. Scalar automatic
+  routing now tries both compatible native engines for those explicit goals.
+  Reuse the effective common option values after package preparation rather
+  than evaluating delayed options again. Configured defaults and option-name
+  equivalence require their own ingress policy; this repair does not settle
+  those wave-3 findings.
 - Absolute majorants should be computed structurally. The bounds
   `Abs[Sin[a + I b]] <= Exp[Abs[b]]` and the analogous cosine bound expose
   cancellation of opposite exponential carriers without costly simplification

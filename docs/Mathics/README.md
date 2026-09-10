@@ -2,6 +2,8 @@
 
 For installation, package-specific validation, compatibility subtleties, and
 current limitations, see [AsymptoticAnalysis compatibility](COMPATIBILITY.md).
+For the maintained implementation gotchas and reproducible checking rules,
+see [MATHICS-NOTES.md](../MATHICS-NOTES.md), the companion to the Wolfram notes.
 The comparison below is background material, not a package acceptance record.
 
 https://mathics.org/

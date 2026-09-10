@@ -250,6 +250,15 @@ automaticPreparedExpansion[request_HoldComplete, original_HoldComplete] := Modul
   goal = OptionValue[AsymptoticExpansion, options, SeriesTermGoal];
   limit = OptionValue[AsymptoticExpansion, options, "MaxTerms"];
   branches = OptionValue[AsymptoticExpansion, options, "InverseFunctionBranches"];
+  (* Native rule-form leading requests admit Automatic and nonpositive
+     integer goals even though those are not package nonzero-block counts.
+     Reuse the common values already consumed above, including delayed ones. *)
+  If[MatchQ[specifications, {HoldComplete[_Rule]}] &&
+      MemberQ[keys, HoldComplete[SeriesTermGoal]] &&
+      (goal === Automatic || (IntegerQ[goal] && goal <= 0)),
+    replay = nativeHeldJoin[Prepend[automaticNativeOption[#, <|
+      Assumptions -> ass, SeriesTermGoal -> goal|>] & /@ Rest[parts], First[parts]]];
+    Return[automaticNativeResult[replay, original, "NativeSpecification"], Module]];
   packageRequest = nativeHeldJoin[Join[Take[parts, 1], specifications,
     With[{a = ass, d = dir, g = goal, m = limit, b = branches},
       {HoldComplete[Assumptions -> a], HoldComplete[Direction -> d],
