@@ -212,3 +212,30 @@ promoted to passing portable-suite evidence. Stage diagnostics are marked
 non-acceptance evidence because their progress output shares a compound
 input with the calculation, which can affect Mathics `Check`. No incorrect
 mathematical result was observed, and no package source changes were made.
+
+## September 9, 2026 — wave-4 merge and evidence tooling
+
+Root reviewed the incoming immutable-source Mathics acceptance verifier from
+`e10d076`: declared cases/groups, exact Git inputs, complete module sets,
+duplicate JSON keys, layout/source identities, protocol outcomes and input
+receipt protection. Its sixteen focused Python tests passed. They validate
+the verifier, not a current Mathics feature matrix. The seven receipt-summary
+tests also passed after merging the line-ending comparison changes.
+
+An independent read-only review of the documentation changes through
+`725a547` found no integration blocker. Relative to `bc5cade`, kernel changes
+are usage messages, and test/example changes are corrected loading comments.
+The inspected properties, numerical-observable and certificate-planning help
+match their implementation. The documentation distinguishes the historical
+101-case Mathics union from a single current-source run and qualifies the
+reported original-Wolfram controls. The review found and this intake corrects
+one stale schema label: the receipt-summary format is version 3.
+
+Root's separate [merged loading checks](../../validation/wave4-merge-loading-tests.json)
+passed 105/0 in five fresh Wolfram kernels. The article conflict was resolved
+from merged TeX in [three strict passes](../../validation/wave4-merge-pdf-build.json),
+with [rendering and bounded visual inspection](../../validation/wave4-merge-pdf-layout.json).
+Those current checks are distinct from the reviewer's source inspection and
+from earlier repair acceptance receipts. No full suite or new Mathics package
+run was performed for this merge. The [wave-4 intake](WAVE_4_INTAKE.md) records
+the independently read report findings and remaining implementation scope.

@@ -2,6 +2,13 @@
 
 ## Wave-4 integration and merged artifacts
 
+The [wave-4 intake](../docs/development/WAVE_4_INTAKE.md) maps all 64 new
+identified entries and the unnumbered proposals. Its
+[crosswalk audit](wave4-intake-crosswalk.json) verifies every local ID against
+the original ledgers; the [payload audit](wave4-payload-provenance.json)
+verifies all 180 supplied files against arrival `8cb9b7f`. These are static
+intake/provenance checks, not package runtime acceptance.
+
 The wave-4 integration merges `origin/main` through `38aa253`, preserving the
 Fourier recurrence repair and the incoming public-help corrections. The
 [merged loading receipt](wave4-merge-loading-tests.json) records **105/0** in

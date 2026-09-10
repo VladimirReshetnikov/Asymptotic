@@ -28,10 +28,10 @@ standalone evidence at checkpoint `01b18ab` predates this rename. Earlier
 passing counts likewise apply to their recorded source snapshots, not to new
 path/context hashes after the rename.
 
-Updated September 9, 2026. This register and the linked wave-3 intake consolidate
-**167 identified finding entries in all twenty-seven
+Updated September 9, 2026. This register and the linked wave-3 and wave-4 intakes consolidate
+**231 identified finding entries in all thirty-six
 [review packages](../../external-reports/code-review/README.md)** into shared
-work items: 123 entries from waves 1–2 and 44 from wave 3. They also record
+work items: 123 entries from waves 1–2, 44 from wave 3, and 64 from wave 4. They also record
 substantive roadmap proposals separately. This is a
 work map, not a claim that every recommendation is a defect or an accepted API
 change.
@@ -67,6 +67,14 @@ and focused acceptance obligations. The supplied 166 payload files were
 merged from `68b8e1e70731998c5bc1533be1bec0f5b507acd7` without editing them.
 Current source inspection does not turn their historical or unrun witnesses
 into current native reproductions.
+
+Wave 4 adds reports 28–36 at the two exact snapshots recorded in the
+[wave-4 intake](WAVE_4_INTAKE.md). Its **64 identified entries and unnumbered
+proposals are included in scope**, with current-source comparisons and
+focused acceptance obligations. All 180 supplied files, including nine TeX
+and nine PDF articles, match their [arrival Git blobs](../../validation/wave4-payload-provenance.json).
+Review evidence and candidate code do not establish current Mathics or
+Wolfram package behavior; no bundled programs were executed during intake.
 
 W3-06 now has independently reproduced native failures and
 [131/0 focused native acceptance](../../validation/observable-ingress-main-sync-tests.json).

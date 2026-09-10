@@ -48,7 +48,7 @@ and [full standalone](../../validation/mathics-standalone-tests.json) receipts
 remain unchanged. The [summary generator](../../validation/summarize_mathics_tests.py)
 rejects reconciliations between different package sources or with unresolved
 original failures. Additional operation receipts retain their own source scope.
-Schema version 2 retains `ReceiptSHA256` as the hash of the exact receipt
+Schema version 3 retains `ReceiptSHA256` as the hash of the exact receipt
 bytes. It additionally computes `NormalizedReceiptSHA256` after replacing
 CRLF with LF, with all other bytes unchanged; both policies are explicit
 in the corresponding `*Normalization` fields. The normalized hash allows
