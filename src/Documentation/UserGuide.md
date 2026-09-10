@@ -150,6 +150,8 @@ Outputs below are written in algebraically equivalent factored forms where this 
 
 In the package expansion path, `f` can be an expression, a unary pure function, or an unapplied unary `InverseFunction`. A callable is applied to `x`. A bare symbol is treated as an expression: use `Log[x]` or `Log[#] &` to expand the logarithm. Explicit native modes use their selected built-in function's input forms.
 
+The expansion variable `x` must be a symbol without a numeric value. A named constant such as `Pi`, `E` or `Degree` is refused with `Failure["InvalidVariable", ...]`, as native `Series` refuses it, instead of being treated as a formal coordinate.
+
 An applied inverse can also occur inside a supported expression. See [Callable and Applied Inverse Functions](#inverse-function-expressions).
 
 ### Details and Options
@@ -398,7 +400,7 @@ Use `Normal[s]` only when discarding the native series structure is intended. Fo
 | `AsymptoticInverse[f, {x, x0}, y, SeriesTermGoal -> n]` | First `n` complete nonzero inverse blocks. |
 | `AsymptoticInverse[f, x, y, SeriesTermGoal -> n]` | Inverse approaching zero from above. |
 
-The source symbol `x` and target symbol `y` must be distinct. The forward expression `f` must not contain `y`.
+The source symbol `x` and target symbol `y` must be distinct symbols without numeric values; a named constant such as `Pi` in either position returns `Failure["InvalidVariables", ...]`. The forward expression `f` must not contain `y`.
 
 ### Details and Options
 
@@ -489,8 +491,8 @@ the following table identifies the relevant precision parameter.
 | Exact-core perturbation | Inclusive marker degree. |
 | Flat inverse | Inclusive exponential-sector degree. Inner coefficient cutoffs are separate and exclusive. |
 | Fourier inverse | Exclusive target-power cutoff; frequencies have a separate resource budget. |
-| `Zeta[S]`, with a growing real affine argument `S` at a real infinity | Exclusive bound on `Log[n]` in the coordinate `Exp[-S]`; `SeriesTermGoal` includes the constant term `n == 1`. See [Zeta at Large Real Argument](#zeta-dirichlet-expansions). |
-| `LerchPhi[z, s, a]`, with fixed admitted `z`, `s` and `a` tending to positive infinity | Exclusive absolute exponent bound in `1/a`; blocks have exponents `s + k`. See [LerchPhi at Large Third Argument](#lerch-large-argument-expansions). |
+| `Zeta[S]`, or an affine combination `alpha Zeta[S] + beta` with fixed exact real `alpha != 0` and `beta`, with a growing real affine argument `S` at a real infinity | Exclusive bound on `Log[n]` in the coordinate `Exp[-S]`; `SeriesTermGoal` counts the atom's terms and includes the constant term `n == 1`, which an affine constant may cancel. See [Zeta at Large Real Argument](#zeta-dirichlet-expansions). |
+| `LerchPhi[z, s, a]`, or an affine combination of one such atom, with fixed admitted `z`, `s` and `a` tending to positive infinity | Exclusive absolute exponent bound in `1/a`; blocks have exponents `s + k`. See [LerchPhi at Large Third Argument](#lerch-large-argument-expansions). |
 | Structured forward special-function expansion | Exclusive amplitude cutoff for each recorded exact carrier; term goals count its complete nonzero blocks separately. See [Other Special Functions](#special-function-expansions). |
 | Special-function inverse adapter | Adapter-specific convention; see [AsymptoticSpecialInverse](#AsymptoticSpecialInverse). |
 
@@ -1347,6 +1349,8 @@ m^-S <= Zeta[S] - Normal[s] <= m^-S (1 + m/(S - 1))
 ```
 
 under `s["RemainderBoundConditions"]`, including `S > 1`. The corresponding properties are `"RemainderLowerBound"` and `"AbsoluteRemainderBound"`. For three blocks of `Zeta[x]`, the upper bound is `4^-x (1 + 4/(x - 1))`. These are analytic bounds for the forward defining sum; they do not constitute a numerical interval certificate or an inverse-error certificate. `SeriesTruncate[s, Log[3]]` keeps `1 + 2^-x` and transports the upper bound to `4^-x (1 + 4/(x - 1)) + 3^-x`; see [SeriesTruncate](#SeriesTruncate).
+
+An affine combination of one such atom with fixed exact real coefficients is expanded with the atom: `Zeta[x] - 1` retains `2^-x + 3^-x + ...` with the same remainder, cutoff and first omitted integer as `Zeta[x]`, and `-2 Zeta[x] + 3` scales every retained coefficient and the absolute bound by the affine coefficient. The result records `"AffineCoefficients" -> {alpha, beta}` and `"SpecialFunctionAtom"`. `SeriesTermGoal` still counts the atom's terms, so `SeriesTermGoal -> 3` for `Zeta[x] - 1` returns the two nonconstant terms `2^-x + 3^-x`. The signed lower bound `"RemainderLowerBound"` is kept only for a positive coefficient; an affine constant lying above an explicit cutoff is charged to `"AbsoluteRemainderBound"` instead of being displayed. Products with the variable, two different atoms, and variable coefficients are outside this method.
 
 <a id="lerch-large-argument-expansions"></a>
 ##### LerchPhi at Large Third Argument
@@ -2407,7 +2411,7 @@ An exact outer expression can still transport uncertainty from the inner expansi
 <a id="SeriesObservable"></a>
 ### SeriesObservable
 
-`SeriesObservable[s, expr, z]` substitutes the expansion into the placeholder `z` in a supported real expression. It accepts `"InverseFunctionBranches" -> Automatic` in addition to the common operation options.
+`SeriesObservable[s, expr, z]` substitutes the expansion into the placeholder `z` in a supported real expression. It accepts `"InverseFunctionBranches" -> Automatic` in addition to the common operation options. An outer `ConditionalExpression[expr, condition]` is admitted when the condition is proved on the precision-tracked input germ; the condition is peeled before the route is chosen, so `ConditionalExpression[Exp[z], z > 0]` reaches the same exact exponential route as `Exp[z]`, and the result records `"ObservableCondition"` and replays the conditional observable on refinement.
 
 **Input**
 
@@ -2573,7 +2577,7 @@ check["Error"]
 
 `"ReferenceRoot"` is the numerical source root. `"ReferenceObservable"` is the source observable requested by `"Power"`. `"Error"` compares that observable with the finite approximation. `"ExactInverse"` is a compatibility alias for the numerical reference root.
 
-The ordinary checker solves in the local source coordinate `x = SourceOffset + SourceSide u`, with `u > 0` on the selected side; at an infinite endpoint the offset is `0`. The exact endpoint is substituted symbolically before any numerical evaluation, so a small displacement at a huge source origin, such as `(x - 10^100) + (x - 10^100)^2` at `x -> 10^100`, is solved, tested against the branch and compared at full working precision. `"LocalRoot"` and `"LocalApproximation"` are the local values of `u` for `"Power" -> 1` and of `u^p` otherwise; `"Error"`, `"ForwardResidual"` and `"RootResidual"` are computed locally. `"ReferenceRoot"`, `"Approximation"` and `"ApproximationSourceRoot"` reconstruct absolute source values with enough extra digits to show the displacement, so their `Precision` can exceed `WorkingPrecision` at a large offset. With a zero offset every field agrees with the direct computation.
+The ordinary checker solves in the local source coordinate `x = SourceOffset + SourceSide u`, with `u > 0` on the selected side; at an infinite endpoint the offset is `0`. The exact endpoint is substituted symbolically before any numerical evaluation, so a small displacement at a huge source origin, such as `(x - 10^100) + (x - 10^100)^2` at `x -> 10^100`, is solved, tested against the branch and compared at full working precision. `"LocalRoot"` is always the positive displacement `u` at the recovered root. `"LocalApproximation"` approximates `u` for `"Power" -> 1` and the signed observable `(SourceSide u)^p` otherwise; `"LocalReferenceObservable"` is that observable at the recovered root, and `"ObservablePower"` records `p`. `"Error"`, `"ForwardResidual"` and `"RootResidual"` are computed locally. `"ReferenceRoot"`, `"Approximation"` and `"ApproximationSourceRoot"` reconstruct absolute source values with enough extra digits to show the displacement, so their `Precision` can exceed `WorkingPrecision` at a large offset. With a zero offset every field agrees with the direct computation.
 
 Use exact targets or targets with sufficient input precision. Exact target offsets are subtracted before numerical evaluation. The operation also supports the admitted transformed, logarithmic, Fourier, flat, core, and special inverse families. Its output is numerical evidence, not an interval certificate.
 
@@ -2763,7 +2767,7 @@ The supported core has the form `a v^b Exp[c v^p] + offset`, with positive `c`, 
 
 Options are `Assumptions :> $Assumptions`, `Direction -> Automatic`, `"SourceShift" -> Automatic`, `"CoreInverse" -> Automatic`, `"CoreCheckTimeConstraint" -> 3`, `"InputRemainder" -> None`, and `"MaxTerms" -> 20000`.
 
-`"SourceShift"` selects the source translation. A declared pair `{rho, k}` here means `O[v^-rho (1 + Log[v])^k]` with corresponding derivative control. Its transported error remains a separate first-sector precision limit.
+`"SourceShift"` selects the source translation at a source infinity. It must be a fixed exact real parameter that depends on neither the source nor the target variable: the remainder scales are derived for a fixed chart, and a shift varying with the target would cancel out of every displayed coefficient while changing the remainder scale, so such a request returns `Failure["TargetDependentSourceShift", ...]`. A fixed shift changes the remainder scale only by a constant factor. `"CoreInverse"` must be independent of the source variable only. A declared pair `{rho, k}` here means `O[v^-rho (1 + Log[v])^k]` with corresponding derivative control. Its transported error remains a separate first-sector precision limit.
 
 **Input**
 
@@ -2910,7 +2914,7 @@ A leading oscillatory coefficient without an eventual nonzero sign is outside th
 <a id="FourierInverseResidual"></a>
 ### FourierInverseResidual
 
-`FourierInverseResidual[s]` checks the finite Fourier equation at its stored relative source-weight cutoff. `FourierInverseResidual[s, h]` supplies another relative cutoff. Its option is `"MaxTerms" -> 20000`.
+`FourierInverseResidual[s]` checks the finite Fourier equation at its stored relative source-weight cutoff. `FourierInverseResidual[s, h]` supplies another relative cutoff. Its option is `"MaxTerms" -> 20000`, which may also be given without a cutoff, as in `FourierInverseResidual[s, "MaxTerms" -> 7]`; an option is never read as the cutoff.
 
 Check a polynomial source using an explicit residual-work budget:
 

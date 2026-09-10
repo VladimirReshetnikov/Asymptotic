@@ -252,7 +252,11 @@ fourierResidual[a_, cutoff_, limit_] := Module[
     "NormalizedResidual" -> Total[(a["Uniformizer"]^#[[1]] (fourierExpression[#[[2]], ell, ass] /. ell -> a["LogarithmicValue"])) & /@ answer],
     "RelativeCutoff" -> h, "Scope" -> "Exact formal composition with the stored finite Fourier forward expression; unspecified InputRemainder terms are not composed."|>];
 Options[AsymptoticAnalysis`FourierInverseResidual] = {"MaxTerms" -> 20000};
-AsymptoticAnalysis`FourierInverseResidual[GeneralizedSeries[a_Association], cutoff_: Automatic, OptionsPattern[]] := catch[
+(* The optional cutoff must not capture an option: an unrestricted optional
+   argument in front of OptionsPattern[] binds "MaxTerms" -> n to the cutoff
+   and rejects it as an invalid cutoff (wave-6 report 52 N2). *)
+AsymptoticAnalysis`FourierInverseResidual[GeneralizedSeries[a_Association],
+  cutoff : Except[_Rule | _RuleDelayed | _List] : Automatic, OptionsPattern[]] := catch[
   If[Lookup[a, "Kind", None] =!= "FourierInverse", fail["UnsupportedResidual", "A Fourier inverse object is required."]];
   fourierResidual[a, cutoff, OptionValue["MaxTerms"]]];
 AsymptoticAnalysis`FourierInverseResidual[___] := Failure["InvalidArguments", <|

@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 850b4eb869c6023a7ac83c7da59600db6aa1e309dc6330681f09430672edad87 *)
+   Source SHA256 (UTF-8/LF): d134fc673bb465e344bbe62608930814ea0fee683afef6d34088bf46a6eb957c *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -728,7 +728,14 @@ fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, first, s2, secon
 (* Endpoint normalization                                               *)
 (* ------------------------------------------------------------------ *)
 
+(* A coordinate must be a symbol without a numeric value: Pi, E, Degree,
+   Glaisher and the other named constants are symbols that NumericQ accepts,
+   and native Series refuses them as variables (wave-6 report 52 N1). *)
+seriesVariableQ[v_] := MatchQ[v, _Symbol] && ! NumericQ[v];
+
 localCoordinate[x_, x0_, direction_] := Module[{dir = direction, u = Unique["u$"], sub, s},
+  If[! seriesVariableQ[x],
+   fail["InvalidVariable", "The expansion variable must be a symbol without a numeric value.", <|"Variable" -> x|>]];
   Which[
    x0 === Infinity, If[dir === Automatic, dir = "FromBelow"];
    If[dir =!= "FromBelow", fail["InvalidDirection", "x -> Infinity is approached from below."]];
@@ -1159,7 +1166,8 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
    region, blocks, frontier, rem, inputCap, v, z, expr, terms, wexpr, rint, obj, remData, forwardRem, depth, exactModel, Kf, tries, gexpr, logw, need,
    termination = None, terminationTried = Missing["NotTried"], terminationEligible, reliableBlocks, computationState = None},
   validateInput[f, limit];
-  If[x === y, fail["InvalidVariables", "Source and target variables must be distinct symbols."]];
+  If[! seriesVariableQ[x] || ! seriesVariableQ[y] || x === y,
+   fail["InvalidVariables", "Source and target variables must be distinct symbols without numeric values.", <|"Variables" -> {x, y}|>]];
   If[! FreeQ[f, y], fail["InvalidVariables", "The forward expression must not contain the target variable."]];
   If[! FreeQ[ass, x | y], fail["InvalidAssumptions", "Assumptions concern parameters only; positivity of the local variable is built in."]];
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
@@ -1509,9 +1517,16 @@ InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : Opt
   True,
    (* An explicit caller "Power" takes precedence over the stored observable
       power; both are observable powers of the source displacement and are
-      converted to the internal uniformizer convention at an infinite endpoint. *)
-   Module[{explicit = FilterRules[{opts}, "Power"], power},
-    power = If[explicit === {}, a["Power"], "Power" /. explicit];
+      converted to the internal uniformizer convention at an infinite endpoint.
+      The option is resolved by OptionValue so that the symbol spelling
+      Power -> p, nested lists and delayed rules all yield the value and the
+      first occurrence wins; a literal string replacement would leave the
+      option name inside the coefficient arithmetic (wave-6 report 48 N1). *)
+   Module[{explicit = FilterRules[Flatten[{opts}], "Power"], power},
+    power = If[explicit === {}, a["Power"], OptionValue[InverseExpansionCoefficient, explicit, "Power"]];
+    If[! exactRealQ[power] || power === 0,
+     Return[Failure["InvalidOption", <|"MessageTemplate" -> "Power must be a nonzero exact real number.",
+       "Power" -> power|>], Module]];
     InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
      k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -power, power]]]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
@@ -2088,7 +2103,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 4b2ae8a7a6880e18bffbf2c9738dc70f34ac184d8563f542c93ec9aa84bc2026 *)
+   Source SHA256 (UTF-8/LF): 2a6d9c0429c8e77b7176903c2c8476238268f14edb7643895dba7375d71ab368 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2445,18 +2460,34 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
 AsymptoticAnalysis`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : OptionsPattern[]] := catch[Block[
   {$inverseFunctionBranchSelections = OptionValue["InverseFunctionBranches"], $inverseFunctionProvenance = {},
     $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>},
-  Module[{d, h, j, body = e, condition = True, result, limit = OptionValue["MaxTerms"]},
+  Module[{d, h, j, body = e, condition = True, result, limit = OptionValue["MaxTerms"], exact},
   requireAnalyticSeries[s];
   validateInput[e, limit];
-  If[e === Log[x], Return[seriesLog[s, OptionValue["Cutoff"], limit], Module]];
-  If[e === Exp[x], Return[seriesExp[s, OptionValue["Cutoff"], limit], Module]];
-  If[Head[e] === Power && e[[1]] === x && FreeQ[e[[2]], x], Return[seriesPower[s, e[[2]], OptionValue["Cutoff"], limit], Module]];
+  (* Peel an outer ConditionalExpression before choosing a route, so that a
+     proved condition on an exact carrier (Log, Exp, a power of the formal
+     variable) still reaches the exact route instead of the generic Taylor
+     germ, which refuses such carriers (wave-6 report 52 N3). *)
+  While[Head[body] === ConditionalExpression, condition = condition && body[[2]]; body = body[[1]]];
+  exact = Which[body === Log[x], "Log", body === Exp[x], "Exp",
+    Head[body] === Power && body[[1]] === x && FreeQ[body[[2]], x], "Power", True, None];
+  If[exact =!= None && condition === True,
+    Return[Switch[exact, "Log", seriesLog[s, OptionValue["Cutoff"], limit],
+      "Exp", seriesExp[s, OptionValue["Cutoff"], limit],
+      "Power", seriesPower[s, body[[2]], OptionValue["Cutoff"], limit]], Module]];
   d = seriesFlat[seriesData[s, limit], limit];
   If[d === $Failed, fail["UnsupportedScale", "This observable requires a single power-log representation of its argument."]];
   h = seriesWorkingCut[d, OptionValue["Cutoff"]];
-  While[Head[body] === ConditionalExpression, condition = condition && body[[2]]; body = body[[1]]];
   If[! TrueQ[inverseFunctionConditionOnJet[condition, x, d["Jet"], d, h, limit]],
     fail["IncompatibleObservableCondition", "The observable condition is not proved on the precision-tracked input germ.", <|"Condition" -> condition|>]];
+  If[exact =!= None,
+    (* The condition was proved on the input germ; the exact route computes the
+       carrier, and the conditional observable is retained as the replay recipe
+       so refinement proves the condition again on the refined input. *)
+    result = Switch[exact, "Log", seriesLog[s, OptionValue["Cutoff"], limit],
+      "Exp", seriesExp[s, OptionValue["Cutoff"], limit],
+      "Power", seriesPower[s, body[[2]], OptionValue["Cutoff"], limit]];
+    Return[GeneralizedSeries[Join[result[[1]], <|"SeriesRecipe" -> {"Observable", {s}, e, x},
+      "ObservableCondition" -> condition|>]], Module]];
   j = seriesJetApply[body, x, d["Jet"], d, h, limit];
   result = seriesMake[Join[d, <|"Jet" -> j|>], {"Observable", {s}, e, x}, h];
   GeneralizedSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,
@@ -4672,7 +4703,7 @@ AsymptoticAnalysis`FlatSeriesDifferentiate[___] := Failure["InvalidArguments", <
 (* END SOURCE: src/Kernel/FlatSectorOperations.wl *)
 
 (* BEGIN SOURCE: src/Kernel/FourierCoefficients.wl
-   Source SHA256 (UTF-8/LF): 0d2351bf891ccce10c3a62ed07c5e2847ad8c90cdd08f2fcdd23fda4f62e615b *)
+   Source SHA256 (UTF-8/LF): e997a8561a6a9d3be34b3aff2c9e1fea2839f5f473b8f9b42d30cfeba99f7ad6 *)
 (* Finite Fourier-polynomial coefficient algebra in L = Log[u].
    A coefficient is {{omega,P_omega(L)},...}, representing
    Sum[P_omega(L) Exp[I omega L]]. Source weights remain separate. *)
@@ -4927,7 +4958,11 @@ fourierResidual[a_, cutoff_, limit_] := Module[
     "NormalizedResidual" -> Total[(a["Uniformizer"]^#[[1]] (fourierExpression[#[[2]], ell, ass] /. ell -> a["LogarithmicValue"])) & /@ answer],
     "RelativeCutoff" -> h, "Scope" -> "Exact formal composition with the stored finite Fourier forward expression; unspecified InputRemainder terms are not composed."|>];
 Options[AsymptoticAnalysis`FourierInverseResidual] = {"MaxTerms" -> 20000};
-AsymptoticAnalysis`FourierInverseResidual[GeneralizedSeries[a_Association], cutoff_: Automatic, OptionsPattern[]] := catch[
+(* The optional cutoff must not capture an option: an unrestricted optional
+   argument in front of OptionsPattern[] binds "MaxTerms" -> n to the cutoff
+   and rejects it as an invalid cutoff (wave-6 report 52 N2). *)
+AsymptoticAnalysis`FourierInverseResidual[GeneralizedSeries[a_Association],
+  cutoff : Except[_Rule | _RuleDelayed | _List] : Automatic, OptionsPattern[]] := catch[
   If[Lookup[a, "Kind", None] =!= "FourierInverse", fail["UnsupportedResidual", "A Fourier inverse object is required."]];
   fourierResidual[a, cutoff, OptionValue["MaxTerms"]]];
 AsymptoticAnalysis`FourierInverseResidual[___] := Failure["InvalidArguments", <|
@@ -5166,12 +5201,12 @@ AsymptoticAnalysis`SpecialInverseNumericalCheck[___] := Failure["InvalidArgument
 (* END SOURCE: src/Kernel/SpecialFunctionAdapters.wl *)
 
 (* BEGIN SOURCE: src/Kernel/ExponentialCorePerturbation.wl
-   Source SHA256 (UTF-8/LF): 8c5e8bcc4f87f6ce37d86f88d9d1dad81ae3e0ec0654d4f5bcb4a821b01f9f2a *)
+   Source SHA256 (UTF-8/LF): d1986c1fea8854feac1082c09a6f026ca6d3096d2ff3876261383bfe34d29a8d *)
 (* Exact growing exponential cores with finite power-log perturbations.
    Loaded in Private`.  Exact Lambert/elementary cores remain unexpanded. *)
 
 AsymptoticAnalysis`AsymptoticExponentialCoreInverse::usage =
-"AsymptoticExponentialCoreInverse[core,perturbation,{x,x0},{y,n}] retains the exact inverse of a growing exponential core a v^b Exp[c v^p]+offset, c,p>0, and computes complete corrections through exponential degree n for a finite power-log perturbation. The positive v tends to Infinity. At source infinities SourceShift may translate v; finite endpoints use reciprocal source distance. InputRemainder->{rho,k} declares O(v^-rho (1+Log[v])^k) with matching derivative control and is transported as a separate first-sector error.";
+"AsymptoticExponentialCoreInverse[core,perturbation,{x,x0},{y,n}] retains the exact inverse of a growing exponential core a v^b Exp[c v^p]+offset, c,p>0, and computes complete corrections through exponential degree n for a finite power-log perturbation. The positive v tends to Infinity. At source infinities a fixed exact real SourceShift, independent of the source and of the target, may translate v; finite endpoints use reciprocal source distance. InputRemainder->{rho,k} declares O(v^-rho (1+Log[v])^k) with matching derivative control and is transported as a separate first-sector error.";
 Options[AsymptoticAnalysis`AsymptoticExponentialCoreInverse] = {
   Assumptions :> $Assumptions, Direction -> Automatic, "SourceShift" -> Automatic,
   "CoreInverse" -> Automatic, "CoreCheckTimeConstraint" -> 3,
@@ -5263,7 +5298,15 @@ exponentialCoreConstruct[core_, perturbation_, x_, endpoint_, y_, depth_, opts :
    rho, logdegree, remainder, coefficientList, exact, targetLimit},
   validateInput[{core, perturbation}, limit];
   If[x === y || ! FreeQ[{core, perturbation}, y] || ! FreeQ[ass, x | y] || ! FreeQ[{shift, requested}, x],
-    fail["InvalidVariables", "Use distinct source and target symbols, parameter-only assumptions, and a source-independent CoreInverse and SourceShift."]];
+    fail["InvalidVariables", "Use distinct source and target symbols, parameter-only assumptions, a source-independent CoreInverse, and a SourceShift independent of the source and the target."]];
+  (* The remainder theorem assumes a fixed chart: the sector scales and the
+     coefficient recurrence are derived for a shift that does not vary with
+     the target. A target-dependent shift cancels out of every displayed
+     coefficient but changes the remainder scale, so the reported bound would
+     be false rather than weak (wave-6 reports 46 N01 and 50 F1). *)
+  If[! FreeQ[shift, y],
+    fail["TargetDependentSourceShift", "SourceShift must be a fixed exact real parameter: it may not depend on the target variable.",
+      <|"SourceShift" -> shift, "TargetVariable" -> y|>]];
   If[! IntegerQ[depth] || depth < 0, fail["InvalidDepth", "Exponential sector depth must be a nonnegative integer."]];
   If[depth + 1 > limit, fail["ResourceLimit", "The requested depth and first omitted coefficient exceed MaxTerms."]];
   If[! NumericQ[seconds] || ! TrueQ[seconds > 0], fail["InvalidOption", "CoreCheckTimeConstraint must be positive."]];
@@ -5340,7 +5383,7 @@ AsymptoticAnalysis`AsymptoticExponentialCoreInverse[___] := Failure["InvalidArgu
 (* END SOURCE: src/Kernel/ExponentialCorePerturbation.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NumericalInverseChecks.wl
-   Source SHA256 (UTF-8/LF): d9d30a2a3c5949052c51976d571dfe231c8674def43635b5d9dd0ab4930f6237 *)
+   Source SHA256 (UTF-8/LF): 15a7ab4f26f407662f7fd499e5b9a291fbf4402d40b433eb8aa29d6722df6b08 *)
 (* Numerical evidence for inverse objects and their power observables.
    Exact target substitution precedes numerical evaluation so large offsets
    do not erase the small target distance. This is not certification. *)
@@ -5420,8 +5463,12 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
    "ReferenceObservable" -> N[If[power === 1, root, observed], wp + gap], "Approximation" -> N[approximate, wp + gap],
    "ApproximationSourceRoot" -> N[shift + side localSeed, wp + gap], "Error" -> error, "RemainderScale" -> scale,
    "LocalRoot" -> N[localRoot, wp], "LocalApproximation" -> N[localApproximate, wp],
+   "LocalReferenceObservable" -> N[observed, wp], "ObservablePower" -> power,
    "SourceOffset" -> shift, "SourceSide" -> side,
-   "LocalCoordinate" -> "x = SourceOffset + SourceSide u; LocalRoot and LocalApproximation are values of u for Power 1 and of u^Power otherwise.",
+   (* LocalRoot is the positive displacement u itself for every power;
+      the powered fields are values of the signed observable (SourceSide u)^Power
+      (wave-6 reports 48 N3, 51 N02 and 54 N04). *)
+   "LocalCoordinate" -> "x = SourceOffset + SourceSide u with u > 0. LocalRoot is always the positive source displacement u. LocalApproximation approximates u for Power 1 and (SourceSide u)^Power otherwise; LocalReferenceObservable is that observable at the recovered root.",
    "SourceDomainChecked" -> inverseEvidenceSourceDomain[a, x], "SourceDomainVerified" -> True,
    (* A positive test rather than an equality test: Mathics treats a
       low-precision 10^-12 as equal to 0, which made every ratio Indeterminate. *)
@@ -8322,7 +8369,7 @@ specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] :
 (* END SOURCE: src/Kernel/ParameterizedSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/DirichletSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 381e36cab5d980c050fb208236308b0118c8b97be9b2f457f297bfc203ea9a6c *)
+   Source SHA256 (UTF-8/LF): 2991d65307bdfeb6773d68f2bd4e426c9e6e73679b23c65df3ec6740002b8f73 *)
 (* Two convergent defining sums supply expansions unavailable from native
    Series. All parameters are fixed on the target approach. Zeta uses the
    exponential coordinate exp(-S); Lerch uses the reciprocal argument 1/a.
@@ -8349,6 +8396,37 @@ dirichletSpecialLargeArgumentQ[argument_, x_, coord_, ass_] := Module[{local, pa
   TrueQ[inverseBranchTry[inverseFunctionEventually[local > 0, coord["u"], ass]]] &&
     inverseBranchTry[Limit[local, coord["u"] -> 0, Direction -> "FromAbove", Assumptions -> ass]] === Infinity];
 
+(* An affine combination alpha atom + beta of one defining-sum atom, with
+   fixed exact coefficients free of the variable, is expanded with the atom:
+   every retained row is scaled by alpha and the constant joins the zero
+   exponent (wave-6 report 55 N01). Anything else, including a variable
+   coefficient or two atoms, is left to the later dispatchers. *)
+dirichletSpecialAffineForm[f_, x_, ass_] := Module[{atoms, atom, t, g, alpha, beta},
+  atoms = DeleteDuplicates[Cases[f, Zeta[_] | LerchPhi[_, _, _], {0, Infinity}]];
+  If[Length[atoms] =!= 1, Return[$Failed, Module]];
+  atom = First[atoms];
+  If[f === atom, Return[{atom, 1, 0}, Module]];
+  t = Unique["dirichletAtom$"];
+  g = f /. atom -> t;
+  If[! PolynomialQ[g, t] || Exponent[g, t] =!= 1, Return[$Failed, Module]];
+  alpha = Simplify[Coefficient[g, t, 1], ass]; beta = Simplify[Coefficient[g, t, 0], ass];
+  If[! FreeQ[{alpha, beta}, x | t] || ! exactQ[{alpha, beta}] ||
+      ! TrueQ[Simplify[Element[beta, Reals], ass]] ||
+      ! (provablyPositive[alpha, ass] || provablyNegative[alpha, ass]), Return[$Failed, Module]];
+  {atom, alpha, beta}];
+
+(* The affine constant joins the retained rows at exponent zero when that
+   exponent lies below the cutoff; otherwise it is dominated by the remainder
+   and is charged to the absolute bound instead. Returns {rows, charged}. *)
+dirichletSpecialAffineConstant[rows_, beta_, actualCut_, ass_] := Module[{merged, index},
+  If[beta === 0, Return[{rows, 0}, Module]];
+  If[! less[0, actualCut], Return[{rows, beta}, Module]];
+  index = Select[Range[Length[rows]], zeroQ[rows[[#, 1]], ass] &];
+  merged = If[index === {}, Append[rows, {0, beta}],
+    ReplacePart[rows, {First[index], 2} -> rows[[First[index], 2]] + beta]];
+  merged = DeleteCases[merged, {_, c_} /; zeroQ[c, ass]];
+  {Sort[merged, less[#1[[1]], #2[[1]]] &], 0}];
+
 dirichletSpecialMake[f_, rows_, rho_, w_, domain_, x_, x0_, coord_, ass_, cut_, goal_, metadata_, limit_] := Module[
   {ell = Unique["dirichletLog$"], representation, result, actualCut},
   dirichletSpecialBudget[rows, limit];
@@ -8367,8 +8445,8 @@ dirichletSpecialMake[f_, rows_, rho_, w_, domain_, x_, x0_, coord_, ass_, cut_, 
     "SeriesRepresentation" -> Join[result["SeriesRepresentation"], <|"Cutoff" -> actualCut|>],
     "ParameterScope" -> "Parameters are fixed on the recorded real target approach; no uniformity as parameters vary is asserted."|>, metadata]]];
 
-dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[
-  {count, low, high, middle, first, w, rows, rho, domain, expression, bound},
+dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, alpha_: 1, beta_: 0] := Module[
+  {count, low, high, middle, first, w, rows, rho, domain, expression, bound, charged, metadata},
   If[! MemberQ[{Infinity, -Infinity}, x0] || ! PolynomialQ[argument, x] ||
       Exponent[argument, x] =!= 1 || ! dirichletSpecialLargeArgumentQ[argument, x, coord, ass],
     Return[$Failed, Module]];
@@ -8385,23 +8463,32 @@ dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
       If[less[Log[middle], cut], low = middle, high = middle]];
     count = low];
   first = count + 1; w = Exp[-argument]; rho = Log[first]; domain = ass && argument > 1;
-  rows = Table[{Log[n], 1}, {n, 1, count}];
-  expression = Total[Table[n^(-argument), {n, 1, count}]];
+  rows = Table[{Log[n], alpha}, {n, 1, count}];
+  {rows, charged} = dirichletSpecialAffineConstant[rows, beta, If[cut === Automatic, rho, cut], ass];
+  expression = alpha Total[Table[n^(-argument), {n, 1, count}]] + beta - charged;
   (* For decreasing t^-S, sum_(n=m)^Infinity n^-S lies between
      m^-S and m^-S + Integrate[t^-S,{t,m,Infinity}], S>1. *)
-  bound = first^(-argument) (1 + first/(argument - 1));
-  dirichletSpecialMake[f, rows, rho, w, domain, x, x0, coord, ass, cut, goal, <|
+  bound = Abs[alpha] first^(-argument) (1 + first/(argument - 1)) + Abs[charged];
+  metadata = <|
     "Expression" -> expression, "RemainderScaleExpression" -> first^(-argument),
-    "FrontierTerm" -> first^(-argument), "FirstOmittedInteger" -> first,
+    "FrontierTerm" -> alpha first^(-argument), "FirstOmittedInteger" -> first,
     "SpecialFunctionBackend" -> "ConvergentDirichletSeries", "SpecialFunctionFamily" -> "Zeta",
     "SourceArgument" -> argument, "ExpansionNature" -> "ConvergentDirichlet",
-    "AbsoluteRemainderBound" -> bound, "RemainderLowerBound" -> first^(-argument),
+    "AbsoluteRemainderBound" -> bound, "RemainderLowerBound" -> alpha first^(-argument),
     "RemainderBoundConditions" -> domain,
     "ForwardRemainderContract" -> <|"Type" -> "DirichletIntegralComparison",
       "ConvergentForwardSeries" -> True, "NumericCertificate" -> False,
       "Statement" -> "The positive omitted Dirichlet tail is bounded by its first term plus the integral of t^(-SourceArgument) from FirstOmittedInteger to Infinity."|>,
     "TermConvention" -> "The positive coordinate is w=Exp[-SourceArgument]. The n-th Dirichlet term is w^Log[n]; the exclusive cutoff is in this coordinate and SeriesTermGoal includes the constant n=1 term.",
-    "AsymptoticReferences" -> {"https://dlmf.nist.gov/25.2.E1"}|>, limit]];
+    "AsymptoticReferences" -> {"https://dlmf.nist.gov/25.2.E1"}|>;
+  If[alpha =!= 1 || beta =!= 0,
+    metadata = Join[metadata, <|"AffineCoefficients" -> {alpha, beta}, "SpecialFunctionAtom" -> Zeta[argument],
+      "ForwardRemainderContract" -> Join[metadata["ForwardRemainderContract"], <|
+        "Statement" -> "The omitted Dirichlet tail of the Zeta atom, scaled by the affine coefficient alpha, is bounded in absolute value by Abs[alpha] times its first term plus the integral of t^(-SourceArgument) from FirstOmittedInteger to Infinity; an affine constant above the cutoff is charged to the bound."|>]|>];
+    (* The signed lower bound describes a positive tail; a negative alpha or a
+       charged constant leaves only the absolute bound. *)
+    If[! provablyPositive[alpha, ass] || charged =!= 0, metadata = KeyDrop[metadata, "RemainderLowerBound"]]];
+  dirichletSpecialMake[f, rows, rho, w, domain, x, x0, coord, ass, cut, goal, metadata, limit]];
 
 dirichletSpecialMoment[z_, 0] := 1/(1 - z);
 dirichletSpecialMoment[z_, k_Integer?Positive] := If[z === 0, 0, PolyLog[-k, z]];
@@ -8425,9 +8512,9 @@ dirichletLerchBoundConstant[z_, s_, n_, ass_, limit_] := Module[{d, constant},
   If[constant === $Failed, fail["ResourceLimit", "The Lerch remainder bound exceeded the symbolic time budget."]];
   dirichletSpecialBudget[constant, limit]; constant];
 
-dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[
+dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, alpha_: 1, beta_: 0] := Module[
   {degree, rows = {}, k = 0, coefficient, frontier = None, rho, w, domain, boundConstant,
-    expression, exactSource, bound, conditions},
+    expression, exactSource, bound, conditions, charged, metadata},
   If[! FreeQ[{z, s}, x] || ! exactRealQ[z] || ! exactRealQ[s] ||
       ! less[-1, z] || ! less[z, 1] || ! dirichletSpecialLargeArgumentQ[argument, x, coord, ass],
     Return[$Failed, Module]];
@@ -8443,15 +8530,21 @@ dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_,
     k++];
   rho = If[frontier === None, Infinity, frontier[[1]]];
   w = 1/argument; domain = ass && argument > 0;
+  rows = {#[[1]], alpha #[[2]]} & /@ rows;
+  {rows, charged} = dirichletSpecialAffineConstant[rows, beta, If[cut === Automatic, rho, cut], ass];
   expression = Total[(argument^(-#[[1]]) #[[2]]) & /@ rows];
   exactSource = degree =!= Infinity;
   If[frontier === None, boundConstant = 0; bound = 0; conditions = domain,
-    boundConstant = dirichletLerchBoundConstant[z, s, frontier[[3]], ass, limit];
+    boundConstant = Abs[alpha] dirichletLerchBoundConstant[z, s, frontier[[3]], ass, limit];
     bound = boundConstant argument^(-rho); conditions = domain && argument >= 1];
-  dirichletSpecialMake[f, rows, rho, w, domain, x, x0, coord, ass, cut, goal, <|
+  If[charged =!= 0,
+    (* A charged constant lies above the cutoff, hence below the remainder
+       scale on the bound's domain a >= 1, where a^(-rho) >= 1. *)
+    boundConstant = boundConstant + Abs[charged]; bound = boundConstant argument^(-rho)];
+  metadata = <|
     "Expression" -> expression,
     "RemainderScaleExpression" -> If[frontier === None, 0, argument^(-rho)],
-    "FrontierTerm" -> If[frontier === None, 0, frontier[[2]] argument^(-rho)],
+    "FrontierTerm" -> If[frontier === None, 0, alpha frontier[[2]] argument^(-rho)],
     "FirstOmittedMoment" -> If[frontier === None, None, frontier[[3]]],
     "SpecialFunctionBackend" -> "GeometricMomentExpansion", "SpecialFunctionFamily" -> "LerchPhi",
     "SourceArgument" -> argument, "LerchParameters" -> {z, s},
@@ -8462,14 +8555,22 @@ dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_,
       "ConvergentForwardSeries" -> exactSource, "NumericCertificate" -> False,
       "Statement" -> "For fixed real z and s with |z|<1 and positive a>=1, Taylor's theorem applied to (1+n/a)^(-s) bounds the omitted terms by RemainderBoundConstant a^(-RemainderPower). Negative integer s and z=0 give finite exact source expansions."|>,
     "TermConvention" -> "The positive coordinate is w=1/SourceArgument. Blocks have absolute exponents s+k with coefficients (-1)^k Pochhammer[s,k] M_k(z)/k!, where M_0(z)=1/(1-z) and M_k(z)=PolyLog[-k,z] for k>0. SeriesTermGoal counts nonzero blocks; cutoff is exclusive in w.",
-    "AsymptoticReferences" -> {"https://dlmf.nist.gov/25.14.E1", "https://dlmf.nist.gov/25.12.E10"}|>, limit]];
+    "AsymptoticReferences" -> {"https://dlmf.nist.gov/25.14.E1", "https://dlmf.nist.gov/25.12.E10"}|>;
+  If[alpha =!= 1 || beta =!= 0,
+    metadata = Join[metadata, <|"AffineCoefficients" -> {alpha, beta}, "SpecialFunctionAtom" -> LerchPhi[z, s, argument],
+      "ForwardRemainderContract" -> Join[metadata["ForwardRemainderContract"], <|
+        "Statement" -> "For fixed real z and s with |z|<1 and positive a>=1, Taylor's theorem applied to (1+n/a)^(-s) bounds the omitted terms of the LerchPhi atom; RemainderBoundConstant includes the factor Abs[alpha] of the affine coefficient and any affine constant charged above the cutoff."|>]|>]];
+  dirichletSpecialMake[f, rows, rho, w, domain, x, x0, coord, ass, cut, goal, metadata, limit]];
 
-dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[{},
-  If[! MatchQ[f, Zeta[_] | LerchPhi[_, _, _]], Return[$Failed, Module]];
+dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[{form, atom, alpha, beta},
+  If[FreeQ[f, Zeta[_] | LerchPhi[_, _, _]], Return[$Failed, Module]];
+  form = dirichletSpecialAffineForm[f, x, ass];
+  If[form === $Failed, Return[$Failed, Module]];
+  {atom, alpha, beta} = form;
   validateInput[f, limit]; dirichletSpecialBudget[f, limit];
-  If[Head[f] === Zeta,
-    dirichletZetaForward[f, First[f], x, x0, cut, ass, coord, goal, limit],
-    dirichletLerchForward[f, f[[1]], f[[2]], f[[3]], x, x0, cut, ass, coord, goal, limit]]];
+  If[Head[atom] === Zeta,
+    dirichletZetaForward[f, First[atom], x, x0, cut, ass, coord, goal, limit, alpha, beta],
+    dirichletLerchForward[f, atom[[1]], atom[[2]], atom[[3]], x, x0, cut, ass, coord, goal, limit, alpha, beta]]];
 (* END SOURCE: src/Kernel/DirichletSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeSpecialFunctions.wl

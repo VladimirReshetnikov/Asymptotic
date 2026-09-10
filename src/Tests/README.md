@@ -41,6 +41,7 @@ Use another entry script when its explicit selection matches the change:
 | Fractional-power branch handling | [CheckReviewPowerBranches.wl](../../validation/CheckReviewPowerBranches.wl) |
 | Automatic arithmetic, composite bounds, and formatting | [CheckSeriesArithmetic.wl](../../validation/CheckSeriesArithmetic.wl) |
 | Result-head, coordinate, Fourier, and inverse-check regressions | [CheckGeneralizedSeries.wl](../../validation/CheckGeneralizedSeries.wl) |
+| Wave-6 public-boundary repairs: coefficient option spellings, target-dependent `SourceShift`, numerical-check labels, numeric-constant coordinates, the Fourier residual cutoff, conditional observables and affine Dirichlet atoms, with their neighbouring suites | [CheckWave6Boundaries.wl](../../validation/CheckWave6Boundaries.wl) |
 
 Read the selected entry script's `"Suites"` list before running it. The shared
 [FocusedTests.wl](../../validation/FocusedTests.wl) does not discover other

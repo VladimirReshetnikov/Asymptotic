@@ -15,6 +15,38 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Wave-6 public-boundary repairs
+
+Seven public behaviours reported by the sixth review wave changed.
+`AsymptoticExponentialCoreInverse` refuses a `"SourceShift"` that depends on
+the target variable with `Failure["TargetDependentSourceShift", ...]`; such a
+shift cancelled out of the displayed coefficients but made the reported
+remainder scale exponentially too small. `InverseExpansionCoefficient[s, k,
+Power -> p]` with the symbol spelling, a nested option list or a delayed rule
+now returns the same coefficient as the string spelling, and the first
+occurrence wins. `InverseNumericalCheck` returns `"LocalReferenceObservable"`
+and `"ObservablePower"`, and its `"LocalCoordinate"` sentence now says that
+`"LocalRoot"` is always the positive displacement while
+`"LocalApproximation"` approximates the signed powered observable; the
+[user guide](../src/Documentation/UserGuide.md#InverseNumericalCheck) and
+[result reference](../src/Documentation/ResultReference.md) were corrected
+with it. A named numeric constant such as `Pi` or `E` is refused as an
+expansion, source or target coordinate. `FourierInverseResidual[s,
+"MaxTerms" -> n]` no longer binds the option to the optional cutoff.
+`SeriesObservable` peels an outer `ConditionalExpression` before choosing the
+exact logarithm, exponential or power route and records
+`"ObservableCondition"`. An affine combination `alpha Zeta[S] + beta` or
+`alpha LerchPhi[z, s, a] + beta` with fixed exact coefficients is expanded
+with its atom, scaling the retained coefficients and absolute tail bound and
+recording `"AffineCoefficients"`; see the
+[Zeta section](../src/Documentation/UserGuide.md#zeta-dirichlet-expansions).
+The [focused run](../validation/README.md#wave-6-public-boundary-repairs)
+passes 181/181 across ten files, and the
+[implementation register](development/CODE_REVIEW_STATUS.md) records the
+repaired wave-6 entries. The documentation checker's gates now survive
+`python -O`, ignore TeX comments, and reject links that resolve outside the
+checkout.
+
 ### Certificate interval diagnostics, runner gates, and license metadata
 
 `InverseCertificate` without an `"Interval"` option now returns

@@ -34,13 +34,20 @@ Run from the repository root:
 python validation/build_user_guide.py
 python validation/check_documentation.py
 python -m unittest discover -s validation -p test_documentation_links.py -v
+python -m unittest discover -s validation -p test_documentation_tex.py -v
 python -m unittest discover -s validation -p test_documentation_text.py -v
 git diff --check
 ```
 
 The documentation checker verifies HTML freshness, unique guide anchors and
 coverage of all public usage symbols, mathematical labels/citations, and
-preservation of six historical engineering files. It automatically discovers
+preservation of six historical engineering files. Its gates are explicit
+`require` calls, so they stay active under `python -O`; TeX comments are
+masked before labels, references and citations are scanned, so a commented
+definition neither satisfies a reference nor fails the check; and a local link
+must resolve inside the checkout, so a relative path that climbs out of the
+repository is rejected even when the outside file exists on the maintainer's
+machine. It automatically discovers
 maintained Markdown under `src/`, `docs/`, and `validation/`, along with the
 research/review catalogs and review-wave indexes. It checks local files,
 images, and Markdown/HTML section fragments using Pandoc's GFM parser.

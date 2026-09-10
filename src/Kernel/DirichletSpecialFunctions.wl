@@ -24,6 +24,37 @@ dirichletSpecialLargeArgumentQ[argument_, x_, coord_, ass_] := Module[{local, pa
   TrueQ[inverseBranchTry[inverseFunctionEventually[local > 0, coord["u"], ass]]] &&
     inverseBranchTry[Limit[local, coord["u"] -> 0, Direction -> "FromAbove", Assumptions -> ass]] === Infinity];
 
+(* An affine combination alpha atom + beta of one defining-sum atom, with
+   fixed exact coefficients free of the variable, is expanded with the atom:
+   every retained row is scaled by alpha and the constant joins the zero
+   exponent (wave-6 report 55 N01). Anything else, including a variable
+   coefficient or two atoms, is left to the later dispatchers. *)
+dirichletSpecialAffineForm[f_, x_, ass_] := Module[{atoms, atom, t, g, alpha, beta},
+  atoms = DeleteDuplicates[Cases[f, Zeta[_] | LerchPhi[_, _, _], {0, Infinity}]];
+  If[Length[atoms] =!= 1, Return[$Failed, Module]];
+  atom = First[atoms];
+  If[f === atom, Return[{atom, 1, 0}, Module]];
+  t = Unique["dirichletAtom$"];
+  g = f /. atom -> t;
+  If[! PolynomialQ[g, t] || Exponent[g, t] =!= 1, Return[$Failed, Module]];
+  alpha = Simplify[Coefficient[g, t, 1], ass]; beta = Simplify[Coefficient[g, t, 0], ass];
+  If[! FreeQ[{alpha, beta}, x | t] || ! exactQ[{alpha, beta}] ||
+      ! TrueQ[Simplify[Element[beta, Reals], ass]] ||
+      ! (provablyPositive[alpha, ass] || provablyNegative[alpha, ass]), Return[$Failed, Module]];
+  {atom, alpha, beta}];
+
+(* The affine constant joins the retained rows at exponent zero when that
+   exponent lies below the cutoff; otherwise it is dominated by the remainder
+   and is charged to the absolute bound instead. Returns {rows, charged}. *)
+dirichletSpecialAffineConstant[rows_, beta_, actualCut_, ass_] := Module[{merged, index},
+  If[beta === 0, Return[{rows, 0}, Module]];
+  If[! less[0, actualCut], Return[{rows, beta}, Module]];
+  index = Select[Range[Length[rows]], zeroQ[rows[[#, 1]], ass] &];
+  merged = If[index === {}, Append[rows, {0, beta}],
+    ReplacePart[rows, {First[index], 2} -> rows[[First[index], 2]] + beta]];
+  merged = DeleteCases[merged, {_, c_} /; zeroQ[c, ass]];
+  {Sort[merged, less[#1[[1]], #2[[1]]] &], 0}];
+
 dirichletSpecialMake[f_, rows_, rho_, w_, domain_, x_, x0_, coord_, ass_, cut_, goal_, metadata_, limit_] := Module[
   {ell = Unique["dirichletLog$"], representation, result, actualCut},
   dirichletSpecialBudget[rows, limit];
@@ -42,8 +73,8 @@ dirichletSpecialMake[f_, rows_, rho_, w_, domain_, x_, x0_, coord_, ass_, cut_, 
     "SeriesRepresentation" -> Join[result["SeriesRepresentation"], <|"Cutoff" -> actualCut|>],
     "ParameterScope" -> "Parameters are fixed on the recorded real target approach; no uniformity as parameters vary is asserted."|>, metadata]]];
 
-dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[
-  {count, low, high, middle, first, w, rows, rho, domain, expression, bound},
+dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, alpha_: 1, beta_: 0] := Module[
+  {count, low, high, middle, first, w, rows, rho, domain, expression, bound, charged, metadata},
   If[! MemberQ[{Infinity, -Infinity}, x0] || ! PolynomialQ[argument, x] ||
       Exponent[argument, x] =!= 1 || ! dirichletSpecialLargeArgumentQ[argument, x, coord, ass],
     Return[$Failed, Module]];
@@ -60,23 +91,32 @@ dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
       If[less[Log[middle], cut], low = middle, high = middle]];
     count = low];
   first = count + 1; w = Exp[-argument]; rho = Log[first]; domain = ass && argument > 1;
-  rows = Table[{Log[n], 1}, {n, 1, count}];
-  expression = Total[Table[n^(-argument), {n, 1, count}]];
+  rows = Table[{Log[n], alpha}, {n, 1, count}];
+  {rows, charged} = dirichletSpecialAffineConstant[rows, beta, If[cut === Automatic, rho, cut], ass];
+  expression = alpha Total[Table[n^(-argument), {n, 1, count}]] + beta - charged;
   (* For decreasing t^-S, sum_(n=m)^Infinity n^-S lies between
      m^-S and m^-S + Integrate[t^-S,{t,m,Infinity}], S>1. *)
-  bound = first^(-argument) (1 + first/(argument - 1));
-  dirichletSpecialMake[f, rows, rho, w, domain, x, x0, coord, ass, cut, goal, <|
+  bound = Abs[alpha] first^(-argument) (1 + first/(argument - 1)) + Abs[charged];
+  metadata = <|
     "Expression" -> expression, "RemainderScaleExpression" -> first^(-argument),
-    "FrontierTerm" -> first^(-argument), "FirstOmittedInteger" -> first,
+    "FrontierTerm" -> alpha first^(-argument), "FirstOmittedInteger" -> first,
     "SpecialFunctionBackend" -> "ConvergentDirichletSeries", "SpecialFunctionFamily" -> "Zeta",
     "SourceArgument" -> argument, "ExpansionNature" -> "ConvergentDirichlet",
-    "AbsoluteRemainderBound" -> bound, "RemainderLowerBound" -> first^(-argument),
+    "AbsoluteRemainderBound" -> bound, "RemainderLowerBound" -> alpha first^(-argument),
     "RemainderBoundConditions" -> domain,
     "ForwardRemainderContract" -> <|"Type" -> "DirichletIntegralComparison",
       "ConvergentForwardSeries" -> True, "NumericCertificate" -> False,
       "Statement" -> "The positive omitted Dirichlet tail is bounded by its first term plus the integral of t^(-SourceArgument) from FirstOmittedInteger to Infinity."|>,
     "TermConvention" -> "The positive coordinate is w=Exp[-SourceArgument]. The n-th Dirichlet term is w^Log[n]; the exclusive cutoff is in this coordinate and SeriesTermGoal includes the constant n=1 term.",
-    "AsymptoticReferences" -> {"https://dlmf.nist.gov/25.2.E1"}|>, limit]];
+    "AsymptoticReferences" -> {"https://dlmf.nist.gov/25.2.E1"}|>;
+  If[alpha =!= 1 || beta =!= 0,
+    metadata = Join[metadata, <|"AffineCoefficients" -> {alpha, beta}, "SpecialFunctionAtom" -> Zeta[argument],
+      "ForwardRemainderContract" -> Join[metadata["ForwardRemainderContract"], <|
+        "Statement" -> "The omitted Dirichlet tail of the Zeta atom, scaled by the affine coefficient alpha, is bounded in absolute value by Abs[alpha] times its first term plus the integral of t^(-SourceArgument) from FirstOmittedInteger to Infinity; an affine constant above the cutoff is charged to the bound."|>]|>];
+    (* The signed lower bound describes a positive tail; a negative alpha or a
+       charged constant leaves only the absolute bound. *)
+    If[! provablyPositive[alpha, ass] || charged =!= 0, metadata = KeyDrop[metadata, "RemainderLowerBound"]]];
+  dirichletSpecialMake[f, rows, rho, w, domain, x, x0, coord, ass, cut, goal, metadata, limit]];
 
 dirichletSpecialMoment[z_, 0] := 1/(1 - z);
 dirichletSpecialMoment[z_, k_Integer?Positive] := If[z === 0, 0, PolyLog[-k, z]];
@@ -100,9 +140,9 @@ dirichletLerchBoundConstant[z_, s_, n_, ass_, limit_] := Module[{d, constant},
   If[constant === $Failed, fail["ResourceLimit", "The Lerch remainder bound exceeded the symbolic time budget."]];
   dirichletSpecialBudget[constant, limit]; constant];
 
-dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[
+dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, alpha_: 1, beta_: 0] := Module[
   {degree, rows = {}, k = 0, coefficient, frontier = None, rho, w, domain, boundConstant,
-    expression, exactSource, bound, conditions},
+    expression, exactSource, bound, conditions, charged, metadata},
   If[! FreeQ[{z, s}, x] || ! exactRealQ[z] || ! exactRealQ[s] ||
       ! less[-1, z] || ! less[z, 1] || ! dirichletSpecialLargeArgumentQ[argument, x, coord, ass],
     Return[$Failed, Module]];
@@ -118,15 +158,21 @@ dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_,
     k++];
   rho = If[frontier === None, Infinity, frontier[[1]]];
   w = 1/argument; domain = ass && argument > 0;
+  rows = {#[[1]], alpha #[[2]]} & /@ rows;
+  {rows, charged} = dirichletSpecialAffineConstant[rows, beta, If[cut === Automatic, rho, cut], ass];
   expression = Total[(argument^(-#[[1]]) #[[2]]) & /@ rows];
   exactSource = degree =!= Infinity;
   If[frontier === None, boundConstant = 0; bound = 0; conditions = domain,
-    boundConstant = dirichletLerchBoundConstant[z, s, frontier[[3]], ass, limit];
+    boundConstant = Abs[alpha] dirichletLerchBoundConstant[z, s, frontier[[3]], ass, limit];
     bound = boundConstant argument^(-rho); conditions = domain && argument >= 1];
-  dirichletSpecialMake[f, rows, rho, w, domain, x, x0, coord, ass, cut, goal, <|
+  If[charged =!= 0,
+    (* A charged constant lies above the cutoff, hence below the remainder
+       scale on the bound's domain a >= 1, where a^(-rho) >= 1. *)
+    boundConstant = boundConstant + Abs[charged]; bound = boundConstant argument^(-rho)];
+  metadata = <|
     "Expression" -> expression,
     "RemainderScaleExpression" -> If[frontier === None, 0, argument^(-rho)],
-    "FrontierTerm" -> If[frontier === None, 0, frontier[[2]] argument^(-rho)],
+    "FrontierTerm" -> If[frontier === None, 0, alpha frontier[[2]] argument^(-rho)],
     "FirstOmittedMoment" -> If[frontier === None, None, frontier[[3]]],
     "SpecialFunctionBackend" -> "GeometricMomentExpansion", "SpecialFunctionFamily" -> "LerchPhi",
     "SourceArgument" -> argument, "LerchParameters" -> {z, s},
@@ -137,11 +183,19 @@ dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_,
       "ConvergentForwardSeries" -> exactSource, "NumericCertificate" -> False,
       "Statement" -> "For fixed real z and s with |z|<1 and positive a>=1, Taylor's theorem applied to (1+n/a)^(-s) bounds the omitted terms by RemainderBoundConstant a^(-RemainderPower). Negative integer s and z=0 give finite exact source expansions."|>,
     "TermConvention" -> "The positive coordinate is w=1/SourceArgument. Blocks have absolute exponents s+k with coefficients (-1)^k Pochhammer[s,k] M_k(z)/k!, where M_0(z)=1/(1-z) and M_k(z)=PolyLog[-k,z] for k>0. SeriesTermGoal counts nonzero blocks; cutoff is exclusive in w.",
-    "AsymptoticReferences" -> {"https://dlmf.nist.gov/25.14.E1", "https://dlmf.nist.gov/25.12.E10"}|>, limit]];
+    "AsymptoticReferences" -> {"https://dlmf.nist.gov/25.14.E1", "https://dlmf.nist.gov/25.12.E10"}|>;
+  If[alpha =!= 1 || beta =!= 0,
+    metadata = Join[metadata, <|"AffineCoefficients" -> {alpha, beta}, "SpecialFunctionAtom" -> LerchPhi[z, s, argument],
+      "ForwardRemainderContract" -> Join[metadata["ForwardRemainderContract"], <|
+        "Statement" -> "For fixed real z and s with |z|<1 and positive a>=1, Taylor's theorem applied to (1+n/a)^(-s) bounds the omitted terms of the LerchPhi atom; RemainderBoundConstant includes the factor Abs[alpha] of the affine coefficient and any affine constant charged above the cutoff."|>]|>]];
+  dirichletSpecialMake[f, rows, rho, w, domain, x, x0, coord, ass, cut, goal, metadata, limit]];
 
-dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[{},
-  If[! MatchQ[f, Zeta[_] | LerchPhi[_, _, _]], Return[$Failed, Module]];
+dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] := Module[{form, atom, alpha, beta},
+  If[FreeQ[f, Zeta[_] | LerchPhi[_, _, _]], Return[$Failed, Module]];
+  form = dirichletSpecialAffineForm[f, x, ass];
+  If[form === $Failed, Return[$Failed, Module]];
+  {atom, alpha, beta} = form;
   validateInput[f, limit]; dirichletSpecialBudget[f, limit];
-  If[Head[f] === Zeta,
-    dirichletZetaForward[f, First[f], x, x0, cut, ass, coord, goal, limit],
-    dirichletLerchForward[f, f[[1]], f[[2]], f[[3]], x, x0, cut, ass, coord, goal, limit]]];
+  If[Head[atom] === Zeta,
+    dirichletZetaForward[f, First[atom], x, x0, cut, ass, coord, goal, limit, alpha, beta],
+    dirichletLerchForward[f, atom[[1]], atom[[2]], atom[[3]], x, x0, cut, ass, coord, goal, limit, alpha, beta]]];

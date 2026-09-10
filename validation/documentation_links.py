@@ -82,10 +82,23 @@ def markdown_targets(source: str) -> tuple[set[str], list[str]]:
     return anchors | html.ids, links + html.links
 
 
-def check_local_links(pages: list[Path]) -> dict:
+def check_local_links(pages: list[Path], root: Path | None = None) -> dict:
+    """Validate local links; every destination must stay inside ``root``.
+
+    Existence alone is not acceptance: a relative link that climbs out of the
+    checkout can resolve to a file that happens to exist on the maintainer's
+    host and is absent for every other reader (wave-6 report 51 N03). Symbolic
+    links are followed before the containment test, ``file:`` links and
+    Windows drive paths are rejected as unportable. When no root is given, the
+    common parent of the pages is used.
+    """
     errors: list[str] = []
     local_links = 0
     fragments = 0
+    if root is None:
+        resolved = [page.resolve() for page in pages]
+        root = Path(*_common_prefix([page.parent.parts for page in resolved])) if resolved else Path.cwd()
+    root = root.resolve()
 
     @lru_cache(maxsize=None)
     def markdown(path):
@@ -103,11 +116,17 @@ def check_local_links(pages: list[Path]) -> dict:
         path = path.resolve()
         for href in markdown(path)[1]:
             url = urlsplit(href)
+            if url.scheme == "file" or (len(url.scheme) == 1 and url.scheme.isalpha()):
+                local_links += 1
+                errors.append(f"Unportable local destination from {path}: {href}")
+                continue
             if url.scheme or url.netloc:
                 continue
             destination = (path.parent / unquote(url.path)).resolve() if url.path else path
             local_links += 1
-            if not destination.exists():
+            if not _inside(destination, root):
+                errors.append(f"Destination escapes the checkout from {path}: {href}")
+            elif not destination.exists():
                 errors.append(f"Missing destination from {path}: {href}")
             elif url.fragment and destination.suffix.lower() in (".md", ".html"):
                 fragments += 1
@@ -117,3 +136,21 @@ def check_local_links(pages: list[Path]) -> dict:
         raise AssertionError("\n".join(errors))
     return {"MaintainedMarkdownPages": len(pages), "LocalLinks": local_links,
             "LocalFragments": fragments, "BrokenLocalLinks": 0}
+
+
+def _inside(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
+def _common_prefix(parts: list[tuple[str, ...]]) -> tuple[str, ...]:
+    prefix = parts[0]
+    for other in parts[1:]:
+        length = 0
+        while length < min(len(prefix), len(other)) and prefix[length] == other[length]:
+            length += 1
+        prefix = prefix[:length]
+    return prefix

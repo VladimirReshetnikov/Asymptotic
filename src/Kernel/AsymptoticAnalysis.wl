@@ -610,7 +610,14 @@ fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, first, s2, secon
 (* Endpoint normalization                                               *)
 (* ------------------------------------------------------------------ *)
 
+(* A coordinate must be a symbol without a numeric value: Pi, E, Degree,
+   Glaisher and the other named constants are symbols that NumericQ accepts,
+   and native Series refuses them as variables (wave-6 report 52 N1). *)
+seriesVariableQ[v_] := MatchQ[v, _Symbol] && ! NumericQ[v];
+
 localCoordinate[x_, x0_, direction_] := Module[{dir = direction, u = Unique["u$"], sub, s},
+  If[! seriesVariableQ[x],
+   fail["InvalidVariable", "The expansion variable must be a symbol without a numeric value.", <|"Variable" -> x|>]];
   Which[
    x0 === Infinity, If[dir === Automatic, dir = "FromBelow"];
    If[dir =!= "FromBelow", fail["InvalidDirection", "x -> Infinity is approached from below."]];
@@ -1008,7 +1015,8 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
    region, blocks, frontier, rem, inputCap, v, z, expr, terms, wexpr, rint, obj, remData, forwardRem, depth, exactModel, Kf, tries, gexpr, logw, need,
    termination = None, terminationTried = Missing["NotTried"], terminationEligible, reliableBlocks, computationState = None},
   validateInput[f, limit];
-  If[x === y, fail["InvalidVariables", "Source and target variables must be distinct symbols."]];
+  If[! seriesVariableQ[x] || ! seriesVariableQ[y] || x === y,
+   fail["InvalidVariables", "Source and target variables must be distinct symbols without numeric values.", <|"Variables" -> {x, y}|>]];
   If[! FreeQ[f, y], fail["InvalidVariables", "The forward expression must not contain the target variable."]];
   If[! FreeQ[ass, x | y], fail["InvalidAssumptions", "Assumptions concern parameters only; positivity of the local variable is built in."]];
   If[! IntegerQ[limit] || limit < 1, fail["InvalidOption", "MaxTerms must be a positive integer."]];
@@ -1358,9 +1366,16 @@ InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : Opt
   True,
    (* An explicit caller "Power" takes precedence over the stored observable
       power; both are observable powers of the source displacement and are
-      converted to the internal uniformizer convention at an infinite endpoint. *)
-   Module[{explicit = FilterRules[{opts}, "Power"], power},
-    power = If[explicit === {}, a["Power"], "Power" /. explicit];
+      converted to the internal uniformizer convention at an infinite endpoint.
+      The option is resolved by OptionValue so that the symbol spelling
+      Power -> p, nested lists and delayed rules all yield the value and the
+      first occurrence wins; a literal string replacement would leave the
+      option name inside the coefficient arithmetic (wave-6 report 48 N1). *)
+   Module[{explicit = FilterRules[Flatten[{opts}], "Power"], power},
+    power = If[explicit === {}, a["Power"], OptionValue[InverseExpansionCoefficient, explicit, "Power"]];
+    If[! exactRealQ[power] || power === 0,
+     Return[Failure["InvalidOption", <|"MessageTemplate" -> "Power must be a nonzero exact real number.",
+       "Power" -> power|>], Module]];
     InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
      k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -power, power]]]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];

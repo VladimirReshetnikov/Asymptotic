@@ -55,6 +55,28 @@ class DocumentationLinksTests(unittest.TestCase):
             with self.assertRaisesRegex(AssertionError, "Missing destination"):
                 check_local_links([page])
 
+    def test_destinations_outside_the_checkout_are_rejected_even_when_they_exist(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outside = Path(directory) / "outside.md"
+            outside.write_text("# Outside", encoding="utf-8")
+            root = Path(directory) / "checkout"
+            (root / "docs").mkdir(parents=True)
+            inside = root / "inside.md"
+            inside.write_text("# Inside", encoding="utf-8")
+            page = root / "docs" / "README.md"
+            page.write_text("[up](../inside.md#inside)", encoding="utf-8")
+            self.assertEqual(check_local_links([page], root)["LocalLinks"], 1)
+            page.write_text("[escape](../../outside.md#outside)", encoding="utf-8")
+            with self.assertRaisesRegex(AssertionError, "escapes the checkout"):
+                check_local_links([page], root)
+            # Without an explicit root, the pages' common directory is the root.
+            with self.assertRaisesRegex(AssertionError, "escapes the checkout"):
+                check_local_links([page])
+            page.write_text("[drive](C:/outside.md) [scheme](file:///outside.md)", encoding="utf-8")
+            with self.assertRaisesRegex(AssertionError, "Unportable") as failure:
+                check_local_links([page], root)
+            self.assertEqual(str(failure.exception).count("Unportable"), 2)
+
     def test_new_notes_and_review_waves_are_discovered(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -400,6 +400,12 @@ A callable is applied to <code>x</code>. A bare symbol is treated as an
 expression: use <code>Log[x]</code> or <code>Log[#] &amp;</code> to
 expand the logarithm. Explicit native modes use their selected built-in
 function&#39;s input forms.</p>
+<p>The expansion variable <code>x</code> must be a symbol without a
+numeric value. A named constant such as <code>Pi</code>, <code>E</code>
+or <code>Degree</code> is refused with
+<code>Failure[&quot;InvalidVariable&quot;, ...]</code>, as native
+<code>Series</code> refuses it, instead of being treated as a formal
+coordinate.</p>
 <p>An applied inverse can also occur inside a supported expression. See
 <a href="#inverse-function-expressions">Callable and Applied Inverse
 Functions</a>.</p>
@@ -1003,8 +1009,10 @@ with cutoff <code>h</code>.</td>
 </tbody>
 </table>
 <p>The source symbol <code>x</code> and target symbol <code>y</code>
-must be distinct. The forward expression <code>f</code> must not contain
-<code>y</code>.</p>
+must be distinct symbols without numeric values; a named constant such
+as <code>Pi</code> in either position returns
+<code>Failure[&quot;InvalidVariables&quot;, ...]</code>. The forward expression
+<code>f</code> must not contain <code>y</code>.</p>
 </section>
 <section id="details-and-options-2" class="level3">
 <h3>Details and Options</h3>
@@ -1250,16 +1258,19 @@ separate and exclusive.</td>
 budget.</td>
 </tr>
 <tr>
-<td><code>Zeta[S]</code>, with a growing real affine argument
-<code>S</code> at a real infinity</td>
+<td><code>Zeta[S]</code>, or an affine combination
+<code>alpha Zeta[S] + beta</code> with fixed exact real
+<code>alpha != 0</code> and <code>beta</code>, with a growing real
+affine argument <code>S</code> at a real infinity</td>
 <td>Exclusive bound on <code>Log[n]</code> in the coordinate
-<code>Exp[-S]</code>; <code>SeriesTermGoal</code> includes the constant
-term <code>n == 1</code>. See <a href="#zeta-dirichlet-expansions">Zeta
-at Large Real Argument</a>.</td>
+<code>Exp[-S]</code>; <code>SeriesTermGoal</code> counts the atom&#39;s
+terms and includes the constant term <code>n == 1</code>, which an
+affine constant may cancel. See <a href="#zeta-dirichlet-expansions">Zeta at Large Real Argument</a>.</td>
 </tr>
 <tr>
-<td><code>LerchPhi[z, s, a]</code>, with fixed admitted <code>z</code>,
-<code>s</code> and <code>a</code> tending to positive infinity</td>
+<td><code>LerchPhi[z, s, a]</code>, or an affine combination of one such
+atom, with fixed admitted <code>z</code>, <code>s</code> and
+<code>a</code> tending to positive infinity</td>
 <td>Exclusive absolute exponent bound in <code>1/a</code>; blocks have
 exponents <code>s + k</code>. See <a href="#lerch-large-argument-expansions">LerchPhi at Large Third
 Argument</a>.</td>
@@ -2287,6 +2298,22 @@ certificate or an inverse-error certificate.
 <code>SeriesTruncate[s, Log[3]]</code> keeps <code>1 + 2^-x</code> and
 transports the upper bound to <code>4^-x (1 + 4/(x - 1)) + 3^-x</code>;
 see <a href="#SeriesTruncate">SeriesTruncate</a>.</p>
+<p>An affine combination of one such atom with fixed exact real
+coefficients is expanded with the atom: <code>Zeta[x] - 1</code> retains
+<code>2^-x + 3^-x + ...</code> with the same remainder, cutoff and first
+omitted integer as <code>Zeta[x]</code>, and <code>-2 Zeta[x] + 3</code>
+scales every retained coefficient and the absolute bound by the affine
+coefficient. The result records
+<code>&quot;AffineCoefficients&quot; -&gt; {alpha, beta}</code> and
+<code>&quot;SpecialFunctionAtom&quot;</code>. <code>SeriesTermGoal</code> still
+counts the atom&#39;s terms, so <code>SeriesTermGoal -&gt; 3</code> for
+<code>Zeta[x] - 1</code> returns the two nonconstant terms
+<code>2^-x + 3^-x</code>. The signed lower bound
+<code>&quot;RemainderLowerBound&quot;</code> is kept only for a positive
+coefficient; an affine constant lying above an explicit cutoff is
+charged to <code>&quot;AbsoluteRemainderBound&quot;</code> instead of being
+displayed. Products with the variable, two different atoms, and variable
+coefficients are outside this method.</p>
 <p><a id="lerch-large-argument-expansions"></a></p>
 </section>
 <section id="lerchphi-at-large-third-argument" class="level5">
@@ -3662,7 +3689,14 @@ contract.</p>
 <p><code>SeriesObservable[s, expr, z]</code> substitutes the expansion
 into the placeholder <code>z</code> in a supported real expression. It
 accepts <code>&quot;InverseFunctionBranches&quot; -&gt; Automatic</code> in
-addition to the common operation options.</p>
+addition to the common operation options. An outer
+<code>ConditionalExpression[expr, condition]</code> is admitted when the
+condition is proved on the precision-tracked input germ; the condition
+is peeled before the route is chosen, so
+<code>ConditionalExpression[Exp[z], z &gt; 0]</code> reaches the same
+exact exponential route as <code>Exp[z]</code>, and the result records
+<code>&quot;ObservableCondition&quot;</code> and replays the conditional
+observable on refinement.</p>
 <p><strong>Input</strong></p>
 <pre class="wolfram"><code>s = AsymptoticExpansion[x + x^2, {x, 0, 5}];
 Normal[SeriesObservable[s, Sin[z], z, &quot;Cutoff&quot; -&gt; 4]]</code></pre>
@@ -3889,10 +3923,14 @@ on the selected side; at an infinite endpoint the offset is
 any numerical evaluation, so a small displacement at a huge source
 origin, such as <code>(x - 10^100) + (x - 10^100)^2</code> at
 <code>x -&gt; 10^100</code>, is solved, tested against the branch and
-compared at full working precision. <code>&quot;LocalRoot&quot;</code> and
-<code>&quot;LocalApproximation&quot;</code> are the local values of <code>u</code>
-for <code>&quot;Power&quot; -&gt; 1</code> and of <code>u^p</code> otherwise;
-<code>&quot;Error&quot;</code>, <code>&quot;ForwardResidual&quot;</code> and
+compared at full working precision. <code>&quot;LocalRoot&quot;</code> is always
+the positive displacement <code>u</code> at the recovered root.
+<code>&quot;LocalApproximation&quot;</code> approximates <code>u</code> for
+<code>&quot;Power&quot; -&gt; 1</code> and the signed observable
+<code>(SourceSide u)^p</code> otherwise;
+<code>&quot;LocalReferenceObservable&quot;</code> is that observable at the
+recovered root, and <code>&quot;ObservablePower&quot;</code> records
+<code>p</code>. <code>&quot;Error&quot;</code>, <code>&quot;ForwardResidual&quot;</code> and
 <code>&quot;RootResidual&quot;</code> are computed locally.
 <code>&quot;ReferenceRoot&quot;</code>, <code>&quot;Approximation&quot;</code> and
 <code>&quot;ApproximationSourceRoot&quot;</code> reconstruct absolute source
@@ -4299,8 +4337,16 @@ reciprocal source coordinates are admitted.</p>
 <code>&quot;CoreCheckTimeConstraint&quot; -&gt; 3</code>,
 <code>&quot;InputRemainder&quot; -&gt; None</code>, and
 <code>&quot;MaxTerms&quot; -&gt; 20000</code>.</p>
-<p><code>&quot;SourceShift&quot;</code> selects the source translation. A declared
-pair <code>{rho, k}</code> here means
+<p><code>&quot;SourceShift&quot;</code> selects the source translation at a source
+infinity. It must be a fixed exact real parameter that depends on
+neither the source nor the target variable: the remainder scales are
+derived for a fixed chart, and a shift varying with the target would
+cancel out of every displayed coefficient while changing the remainder
+scale, so such a request returns
+<code>Failure[&quot;TargetDependentSourceShift&quot;, ...]</code>. A fixed shift
+changes the remainder scale only by a constant factor.
+<code>&quot;CoreInverse&quot;</code> must be independent of the source variable
+only. A declared pair <code>{rho, k}</code> here means
 <code>O[v^-rho (1 + Log[v])^k]</code> with corresponding derivative
 control. Its transported error remains a separate first-sector precision
 limit.</p>
@@ -4502,7 +4548,10 @@ outside this constructor&#39;s scope.</p>
 <p><code>FourierInverseResidual[s]</code> checks the finite Fourier
 equation at its stored relative source-weight cutoff.
 <code>FourierInverseResidual[s, h]</code> supplies another relative
-cutoff. Its option is <code>&quot;MaxTerms&quot; -&gt; 20000</code>.</p>
+cutoff. Its option is <code>&quot;MaxTerms&quot; -&gt; 20000</code>, which may
+also be given without a cutoff, as in
+<code>FourierInverseResidual[s, &quot;MaxTerms&quot; -&gt; 7]</code>; an option is
+never read as the cutoff.</p>
 <p>Check a polynomial source using an explicit residual-work budget:</p>
 <pre class="wolfram"><code>s = AsymptoticFourierInverse[
   x + x^2, {x, 0}, {y, 7}, &quot;MaxTerms&quot; -&gt; 7];

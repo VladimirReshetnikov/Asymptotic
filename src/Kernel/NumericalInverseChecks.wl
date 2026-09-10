@@ -77,8 +77,12 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
    "ReferenceObservable" -> N[If[power === 1, root, observed], wp + gap], "Approximation" -> N[approximate, wp + gap],
    "ApproximationSourceRoot" -> N[shift + side localSeed, wp + gap], "Error" -> error, "RemainderScale" -> scale,
    "LocalRoot" -> N[localRoot, wp], "LocalApproximation" -> N[localApproximate, wp],
+   "LocalReferenceObservable" -> N[observed, wp], "ObservablePower" -> power,
    "SourceOffset" -> shift, "SourceSide" -> side,
-   "LocalCoordinate" -> "x = SourceOffset + SourceSide u; LocalRoot and LocalApproximation are values of u for Power 1 and of u^Power otherwise.",
+   (* LocalRoot is the positive displacement u itself for every power;
+      the powered fields are values of the signed observable (SourceSide u)^Power
+      (wave-6 reports 48 N3, 51 N02 and 54 N04). *)
+   "LocalCoordinate" -> "x = SourceOffset + SourceSide u with u > 0. LocalRoot is always the positive source displacement u. LocalApproximation approximates u for Power 1 and (SourceSide u)^Power otherwise; LocalReferenceObservable is that observable at the recovered root.",
    "SourceDomainChecked" -> inverseEvidenceSourceDomain[a, x], "SourceDomainVerified" -> True,
    (* A positive test rather than an equality test: Mathics treats a
       low-precision 10^-12 as equal to 0, which made every ratio Indeterminate. *)

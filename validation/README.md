@@ -1054,11 +1054,72 @@ the run from the returned value.
   `Zeta[x]` expands, while `Zeta[x] - 1` fails with
   `UnsupportedNativeCoefficient`. A coverage gap, not a false formula.
 
-This is a **characterization probe, not an acceptance suite**; no repair is
-applied, and the full package suite was not run. Wave 6 has no consolidated
-intake, so none of these entries is mapped to a work item yet; the
-[wave-6 index](../external-reports/code-review/wave-6/README.md) records their
-scope.
+This is a **characterization probe, not an acceptance suite**; it records the
+behaviour before the repairs below, and the full package suite was not run.
+Wave 6 has no consolidated intake; the
+[wave-6 index](../external-reports/code-review/wave-6/README.md) records the
+scope of each entry and which ones are now implemented.
+
+## Wave-6 public-boundary repairs
+
+The [ten-file run](wave6-boundaries-tests.json) from
+[CheckWave6Boundaries.wl](CheckWave6Boundaries.wl) passes **181/181** on
+Wolfram 15.0.1 for Windows with all kernel, suite and runner hashes unchanged
+during execution. Its seven new cases in
+[ReviewWave6Boundaries.wlt](../src/Tests/ReviewWave6Boundaries.wlt) pin the
+repairs; the other nine files are the coefficient, exponential-core,
+numerical-check, Fourier, observable, Dirichlet, expanded-input,
+inverse-function and observable-ingress suites that share the changed code.
+
+- **Target-dependent `SourceShift` is refused** (reports 46 N01 and 50 F1).
+  `AsymptoticExponentialCoreInverse` now returns
+  `Failure["TargetDependentSourceShift", ...]` when the shift contains the
+  target variable; the unshifted control and a fixed shift `3` are still
+  accepted, and the fixed shift's finite expression agrees with the control.
+  A source-dependent shift keeps the existing `InvalidVariables` refusal.
+- **Coefficient option spellings agree** (report 48 N1). The object overload of
+  `InverseExpansionCoefficient` resolves `"Power"` with `OptionValue` over the
+  filtered rules, so `Power -> 2`, `"Power" -> 2`, `{"Power" -> 2}` and
+  `"Power" :> 2` all return exponent `3` and coefficient `-2` for the reviewed
+  inverse, the first occurrence wins when both spellings are supplied, and an
+  inexact or zero power is refused with `InvalidOption`.
+- **Numerical-check labels distinguish the displacement from its observable**
+  (reports 48 N3, 51 N02, 54 N04). `"LocalCoordinate"` now states that
+  `LocalRoot` is always the positive displacement `u` and that
+  `LocalApproximation` approximates `(SourceSide u)^Power`; the new fields
+  `"LocalReferenceObservable"` and `"ObservablePower"` are checked for powers
+  `1` and `2`. The same sentence in the user guide and the result reference was
+  corrected with the kernel string.
+- **Named numeric constants are refused as coordinates** (report 52 N1).
+  `AsymptoticExpansion[1/(1 + Pi), {Pi, 0, 3}]` returns `InvalidVariable` on
+  both the package and the automatic route, and `Pi`, `E` or `Degree` as an
+  inverse source or target returns `InvalidVariables`; ordinary symbols are
+  unchanged.
+- **The Fourier residual's optional cutoff no longer captures options**
+  (report 52 N2). `FourierInverseResidual[s, "MaxTerms" -> 5000]` and the
+  nested-list spelling agree with the explicit `Automatic` form; an inexact
+  cutoff still returns `InvalidCutoff`.
+- **Conditional exact observables reach the exact route** (report 52 N3).
+  `SeriesObservable[s, ConditionalExpression[Exp[z], z > 0], z]` on the pole
+  `1/x` returns the same factored carrier as `Exp[z]`, records
+  `"ObservableCondition"`, replays through `SeriesRefine`, and a false
+  condition is still refused with `IncompatibleObservableCondition`.
+- **Affine combinations of one Dirichlet atom expand** (report 55 N01).
+  `Zeta[x] - 1` retains six nonconstant terms with the atom's remainder;
+  `-2 Zeta[x] + 3` scales the coefficients and drops the signed lower bound;
+  `LerchPhi[1/2, 2, x] - 2` carries the doubled bound constant; and the
+  numerical errors at `x = 10` stay inside the transported absolute bounds.
+  `SeriesTermGoal -> 3` for `Zeta[x] - 1` returns the two nonconstant terms.
+  Products with the variable and sums of two atoms are still refused.
+
+The documentation checker was repaired at the same time (reports 47 N02, 47
+N03 and 51 N03): its gates are explicit `require` calls that survive
+`python -O`, TeX comments are masked before labels, references and citations
+are scanned, the recorded missing counts are computed rather than hardcoded,
+and a local link whose destination resolves outside the checkout, a `file:`
+link or a Windows drive path is rejected even when the target exists. The
+[thirteen Python tests](test_documentation_links.py) in the links, TeX and
+text modules pass, and `check_documentation.py` passes on the current tree.
 
 ## Wave-5 modulus witnesses on nonreal retained coefficients
 

@@ -141,22 +141,51 @@ index counts each obligation once instead. The
 [ProbeWave6Witnesses](../../validation/ProbeWave6Witnesses.wl) reproduces four of
 its witnesses on the current source with unchanged sources during the run.
 
-Three of those bear directly on items recorded here.
-`AsymptoticExponentialCoreInverse` admits a target-dependent `"SourceShift"`
-instead of refusing it, and returns a correct finite expression under a
-remainder scale that is exponentially too small — at `y = 20` the true error is
-`1.29·10⁻³` against a claimed `1.06·10⁻²⁰`. No register file mentions
-`SourceShift`, so this is unrecorded work rather than a regression; its nearest
-recorded principle is C15's forward note in the
+Seven wave-6 public-boundary entries are now **focused verified — 181/0 across
+ten selected files** in the
+[wave-6 boundary run](../../validation/wave6-boundaries-tests.json) from
+[CheckWave6Boundaries](../../validation/CheckWave6Boundaries.wl), with the seven
+new regressions in
+[ReviewWave6Boundaries.wlt](../../src/Tests/ReviewWave6Boundaries.wlt); the
+[validation record](../../validation/README.md#wave-6-public-boundary-repairs)
+describes each case. Three of them bear directly on items recorded here.
+`AsymptoticExponentialCoreInverse` admitted a target-dependent `"SourceShift"`
+and returned a correct finite expression under a remainder scale that is
+exponentially too small — at `y = 20` the true error is `1.29·10⁻³` against a
+claimed `1.06·10⁻²⁰`. It now refuses such a shift with
+`Failure["TargetDependentSourceShift", ...]`, the repair report 50 proposed,
+while fixed shifts and the unshifted control are unchanged; the usage text and
+the guide state that the shift must be independent of both variables, and that
+a fixed shift changes the remainder scale only by a constant. No register file
+mentioned `SourceShift`, so this was unrecorded work rather than a regression;
+its nearest recorded principle is C15's forward note in the
 [parameter-scope notes](COMPOSITION_PARAMETER_SCOPE.md) that later shifting
 operations must keep fixed data separate from varying coordinates. The
-coefficient-option corruption is a defect inside C09's own repair and is
-recorded in that section. The `"LocalCoordinate"` label shipped by C21's
-implementation describes `LocalRoot` and `LocalApproximation` as one quantity
-when the run confirms the second is the first raised to the requested power;
-the same sentence stands in the [user guide](../../src/Documentation/UserGuide.md)
-and its generated HTML, which no wave-6 package noticed, so a kernel-only repair
-would leave the documentation contradicting the new contract.
+coefficient-option corruption was a defect inside C09's own repair and is closed
+in that section. The `"LocalCoordinate"` label shipped by C21's implementation
+described `LocalRoot` and `LocalApproximation` as one quantity when the run
+confirms the second is the first raised to the requested power; the kernel
+string, the [user guide](../../src/Documentation/UserGuide.md), the
+[result reference](../../src/Documentation/ResultReference.md) and their
+generated HTML were corrected together, and the checker now also returns
+`"LocalReferenceObservable"` and `"ObservablePower"`. The four remaining
+repairs — named numeric constants refused as coordinates (52 N1), the Fourier
+residual's optional cutoff no longer capturing options (52 N2), conditional
+exact observables reaching the exact route (52 N3), and affine combinations of
+one Dirichlet atom expanding with the atom (55 N01) — are public-boundary
+changes recorded in the [changes list](../CHANGES.md) and the user guide. The
+documentation checker's gates survive `python -O`, TeX comments are masked
+before cross-references are scanned, and links resolving outside the checkout
+are rejected (47 N02, 47 N03, 51 N03); the
+[thirteen Python tests](../../validation/test_documentation_links.py) pass.
+
+Still open from wave 6: the certificate interval geometry and retry policy
+(53 N01–N03, 54 N01), the Mathics inline-assumption protector's rewrite of held
+`Element` data and its missed inline source conditions (49 N1, 51 N01, 54 N02),
+the machine-sign logarithm split guard in the Mathics numerical recovery
+(48 N2, 54 N03), the Mathics prover reuse inside P08 (47 N01), the flat-tail
+candidate population inside P06 (48 P1), the D01 cutoff/term-goal policy that
+55 N02 selects, and the Lerch and Zeta extension proposals (49 E1/E2, 50 E1/E2).
 
 Two wave-6 entries are **not** new obligations. Report 55's N02 restates
 retained report 16's N04, which this register already carries under D01 as the
@@ -525,18 +554,20 @@ same inverse constructed with that power, at finite and infinite endpoints
 Source: [core coefficient overload](../../src/Kernel/AsymptoticAnalysis.wl).
 Finding: [R6 A03][R6].
 
-**Verified for the string spelling only; a symbol-spelled option is not
-covered.** Wave-6 report 48 N1 reports, and the
-[wave-6 characterization](../../validation/wave6-witness-probe.json) reproduces,
-that the selection matches the option by name equivalence but extracts it by
-literal string replacement. `InverseExpansionCoefficient[s, {1}, Power -> 2]`
-therefore returns a *successful* association whose `Exponent` is `1 + "Power"`
-and whose `Coefficient` is `-"Power"`, and supplying both spellings lets the
-later string win, so first-option precedence does not hold. Every case in the
-regression file above uses the string spelling, which is also the only spelling
-the user guide documents. This is a defect inside the repair recorded here, not
-a new area; it must be repaired and the regression extended before the
-precedence claim is restated without qualification.
+**Every option spelling is now covered.** Wave-6 report 48 N1 reported, and the
+[wave-6 characterization](../../validation/wave6-witness-probe.json)
+reproduced, that the selection matched the option by name equivalence but
+extracted it by literal string replacement, so
+`InverseExpansionCoefficient[s, {1}, Power -> 2]` returned a *successful*
+association whose `Exponent` was `1 + "Power"` and whose `Coefficient` was
+`-"Power"`, and supplying both spellings let the later string win. The overload
+now resolves the filtered rules with `OptionValue`, so the symbol spelling, a
+nested option list and a delayed rule return the same coefficient as the string
+spelling, the first occurrence wins, and an inexact or zero power is refused
+with `InvalidOption`. The
+[wave-6 boundary regression](../../src/Tests/ReviewWave6Boundaries.wlt) pins
+all six spellings and both refusals in the 181/0
+[focused run](../../validation/wave6-boundaries-tests.json).
 
 ### C10 — Include the target offset in residual normalization labels
 

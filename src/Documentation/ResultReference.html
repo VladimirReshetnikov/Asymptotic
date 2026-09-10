@@ -813,6 +813,13 @@ data needed by arithmetic.</td>
 refinement needs to replay the construction.</td>
 </tr>
 <tr>
+<td><code>&quot;ObservableCondition&quot;</code></td>
+<td>Present when <code>SeriesObservable</code> peeled an outer
+<code>ConditionalExpression</code> and proved its condition on the input
+germ before an exact logarithm, exponential or power route computed the
+carrier; refinement replays the conditional observable.</td>
+</tr>
+<tr>
 <td><code>&quot;ReciprocalLogRepresentation&quot;</code>,
 <code>&quot;AnalyticRemainderContract&quot;</code>,
 <code>&quot;InputDomains&quot;</code></td>
@@ -1357,6 +1364,17 @@ shortcut need not populate every import field.</td>
 fixed-parameter scope.</td>
 </tr>
 <tr>
+<td><code>&quot;AffineCoefficients&quot;</code>,
+<code>&quot;SpecialFunctionAtom&quot;</code></td>
+<td>Present only when an affine combination
+<code>alpha atom + beta</code> of one Zeta/Lerch atom was expanded: the
+fixed exact coefficients <code>{alpha, beta}</code> and the atom itself.
+Retained coefficients, <code>&quot;FrontierTerm&quot;</code> and the absolute
+bound are scaled by <code>alpha</code>; the signed
+<code>&quot;RemainderLowerBound&quot;</code> is kept only for positive
+<code>alpha</code> with no constant charged to the bound.</td>
+</tr>
+<tr>
 <td><code>&quot;TargetOffset&quot;</code></td>
 <td>Finite target value <code>y0</code> subtracted in the ordinary
 residual normalization <code>(f(g(y)) - y0)/(a z^p) - 1</code>;
@@ -1364,11 +1382,19 @@ residual normalization <code>(f(g(y)) - y0)/(a z^p) - 1</code>;
 </tr>
 <tr>
 <td><code>&quot;LocalRoot&quot;</code>, <code>&quot;LocalApproximation&quot;</code>,
+<code>&quot;LocalReferenceObservable&quot;</code>, <code>&quot;ObservablePower&quot;</code>,
 <code>&quot;SourceOffset&quot;</code>, <code>&quot;SourceSide&quot;</code>,
 <code>&quot;LocalCoordinate&quot;</code></td>
 <td>Ordinary numerical-check values in the local source coordinate
-<code>x = SourceOffset + SourceSide u</code>, and the sentence
-describing that chart. Absolute-coordinate fields reconstruct
+<code>x = SourceOffset + SourceSide u</code> with <code>u &gt; 0</code>,
+and the sentence describing that chart. <code>&quot;LocalRoot&quot;</code> is
+always the positive displacement <code>u</code>;
+<code>&quot;LocalApproximation&quot;</code> approximates <code>u</code> for power
+<code>1</code> and the signed observable
+<code>(SourceSide u)^Power</code> otherwise,
+<code>&quot;LocalReferenceObservable&quot;</code> is that observable at the
+recovered root, and <code>&quot;ObservablePower&quot;</code> records the power.
+Absolute-coordinate fields reconstruct
 <code>SourceOffset + SourceSide u</code> with extra presentation
 digits.</td>
 </tr>

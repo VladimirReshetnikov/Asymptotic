@@ -354,18 +354,34 @@ seriesJetApply[e_, x_, input_, d_, cut_, limit_] := Module[{h = Head[e], ell = d
 AsymptoticAnalysis`SeriesObservable[s_GeneralizedSeries, e_, x_Symbol, opts : OptionsPattern[]] := catch[Block[
   {$inverseFunctionBranchSelections = OptionValue["InverseFunctionBranches"], $inverseFunctionProvenance = {},
     $inverseFunctionSyntaxCache = <||>, $inverseFunctionBranchCache = <||>},
-  Module[{d, h, j, body = e, condition = True, result, limit = OptionValue["MaxTerms"]},
+  Module[{d, h, j, body = e, condition = True, result, limit = OptionValue["MaxTerms"], exact},
   requireAnalyticSeries[s];
   validateInput[e, limit];
-  If[e === Log[x], Return[seriesLog[s, OptionValue["Cutoff"], limit], Module]];
-  If[e === Exp[x], Return[seriesExp[s, OptionValue["Cutoff"], limit], Module]];
-  If[Head[e] === Power && e[[1]] === x && FreeQ[e[[2]], x], Return[seriesPower[s, e[[2]], OptionValue["Cutoff"], limit], Module]];
+  (* Peel an outer ConditionalExpression before choosing a route, so that a
+     proved condition on an exact carrier (Log, Exp, a power of the formal
+     variable) still reaches the exact route instead of the generic Taylor
+     germ, which refuses such carriers (wave-6 report 52 N3). *)
+  While[Head[body] === ConditionalExpression, condition = condition && body[[2]]; body = body[[1]]];
+  exact = Which[body === Log[x], "Log", body === Exp[x], "Exp",
+    Head[body] === Power && body[[1]] === x && FreeQ[body[[2]], x], "Power", True, None];
+  If[exact =!= None && condition === True,
+    Return[Switch[exact, "Log", seriesLog[s, OptionValue["Cutoff"], limit],
+      "Exp", seriesExp[s, OptionValue["Cutoff"], limit],
+      "Power", seriesPower[s, body[[2]], OptionValue["Cutoff"], limit]], Module]];
   d = seriesFlat[seriesData[s, limit], limit];
   If[d === $Failed, fail["UnsupportedScale", "This observable requires a single power-log representation of its argument."]];
   h = seriesWorkingCut[d, OptionValue["Cutoff"]];
-  While[Head[body] === ConditionalExpression, condition = condition && body[[2]]; body = body[[1]]];
   If[! TrueQ[inverseFunctionConditionOnJet[condition, x, d["Jet"], d, h, limit]],
     fail["IncompatibleObservableCondition", "The observable condition is not proved on the precision-tracked input germ.", <|"Condition" -> condition|>]];
+  If[exact =!= None,
+    (* The condition was proved on the input germ; the exact route computes the
+       carrier, and the conditional observable is retained as the replay recipe
+       so refinement proves the condition again on the refined input. *)
+    result = Switch[exact, "Log", seriesLog[s, OptionValue["Cutoff"], limit],
+      "Exp", seriesExp[s, OptionValue["Cutoff"], limit],
+      "Power", seriesPower[s, body[[2]], OptionValue["Cutoff"], limit]];
+    Return[GeneralizedSeries[Join[result[[1]], <|"SeriesRecipe" -> {"Observable", {s}, e, x},
+      "ObservableCondition" -> condition|>]], Module]];
   j = seriesJetApply[body, x, d["Jet"], d, h, limit];
   result = seriesMake[Join[d, <|"Jet" -> j|>], {"Observable", {s}, e, x}, h];
   GeneralizedSeries[Join[result[[1]], <|"InverseFunctionBranches" -> $inverseFunctionBranchSelections,

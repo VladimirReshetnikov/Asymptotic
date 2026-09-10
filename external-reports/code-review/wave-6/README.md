@@ -23,11 +23,13 @@ entry in all ten packages.
 
 This wave has **no consolidated intake**. Its entries are not part of the 231
 attributed entries counted for waves 1–4, and none is mapped to a `C*`, `P*`,
-`D*`, `V*`, `X*`, `W3-*` or `W4-*` work item. Treat every row below as
-unprocessed review material. Four witnesses — and only those four — have been
-reproduced on the current source in the
+`D*`, `V*`, `X*`, `W3-*` or `W4-*` work item. Four witnesses — and only those
+four — were reproduced on the pinned source in the
 [wave-6 characterization](../../../validation/wave6-witness-probe.json), which is
-a probe, not an acceptance suite.
+a probe, not an acceptance suite, and which records the behaviour before any
+repair. The [implementation status](#implementation-status) below says which
+entries have since been repaired with focused evidence; the rows themselves
+describe what each package supplied.
 
 | Package | Article | Retained findings | Supplied evidence and limits |
 | --- | --- | --- | --- |
@@ -79,6 +81,30 @@ acceptance rules rather than by a new item: **47 N01** and **50 E2** inside P08,
 which already names proof queries as a lane, already prescribes bounded
 request-local reuse, and already forbids keeping an optimization without matched
 measurements; and **48 P1** inside P06.
+
+<a id="implementation-status"></a>
+## Implementation status
+
+The [maintained register](../../../docs/development/CODE_REVIEW_STATUS.md)
+records the current state; this table only maps the wave's entries to it.
+
+| Entries | Status |
+| --- | --- |
+| 46 N01, 50 F1 | **Implemented.** A target-dependent `"SourceShift"` is refused with the dedicated `TargetDependentSourceShift` diagnostic report 50 proposed; report 46's message-text advisory is applied. Fixed shifts remain admitted. |
+| 48 N1 | **Implemented** inside C09: every option spelling resolves through `OptionValue`, first occurrence wins. |
+| 48 N3, 51 N02, 54 N04 | **Implemented.** The kernel label, the user guide, the result reference and the generated HTML were corrected together, with 54's wording, and `"LocalReferenceObservable"` and `"ObservablePower"` were added as 48 proposed. |
+| 52 N1, N2, N3 | **Implemented**, with the variable guard placed in the shared chart and the ordinary inverse constructor as report 52 staged it, the optional cutoff restricted to non-option arguments, and the exact observable routes dispatched after the condition is proved. |
+| 55 N01 | **Implemented** in the Dirichlet dispatcher itself rather than through arithmetic, so the affine result keeps the atom's cutoff, remainder and transported bound. |
+| 47 N02, 47 N03, 51 N03 | **Implemented** in the documentation checker: optimization-proof gates, comment masking and checkout containment. |
+| 53 N01–N03, 54 N01 | Open: certificate interval geometry, rational powers and the retry policy. |
+| 49 N1, 51 N01, 54 N02; 48 N2, 54 N03; 47 N01 | Open: the Mathics protector, the numerical logarithm split guard and prover reuse. None has been run on Mathics. |
+| 55 N02 | Selects a D01 policy; not a new obligation (see above). |
+| 48 P1; 49 E1, E2; 50 E1, E2 | Inside P06, P08 and the X04/X05 proposals; governed by those items. |
+
+Evidence for the implemented rows is the 181/0
+[wave-6 boundary run](../../../validation/wave6-boundaries-tests.json) and the
+Python documentation tests, described in the
+[validation record](../../../validation/README.md#wave-6-public-boundary-repairs).
 
 ## Evidence boundary
 

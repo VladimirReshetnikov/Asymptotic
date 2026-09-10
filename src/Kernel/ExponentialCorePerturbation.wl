@@ -2,7 +2,7 @@
    Loaded in Private`.  Exact Lambert/elementary cores remain unexpanded. *)
 
 AsymptoticAnalysis`AsymptoticExponentialCoreInverse::usage =
-"AsymptoticExponentialCoreInverse[core,perturbation,{x,x0},{y,n}] retains the exact inverse of a growing exponential core a v^b Exp[c v^p]+offset, c,p>0, and computes complete corrections through exponential degree n for a finite power-log perturbation. The positive v tends to Infinity. At source infinities SourceShift may translate v; finite endpoints use reciprocal source distance. InputRemainder->{rho,k} declares O(v^-rho (1+Log[v])^k) with matching derivative control and is transported as a separate first-sector error.";
+"AsymptoticExponentialCoreInverse[core,perturbation,{x,x0},{y,n}] retains the exact inverse of a growing exponential core a v^b Exp[c v^p]+offset, c,p>0, and computes complete corrections through exponential degree n for a finite power-log perturbation. The positive v tends to Infinity. At source infinities a fixed exact real SourceShift, independent of the source and of the target, may translate v; finite endpoints use reciprocal source distance. InputRemainder->{rho,k} declares O(v^-rho (1+Log[v])^k) with matching derivative control and is transported as a separate first-sector error.";
 Options[AsymptoticAnalysis`AsymptoticExponentialCoreInverse] = {
   Assumptions :> $Assumptions, Direction -> Automatic, "SourceShift" -> Automatic,
   "CoreInverse" -> Automatic, "CoreCheckTimeConstraint" -> 3,
@@ -94,7 +94,15 @@ exponentialCoreConstruct[core_, perturbation_, x_, endpoint_, y_, depth_, opts :
    rho, logdegree, remainder, coefficientList, exact, targetLimit},
   validateInput[{core, perturbation}, limit];
   If[x === y || ! FreeQ[{core, perturbation}, y] || ! FreeQ[ass, x | y] || ! FreeQ[{shift, requested}, x],
-    fail["InvalidVariables", "Use distinct source and target symbols, parameter-only assumptions, and a source-independent CoreInverse and SourceShift."]];
+    fail["InvalidVariables", "Use distinct source and target symbols, parameter-only assumptions, a source-independent CoreInverse, and a SourceShift independent of the source and the target."]];
+  (* The remainder theorem assumes a fixed chart: the sector scales and the
+     coefficient recurrence are derived for a shift that does not vary with
+     the target. A target-dependent shift cancels out of every displayed
+     coefficient but changes the remainder scale, so the reported bound would
+     be false rather than weak (wave-6 reports 46 N01 and 50 F1). *)
+  If[! FreeQ[shift, y],
+    fail["TargetDependentSourceShift", "SourceShift must be a fixed exact real parameter: it may not depend on the target variable.",
+      <|"SourceShift" -> shift, "TargetVariable" -> y|>]];
   If[! IntegerQ[depth] || depth < 0, fail["InvalidDepth", "Exponential sector depth must be a nonnegative integer."]];
   If[depth + 1 > limit, fail["ResourceLimit", "The requested depth and first omitted coefficient exceed MaxTerms."]];
   If[! NumericQ[seconds] || ! TrueQ[seconds > 0], fail["InvalidOption", "CoreCheckTimeConstraint must be positive."]];
