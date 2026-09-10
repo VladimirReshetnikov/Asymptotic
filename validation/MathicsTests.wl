@@ -45,6 +45,7 @@ portablePrimitive[held_HoldComplete] := ReleaseHold[
       System`Element -> AsymptoticAnalysis`Mathics`Element,
       System`Simplify -> AsymptoticAnalysis`Mathics`Simplify,
       System`FullSimplify -> AsymptoticAnalysis`Mathics`FullSimplify,
+      System`Map -> AsymptoticAnalysis`Private`mathicsMap,
       System`FirstPosition -> AsymptoticAnalysis`Mathics`FirstPosition}, held]];
 
 portableTest["loading-no-messages", "loading", portableLoadResult =!= $Failed, True];
@@ -517,6 +518,100 @@ portableTest["families-exponential-core-exact-specialization", "families",
     core = s["CoreInverse"];
     {core === ProductLog[y], core /. y -> E, s["LambertBranch"]}],
   {True, 1, 0}];
+
+portableTest["operations-series-power", "operations",
+  Module[{x, s}, s = SeriesPower[AsymptoticExpansion[x + x^2 + x^3, {x, 0, 3}], -1, 3];
+    {Simplify[Normal[s] - (1/x - 1)], s["RemainderPower"]}],
+  {0, 1}];
+
+portableTest["operations-series-log-and-exp", "operations",
+  Module[{x, a, l, e}, a = AsymptoticExpansion[x + x^2, {x, 0, 5}];
+    l = SeriesLog[a, 4]; e = SeriesExp[AsymptoticExpansion[x, {x, 0, 5}], 4];
+    {Simplify[Normal[l] - (Log[x] + x - x^2/2 + x^3/3)], l["RemainderPower"],
+      Simplify[Normal[e] - (1 + x + x^2/2 + x^3/6)], e["RemainderPower"]}],
+  {0, 4, 0, 4}];
+
+portableTest["operations-series-compose-transports-inner-error", "operations",
+  Module[{x, y, s}, s = SeriesCompose[AsymptoticExpansion[Log[1 + x], {x, 0, 4}],
+      AsymptoticExpansion[y^2 + y^3, {y, 0, 3}], "Cutoff" -> 7];
+    {Simplify[Normal[s] - y^2], s["RemainderPower"]}],
+  {0, 3}];
+
+portableTest["operations-series-derivative-contract", "operations",
+  Module[{x, s, r}, s = SeriesDifferentiate[AsymptoticExpansion[x Log[x] + x^2, {x, 0, 4}]];
+    r = SeriesDifferentiate[AsymptoticExpansion[Sin[x], {x, 0, 4}]];
+    {Simplify[Normal[s] - (1 + Log[x] + 2 x)], s["Remainder"], MatchQ[r, _Failure]}],
+  {0, 0, True}];
+
+portableTest["operations-series-observable", "operations",
+  Module[{x, z, s}, s = SeriesObservable[AsymptoticExpansion[x + x^2, {x, 0, 5}],
+      Sin[z], z, "Cutoff" -> 4];
+    {Simplify[Normal[s] - (x + x^2 - x^3/6)], s["RemainderPower"]}],
+  {0, 4}];
+
+portableTest["operations-series-normalize-composite", "operations",
+  Module[{x, a, s}, a = AsymptoticExpansion[Sin[x], {x, 0, 5}];
+    s = SeriesNormalize[Sin[a] + Log[1 + a] + Exp[a], "Cutoff" -> 4];
+    {Simplify[Normal[s] - (1 + 3 x - x^3/6)], s["RemainderPower"]}],
+  {0, 4}];
+
+portableTest["operations-flat-series-calculus-and-error", "operations",
+  Module[{x, y, z, s, t, m, o, d},
+    s = AsymptoticFlatInverse[x + x^2 Exp[-1/x], {x, 0}, {y, 1}];
+    t = FlatSeriesTruncate[s, 2]; m = FlatSeriesMultiply[s, 2];
+    o = FlatSeriesObservable[s, 2 z + 1, z]; d = FlatSeriesDifferentiate[s];
+    {Simplify[Normal[t] - y],
+      t["InnerRemainders"] /. PowerLogRemainder[_, beta_, degree_] :> {beta, degree},
+      Simplify[Normal[m] - 2 (y - y^2 Exp[-1/y])],
+      Simplify[Normal[o] - (1 + 2 y - 2 y^2 Exp[-1/y])],
+      Simplify[Normal[d] - (1 - (1 + 2 y) Exp[-1/y])],
+      d["Remainder"] =!= 0, s["SectorRemainder"] =!= 0}],
+  {0, {{1, {2, 0}}}, 0, 0, 0, True, True}];
+
+portableTest["operations-reciprocal-log-differentiate", "operations",
+  Module[{x, y, t, s, d}, s = AsymptoticLogarithmicInverse[x + x/Log[x], {x, 0}, {y, 3}];
+    d = ReciprocalLogDifferentiate[s];
+    {Simplify[(Expand[Normal[d]] /. Log[y] -> -1/t) - (1 + t + 2 t^2)],
+      d["RemainderPower"], d["AnalyticRemainderContract"]["AllFixedDerivativeOrders"]}],
+  {0, 3, True}];
+
+portableTest["operations-reciprocal-log-compose", "operations",
+  Module[{x, y, z, t, a, b, s},
+    a = AsymptoticLogarithmicInverse[x + x/Log[x], {x, 0}, {z, 3}];
+    b = AsymptoticLogarithmicInverse[x + x/Log[x], {x, 0}, {y, 3}];
+    s = ReciprocalLogCompose[a, b];
+    {Simplify[(Expand[Normal[s]/y] /. Log[y] -> -1/t) - (1 + 2 t + 3 t^2)],
+      s["RemainderPower"], s["RemainderDerivativeOrder"]}],
+  {0, 3, Infinity}];
+
+portableTest["operations-core-inverse-marker-frontier", "operations",
+  Module[{x, y, s, terms}, s = AsymptoticCoreInverse[x, x^2, {x, 0}, {y, 2}];
+    terms = s["MarkerTerms"];
+    {terms[[All, 1]], Simplify[terms[[All, 2]] - {y, -y^2, 2 y^3}],
+      Simplify[s["FirstOmittedMarkerTerm"] + 5 y^4], s["RemainderPower"], s["RemainderLogDegree"]}],
+  {{0, 1, 2}, {0, 0, 0}, 0, 4, 0}];
+
+portableTest["operations-special-inverse-quadratic-threshold", "operations",
+  Module[{x, y, s}, s = AsymptoticSpecialInverse["QuadraticThreshold", {x, 3}, {y, 2},
+      "TargetOffset" -> 7, "TargetScale" -> -2, "QuadraticCoefficient" -> 3];
+    {Simplify[Normal[s] - (3 + Sqrt[(7 - y)/6])], s["Remainder"], s["ThresholdTarget"]}],
+  {0, 0, 7}];
+
+portableTest["operations-fourier-coefficient-and-residual", "operations",
+  Module[{x, y, s, c, r}, s = AsymptoticFourierInverse[x + x^2 Sin[Log[x]], {x, 0}, {y, 3}];
+    c = FourierInverseCoefficient[s, {1}]; r = FourierInverseResidual[s];
+    {Simplify[c["Expression"] + Sin[c["LogVariable"]]], c["Weight"],
+      r["ZeroBelowCutoff"], r["ResidualBlocks"], s["RemainderPower"]}],
+  {0, 1, True, {}, 3}];
+
+portableTest["primitive-empty-map-preserves-list-state", "primitive",
+  portablePrimitive[HoldComplete[Module[{f, g, h, z, a = {}, b, counter = 0, calls = 0, emptyEffects},
+    f[z_] := (calls++; z + 1);
+    b = Map[(counter++; f), a]; emptyEffects = {counter, calls};
+    {emptyEffects, {a, 2, 0}, b, Map[f, {1, 2}],
+      Map[g, h[a, b]] === h[g[{}], g[{}]],
+      Map[g, {}, {0}] === g[{}], Map[g, {}, {1}, Heads -> True] === g[List][]}]]],
+  {{1, 0}, {{}, 2, 0}, {}, {2, 3}, True, True, True}];
 
 (* A typo in the Python/WL test selection must never look like an empty pass. *)
 Print["No portable test matched: ", portableSelection];

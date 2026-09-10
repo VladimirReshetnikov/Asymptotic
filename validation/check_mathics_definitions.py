@@ -4,8 +4,9 @@ Example (baseline and candidate are repository roots or extracted git archives):
   python validation/check_mathics_definitions.py --baseline OLD --candidate . \
     --wolfram wolfram.exe --output native-definitions.json --captures captures
 
-The default checks both modular and standalone entry points. Inputs are copied
-to immutable temporary snapshots before execution. Each load is followed by a
+The default checks both modular and standalone entry points. Package inputs and
+the Wolfram capture script are copied to temporary snapshots before execution;
+hash checks reject changes to either the originals or the snapshots. Each load is followed by a
 reload and checks that selected System builtins remain unchanged. This is a
 definition and observed-behavior comparison, not an exhaustive behavior proof.
 """
@@ -30,6 +31,13 @@ ENTRIES = {"modular": Path("src/Kernel/AsymptoticAnalysis.wl"),
 def fingerprint(paths: dict[str, Path]) -> dict[str, str]:
     return {name: hashlib.sha256(path.read_bytes()).hexdigest()
             for name, path in sorted(paths.items())}
+
+
+def fingerprints_match(paths: dict[str, Path], expected: dict[str, str]) -> bool:
+    try:
+        return fingerprint(paths) == expected
+    except OSError:
+        return False
 
 
 def inputs(root: Path, forms: list[str]) -> dict[str, Path]:
@@ -104,15 +112,31 @@ def main() -> int:
     captures = args.captures.resolve() if args.captures else None
     if captures:
         captures.mkdir(parents=True, exist_ok=True)
+    tool_paths = {CAPTURE.name: CAPTURE, Path(__file__).name: Path(__file__)}
+    tool_bytes = {name: path.read_bytes() for name, path in tool_paths.items()}
+    tool_hashes = {name: hashlib.sha256(contents).hexdigest()
+                   for name, contents in tool_bytes.items()}
     report = {"RecordedAt": datetime.now(timezone.utc).isoformat(),
               "Scope": "Exact package definitions, contexts, native builtin isolation, and load/reload checks; not exhaustive input or kernel-version validation.",
               "Normalization": "Only escaped source-directory strings in package definition InputForm are normalized.",
               "WolframExecutable": executable, "PerKernelTimeoutSeconds": args.timeout,
-              "ToolSHA256": fingerprint({CAPTURE.name: CAPTURE, Path(__file__).name: Path(__file__)}),
+              "ToolSHA256": tool_hashes,
               "Sources": {}, "Captures": {}, "Comparisons": {}}
     passed = True
     with tempfile.TemporaryDirectory(prefix="asymptotic-native-definitions-") as temporary:
         work = Path(temporary)
+        capture_snapshot = work / CAPTURE.name
+        capture_snapshot.write_bytes(tool_bytes[CAPTURE.name])
+        capture_paths = {CAPTURE.name: capture_snapshot}
+        capture_hashes = {CAPTURE.name: tool_hashes[CAPTURE.name]}
+        stable = (fingerprints_match(capture_paths, capture_hashes)
+                  and fingerprints_match(tool_paths, tool_hashes))
+        report["ToolImmutability"] = {
+            "CaptureSnapshotSHA256": capture_hashes[CAPTURE.name],
+            "CaptureSnapshotMatchedSource": stable}
+        passed = passed and stable
+        if captures:
+            shutil.copyfile(capture_snapshot, captures / CAPTURE.name)
         source_paths, original_hashes, states = {}, {}, {}
         for label, root in [("Baseline", args.baseline.resolve()), ("Candidate", args.candidate.resolve())]:
             paths = inputs(root, forms)
@@ -132,9 +156,11 @@ def main() -> int:
                 destination = work / (key + ".json")
                 env = dict(os.environ, ASYMPTOTIC_NATIVE_SOURCE=str(snapshot / ENTRIES[form]),
                            ASYMPTOTIC_NATIVE_OUTPUT=str(destination))
-                command = [executable, "-noinit", "-script", str(CAPTURE)]
+                command = [executable, "-noinit", "-script", str(capture_snapshot)]
                 print("Capturing " + key + " ...", flush=True)
                 try:
+                    if not fingerprints_match(capture_paths, capture_hashes):
+                        raise ValueError("Frozen native capture script changed during run")
                     run = subprocess.run(command, cwd=work, env=env, stdout=subprocess.PIPE,
                                          stderr=subprocess.STDOUT, timeout=args.timeout, check=False)
                     log = run.stdout.decode("utf-8", errors="replace")
@@ -168,6 +194,12 @@ def main() -> int:
             unchanged = original_hashes[label] == fingerprint(source_paths[label])
             report["Sources"][label]["OriginalSourcesUnchangedDuringRun"] = unchanged
             passed = passed and unchanged
+        snapshot_unchanged = fingerprints_match(capture_paths, capture_hashes)
+        originals_unchanged = fingerprints_match(tool_paths, tool_hashes)
+        report["ToolImmutability"].update({
+            "CaptureSnapshotUnchangedDuringRun": snapshot_unchanged,
+            "OriginalToolsUnchangedDuringRun": originals_unchanged})
+        passed = passed and snapshot_unchanged and originals_unchanged
     report["Passed"] = bool(passed)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

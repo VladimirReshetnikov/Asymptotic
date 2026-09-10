@@ -111,6 +111,18 @@ unadapted interpreter. Package-owned workarounds do not redefine its
 
 ## Associations, lists, and held callables
 
+- Mapping over an empty list can invalidate its internal evaluation cache.
+  Even `b = {}; f /@ b; {b, 2, 0}` can raise a Python `AssertionError` in
+  unadapted Mathics. Private package definitions use an adapter that returns
+  an empty list directly for exactly this two-argument `Map` case. It
+  retains evaluation of the function expression, applies that function zero
+  times, and delegates other forms to native `Map`. Flat-sector operations
+  and Fourier residual metadata exercise this boundary. See
+  [LISTS.md](Mathics/LISTS.md).
+- Mathics' three-argument `ToExpression` can evaluate the parsed expression
+  before its wrapper holds it. When inspecting existing private symbols,
+  parse a call to a `HoldAllComplete` helper containing the symbol name.
+  This keeps effectful ownvalues from running during adapter installation.
 - `Association[Map[...]]` and `Association[Reap[...][[2]]]` can retain the
   unevaluated rule-producing expression. Evaluate the rules first, then use
   `Association @@ rules`. This fixes retained refinement frontiers and
@@ -242,6 +254,17 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   expression and analytic remainder remain intact. Source review found the
   index and span checks in the correct order before allocation. Mathics
   provides the `$SystemWordLength` symbol used by this guard.
+- The `1ced1ae` rule-goal fix, merged through `a55df16`, reuses already
+  evaluated common options for native leading requests. The new routing is
+  confined to explicit scalar rule specifications and leaves package cutoff
+  validation and explicit native backend selection in their existing paths.
+  The source review checked that reuse; the upstream native tests are a
+  separate validation record.
+- The peer review identified a race in the new native-definition harness:
+  package snapshots were frozen but the capture script was read live for
+  each kernel. The runner now executes a frozen, hashed script and rejects
+  source or snapshot drift. Focused tests deliberately change both forms
+  during a mocked multi-kernel run and require failure.
 - These were focused source and compatibility reviews, not independent
   reruns of every upstream review package. Their own validation receipts
   retain their separate scopes. Later upstream code changes require a fresh

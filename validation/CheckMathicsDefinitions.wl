@@ -25,7 +25,7 @@ packageState[] := Module[{contexts = Contexts["AsymptoticAnalysis`*"]},
   <|"Contexts" -> contexts, "Definitions" -> definitions[
     Union[Flatten[Names[# <> "*"] & /@ contexts]]]|>];
 builtinNames = {"System`Times", "System`Check", "System`TimeConstrained",
-  "System`ProductLog", "System`Series"};
+  "System`ProductLog", "System`Series", "System`Map"};
 behavior[] := Module[{x}, {
   System`Times[2, 3] === 6,
   System`Check[2 + 3, $Failed] === 5,
@@ -33,7 +33,9 @@ behavior[] := Module[{x}, {
   System`Check[2 + 3, $Failed] === 5,
   System`TimeConstrained[2 + 3, 1, $Failed] === 5,
   System`ProductLog[0, E] === 1,
-  Normal[System`Series[Exp[x], {x, 0, 2}]] === 1 + x + x^2/2}];
+  Normal[System`Series[Exp[x], {x, 0, 2}]] === 1 + x + x^2/2,
+  Module[{empty = {}, f, g},
+    System`Map[f, empty] === {} && System`Map[g, empty] === {} && empty === {}]}];
 
 (* Warm these builtins before taking their initial state: lazy native setup
    must not be mistaken for a mutation performed by the package. *)
@@ -50,7 +52,7 @@ reloadContext = $Context; reloadPath = $ContextPath; reloadPackages = $Packages;
 reloadBehavior = behavior[];
 passed = TrueQ[loaded] && TrueQ[reloaded] && afterLoad === afterReload &&
   beforeBuiltins === loadBuiltins === reloadBuiltins &&
-  beforeBehavior === loadBehavior === reloadBehavior === ConstantArray[True, 7] &&
+  beforeBehavior === loadBehavior === reloadBehavior === ConstantArray[True, 8] &&
   beforeContext === loadContext === reloadContext && loadPath === reloadPath;
 exported = Export[output, <|"Kernel" -> $Version, "SystemID" -> $SystemID,
   "PackagePath" -> source, "LoadSucceeded" -> loaded, "ReloadSucceeded" -> reloaded,

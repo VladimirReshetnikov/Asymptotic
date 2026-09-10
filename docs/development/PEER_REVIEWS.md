@@ -21,7 +21,7 @@ budgets, realness and Taylor-arity guards, CI and runner reporting. The guarded
 code does not claim nonprincipal numerical `ProductLog` support. Historical
 preservation receipts remain tied to their recorded source revisions.
 
-**Pending finding — P2: freeze the native-definition capture script.** The
+**Finding at review time — P2: freeze the native-definition capture script.** The
 uncommitted `validation/check_mathics_definitions.py` records tool hashes at
 line 111, but line 135 executes the live `CheckMathicsDefinitions.wl` path for
 each capture. Package inputs are snapshotted and checked; the capture script
@@ -36,6 +36,15 @@ invalidate the comparison on tool-hash drift. The reviewed script hashes were:
 This finding concerns pending work outside `5d4ff7c`; it is not a defect in the
 merged package's mathematical output. A later review should recheck the live
 tool rather than assuming this uncommitted snapshot is still current.
+
+**Resolution in the Mathics worktree:** the comparison runner now copies
+the exact hashed capture bytes before launching any kernel, executes only
+that frozen script, checks its hash before each launch and at completion,
+and rejects changes to the original tools as well. Three focused offline
+regressions check the unchanged case, an edit to the original during the
+first kernel, and corruption of the snapshot during the first kernel. The
+last case prevents the second kernel from starting. These tests pass; they
+verify harness isolation rather than package mathematical behavior.
 
 Root's separate post-merge acceptance is recorded in the
 [validation index](../../validation/README.md). Focused native tests,

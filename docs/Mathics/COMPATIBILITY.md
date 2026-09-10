@@ -43,7 +43,7 @@ s["Remainder"]
 Evaluate `Get` before parsing subsequent package calls. A command-line
 `--code` string containing both the load and a first package call is parsed
 as one expression; its previously unknown function names can bind to
-`Global``. Separate input expressions or a `.wl` script preserve streaming
+the `Global` context. Separate input expressions or a `.wl` script preserve streaming
 package context resolution.
 
 The larger iteration budget is an explicit Mathics session setting. Mathics
@@ -57,8 +57,8 @@ force independently of the evaluator budget.
 
 Only Mathics loads the compatibility modules. Package implementation symbols
 then resolve selected missing or incompatible operations through
-`AsymptoticAnalysis`Mathics``. The adapter context is removed from the public
-context path at the end of loading. No Mathics `System`` function is patched.
+the ``AsymptoticAnalysis`Mathics`` context. The adapter context is removed from
+the public context path at the end of loading. No Mathics `System` function is patched.
 Missing inert system names used in public input, such as `SeriesTermGoal`,
 are established so caller input and package patterns use the same symbols.
 An inert name does not imply an implemented backend or special function.
@@ -79,6 +79,11 @@ checks reject the original forms.
 * **Associations:** the package supplies bounded adapters for lookup,
   membership, updates, and key selection. A missing-key lookup evaluates its
   default only when needed; list-valued lookups preserve key order.
+* **Empty lists:** native Mathics mapping can invalidate the cache of a
+  reused empty list and crash later metadata construction. Private package
+  maps return an empty list directly in the exact two-argument empty case;
+  other forms retain native behavior. This enables flat-sector operations
+  and empty Fourier residuals. See [list semantics](LISTS.md).
 * **Simplification:** Mathics can raise a Python exception for atomic
   assumptions in two-argument simplification. The adapter passes an
   equivalent list of assumptions. Its algebraic and inequality reasoning
@@ -139,7 +144,7 @@ checks reject the original forms.
   Wolfram wall-clock allowance because Mathics interpretation is slower.
   Proof criteria and fallbacks are unchanged. Explicit `CoreCheckTimeConstraint`
   values and the documented five-second callable-application guard keep their
-  original deadlines. User calls to `System`TimeConstrained` are unaffected.
+  original deadlines. User calls to ``System`TimeConstrained`` are unaffected.
 * **Display:** Mathics and Wolfram front ends have different box support.
   Use `Normal[s]`, `s["Remainder"]`, and `InputForm[s]` when inspecting
   computation results independently of their display.
@@ -193,13 +198,16 @@ and the subsequent matching full rerun instead of discarding that evidence.
 
 Independent review fixes were subsequently merged from `origin/main`.
 Native definition comparisons separately record the `021c584` review merge
-and the later `350c70f` control: the latter preserves all 2,051 modular and
-2,050 standalone package symbols
-across attributes, options, own/down/up/sub/numeric/default/format values,
-messages, and contexts. The earlier full-suite result is not relabeled as a
-full run of the later upstream changes. Each receipt identifies its exact
-source hashes; absolute source-directory strings are the only normalized
-definition content.
+and the later `350c70f` control. The latest comparison uses `a55df16`, including
+its independent native rule-goal changes, as the control for the 54-module
+Mathics candidate. All 2,051 modular and 2,050 standalone package symbols
+match across attributes, options, own/down/up/sub/numeric/default/format
+values, messages, and contexts. Six System builtins, including `Map`, retain
+their definitions before loading, after loading, and after reloading; eight
+behavior probes also pass in every phase. The earlier full-suite result is
+not relabeled as a full run of these later upstream changes. Each receipt
+identifies its exact source hashes; absolute source-directory strings are
+the only normalized definition content.
 
 To reproduce a native definition comparison, provide a baseline checkout or
 extracted Git archive and run:
@@ -208,9 +216,13 @@ extracted Git archive and run:
 python validation/check_mathics_definitions.py --baseline BASELINE_REPOSITORY --candidate . --wolfram wolfram.exe --output native-definitions.json --captures .venv/native-captures
 ```
 
-Both entry points are checked by default. The tool copies immutable inputs,
-runs fresh kernels serially, verifies load/reload and selected builtin state,
-and checks that source hashes remain unchanged. Its deliberate changed-value
-fixture was rejected, as required. Definition comparisons and finite
+Both entry points are checked by default. The tool copies package inputs and
+the exact hashed Wolfram capture script into temporary snapshots, runs fresh
+kernels serially, and verifies load/reload and selected builtin state. It
+checks the frozen capture script before each launch and at completion, and
+rejects changes to original package or tool files. Focused regressions confirm
+that editing either the original or frozen capture script invalidates the
+run; a changed frozen script also blocks the next kernel launch. Its deliberate
+changed-value fixture was rejected as well. Definition comparisons and finite
 regressions are scoped evidence; neither proves every possible surrounding
 program or every Wolfram version behaves identically.
