@@ -20,9 +20,7 @@ fourierPoly[q_, ell_, ass_] := Module[{coefficients, canonical, expanded},
 
 (* The first entry is an exact source weight or frequency. Mathematical
    equality, rather than structural equality, groups algebraic resonances. *)
-fourierWeightGroups[rows_List] := Split[
-  Sort[MapAt[canon, #, 1] & /@ rows, less[#1[[1]], #2[[1]]] &],
-  equal[#1[[1]], #2[[1]]] &];
+fourierWeightGroups[rows_List] := orderedWeightGroups[MapAt[canon, #, 1] & /@ rows];
 fourierFrequencyBudget[count_, limit_] := If[count > limit,
   fail["FrequencyLimit", "The exact Fourier coefficient exceeds MaxFrequencies; no modes were silently discarded.",
     <|"MaxFrequencies" -> limit, "RequiredFrequencies" -> count|>]];

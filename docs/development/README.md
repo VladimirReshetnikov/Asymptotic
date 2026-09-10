@@ -56,6 +56,12 @@ logarithmic-tail policies.
 The [real-coefficient notes](REAL_COEFFICIENTS.md) explain why complete
 coefficients are checked after collection, including target offsets and
 observables, and distinguish this check from a proof that the source is real.
+The [equal-exponent notes](EXPONENT_EQUALITY.md) describe exact mathematical
+collection before block counts, logarithmic frontier degrees and inverse
+enumeration, while preserving genuinely distinct close powers.
+The [composition parameter-scope notes](COMPOSITION_PARAMETER_SCOPE.md)
+explain why a fixed-parameter remainder needs a new joint proof when an inner
+variable captures a parameter, and when complete source replay supplies one.
 
 ## Working on a change
 

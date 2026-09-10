@@ -1,5 +1,77 @@
 # Review and validation record
 
+## Exact exponent collection, composition scope, and native search
+
+The published checkpoint is `243ceff`, which also merges the subsequent
+Mathics-only changes from `main` revision `73c23e0`. Its
+[second-sync checks](review-mathics-sync-artifacts.json) pass **32/32 in two
+fresh Wolfram kernels**, exercising modular and repository-root standalone
+loading, reloads, adapter isolation and the three review repairs. Those two
+loads used files in the checkout; they were not an isolated-file fixture.
+The [published GitHub acceptance](review-published-loading-tests.json) separately
+passes **16/16 in a fresh kernel** using `Get[URLDownload[...]]` with the immutable
+`243ceff` URL and an explicit reload. The remote bytes match the rebuilt
+standalone before and after the run. No local HTTP server was started.
+
+The fixes are recorded at `5b2b6cd`. Before publication, upstream `main`
+advanced to `b6df7a1`, adding the Mathics-only evaluator adapters. The modular
+sources merged directly; the generated standalone conflict was resolved by
+rebuilding from the merged sources. The
+[merged native acceptance](review-normalization-merge-tests.json) passes
+**425 tests, zero failures**, across the [23 explicitly selected suites](CheckMergedReviewFixes.wl).
+This deduplicates the two selections below and adds five package-identity cases.
+See the [merge artifact receipt](review-normalization-merge-artifacts.json)
+for the exact parents, source hashes, and distribution checks. This run does
+not establish Mathics feature acceptance or complete native input coverage.
+
+The pre-merge C14/C15 and native-search milestone has three separate acceptance records:
+
+| Record | Executed scope | Result |
+| --- | --- | --- |
+| [Review normalization](review-normalization-tests.json) | [15 selected suites](CheckReviewNormalization.wl), including 23 new equal-exponent and 20 new composition-scope cases | **276 passed, 0 failed** |
+| [Native search](native-search-tests.json) | [9 selected suites](CheckNativeSearch.wl), including 16 new compatible-backend search cases | **179 passed, 0 failed** |
+| [Local distribution loading](review-normalization-loading-tests.json) | Isolated standalone, modular entry, `init.m`, `Needs`, and paclet loading; reloads and all three new repairs checked | **75 passed, 0 failed, 5 fresh kernels** |
+
+All runs used Wolfram 15.0.1 for Windows. The committed files at `5b2b6cd` match
+all 56, 50, and 45 source hashes in these respective records. The two focused runs share
+35 assumption/reality cases; their counts are not 455 distinct tests. The
+full package suite was skipped. The [artifact receipt](review-normalization-artifacts.json)
+ties these records to the rebuilt standalone file, guide and mathematical PDF.
+
+Equal exponents are collected before block counts, remainder logarithmic
+degrees and inverse enumeration. The [five baseline observations](exponent-equality-baseline.json)
+record the previously lost term, underestimated squared remainder and spurious
+inverse enumeration cost at commit `6687962`. See the
+[mathematical and implementation notes](../docs/development/EXPONENT_EQUALITY.md).
+
+Composition now checks whether the inner varying symbol was fixed data of the
+outer remainder. Supported complete forward sources with exact inner objects
+are re-expanded in the joint regime; unsupported captured remainders are refused.
+The [ten baseline observations](composition-scope-baseline.json) record exact
+diagonal values `1/2`, `2` and `Cos[1]` incorrectly approximated by `1 + O(a^2)`.
+The [initial 43-case acceptance](review-scope-and-equality-first-pass.json)
+passed 42 cases: a violated source condition was refused with a coefficient
+error. Checking the condition before substitution corrected the final case.
+See the [scope contract](../docs/development/COMPOSITION_PARAMETER_SCOPE.md).
+
+Automatic native search now tries the other compatible backend when the
+preferred result is unresolved or failed, while preserving effective common
+options and recording ordered attempts. The [47-observation baseline](native-search-baseline.json)
+and [32-call native-only probe](native-search-candidates-probe.json) characterize
+the host's native behavior and remaining admission gaps. They are not acceptance
+suites. Complete native input coverage remains an open requirement; see the
+[compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md).
+
+The standalone builder's 11 existing Python tests passed. The guide was
+regenerated and its links, unique anchors and coverage of all 38 public symbols
+checked. Its HTML was not visually reviewed in this milestone. The mathematical
+article completed three serial strict LaTeX passes, finishing at 98 pages.
+All pages were rendered; page 45 and contact sheets covering pages 43–54 and
+97–98 were visually inspected without clipping or overlap. All 98 pages passed
+the text/page geometry check. The receipt records exact PDF, source and build-log
+hashes, including the first pass's temporary 94-page output before the table of
+contents stabilized. No cosmetic PDF changes were made.
+
 ## Package rename, directory moves, and historical evidence
 
 The maintained package directory, standalone file and Wolfram context are now
@@ -8,7 +80,7 @@ The public `AsymptoticInverse` function is unchanged. Current loading commands
 and navigation use the renamed package; see the
 [loading guide](../src/Documentation/UserGuide.md#loading-fixed-versions).
 
-The current `src/` layout passes **226 tests, zero failures**, in twelve
+At the `6687962` layout checkpoint, `src/` passed **226 tests, zero failures**, in twelve
 selected files, plus **60 loading checks in five fresh kernels**. See
 [source-layout-tests.json](source-layout-tests.json),
 [source-layout-loading-tests.json](source-layout-loading-tests.json), and the

@@ -160,7 +160,11 @@ specialNativeSectors[expression_, u_, ass_] := Module[{expanded, terms, groups, 
     rows = GatherBy[group, #[[2]] &];
     rows = {#[[1, 2]], specialNativeTry[FullSimplify[Total[#[[All, 3]]], ass && u > 0]]} & /@ rows;
     If[! FreeQ[rows, $Failed], fail["ResourceLimit", "Native amplitude simplification exceeded its time budget."]];
-    rows = Sort[Select[rows, #[[2]] =!= 0 &], less[#1[[1]], #2[[1]]] &];
+    rows = orderedWeightGroups[Select[rows, #[[2]] =!= 0 &]];
+    rows = If[Length[#] === 1, First[#], {#[[1, 1]],
+      specialNativeTry[FullSimplify[Total[#[[All, 2]]], ass && u > 0]]}] & /@ rows;
+    If[! FreeQ[rows, $Failed], fail["ResourceLimit", "Native amplitude simplification exceeded its time budget."]];
+    rows = Select[rows, #[[2]] =!= 0 &];
     If[rows === {}, Return[Nothing, Module]];
     oscillatory = ! FreeQ[rows, (Sin | Cos)[_]];
     alpha = If[carrier =!= 1 || oscillatory, rows[[1, 1]], 0];

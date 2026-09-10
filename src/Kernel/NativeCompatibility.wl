@@ -136,14 +136,67 @@ automaticNativeBackend[request_HoldComplete] := Module[{keys, series, asymptotic
   If[MatchQ[specifications, {HoldComplete[{_Symbol, _, _}]}] || Length[specifications] > 1,
     "Series", "Asymptotic"]];
 
-automaticNativeResult[request_HoldComplete, original_HoldComplete, reason_, failure_: None] := Module[{backend, result},
-  backend = automaticNativeBackend[request];
-  If[FailureQ[backend], Return[backend, Module]];
-  result = nativeExpansion[request, backend, original];
-  If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
-  GeneralizedSeries[Join[result[[1]], <|"BackendSelection" -> Automatic,
+automaticNativeBackends[request_HoldComplete] := Module[{preferred, keys, candidates},
+  preferred = automaticNativeBackend[request];
+  If[FailureQ[preferred], Return[preferred, Module]];
+  keys = nativeRequestOptionKeys[request];
+  candidates = Select[{"Series", "Asymptotic"}, Function[backend,
+    Complement[keys, HoldComplete /@ (First /@ Options[
+      If[backend === "Series", System`Series, System`Asymptotic]])] === {}]];
+  DeleteDuplicates[Prepend[DeleteCases[candidates, preferred], preferred]]];
+
+(* Two native attempts share effective common options. In particular, a
+   delayed option is not another program to run when retrying the request.
+   OptionValue preserves first-option precedence; unused duplicate delayed
+   values are not evaluated. Explicit and native-exclusive paths bypass this. *)
+automaticNativeOption[HoldComplete[(Rule | RuleDelayed)[key : (Assumptions | SeriesTermGoal), _]], values_] :=
+  With[{value = Lookup[values, key]}, HoldComplete[key -> value]];
+automaticNativeOption[HoldComplete[Sequence[args___]], values_] :=
+  Replace[nativeHeldJoin[automaticNativeOption[#, values] & /@
+      nativeHeldArguments[HoldComplete[args]]], HoldComplete[items___] :> HoldComplete[Sequence[items]]];
+automaticNativeOption[held : HoldComplete[List[args___]], values_] /; nativeOptionTreeQ[held] :=
+  Replace[nativeHeldJoin[automaticNativeOption[#, values] & /@
+      nativeHeldArguments[HoldComplete[args]]], HoldComplete[items___] :> HoldComplete[List[items]]];
+automaticNativeOption[held_, _] := held;
+
+automaticNativeSearchRequest[request_HoldComplete] := Module[{keys, options, values = <||>, ambient, parts},
+  keys = nativeRequestOptionKeys[request];
+  If[Intersection[keys, {HoldComplete[Assumptions], HoldComplete[SeriesTermGoal]}] === {},
+    Return[request, Module]];
+  options = Flatten[ReleaseHold /@ Select[nativeTailArguments[request],
+    nativeOptionTreeQ[#] && ! nativeSpecificationQ[#] &]];
+  ambient = If[TrueQ[$assumptionScopeActive], $entryAssumptions, $Assumptions];
+  Block[{$Assumptions = ambient},
+    If[MemberQ[keys, HoldComplete[Assumptions]],
+      AssociateTo[values, Assumptions -> optionAssumptions[AsymptoticExpansion, options]]];
+    If[MemberQ[keys, HoldComplete[SeriesTermGoal]],
+      AssociateTo[values, SeriesTermGoal -> OptionValue[AsymptoticExpansion, options, SeriesTermGoal]]]];
+  parts = nativeHeldArguments[request];
+  nativeHeldJoin[Prepend[automaticNativeOption[#, values] & /@ Rest[parts], First[parts]]]];
+
+nativeEvaluationStatus[result_] := Which[
+  ! FreeQ[result, $Aborted], "Aborted",
+  ! FreeQ[result, $Failed | _Failure], "Failed",
+  ! FreeQ[result, _System`Series | _System`Asymptotic], "Unresolved",
+  True, "Computed"];
+
+automaticNativeResult[request_HoldComplete, original_HoldComplete, reason_, failure_: None] := Module[
+  {backends, prepared, result, selected = None, attempts = {}, backend, status},
+  backends = automaticNativeBackends[request];
+  If[FailureQ[backends], Return[backends, Module]];
+  prepared = If[Length[backends] > 1, automaticNativeSearchRequest[request], request];
+  Do[
+    result = nativeExpansion[prepared, backend, original];
+    If[selected === None, selected = result];
+    status = If[MatchQ[result, _GeneralizedSeries], result["NativeEvaluationStatus"], "Failed"];
+    AppendTo[attempts, <|"Backend" -> backend, "EvaluationStatus" -> status,
+      "Request" -> If[MatchQ[result, _GeneralizedSeries], result["NativeRequest"], Missing["NotDelegated"]]|>];
+    If[MemberQ[{"Computed", "Aborted"}, status], selected = result; Break[]],
+    {backend, backends}];
+  If[! MatchQ[selected, _GeneralizedSeries], Return[selected, Module]];
+  GeneralizedSeries[Join[selected[[1]], <|"BackendSelection" -> Automatic,
     "BackendSelectionReason" -> reason, "OrderConvention" -> "Native",
-    "PackageFailure" -> failure|>]]];
+    "PackageFailure" -> failure, "NativeAttempts" -> attempts|>]]];
 
 (* Ordinary argument evaluation happens once at this entry, under the same
    neutral proof context as the established package entry. The resulting
@@ -231,7 +284,7 @@ nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module
     "NativeResult" -> result, "Expression" -> normal,
     "Remainder" -> Missing["NativeContract"], "Exact" -> Missing["NotEstablished"],
     "RemainderContract" -> If[backend === "Series", "NativeFormalOrder", "NativeAsymptotic"],
-    "NativeEvaluationStatus" -> If[FreeQ[result, _System`Series | _System`Asymptotic], "Computed", "Unresolved"],
+    "NativeEvaluationStatus" -> nativeEvaluationStatus[result],
     "NativeRequest" -> call, "OriginalArguments" -> original,
     "ExpansionSpecifications" -> specifications, "Variable" -> variable,
     "AmbientAssumptions" -> ambient, "Assumptions" -> Missing["NativeContract"],

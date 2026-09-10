@@ -261,6 +261,18 @@ realCoefficientRows[rows0_List, ell_, ass_, symbolic_: False] := Module[{rows, c
 (* Sparse power-log jets: lists of {weight, polynomial in ell}          *)
 (* ------------------------------------------------------------------ *)
 
+(* Canonical expression trees need not identify equal exact real weights.
+   First bucket identical keys, then sort representatives and join adjacent
+   proved-equal buckets. Only the m structural representatives are sorted;
+   at most m-1 adjacent equality checks are needed, without all-pairs proofs.
+   Callers canonicalize weights and normalize coefficients in their own
+   algebra; a failed order proof retains the existing UndecidableOrder exit. *)
+orderedWeightGroups[rows_List] := Module[{groups},
+  groups = GatherBy[rows, First];
+  If[Length[groups] < 2, Return[groups, Module]];
+  groups = Sort[groups, less[#1[[1, 1]], #2[[1, 1]]] &];
+  Flatten[#, 1] & /@ Split[groups, equal[#1[[1, 1]], #2[[1, 1]]] &]];
+
 jetMerge[terms_List, ell_, ass_, symbolic_: False] := Module[{groups, out},
   If[terms === {}, Return[{}, Module]];
   If[symbolic,
@@ -274,7 +286,12 @@ jetMerge[terms_List, ell_, ass_, symbolic_: False] := Module[{groups, out},
   groups = GatherBy[{canon[#[[1]]], #[[2]]} & /@ terms, First];
   out = {#[[1, 1]], polyCanon[Total[#[[All, 2]]], ell, ass]} & /@ groups;
   out = Select[out, ! polyCanonicalZeroQ[#[[2]], ell, ass] &];
-  Sort[out, leq[#1[[1]], #2[[1]]] &]];
+  (* Preserve cheap structural cancellation before requiring cross-weight
+     order proofs, and only recanonicalize coefficients that actually merge. *)
+  groups = orderedWeightGroups[out];
+  out = If[Length[#] === 1, First[#],
+    {#[[1, 1]], polyCanon[Total[#[[All, 2]]], ell, ass]}] & /@ groups;
+  Select[out, ! polyCanonicalZeroQ[#[[2]], ell, ass] &]];
 
 jetTrim[u_List, cut_, ell_, ass_] := jetMerge[Select[u, less[#[[1]], cut] &], ell, ass];
 jetAdd[u_List, v_List, cut_, ell_, ass_] := jetTrim[Join[u, v], cut, ell, ass];

@@ -1,0 +1,122 @@
+{
+  "RecordedUTC": "2026-09-10T01:00:50.353064+00:00",
+  "SourceRepository": "https://github.com/VladimirReshetnikov/Asymptotic",
+  "ParentCommit": "d8fa62133c7fb863d56709befbe8425c31a50971",
+  "Scope": "C14 exact equal-exponent collection, C15 parameter-scope composition and compatible native-backend search; bounded focused verification, not complete native coverage.",
+  "FullPackageSuiteRun": false,
+  "FocusedAcceptances": {
+    "review-normalization-tests.json": {
+      "SHA256": "8cbe85139b0b2d13e3015ac663629b1d1b3e85fb5520f0b1cbd5aad7eed463e6",
+      "VerifiedFinalSourceHashes": 56
+    },
+    "native-search-tests.json": {
+      "SHA256": "376de3d24bab9464b113cc30bce18d857e5c5e2c03d2865a8b79ff13fecd5867",
+      "VerifiedFinalSourceHashes": 50
+    },
+    "review-normalization-loading-tests.json": {
+      "SHA256": "9aecc6722e9db7c6beef06a0e8dfacb210754df334a73182c9fa07fd3d9f080d",
+      "VerifiedFinalSourceHashes": 45
+    }
+  },
+  "FocusedCounts": {
+    "ReviewNormalization": {
+      "Succeeded": 276,
+      "Failed": 0,
+      "Suites": 15
+    },
+    "NativeSearch": {
+      "Succeeded": 179,
+      "Failed": 0,
+      "Suites": 9
+    },
+    "LocalLoading": {
+      "Succeeded": 75,
+      "Failed": 0,
+      "FreshKernels": 5
+    }
+  },
+  "SharedTests": "The 276 and 179 counts overlap in the 12 assumption replay and 23 real-coefficient tests; they are not 455 distinct tests.",
+  "Standalone": {
+    "Artifact": "AsymptoticAnalysis.wl",
+    "SourceFiles": 39,
+    "Bytes": 612643,
+    "SHA256": "b8c2b66813e0f17e444d686c95e40feeb9a9fa532efded5da32af38d7e1fc933",
+    "MatchesSources": true
+  },
+  "BuilderTests": {
+    "Succeeded": 11,
+    "Failed": 0,
+    "Command": "python -B -m unittest discover -s validation -p test_standalone.py -v"
+  },
+  "Guide": {
+    "MarkdownSHA256": "4288ec3cf66f4e3816819146544d1cfd7c90d41cd2f1767484ca089988b9b6f4",
+    "HTMLSHA256": "f9e7479488a0e8092c125aae31c573411a65e1a6a629a7cfdb725ad3cad42784",
+    "CSSSHA256": "69853132fec2f492c02fcdea11bc1c351cf5a2babc962b2dbbd8b9bd253e90d8",
+    "HTMLVisualReview": "Not performed in this milestone; deterministic generation, links and API anchors checked."
+  },
+  "Article": {
+    "PDFSHA256": "7a582cc903685c2e0dc3a93b9c14fe874d92d95f4660abfd453762cc9e4d6212",
+    "Pages": 98,
+    "RenderedPages": 98,
+    "Rendering": "pdftoppm at 100 DPI",
+    "PageGeometryOutsideText": 0,
+    "InspectedFullPages": [
+      45
+    ],
+    "InspectedContactSheets": [
+      8,
+      9,
+      17
+    ],
+    "VisualResult": "Revised uniformity discussion and selected neighboring/final pages inspected without visible clipping or overlap. No cosmetic changes made.",
+    "LatexPasses": 3,
+    "LatexPassPageCounts": [
+      94,
+      98,
+      98
+    ],
+    "LatexCommand": "pdflatex -no-shell-escape -interaction=nonstopmode -halt-on-error -file-line-error asymptotic-inverse.tex",
+    "BuildLogSHA256": {
+      "validation/review-normalization-pdf-pass-1.txt": "8c01d8811395c3e2b7b7a474e5386818b179cac3a8be681799b08060e23be234",
+      "validation/review-normalization-pdf-pass-2.txt": "7efa341b6e35703f98e206db9506cc98f6a272ac3029c593ad7e9a7ea2a9f9c7",
+      "validation/review-normalization-pdf-pass-3.txt": "16543617e3e6737999fdb58bf65e01be7e5a643d9cc2df2791c86fe61951d611"
+    },
+    "BuildNotes": "All three passes exited normally. Saved transcripts use LF line endings. Final log contains only the expected disabled-shell-escape epstopdf warning; no overfull/underfull boxes.",
+    "SourceSHA256": {
+      "docs/article/asymptotic-inverse.tex": "099f13875cbf070f18e8823c50ff9ab765f368da40df0ac3d422b86cbcfb9869",
+      "docs/article/sections/01-introduction.tex": "817b308632a56c247de9cbeb0b8b6dc3ae29563905789184af39c13cbb68ef4e",
+      "docs/article/sections/02-scale.tex": "706ea9cbd941ac15b899dc3d1a5cce455ad018b022658cec4e9aaa5751f68018",
+      "docs/article/sections/03-forward.tex": "f11afe40128834b574f84ffbf2611c8409cdf3e6f4ec7d4e7c99050bd9e277de",
+      "docs/article/sections/04-branch.tex": "97cb8bbfb95b8846a7941c2f1f1c16d2d62da79e5c15108e3b619a9033c9aeb6",
+      "docs/article/sections/05-lagrange.tex": "a5c6c892f16c5b3218ad4e2bc8fec196d87afbe1fe8ca899c0a74fb7a5cf8b9e",
+      "docs/article/sections/06-coefficients.tex": "9b3162adeade047da981868cf1cf5a68535aa3d475382d560e4565263a65fb54",
+      "docs/article/sections/07-convergence.tex": "84a60624d5c28ed692c1ab20a271bbdb67e69788db0a9d0db30b6e4efdcf0cfa",
+      "docs/article/sections/08-remainders.tex": "263e1e25f3bfd7725c698e9a366cee2aa9d69208cc0a0330bdf15325ca3fbe18",
+      "docs/article/sections/09-transport.tex": "a24ab3caa62974d7291149b7a25e98ad4627fab3f33d6d9e49a15ae85bc49611",
+      "docs/article/sections/10-endpoints.tex": "0f0e918c0ad96709e90c1e98fe1de88407bff7ff0b04407a41184dd653c9f342",
+      "docs/article/sections/11-examples.tex": "e7e8285439ef6ffbac203c7ef393ee98e0b7bc5b950b64e21ef5d9f70df9c39f",
+      "docs/article/sections/12-boundaries.tex": "f3f46444458a78b77176d3fed6ae39418311e37e35df06d809221162716d7ffb",
+      "docs/article/sections/15-coordinates.tex": "f5a7fed3fd8ab28e0911c52040df8d1c330fee5a9fde14790fc105457a216719",
+      "docs/article/sections/16-incremental.tex": "5c57017f16b61bf4231c5bac90b5e2cd4d95252fa989ca05cc11b96f3875e0f1",
+      "docs/article/sections/17-calculus.tex": "4691bda418f42f98d647af176e82706c15b0b599d4b465a98d42c4e1a6c58006",
+      "docs/article/sections/18-core-perturbations.tex": "65f08c22e52f6c7a5be1045fc7b97823b1e9568eec448e58bd747bbc7100fc6d",
+      "docs/article/sections/19-certificates.tex": "320dda491c405af806d3da59b55db3e51bf6fd5fedbaf076b2ccdb3ea421ec63",
+      "docs/article/sections/20-logarithmic-scales.tex": "e4a98602fdaafd5625be88222f3c6fea0aec0d2a1ad72a4a69df68600aa07271",
+      "docs/article/sections/21-flat-sectors.tex": "bbf12e8f156dc108e6ae6c0ec15ebfeb89cbebd803aa0fe8994a3f1194f5dea1",
+      "docs/article/sections/22-fourier.tex": "651327654ce686e0fb4b3ec8424dcce78ca32ad4d73cfb7fae20757f0eac50b5",
+      "docs/article/sections/23-source-coordinates.tex": "d269eff6f56a550972c3e6630e30f9659c112d2bc02c884fc55471efdf36dc52",
+      "docs/article/sections/24-special-functions.tex": "d2a84e39d48b52788f90065f6c0946e558cdd256e0828bc71a7df3cba5500ef2",
+      "docs/article/sections/25-refinement-state.tex": "f0c2d423be0a69c8ddb8547ab722306dd589327c78c8712f5e936e4c436e3d1c",
+      "docs/article/sections/27-exponential-core.tex": "768c4df1ccb2c70d87e68e4455bf32000246dc92883641805c4df057d9a992ff",
+      "docs/article/sections/28-flat-sector-operations.tex": "a38db9c32048c7a166080c63e02a474bd572efc320ef2d006365ac0566ea275f",
+      "docs/article/sections/30-reciprocal-log-operations.tex": "dd3e87f274f5e363cf5c041586a86376a642513ba9f79e2f15f5e8269030c5ca",
+      "docs/article/sections/31-inverse-function-expressions.tex": "78674eb27cf7553c0ace41f4ddfb3cdc98c2a816166c1746768024301e40b7ec",
+      "docs/article/sections/32-exponential-normalization.tex": "c3a8b1dd14a1b0f229415e903bf73d4fd162f2ce8706fb2e3a4a2c9c11b7ee83",
+      "docs/article/sections/33-gamma-inverse.tex": "73f096ed6c770b2501d2b04fd79691b4a667de68f4ef51b6f5af6e92e02dae06",
+      "docs/article/sections/34-barnes-inverse.tex": "7fd7324c7cfaaf51b193fa37a080c687126de4c677997162720dae80a13f8fa0",
+      "docs/article/sections/35-special-function-expansions.tex": "efc6b1c6e8bfe97bb4a91cd8267e1f7446c24b7a49bbecdbb8dd0e6eadfc43b9"
+    }
+  },
+  "RemoteLoading": "Deferred until this artifact is published; local loading covers five modes including reloads.",
+  "RemainingGoal": "Full native input coverage, protected-request policy and remaining review findings remain open."
+}

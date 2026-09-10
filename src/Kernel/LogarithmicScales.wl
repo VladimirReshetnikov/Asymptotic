@@ -11,7 +11,10 @@ Options[AsymptoticAnalysis`AsymptoticLogarithmicInverse] = Join[Options[Asymptot
 logarithmicMerge[rows_, ass_] := Module[{g, merged},
   g = GatherBy[({canon[#[[1]]], #[[2]]} & /@ rows), First];
   merged = ({#[[1, 1]], Simplify[Total[#[[All, 2]]], ass]} & /@ g);
-  Sort[Select[merged, ! zeroQ[#[[2]], ass] &], less[#1[[1]], #2[[1]]] &]];
+  g = orderedWeightGroups[Select[merged, ! zeroQ[#[[2]], ass] &]];
+  merged = If[Length[#] === 1, First[#],
+    {#[[1, 1]], Simplify[Total[#[[All, 2]]], ass]}] & /@ g;
+  Select[merged, ! zeroQ[#[[2]], ass] &]];
 
 logarithmicLevels[u_, n_] := NestList[Log, -Log[u], n - 1];
 

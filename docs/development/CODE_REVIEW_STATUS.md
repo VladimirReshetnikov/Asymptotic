@@ -67,13 +67,23 @@ function `AsymptoticExpansion` now also has the held alias `AsymptoticExpand`.
 
 | ID | Required work and acceptance boundary |
 | --- | --- |
-| B01 | **Partial — automatic routing focused verified.** Native `Series` and `Asymptotic` delegation is available before real-coordinate admission, with no special-function whitelist. `Automatic` routes native specifications/options and selected representation failures; successful package calls keep their analytic contract. The accepted full input-superset scope remains open: second-backend search, remaining structures/options, and the coverage argument are still required. |
+| B01 | **Partial — automatic routing and compatible second-backend search focused verified.** Native delegation precedes real-coordinate admission and has no special-function whitelist. `Automatic` retains successful package results and searches compatible native backends for admitted native routes. Remaining admission gaps include scalar native term goals, protected Direction/conditional inputs, nested inactive outputs, and the complete coverage argument. The accepted full input-superset scope remains open. |
 | B02 | **Automatic policy focused verified.** Held alias, explicit backend selection, native options and native order conventions are implemented. Automatic native results identify native order and routing reason, retaining the package failure when applicable. Callables, inverse/conditional sources and explicit direction/branch/budget options stay on the package path. `"Package"` rejects native-only options instead of silently ignoring them. |
 | B03 | **Native representation focused verified.** `Kind`/`Scale` `"Native"` preserves the complete native result, held request and syntactic specifications, ambient context and runtime provenance. Analytic remainder and exactness remain missing; `Normal` applies native normalization and can retain infinite expressions. Analytic operations refuse to infer a remainder theorem. Further analytic promotion and native operations remain separate work; coordinate with C06, C07, C13 and C16. |
-| B04 | **Partial — focused comparisons recorded.** Eight selected files pass 163 tests on Wolfram 15.0.1 Windows with unchanged sources, including native differential, contract and presentation cases plus adjacent regressions. This evidence supports those cases only. Broader matrix coverage, R17 N4's specific comparison, and the structural argument for full Automatic coverage remain required. |
+| B04 | **Partial — focused comparisons recorded.** Nine selected files pass 179 tests on Wolfram 15.0.1 Windows with unchanged sources, including 16 new backend-search cases. Separate bounded differential probes reproduce R17 N4's selected native `x^x`, Zeta and quadratic inverse calculations. These records support only their stated cases; broader matrix coverage and the structural argument for full Automatic coverage remain required. |
 
 Implementation: [NativeCompatibility.wl](../../src/Kernel/NativeCompatibility.wl).
-Current automatic evidence: [163/0 record](../../validation/native-automatic-tests.json),
+The merged-source [425/0 acceptance](../../validation/review-normalization-merge-tests.json)
+rechecks the union of normalization/scope and native-search cases plus package
+identity after integrating `main` revision `b6df7a1`'s Mathics-only bootstrap.
+See the [merge receipt](../../validation/review-normalization-merge-artifacts.json).
+The individual search evidence at `5b2b6cd` is the [179/0 record](../../validation/native-search-tests.json),
+[nine-file runner](../../validation/CheckNativeSearch.wl), and
+[normalization/search artifact receipt](../../validation/review-normalization-artifacts.json).
+Automatic search records `NativeAttempts`, consumes effective explicit common
+options once, stops on a computed result or abort, and preserves the preferred
+result if neither compatible backend computes. The earlier automatic evidence
+is the [163/0 record](../../validation/native-automatic-tests.json),
 [eight-file runner](../../validation/CheckNativeAutomatic.wl), and
 [artifact receipt](../../validation/automatic-certificate-artifacts.json).
 The following records preserve the earlier explicit-mode milestone.
@@ -352,7 +362,7 @@ neither report establishes a current counterexample.
 
 The [current characterization](../../validation/review-wave-2-intake.json)
 comes from [six bounded public probes](../../validation/ProbeReviewWave2.wl),
-not an acceptance suite. It confirms two current mathematical errors: diagonal
+not an acceptance suite. It recorded two mathematical errors before the C14/C15 repairs: diagonal
 composition returns `1 + O(a^2)` where the exact answer is `1/2` (C15), and
 semantic duplicate powers yield logarithmic remainder degree 3 where degree 6
 is required (C14). It also records an unrepresentable native index (C17).
@@ -363,8 +373,8 @@ source-admission policy.
 
 | ID | Current evidence and required repair | Findings |
 | --- | --- | --- |
-| C14 | **Current native wrong bound.** Merge mathematically equal exponents before coefficient collection, truncation, boundary-degree scans and inverse enumeration. Structural keys distinguish `Sinh[1]^2` from `(Cosh[2]-1)/2`; the squared logarithmic block needs degree 6, not 3. Coordinate equality and strict ordering with C12; preserve distinct close powers and proof budgets. | [R13 A1][R13] |
-| C15 | **Current native wrong composition.** Preserve the fixed-parameter scope of the outer remainder when the inner varying symbol was an outer parameter. Outer `x/(a+x)` at fixed positive `a`, composed with `x=a` as `a` tends to zero, requires a new diagonal expansion or a refusal to transport the nonuniform bound. Inspect source and remainder dependence, not only retained coefficients; exact outer expressions remain usable. | [R11 N02][R11], [R14 N01][R14]; C13, X10 |
+| C14 | **Focused verified — 23 new cases in the 276/0 acceptance.** Shared ordered equality groups collect provably equal exponents before block counts, logarithmic boundary degrees and inverse generators. The reported square now retains degree 6; cancelled equal powers no longer consume a term goal or create a spurious inverse gap. Close distinct powers and existing proof/resource limits remain distinct. See [equal-exponent notes](EXPONENT_EQUALITY.md). | [R13 A1][R13]; [baseline](../../validation/exponent-equality-baseline.json), [276/0 acceptance](../../validation/review-normalization-tests.json), C12 |
+| C15 | **Focused verified — 20 new cases in the 276/0 acceptance.** Scope admission examines retained source, remainder metadata and recursive operation provenance, respecting bound inverse variables. Complete forward outer sources composed with exact forward inner objects are re-expanded in the joint regime; the reported diagonal gives exact `1/2`. Other captured nonexact remainders are refused. Exact outer identities still propagate inner uncertainty and recheck parameter/source conditions. See [parameter-scope notes](COMPOSITION_PARAMETER_SCOPE.md). | [R11 N02][R11], [R14 N01][R14]; [baseline](../../validation/composition-scope-baseline.json), [276/0 acceptance](../../validation/review-normalization-tests.json), C13, X10 |
 | C16 | **Source admission audit remains open.** Native `Series` may use formal analyticity for an opaque function with only a few truthful derivatives. C06's finite-log allowance presupposes an analytic tail theorem. The reported smooth nonanalytic function is now rejected by C07 because a derivative coefficient is unproved real, but this incidental refusal is not a regularity proof. Native coverage B03 must preserve formal output separately from a proved analytic bound. | [R11 N03][R11]; C06, B03 |
 | C17 | **Current native invalid optional view.** Check native integer/index representability as well as dense allocation length. A one-slot view for `1+x^(2^100)` still contains a native endpoint outside the supported machine range. Check denominator and signed lattice indices before constructing the optional view; preserve the sparse result. | [R12 N03][R12]; C01 |
 | C18 | **Pending — source inspected.** Derive and verify the target endpoint and approach direction from the complete target chart. Current composite fallback misuses flat offsets and isolated target scales: flat pole inverses approach infinity, negative-source Erfc approaches 2 from below, and negative quadratic curvature reverses the side. Cover original and derived objects. | [R15 F01][R15]; D01, D02 |
@@ -489,7 +499,7 @@ number of required fixes. Unnumbered roadmap proposals are covered above.
    preserving the implemented explicit native result contracts without giving
    formal/complex output an unproved real analytic interpretation. Current
    real-model repairs remain scoped to that model.
-2. Repair the current wrong results C14/C15, then target-chart correctness C18.
+2. Extend C14/C15's focused evidence when related paths change, then address target-chart correctness C18.
    Establish C16's source/admission boundary alongside native compatibility.
 3. Retain the focused acceptance boundaries for C01–C07 and P03; extend their
    evidence with wave-2 witnesses where applicable. C17 adds a distinct native
