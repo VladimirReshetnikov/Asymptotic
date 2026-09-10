@@ -1,0 +1,46 @@
+Native Wolfram observations, 10 September 2026
+Manual excerpts transcribed from successful connector outputs. Full returned
+associations also had the package's ordinary explanatory fields. No UUID or
+wall-clock timing was preserved, and no native session file is asserted.
+
+Kernel:
+15.0.0 for Linux x86 (64-bit) (May 6, 2026)
+
+BASELINE: coefficient query for inverse of x+x^2 at zero, multi-index {1}.
+String:  Exponent -> 3, Coefficient -> -2, UniformizerExponent -> 3.
+Symbol:  Exponent -> 1 + "Power", Coefficient -> -"Power",
+         UniformizerExponent -> 1 + "Power".
+Mixed:   Power -> 2, "Power" -> 3 gives Exponent -> 4, Coefficient -> -3.
+Nested:  {"Power" -> 2} gives Exponent -> 3, Coefficient -> -2.
+Delayed: "Power" :> 2 gives Exponent -> 3, Coefficient -> -2.
+All five returned an Association rather than Failure.
+
+NATIVE CONTROL:
+FilterRules[{{"Power" -> 2}}, "Power"] -> {"Power" -> 2}.
+"Power" /. FilterRules[{Power -> 2}, "Power"] -> "Power".
+
+BASELINE: numerical comparison for inverse of x^2, target 4, precision 30.
+Power 2, FromAbove:
+  ReferenceRoot -> 2.`30., ReferenceObservable -> 4.`30.,
+  LocalRoot -> 2.`30., LocalApproximation -> 4.`30., SourceSide -> 1.
+Power 3, FromBelow:
+  ReferenceRoot -> -2.`30., ReferenceObservable -> -8.`30.,
+  LocalRoot -> 2.`30., LocalApproximation -> -8.`30., SourceSide -> -1.
+Both returned approximate zero Error. The label in both responses was:
+"x = SourceOffset + SourceSide u; LocalRoot and LocalApproximation are values
+of u for Power 1 and of u^Power otherwise."
+
+CANDIDATE OPTION RUN, clean separate invocation:
+CheckCount -> 10; all ten named checks True; AllPassed -> True.
+
+CANDIDATE METADATA RUN, clean separate invocation:
+AnchorCounts -> {1,1}; all eight named checks True; AllPassed -> True.
+
+UNMODIFIED INVERSE MATRIX:
+Total -> 45, Passed -> 45, OtherResults -> {}.
+
+EXCLUDED HARNESS ATTEMPT:
+AssociateTo::argrx: AssociateTo called with 9 arguments; 2 arguments are expected.
+The eight metadata checks were not inserted. Its AllPassed -> True covered
+only the ten option checks and is NOT counted as 18 passing checks. Clean
+separate reruns above supersede that attempt.

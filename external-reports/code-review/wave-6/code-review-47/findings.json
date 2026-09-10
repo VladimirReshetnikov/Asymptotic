@@ -1,0 +1,74 @@
+{
+  "reviewed_commit": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "date": "2026-09-10",
+  "novelty_scope": "Pinned maintained all-wave registers, crosswalks, fifth-wave index and targeted nearby article material; no fresh cover-to-cover rereading of every report.",
+  "findings": [
+    {
+      "id": "N01",
+      "priority": "Medium",
+      "category": "Mathics-path performance",
+      "title": "Repeated sign/realness proof subqueries",
+      "source": "src/Kernel/MathicsAssumptions.wl",
+      "symbols": [
+        "mathicsRealProof",
+        "mathicsSignProof"
+      ],
+      "witness": "E_0=a; E_(n+1)=Cosh[E_n]^2; empty facts; depth 24",
+      "observed": "Retrieved helper bodies on Wolfram 15.0.0: n=0..6 give 1,8,29,92,281,848,2549 entries, all None.",
+      "modeled": "At n=12 (37 native leaves): original 335521 entries, memoized 200; fixed-depth plateau, not an unbounded exponential in n.",
+      "not_established": [
+        "Fresh Mathics execution",
+        "Public Mathics path count or latency",
+        "Runtime speedup",
+        "Production memoization patch acceptance"
+      ],
+      "candidate": "Query-local sharing with operation, expression, immutable facts identity, and remaining depth in the key; cache unknown only for the same key.",
+      "nearest_prior": [
+        "P06",
+        "P08",
+        "W3-15",
+        "W4-16",
+        "R39 N02",
+        "R42 N02"
+      ]
+    },
+    {
+      "id": "N02",
+      "priority": "Medium",
+      "category": "Documentation validation",
+      "title": "Optimization removes production validity gates",
+      "source": "validation/check_documentation.py",
+      "observed": "Actual upstream checker rejects invalid normal-mode fixtures but accepts them under -O with unconditional clean result fields.",
+      "candidate": "Replace five removable assert statements by explicit checks/raises; preserve normal-mode failure class and successful schema.",
+      "not_established": [
+        "Historical receipts produced under optimization",
+        "Current repository documentation corruption",
+        "Live-dependency integration acceptance"
+      ],
+      "nearest_prior": [
+        "V02",
+        "W4-09",
+        "R39 N03"
+      ]
+    },
+    {
+      "id": "N03",
+      "priority": "Medium",
+      "category": "Documentation reference and dependency extraction",
+      "title": "Inactive TeX comments manufacture definitions and dependencies",
+      "source": "validation/check_documentation.py",
+      "observed": "Comment-only label/bibliography definitions mask missing active keys; inactive labels/input paths cause false rejections. Two-pass pdflatex confirms semantic distinctions.",
+      "candidate": "Use standard-catcode comment-masked source for immediate input and reference-key extraction, retaining raw source for archive and software-content policies.",
+      "not_established": [
+        "Full TeX grammar support",
+        "Actual pinned article has missing keys",
+        "Live-dependency integration acceptance"
+      ],
+      "nearest_prior": [
+        "W3-11",
+        "W4-14",
+        "R44 T03"
+      ]
+    }
+  ]
+}

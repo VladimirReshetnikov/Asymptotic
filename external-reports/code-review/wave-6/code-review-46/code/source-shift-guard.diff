@@ -1,0 +1,11 @@
+--- a/src/Kernel/ExponentialCorePerturbation.wl
++++ b/src/Kernel/ExponentialCorePerturbation.wl
+@@ -93,7 +93,7 @@
+    sectorRemainder, sectorScale, inputRemainder = 0, inputScale = 0, inputContract = None,
+    rho, logdegree, remainder, coefficientList, exact, targetLimit},
+   validateInput[{core, perturbation}, limit];
+-  If[x === y || ! FreeQ[{core, perturbation}, y] || ! FreeQ[ass, x | y] || ! FreeQ[{shift, requested}, x],
++  If[x === y || ! FreeQ[{core, perturbation}, y] || ! FreeQ[ass, x | y] || ! FreeQ[shift, x | y] || ! FreeQ[requested, x],
+     fail["InvalidVariables", "Use distinct source and target symbols, parameter-only assumptions, and a source-independent CoreInverse and SourceShift."]];
+   If[! IntegerQ[depth] || depth < 0, fail["InvalidDepth", "Exponential sector depth must be a nonnegative integer."]];
+   If[depth + 1 > limit, fail["ResourceLimit", "The requested depth and first omitted coefficient exceed MaxTerms."]];

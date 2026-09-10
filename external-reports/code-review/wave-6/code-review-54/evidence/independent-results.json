@@ -1,0 +1,120 @@
+{
+  "audited_revision": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "python_version": "3.13.5",
+  "evidence_class": "independent models and synthetic patcher fixtures",
+  "test_methods_run": 34,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "successful": true,
+  "subcase_design": {
+    "directed_rounding": "1000 seeded rationals at 8,24,48 bits; both directions",
+    "power_containment": "500 seeded intervals, old and candidate, exponents 0..13",
+    "unaffected_paths": "300 seeded sign-definite cases, plus six zero-crossing controls",
+    "odd_family": "16 exact asymmetric dyadic cases",
+    "negative_powers": "32 fixed interval/exponent/candidate combinations"
+  },
+  "certificate_witness": {
+    "function": "(x-1)^4/4 + x/16",
+    "source_endpoint": "2/3",
+    "source_target_offset": "29/648",
+    "verification_interval": [
+      "3/4",
+      "2"
+    ],
+    "center": "1",
+    "target": "1/16",
+    "old_cube": [
+      "-1/4",
+      "1"
+    ],
+    "new_cube": [
+      "-1/64",
+      "1"
+    ],
+    "old_derivative": [
+      "-3/16",
+      "17/16"
+    ],
+    "new_derivative": [
+      "3/64",
+      "17/16"
+    ],
+    "exact_residual": "0",
+    "true_derivative_lower_bound_on_source_branch": "11/432",
+    "old_separates_derivative": false,
+    "new_separates_derivative": true,
+    "evidence": "independent exact rational model; no package execution"
+  },
+  "logarithm_recovery_witness": {
+    "mpmath_version": "1.3.0",
+    "policy_model_precision_bits": 53,
+    "reference_precision_bits": 400,
+    "epsilon_strings": [
+      "1e-30",
+      "1e-40"
+    ],
+    "model_q_values": [
+      "2.220446049250313080847263e-16",
+      "2.220446049250313080847263e-16"
+    ],
+    "model_signs": [
+      1,
+      1
+    ],
+    "true_q_values_stable_identity": [
+      "-1.58918622597891122362878808648083130676314707953600222301158e-31",
+      "-1.58918622597891122362878808648087144186566287865691079313252e-41"
+    ],
+    "true_signs": [
+      -1,
+      -1
+    ],
+    "principal_log_product_imaginary_part": "0.0",
+    "sum_principal_logs_imaginary_part": "6.28318530717958647692528676655900576839433879875021164194989",
+    "difference_divided_by_2pii": "(1.0 + 1.577835893314501728281996128026862254676e-119j)",
+    "evidence": "53-bit arithmetic-policy model and exact sign identity; not a Mathics or public fallback run",
+    "public_Indeterminate_trigger_demonstrated": false
+  },
+  "work_counts_not_timings": [
+    {
+      "exponent": 3,
+      "old_multiply_calls": 2,
+      "new_multiply_calls": 4,
+      "old_square_calls": 1,
+      "new_square_calls": 2
+    },
+    {
+      "exponent": 7,
+      "old_multiply_calls": 3,
+      "new_multiply_calls": 6,
+      "old_square_calls": 2,
+      "new_square_calls": 4
+    },
+    {
+      "exponent": 31,
+      "old_multiply_calls": 5,
+      "new_multiply_calls": 10,
+      "old_square_calls": 4,
+      "new_square_calls": 8
+    },
+    {
+      "exponent": 255,
+      "old_multiply_calls": 8,
+      "new_multiply_calls": 16,
+      "old_square_calls": 7,
+      "new_square_calls": 14
+    },
+    {
+      "exponent": 99999,
+      "old_multiply_calls": 10,
+      "new_multiply_calls": 20,
+      "old_square_calls": 16,
+      "new_square_calls": 32
+    }
+  ],
+  "wolfram_package_executed": false,
+  "mathics_package_executed": false,
+  "wl_candidate_executed": false,
+  "upstream_source_match_executed": false
+}

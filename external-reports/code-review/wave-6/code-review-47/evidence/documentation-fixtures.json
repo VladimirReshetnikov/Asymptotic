@@ -1,0 +1,1086 @@
+{
+  "records": [
+    {
+      "case": "valid",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "duplicate_labels",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Duplicate mathematical labels",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "missing_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing mathematical references",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "missing_citation",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing bibliography entries",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "software_content",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Software content in the mathematical article",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "archive_changed",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Archived document changed: docs/development/implementation-plan.pdf",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "archive_crlf",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_citation",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 1,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_duplicate",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Duplicate mathematical labels",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "comment_input",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "FileNotFoundError",
+      "message": "[Errno 2] No such file or directory: '<fixture-root>/docs/article/does-not-exist.tex'",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "software_comment",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Software content in the mathematical article",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "valid_child",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 1,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_child_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 1,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "valid",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "duplicate_labels",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 2,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "missing_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "missing_citation",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "software_content",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "archive_changed",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "archive_crlf",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_citation",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 1,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_duplicate",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 2,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_input",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "FileNotFoundError",
+      "message": "[Errno 2] No such file or directory: '<fixture-root>/docs/article/does-not-exist.tex'",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "upstream",
+      "process_exit_code": 1
+    },
+    {
+      "case": "software_comment",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "valid_child",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 1,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_child_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 1,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "upstream",
+      "process_exit_code": 0
+    },
+    {
+      "case": "valid",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "duplicate_labels",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Duplicate mathematical labels",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "missing_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing mathematical references",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "missing_citation",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing bibliography entries",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "software_content",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Software content in the mathematical article",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "archive_changed",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Archived document changed: docs/development/implementation-plan.pdf",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "archive_crlf",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing mathematical references",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "comment_mask_citation",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing bibliography entries",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "comment_duplicate",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_input",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "software_comment",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Software content in the mathematical article",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "valid_child",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 0,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 1,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_child_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing mathematical references",
+      "outcome": "rejected",
+      "python_optimization": 0,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "valid",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "duplicate_labels",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Duplicate mathematical labels",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "missing_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing mathematical references",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "missing_citation",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing bibliography entries",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "software_content",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Software content in the mathematical article",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "archive_changed",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Archived document changed: docs/development/implementation-plan.pdf",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "archive_crlf",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing mathematical references",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "comment_mask_citation",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing bibliography entries",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "comment_duplicate",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_input",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 0,
+        "MathematicalLabels": 0,
+        "MathematicalReferences": 0,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "software_comment",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Software content in the mathematical article",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    },
+    {
+      "case": "valid_child",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "outcome": "accepted",
+      "python_optimization": 1,
+      "receipt": {
+        "BibliographyEntries": 0,
+        "DocumentationLinks": {
+          "Fixture": true
+        },
+        "FullPackageSuiteRun": false,
+        "Guide": {
+          "Fixture": true,
+          "check": true
+        },
+        "MathematicalChapters": 1,
+        "MathematicalLabels": 1,
+        "MathematicalReferences": 1,
+        "MissingCitations": 0,
+        "MissingReferences": 0,
+        "PreservedEngineeringFiles": 6,
+        "TextEncoding": {
+          "Fixture": true
+        }
+      },
+      "source": "candidate",
+      "process_exit_code": 0
+    },
+    {
+      "case": "comment_mask_child_reference",
+      "evidence": "Actual checker with deterministic dependency fixtures",
+      "exception": "AssertionError",
+      "message": "Missing mathematical references",
+      "outcome": "rejected",
+      "python_optimization": 1,
+      "source": "candidate",
+      "process_exit_code": 1
+    }
+  ]
+}

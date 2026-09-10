@@ -1,0 +1,138 @@
+{
+  "reviewed_commit": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "record_type": "Manual transcription of selected successful connector responses, not a raw kernel log",
+  "full_upstream_suite_run": false,
+  "mathics_execution": false,
+  "package_load": {
+    "method": "Import pinned standalone as Text; Export local temporary .wl; Get local file",
+    "imported_characters": 692380,
+    "smoke_expression": "AsymptoticExpansion[Sin[x],{x,0,3},\"Backend\"->\"Package\"]",
+    "smoke_result": "GeneralizedSeries with Normal equal to x"
+  },
+  "baseline_groups": [
+    {
+      "id": "N01-four-constructors",
+      "spec": "{x,Infinity,2}; Backend -> Package",
+      "observations": [
+        {
+          "input": "Zeta[x]",
+          "normal": "1 + 2^(-x) + 3^(-x) + 4^(-x) + 5^(-x) + 6^(-x) + 7^(-x)",
+          "remainder": "PowerLogRemainder[E^(-x),Log[8],0]"
+        },
+        {
+          "input": "Zeta[x]-1",
+          "failure": "UnsupportedNativeCoefficient",
+          "message": "A native amplitude must have polynomial logarithmic coefficients and bounded real sine/cosine modes.",
+          "coefficient": "Zeta[u$12^(-1)]"
+        },
+        {
+          "input": "LerchPhi[1/2,1,x]",
+          "normal": "2/x",
+          "remainder": "PowerLogRemainder[x^(-1),2,0]"
+        },
+        {
+          "input": "LerchPhi[1/2,1,x]+1",
+          "failure": "UnsupportedNativeCoefficient",
+          "coefficient": "LerchPhi[1/2,1,u$17^(-1)]"
+        }
+      ]
+    },
+    {
+      "id": "N02-Lerch-and-ordinary-control",
+      "spec": "{x,Infinity,4}; SeriesTermGoal -> 1; Backend -> Package",
+      "observations": [
+        {
+          "input": "LerchPhi[1/2,1,x]",
+          "normal": "6/x^3 - 2/x^2 + 2/x",
+          "returned_term_count": 3,
+          "requested_term_goal": 1,
+          "remainder": "PowerLogRemainder[x^(-1),4,0]"
+        },
+        {
+          "input": "1+1/x+1/x^2",
+          "normal": "1",
+          "returned_term_count": 1,
+          "requested_term_goal": 1,
+          "remainder": "PowerLogRemainder[x^(-1),1,0]"
+        }
+      ]
+    },
+    {
+      "id": "N02-Zeta-and-N01-existing-arithmetic",
+      "observations": [
+        {
+          "input": "AsymptoticExpansion[Zeta[x],{x,Infinity,Log[4]},SeriesTermGoal->1,\"Backend\"->\"Package\"]",
+          "normal": "1+2^(-x)+3^(-x)",
+          "returned_term_count": 3,
+          "requested_term_goal": 1,
+          "remainder": "PowerLogRemainder[E^(-x),Log[4],0]"
+        },
+        {
+          "input": "SeriesAdd[AsymptoticExpansion[Zeta[x],{x,Infinity,Log[3]},\"Backend\"->\"Package\"],-1]",
+          "head": "GeneralizedSeries",
+          "normal": "(E^(-x))^Log[2]"
+        },
+        {
+          "input": "SeriesAdd[AsymptoticExpansion[LerchPhi[1/2,1,x],{x,Infinity,3},\"Backend\"->\"Package\"],1]",
+          "head": "GeneralizedSeries",
+          "normal": "1 - 2/x^2 + 2/x"
+        }
+      ],
+      "messages": "The grouped call also emitted repeated Power::infy and Greater::nord messages. The originating subcall was not isolated; these are not classified as a separate defect."
+    },
+    {
+      "id": "N02-baseline-budget",
+      "input": "AsymptoticExpansion[Zeta[x],{x,Infinity,1000000},SeriesTermGoal->1,\"MaxTerms\"->100,\"Backend\"->\"Package\"]",
+      "failure": "ResourceLimit",
+      "message": "The Zeta exponential-coordinate cutoff exceeds MaxTerms."
+    }
+  ],
+  "candidate_goal_patch": {
+    "mechanism": "Three guarded string substitutions in the imported pinned standalone, followed by local Export and Get",
+    "all_three_anchor_counts": 1,
+    "max_terms": 100,
+    "observations": [
+      {
+        "input": "Zeta[x]; cutoff Log[4]; goal 1",
+        "normal": "1",
+        "returned_term_count": 1,
+        "remainder": "PowerLogRemainder[E^(-x),Log[2],0]"
+      },
+      {
+        "input": "LerchPhi[1/2,1,x]; cutoff 4; goal 1",
+        "normal": "2/x",
+        "returned_term_count": 1,
+        "remainder": "PowerLogRemainder[x^(-1),2,0]"
+      },
+      {
+        "input": "Zeta[x]; cutoff 1000000; goal 1",
+        "normal": "1",
+        "returned_term_count": 1,
+        "remainder": "PowerLogRemainder[E^(-x),Log[2],0]"
+      },
+      {
+        "input": "Zeta[x]; cutoff Log[4]; goal Automatic",
+        "normal": "1+2^(-x)+3^(-x)",
+        "returned_term_count": 3,
+        "remainder": "PowerLogRemainder[E^(-x),Log[4],0]"
+      },
+      {
+        "input": "LerchPhi[1/2,1,x]; cutoff 4; goal Automatic",
+        "normal": "6/x^3-2/x^2+2/x",
+        "returned_term_count": 3,
+        "remainder": "PowerLogRemainder[x^(-1),4,0]"
+      }
+    ]
+  },
+  "unverified_artifacts": [
+    "Complete packaged RunProbes.wl execution",
+    "Full AffineDirichletExpansion.wl prototype execution",
+    "Staged canonical module after upstream standalone rebuild",
+    "Any Mathics execution"
+  ],
+  "infrastructure_failures": {
+    "description": "Some connector calls failed with HTTP 502 or network errors. A direct remote Get was truncated during source delivery; loading the full imported local text succeeded. None is classified as a repository defect.",
+    "affine_mechanism_probe": "Attempted grouped prototype probe failed at connector transport; no result available."
+  }
+}

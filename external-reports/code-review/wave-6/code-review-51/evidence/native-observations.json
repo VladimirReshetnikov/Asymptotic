@@ -1,0 +1,44 @@
+{
+  "repository_revision": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "record_type": "Manually saved transcript of actual successful tool-mediated calls; not a test-runner JSON export",
+  "failures_and_limits": "Several earlier Wolfram service calls failed with network errors. No full suite, modular-load acceptance, or complete Mathics execution occurred.",
+  "observations": [
+    {
+      "id": "native-version",
+      "scope": "remote Wolfram evaluator; no package load required",
+      "code": "{$Version, Position[HoldComplete[Assumptions :> SameQ[HoldComplete[System`Element], saved]], System`Element, {0, Infinity}, Heads -> True]}",
+      "version_observed": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+      "output_text": "Out[1]= {\"15.0.0 for Linux x86 (64-bit) (May 6, 2026)\", {{1, 2, 1, 1}}}"
+    },
+    {
+      "id": "N01-symbol-position",
+      "scope": "native Wolfram expression primitives; independent mechanical counterexample",
+      "code": "saved=HoldComplete[System`Element]; h=HoldComplete[Assumptions:>If[HoldComplete[System`Element]===saved,a==1,a==2]]; p=Position[h,System`Element,{0,Infinity},Heads->True]; r=ReplacePart[h,First[p]->AsymptoticAnalysis`Mathics`Element]; {p,Assumptions/.{ReleaseHold[h]},Assumptions/.{ReleaseHold[r]}}",
+      "output_text": "Out[1]= {{{1, 2, 1, 1, 1}}, a == 1, a == 2}"
+    },
+    {
+      "id": "N01-adapter-isolated-in-package",
+      "scope": "actual pinned standalone on Wolfram, followed by actual pinned MathicsInputAssumptions.wl loaded in package Private; NOT a full Mathics run",
+      "code": "p=CreateTemporary[]; URLDownload[\"https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/8cee870994f506b501bae3ea6bd4a3a7edb895c1/AsymptoticAnalysis.wl\",p]; Get[p]; saved=HoldComplete[System`Element]; before=AsymptoticAnalysis`PowerLogModel[a x,{x,0},Assumptions:>If[HoldComplete[System`Element]===saved,a==1,a==2]]; Begin[\"AsymptoticAnalysis`Private`\"]; Get[\"https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/8cee870994f506b501bae3ea6bd4a3a7edb895c1/src/Kernel/MathicsInputAssumptions.wl\"]; End[]; after=AsymptoticAnalysis`PowerLogModel[a x,{x,0},Assumptions:>If[HoldComplete[System`Element]===saved,a==1,a==2]]; {before[\"LeadingCoefficient\"],after[\"LeadingCoefficient\"]}",
+      "output_text": "Out[1]= {1, 2}"
+    },
+    {
+      "id": "N02-positive-square",
+      "scope": "actual pinned native standalone public API",
+      "code": "p=CreateTemporary[]; URLDownload[\"https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/8cee870994f506b501bae3ea6bd4a3a7edb895c1/AsymptoticAnalysis.wl\",p]; Get[p]; r=AsymptoticAnalysis`InverseNumericalCheck[AsymptoticAnalysis`AsymptoticInverse[x,{x,0},{y,3},\"Power\"->2],2,WorkingPrecision->30]; KeyTake[r,{\"LocalRoot\",\"LocalApproximation\",\"ReferenceObservable\",\"LocalCoordinate\"}]",
+      "output_text": "Out[1]= <|\"LocalRoot\" -> 2.`30., \"LocalApproximation\" -> 4.`30., \"ReferenceObservable\" -> 4.`30., \"LocalCoordinate\" -> \"x = SourceOffset + SourceSide u; LocalRoot and LocalApproximation are values of u for Power 1 and of u^Power otherwise.\"|>"
+    },
+    {
+      "id": "N02-negative-cube",
+      "scope": "actual pinned native standalone public API",
+      "code": "p=CreateTemporary[]; URLDownload[\"https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/8cee870994f506b501bae3ea6bd4a3a7edb895c1/AsymptoticAnalysis.wl\",p]; Get[p]; s=AsymptoticAnalysis`AsymptoticInverse[x,{x,0},{y,4},\"Power\"->3,Direction->\"FromBelow\"]; r=AsymptoticAnalysis`InverseNumericalCheck[s,-2,WorkingPrecision->30]; KeyTake[r,{\"LocalRoot\",\"LocalApproximation\",\"ReferenceObservable\",\"Error\",\"SourceSide\",\"LocalCoordinate\"}]",
+      "output_text": "Out[1]= <|\"LocalRoot\" -> 2.`30., \"LocalApproximation\" -> -8.`30., \"ReferenceObservable\" -> -8.`30., \"Error\" -> 0``38.494850021680094, \"SourceSide\" -> -1, \"LocalCoordinate\" -> \"x = SourceOffset + SourceSide u; LocalRoot and LocalApproximation are values of u for Power 1 and of u^Power otherwise.\"|>"
+    },
+    {
+      "id": "N01-candidate-four-isolated-controls",
+      "scope": "candidate rewrite algorithm in native Wolfram; not installed in the package and not executed in Mathics",
+      "code": "guard[h_HoldComplete]:=Module[{o,p,b,q},o=Position[h,HoldPattern[Rule[Assumptions,_]|RuleDelayed[Assumptions,_]],{0,Infinity},Heads->False];p=Position[h,System`Element,{0,Infinity},Heads->True];b=Position[h,_HoldComplete|_Hold|_HoldForm|_Defer|_HoldPattern|_Verbatim,{1,Infinity},Heads->False];q=Select[p,Function[k,Length[k]>0&&Last[k]===0&&Or@@(Function[t,Length[k]>=Length[t]+1&&Take[k,Length[t]+1]===Append[t,2]]/@o)&&!Or@@(Function[t,Length[k]>=Length[t]&&Take[k,Length[t]]===t]/@b)]];ReplacePart[h,(#->AsymptoticAnalysis`Mathics`Element)&/@q]];a=HoldComplete[Assumptions->Element[Sin[x],Reals]];b=HoldComplete[Assumptions:>If[HoldComplete[System`Element]===saved,x==1,x==2]];c=HoldComplete[Assumptions:>If[HoldComplete[Element[Sin[x],Reals]]===saved,x==1,x==2]];{guard[a]===HoldComplete[Assumptions->AsymptoticAnalysis`Mathics`Element[Sin[x],Reals]],guard[b]===b,guard[c]===c,guard[HoldComplete[f[Element[x,Reals]]]]===HoldComplete[f[Element[x,Reals]]]}",
+      "output_text": "Out[1]= {True, True, True, True}"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "fixture": "repo/docs/Guide.md -> ../../outside.md#outside",
+  "upstream_with_outside_file": {
+    "MaintainedMarkdownPages": 1,
+    "LocalLinks": 1,
+    "LocalFragments": 1,
+    "BrokenLocalLinks": 0
+  },
+  "candidate_with_outside_file": "Nonportable link from WORKSPACE/repo/docs/Guide.md: ../../outside.md#outside: destination escapes the checkout",
+  "upstream_after_outside_file_deleted": "Missing destination from WORKSPACE/repo/docs/Guide.md: ../../outside.md#outside"
+}

@@ -1,0 +1,66 @@
+{
+  "engine_available": true,
+  "records": [
+    {
+      "case": "valid",
+      "passes": 2,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "undefined_reference": false,
+      "undefined_citation": false,
+      "warnings": []
+    },
+    {
+      "case": "comment_mask_reference",
+      "passes": 2,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "undefined_reference": true,
+      "undefined_citation": false,
+      "warnings": [
+        "LaTeX Warning: Reference `ghost' on page 1 undefined on input line 3.",
+        "LaTeX Warning: There were undefined references."
+      ]
+    },
+    {
+      "case": "comment_mask_citation",
+      "passes": 2,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "undefined_reference": false,
+      "undefined_citation": true,
+      "warnings": [
+        "LaTeX Warning: Citation `ghost' on page 1 undefined on input line 3.",
+        "LaTeX Warning: There were undefined references."
+      ]
+    },
+    {
+      "case": "comment_duplicate",
+      "passes": 2,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "undefined_reference": false,
+      "undefined_citation": false,
+      "warnings": []
+    },
+    {
+      "case": "comment_input",
+      "passes": 2,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "undefined_reference": false,
+      "undefined_citation": false,
+      "warnings": []
+    }
+  ]
+}

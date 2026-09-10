@@ -1,0 +1,689 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=0.88in,headheight=15pt,footskip=28pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm,mathtools}
+\usepackage{newpxtext,newpxmath}
+\usepackage{microtype}
+\usepackage{graphicx,xcolor,booktabs,longtable,tabularx,array}
+\usepackage{enumitem,listings,xurl,fancyhdr,titlesec}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+\definecolor{ink}{HTML}{142D40}
+\definecolor{accent}{HTML}{166574}
+\definecolor{muted}{HTML}{50616D}
+\definecolor{pale}{HTML}{F1F5F6}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=accent,citecolor=accent,
+ pdftitle={Fixed Charts, Exact Cores, and Rational Moments},
+ pdfauthor={OpenAI},pdfsubject={Differential review of Asymptotic at 8cee870}}
+\titleformat{\section}{\Large\bfseries\color{ink}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{ink}}{\thesubsection}{0.65em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{ink}}{\thesubsubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{2.0ex plus 1ex}{1.0ex}
+\titlespacing*{\subsection}{0pt}{1.5ex plus .5ex}{.6ex}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{muted}Asymptotic \;|\; Differential source review}
+\fancyhead[R]{\small\color{muted}10 September 2026}
+\fancyfoot[L]{\footnotesize\color{muted}Pinned snapshot: \texttt{8cee870}}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt}
+\setlength{\emergencystretch}{2em}
+\setcounter{tocdepth}{2}
+\setlist{nosep,leftmargin=1.5em}
+\lstdefinestyle{code}{basicstyle=\small\ttfamily,breaklines=true,columns=fullflexible,
+ keepspaces=true,showstringspaces=false,frame=single,rulecolor=\color{black!15},
+ backgroundcolor=\color{pale},xleftmargin=3pt,xrightmargin=3pt,framesep=5pt,
+ aboveskip=8pt,belowskip=8pt,upquote=true}
+\lstset{style=code}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\newtheorem{corollary}[proposition]{Corollary}
+\newcommand{\commit}{8cee870994f506b501bae3ea6bd4a3a7edb895c1}
+\newcommand{\pinned}[2]{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/#1}{#2}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\QQ}{\mathbb Q}
+\newcommand{\NN}{\mathbb N}
+\newcommand{\Li}{\operatorname{Li}}
+\newcommand{\status}[1]{\textbf{\color{accent}#1}}
+\newtcolorbox{reviewbox}[1]{colback=pale,colframe=accent,boxrule=.6pt,
+ arc=0mm,left=8pt,right=8pt,top=7pt,bottom=7pt,title={#1},
+ colbacktitle=accent,coltitle=white,fonttitle=\bfseries,breakable}
+
+\begin{document}
+\begin{titlepage}
+\thispagestyle{empty}
+{\small\sffamily\color{accent}INCREMENTAL CODE REVIEW \quad / \quad WOLFRAM 15 AND MATHICS3\par}
+\vspace{1.0in}
+{\fontsize{31}{35}\selectfont\bfseries\color{ink}Fixed Charts,\\Exact Cores,\\and Rational Moments\par}
+\vspace{.25in}
+{\Large\color{muted}A differential review of Asymptotic\par}
+\vspace{.42in}
+{\large 10 September 2026\par}
+\vspace{.35in}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+Repository & \code{VladimirReshetnikov/Asymptotic}\\[5pt]
+Reviewed commit & \small\texttt{8cee870994f506b501bae3ea6bd4a3a7edb895c1}\\[5pt]
+Main result & One high-priority source-level remainder defect, with an elementary counterexample at every finite depth.\\[5pt]
+Companion work & A guarded candidate patch, two additive development prototypes, and reproducibility artifacts.\\
+\end{tabularx}
+\vfill
+\begin{reviewbox}{Evidence at a glance}
+\textbf{32 independent Python test methods passed.} These are mathematical models, rational-algorithm checks, numerical samples, and patch-fragment fixtures---not repository tests. The public Wolfram/Mathics witnesses and eight desired-contract tests are \textbf{unexecuted}. Source-predicted behavior is identified explicitly throughout.
+\end{reviewbox}
+\vspace{.15in}
+{\small\color{muted}The review is screened against the maintained prior-review registers, the five-wave index, and targeted original material. Previously recorded findings and general roadmap proposals are not presented again as new work.}
+\end{titlepage}
+
+\section*{Executive assessment}
+\addcontentsline{toc}{section}{Executive assessment}
+The most consequential incremental issue found is not an incorrect coefficient formula. It is a missing restriction on a coordinate option. The exponential-core inverse constructor allows \code{SourceShift} to depend on the target variable, although its remainder theorem assumes a fixed source chart. For the source function $e^x+1$, the choice $\sigma(y)=-|y|$ leaves the displayed inverse coefficients correct but changes the reported error scale from an algebraic scale into an exponentially smaller one. On the positive tail, the ratio of the actual error to that scale diverges at least as $e^{(N+1)y}/(N+1)$ at every finite retained depth $N$.
+
+The source mechanism is explicit in the constructor and its core parser: the input guard excludes the source symbol from the shift but not the target symbol; the shifted exponential becomes a core with target-dependent amplitude; the remainder scale then suppresses that amplitude as though it were fixed. The public call is a \emph{source-predicted witness}, not a recorded kernel evaluation. The mathematical contradiction does not depend on a numerical root finder or a difficult special-function identity. Section~\ref{sec:f1} gives the complete derivation and a minimal structural repair.\cite{exp-core,lambert}
+
+Two additional items are development opportunities, not extra correctness findings. First, an explicit regrouping of a constant perturbation into the core's target offset can expose an exact inverse that the selected unshifted core represents by an infinite correction sequence. Second, the already implemented Lerch expansion can use a small exact rational moment engine instead of separate negative-order polylogarithm and general simplification calls for rational parameters. The supplied prototypes preserve this narrow scope; they do not redesign the package's option machinery or its general special-function architecture.
+
+\begin{tabularx}{\textwidth}{@{}p{.45in}p{1.0in}X@{}}
+\toprule
+ID & Classification & Incremental conclusion\\
+\midrule
+F1 & High priority & Reject a target-dependent source translation before constructing an exponential-core inverse. Otherwise the fixed-chart error theorem can yield a false remainder.\\[3pt]
+E1 & Opportunity & Offer opt-in absorption of a fixed constant perturbation into the core offset. Preserve a user's deliberate choice of an unabsorbed core.\\[3pt]
+E2 & Opportunity & Specialize rational Lerch moments with an integer numerator recurrence and rational arithmetic; retain the existing domain and tail theorem.\\
+\bottomrule
+\end{tabularx}
+
+The review does not establish full compatibility with either kernel. Wolfram execution-service calls failed, a local Mathics installation was unavailable, and no complete local checkout was obtained. Commit-pinned source retrieval was successful. The independent Python suite passed 32 methods with no failures, errors, or skips; its population is deliberately separate from the repository's historical acceptance records. The supplied WL code received only a limited delimiter, string, and comment check.
+
+\clearpage
+{\footnotesize\setlength{\parskip}{0pt}\tableofcontents}
+\clearpage
+
+\section{Scope, method, and the exclusion boundary}
+\label{sec:scope}
+\subsection{What the review actually covers}
+This is a differential review of the pinned snapshot, not a restatement of the project's accumulated backlog. The canonical implementation is modular under \code{src/Kernel}; the repository-root standalone distribution is generated from that source. The kernel entry point coordinates the public declarations, coefficient algebra, constructors, operations, and conditional Mathics adapters. The source map and existing build procedure are documented by the repository itself.\cite{kernel-map}
+
+The inspection followed several paths across those modules: ordinary and specialized inverse construction; source and target coordinate transformations; Gamma and Barnes forward and inverse normalization; finite logarithmic hierarchies; Fourier coefficients; native special-function admission and import; composite error arithmetic; selected interval helpers; and Mathics-specific assumptions, algebra, Taylor, calculus, call, and core-function adapters. This breadth was useful for comparing how parameter scope and error information cross module boundaries. It was not a complete line-by-line review of every test, document, generated file, or implementation branch.
+
+The accompanying \code{evidence/source-map.json} records files and inspected ranges. In particular, large modules such as \code{AsymptoticAnalysis.wl} and \code{SeriesOperations.wl} were read in selected ranges rather than certified in their entirety. A truncated source response is not counted as proof that its unseen suffix was inspected. Search endpoints returned incomplete empty results, so they were not used as evidence that a name or problem was absent.
+
+\subsection{Prior work was an exclusion set, not a source of fresh findings}
+The maintained register includes crosswalks for earlier reports and a broad mathematical and architectural roadmap. The wave-3 and wave-4 intakes extend that register. The wave-5 index is especially important because it describes additional, not-yet-consolidated findings and explicitly identifies retired duplicates. Omitting it would incorrectly rediscover several recent issues.\cite{register,wave3,wave4,wave5}
+
+The exclusion process compared candidate mechanisms with those maintained records and, when the closest neighbor mattered, with original report material. This is not a claim to have compared every paragraph of every earlier PDF. It is a claim that the three items retained here have a concrete, stated distinction from the closest recorded obligations.
+
+For F1, the closest neighbors concern parameter capture during composition, retained source symbols in a user-supplied inverse, and the general lack of uniform parameter asymptotics. The new ingress is different: the target is introduced into a supposedly fixed chart \emph{during the initial constructor call}. No composition, saved result, or user-supplied inverse is needed. Report~43's source-symbol finding was checked directly to avoid reversing that distinction.\cite{register,report43}
+
+For E1, the distinction is from stopping a recurrence after exact termination. Here the coefficients about the chosen core never terminate; changing the explicitly chosen core makes the solution exact. For E2, the distinction is a concrete rational arithmetic kernel for an existing adapter, not another recommendation to add caches, a general coefficient registry, or a larger list of special functions. Those broad proposals are not repeated here.
+
+\subsection{Four evidence categories}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.38in}X@{}}
+\toprule
+Category & Meaning in this report\\
+\midrule
+Source observation & A condition, formula, or control-flow edge visible at the pinned commit.\\[2pt]
+Mathematical result & A deduction proved from explicit expressions and hypotheses in the article.\\[2pt]
+Independent execution & Python calculations on the stated model or companion algorithm. They do not run the package.\\[2pt]
+Kernel prediction & Expected public Wolfram or Mathics behavior from source inspection; pending actual evaluation.\\
+\bottomrule
+\end{tabularx}
+
+This distinction prevents two common inference errors. A correct independently tested recurrence does not show that the package successfully reaches that recurrence. Conversely, a service failure does not invalidate an elementary counterexample to the formula visible in source. Both facts belong in the result, without promoting one evidence category into another.
+
+\section{Implementation context and cross-runtime assessment}
+\subsection{The contract boundary that matters here}
+The package's analytic results are not merely lists of coefficients. The inspected constructors retain a coordinate, a finite expression, a remainder scale, domain information, and source provenance. Native delegation is a separate path with its own result and order conventions; the analytic special-function importer is not the same operation as merely wrapping an arbitrary native result. These distinctions are documented in the kernel map and visible in the specialized importer.\cite{kernel-map,native-import}
+
+F1 crosses one of those analytic boundaries. The displayed coefficient expression can simplify to the right answer while its stored error contract describes a different asymptotic scale. A check of coefficients alone, or substitution into an equation at a few points without comparing the stated error, can therefore miss the problem. The relevant object is the pair
+\[
+\bigl(A_N(y),R_N(y)\bigr),\qquad x_*(y)-A_N(y)=\OO(R_N(y)),
+\]
+not $A_N$ in isolation. The constant and threshold implicit in this statement must be independent of $y$.
+
+The inspected exponential-core constructor already has an appropriate analytic idea: retain a recognized exact core, construct complete perturbative sectors, and attach a tail for the entire omitted model rather than treating the first omitted coefficient as the whole error. Its separate transport of a declared input remainder is also explicit. F1 does not dispute that design; it identifies an option value for which the fixed-data hypothesis used by the design is not enforced.\cite{exp-core}
+
+\subsection{Why Wolfram and Mathics need separate observations}
+Mathics support in the repository is not implemented by assuming that all built-ins behave identically. The entry point conditionally loads helpers in a private adapter context, and some package-owned construction sites receive late overrides. The Mathics files inspected here include assumption reasoning, exact algebra, defining Taylor series, finite sums, held extraction, and selected special-function cores. The official Wolfram path does not load these adapters as global replacements for \code{System} functions.\cite{kernel-map,mathics-assumptions,mathics-core,mathics-taylor}
+
+This makes the F1 witness a useful example of why a shared source defect and an identical public symptom are different claims. The native meaning of \code{Abs[y]} supplies a real nonnegative expression without an assumption that $y$ itself is real.\cite{wolfram-abs} The inspected Mathics realness helper has a more restrictive unary rule for \code{Abs}: it proves the argument real first. A fallback simplifier may affect the actual outcome. Thus the present Mathics constructor may already refuse the witness for an earlier proof limitation. That is not established either way by this review.\cite{mathics-assumptions}
+
+The proposed fix does not rely on either simplifier. It rejects structural dependence on the target before the coordinate construction. This creates the same intended contract in both runtimes while retaining the legitimate use of the target in \code{CoreInverse}. Actual execution remains necessary to confirm the public failure tag, option evaluation, and neighboring accepted cases.
+
+\subsection{Other inspected mathematical paths}
+The comparison also checked the signs and normalizations of the finite Gamma/Barnes residual equations, the Barnes forward shift reduction, the logarithmic Euler derivative, and the elementary moment-bound argument in the Lerch path. No additional nonduplicate contradiction was established in those inspected formulas. This is deliberately narrower than calling the modules correct: admission, evaluator behavior, precision transport, and uninspected branches can still matter.\cite{gamma-checks,barnes-checks,barnes-forward,log-scales,dirichlet}
+
+Similarly, the composite error-arithmetic source retains separate error summands and imposes relative or absolute smallness conditions for operations such as logarithms or exponentials. That was relevant context for understanding why an exponentially overstated remainder can contaminate later reasoning, but this report does not assert a new executed downstream failure in composite arithmetic.\cite{envelopes}
+
+\section{F1: a moving source chart creates a false remainder}
+\label{sec:f1}
+\subsection{Location, severity, and minimal witness}
+\status{Classification: high-priority source-level correctness defect.}
+
+The affected operation is \code{AsymptoticExponentialCoreInverse}.
+
+Its source is \code{ExponentialCorePerturbation.wl}, which contains the coordinate, exact-inverse, coefficient, and constructor helpers. The exponential parser is in \code{LambertInverse.wl}.\cite{exp-core,lambert}
+
+The candidate public call is:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+AsymptoticExponentialCoreInverse[
+  Exp[x], 1, {x, Infinity}, {y, 0},
+  "SourceShift" -> -Abs[y]
+]
+\end{lstlisting}
+\end{minipage}\par
+The same construction applies with any nonnegative retained depth in place of zero. The selected positive target tail may be taken as $y>4$. On that tail, the real inverse of the original source is simply
+\begin{equation}
+ x_*(y)=\log(y-1).
+ \label{eq:exact-inverse}
+\end{equation}
+
+\begin{reviewbox}{Execution status of the witness}
+No kernel output for this call was obtained. The source predicts the formulas below on the positive tail, and the contradiction between those formulas and the exact inverse is proved independently. A native or Mathics refusal, unevaluated expression, or different output must be recorded as an observation rather than replaced by the prediction.
+\end{reviewbox}
+
+The severity comes from a false asymptotic error assertion on an elementary example, not from a crash or a missing feature. Even when the finite approximation is useful, an arbitrarily smaller claimed error can invalidate a consumer's precision choice or its decision that an error is negligible. No quantitative interval certificate is claimed by the original constructor, but a qualitative Big-$O$ assertion still has a precise mathematical meaning.
+
+\subsection{The missing structural condition}
+The constructor's variable guard checks, in substance,
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+x === y
+! FreeQ[{core, perturbation}, y]
+! FreeQ[ass, x | y]
+! FreeQ[{shift, requested}, x]
+\end{lstlisting}
+\end{minipage}\par
+It does not check that \code{shift} is independent of \code{y}. The coordinate helper checks exactness, independence from the source symbol, and provable realness. Its diagnostic calls the shift a parameter, but the corresponding target-independence condition is absent.\cite{exp-core}
+
+The asymmetry between the shift and the requested core inverse is important. A requested inverse \emph{should} be a function of the target; an allegedly fixed translation \emph{should not}. Applying one blanket prohibition to both values would repair F1 by breaking valid requests. The required distinction is between the two option roles, not between expressions that happen to contain a symbol.
+
+For the witness, the shift is exact, contains no $x$, and is mathematically real. The source reconstruction is
+\[
+ x=-|y|+v.
+\]
+On $y>4$, the core becomes
+\begin{equation}
+ e^x=e^{-y}e^v=a(y)e^v,\qquad a(y)=e^{-y}.
+ \label{eq:moving-amplitude}
+\end{equation}
+The parser explicitly moves a part of the exponent independent of its local source variable into the amplitude. It does not require that amplitude to be independent of the target, because the target has entered through the shift after the original input guard.\cite{lambert}
+
+\subsection{The exact core inverse still looks harmless}
+For a core $a e^v$, the constructor uses the elementary inverse
+\[
+ v_0=\log(y/a).
+\]
+With~\eqref{eq:moving-amplitude},
+\begin{equation}
+ v_0=y+\log y,\qquad -y+v_0=\log y.
+ \label{eq:v0}
+\end{equation}
+Both the positive local variable and the reconstructed source tend to $+\infty$. The recorded positivity conditions are satisfied on $y>4$: $y/a>1$, $v_0>1$, and the derivative factor $v_0$ is positive. Consequently this example is not explained away by a local coordinate tending to the wrong endpoint.
+
+The more subtle failure is that the normalized core amplitude is no longer fixed. Its reciprocal grows exponentially with the target. This growth cancels in the displayed coefficient expression but not in the stored remainder scale.
+
+\subsection{Derivation of every retained coefficient}
+The exponential-core coefficient helper starts with a rational expression involving the perturbation, the derivative of the source reconstruction, and
+\[
+ D(v)=a v^{b-1}(b+cpv^p).
+\]
+For the present case the perturbation is $1$, the source derivative is $1$, and $b=0$, $c=p=1$, so $D(v)=a$. The recurrence inside the helper reduces to
+\[
+ Q_0=\frac1a,\qquad Q_j=-\frac{j}{a}Q_{j-1}.
+\]
+Multiplication by the final factor $(-1)^n/n!$ therefore yields
+\begin{equation}
+ C_n=-\frac{1}{n a^n},\qquad n\ge1.
+ \label{eq:coeffs}
+\end{equation}
+This is a direct simplification of the visible recurrence, and the independent Python tests also compare its exact rational specialization with the closed form.\cite{exp-core}
+
+The stored sector variable is
+\begin{equation}
+ q=e^{-v_0}=\frac{a}{y}=\frac{e^{-y}}{y}.
+ \label{eq:q}
+\end{equation}
+Combining~\eqref{eq:coeffs} and~\eqref{eq:q} gives
+\[
+ C_nq^n=-\frac{1}{ny^n}.
+\]
+Thus the displayed approximation through depth $N$ is the correct finite logarithmic expansion
+\begin{equation}
+ A_N(y)=\log y-\sum_{n=1}^N\frac1{ny^n}.
+ \label{eq:AN}
+\end{equation}
+The bad chart has disappeared from the finite expression. Checking the first several coefficients, comparing them against a familiar inverse formula, or observing a small equation residual would not expose the erroneous scale by itself.
+
+\subsection{The reported scale and its contradiction}
+For a constant perturbation, the envelope power and logarithmic degree in the constructor are both zero. The requested observable is the source itself, so the source-observable exponent is $1$ and the exponential phase power is also $1$. The additional power of $v_0$ in the stored tail is therefore zero. The scale produced by the formula is
+\begin{equation}
+ R_N^{\rm pred}(y)=q^{N+1}
+ =\frac{e^{-(N+1)y}}{y^{N+1}}.
+ \label{eq:bad-scale}
+\end{equation}
+The accompanying majorant is explicitly a statement for fixed data. That hypothesis is exactly what~\eqref{eq:moving-amplitude} violates.\cite{exp-core}
+
+\begin{lemma}[Elementary tail bounds]
+For $y>1$ and an integer $N\ge0$, put $m=N+1$. Then
+\begin{equation}
+ \frac1{m y^m}\le A_N(y)-\log(y-1)
+ \le\frac1{m y^m(1-1/y)}.
+ \label{eq:tail-bounds}
+\end{equation}
+\end{lemma}
+\begin{proof}
+The convergent real logarithm series gives
+\[
+ -\log(1-1/y)=\sum_{k=1}^\infty\frac1{k y^k}.
+\]
+Subtract the first $N$ summands. The remaining summands are positive, so the first omitted one is a lower bound. For $k\ge m$, replace $1/k$ by $1/m$ and sum the resulting geometric series to obtain the upper bound.
+\end{proof}
+
+\begin{proposition}[The predicted remainder is false at every finite depth]
+For each fixed integer $N\ge0$, the approximation~\eqref{eq:AN} does not satisfy
+\[
+ A_N(y)-\log(y-1)=\OO\bigl(R_N^{\rm pred}(y)\bigr)
+ \quad\text{as }y\to+\infty.
+\]
+\end{proposition}
+\begin{proof}
+Divide the lower bound in~\eqref{eq:tail-bounds} by~\eqref{eq:bad-scale}. The result is
+\begin{equation}
+ \frac{A_N(y)-\log(y-1)}{R_N^{\rm pred}(y)}
+ \ge\frac{e^{(N+1)y}}{N+1}\longrightarrow+\infty.
+ \label{eq:unbounded}
+\end{equation}
+A Big-$O$ relation would bound this ratio by one constant for all sufficiently large $y$, which is impossible.
+\end{proof}
+
+This is stronger than a claim that the error constant is numerically large. No fixed error constant exists for the predicted scale. Increasing the retained depth does not cure the problem: it multiplies the exponential discrepancy in the exponent.
+
+\subsection{Numerical illustrations of the proved formula}
+Table~\ref{tab:bad-shift} was computed with 100-decimal-digit mpmath arithmetic from the independent formulas, not from a returned package object. The exact inequality~\eqref{eq:unbounded} is the proof; the table illustrates its size.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}rrlll@{}}
+\toprule
+$N$ & $y$ & Actual error & Predicted scale & Error/scale\\
+\midrule
+0 & 5  & $2.23144\times10^{-1}$ & $1.34759\times10^{-3}$ & $1.65587\times10^2$\\
+0 & 20 & $5.12933\times10^{-2}$ & $1.03058\times10^{-10}$ & $4.97714\times10^8$\\
+1 & 10 & $5.36052\times10^{-3}$ & $2.06115\times10^{-11}$ & $2.60074\times10^8$\\
+3 & 10 & $2.71823\times10^{-5}$ & $4.24835\times10^{-22}$ & $6.39832\times10^{16}$\\
+3 & 20 & $1.62772\times10^{-6}$ & $1.12803\times10^{-40}$ & $1.44297\times10^{34}$\\
+\bottomrule
+\end{tabular}
+\caption{Independent evaluation of the source-predicted formulas. Full values and rigorous ratio lower bounds are in \code{evidence/shift-counterexample.csv}.}
+\label{tab:bad-shift}
+\end{table}
+
+\subsection{Why fixed translations must remain accepted}
+Let $\sigma\in\RR$ now be a genuine fixed translation, $x=\sigma+v$. Then $a=e^\sigma$, $v_0=\log y-\sigma$, and the same coefficient cancellation gives~\eqref{eq:AN}. The scale becomes
+\[
+ R_{N,\sigma}(y)=\left(\frac{e^\sigma}{y}\right)^{N+1}.
+\]
+The error-to-scale ratio tends to
+\begin{equation}
+ \frac{e^{-(N+1)\sigma}}{N+1},
+ \label{eq:fixed-limit}
+\end{equation}
+which is a finite constant. A negative constant shift such as $-3$ can make this constant large, but does not invalidate a Big-$O$ statement. The independent tests include fixed shifts $-3$, $0$, and $2$ precisely to distinguish this legitimate parameter dependence from the forbidden target dependence.
+
+A blanket rule that every source-shift change must leave the literal stored scale unchanged would therefore be stronger than necessary and incompatible with the existential fixed-parameter convention. The correct requirement is that the chart data remain fixed along the declared target approach.
+
+\subsection{Minimal repair and diagnostic}
+The smallest repair is a dedicated guard after the existing variable validation and before coordinate construction:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+If[! FreeQ[shift, y],
+  fail["TargetDependentSourceShift",
+    "SourceShift must be independent of the target variable; " <>
+      "the remainder theorem assumes a fixed source chart.",
+    <|"SourceShift" -> shift, "TargetVariable" -> y|>]];
+\end{lstlisting}
+\end{minipage}\par
+The candidate generator uses the same message as a single literal string. It operates on the canonical source file, checks one exact insertion anchor, and emits a unified diff without modifying a checkout. It refuses missing, duplicate, or already-changed anchors. Its six test fixtures exercise those text-manipulation properties only; they do not establish that a patched package loads.
+
+The guard follows the package's current structural \code{FreeQ} policy. It does not attempt a new scope-aware language analysis of arbitrary held binders. It also deliberately does not add \code{requested} to the target-free condition: a valid requested \code{CoreInverse} depends on $y$.
+
+An attempted alternative---multiplying the error scale by a missing power of $a^{-1}$---would repair this one constant-perturbation example but not establish a theorem for all moving translations. Such translations can move target dependence into other coefficients or change how the nominal small coordinate compares with the original source. The current API has a fixed-chart theorem, so enforcing its hypothesis is a safer repair than silently extending its meaning.
+
+\subsection{Acceptance criteria and novelty}
+Acceptance requires an actual unpatched characterization, a patched diagnostic check, and positive controls. The supplied tests check rejection for \code{-Abs[y]} and \code{-Re[y]}, preservation of the finite coefficients for a fixed shift $-3$, and neighboring additive prototypes. Further integration controls should include automatic shift selection, fixed symbolic shifts under real parameter assumptions, and a legitimate target-dependent \code{CoreInverse}. These are acceptance conditions for this repair, not a new general test-framework proposal.
+
+The distinction from the closest prior work is substantive. No stored expansion is composed with a parameter-varying inner function, and the source is not retained inside a supplied inverse. Instead, the initial source chart introduces the target into what later code treats as a constant amplitude. The minimal resolution is a refusal on an unsupported option value, not implementation of a uniform moving-parameter asymptotic theory.\cite{register,report43}
+
+\section{E1: expose exact constant absorption without changing the default core}
+\label{sec:e1}
+\subsection{A grouping-sensitive exactness opportunity}
+The same elementary family reveals a small but useful opportunity independent of the defective shift. Compare these two calls with ordinary fixed coordinates:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+AsymptoticExponentialCoreInverse[
+  Exp[x], 1, {x,Infinity}, {y,3}]
+
+AsymptoticExponentialCoreInverse[
+  Exp[x] + 1, 0, {x,Infinity}, {y,3}]
+\end{lstlisting}
+\end{minipage}\par
+Both represent the source $e^x+1$. In the first grouping, the constructor treats $1$ as a nonempty perturbation and calculates a finite correction sequence. In the second grouping, the recognized core has offset $1$ and an empty perturbation, so its exact inverse is available directly. These are source-predicted constructor outcomes; the identity of the underlying mathematical functions is exact.\cite{exp-core}
+
+The distinction comes from \code{exact = rows === {}}. A nonzero constant perturbation has a row of exponent zero, hence it is not the empty case. The recognized exponential core already carries a target offset, so no new special-function inverse is necessary to absorb that constant.
+
+More generally, whenever a core $g$ has the selected exact inverse $\phi$ and $c$ is fixed,
+\begin{equation}
+ (g+c)^{-1}(y)=\phi(y-c)
+ \label{eq:constant-absorption}
+\end{equation}
+on the correspondingly translated target domain. For $g(x)=e^x$, this gives \eqref{eq:exact-inverse} without constructing any of its nonzero logarithmic correction coefficients.
+
+\subsection{Why this should be opt-in}
+An exact formula is not always the representation a user requested. A user may intentionally select $e^x$ as the core in order to compare perturbations by sector depth or to retain a common core across several calculations. Silently replacing that core by $e^x+1$ would change the meaning of the requested correction sequence even though the represented function is unchanged.
+
+The appropriate extension is therefore explicit regrouping. A helper can absorb a perturbation known to be independent of source and target, delegate to the existing constructor with \code{core+c} and zero perturbation, and report that it changed the chosen core. For a mixed perturbation, a future version could split off only its constant part, but the supplied wrapper intentionally implements the pure-constant case rather than claiming that broader normalization is complete.
+
+No exactness should be asserted if an unknown input remainder remains. The wrapper forwards constructor options, including \code{InputRemainder}; the underlying constructor keeps that error separate. Similarly, a user-supplied inverse of the \emph{old} core must not be silently reused as an inverse of the regrouped core. The current wrapper leaves validation to the delegated constructor rather than forging such an identity.
+
+\subsection{Prototype and implementation limits}
+\code{AbsorbConstantExponentialPerturbation}, in \code{ReviewAdditions.wl}, is additive: it lives in \code{AsymptoticIncrementalReview`} and replaces neither upstream nor \code{System} definitions. It checks that the absorbed term is independent of both variables and that the target constructor has definitions before delegating. The constructor remains responsible for exact real input, branch, depth, and remainder-option validation.
+
+The wrapper deliberately accepts immediate option rules only. It does not pretend to resolve the repository's broader delayed/nested option-policy questions, which are already part of prior review work. This limitation is explicit in the fallback diagnostic and the README. The WL implementation is unexecuted; the independent Python tests validate the exact translation identity, not the wrapper's evaluation semantics.
+
+The expected work reduction is structural: the pure-constant regrouped case takes the existing empty-perturbation branch instead of computing all requested coefficient expressions. No elapsed-time improvement in the package was measured. This is also not a recurrence-termination optimization: for the unabsorbed logarithm example, every coefficient $-1/n$ is nonzero. The exactness comes from choosing a different core, not from detecting zeros sooner.
+
+\section{E2: rational moment arithmetic for the existing Lerch adapter}
+\label{sec:e2}
+\subsection{A concrete replacement boundary}
+The existing Lerch path expands in the reciprocal of a large positive argument while keeping the other parameters fixed. The defining sum is
+\begin{equation}
+ \Phi(z,s,a)=\sum_{n=0}^\infty\frac{z^n}{(a+n)^s},
+ \qquad |z|<1,\quad a>0,
+ \label{eq:lerch}
+\end{equation}
+which is absolutely convergent for fixed real $s$ in this domain. The defining sum and its relation to polylogarithms are standard; the proposal below is a specific computational specialization, not a claim of a new identity.\cite{dlmf-lerch,dlmf-polylog}
+
+The inspected source evaluates moments by \code{PolyLog[-k,z]} for positive integer $k$, gives the zeroth moment separately, and places each coefficient behind a bounded \code{FullSimplify}. The tail constant requests moments again at \code{Abs[z]}. This is a reasonable general exact-expression route, but exact rational parameters admit a smaller arithmetic kernel with no such special-function or simplification calls.\cite{dirichlet}
+
+The proposed first integration boundary is intentionally narrow:
+\[
+ z,s\in\QQ,\qquad |z|<1,
+\]
+with bounded moment degree. Other admissible exact parameters continue to use the existing path. This proposal does not change what counts as a nonzero block, the absolute exponent convention, the target approach, or the theorem justifying the tail.
+
+\subsection{Derivation of the moment recurrence}
+Define
+\begin{equation}
+ M_0(z)=\frac1{1-z},\qquad
+ M_k(z)=\sum_{n=0}^\infty n^k z^n\quad(k\ge1).
+ \label{eq:moments}
+\end{equation}
+The $n=0$ contribution to $M_0$ is included; this bookkeeping convention must not be lost by calling every $M_k$ a polylogarithm. For $k\ge1$, $M_k=\Li_{-k}(z)$, whereas $M_0=1+\Li_0(z)$.
+
+Absolute convergence on compact subsets of $|z|<1$ permits termwise differentiation. Hence
+\[
+ M_{k+1}(z)=z\frac{d}{dz}M_k(z).
+\]
+Write
+\begin{equation}
+ M_k(z)=\frac{P_k(z)}{(1-z)^{k+1}},\qquad P_0(z)=1.
+ \label{eq:numerator}
+\end{equation}
+Differentiation gives the polynomial recurrence
+\begin{equation}
+ P_{k+1}(z)=z(1-z)P_k'(z)+(k+1)zP_k(z).
+ \label{eq:eulerian}
+\end{equation}
+All coefficients remain integers. For $P_k(z)=\sum_j p_{k,j}z^j$, an implementation can initialize a zero coefficient array and accumulate
+\begin{equation}
+ p_{k+1,j}\mathrel{+}=j p_{k,j},\qquad
+ p_{k+1,j+1}\mathrel{+}=(k+1-j)p_{k,j}.
+ \label{eq:array}
+\end{equation}
+It then evaluates $P_k(z)$ by Horner's rule and updates the denominator by one multiplication by $1-z$.
+
+The first values provide transparent boundary checks:
+\[
+ M_0=\frac1{1-z},\quad M_1=\frac{z}{(1-z)^2},\quad
+ M_2=\frac{z(1+z)}{(1-z)^3}.
+\]
+At $z=1/2$ the first six moments are
+\[
+ 2,\ 2,\ 6,\ 26,\ 150,\ 1082.
+\]
+At $z=0$, they are $1,0,0,\ldots$. The supplied implementations cover both cases without evaluating a special function.
+
+\subsection{Coefficient generation and exact zeros}
+Expanding the elementary factor $(1+n/a)^{-s}$ at zero gives the formal coefficient of $a^{-s-k}$:
+\begin{equation}
+ c_k(z,s)=\frac{(-1)^k(s)_k}{k!}M_k(z).
+ \label{eq:lerch-coeff}
+\end{equation}
+For rational $z$ and $s$, these coefficients are rational. The scalar factor can be updated without repeated factorial or Pochhammer evaluation:
+\begin{equation}
+ t_0=1,\qquad t_{k+1}=-t_k\frac{s+k}{k+1},\qquad c_k=t_kM_k.
+\end{equation}
+
+The table retains exact zeros. This is essential because the repository's term goal counts nonzero displayed blocks, while the remainder theorem is indexed by Taylor degree. A consumer must not confuse ``the fifth nonzero coefficient'' with Taylor degree five. For a nonpositive integer $s=-m$, the scalar factor vanishes after $k=m$ and the source expansion is finite; for $z=0$, all positive-degree moments vanish. At $z=1/2,s=-2$, the coefficient table starts
+\[
+ (2,4,6,0,0,\ldots),
+\]
+corresponding to the exact polynomial $2a^2+4a+6$.
+
+For negative rational $z$, coefficients may have cancellations. A zero entry is not a reason to relabel all subsequent indices, and one isolated zero is not by itself an exact termination certificate. The proposed table changes arithmetic representation only; the caller keeps its existing stopping and frontier logic.\cite{dirichlet}
+
+\subsection{Preserving the existing tail theorem}
+The useful optimization must preserve the original bound, not merely reproduce coefficients. With $N$ denoting the first omitted Taylor degree, the repository uses
+\begin{align}
+ D&=\max\{0,\lceil-s-N\rceil\},\\
+ B_N(z,s)&=\frac{|(s)_N|}{N!}
+  \sum_{j=0}^{D}\binom Dj M_{N+j}(|z|),
+ \label{eq:bound-constant}
+\end{align}
+and, for $a\ge1$,
+\begin{equation}
+ \left|\Phi(z,s,a)-\sum_{k=0}^{N-1}c_k(z,s)a^{-s-k}\right|
+ \le B_N(z,s)a^{-s-N}.
+ \label{eq:lerch-bound}
+\end{equation}
+This is the existing source theorem, restated here to specify what the arithmetic replacement must preserve.\cite{dirichlet}
+
+For completeness, its elementary mechanism can be checked directly. Taylor's theorem bounds the remainder of $h(t)=(1+t)^{-s}$ on $t\ge0$ by
+\[
+ \frac{|(s)_N|}{N!}t^N(1+t)^D.
+\]
+Put $t=n/a$ and use $a\ge1$ to replace $(1+n/a)^D$ by $(1+n)^D$. Sum against $|z|^n$, expand the integer power $(1+n)^D$, and obtain~\eqref{eq:bound-constant}. The zeroth-moment convention is required when a degree zero occurs. A rational moment table computes exactly the same constant.
+
+One local table suffices when $z\ge0$. For $z<0$, use a table at $z$ for coefficients and one at $|z|$ for the absolute bound. The source theorem is fixed-parameter and does not become uniform as $z$ approaches $1$. The optimized arithmetic must not introduce that stronger claim.
+
+\subsection{Independent oracle and complexity}
+An independent exact oracle follows from falling factorials:
+\begin{equation}
+ M_k(z)=\sum_{j=0}^k
+ \left\{\!\begin{matrix}k\\j\end{matrix}\!\right\}
+ j!\frac{z^j}{(1-z)^{j+1}}.
+ \label{eq:stirling}
+\end{equation}
+Here the braces are Stirling numbers of the second kind. The identity follows by substituting the falling-factorial expansion of $n^k$ into the geometric sum. The supplied oracle builds Stirling rows, while the production prototype builds polynomial numerator arrays by~\eqref{eq:array}; this separates the two recurrence mechanisms.
+
+Producing all moments through degree $K$ takes $\OO(K^2)$ arithmetic operations with coefficient-array updates and Horner evaluation. This is \emph{not} a quadratic bit-complexity assertion. The integer polynomial coefficients and rational values grow, especially when the rational input has a large numerator or denominator. Storing the current numerator costs $\OO(K)$ integer entries; retaining the whole output costs $K+1$ rational entries, whose bit lengths are not constant.
+
+The prototype degree cap is 256. It is a simple operational limit, not a proof of a uniform memory bound for arbitrarily large rational input. There is no global memoization, no retained symbolic parameter state, and no claim that a Python timing predicts the corresponding evaluator's cost. An integrated backend can keep the package's existing resource checks around the rational arithmetic result.
+
+\subsection{Executed prototype measurements}
+The independent implementation uses Python's \code{fractions.Fraction}. Table~\ref{tab:timing} records the best of three local runs at $z=1/2$. It measures the supplied algorithm only; no upstream baseline was available, so a speedup ratio would be unsupported.
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+Highest degree $K$ & Moments returned & Best elapsed time & Last numerator bits\\
+\midrule
+16 & 17 & $0.241$ ms & 54\\
+32 & 33 & $0.848$ ms & 136\\
+64 & 65 & $3.281$ ms & 331\\
+128 & 129 & $13.246$ ms & 785\\
+\bottomrule
+\end{tabular}
+\caption{Python-only prototype timings from \code{evidence/prototype-timing.json}; machine-dependent observations, not Wolfram or Mathics performance results.}
+\label{tab:timing}
+\end{table}
+
+The benefit presently established is algorithmic dependency reduction: rational inputs can be handled by integer and rational arithmetic without a per-moment special-function call. The practical value for Mathics is plausible for that reason, but actual compatibility and performance remain to be measured. The WL implementation is an additive prototype, not an installed adapter, and its success cannot be inferred from the equivalent Python algorithm.
+
+\section{Executed checks, supplied tests, and what they do not prove}
+\label{sec:tests}
+\subsection{Independent Python population}
+The recorded run used Python 3.13.5 and mpmath 1.3.0, with 100 decimal digits for numerical observations. The suite contains 32 unittest methods and completed with no failures, errors, or skips. The raw transcript and machine-readable scope are included. Exact rational calculations are performed by \code{Fraction}, not by converting machine approximations to apparent exact data.
+
+\begin{tabularx}{\textwidth}{@{}p{1.55in}rX@{}}
+\toprule
+Group & Methods & Main obligations checked\\
+\midrule
+Source-shift models & 9 & Positive tail inequalities; exponential ratio discrepancy; eventual-domain samples; fixed-shift controls; coefficient recurrence; amplitude cancellation; constant translation identity; invalid model arguments.\\[3pt]
+Rational moments & 17 & Known values; zero parameter; independent Stirling oracle; first two identities; signed/absolute controls; termination; Pochhammer factors; four numerical Lerch bound examples; domain and degree refusals.\\[3pt]
+Patch fixtures & 6 & Unique insertion; source preservation away from insertion; missing and ambiguous anchors; already-patched refusal; non-mutating diff generation.\\
+\midrule
+Total & 32 & Independent models and prototypes only.\\
+\bottomrule
+\end{tabularx}
+
+The moment-oracle method compares degrees $0$ through $24$ at six rational values of $z$, including zero and negative values. Those internal loops remain part of one method in the reported count. The numerical Lerch checks test selected values against~\eqref{eq:lerch-bound}; they are illustrations of a preserved bound, not a numerical proof of the general theorem.
+
+The exact proof of F1 is stronger than the numerical assertions: the lower bound holds for every $y>1$ and every fixed finite depth. Conversely, no number of independent model tests establishes the public constructor's evaluation path. That is why the evidence JSON identifies the missing kernel execution rather than recording a fictitious package pass count.
+
+\subsection{Eight desired-contract tests, unexecuted}
+\code{ReviewRegressions.wlt} contains two tests for the new target-dependent-shift diagnostic, a fixed-shift positive control, an exact constant-absorption case, three rational-moment/coefficient cases, and a refusal of an inexact rational-prototype argument. They are written as desired contracts for a patched package plus the additive helper file.
+
+The independent characterization script serves a different purpose: load the unpatched package, record the kernel version and the returned head, and inspect the expression, scale, target-domain value, and numerical error ratio for depths $0$, $1$, and $3$. Its output must be retained even if a request refuses or stays unevaluated. It is not an acceptance suite with a predetermined pass total.
+
+A fresh patched kernel and a fresh unpatched kernel should be separate sessions. In particular, loading the additive helper does not install the F1 fix: the guarded source change still needs to be applied to the actual checkout. The supplied patch generator only emits a candidate diff.
+
+\subsection{Lexical and artifact checks}
+The three supplied WL/WLT files passed a limited scanner for paired delimiters, quoted strings, and nested comments. That scanner is included so the scope is inspectable. It is not a Wolfram parser, does not validate pattern precedence, does not evaluate definitions, and cannot establish Mathics semantics.
+
+The article is supplied as a self-contained LaTeX file and a rendered PDF. The build and visual-inspection records describe the artifact checks separately from software tests. No checksum files are included, and no claim is based on a checksum generated by this review.
+
+\section{Prioritized implementation decisions}
+\label{sec:roadmap}
+\subsection{First: close the fixed-chart hole}
+F1 should be handled before either optimization. The change is small, the theorem violation is severe, and the positive compatibility boundary is clear: preserve fixed translations and ordinary target-dependent inverse expressions while refusing target-dependent chart data. The characterization should establish the current public behavior in Wolfram 15 and in the actual Mathics configuration used by the project, without assuming that an earlier proof refusal is an identical reproduction of the native symptom.
+
+The diagnostic should explain the fixed-chart restriction rather than presenting the expression as a malformed exponential core. That makes the required user action clear: choose a fixed source translation, or reformulate a genuinely moving-coordinate problem outside this constructor's stated theorem.
+
+\subsection{Second: decide whether exact core regrouping belongs in the API}
+E1 is best treated as an explicit representation choice. The pure-constant helper already demonstrates the minimal change in mathematical input grouping. An integrated version can retain the original core and perturbation alongside the regrouped pair, but must not silently promise the original correction sequence after changing its base.
+
+The deciding tests are not just coefficient equality. They are preservation of the original source function, translation of the target domain, correct handling of a remaining input remainder, and rejection or revalidation of a supplied old-core inverse. Success would establish a small new exactness capability rather than a broad rewrite of inverse dispatch.
+
+\subsection{Third: integrate rational moments only behind a narrow gate}
+E2 should begin with rational $z$ and $s$, exact values, and a bounded requested degree. It must preserve the original Taylor index for a frontier, count nonzero blocks according to the existing convention, and return the same tail constant and hypotheses as the general implementation. Fall back outside that gate instead of expanding the implementation claim to all exact parameters.
+
+An actual comparison should distinguish coefficient generation from bound construction, use the same requested and achieved order, and compare the rational and existing paths in both runtimes. The present report supplies the exact oracle and Python observations needed to design that comparison; it supplies no invented kernel timing or throughput target.
+
+\subsection{What is intentionally not proposed again}
+This report does not add another general registry redesign, uniform-asymptotics program, capability taxonomy, full-suite policy, persistence format, broad caching plan, or list of missing special functions. Those are already represented in the exclusion baseline. Its forward-looking work is restricted to enforcing the fixed-chart hypothesis, exposing optional constant absorption, and replacing one rational computational dependency in an existing adapter.\cite{register,wave3,wave4,wave5}
+
+\section{Conclusion}
+The principal incremental result is a concrete separation between correct coefficients and an incorrect error contract. A moving source translation can be algebraically canceled out of every retained coefficient while remaining hidden in the claimed remainder. For $e^x+1$, the contradiction is elementary, applies at every finite depth, and is resolved by enforcing the fixed-chart condition already assumed by the constructor.
+
+The two accompanying opportunities are deliberately smaller than a new transseries engine. Constant absorption exploits an exact inverse the chosen grouping hides. Rational moment tables exploit a finite arithmetic identity inside a special-function adapter already present. Both can be developed without weakening the branch and remainder boundaries on which the package depends.
+
+The evidence supports a high-priority source fix and two concrete implementation experiments. It does not support a claim that a patched package has passed Wolfram 15 or Mathics3 tests. The archive preserves that distinction with proofs, executable independent checks, unexecuted integration specifications, source references, and an explicit novelty ledger.
+
+\appendix
+\section{Reproduction and artifact inventory}
+\subsection{Independent calculations}
+From the archive root, with Python and the listed dependency installed:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+python -m pip install -r code/requirements.txt
+python code/run_evidence.py
+python code/check_wl_lexical.py
+\end{lstlisting}
+\end{minipage}\par
+The evidence generator rewrites its own result files. The exact moment module itself uses the standard library; mpmath is needed by the numerical test population and sample generator. Timing observations will vary by environment.
+
+\subsection{Candidate patch and native tests}
+Given an actual checkout of the pinned repository:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+python code/prepare_shift_patch.py /path/to/Asymptotic > shift.patch
+\end{lstlisting}
+\end{minipage}\par
+Inspect and apply that diff separately. The generator does not perform either action. Regenerate the standalone using the project's existing builder after a canonical source change.\cite{kernel-map} In a fresh Wolfram kernel, the intended test workflow is:
+\par\noindent\begin{minipage}{\linewidth}
+\begin{lstlisting}
+Get["/path/to/Asymptotic/src/Kernel/AsymptoticAnalysis.wl"];
+Get["/path/to/review/code/ReviewAdditions.wl"];
+TestReport["/path/to/review/code/ReviewRegressions.wlt"]
+\end{lstlisting}
+\end{minipage}\par
+These are instructions, not a transcript of an executed session. Mathics requires a separate actual run. Its support for the MUnit wrapper is not assumed; the scalar test expressions can be adapted to the repository's existing portable runner.
+
+\subsection{File roles}
+\begin{longtable}{@{}p{2.64in}p{3.9in}@{}}
+\toprule
+File & Role\\
+\midrule
+\endhead
+\nolinkurl{article/article.tex}, \nolinkurl{article/article.pdf} & Editable article and compiled, visually inspected output.\\[4pt]
+\nolinkurl{code/review_math.py} & Exact rational algorithms, logarithm-tail bounds, and independent core models.\\[4pt]
+\nolinkurl{code/test_review.py} & The 32-method independent suite.\\[4pt]
+\nolinkurl{code/run_evidence.py} & Reproduces tests, samples, and Python-only timing observations.\\[4pt]
+\nolinkurl{code/prepare_shift_patch.py} & Non-mutating, exact-anchor candidate diff generator.\\[4pt]
+\nolinkurl{code/ReviewAdditions.wl} & Unexecuted additive WL prototypes for E1 and E2.\\[4pt]
+\nolinkurl{code/ReviewRegressions.wlt} & Eight unexecuted desired-contract tests.\\[4pt]
+\nolinkurl{code/characterize_shift.wl} & Unexecuted baseline observation script.\\[4pt]
+\nolinkurl{code/check_wl_lexical.py} & Limited lexical scanner, not an evaluator.\\[4pt]
+\nolinkurl{evidence/independent-results.json} & Actual independent count and execution boundaries.\\[4pt]
+\nolinkurl{evidence/independent-test-output.txt} & Raw unittest transcript.\\[4pt]
+\nolinkurl{evidence/shift-counterexample.*} & CSV/JSON evaluations of the independently derived witness formulas.\\[4pt]
+\nolinkurl{evidence/prototype-timing.json} & Python-only rational moment timings.\\[4pt]
+\nolinkurl{evidence/findings.json}, \nolinkurl{evidence/novelty-ledger.csv} & Claim-specific classification and closest prior-work distinctions.\\[4pt]
+\nolinkurl{evidence/source-map.json}, \nolinkurl{evidence/scope.json} & Inspected source ranges and explicit limits of the review.\\[4pt]
+\nolinkurl{evidence/wl-lexical-check.json} & Delimiter/comment/string check results.\\[4pt]
+\nolinkurl{evidence/pdf-build.json} & PDF build and rendered inspection record.\\
+\bottomrule
+\end{longtable}
+
+\section{Source anchors and bibliography}
+All repository references below are pinned to \texttt{8cee870}. The full commit is printed on the title page and recorded in the machine-readable evidence. A source link describes the snapshot inspected; it does not imply that the same text remains on a later \code{main} branch.
+
+The primary F1 anchors are
+\pinned{src/Kernel/ExponentialCorePerturbation.wl\#L16-L31}{the source-coordinate construction},
+\pinned{src/Kernel/ExponentialCorePerturbation.wl\#L43-L70}{the exact core inverse},
+\pinned{src/Kernel/ExponentialCorePerturbation.wl\#L95-L127}{the guard, coefficients, and error scale}, and
+\pinned{src/Kernel/LambertInverse.wl\#L59-L76}{the exponential amplitude parser}.
+E2 is localized by the named helpers \code{dirichletSpecialMoment}, \code{dirichletLerchCoefficient}, \code{dirichletLerchBoundConstant}, and \code{dirichletLerchForward}. The separate source map lists broader inspected files without presenting them as entirely verified modules.
+
+\begin{thebibliography}{99}
+\small\setlength{\parskip}{0pt}\setlength{\itemsep}{2pt}
+\bibitem{exp-core} Vladimir Reshetnikov, Asymptotic repository, \pinned{src/Kernel/ExponentialCorePerturbation.wl}{\nolinkurl{src/Kernel/ExponentialCorePerturbation.wl}}. Source-coordinate admission, exact cores, sector coefficients, and fixed-data majorant.
+\bibitem{lambert} Asymptotic repository, \pinned{src/Kernel/LambertInverse.wl}{\nolinkurl{src/Kernel/LambertInverse.wl}}. In particular, \code{lambertExponentialTerm} and \code{lambertExponentialCore}.
+\bibitem{dirichlet} Asymptotic repository, \pinned{src/Kernel/DirichletSpecialFunctions.wl}{\nolinkurl{src/Kernel/DirichletSpecialFunctions.wl}}. Existing Zeta and Lerch constructors, moments, coefficients, and tail constants.
+\bibitem{kernel-map} Asymptotic repository, \pinned{src/Kernel/README.md}{\nolinkurl{src/Kernel/README.md}}. Modular source map, Mathics architecture, validation scope, and standalone generation.
+\bibitem{register} Asymptotic repository, \pinned{docs/development/CODE_REVIEW_STATUS.md}{\nolinkurl{docs/development/CODE_REVIEW_STATUS.md}}. Maintained finding and proposal register, including complete early-wave crosswalks.
+\bibitem{wave3} Asymptotic repository, \pinned{docs/development/WAVE_3_INTAKE.md}{\nolinkurl{docs/development/WAVE_3_INTAKE.md}}. Wave-3 intake and crosswalk.
+\bibitem{wave4} Asymptotic repository, \pinned{docs/development/WAVE_4_INTAKE.md}{\nolinkurl{docs/development/WAVE_4_INTAKE.md}}. Wave-4 intake and crosswalk.
+\bibitem{wave5} Asymptotic repository, \pinned{external-reports/code-review/wave-5/README.md}{\nolinkurl{external-reports/code-review/wave-5/README.md}}. Retained wave-5 reports, overlaps, retired copies, and evidence limitations.
+\bibitem{report43} Asymptotic repository, \pinned{external-reports/code-review/wave-5/code-review-43/README.md}{\nolinkurl{external-reports/code-review/wave-5/code-review-43/README.md}}. Closest source-symbol validation finding and its stated scope.
+\bibitem{mathics-assumptions} Asymptotic repository, \pinned{src/Kernel/MathicsAssumptions.wl}{\nolinkurl{src/Kernel/MathicsAssumptions.wl}}. Realness and sign proof helpers, especially \code{mathicsRealProof}.
+\bibitem{mathics-core} Asymptotic repository, \pinned{src/Kernel/MathicsCoreFunctions.wl}{\nolinkurl{src/Kernel/MathicsCoreFunctions.wl}}. Construction-site ProductLog and timeout handling.
+\bibitem{mathics-taylor} Asymptotic repository, \pinned{src/Kernel/MathicsTaylor.wl}{\nolinkurl{src/Kernel/MathicsTaylor.wl}}. Bounded defining-series fallback.
+\bibitem{native-import} Asymptotic repository, \pinned{src/Kernel/NativeSpecialFunctions.wl}{\nolinkurl{src/Kernel/NativeSpecialFunctions.wl}}. Analytic native-series import and truncation.
+\bibitem{gamma-checks} Asymptotic repository, \pinned{src/Kernel/GammaInverseChecks.wl}{\nolinkurl{src/Kernel/GammaInverseChecks.wl}}. Independent finite-model normalized residuals and numerical original-equation checks.
+\bibitem{barnes-checks} Asymptotic repository, \pinned{src/Kernel/BarnesInverseChecks.wl}{\nolinkurl{src/Kernel/BarnesInverseChecks.wl}}. Barnes residual normalization.
+\bibitem{barnes-forward} Asymptotic repository, \pinned{src/Kernel/BarnesForward.wl}{\nolinkurl{src/Kernel/BarnesForward.wl}}. Exact argument shifts and finite Barnes model.
+\bibitem{log-scales} Asymptotic repository, \pinned{src/Kernel/LogarithmicScales.wl}{\nolinkurl{src/Kernel/LogarithmicScales.wl}}. Finite logarithmic hierarchy and coefficient Euler derivative.
+\bibitem{envelopes} Asymptotic repository, \pinned{src/Kernel/SeriesEnvelopeArithmetic.wl}{\nolinkurl{src/Kernel/SeriesEnvelopeArithmetic.wl}}. Composite error arithmetic and observable transport conditions.
+\bibitem{dlmf-lerch} NIST Digital Library of Mathematical Functions, \S25.14(i), equation 25.14.1, Lerch's transcendent. \url{https://dlmf.nist.gov/25.14.E1}. Accessed 10 September 2026. Used for the defining sum and domain, not as a source of the new code-review finding.
+\bibitem{dlmf-polylog} NIST Digital Library of Mathematical Functions, \S25.12(ii), equation 25.12.10, polylogarithm defining series. \url{https://dlmf.nist.gov/25.12.E10}. Accessed 10 September 2026.
+\bibitem{wolfram-abs} Wolfram Research, \emph{Abs: Absolute Value (Modulus)}, Wolfram Language documentation. \url{https://reference.wolfram.com/language/ref/Abs.html}. Accessed 10 September 2026. This is semantic documentation, not a transcript of a Wolfram 15 evaluation.
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,105 @@
+{
+  "RecordType": "Curated transcription of returned evaluator observations; not complete raw session logs",
+  "Repository": "VladimirReshetnikov/Asymptotic",
+  "Commit": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "Runtime": {
+    "Version": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+    "SystemID": "Linux-x86-64"
+  },
+  "Load": {
+    "StandaloneBytes": 692381,
+    "PublicNamesAfterLoad": 38
+  },
+  "Baseline": {
+    "N1-forward": {
+      "Call": "AsymptoticExpansion[1/(1+Pi),{Pi,0,3},\"Backend\"->\"Package\"]",
+      "ResultSummary": "{1-Pi+Pi^2,Pi,PowerLogRemainder[Pi,3,0]}",
+      "Messages": [
+        "SeriesData::sdatv"
+      ]
+    },
+    "N1-native-control": {
+      "Call": "Series[1/(1+Pi),{Pi,0,3}]",
+      "ResultSummary": "Unevaluated Series expression"
+    },
+    "N1-inverse-target": {
+      "Call": "AsymptoticInverse[x+x^2,{x,0},{Pi,3}]",
+      "ResultSummary": "{Pi-Pi^2,Pi,PowerLogRemainder[Pi,3,0]}",
+      "Messages": [
+        "SeriesData::sdatv"
+      ]
+    },
+    "N2": {
+      "Setup": "s=AsymptoticFourierInverse[x+x^2 Sin[Log[x]],{x,0},{y,3}]",
+      "OptionsOnly": "Failure[\"InvalidCutoff\",...]",
+      "ExplicitAutomatic": {
+        "ZeroBelowCutoff": true,
+        "ResidualBlocks": [],
+        "NormalizedResidual": 0,
+        "RelativeCutoff": 2
+      }
+    },
+    "N3": {
+      "Setup": "s=AsymptoticExpansion[1/x,{x,0,3},\"Backend\"->\"Package\"]",
+      "Plain": {
+        "Expression": "Exp[1/x]",
+        "Remainder": 0,
+        "Scale": "Factored"
+      },
+      "TrueCondition": "Failure[\"ExponentialScale\",<|...,\"Argument\"->{{-1,1}}|>]"
+    }
+  },
+  "CandidateBatches": {
+    "N2-N3": {
+      "Status": "Returned",
+      "ImmediateOptionsZeroResidual": true,
+      "NestedOptionsZeroResidual": true,
+      "DelayedOptionsZeroResidual": true,
+      "DelayedEvaluationCount": 1,
+      "ConditionalExpression": "Exp[1/x]",
+      "ConditionalRemainder": 0,
+      "RecipeHead": "Observable",
+      "RecipeObservable": "ConditionalExpression[Exp[z],z>0]",
+      "FalseCondition": "Failure[\"IncompatibleObservableCondition\",...]",
+      "AdditionalScope": "This experimental batch also contained a source-chart variable guard; its ordinary inverse-target omission was subsequently corrected separately."
+    },
+    "Final-N1": {
+      "Status": "Returned",
+      "AnchorCounts": [
+        1,
+        1
+      ],
+      "ForwardPi": "Failure[\"InvalidVariable\",...]",
+      "InverseTargetPi": "Failure[\"InvalidVariables\",...]",
+      "UserContextPi": "1-AuditVars`Pi+AuditVars`Pi^2",
+      "Sine": "x-x^3/6"
+    },
+    "Combined-final-edits": {
+      "Status": "No completed usable service result"
+    },
+    "Conditional-refinement": {
+      "Status": "No completed usable service result"
+    }
+  },
+  "ArithmeticScreen": {
+    "Cases": 42,
+    "NonexactDiagnosticCases": 41,
+    "ExactCases": 1,
+    "Flags": 0,
+    "SampleExponents": [
+      6,
+      12,
+      24
+    ],
+    "Digits": 100,
+    "FlagCriterion": "abs(Q24)>1000*max(1,abs(Q6)), only when all sampled ratios are numeric",
+    "Meaning": "Heuristic numerical diagnostic; not a proof or interval certificate"
+  },
+  "Mathics": {
+    "Status": "Not executed"
+  },
+  "LocalPythonUtilityTests": {
+    "Passed": 6,
+    "Scope": "Synthetic source-fragment staging logic, not package runtime"
+  }
+}

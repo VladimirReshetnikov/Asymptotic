@@ -1,0 +1,86 @@
+{
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "revision": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "date": "2026-09-10",
+  "record_kind": "Manual transcription of successful Wolfram connector results",
+  "kernel_version": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "baseline_loading": {
+    "entry": "AsymptoticAnalysis.wl",
+    "pinned_download_bytes": 692381,
+    "Get_result": "Null"
+  },
+  "primitive_observation": {
+    "query": "{$Version, FullSimplify[Element[Abs[y], Reals]], FullSimplify[Exp[-Abs[y]] > 0], FullSimplify[-Abs[y]+Log[y Exp[Abs[y]]],y>2]}",
+    "result": [
+      "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+      "True",
+      "True",
+      "Log[y]"
+    ]
+  },
+  "baseline": {
+    "bad_request": "AsymptoticAnalysis`AsymptoticExponentialCoreInverse[Exp[x],1,{x,Infinity},{y,1},\"SourceShift\" -> -Abs[y]]",
+    "outcome": "GeneralizedSeries",
+    "expression_under_y_gt_2": "Log[y]-1/y",
+    "remainder_scale_under_y_gt_2": "Exp[-2*y]/y^2",
+    "domain": "Exp[Abs[y]] y > 1 && Element[Log[Exp[Abs[y]] y],Reals] && Log[Exp[Abs[y]] y] > 1 && Log[Exp[Abs[y]] y] > 0",
+    "core_parameters": {
+      "a": "Exp[-Abs[y]]",
+      "b": "0",
+      "c": "1",
+      "p": "1",
+      "Offset": "0",
+      "Exact": "True"
+    },
+    "control_request": "AsymptoticAnalysis`AsymptoticExponentialCoreInverse[Exp[x],1,{x,Infinity},{y,1}]",
+    "control_expression_under_y_gt_2": "Log[y]-1/y",
+    "control_remainder_scale_under_y_gt_2": "1/y^2"
+  },
+  "patched": {
+    "patch_old": "! FreeQ[{shift, requested}, x]",
+    "patch_new": "! FreeQ[shift, x | y] || ! FreeQ[requested, x]",
+    "anchor_occurrences_observed": 1,
+    "application": "Downloaded pinned standalone text changed in a temporary remote file and loaded in a fresh evaluator call. Repository not modified.",
+    "outcomes": [
+      {
+        "case": "target-dependent-shift",
+        "outcome": "Failure",
+        "tag": "InvalidVariables"
+      },
+      {
+        "case": "core-inverse-may-use-target",
+        "outcome": "GeneralizedSeries"
+      },
+      {
+        "case": "automatic",
+        "outcome": "GeneralizedSeries"
+      },
+      {
+        "case": "fixed-negative-shift",
+        "outcome": "GeneralizedSeries"
+      },
+      {
+        "case": "fixed-parameter-shift",
+        "outcome": "GeneralizedSeries"
+      },
+      {
+        "case": "renamed-target-invalid",
+        "outcome": "Failure"
+      },
+      {
+        "case": "unrelated-y-valid",
+        "outcome": "GeneralizedSeries"
+      }
+    ],
+    "scope": "Seven result-head classifications; not seven coefficient/remainder acceptance suites."
+  },
+  "unsuccessful_attempts": "Early context/evaluator calls and two later matrix/patch attempts returned HTTP 502. They contribute no computational result. Subsequent smaller calls succeeded.",
+  "not_executed": [
+    "Mathics package runs",
+    "complete supplied MUnit file",
+    "complete portable smoke file",
+    "full repository suites",
+    "performance benchmark"
+  ],
+  "no_aggregate_acceptance_total": true
+}

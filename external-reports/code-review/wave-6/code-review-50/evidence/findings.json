@@ -1,0 +1,39 @@
+{
+  "commit": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "findings": [
+    {
+      "id": "F1",
+      "kind": "source-level correctness defect",
+      "priority": "high",
+      "title": "Target-dependent SourceShift violates fixed-chart remainder theorem",
+      "source": "src/Kernel/ExponentialCorePerturbation.wl",
+      "lines": "16-31, 43-70, 95-127, 153-162",
+      "evidence": "Exact derivation and independent Python checks; public kernel behavior source-predicted",
+      "witness": "AsymptoticExponentialCoreInverse[Exp[x],1,{x,Infinity},{y,0},\"SourceShift\"->-Abs[y]]",
+      "repair": "Reject SourceShift containing the target symbol before constructing coordinates",
+      "kernel_status": "Wolfram and Mathics probes unrun; Mathics may refuse earlier"
+    },
+    {
+      "id": "E1",
+      "kind": "development opportunity",
+      "priority": "after F1",
+      "title": "Opt-in constant absorption into the exact exponential core",
+      "source": "src/Kernel/ExponentialCorePerturbation.wl",
+      "lines": "50, 113-116, 121-127",
+      "evidence": "Elementary exact identity; additive WL prototype unrun",
+      "repair": "Expose explicit regrouping (core,c) -> (core+c,0) for a fixed constant perturbation",
+      "kernel_status": "Unrun; no wrong-result or speedup claim"
+    },
+    {
+      "id": "E2",
+      "kind": "algorithm and portability opportunity",
+      "priority": "after F1",
+      "title": "Rational Eulerian moments for the existing Lerch expansion",
+      "source": "src/Kernel/DirichletSpecialFunctions.wl",
+      "lines": "dirichletSpecialMoment, dirichletLerchCoefficient, dirichletLerchBoundConstant, dirichletLerchForward",
+      "evidence": "Exact Fraction prototype checked against independent Stirling-number oracle; Python-only timings",
+      "repair": "Rational-only local moment table; preserve original coefficient indices, domains, zeros, and bound theorem",
+      "kernel_status": "WL implementation unrun; no measured package speedup"
+    }
+  ]
+}

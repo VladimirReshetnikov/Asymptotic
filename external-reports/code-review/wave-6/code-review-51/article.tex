@@ -1,0 +1,940 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=0.9in,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,longtable,tabularx,array,ragged2e}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\renewcommand{\tabularxcolumn}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\usepackage{xcolor,listings,enumitem}
+\usepackage{xurl}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!45!black,citecolor=blue!45!black]{hyperref}
+\hypersetup{pdftitle={Asymptotic: Request Preservation and Portable Evidence},pdfauthor={Technical review for Vladimir Reshetnikov},pdfsubject={Incremental audit of revision 8cee870994f506b501bae3ea6bd4a3a7edb895c1},pdfkeywords={Asymptotic, Wolfram Language 15, Mathics3, code review}}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Asymptotic: incremental engineering audit}
+\fancyhead[R]{\small 10 September 2026}
+\fancyfoot[C]{\thepage}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 1pt}
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=1.5em}
+\lstset{basicstyle=\small\ttfamily,columns=fullflexible,keepspaces=true,
+  breaklines=true,breakatwhitespace=false,showstringspaces=false,
+  frame=single,rulecolor=\color{black!15},framerule=0.3pt,
+  xleftmargin=4pt,xrightmargin=4pt,aboveskip=9pt,belowskip=9pt,
+  commentstyle=\color{black!60},upquote=true}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\pin}{\texttt{8cee870994f506b501bae3ea6bd4a3a7edb895c1}}
+\newcommand{\finding}[2]{\subsection*{#1\quad #2}\addcontentsline{toc}{subsection}{#1: #2}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{invariant}{Invariant}
+\title{\vspace{-0.5in}\textbf{Asymptotic:\\Request Preservation and Portable Evidence}\\[10pt]
+\large An incremental audit for Wolfram Language 15 and Mathics3}
+\author{Technical review for Vladimir Reshetnikov}
+\date{10 September 2026}
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Repository & \code{VladimirReshetnikov/Asymptotic}\\
+Audited revision & \pin\\
+Commit timestamp & 10 September 2026, 17:10:56 UTC\\
+Evidence & Pinned source, focused native observations, Python fixtures\\
+Scope boundary & No full Mathics execution or complete native suite\\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{8pt}
+\begin{abstract}
+This review follows a broad inspection of the package's mathematical engines,
+Mathics adaptations, numerical evidence paths, documentation, and existing
+review registers. It reports three incremental findings rather than reissuing
+the substantial earlier backlog. The most consequential is a Mathics input
+transformation that rewrites \code{Element} inside caller-owned held data and
+can thereby change the assumptions selected by a delayed option program.
+Installing the actual pinned adapter into an otherwise native Wolfram package
+changed a public model's leading coefficient from 1 to 2. The second finding is
+a contradictory numerical diagnostic: \code{LocalRoot} remains a source
+coordinate while its label says it becomes a power observable. Two native
+public-API examples confirm the mismatch without an incorrect numerical value.
+The third finding is a portability gap in the local documentation checker:
+a link outside the checkout is accepted when an unrelated host file exists.
+
+The accompanying artifacts provide a narrow rewrite candidate, a guarded patch
+emitter, proposed Wolfram regressions, a checkout-contained link checker, and
+23 passing Python test methods. Evidence is separated by execution environment:
+actual Wolfram 15 standalone runs, a Mathics-adapter isolation experiment in
+Wolfram, isolated candidate checks, and local Python fixtures are not treated as
+interchangeable. No full Mathics run, patched-package acceptance, general
+cross-runtime equivalence, or exhaustive mathematical correctness is claimed.
+\end{abstract}
+\vfill
+\small The archive contains this article's editable source and PDF, candidate
+code, reproducible tests, and scoped evidence. It contains no checksum files,
+separate font files, or complete upstream distribution.
+\clearpage
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\clearpage
+
+\section{Conclusions and priorities}
+
+\textbf{The principal new correctness risk is at the request boundary, not in
+an asymptotic coefficient formula.} The Mathics assumptions adapter attempts to
+protect a mathematical proposition from an interpreter simplification, but its
+syntactic traversal is broader than the documented operation. It can modify a
+program that computes that proposition. A correct downstream algebra engine
+then solves a different problem from the one the caller supplied.
+
+The numerical diagnostic finding is materially smaller. Its result values are
+correct in the executed examples; the accompanying explanation is not. The
+documentation finding is a validation gap with a concrete false-positive
+fixture, not evidence that the current repository contains a broken published
+link. These distinctions determine the proposed repair order.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabularx}{\linewidth}{@{}l P{2.0cm} X P{3.1cm}@{}}
+\toprule
+ID & Priority & Incremental finding & Strongest evidence\\
+\midrule
+N01 & High impact; narrow trigger & Held caller data are rewritten inside an assumptions option; a delayed program changes its selected parameter condition. & Actual adapter isolated in the pinned package on Wolfram 15: coefficient $1\to2$.\\
+N02 & Low; straightforward repair & A coordinate-description string contradicts the source-root and powered-observable fields. & Two pinned native public-API executions.\\
+N03 & Medium validation gap & A local-link check can pass because a file exists outside the checkout. & Exact upstream Python source, actual Pandoc, temporary-tree counterexamples.\\
+\bottomrule
+\end{tabularx}
+\caption{Finding severity describes impact and repair urgency, not an estimate of how often ordinary users encounter the trigger.}
+\end{table}
+
+Repair N02 independently because its minimal change is a descriptive string,
+not a numerical algorithm. For N01, first preserve the demonstrated quoted-data
+cases, then specify which assumption syntax is safely transformed. Do not
+present a few passing examples as a solution to arbitrary higher-order Wolfram
+program rewriting. For N03, decide the publication root explicitly and enforce
+it at the existing parser's destination-resolution boundary.
+
+The development recommendations in this article are restricted to these
+findings and their acceptance obligations. Existing requests for broad
+transseries extensions, general resource policies, release infrastructure, and
+native/Mathics feature expansion are not new contributions of this review.
+
+\section{Scope, reproducibility, and novelty control}
+\subsection{A fixed source snapshot}
+
+All repository conclusions refer to \pin. Its commit concerns retirement
+tombstones for earlier review packages. Source inspection used pinned GitHub
+reads, including the recursive repository inventory, rather than assuming that
+\code{main} stayed unchanged during the audit. The native public-API probes
+loaded the root standalone file from that same commit. The isolated Mathics
+experiment additionally loaded the pinned modular assumptions adapter.
+The artifact does not contain a complete local checkout.\cite{repo,main,protect}
+
+A repository commit identifies the intended source, but it does not by itself
+establish that every test was executed against every distribution. In
+particular, the successful native standalone observations do not establish
+modular-loader acceptance. Conversely, inspecting modular source does not
+prove that every generated distribution is fresh. The evidence record retains
+these distinctions rather than collapsing them into a single compatibility
+claim.
+
+\subsection{What actually executed}
+
+The remote Wolfram evaluator eventually reported
+\begin{quote}\small
+\code{15.0.0 for Linux x86 (64-bit) (May 6, 2026)}.
+\end{quote}
+Several earlier calls failed with network errors. Later successful calls
+established the following observations: the source-position counterexample for
+N01; the pinned-package comparison before and after isolated installation of
+the real Mathics assumptions adapter; two pinned native numerical diagnostic
+examples; and four isolated checks of the proposed rewrite guard. Exact
+submitted expressions and returned text are saved in
+\path{evidence/native-observations.json}. That file is a manually saved
+transcript of tool-mediated observations, not a fabricated export from an
+upstream test runner.
+
+Locally, 23 Python methods passed without skips: 19 documentation
+characterization/candidate-policy methods and four patch-emitter fixture
+methods. The documentation fixture is the complete upstream
+\path{validation/documentation_links.py}; its transcription was byte-verified
+internally against the Git blob identity returned by GitHub. The tests invoked
+actual Pandoc, not a simulated Markdown parser. Exact tool versions and the
+final test output are in the evidence directory.
+
+\textbf{Not executed:} a complete Mathics kernel/package run, a full native
+suite, a modular-load acceptance run, a patched full package, or the candidate
+link validator against a complete repository checkout. The supplied
+\path{tests/ReviewRegressions.wlt} is a proposed suite, not a suite whose pass
+count is being claimed. The candidate rewrite was checked in isolation in
+Wolfram, not accepted on Mathics.
+
+\subsection{How duplicate findings were excluded}
+
+The exclusion map was the maintained consolidated review-status register and
+all five review-wave indexes. Selected original material, particularly the
+nearby discussions in reviews 36, 42, and 44, was read directly where it could
+change the novelty assessment. This was not an exhaustive rereading of every
+retained original article. The exact distinction between each new mechanism
+and nearby old topics is recorded in the crosswalk below and in the archive.
+\cite{status,wave3,wave4,wave5,r36,r42,r44}
+
+N01 is not another report of ambient assumptions leaking into refinement, a
+computed option key being rejected, or native Mathics membership simplification
+being unsound. It concerns a different mechanism: a newly inspected protector
+changing the identity of quoted data used by the caller's assumption-generating
+program. N02 is not another large-offset cancellation problem or a proposal to
+change the source-observable convention; it identifies a concrete string that
+misdescribes the implemented convention. N03 is not another PDF receipt,
+last-pass recorder, or build-ledger concurrency problem; it concerns the
+filesystem namespace used to certify a Markdown target.
+
+The source audit also encountered attractive but already recorded subjects:
+modulus handling, absolute-value regularity, exact numerical seed restrictions,
+stationary-point branch proofs, graded flat tails, repeated affine recognition,
+truncation suffix searches, and native trigonometric error transport. These
+were excluded rather than renamed as new issues. Absence of an item from this
+article therefore does not imply it was overlooked or fixed.
+
+\section{Architectural context relevant to the findings}
+
+The package separates a stored finite expression from remainder, coordinate,
+branch, provenance, and operation metadata. Its public entry points cover
+ordinary power-log expansion and inversion, several specialized inverse
+families, explicit series calculus, and native backend delegation. The
+\code{GeneralizedSeries} container is consequently more than a displayed
+polynomial. A caller may consume its expression, its remainder, a model
+association, or a numerical comparison independently. Those consumers impose
+different obligations on the request and result fields.\cite{main,series,guide}
+
+For Wolfram execution, the main loader resolves normal implementation calls to
+system functionality. On Mathics it loads an additional context of adapters
+and several late transformations of package-owned definitions. The assumptions
+protector is one such late transformation. It wraps the package's held
+\code{catch} boundary so syntactically supplied assumptions can be protected
+before ordinary option evaluation. It does not globally replace the caller's
+\code{System`Element}. This locality is valuable, but it does not ensure that a
+rewrite within the boundary respects the caller's data.\cite{main,protect}
+
+A useful audit decomposition is
+\[
+ \text{request syntax}\ \longrightarrow\ \text{interpreted hypotheses}
+ \ \longrightarrow\ \text{mathematical result}
+ \ \longrightarrow\ \text{reported evidence}.
+\]
+N01 affects the first arrow. N02 affects the last. N03 concerns the analogous
+interpretation of documentation paths: a repository-relative link is checked
+in a host-filesystem namespace that is too broad for a checkout-portability
+claim. None of these requires disproving the Lagrange coefficient formula or
+an exact interval enclosure to matter to users.
+
+This audit did not establish a new public mathematical wrong-answer defect in
+the inspected coefficient recurrences or remainder formulas. That is a bounded
+negative result, not a proof of correctness for those engines. The source
+coverage appendix identifies complete module reads, partial reads, and
+unexecuted paths; it is not a clean-bill-of-health table.
+
+\section{N01: The Mathics assumptions protector changes quoted caller data}
+\label{sec:n01}
+\subsection{The intended protection and the actual traversal}
+
+The adapter's source explains its purpose with a Mathics membership problem:
+\code{Element[Sin[a], Reals]} must not simply be replaced by
+\code{Element[a, Reals]}. Its held entry path preserves an inline membership
+condition before native option evaluation reaches the problematic rule. The
+implementation searches for \code{Assumptions} rules, finds occurrences of
+\code{System`Element}, and replaces occurrences under those rules' values with
+\code{AsymptoticAnalysis`Mathics`Element}.\cite{protect}
+
+The decisive operation is structurally:
+\begin{lstlisting}
+heads = Position[held, System`Element,
+  {0, Infinity}, Heads -> True];
+positions = Select[heads, (* inside an Assumptions rule value *)];
+ReplacePart[held,
+  (# -> AsymptoticAnalysis`Mathics`Element) & /@ positions]
+\end{lstlisting}
+
+There are two different omissions. First, \code{Heads -> True} includes heads
+in the search; it does not restrict matches to heads. A bare symbol used as an
+argument or as data is also found. A head position ends in part index zero,
+whereas an ordinary argument position need not. The implementation does not
+make this distinction. Second, the traversal does not stop at nested
+\code{HoldComplete} or similar quotation constructs. It therefore rewrites
+even an actual membership \emph{head} when that head is deliberately stored as
+unevaluated data. Wolfram's documented position and holding semantics are
+consistent with the executed mechanical witness.\cite{position,hold}
+
+These are not merely potential extra evaluation counts. The protector can
+leave an option program evaluated the same number of times while changing
+which result that program produces.
+
+\subsection{A minimal semantic counterexample}
+
+Consider the following caller state and held option:
+\begin{lstlisting}
+saved = HoldComplete[System`Element];
+h = HoldComplete[
+  Assumptions :> If[
+    HoldComplete[System`Element] === saved,
+    a == 1,
+    a == 2]];
+\end{lstlisting}
+The original strict equality is true: its two operands are identical held
+symbols. The occurrence on the left is syntactically inside an assumptions
+value, while the value stored in \code{saved} was created outside the request.
+The protector modifies the former but not the latter.
+
+\begin{proposition}
+The inspected transformation is not semantics-preserving for delayed
+assumption programs that inspect held occurrences of \code{System`Element}.
+\end{proposition}
+\begin{proof}
+Let $S$ denote the held system symbol and let $S'$ denote the corresponding
+held Mathics-context symbol. They are distinct Wolfram expressions. The
+original program chooses $a=1$ because $S$ is identical to its saved value.
+The transformed program compares $S'$ with the unchanged saved $S$, so it
+chooses $a=2$. Both branches are valid parameter-only mathematical assumptions;
+the transformation changes the chosen one.
+\end{proof}
+
+The native primitive experiment returned
+\begin{lstlisting}
+{{{1, 2, 1, 1, 1}}, a == 1, a == 2}
+\end{lstlisting}
+for the matching position, original option value, and rewritten option value.
+The position ends in 1, not 0. This directly exposes the difference between
+including heads and selecting only heads.
+
+The witness does not claim that merely holding an expression makes it immune
+to an explicit structural transformation. The defect is the mismatch between
+the transformation's intended scope---protecting active mathematical
+membership---and its actual scope, which includes caller-owned quoted data.
+
+\subsection{A public model changes after installation of the actual adapter}
+
+The issue is connected to a public entry point rather than stopping at an
+invented abstract tree. \code{PowerLogModel} has a held public entry and enters
+\code{catch} before \code{powerLogModelEntry} evaluates its options. The
+assumptions protector therefore sees the delayed program in the preceding
+example.\cite{main}
+
+In a native Wolfram 15 kernel, the pinned standalone was first loaded and this
+call was evaluated:
+\begin{lstlisting}
+PowerLogModel[a x, {x, 0},
+  Assumptions :> If[
+    HoldComplete[System`Element] === saved,
+    a == 1, a == 2]]["LeadingCoefficient"]
+\end{lstlisting}
+The leading coefficient was 1. The actual pinned
+\path{MathicsInputAssumptions.wl} was then loaded in the package's Private
+context, without installing the rest of the Mathics runtime adaptations. The
+same public call returned 2. The exact paired output was
+\begin{lstlisting}
+{1, 2}
+\end{lstlisting}
+
+This is strong evidence of the adapter's transformation defect. It is also a
+carefully limited experiment: it is an adapter isolation run \emph{in Wolfram},
+not a complete Mathics execution. The loader source establishes that Mathics
+installs the adapter, but actual end-to-end Mathics acceptance remains to be
+performed.
+
+For the model $f(x)=a x$, the correct requested normalized leading coefficient
+under $a=1$ is exactly 1. The value 2 is correct for the \emph{altered}
+assumptions. Thus the result need not contradict its own retained assumptions
+to violate the caller's request. This is not evidence that the package proved
+a false theorem from the hypotheses it actually retained, nor an allegation
+that its interval arithmetic is unsound.
+
+\subsection{Why a head-only repair is necessary but insufficient}
+
+Adding
+\begin{lstlisting}
+Length[position] > 0 && Last[position] === 0
+\end{lstlisting}
+excludes the bare-symbol witness. It does not protect this different datum:
+\begin{lstlisting}
+saved = HoldComplete[System`Element[Sin[z], Reals]];
+Assumptions :> If[
+  HoldComplete[System`Element[Sin[z], Reals]] === saved,
+  a == 1, a == 2]
+\end{lstlisting}
+Here the occurrence really is a head, but it is inside a nested held expression.
+The same strict-identity argument applies if the transformation descends into
+that data. This second original-adapter public sequence was not executed in
+the audit; its role is a source-derived counterexample and a required
+regression. The isolated candidate was tested to leave its held syntax
+unchanged.
+
+The outer \code{HoldComplete} used to transport the request is different from a
+nested hold supplied by the caller. A correct barrier policy must traverse the
+former and preserve the latter. Simply skipping all held expressions would
+also disable the intended inline-assumptions protection.
+
+\subsection{Candidate repair and its limits}
+
+The supplied candidate narrows the replacement set to positions satisfying
+three conditions:
+\[
+ \text{membership head}\quad\land\quad
+ \text{within an assumptions value}\quad\land\quad
+ \text{outside nested quoted-data barriers}.
+\]
+It preserves nested \code{HoldComplete}, \code{Hold}, \code{HoldForm},
+\code{Defer}, \code{HoldPattern}, and \code{Verbatim} subtrees. The relevant
+part of the implementation is:
+\begin{lstlisting}
+opaque = Position[held,
+  _HoldComplete | _Hold | _HoldForm | _Defer |
+  _HoldPattern | _Verbatim,
+  {1, Infinity}, Heads -> False];
+
+(* Keep only actual head positions, inside an option value,
+   and outside every opaque subtree. *)
+\end{lstlisting}
+
+Four isolated observations in Wolfram returned \code{True}: an active inline
+membership head was still protected; bare held-symbol data were unchanged;
+a nested held membership call was unchanged; and a membership expression
+outside an assumptions option was unchanged. These checks establish the
+candidate's behavior on those four trees, not a general transformation theorem
+or Mathics compatibility.
+
+An arbitrary delayed option value is a Wolfram program, not necessarily a
+literal Boolean proposition. It may generate expressions, apply a symbol as a
+function, use a custom holding head, inspect syntax, or release a quoted
+expression later. No finite list of common quotation heads establishes that a
+blanket source rewrite preserves every such program. In particular, preserving
+a nested hold does not protect a membership expression that the caller later
+releases and evaluates through native Mathics rules.
+
+The immediate candidate should therefore be described as a repair for the
+shown data-capture cases. A stronger design needs a declared boundary: protect
+recognized declarative predicate syntax at the held entry, preserve arbitrary
+program syntax, and either safely normalize or explicitly refuse unsupported
+hypothesis-generation forms before their native interpretation loses
+information. Do not evaluate an arbitrary program twice to discover its shape.
+That would introduce a separate side-effect and reproducibility problem.
+
+\subsection{Performance implications of the proposed guard}
+
+The original mechanism scans for option rules and symbol occurrences and then
+checks every candidate occurrence against every option position. The proposed
+straightforward guard adds comparisons against quotation-barrier positions.
+If there are $E$ membership-symbol occurrences, $A$ option positions, $B$
+barriers, and maximum path length $d$, a direct prefix-comparison implementation
+can perform $O(E(A+B)d)$ element comparisons after its tree scans. This is a
+source-level bound for the proposed algorithm, not a measured Wolfram or
+Mathics slowdown.
+
+Ordinary requests normally contain few assumptions options, but a large held
+payload can make $B$ or $E$ large. The narrow repair should not be justified by
+an unsupported claim of negligible overhead. Once the semantic boundary is
+settled, a single traversal carrying ``inside an option value'' and ``inside
+opaque data'' state can avoid repeated prefix searches for a restricted syntax
+grammar. Alternatively, selected position prefixes can be represented in a
+trie. Any such optimization must preserve the transport-wrapper distinction
+and caller-held payloads; a faster incorrect rewrite is not an improvement.
+
+The acceptance workload should include large inert held trees as unchanged
+controls, not just increasingly large mathematical expressions. This is a
+specific performance obligation created by the new guard, not a restatement
+of the repository's general resource-budget backlog.
+
+\subsection{Acceptance obligations}
+
+The two quoted-data examples must retain the original selected coefficient on
+actual Mathics. Ordinary inline membership protection must remain effective.
+The correction must not mutate caller saved values or package-global
+\code{System} definitions. Delayed option side effects and custom holding
+constructs should be tested according to the declared admission policy,
+rather than silently assumed safe.
+
+Repeat the public examples with the native Wolfram path, the Mathics path,
+standalone loading, and modular loading. The purpose is not to demand that all
+interpreters support every mathematical function identically; it is to ensure
+that a supported request is not changed by an adapter before the mathematics
+starts. The included patch emitter and proposed tests make this acceptance
+work narrow and reviewable.
+
+\section{N02: The numerical result describes two different quantities as one}
+\label{sec:n02}
+\subsection{The implemented coordinate and observable}
+
+The common numerical evidence routine solves in a source coordinate $u>0$:
+\[
+ x=\xi+\sigma u,\qquad \sigma\in\{-1,1\}.
+\]
+At a finite source endpoint, $\xi$ is that endpoint. For the numerical path at
+source infinity, the shift is zero and $u$ is the positive source magnitude.
+This numerical coordinate must not be confused with a reciprocal small
+coordinate used internally by an asymptotic expansion.\cite{numerical}
+
+Let $r$ be the requested \code{Power}. The implemented fields have the following
+meaning:
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}l X X@{}}
+\toprule
+Field & $r=1$ & $r\ne1$\\
+\midrule
+\code{LocalRoot} & Recovered $u$ & Recovered $u$, unchanged\\
+\code{LocalApproximation} & Approximation to $u$ & Approximation to $(\sigma u)^r$\\
+\code{ReferenceObservable} & Recovered source $x$ & Recovered signed displacement power $(\sigma u)^r$\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The internal error calculation correctly compares corresponding local
+quantities. For $r\ne1$, it compares \code{LocalApproximation} with
+$(\sigma u)^r$, not with \code{LocalRoot}. The returned label nevertheless says
+that both \code{LocalRoot} and \code{LocalApproximation} become values of
+$u^{\mathrm{Power}}$. This is false for the first field and omits the source
+side for the second.\cite{numerical}
+
+\subsection{Executed native witnesses}
+
+Use the exactly invertible function $f(x)=x$. Its simplicity eliminates
+truncation and conditioning as explanations for a field disagreement. The
+following pinned native call was executed at 30-digit working precision:
+\begin{lstlisting}
+s = AsymptoticInverse[x, {x, 0}, {y, 3}, "Power" -> 2];
+r = InverseNumericalCheck[s, 2, WorkingPrecision -> 30];
+\end{lstlisting}
+It returned a local root of 2 and both a local approximation and a reference
+observable of 4. The old label says the local root is a value of $u^2$; it is
+not. The numerical quantities themselves are exactly the intended ones.
+
+The signed example is even more discriminating:
+\begin{lstlisting}
+s = AsymptoticInverse[x, {x, 0}, {y, 4},
+  "Power" -> 3, Direction -> "FromBelow"];
+r = InverseNumericalCheck[s, -2, WorkingPrecision -> 30];
+\end{lstlisting}
+The observed fields were
+\[
+ \code{LocalRoot}=2,\qquad
+ \code{LocalApproximation}=-8,\qquad
+ \code{ReferenceObservable}=-8,\qquad
+ \code{SourceSide}=-1.
+\]
+The numerical error was zero at the reported precision. Neither $2$ nor $-8$
+is $u^3=8$ in the way asserted by the label. The output is nevertheless
+consistent with $x=-u$ and the requested $x^3$ observable.
+
+Both are actual public-API observations from the pinned standalone on Wolfram
+15. They are not outcomes from a Python emulation of the package. They also do
+not establish that every numerical check family uses this common routine;
+Gamma/Barnes and transformed/special families have separate dispatch paths.
+The finding is attributed to the routine that supplies this exact string.
+\cite{main,numerical,gammachecks}
+
+\subsection{Impact and minimal correction}
+
+The risk is to a downstream consumer trusting the diagnostic description. For
+example, subtracting \code{LocalRoot} from \code{LocalApproximation} for the
+square case would produce 2, even though the correct observable error is zero.
+This is an error a consumer could make from the label, not an assertion that
+the package currently performs that subtraction.
+
+Replace only the descriptive string with:
+\begin{quote}\small
+\code{x = SourceOffset + SourceSide u; LocalRoot is u. LocalApproximation is u for Power 1 and (SourceSide u)^Power otherwise.}
+\end{quote}
+The supplied emitter performs that single literal replacement for N02. It does
+not change roots, seed selection, remainder scales, branch checks, precision,
+legacy aliases, or observable conventions. This keeps the correction separate
+from larger API redesign discussions already present in the review corpus.
+
+An optional additive field could expose the local reference observable that
+is already used to calculate the error. That would help code compare like
+quantities without reconstructing the side and power. Such a field should be
+introduced only with a clear contract and unchanged existing keys. It is not
+necessary for the minimal fix and is not included in the emitted patch.
+
+Acceptance should preserve the numerical fields in both examples and verify
+the corrected description. A left-side even power and a translated source
+endpoint are useful additional controls. A regression that checks only the
+absolute root cannot detect this descriptive error; a regression that checks
+only the string cannot establish that the described convention is still the
+one implemented.
+
+\section{N03: Local documentation validity depends on unrelated host files}
+\label{sec:n03}
+\subsection{The namespace used by the validator}
+
+The maintained documentation checker parses Markdown with Pandoc's GFM
+parser, collecting ordinary links, images, raw HTML links, and fragments. Its
+local destination check then resolves a path relative to the source document
+and asks whether that destination exists. For Markdown and HTML fragments it
+reads the resolved target to check the anchor. The function receives a list of
+pages but no repository root.\cite{doclinks,maintaining}
+
+The critical code is:
+\begin{lstlisting}
+url = urlsplit(href)
+if url.scheme or url.netloc:
+    continue
+
+destination = ((path.parent / unquote(url.path)).resolve()
+               if url.path else path)
+if not destination.exists():
+    errors.append(...)
+\end{lstlisting}
+
+Resolving \code{..} and symlinks is useful, but resolution is not containment.
+The implementation does not subsequently require that the resolved target
+belong to the checkout. An absolute filesystem path is also accepted by the
+path join when it exists. Python documents these path-resolution operations;
+the concrete behavior was separately exercised here.\cite{pathlib}
+
+\subsection{An executed false portability acceptance}
+
+The fixture creates this temporary tree:
+\begin{lstlisting}
+WORKSPACE/
+  outside.md
+  repo/
+    docs/
+      Guide.md
+\end{lstlisting}
+The source document contains
+\begin{lstlisting}
+[outside](../../outside.md#outside)
+\end{lstlisting}
+and \code{outside.md} contains a matching heading. The exact upstream checker,
+using actual Pandoc, returned:
+\begin{lstlisting}
+{
+  "MaintainedMarkdownPages": 1,
+  "LocalLinks": 1,
+  "LocalFragments": 1,
+  "BrokenLocalLinks": 0
+}
+\end{lstlisting}
+Deleting only \code{WORKSPACE/outside.md}, without changing anything below
+\code{repo}, changed the outcome to a missing-destination assertion. A separate
+characterization also confirmed acceptance of an existing absolute filesystem
+target. The raw parent-path trace is saved in
+\path{evidence/link-characterization.json}.
+
+\begin{proposition}
+The inspected validator's success is not a property of the checkout contents
+alone.
+\end{proposition}
+\begin{proof}
+Keep the entire checkout fixed and vary only the outside target in the
+fixture. The checker succeeds when the target exists and fails when it is
+removed. Therefore its Boolean outcome depends on state outside the checkout.
+\end{proof}
+
+The conclusion is deliberately narrower than ``the repository's documentation
+is broken.'' No current committed link with this defect was established.
+The checker implements host-filesystem existence, which is a coherent but
+weaker property than portable repository-local validity. It cannot justify the
+stronger interpretation without another boundary check.
+
+\subsection{A concrete root-aware policy}
+
+The supplied candidate retains the upstream Markdown parser and introduces an
+explicit checkout root. It checks source pages and local destinations against
+that root, verifies actual component spelling, rejects symlink components, and
+then performs the existing fragment check. It accepts ordinary parent-relative
+links that remain inside the checkout, such as
+\code{../README.md#overview}; it does not ban all uses of \code{..}.
+
+The implementation deliberately chooses a conservative publication policy.
+All traversed symlink components, including in-root symlinks, are rejected.
+A publishing system with known symlink handling may choose a less restrictive
+policy, but that is not silently equated with ordinary file navigation. The
+candidate also rejects local \code{file:} URLs, Windows drive paths, and
+unconfigured root-relative paths. Web and other external URLs remain outside
+this local check.
+
+A leading slash in a website URL can have a valid site-root meaning. It should
+not be interpreted accidentally as the operating system root. A future site
+publisher can map it through an explicit publication-root parameter. The
+candidate refuses it until that policy exists; refusal is preferable to
+acceptance because a similarly named file happens to exist on the validator's
+machine.
+
+Exact component spelling is checked by enumerating parent directory entries.
+That is intended to prevent a case-insensitive filesystem from hiding a
+capitalization mismatch. The tests here ran on Linux, so they establish the
+candidate's explicit spelling behavior there, not an executed Windows
+comparison. The original checker would already reject many wrong-case paths
+on a case-sensitive filesystem. Case checking is part of the candidate's
+portability policy, not a separately counted native Windows defect.
+
+\subsection{Limits and performance of the candidate}
+
+Containment alone does not prove that an in-root file is tracked by Git or
+included in a release. A locally generated or untracked file may still satisfy
+an existence check. Run publication acceptance on a stable clean checkout or
+add a separate, explicitly defined publication inventory. The candidate does
+not silently claim to supply that inventory.
+
+Likewise, this is not a security sandbox against a process changing symlinks
+or files between validation and use. Its purpose is deterministic
+checkout-local documentation validation under a stable-tree assumption, not
+race-free filesystem capability confinement. Making stronger security claims
+would require a different implementation and operating-system contract.
+
+Directory name sets, parsed Markdown, and anchors are cached within one check.
+This avoids rescanning a directory or reparsing a target for every repeated
+link. If there are $L$ local links with at most $d$ path components, the path
+walk performs $O(Ld)$ membership checks after the relevant directory entries
+are collected; actual I/O cost also depends on directory sizes and the files
+Pandoc parses. This describes the candidate implementation, not a claimed
+measured speedup over the current checker. The same single-check cache must
+not be reused to certify a changed filesystem later.
+
+\subsection{Executed tests and integration requirements}
+
+The 19 documentation methods distinguish characterization from candidate
+acceptance. Three characterize the upstream dependency on external files.
+The others check the new policy with parent escapes, encoded escapes, absolute
+paths, valid in-root parent links, self fragments, HTML fragments, missing
+anchors, case mismatches, images, file URLs, excluded external URLs, internal
+and external symlinks, outside source files, escaped spaces, and missing
+destinations. All passed in the recorded environment, with no skips.
+
+The complete repository was not run through the candidate. Integration should
+first pass the known root from the maintained-document discovery function into
+the local-link checker, then preserve the existing Markdown/HTML anchor
+semantics. Any rejected real link must be classified: an actual checkout
+escape, a legitimate separately published asset requiring an explicit mapping,
+or an intentionally external URL. Do not replace that classification with an
+unrestricted host-filesystem fallback.
+
+\section{Cross-runtime assessment and a bounded development plan}
+\subsection{What the evidence says about Wolfram 15 and Mathics3}
+
+The two numerical witnesses establish that the native standalone works for
+those simple exact inverse cases on the observed Wolfram 15 kernel. They do
+not establish compatibility for every package feature or for every Wolfram 15
+maintenance version. The isolated adapter run establishes a syntactic request
+mutation in the actual Mathics-specific module; it does not establish the
+complete behavior of Mathics with every other adapter enabled.
+
+The right conclusion is neither ``Mathics is incompatible'' nor ``the package
+is compatible because the coefficient mathematics is shared.'' Compatibility
+must include the interpretation of supported requests and the meaning of
+result diagnostics, as well as successful coefficient construction. N01 is a
+particularly useful regression because its forward model is only $a x$; a
+failure cannot be excused as unsupported advanced special-function algebra.
+
+The source audit observed many bounded Mathics adaptations rather than a
+single global emulation layer. This limits the scope of each intervention,
+but the late input protector demonstrates that locality of installation does
+not itself guarantee locality of semantic effect. Preserve that distinction
+when assessing fixes.\cite{main,protect}
+
+\subsection{Targeted implementation sequence}
+
+\textbf{First, correct and lock down the numerical description.} Apply the N02
+string-only change and retain the power-two and signed odd-power observations
+as paired value/description regressions. Do not use this small issue to justify
+renaming established fields or changing source-observable conventions.
+
+\textbf{Second, repair quoted-data preservation at the assumptions boundary.}
+Use the bare-symbol and nested-held-call cases as mandatory controls. The
+candidate is intentionally narrow. Specify the protected predicate grammar
+and the behavior of unsupported generated or higher-order forms before
+expanding the transformation. Add large quoted payloads as structural-work
+controls so correctness is not purchased with avoidable repeated traversals.
+
+\textbf{Third, define the documentation publication namespace.} Integrate the
+root-aware path policy with the existing Pandoc parser. Keep external URLs,
+site-root mappings, symlink publication, and Git-trackedness distinct. A local
+filesystem path should not count as a repository-local proof simply because
+it exists during one check.
+
+These changes can be reviewed separately. N02 is a descriptive correction;
+N01 changes evaluation-boundary behavior; N03 changes validation admission.
+They need different rollback and acceptance criteria. A broad refactor tying
+all three together would make the mathematical and engineering evidence harder
+to interpret without providing a compensating benefit.
+
+\subsection{Further opportunities arising specifically from these findings}
+
+For the assumptions protector, develop metamorphic tests based on quotation:
+adding or moving unrelated held data must not alter the interpreted active
+hypotheses. A useful property is that replacing a saved quoted datum by another
+syntactically identical quoted datum outside the request leaves the selected
+assumptions invariant. Counterexamples should be minimized to a held program,
+not hidden inside expensive asymptotic examples.
+
+For numerical diagnostics, specify quantity identities alongside labels. The
+error comparison should be reconstructible from fields that denote the same
+observable, including the selected sign. This can be checked on exact linear
+models before introducing numerical conditioning or asymptotic truncation.
+The opportunity is a small diagnostic contract test, not a general redesign of
+all result families.
+
+For documentation, use paired workspaces with identical checkout contents and
+different unrelated parent files. Under a checkout-contained policy, outcomes
+must agree. The existing N03 fixture already supplies the smallest such
+metamorphic test. Expanding it to a clean publication tree is more informative
+than repeatedly running the checker on the same developer filesystem.
+
+No native speedup, general performance regression, or improved asymptotic
+coverage is claimed from these recommendations. Their value is reducing
+semantic and environmental ambiguity in the three demonstrated boundaries.
+
+\section{Artifact guide and reproduction}
+
+The archive is arranged so the strongest independently reproducible checks do
+not require a Wolfram license. From the archive root, run:
+\begin{lstlisting}
+python -m unittest discover -s tests -p 'test_*.py' -v
+python code/characterize_links.py
+\end{lstlisting}
+Python 3.10 or newer and Pandoc are required. The two symlink tests skip when
+symlink creation is unavailable; a run with skips is not identical to the
+recorded no-skip run. The tests create temporary fixture trees and do not alter
+a user's repository. The candidate link checker can be pointed at an existing
+checkout without writing it:
+\begin{lstlisting}
+python code/portable_links.py /path/to/Asymptotic
+\end{lstlisting}
+That full-checkout command was not executed here.
+
+For source edits, the emitter checks the audited Git revision and refuses
+modified tracked target files before producing a diff:
+\begin{lstlisting}
+python code/emit_candidate_patch.py /path/to/Asymptotic \
+  --which diagnostics > candidate.diff
+\end{lstlisting}
+Use \code{--which assumptions} for the narrow rewrite candidate, or
+\code{--which all} for both. The explicit \code{--skip-commit-check} switch is
+for a consciously chosen alternate tree; it does not make that tree part of
+this audit. All selected anchors are validated before any diff is printed.
+The emitter does not apply its output. Its four tests use synthetic source
+fixtures, not an actual upstream patch-application run.
+
+In a fresh Wolfram session, load the known local standalone and then use
+\code{TestReport} on \path{tests/ReviewRegressions.wlt}. Baseline failures of
+correction tests are expected until the relevant fix is present. For Mathics,
+\path{code/probe_loaded_kernel.wl} prints observations without assuming MUnit
+support. The file is a probe, not an aggregate test gate. The isolated candidate
+can be loaded from \path{code/candidate_assumption_protector.wl} and examined
+with \path{code/check_candidate_rewrite.wl}; it does not install itself into
+the package.
+
+Before merging a canonical-source change, regenerate the standalone through
+the repository's existing builder and repeat the focused acceptance checks on
+the intended runtimes. This instruction describes how to validate these
+specific candidates; it is not a claim that the generated standalone in this
+archive has been patched or that any repository write occurred.
+
+\appendix
+\section{Source coverage and residual uncertainty}
+
+The following records the audit's main source coverage. ``Inspected'' is not
+synonymous with ``executed'' or ``verified.'' Source ranges are original file
+ranges, not line numbers of JSON tool wrappers. Full module reads were used
+where the entire returned file was available; several larger modules were
+inspected only in relevant ranges.
+
+\small
+\begin{longtable}{@{}P{0.24\linewidth}P{0.46\linewidth}P{0.23\linewidth}@{}}
+\toprule
+Area & Inspected material & Boundary of the conclusion\\
+\midrule\endhead
+Public entries and loader & \path{AsymptoticAnalysis.wl}: lines 1--150 and approximately 1000--end, including constructor assembly, accessors, residual/numerical dispatch, model entry, and loader. & Main-file middle sections were not read exhaustively. Focused native standalone only.\\
+Mathics request handling & Complete \path{MathicsInputAssumptions.wl}, \path{MathicsCalls.wl}, \path{MathicsLists.wl}; compatibility, assumptions, simplification, and late branch wrappers. & Actual input-adapter isolation; no complete Mathics execution.\\
+Other Mathics adapters & Algebra, Taylor, calculus, core functions, refinement, special functions, certificate assignment, and numerical adapters. & Source inspection; previously recorded defects excluded.\\
+Ordinary numerical evidence & Complete \path{NumericalInverseChecks.wl}; native dispatch in the main module. & Two exact public witnesses; other functions and targets not exhaustively tested.\\
+Inverse certificates & \path{InverseCertificates.wl}, inspected in ranges through the adaptive certificate implementation. & No new interval arithmetic defect established; no full certificate suite.\\
+Gamma and Barnes families & Gamma forward/inverse modules, Barnes inverse module, Gamma inverse checks, and relevant special adapters. & Source analysis, not broad numerical acceptance.\\
+Special forward functions & Dirichlet and parameterized special-function modules; exact-model and finite-model distinctions in adjacent adapters. & No new coefficient/remainder defect established; no full native importer audit.\\
+Series operations & Initial representation and arithmetic sections of \path{SeriesOperations.wl}; complete composite-envelope module; early flat-sector operations. & Partial operation coverage, not universal closure proof.\\
+Fourier and flat sectors & Initial Fourier coefficient/model sections and graded flat-tail implementation. & Existing findings excluded; no new full-family runtime result.\\
+Documentation tooling & Complete \path{documentation_links.py} and \path{build_user_guide.py}; maintenance and validation documentation. & Exact local-link fixture execution; not complete repository documentation acceptance.\\
+Prior reviews & Consolidated register, five wave indexes, selected source bodies/README material for neighboring reviews. & Novelty screening, not exhaustive rereading of all original articles.\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+The source ranges do not support claims about untouched algorithms, every
+parameter domain, all resource limits, or all loader failure paths. Additional
+coverage could find further issues. In particular, the absence of a local
+Mathics installation prevents turning N01's source reachability and native
+isolation experiment into a full Mathics runtime observation.
+
+\section{Evidence populations and acceptance status}
+
+\begin{longtable}{@{}P{0.29\linewidth}P{0.37\linewidth}P{0.27\linewidth}@{}}
+\toprule
+Population & Actually obtained & Not implied\\
+\midrule\endhead
+Native public numerical probes & Pinned standalone, square and left-side cube, Wolfram 15.0.0. & Other families, modular loading, complete Wolfram suite.\\
+Actual Mathics input adapter & Before/after public model coefficient $1\to2$ after isolated module installation in Wolfram. & A complete Mathics kernel run.\\
+Candidate rewrite algorithm & Four isolated Boolean observations returned true in Wolfram. & General option-program semantics or patched Mathics acceptance.\\
+Upstream link checker & Exact transcription, actual Pandoc, outside-file and absolute-path counterexamples. & A current committed broken link.\\
+Candidate link policy & Temporary-tree tests for the stated containment/spelling/symlink/fragment policy. & A full checkout pass, tracked-file inventory, race-free security boundary.\\
+Patch emitter & Four source-fixture methods passed. & An actual upstream patch application or native patched run.\\
+Proposed Wolfram suite & Supplied as editable test source. & Any suite pass count.\\
+\bottomrule
+\end{longtable}
+
+The first draft of an emitter-fixture test mistakenly chose the word
+\code{none} as a string not containing \code{one}. That fixture was corrected
+to \code{absent}; the final recorded 23-method run passed. This was a
+test-authoring error, not an upstream defect. The scope record preserves the
+distinction rather than attributing the first local failure to the repository.
+
+\clearpage
+\begin{thebibliography}{99}
+\small
+\setlength{\parskip}{0pt}
+\setlength{\itemsep}{3pt}
+\bibitem{repo} V. Reshetnikov, \emph{Asymptotic repository}, audited commit.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/commit/8cee870994f506b501bae3ea6bd4a3a7edb895c1}.
+\bibitem{main} \emph{Canonical main kernel}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/src/Kernel/AsymptoticAnalysis.wl}.
+\bibitem{protect} \emph{MathicsInputAssumptions.wl}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/src/Kernel/MathicsInputAssumptions.wl}.
+\bibitem{numerical} \emph{NumericalInverseChecks.wl}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/src/Kernel/NumericalInverseChecks.wl}.
+\bibitem{doclinks} \emph{documentation\_links.py}, pinned source; reproduced in the archive fixture.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/validation/documentation_links.py}.
+\bibitem{maintaining} \emph{Maintaining the documentation}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/docs/MAINTAINING.md}.
+\bibitem{series} \emph{SeriesOperations.wl}, pinned source, initial representation and arithmetic sections.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/src/Kernel/SeriesOperations.wl}.
+\bibitem{guide} \emph{Kernel source organization}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/src/Kernel/README.md}.
+\bibitem{gammachecks} \emph{GammaInverseChecks.wl}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/src/Kernel/GammaInverseChecks.wl}.
+\bibitem{status} \emph{Code-review implementation register}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/docs/development/CODE_REVIEW_STATUS.md}.
+\bibitem{wave3} \emph{Wave 3 review index}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/external-reports/code-review/wave-3/README.md}.
+\bibitem{wave4} \emph{Wave 4 review index}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/external-reports/code-review/wave-4/README.md}.
+\bibitem{wave5} \emph{Wave 5 review index}, pinned source.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/external-reports/code-review/wave-5/README.md}.
+\bibitem{r36} \emph{Review 36: incremental code review and Mathics engineering audit}, README and stated scope.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/external-reports/code-review/wave-4/code-review-36/README.md}.
+\bibitem{r42} \emph{Review 42: regularity contracts and structural work}, README and findings.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/external-reports/code-review/wave-5/code-review-42/README.md}.
+\bibitem{r44} \emph{Review 44: incremental repository audit}, selected article sections on tooling and the unresolved native trigonometric contract.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/external-reports/code-review/wave-5/code-review-44/article/asymptotic-review.tex}.
+\bibitem{position} Wolfram Research, \emph{Position}, official language documentation, accessed 10 September 2026.
+\url{https://reference.wolfram.com/language/ref/Position.html}.
+\bibitem{hold} Wolfram Research, \emph{HoldComplete}, official language documentation, accessed 10 September 2026.
+\url{https://reference.wolfram.com/language/ref/HoldComplete.html}.
+\bibitem{pathlib} Python Software Foundation, \emph{pathlib: object-oriented filesystem paths}, official documentation, accessed 10 September 2026.
+\url{https://docs.python.org/3/library/pathlib.html}.
+\end{thebibliography}
+\end{document}

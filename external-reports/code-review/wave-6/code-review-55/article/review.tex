@@ -1,0 +1,1022 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm,mathtools}
+\usepackage{newtxtext,newtxmath}
+\usepackage[margin=0.88in,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{xcolor,listings,enumitem,fancyhdr,xurl}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\definecolor{ink}{HTML}{3D5044}
+\definecolor{soft}{HTML}{F3F4EF}
+\definecolor{rulegray}{HTML}{CAD0C4}
+\usepackage[colorlinks=true,linkcolor=ink,citecolor=ink,urlcolor=ink]{hyperref}
+\hypersetup{pdftitle={AsymptoticAnalysis: a nonduplicative audit of defining-sum integration},
+ pdfauthor={Technical review prepared for Vladimir Reshetnikov},
+ pdfsubject={Wolfram 15 observations, Mathics source review, Dirichlet dispatch and term-goal fixes}}
+\titleformat{\section}{\large\sffamily\bfseries\color{ink}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\normalsize\sffamily\bfseries\color{ink}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\sffamily\bfseries}{\thesubsubsection}{0.7em}{}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,
+ keepspaces=true,showstringspaces=false,backgroundcolor=\color{soft},
+ frame=single,rulecolor=\color{rulegray},framesep=6pt,
+ aboveskip=10pt,belowskip=10pt,tabsize=2}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{4pt}
+\setlist{nosep,leftmargin=1.5em}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\newcommand{\OO}{\mathcal O}
+\newcommand{\rev}{8cee870994f506b501bae3ea6bd4a3a7edb895c1}
+\newcommand{\src}[2]{\href{https://github.com/VladimirReshetnikov/Asymptotic/blob/8cee870994f506b501bae3ea6bd4a3a7edb895c1/#1}{#2}}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}[proposition]{Lemma}
+\newtcolorbox{finding}{colback=soft,colframe=rulegray,boxrule=0.5pt,
+ arc=0pt,left=9pt,right=9pt,top=8pt,bottom=8pt,breakable}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small\textsc{AsymptoticAnalysis: incremental technical audit}}
+\fancyhead[R]{\small\texttt{8cee870994f5}}
+\fancyfoot[L]{\small 10 September 2026}
+\fancyfoot[R]{\thepage}
+\begin{document}
+\begin{titlepage}
+{\Large\sffamily\color{ink}\textsc{Source-pinned technical review}\par}
+\vspace{0.7in}
+{\Huge\bfseries\color{ink}AsymptoticAnalysis\par}
+\vspace{0.2in}
+{\LARGE Defining-sum integration,\\request semantics, and\\an integer-indexed Dirichlet algebra\par}
+\vspace{0.35in}
+{\large New findings after the existing review corpus;\\focused repairs, mathematical contracts, and executable artifacts\par}
+\vspace{0.45in}
+Prepared for Vladimir Reshetnikov\\
+10 September 2026
+\vfill
+\textbf{Repository}\par
+\url{https://github.com/VladimirReshetnikov/Asymptotic}\par
+\textbf{Reviewed commit}\par
+\texttt{\rev}\par
+\medskip\hrule\medskip
+\textbf{Evidence in this review.} Selected public results and a three-edit candidate
+were executed in Wolfram Language 15.0.0. The independent Python artifacts pass
+32 test methods. Mathics compatibility was examined in source, but no Mathics
+runtime was available. Neither the full upstream suite nor the complete packaged
+Wolfram probe file was run. The two new findings are coverage and request-contract
+issues; neither is presented as a newly discovered false asymptotic theorem.
+\end{titlepage}
+
+\begin{abstract}
+This audit examined the canonical forward and inverse machinery, series
+operations, exact interval primitives, several special-function modules, and
+Mathics compatibility layers, against the repository's extensive existing
+review record. Most plausible candidates encountered in those areas were
+already documented, already guarded, or not substantiated. They are not
+reintroduced as findings.
+
+Two reproducible additions remain in the defining-sum adapter. First, the
+package constructor accepts bare large-argument Zeta and Lerch expressions,
+but rejects simple affine translations of those expressions even though its
+existing series arithmetic can construct the corresponding results. Second,
+the same adapter ignores an explicitly supplied \code{SeriesTermGoal} whenever
+an explicit cutoff is present. Its result can record a requested goal of one
+and a returned count of three. In the Zeta path this also causes a resource
+refusal for a request whose term goal makes the expensive work unnecessary.
+
+The article isolates both mechanisms, supplies a narrowly scoped term-goal
+patch and a restricted affine-lifting prototype, and develops an additional
+integer-indexed Dirichlet-jet prototype. The latter implements exact coefficient
+addition, convolution, reciprocal prefixes, and elementary global coefficient
+majorants. Its purpose is a concrete development option for this particular
+family, rather than another proposal for an unrestricted transseries framework.
+Native observations, independent tests, candidate mechanisms, and unexecuted
+artifacts are recorded separately throughout.
+\end{abstract}
+\setcounter{tocdepth}{1}
+\hypersetup{bookmarksdepth=2}
+\tableofcontents
+\clearpage
+
+\section{Assessment, scope, and nonduplication}
+\subsection{What should change first}
+The smallest useful upstream change is to make the defining-sum adapter obey
+both explicit request constraints. It requires three local edits, preserves
+the existing coefficient and remainder formulas, and has successful focused
+Wolfram controls. The next change should make rational affine wrappers around
+an admitted defining-sum atom reach that atom's constructor, rather than falling
+through to a native coefficient importer that cannot interpret it.
+
+These are deliberately modest priorities. The retained review corpus already
+contains substantial correctness, performance, domain, precision, and
+architecture recommendations. Recommending those same projects again would
+obscure the incremental contribution requested here.~\cite{reviewindex,register}
+
+\begin{longtable}{@{}P{0.07\textwidth}P{0.15\textwidth}P{0.49\textwidth}P{0.22\textwidth}@{}}
+\toprule
+ID & Classification & Finding & Evidence\\\midrule\endhead
+N01 & Medium; coverage and UX & Bare Zeta/Lerch atoms are admitted, but their simple affine translations are refused by the public Package constructor. Existing arithmetic works around the dispatch gap. & Four native constructor observations; two existing-arithmetic controls.\\
+N02 & Medium; request semantics and work selection & Explicit cutoffs disable the term goal in both defining-sum constructors. Zeta can reject a cheap one-term request on the basis of work it need not perform. & Native count mismatches and resource refusal; five candidate controls.\\
+D01 & Development option, not a defect & Integer-indexed Dirichlet jets with exact convolution and reciprocal coefficient bounds. & Implemented independent Python prototype; mathematical derivation and tests.\\
+\bottomrule
+\end{longtable}
+
+The severity labels concern ordinary correctness of the public request contract
+and usefulness of the API. N01 returns a failure rather than a wrong expression.
+N02 returns a mathematically valid longer expansion, but does not honor the
+requested term count. No security severity or comprehensive acceptance claim
+is implied.
+
+\subsection{Snapshot and retrieval boundary}
+The review is pinned to commit \texttt{\rev}, not to an unspecified moving
+\code{main}. The root standalone was imported as text and then loaded from a
+local temporary file in the Wolfram evaluator. The import contained 692,380
+characters. A smoke call for \code{Sin[x]} at cutoff three returned a
+\code{GeneralizedSeries} with normal expression $x$, consistent with the
+package's exclusive cutoff convention.~\cite{core}
+
+The substantive source inspection covered 21 canonical modules to different
+depths. These include the main kernel, ordinary and composite arithmetic,
+series operations, Dirichlet special functions, Gamma/Barnes forward paths,
+selected inverse operations, Fourier coefficients, interval certificates, and
+six Mathics compatibility modules. The coverage record in
+\code{evidence/source-coverage.json} distinguishes full returned modules from
+selected or overlapping ranges. This is substantial targeted analysis, not a
+claim that every source line, test, script, or historical document received an
+equal audit.
+
+\subsection{How earlier findings were excluded}
+At the pinned snapshot, the review index contains 35 retained packages across
+five waves, plus ten retirement tombstones. The consolidated status register,
+all five wave indexes, and selected original discussions were used as the
+primary suppression baseline. A further keyword-and-context scan read 62 TeX
+files from the retained articles, including split sections and standalone
+copies. The scan for waves one through three explicitly reported 47 reads and
+no unread files; the remaining fifteen files belong to waves four and five.
+This is not a count of 62 independent reviews.~\cite{reviewindex,wave3,wave5,register}
+
+The lexical scan looked for Dirichlet, Zeta, Lerch, divisor, and multiplicative
+algebra terminology and examined the returned contexts. It supplements, rather
+than replaces, semantic comparison with the maintained finding summaries. It
+cannot prove the absence of an equivalent idea expressed with different words.
+The new entries below therefore include their nearest related earlier entries
+and explain the difference. The machine-readable ledger is
+\code{evidence/novelty-ledger.json}.
+
+One public wrong-result candidate encountered during the investigation overlapped
+an earlier sided-germ obligation. It was suppressed rather than used to inflate
+the new-finding count. The same rule was applied to previously recorded
+certificate, truncation, native-boundary, and general budget topics. Their
+reproduction details and recommendations are not repeated here.
+
+\subsection{Execution evidence and its limits}
+\begin{longtable}{@{}P{0.25\textwidth}P{0.39\textwidth}P{0.29\textwidth}@{}}
+\toprule
+Evidence population & What was obtained & What it does not establish\\\midrule\endhead
+Wolfram baseline & Public constructor, term-count, resource-refusal, and arithmetic observations on version 15.0.0 for Linux x86-64, build dated 6 May 2026. & Full upstream-suite acceptance or equivalent behavior on every supported platform.\\
+Term-goal candidate & Three guarded edits applied to the imported standalone; five focused outputs including unchanged no-goal controls. & Full rebuilt modular distribution acceptance, combined changes, or Mathics execution.\\
+Independent Python & 28 arithmetic/majorant test methods and four synthetic patch-anchor fixture methods; all 32 passed. & Execution of the Wolfram package or proof of an arbitrary caller-declared infinite coefficient bound.\\
+Affine prototype & Packaged standalone helper and a probe driver; the underlying existing arithmetic operations succeeded in separate native calls. & Successful execution of the complete helper file. Its grouped mechanism probe failed at the connector boundary.\\
+Mathics & Source-level examination of the compatibility layers and the vocabulary used by the proposed changes. & A Mathics baseline, patched run, benchmark, or compatibility certification.\\
+\bottomrule
+\end{longtable}
+
+Several requests to the remote evaluator failed with transport errors. A direct
+remote \code{Get} also received a truncated source stream; importing the complete
+text and loading a local file succeeded. These events are recorded as execution
+infrastructure limitations, not repository syntax or algorithm defects.
+
+\section{Where the new issues occur}
+\subsection{Two special-function inputs, two natural coordinates}
+The defining-sum module supplies constructions unavailable to a straightforward
+ordinary Taylor path. For large real $S$, the Zeta adapter uses the convergent
+sum
+\begin{equation}
+ \zeta(S)=\sum_{n=1}^{\infty} n^{-S},\qquad S>1,
+\end{equation}
+and chooses $w=e^{-S}$. Its exact weights are $\log n$, since
+$n^{-S}=w^{\log n}$. An exclusive cutoff $h$ retains precisely the terms with
+$\log n<h$. The $n=1$ term is the constant one and is counted as a term by this
+adapter.~\cite{dirichlet,dlmf-zeta}
+
+The Lerch adapter instead treats fixed real parameters $z,s$ with $|z|<1$ and
+an argument $A$ tending to positive infinity. It uses $w=1/A$, with blocks of
+weights $s+k$ and coefficients
+\begin{equation}\label{eq:lerch-coeff}
+ c_k=\frac{(-1)^k(s)_k}{k!}M_k(z),\qquad
+ M_0(z)=\frac1{1-z},\quad M_k(z)=\operatorname{Li}_{-k}(z)\ (k>0).
+\end{equation}
+The defining series is $\Phi(z,s,A)=\sum_{n\geq0}z^n(A+n)^{-s}$ in the admitted
+real domain. For the witness $z=1/2,s=1$, the first coefficients are
+$2,-2,6,-26,\ldots$.~\cite{dirichlet,dlmf-lerch}
+
+The original module already attaches explicit remainder metadata to these
+constructions. This article does not re-present the module's existing tail
+bounds as a new result or a newly discovered need for majorants. The findings
+are in admission and request selection around that coefficient machinery.
+
+\subsection{The constructor and the arithmetic layer have different entry points}
+The important boundary is not between a ``capable Wolfram'' and an ``incapable
+Mathics.'' The source contains a dedicated dispatcher,
+\code{dirichletSpecialForwardExpansion}, whose initial guard admits only a
+whole expression matching
+\begin{lstlisting}
+Zeta[_] | LerchPhi[_, _, _]
+\end{lstlisting}
+An affine wrapper has head \code{Plus} or \code{Times}, so this guard declines it.
+Subsequent generic routes do not automatically convert its special-function
+leaf into the result that the defining-sum adapter would have returned.
+That is the mechanism behind N01.~\cite{dirichlet}
+
+The ordinary arithmetic layer is a separate consumer of already constructed
+\code{GeneralizedSeries} objects. It has guarded routes for regular operands,
+compatible ordered series, and composite envelopes. Consequently, the fact
+that a wrapped expression fails during construction does not imply that its
+sum cannot be represented after the leaf is constructed.~\cite{arithmetic,envelope,operations}
+
+This distinction suggests a local integration change: make a small admitted
+expression grammar construct its special leaf and then reuse the existing
+arithmetic. It does not require changing the mathematical definition of
+Zeta, modifying native \code{Series}, or admitting all expressions containing
+special functions.
+
+\section{N01: an admitted atom becomes unsupported when translated}
+\begin{finding}
+\textbf{New coverage/UX finding; successful Wolfram baseline observations.}\par
+\textbf{Location:} the whole-expression guard in
+\code{dirichletSpecialForwardExpansion}, in
+\code{src/Kernel/DirichletSpecialFunctions.wl}.\par
+\textbf{Boundary:} explicit \code{"Backend" -> "Package"}. Automatic/native
+behavior outside the observed calls is not inferred.
+\end{finding}
+
+\subsection{Public witnesses}
+With the pinned package loaded, the following call succeeds:
+\begin{lstlisting}
+AsymptoticAnalysis`AsymptoticExpansion[
+  Zeta[x], {x, Infinity, 2}, "Backend" -> "Package"]
+\end{lstlisting}
+Its normal expression is
+\begin{equation}
+ 1+2^{-x}+3^{-x}+4^{-x}+5^{-x}+6^{-x}+7^{-x},
+\end{equation}
+a nonzero remainder being recorded as
+\code{PowerLogRemainder[E^(-x),Log[8],0]}.
+The translated input
+\begin{lstlisting}
+AsymptoticAnalysis`AsymptoticExpansion[
+  Zeta[x] - 1, {x, Infinity, 2}, "Backend" -> "Package"]
+\end{lstlisting}
+returns \code{Failure["UnsupportedNativeCoefficient",...]} instead. The
+reported unsupported coefficient contains a retained
+\code{Zeta[u$12^(-1)]}; the generated local symbol is incidental. The message
+asks for polynomial logarithmic coefficients and bounded real sine/cosine
+modes. It does not tell the caller that the nearby bare expression has a
+successful defining-sum constructor.
+
+The Lerch pair is equally simple:
+\begin{lstlisting}
+AsymptoticAnalysis`AsymptoticExpansion[
+  LerchPhi[1/2, 1, x], {x, Infinity, 2},
+  "Backend" -> "Package"]
+(* Normal: 2/x; remainder: O(x^-2) *)
+
+AsymptoticAnalysis`AsymptoticExpansion[
+  1 + LerchPhi[1/2, 1, x], {x, Infinity, 2},
+  "Backend" -> "Package"]
+(* Failure["UnsupportedNativeCoefficient", ...] *)
+\end{lstlisting}
+Both successful and failed outputs are transcribed in
+\code{evidence/native-observations.json}. This is a failure to integrate an
+existing capability, not evidence that the underlying defining sum or its
+remainder bound is false.
+
+\subsection{An existing public workaround}
+The package's own arithmetic provides a useful control:
+\begin{lstlisting}
+s = AsymptoticAnalysis`AsymptoticExpansion[
+  Zeta[x], {x, Infinity, Log[3]}, "Backend" -> "Package"];
+AsymptoticAnalysis`SeriesAdd[s, -1]
+(* GeneralizedSeries; Normal: (E^(-x))^Log[2] *)
+
+s = AsymptoticAnalysis`AsymptoticExpansion[
+  LerchPhi[1/2, 1, x], {x, Infinity, 3},
+  "Backend" -> "Package"];
+AsymptoticAnalysis`SeriesAdd[s, 1]
+(* GeneralizedSeries; Normal: 1 - 2/x^2 + 2/x *)
+\end{lstlisting}
+The first normal expression equals $2^{-x}$ on the recorded real approach.
+These controls demonstrate that the representation and arithmetic need not be
+extended to handle the two translations. The missing step is reaching them
+from the ordinary expression constructor.
+
+The grouped arithmetic observation also emitted repeated native
+\code{Power::infy} and \code{Greater::nord} messages. Their originating subcall
+was not isolated. They are retained in the evidence record but are not elevated
+to a separate defect or explained by a speculative mechanism.
+
+\subsection{Why this is distinct from the earlier Lerch chart finding}
+Report 24's N03 concerns an already constructed reciprocal-square Lerch chart:
+recovering a signed coordinate such as $1/x^2$ can lose ordered arithmetic.
+The current Lerch witness uses the direct argument $x$, and its existing
+arithmetic control succeeds. The failure is earlier, at the construction of
+\code{1 + LerchPhi[...]} as an ordinary expression. A signed quadratic chart
+repair therefore does not address it.~\cite{report24}
+
+Similarly, this is not another request for universal expression closure. A
+rational affine wrapper is a narrow, explicitly checkable grammar whose
+admitted examples require no new coefficient algebra. More general products,
+multiple atoms, parameter-dependent factors, or nested functions should remain
+separate admission decisions.
+
+\subsection{A restricted lifting rule}
+For a rational constant pair $b,c$, one varying admitted atom $A(x)$, and a
+series result $S=e+\OO(R)$ for that atom, the desired transformation is simply
+\begin{equation}
+ c+bA(x)=c+be(x)+\OO(|b|R(x)).
+\end{equation}
+The package already implements the corresponding scalar multiplication and
+addition. The prototype in \code{code/AffineDirichletExpansion.wl} performs
+these steps, then applies the requested cutoff using the existing truncation
+operation.
+
+The prototype deliberately requires exactly one varying Zeta/Lerch atom,
+degree-one dependence on that atom, and rational constant affine coefficients.
+It declines quadratic dependence, inexact coefficients, variable-dependent
+multipliers, and multiple distinct atoms. It adds one symbol under
+\code{AsymptoticAudit`} and does not change any upstream definition or install
+System upvalues.
+
+\begin{lstlisting}
+Get["AsymptoticAnalysis.wl"];
+Get["AffineDirichletExpansion.wl"];
+
+AsymptoticAudit`AffineDirichletExpansion[
+  Zeta[x] - 1, {x, Infinity, Log[3]}]
+
+AsymptoticAudit`AffineDirichletExpansion[
+  1 + LerchPhi[1/2, 1, x], {x, Infinity, 3}]
+\end{lstlisting}
+The cutoff in this interface belongs to the special atom's coordinate. In
+particular, a Zeta cutoff is not silently reinterpreted as a power of $1/x$.
+The prototype promises an asymptotic remainder carried through the existing
+arithmetic, not retention of every quantitative bound attached to the source
+atom. It does not expose a term-goal option.
+
+\subsection{The term-goal trap when integrating the rule upstream}
+A direct implementation must count blocks of the final normalized expression,
+not merely blocks requested from the atom. For example, if the user asks for
+one term of $\zeta(x)-1$, asking the bare Zeta constructor for one term yields
+only the constant one; subtracting one then erases the only retained block.
+The desired leading nonzero block is $2^{-x}$.
+
+For the rational affine grammar, the constant addition can cancel or introduce
+at most one weight-zero block. A limited implementation can therefore request
+one extra source block when a term goal is active, merge the affine constant,
+and then apply the final goal. It must retain the primitive's honest remainder
+when a cutoff prevents additional source information. This is a specific
+one-block accounting rule for affine lifting, not a general backward-precision
+planner.
+
+The standalone prototype avoids this extra policy by accepting an explicit
+cutoff only. The integrated constructor should eventually support both
+constraints, but it should do so after N02's primitive request handling is fixed.
+
+\section{N02: explicit cutoffs disable the term goal}
+\begin{finding}
+\textbf{New request-contract finding; successful baseline and candidate observations.}\par
+\textbf{Locations:} the cutoff branch of \code{dirichletZetaForward} and the
+stopping predicate in \code{dirichletLerchForward}.\par
+\textbf{Effect:} extra returned blocks and, for Zeta, avoidable resource refusal.
+The returned longer series is not mathematically false.
+\end{finding}
+
+\subsection{Contradictory request and result metadata}
+The ordinary constructor already applies an integer term goal after the
+exclusive cutoff: \code{makeForwardObject} takes at most the requested number
+of retained blocks. The defining-sum constructors bypass that finishing path
+and implement their own selection.~\cite{core,dirichlet}
+
+The Lerch witness is:
+\begin{lstlisting}
+s = AsymptoticAnalysis`AsymptoticExpansion[
+  LerchPhi[1/2, 1, x], {x, Infinity, 4},
+  SeriesTermGoal -> 1, "Backend" -> "Package"];
+{Normal[s], s["ReturnedTermCount"], s["RequestedTermGoal"]}
+(* {6/x^3 - 2/x^2 + 2/x, 3, 1} *)
+\end{lstlisting}
+With the same cutoff and goal, the ordinary input
+\code{1+1/x+1/x^2} returns only the constant one, records a returned count of
+one, and places the first omitted power at $x^{-1}$. Thus the mismatch is
+observable within the same package API, not a disputed inference from native
+Wolfram option behavior.
+
+For Zeta the corresponding observation is:
+\begin{lstlisting}
+s = AsymptoticAnalysis`AsymptoticExpansion[
+  Zeta[x], {x, Infinity, Log[4]},
+  SeriesTermGoal -> 1, "Backend" -> "Package"];
+{Normal[s], s["ReturnedTermCount"], s["RequestedTermGoal"]}
+(* {1 + 2^(-x) + 3^(-x), 3, 1} *)
+\end{lstlisting}
+The expectation is to retain one admitted nonzero block, here the constant one,
+and to report a remainder beginning at $2^{-x}$. The public usage of
+\code{SeriesTermGoal} as a term-count control is also consistent with the
+native option's documented purpose, but the decisive evidence is the
+repository's own ordinary constructor and recorded metadata.~\cite{wl-goal,core}
+
+\subsection{The exact source mechanism}
+Zeta distinguishes an automatic-cutoff request from an explicit-cutoff request.
+In the automatic case it sets \code{count = goal}. In the explicit case it
+binary-searches all integers whose logarithms lie below the cutoff and never
+caps the result by the goal.
+
+The Lerch path makes the exclusivity equally visible:
+\begin{lstlisting}
+If[If[cut === Automatic,
+     Length[rows] >= goal,
+     ! less[s + k, cut]],
+   frontier = {s + k, coefficient, k}; Break[]];
+\end{lstlisting}
+The goal and cutoff are alternatives in that predicate. They should instead be
+two independent reasons to stop retaining the next nonzero block. Validation
+already accepts a positive integer goal together with an explicit exact cutoff,
+so this is not an unsupported argument combination rejected by design.~\cite{dirichlet}
+
+\subsection{A small term goal must constrain preflight work too}
+A post hoc truncation alone is not enough for Zeta. The baseline also executes
+\begin{lstlisting}
+AsymptoticAnalysis`AsymptoticExpansion[
+  Zeta[x], {x, Infinity, 1000000},
+  SeriesTermGoal -> 1, "MaxTerms" -> 100,
+  "Backend" -> "Package"]
+(* Failure["ResourceLimit", ...] *)
+\end{lstlisting}
+Its resource message says that the exponential-coordinate cutoff exceeds
+\code{MaxTerms}. Under the combined request semantics, however, the only
+retained block is one, and the first omitted integer is two. No enumeration
+near $e^{1000000}$, nor even a 100-term expansion, is needed.
+
+The candidate therefore restricts the binary-search interval itself. When the
+goal is a positive integer $g$, the upper search sentinel becomes
+$\min(g,L)+1$, where $L$ is the existing term budget. A cutoff-based resource
+refusal is necessary only when the cutoff would require more than $L$ terms
+\emph{and} no active goal reduces the retained count to at most $L$.
+
+\subsection{The three-edit candidate}
+The staged patch changes exactly these expressions:
+\begin{lstlisting}
+(* Zeta preflight: old condition *)
+less[Log[limit + 1], cut]
+
+(* New condition *)
+less[Log[limit + 1], cut] &&
+  (goal === Automatic || goal > limit)
+
+(* Zeta search interval *)
+low = 0;
+high = If[goal === Automatic,
+  limit + 1, Min[limit, goal] + 1];
+
+(* Lerch stopping rule, after a nonzero coefficient is found *)
+(cut =!= Automatic && ! less[s + k, cut]) ||
+  (goal =!= Automatic && Length[rows] >= goal)
+\end{lstlisting}
+All coefficient formulas, existing domain tests, and bound constructors remain
+unchanged. In particular, the Lerch loop still finds a \emph{nonzero} frontier
+coefficient before stopping; it does not count vanished moment coefficients
+as returned terms.
+
+\subsection{Why the selected frontier remains correct}
+For Zeta, let $m(h)$ be the number of positive integers with $\log n<h$.
+With both constraints active, the retained count is
+\begin{equation}
+ N=\min\{m(h),g\}.
+\end{equation}
+The new binary search computes this minimum without needing $m(h)$ when it is
+larger than the goal. The first omitted integer is still $N+1$, so the existing
+remainder constructor can use $\rho=\log(N+1)$ and its existing tail metadata.
+The proof does not depend on approximating $e^h$ numerically. Exact comparisons
+continue to decide logarithmic boundary equality.
+
+For Lerch, suppose the nonzero coefficient indices are
+$k_0<k_1<\cdots$. The loop retains the first indices whose weights $s+k_j$ lie
+below the cutoff, stopping also when $g$ such blocks have been retained. The
+next nonzero coefficient supplies the same kind of frontier as before. Only
+the selected frontier changes; the existing Taylor-moment bound is evaluated
+at that frontier's index.
+
+\subsection{Observed candidate results}
+The three anchor strings were each verified to occur exactly once in the
+imported pinned standalone. After replacement, that temporary file was loaded
+in a fresh Wolfram evaluator. The following outputs were observed, with
+\code{MaxTerms -> 100}:
+\begin{longtable}{@{}P{0.24\textwidth}P{0.16\textwidth}P{0.12\textwidth}P{0.39\textwidth}@{}}
+\toprule
+Input & Cutoff & Goal & Candidate normal expression and remainder\\\midrule\endhead
+$\zeta(x)$ & $\log4$ & 1 & $1+\OO(2^{-x})$; returned count 1.\\
+$\Phi(1/2,1,x)$ & 4 & 1 & $2/x+\OO(x^{-2})$; returned count 1.\\
+$\zeta(x)$ & $10^6$ & 1 & $1+\OO(2^{-x})$; no resource refusal.\\
+$\zeta(x)$ & $\log4$ & Automatic & $1+2^{-x}+3^{-x}+\OO(4^{-x})$; unchanged.\\
+$\Phi(1/2,1,x)$ & 4 & Automatic & $2/x-2/x^2+6/x^3+\OO(x^{-4})$; unchanged.\\
+\bottomrule
+\end{longtable}
+
+The candidate changes achieved precision when it honors the smaller term goal;
+it does not claim that a one-term result has the longer expansion's remainder.
+That distinction is essential. Merely deleting two terms while retaining the
+old fourth-order error would introduce a mathematical error that the baseline
+does not have.
+
+\subsection{Novelty and integration boundary}
+Earlier reports discuss configured backend defaults and special inverse power
+cutoffs. N02 is not a repeat of those dispatch/default bugs: the options in
+these witnesses are explicit, already parsed, and accurately stored in the
+result. The two defining-sum loops then fail to apply them together. The patch
+is local to those loops rather than another general request-normalization
+proposal.~\cite{wave3,wave5}
+
+The Python staging utility checks all three anchors before writing anything,
+refuses to overwrite existing output, and writes a canonical module plus a
+unified diff into a separate directory. It does not modify the checkout in
+place. The successful native experiment edited the generated standalone's
+corresponding source text; a canonical-module edit followed by the upstream
+builder remains a separate integration step to execute before adoption.
+
+\section{A narrow development option: integer-indexed Dirichlet jets}
+\subsection{The representation opportunity}
+The Zeta adapter currently exposes the sequence $\log1,\log2,\log3,\ldots$ as
+ordinary exact real weights. That is mathematically appropriate for its
+positive coordinate. But an algebra dedicated to this defining-sum family can
+retain the \emph{integer index} before converting to logarithmic weights:
+\begin{equation}\label{eq:dirichlet}
+ A(S)=\sum_{n\geq1}a_n n^{-S}.
+\end{equation}
+For positive integer indices, order and multiplication reduce to
+\begin{equation}
+ \log n<\log m\iff n<m,
+ \qquad \log n+\log m=\log(nm).
+\end{equation}
+Thus this family has a more specific algebra than arbitrary real exponent
+weights. Its coefficients can be combined using integer multiplication and
+divisor relations. This is not a claim that the current generic jet algebra
+cannot express the same functions, nor a measured claim that it is slow.
+It is a concrete optional specialization.
+
+The supplied independent prototype restricts coefficients to rational numbers
+and the growth exponent to a nonnegative integer. Those restrictions make
+coefficient operations, majorant selection, and tail evaluation at integer $S$
+exact using only the Python standard library. A future Wolfram implementation
+could use a wider exact coefficient ring without changing the indexing idea.
+
+\subsection{The prefix invariant}
+A jet records a positive integer $N$, all coefficients for $1\leq n\leq N$,
+and a global coefficient bound
+\begin{equation}\label{eq:growth}
+ |a_n|\leq Cn^p\quad(n\geq1),\qquad C\geq0,
+ \quad p\in\mathbb Z_{\geq0}.
+\end{equation}
+The coefficient dictionary is sparse, but its \emph{known prefix is dense
+information}: an absent dictionary entry inside $1,\ldots,N$ means a known zero.
+An absent entry beyond $N$ is unknown, not zero. The accessor refuses such an
+out-of-prefix query.
+
+The public constructor declares the infinite bound and checks it on every
+supplied prefix coefficient. That finite check cannot establish an arbitrary
+infinite assertion. The Zeta factory establishes its bound by construction
+because every coefficient is one. The finite-polynomial factory likewise
+knows its entire sequence. Arithmetic methods then transport a supplied bound
+by the propositions below. The distinction is part of the class contract, not
+hidden behind the word ``certified.''
+
+The prototype's retained expression is
+\begin{equation}
+ A_N(S)=\sum_{n=1}^{N}a_n n^{-S}.
+\end{equation}
+Using a prefix rather than a count of nonzero coefficients makes cancellation
+and sparse storage unambiguous. A user-facing term goal can be implemented
+above this layer, but it must not redefine unknown prefix entries as zeros.
+
+\subsection{An exact elementary tail bound}
+\begin{proposition}[Tail from a coefficient majorant]\label{prop:tail}
+Assume \eqref{eq:growth}, let $M=N+1$, and let $S>p+1$. Then the Dirichlet series
+converges absolutely and
+\begin{equation}\label{eq:tail}
+ |A(S)-A_N(S)|
+ \leq C M^{p-S}\left(1+\frac{M}{S-p-1}\right).
+\end{equation}
+\end{proposition}
+\begin{proof}
+Put $t=S-p>1$. Absolute values reduce the omitted tail to
+$C\sum_{n=M}^{\infty}n^{-t}$. The decreasing summand is bounded by its first
+term plus the integral from $M$ to infinity. Evaluating that integral gives
+$CM^{-t}(1+M/(t-1))$, which is \eqref{eq:tail}.
+\end{proof}
+
+This is the same elementary comparison principle used by the existing Zeta
+adapter, now applied to a transported coefficient-growth bound. The incremental
+point is the closed coefficient-bound calculus below, not the integral test
+itself. At integer $S>p+1$, every quantity returned by the prototype's
+\code{tail_bound} method is rational and computed exactly.
+
+\subsection{Addition and scalar multiplication}
+For two coefficient sequences with bounds $(C_a,p_a)$ and $(C_b,p_b)$,
+addition admits
+\begin{equation}
+ C_{a+b}=C_a+C_b,\qquad p_{a+b}=\max(p_a,p_b).
+\end{equation}
+Scalar multiplication by a rational $r$ admits $(|r|C_a,p_a)$. The known prefix
+of a binary operation is the intersection of the input prefixes. These rules
+are conservative when operands are correlated: canceling retained coefficients
+does not, by itself, cancel independently declared unknown tails.
+
+\subsection{Multiplication is Dirichlet convolution}
+\begin{proposition}[Coefficient and majorant transport]\label{prop:product}
+In a common half-line of absolute convergence, the product of two series
+\eqref{eq:dirichlet} has coefficients
+\begin{equation}\label{eq:convolution}
+ c_n=\sum_{d\mid n}a_d b_{n/d}.
+\end{equation}
+If the input sequences obey their declared bounds, a valid elementary output
+bound is
+\begin{equation}
+ |c_n|\leq C_aC_b n^{\max(p_a,p_b)+1}.
+\end{equation}
+All output coefficients through $N=\min(N_a,N_b)$ are determined by the two
+input prefixes.
+\end{proposition}
+\begin{proof}
+Absolute convergence permits regrouping the product by $n=dm$, which gives
+\eqref{eq:convolution}. Every divisor factor satisfies
+$d^{p_a}(n/d)^{p_b}\leq n^{\max(p_a,p_b)}$. There are at most $n$ positive
+divisors of $n$, giving the stated bound. For $n\leq N$, every divisor and
+complementary divisor is at most $N$, so no unknown coefficient is used.
+\end{proof}
+
+The divisor-count estimate is intentionally loose. It keeps $p$ integral and
+all subsequent majorants rational at integer $S$. A sharper estimate such as
+$\tau(n)\leq2\sqrt n$ would reduce the growth exponent at the price of a
+larger exponent domain in the implementation. Nothing in the prototype claims
+an optimal bound or an optimal abscissa of convergence.
+
+For dense known prefixes, the retained pair count is exactly
+\begin{equation}\label{eq:pairs}
+ H_N=\sum_{d=1}^{N}\left\lfloor\frac Nd\right\rfloor.
+\end{equation}
+The elementary harmonic-sum comparison gives $H_N\leq N(1+\log N)$.
+A row-major loop therefore stops its inner traversal at $m\leq N/d$ instead of
+forming an $N$ by $N$ product and discarding most pairs afterwards. Sparse input
+support reduces the actual work further.
+
+\subsection{Reciprocals with a coefficient bound, not only a formal recurrence}
+A reciprocal prefix can be computed whenever $a_1\ne0$:
+\begin{equation}\label{eq:recurrence}
+ b_1=\frac1{a_1},\qquad
+ b_n=-\frac1{a_1}\sum_{\substack{d\mid n\\d\geq2}}a_d b_{n/d}
+ \quad(n>1).
+\end{equation}
+The missing ingredient in a purely formal implementation would be a useful
+global bound for the new sequence. The following elementary construction
+supplies one.
+
+\begin{proposition}[A computable reciprocal majorant]\label{prop:reciprocal}
+Suppose $a_1\ne0$ and \eqref{eq:growth} holds. Choose an integer $q>p+1$ for which
+\begin{equation}\label{eq:kappa}
+ \kappa=\frac C{|a_1|}\,2^{p-q}
+ \left(1+\frac2{q-p-1}\right)<1.
+\end{equation}
+The sequence defined by \eqref{eq:recurrence} satisfies
+\begin{equation}
+ |b_n|\leq\frac{n^q}{|a_1|}\quad(n\geq1).
+\end{equation}
+Its absolutely convergent Dirichlet series represents $1/A(S)$ for $S>q+1$.
+\end{proposition}
+\begin{proof}
+Set $D=1/|a_1|$. The base coefficient satisfies $|b_1|=D$. If the bound holds
+for all indices below $n$, then each $n/d$ in \eqref{eq:recurrence} is smaller
+than $n$, and hence
+\begin{align*}
+ |b_n|&\leq Dn^q\frac1{|a_1|}
+       \sum_{\substack{d\mid n\\d\geq2}}|a_d|d^{-q}\\
+ &\leq Dn^q\frac C{|a_1|}\sum_{d=2}^{\infty}d^{p-q}
+ \leq Dn^q\kappa < Dn^q.
+\end{align*}
+The final bound on the sum is the first-term-plus-integral estimate beginning
+at two. This proves the coefficient inequality by strong induction. For
+$S>q+1$, both the original and reciprocal series converge absolutely. Their
+product has coefficient one at index one and zero at every larger index by
+\eqref{eq:recurrence}. Thus their product is one, proving the reciprocal claim.
+\end{proof}
+
+The expression in \eqref{eq:kappa} tends to zero as $q$ increases, so a suitable
+integer exists. With rational $C$ and $a_1$, the search can compare $\kappa$ to
+one using exact fractions. The implementation bounds both this search and the
+coefficient work. Budget exhaustion raises an explicit exception instead of
+returning an unproved reciprocal bound.
+
+A sieve-style evaluation avoids asking for divisors separately at every index.
+After coefficient $b_m$ is known, its contributions $a_d b_m$ are accumulated
+at indices $dm\leq N$, $d\geq2$. All contributions required for the next
+coefficient have arrived from smaller indices. This is the same retained-pair
+geometry as \eqref{eq:pairs}.
+
+\subsection{Executable examples}
+\begin{lstlisting}[language=Python]
+from dirichlet_jet import DirichletJet
+
+z = DirichletJet.zeta(128)
+z2 = z.multiply(z)
+reciprocal = z.reciprocal()
+identity = z.multiply(reciprocal)
+
+assert dict(identity.coefficients) == {1: 1}
+assert z2.coefficient(12) == 6
+assert reciprocal.coefficient(6) == 1
+assert reciprocal.coefficient(12) == 0
+
+finite_value = reciprocal.evaluate_prefix(10)
+absolute_tail = reciprocal.tail_bound(10)  # exact Fraction
+\end{lstlisting}
+For $\zeta^2$, the coefficients count the divisors of $n$. For the reciprocal
+of Zeta, the computed prefix agrees with an independent elementary
+prime-factorization implementation of the M\"obius function. These are useful
+structural oracles, not comparisons with a second transcription of the same
+convolution loop.
+
+The example does not assert that the conservative reciprocal majorant is the
+sharp bound for M\"obius coefficients. A source-aware specialized factory could
+provide a stronger bound, but the implemented reciprocal operation intentionally
+uses only its input's declared coefficient majorant.
+
+\section{Performance evidence and implementation tradeoffs}
+\subsection{What was actually measured}
+The independent Python convolution prototype was measured on dense Zeta
+prefixes. Input construction was outside each timed interval. Each size was
+repeated five times; the table reports median elapsed seconds in this session.
+These are not Wolfram or Mathics timings, and no speedup over the existing
+package has been measured.
+
+\begin{center}
+\begin{tabular}{rrrr}
+\toprule
+Known prefix $N$ & Retained pairs $H_N$ & Unfiltered $N^2$ pairs & Median seconds\\\midrule
+64 & 280 & 4,096 & 0.00047\\
+256 & 1,466 & 65,536 & 0.00216\\
+1,024 & 7,262 & 1,048,576 & 0.01086\\
+4,096 & 34,720 & 16,777,216 & 0.04985\\\bottomrule
+\end{tabular}
+\end{center}
+
+The exact pair counts explain the loop's search geometry independently of the
+timer. The implementation still pays for fraction arithmetic, dictionary
+updates, output normalization, and prefix-bound checks. The measurement does
+not estimate peak memory, simplifier costs in Wolfram, or the behavior of a
+symbolic coefficient ring. The complete platform string and individual
+summary values are in \code{evidence/python-benchmark.json}; the benchmark
+script is included.
+
+\subsection{Why integer indexing is useful even without a speed claim}
+Integer indexing removes a particular proof obligation from this family:
+recognizing equality or order between sums of weights that are known to be
+logarithms of integer products. A coefficient of $6^{-S}$ produced from
+$2^{-S}3^{-S}$ has index six immediately. There is no need to ask a generic
+symbolic simplifier to recognize $\log2+\log3=\log6$.
+
+This observation justifies a data representation, not a blanket recommendation
+to replace the existing real-weight implementation. Irrational-power germs,
+Fourier-polynomial coefficients, and the package's other scales require their
+own contracts. The integer representation should expose a faithful conversion
+back to the existing $w^{\log n}$ rows rather than silently assuming all real
+weights have integer logarithmic indices.
+
+\subsection{What the prototype intentionally does not implement}
+The Python class does not integrate with \code{GeneralizedSeries}; it is an
+independent reference model. It does not implement arbitrary real or complex
+coefficients, noninteger phase evaluation, general phase composition,
+parameter-uniform estimates, automatic source recognition, or exact
+cancellation of correlated unknown tails. Its finite-polynomial factory also
+uses the generic conservative tail interface, rather than exploiting finite
+support to report a zero tail through a second exactness channel.
+
+Those are explicit prototype boundaries. They are not additional defects
+attributed to the upstream repository. The implementation is small enough to
+serve as an oracle for a future family-specific module and to test whether
+integer indexing is worth integrating before complicating the public result
+schema.
+
+\section{Wolfram 15 and Mathics: a targeted compatibility assessment}
+\subsection{What the successful Wolfram run establishes}
+The actual native kernel identified itself as
+\begin{lstlisting}
+15.0.0 for Linux x86 (64-bit) (May 6, 2026)
+\end{lstlisting}
+It loaded the complete imported standalone and executed the public witness
+calls. The term-goal candidate also executed there. Therefore N01 and N02 are
+not merely predictions based on a different Wolfram version, a Mathics
+emulation, or an independent Python reimplementation.
+
+The no-goal controls are especially important for N02: the candidate must not
+change the series selected by the cutoff alone. The observed unchanged
+Zeta and Lerch expressions demonstrate that limited property for the two
+chosen inputs. They do not establish every parameter case or an end-to-end
+release gate.
+
+\subsection{What source inspection says about Mathics}
+The repository isolates several host differences behind Mathics-specific
+helpers: assumption/sign reasoning, simplification, Taylor expansion,
+numerical evaluation, inverse-branch reasoning, and compatibility shims.
+The source contains explicit guards around native behaviors that the package
+does not treat as interchangeable with Wolfram. This architecture matters when
+assessing a proposed edit: a fix should use the package's existing exact-order
+and validation helpers rather than add an unreviewed dependency on a native
+symbolic oracle.~\cite{mathics-assumptions,mathics-simplification,mathics-compat}
+
+The term-goal patch changes only Boolean conditions, integer bounds, and the
+existing \code{less} comparison calls. It does not introduce a new special
+function, a native-only calculus operation, or a new root finder. Both affected
+constructors are shared canonical source, so the control-flow issue is not
+inherently Wolfram-specific. Whether every corresponding public witness reaches
+that path and produces the same output under a particular Mathics version
+still requires an actual run.
+
+The affine prototype similarly reuses the package's public arithmetic, but its
+complete loader/option/pattern behavior has not been validated under Mathics.
+Its code is intended to be straightforward to test, not presented as a
+compatibility-certified drop-in. Mathics is an independent implementation of
+the Wolfram Language, so successful Wolfram execution cannot substitute for
+that second run.~\cite{mathics-site}
+
+\subsection{A focused cross-host acceptance set}
+For the proposed changes, the useful acceptance cases are narrowly defined.
+The bare-atom controls must still succeed; the combined goal/cutoff cases must
+retain the same selected blocks in both hosts; a no-goal request must remain
+unchanged; and the large-cutoff, one-term Zeta request must no longer fail solely
+because of the inactive work implied by the cutoff.
+
+Boundary cases should additionally cover an exact Zeta cutoff at $\log m$,
+a goal larger than the number of available finite Lerch blocks, an invalid
+goal, a goal larger than the budget but an earlier cutoff, and an affine
+translation whose weight-zero block cancels. These cases follow from the
+specific changes in this article. They are not a restatement of the existing
+general cross-kernel testing program.
+
+The packaged \code{RunProbes.wl} uses plain records rather than relying on a
+shared implementation of \code{TestReport}. It performs no download or
+repository mutation. It is a proposed reproduction driver; the successful
+observations in this review came from separately issued focused calls, not
+from execution of the complete packaged file.
+
+\section{Concrete integration and development sequence}
+\subsection{First: land the bounded request fix independently}
+Stage the three-edit canonical change, rebuild the standalone using the
+repository's own generation path, and run the focused N02 comparisons on both
+hosts. Keep this change independent of affine lifting and the integer-indexed
+prototype. Its coefficient formulas and result schema need not change.
+
+The acceptance condition is not merely that the normal expressions look
+shorter. Returned counts, first omitted terms, remainder powers, and explicit
+bounds must all correspond to the selected shorter prefix. The native candidate
+already demonstrates the expected frontier change for the selected examples.
+
+\subsection{Second: admit a small affine grammar at the constructor boundary}
+Use the rational-affine prototype as a behavioral sketch, not as an instruction
+to call a public constructor recursively on every subtree. The integrated path
+should identify one admitted atom, prove the permitted coefficient conditions,
+construct that atom in its own coordinate, apply the exact affine operations,
+and finish the request once on the normalized result.
+
+Its diagnostic should distinguish an unsupported \emph{wrapper grammar} from
+an unsupported special function. For example, a rejected variable-dependent
+multiplier should say that the affine defining-sum route requires constant
+coefficients. A later native fallback may still be attempted under the user's
+chosen backend policy, but its incidental coefficient error should not be the
+only explanation available when the special leaf itself is recognized.
+
+\subsection{Third: evaluate integer-indexed algebra as a separate feature}
+A small initial Wolfram-facing interface could construct an integer-indexed
+Dirichlet prefix, combine prefixes by addition and convolution, compute an
+admitted reciprocal, and export $\{\log n,a_n\}$ rows plus a transported
+majorant. It should first support a single common phase $S$ and rational
+coefficients, matching the independent oracle.
+
+Only after that core agrees with the independent tests should it widen the
+coefficient ring. Differentiation in $S$ is a particularly natural next
+extension because
+\begin{equation}
+ \frac{d^k}{dS^k}n^{-S}=(-\log n)^k n^{-S}.
+\end{equation}
+A simple bound $(\log n)^k\leq n^k$ for $n\geq1$ would preserve an elementary
+integer growth exponent, though it is conservative. For Zeta, the corresponding
+termwise derivative formulas in the absolute-convergence half-plane are also
+recorded in DLMF.~\cite{dlmf-zeta}
+
+This proposed extension is tied to the integer-indexed family and its
+coefficient-majorant proof. It is not a proposal to claim differentiability
+from an arbitrary asymptotic remainder. The prototype currently implements
+neither derivative coefficients nor that extended coefficient ring.
+
+A second controlled extension is an integer affine phase shift:
+$A(S+b)=\sum a_n n^{-b}n^{-S}$. For integer $b$, rational coefficients remain
+rational; for negative $b$, the coefficient growth exponent increases by $-b$.
+This can be added without admitting unrelated exponential rates. Arbitrary
+phase compositions should remain outside this initial feature.
+
+\subsection{What should not be coupled to these changes}
+There is no need to change the entire result schema, replace the general
+precision calculus, redesign all native dispatch, or promise arbitrary
+transseries closure to fix N01 and N02. Those wider topics already have their
+own record. A family-specific implementation should earn its place by reducing
+an observed failure and agreeing with a small independent algebra, rather
+than becoming a prerequisite for unrelated repairs.
+
+\section{Artifacts, reproduction, and final assessment}
+\subsection{Archive contents}
+\begin{longtable}{@{}P{0.46\textwidth}P{0.47\textwidth}@{}}
+\toprule
+Artifact & Purpose and evidence status\\\midrule\endhead
+\code{article/review.tex}, \code{article/review.pdf} & Source and rendered article.\\
+\code{code/patch_dirichlet_goals.py} & Guarded staging utility for the three-edit candidate; synthetic anchor tests passed, and the corresponding edits passed five native controls.\\
+\code{code/AffineDirichletExpansion.wl} & Restricted additive/scalar lifting prototype; complete helper execution remains unverified.\\
+\code{code/RunProbes.wl} & Local-file-only Wolfram/Mathics reproduction driver; full packaged driver not executed here.\\
+\code{code/dirichlet_jet.py} & Exact-rational integer-indexed prefix, convolution, reciprocal, and coefficient-bound implementation.\\
+\code{code/benchmark_dirichlet.py} & Reproducible benchmark of that independent Python prototype only.\\
+\code{tests/test_dirichlet_jet.py} & 32 passing independent test methods, including four synthetic patch-fixture methods.\\
+\code{evidence/} & Native transcriptions, source coverage, novelty ledger, independent status, complete Python test output, and prototype benchmark results.\\
+\bottomrule
+\end{longtable}
+
+\subsection{Running the independent checks}
+From the archive root:
+\begin{lstlisting}
+python -m unittest discover -s tests -v
+python code/benchmark_dirichlet.py
+\end{lstlisting}
+The tests use only the standard library. They check divisor-count coefficients,
+a prime-factorization M\"obius oracle, reciprocal identities, random exact
+convolutions, prefix boundaries, rational majorants, input validation,
+immutability, and explicit work budgets. Finite partial-tail comparisons are
+sanity checks accompanying the displayed infinite-tail proofs, not substitutes
+for those proofs.
+
+To stage the candidate without altering the source checkout:
+\begin{lstlisting}
+python code/patch_dirichlet_goals.py /path/to/Asymptotic /path/to/stage
+\end{lstlisting}
+The output directory must not contain the staged artifacts already. A changed
+or already-patched source is rejected by the anchor checks. Apply the resulting
+canonical change in a disposable checkout and use the upstream builder before
+comparing the generated standalone. This review does not supply a replacement
+copy of the entire upstream repository.
+
+For a fresh Wolfram or Mathics session, set a local path before loading the
+probe driver:
+\begin{lstlisting}
+AuditPackagePath = "/path/to/Asymptotic/AsymptoticAnalysis.wl";
+AuditOutputPath = "/path/to/observations.wl";
+Get["/path/to/audit/code/RunProbes.wl"];
+\end{lstlisting}
+Use a separate fresh process for the baseline and candidate. The optional
+output path is a plain-text observation record, not an acceptance receipt.
+
+\subsection{Assessment}
+The new actionable defects are small and localized: a missing affine admission
+route, and a conditional that treats two simultaneous constraints as alternatives.
+Their importance is not that they undermine the package's entire mathematics.
+They make capabilities already present in the repository unexpectedly hard to
+use and make request behavior depend on the selected special-function path.
+
+The term-goal candidate is the most immediately supported change: it was
+executed against the pinned standalone and preserves the selected no-goal
+controls. The affine helper is a restricted implementation sketch with
+successful underlying arithmetic controls, not a fully validated integration.
+The integer-indexed Dirichlet prototype is a separate, implemented development
+option with a precise algebra and explicit coefficient-bound assumptions.
+
+This is the full incremental conclusion supported by the source inspection
+and executions obtained here. It does not manufacture additional findings from
+already catalogued issues, transport failures, or features outside an explicitly
+admitted mathematical contract.
+
+\begin{thebibliography}{99}
+\small\setlength{\itemsep}{2pt}\setlength{\parskip}{0pt}
+\bibitem{reviewindex} Asymptotic Contributors. \emph{External code-review index and retirement records}, pinned revision. \src{external-reports/code-review/README.md}{Repository review index}.
+\bibitem{register} Asymptotic Contributors. \emph{Code review status and implementation register}, pinned revision. \src{docs/development/CODE_REVIEW_STATUS.md}{Maintained register}.
+\bibitem{wave3} Asymptotic Contributors. \emph{Wave-3 review index}. \src{external-reports/code-review/wave-3/README.md}{Wave-3 packages and finding summaries}.
+\bibitem{wave5} Asymptotic Contributors. \emph{Wave-5 review index}. \src{external-reports/code-review/wave-5/README.md}{Wave-5 packages and finding summaries}.
+\bibitem{report24} \emph{Incremental technical audit}, retained report 24, especially the reciprocal-square Lerch discussion. \src{external-reports/code-review/wave-3/code-review-24/article/audit.tex}{Original article source}.
+\bibitem{core} Asymptotic Contributors. \emph{AsymptoticAnalysis.wl}, canonical kernel, especially \code{localCoordinate}, \code{forwardCore}, and \code{makeForwardObject}. \src{src/Kernel/AsymptoticAnalysis.wl}{Pinned canonical source}; relevant request/object assembly begins near lines 610--740.
+\bibitem{dirichlet} Asymptotic Contributors. \emph{DirichletSpecialFunctions.wl}, especially \code{dirichletSpecialMake}, \code{dirichletZetaForward}, \code{dirichletLerchForward}, and the final whole-expression dispatcher. \src{src/Kernel/DirichletSpecialFunctions.wl}{Pinned defining-sum module}.
+\bibitem{arithmetic} Asymptotic Contributors. \emph{SeriesArithmetic.wl}, regular operands and held arithmetic dispatch. \src{src/Kernel/SeriesArithmetic.wl}{Pinned source}, especially the first 180 lines.
+\bibitem{operations} Asymptotic Contributors. \emph{SeriesOperations.wl}, ordinary series data, operations, and result construction. \src{src/Kernel/SeriesOperations.wl}{Pinned source}.
+\bibitem{envelope} Asymptotic Contributors. \emph{SeriesEnvelopeArithmetic.wl}, compatible approaches and conservative composite arithmetic. \src{src/Kernel/SeriesEnvelopeArithmetic.wl}{Pinned source}.
+\bibitem{mathics-assumptions} Asymptotic Contributors. \emph{MathicsAssumptions.wl}, finite-real and sign consequence helpers. \src{src/Kernel/MathicsAssumptions.wl}{Pinned source}.
+\bibitem{mathics-simplification} Asymptotic Contributors. \emph{MathicsSimplification.wl}, host simplification and limit adapters. \src{src/Kernel/MathicsSimplification.wl}{Pinned source}.
+\bibitem{mathics-compat} Asymptotic Contributors. \emph{MathicsCompatibility.wl}, bounded compatibility helpers. \src{src/Kernel/MathicsCompatibility.wl}{Pinned source}.
+\bibitem{mathics-site} Mathics3 Project. \emph{Mathics3}. Official project site, consulted 10 September 2026. \url{https://mathics.org/}.
+\bibitem{wl-goal} Wolfram Research. \emph{SeriesTermGoal}. Wolfram Language documentation, consulted 10 September 2026. \url{https://reference.wolfram.com/language/ref/SeriesTermGoal.html}.
+\bibitem{dlmf-zeta} NIST Digital Library of Mathematical Functions. \emph{Section 25.2: Definition and expansions}, especially equations 25.2.1 and 25.2.7. \url{https://dlmf.nist.gov/25.2}.
+\bibitem{dlmf-lerch} NIST Digital Library of Mathematical Functions. \emph{Section 25.14: Lerch's transcendent}, especially its defining series. \url{https://dlmf.nist.gov/25.14}.
+\end{thebibliography}
+\end{document}

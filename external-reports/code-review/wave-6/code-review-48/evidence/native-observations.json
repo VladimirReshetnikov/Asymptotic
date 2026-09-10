@@ -1,0 +1,159 @@
+{
+  "review_date": "2026-09-10",
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "revision": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "kernel_version": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "record_type": "Manual transcription of successful Wolfram connector responses; not a saved kernel session or upstream acceptance receipt",
+  "load_method": "Get[URLDownload[commit-pinned raw GitHub standalone AsymptoticAnalysis.wl]]",
+  "local_complete_checkout_obtained": false,
+  "mathics_executed": false,
+  "baseline_option_witness": {
+    "constructor": "AsymptoticInverse[x + x^2, {x, 0}, {y, 4}]",
+    "query": "InverseExpansionCoefficient[s, {1}, options]",
+    "results": [
+      {
+        "options": "\"Power\" -> 2",
+        "Exponent": "3",
+        "Coefficient": "-2",
+        "UniformizerExponent": "3"
+      },
+      {
+        "options": "Power -> 2",
+        "Exponent": "1 + \"Power\"",
+        "Coefficient": "-\"Power\"",
+        "UniformizerExponent": "1 + \"Power\""
+      },
+      {
+        "options": "Power -> 2, \"Power\" -> 3",
+        "Exponent": "4",
+        "Coefficient": "-3",
+        "UniformizerExponent": "4"
+      },
+      {
+        "options": "{\"Power\" -> 2}",
+        "Exponent": "3",
+        "Coefficient": "-2",
+        "UniformizerExponent": "3"
+      },
+      {
+        "options": "\"Power\" :> 2",
+        "Exponent": "3",
+        "Coefficient": "-2",
+        "UniformizerExponent": "3"
+      }
+    ],
+    "result_head": "Association in all five cases; Weight -> 1 and Assumptions -> True in all five",
+    "native_control": "FilterRules[{{\"Power\" -> 2}}, \"Power\"] returned {\"Power\" -> 2}; no Wolfram nested-list defect is claimed"
+  },
+  "baseline_numerical_metadata": {
+    "source": "x^2",
+    "target": "4",
+    "working_precision": 30,
+    "results": [
+      {
+        "power": 2,
+        "direction": "FromAbove",
+        "ReferenceRoot": "2 (30 digits)",
+        "ReferenceObservable": "4 (30 digits)",
+        "LocalRoot": "2 (30 digits)",
+        "LocalApproximation": "4 (30 digits)",
+        "SourceSide": 1,
+        "Error": "approximate zero"
+      },
+      {
+        "power": 3,
+        "direction": "FromBelow",
+        "ReferenceRoot": "-2 (30 digits)",
+        "ReferenceObservable": "-8 (30 digits)",
+        "LocalRoot": "2 (30 digits)",
+        "LocalApproximation": "-8 (30 digits)",
+        "SourceSide": -1,
+        "Error": "approximate zero"
+      }
+    ],
+    "incorrect_label": "x = SourceOffset + SourceSide u; LocalRoot and LocalApproximation are values of u for Power 1 and of u^Power otherwise.",
+    "interpretation": "Metadata/units defect. No wrong root, observable, or numerical error was observed in these examples."
+  },
+  "candidate_option_run": {
+    "source": "Commit-pinned standalone text; one uniquely matched replacement; temporary file loaded into Wolfram 15",
+    "anchor_counts": [
+      1
+    ],
+    "check_count": 10,
+    "checks": {
+      "string": true,
+      "symbol": true,
+      "mixed-first-wins": true,
+      "mixed-reversed": true,
+      "nested": true,
+      "stored-power-default": true,
+      "infinite-symbol": true,
+      "other-context": true,
+      "selected-delayed-once": true,
+      "shadowed-delayed-not-evaluated": true
+    },
+    "all_passed": true,
+    "complete_modular_checkout_or_emitter_cli_executed": false
+  },
+  "candidate_metadata_run": {
+    "source": "Commit-pinned standalone text; two uniquely matched replacements; temporary file loaded into Wolfram 15",
+    "anchor_counts": [
+      1,
+      1
+    ],
+    "check_count": 8,
+    "checks": {
+      "square-source-coordinate": true,
+      "square-observable": true,
+      "square-power-field": true,
+      "cube-source-coordinate": true,
+      "cube-signed-observable": true,
+      "cube-power-field": true,
+      "square-math-unchanged": true,
+      "cube-math-unchanged": true
+    },
+    "all_passed": true,
+    "complete_modular_checkout_or_emitter_cli_executed": false
+  },
+  "unmodified_inverse_matrix": {
+    "source_polynomials": [
+      "x + x^2",
+      "x - x^2",
+      "x + x^3",
+      "x + 2 x^2 - x^3",
+      "2 x + x^2"
+    ],
+    "powers": [
+      -1,
+      1,
+      2
+    ],
+    "methods": [
+      "Lagrange",
+      "GroupedLagrange",
+      "Newton"
+    ],
+    "constructor_cutoff": 4,
+    "native_oracle_inverse_order": 8,
+    "comparison_order": 3,
+    "test": "Normal[Series[Normal[s] - oracle^r, {y,0,3}]] simplifies to zero under y > 0; oracle is native InverseSeries of the source to order 8",
+    "per_case_time_constraint_seconds": 3,
+    "total": 45,
+    "passed": 45,
+    "other_results": [],
+    "scope": "Finite retained expressions on regular polynomial inverses. Does not validate analytic remainder metadata, all endpoints, all scales, or Mathics."
+  },
+  "excluded_attempt": {
+    "description": "An earlier combined candidate harness called AssociateTo with nine arguments instead of its two-argument form.",
+    "observed_message": "AssociateTo::argrx",
+    "reported_checks": 10,
+    "why_excluded": "The eight numerical metadata checks were not inserted, so that run is not an 18-check acceptance result. Both groups were rerun separately and cleanly as recorded above.",
+    "non_acceptance_observation": "All four patch anchors in the complete standalone matched exactly once in that attempt."
+  },
+  "service_limitations": [
+    "Several Wolfram connection attempts failed before and between successful runs.",
+    "RunProcess for an external Python interpreter was unavailable.",
+    "No actual Mathics interpreter or full upstream package suite ran.",
+    "Included WL files are reproducible equivalents of connector expressions, not files executed as a complete local harness."
+  ]
+}

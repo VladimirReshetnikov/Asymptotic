@@ -1,0 +1,106 @@
+{
+  "scope": "Independent Python mathematics/control-flow models and synthetic patch fixtures only",
+  "wolfram_executed_by_this_script": false,
+  "mathics_executed_by_this_script": false,
+  "python": "3.13.5",
+  "sympy": "1.14.0",
+  "mpmath": "1.3.0",
+  "tests_run": 39,
+  "passed_test_ids": [
+    "__main__.AlgebraChecks.test_closed_form_inverse_identity",
+    "__main__.AlgebraChecks.test_coefficient_formula_is_regular_at_negative_powers",
+    "__main__.AlgebraChecks.test_first_two_symbolic_coefficients",
+    "__main__.AlgebraChecks.test_power_coefficient_formula_against_sympy",
+    "__main__.EmitterChecks.test_already_patched_fixture_is_refused",
+    "__main__.EmitterChecks.test_duplicate_anchor_is_refused",
+    "__main__.EmitterChecks.test_exact_anchors_transform_once",
+    "__main__.EmitterChecks.test_missing_anchor_is_refused",
+    "__main__.EmitterChecks.test_synthetic_git_checkout_success_and_dirty_rejection",
+    "__main__.GradedTailChecks.test_candidate_count_formula",
+    "__main__.GradedTailChecks.test_dense_family_two_pass_equivalence",
+    "__main__.GradedTailChecks.test_empty_tail_is_exact_zero",
+    "__main__.GradedTailChecks.test_equal_grade_uses_power_then_log_degree",
+    "__main__.GradedTailChecks.test_first_omitted_coefficient_must_be_summed_before_grading",
+    "__main__.GradedTailChecks.test_grade_precedes_every_algebraic_power",
+    "__main__.GradedTailChecks.test_join_associative_and_commutative",
+    "__main__.GradedTailChecks.test_product_bound_adds_log_degrees",
+    "__main__.GradedTailChecks.test_two_pass_matches_materialized_random_candidates",
+    "__main__.GradedTailChecks.test_two_pass_skips_comparisons_at_ultimately_dominated_grades",
+    "__main__.GradedTailChecks.test_unknown_bounds_are_idempotent_not_cancellable",
+    "__main__.NumericalChecks.test_exact_python_operation_in_mathics_rational_round_underflows",
+    "__main__.NumericalChecks.test_exact_rational_sign_survives_scale",
+    "__main__.NumericalChecks.test_logarithmic_target_stays_finite",
+    "__main__.NumericalChecks.test_negative_cube_includes_source_orientation",
+    "__main__.NumericalChecks.test_negative_power_observable",
+    "__main__.NumericalChecks.test_positive_square_fields_use_different_units",
+    "__main__.NumericalChecks.test_positive_subnormal_control",
+    "__main__.NumericalChecks.test_power_one_uses_the_unsigned_local_coordinate",
+    "__main__.OptionChecks.test_desired_nested_selection",
+    "__main__.OptionChecks.test_desired_selection_preserves_first_matching_option",
+    "__main__.OptionChecks.test_mathics_primitive_model_does_not_flatten",
+    "__main__.OptionChecks.test_mathics_primitive_model_omits_delayed_rules",
+    "__main__.OptionChecks.test_mixed_keys_choose_later_literal_in_source_model",
+    "__main__.OptionChecks.test_native_nested_control_is_not_reported_as_a_wolfram_bug",
+    "__main__.OptionChecks.test_rule_value_lists_are_not_flattened",
+    "__main__.OptionChecks.test_selected_delayed_value_evaluates_once",
+    "__main__.OptionChecks.test_shadowed_delayed_value_is_not_evaluated",
+    "__main__.OptionChecks.test_stored_value_is_only_the_omitted_default",
+    "__main__.OptionChecks.test_symbol_key_becomes_string_in_wolfram_source_model"
+  ],
+  "failures": [],
+  "errors": [],
+  "success": true,
+  "candidate_counts": [
+    {
+      "depth": 1,
+      "tail_candidate_records": 6,
+      "existing_pair_preflight": 4
+    },
+    {
+      "depth": 2,
+      "tail_candidate_records": 9,
+      "existing_pair_preflight": 9
+    },
+    {
+      "depth": 3,
+      "tail_candidate_records": 13,
+      "existing_pair_preflight": 16
+    },
+    {
+      "depth": 10,
+      "tail_candidate_records": 69,
+      "existing_pair_preflight": 121
+    },
+    {
+      "depth": 30,
+      "tail_candidate_records": 499,
+      "existing_pair_preflight": 961
+    },
+    {
+      "depth": 100,
+      "tail_candidate_records": 5154,
+      "existing_pair_preflight": 10201
+    },
+    {
+      "depth": 140,
+      "tail_candidate_records": 10014,
+      "existing_pair_preflight": 19881
+    },
+    {
+      "depth": 500,
+      "tail_candidate_records": 125754,
+      "existing_pair_preflight": 251001
+    },
+    {
+      "depth": 1000,
+      "tail_candidate_records": 501504,
+      "existing_pair_preflight": 1002001
+    }
+  ],
+  "notes": [
+    "Subtests are not separate named tests in tests_run.",
+    "The Git success path used synthetic source fixtures and a test-only expected pin.",
+    "Real-checkout CLI execution is not established by that fixture.",
+    "Native Wolfram results, obtained separately, are in native-observations.json."
+  ]
+}

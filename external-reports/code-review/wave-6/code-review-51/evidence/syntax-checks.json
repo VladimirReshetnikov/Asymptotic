@@ -1,0 +1,17 @@
+{
+  "python_ast_files": [
+    "code/portable_links.py",
+    "code/emit_candidate_patch.py",
+    "code/characterize_links.py",
+    "tests/test_portable_links.py",
+    "tests/test_patch_emitter.py",
+    "fixtures/documentation_links_upstream.py"
+  ],
+  "wolfram_lexical_files": [
+    "code/check_candidate_rewrite.wl",
+    "code/probe_loaded_kernel.wl",
+    "code/candidate_assumption_protector.wl",
+    "tests/ReviewRegressions.wlt"
+  ],
+  "scope": "Python AST parsing and WL delimiter/string/comment balance only. WL semantic observations are separately recorded; this is not native compilation."
+}

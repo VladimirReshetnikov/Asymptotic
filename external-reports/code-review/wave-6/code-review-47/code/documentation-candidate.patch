@@ -1,0 +1,91 @@
+--- a/validation/check_documentation.py
++++ b/validation/check_documentation.py
+@@ -15,6 +15,7 @@
+ from build_user_guide import ROOT, build
+ from documentation_links import check_local_links, maintained_pages
+ from documentation_text import check_text_encoding
++from documentation_audit_guards import require, strip_tex_comments
+ 
+ 
+ def check() -> dict:
+@@ -26,17 +27,18 @@
+     guide = build(check=True)
+     master = ROOT / "docs" / "article" / "asymptotic-inverse.tex"
+     text = master.read_text(encoding="utf-8")
+-    chapters = [master.parent / (name + ".tex") for name in re.findall(r"\\input\{([^}]+)\}", text)]
++    chapters = [master.parent / (name + ".tex") for name in re.findall(r"\\input\{([^}]+)\}", strip_tex_comments(text))]
+     text += "\n" + "\n".join(path.read_text(encoding="utf-8") for path in chapters)
+-    labels = re.findall(r"\\label\{([^}]+)\}", text)
+-    references = re.findall(r"\\(?:ref|eqref|pageref)\{([^}]+)\}", text)
+-    bibliography = re.findall(r"\\bibitem\{([^}]+)\}", text)
+-    citations = [key.strip() for group in re.findall(r"\\cite(?:\[[^]]*\])?\{([^}]+)\}", text)
++    active_text = strip_tex_comments(text)
++    labels = re.findall(r"\\label\{([^}]+)\}", active_text)
++    references = re.findall(r"\\(?:ref|eqref|pageref)\{([^}]+)\}", active_text)
++    bibliography = re.findall(r"\\bibitem\{([^}]+)\}", active_text)
++    citations = [key.strip() for group in re.findall(r"\\cite(?:\[[^]]*\])?\{([^}]+)\}", active_text)
+                  for key in group.split(",")]
+-    assert len(labels) == len(set(labels)), "Duplicate mathematical labels"
+-    assert not set(references) - set(labels), "Missing mathematical references"
+-    assert not set(citations) - set(bibliography), "Missing bibliography entries"
+-    assert not re.search(r"\\wl\{|lstlisting|AsymptoticExpansion|PowerLogSeries|GeneralizedSeries|\.wl\b|sec:package|sec:reports", text), "Software content in the mathematical article"
++    require(len(labels) == len(set(labels)), "Duplicate mathematical labels")
++    require(not set(references) - set(labels), "Missing mathematical references")
++    require(not set(citations) - set(bibliography), "Missing bibliography entries")
++    require(not re.search(r"\\wl\{|lstlisting|AsymptoticExpansion|PowerLogSeries|GeneralizedSeries|\.wl\b|sec:package|sec:reports", text), "Software content in the mathematical article")
+     links = check_local_links(pages)
+     # Keys are paths in the pinned historical commit, not the live docs/article
+     # layout. Preserve them when current documentation is relocated.
+@@ -50,7 +52,7 @@
+         after = (ROOT / moved).read_bytes()
+         if Path(moved).suffix == ".tex":
+             before, after = (data.replace(b"\r\n", b"\n") for data in (before, after))
+-        assert before == after, f"Archived document changed: {moved}"
++        require(before == after, f"Archived document changed: {moved}")
+     result = {"Guide": guide, "MathematicalChapters": len(chapters),
+               "MathematicalLabels": len(labels), "MathematicalReferences": len(references),
+               "BibliographyEntries": len(bibliography), "MissingReferences": 0,
+--- /dev/null
++++ b/validation/documentation_audit_guards.py
+@@ -0,0 +1,41 @@
++"""Narrow candidate guards for validation/check_documentation.py.
++
++This is not a complete TeX parser. It masks ordinary TeX percent comments
++under standard catcodes, preserving line boundaries. Existing macro, input-depth,
++verbatim and catcode limitations are intentionally not claimed solved.
++"""
++from __future__ import annotations
++
++def require(condition: bool, message: str) -> None:
++    """A production gate must remain active under Python -O and -OO."""
++    if not condition:
++        raise AssertionError(message)
++
++def strip_tex_comments(text: str) -> str:
++    """Mask a standard TeX line comment, except an escaped percent sign.
++
++    Backslash parity matters: \\% is an escaped percent, but two backslashes
++    followed by percent start a comment after a control-symbol backslash.
++    Spaces replace comment bytes to avoid inventing adjacent control words.
++    Original source bytes must still be used for encoding/archive checks.
++    """
++    if not isinstance(text, str):
++        raise TypeError("text must be a string")
++    result: list[str] = []
++    backslashes = 0
++    comment = False
++    for char in text:
++        if char in "\r\n":
++            result.append(char)
++            comment = False
++            backslashes = 0
++        elif comment:
++            result.append(" ")
++        elif char == "%" and backslashes % 2 == 0:
++            result.append(" ")
++            comment = True
++            backslashes = 0
++        else:
++            result.append(char)
++            backslashes = backslashes + 1 if char == "\\" else 0
++    return "".join(result)

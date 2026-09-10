@@ -1,0 +1,83 @@
+{
+  "repo": "VladimirReshetnikov/Asymptotic",
+  "revision": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "commit_timestamp_utc": "2026-09-10T17:10:56Z",
+  "retrieval": "Pinned GitHub connector source reads. No complete local checkout.",
+  "full_modules_read": [
+    "MathicsAssumptions.wl",
+    "MathicsAlgebra.wl",
+    "MathicsTaylor.wl",
+    "MathicsCalculus.wl",
+    "MathicsCompatibility.wl",
+    "MathicsCoreFunctions.wl",
+    "MathicsSimplification.wl",
+    "MathicsTimeBudget.wl",
+    "MathicsInputAssumptions.wl",
+    "MathicsNumerical.wl",
+    "MathicsCertificate.wl",
+    "DirichletSpecialFunctions.wl",
+    "ParameterizedSpecialFunctions.wl",
+    "SpecialFunctionIdentities.wl",
+    "NumericalInverseChecks.wl"
+  ],
+  "substantial_contiguous_reads_with_possible_tool_truncation": {
+    "src/Kernel/InverseCertificates.wl": [
+      "1-210",
+      "211-400",
+      "385-550"
+    ],
+    "src/Kernel/SeriesOperations.wl": [
+      "1-170",
+      "340-505",
+      "555-end"
+    ],
+    "src/Kernel/SeriesEnvelopeArithmetic.wl": [
+      "1-220",
+      "220-end"
+    ],
+    "src/Kernel/SpecialFunctionAdapters.wl": [
+      "1-210",
+      "160-218"
+    ],
+    "src/Kernel/NativeSpecialFunctions.wl": [
+      "1-195"
+    ],
+    "src/Kernel/FourierCoefficients.wl": [
+      "1-240"
+    ],
+    "src/Kernel/AsymptoticAnalysis.wl": [
+      "930-1075",
+      "1110-1215",
+      "1400-end"
+    ]
+  },
+  "other_full_source_read": [
+    "validation/build_standalone.py"
+  ],
+  "exclusion_sources": [
+    "external-reports/code-review/README.md",
+    "external-reports/code-review/wave-5/README.md",
+    "docs/development/CODE_REVIEW_STATUS.md (multiple large ranges)",
+    "docs/development/WAVE_3_INTAKE.md (45-150)",
+    "docs/development/WAVE_4_INTAKE.md (1-180; table complete)",
+    "external-reports/code-review/wave-5/code-review-39/README.md",
+    "external-reports/code-review/wave-5/code-review-42/README.md",
+    "external-reports/code-review/wave-5/code-review-45/README.md",
+    "external-reports/code-review/wave-5/code-review-45/article/review.tex (1-155)"
+  ],
+  "upstream_mathics_source": {
+    "repository": "Mathics3/mathics-core",
+    "tag": "10.0.1",
+    "files": [
+      "mathics/eval/nevaluator.py (1-190)",
+      "mathics/eval/arithmetic.py (1-220)"
+    ]
+  },
+  "not_claimed": [
+    "every repository line read",
+    "every retained review read in full",
+    "full generated standalone inspected",
+    "native source integration tested",
+    "complete native test suite run"
+  ]
+}

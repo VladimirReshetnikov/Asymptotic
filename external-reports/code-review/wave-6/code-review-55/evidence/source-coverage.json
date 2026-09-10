@@ -1,0 +1,107 @@
+{
+  "commit": "8cee870994f506b501bae3ea6bd4a3a7edb895c1",
+  "interpretation": "Source reads and selected mathematical inspection; not a whole-repository line-by-line or runtime coverage claim",
+  "modules": [
+    {
+      "path": "src/Kernel/AsymptoticAnalysis.wl",
+      "coverage": "Substantial overlapping ranges: options, coefficients, jets, analytic forward engine, endpoint normalization, forward object assembly, inverse object assembly, formatting, residual and coefficient interfaces, loaders"
+    },
+    {
+      "path": "src/Kernel/SeriesOperations.wl",
+      "coverage": "Substantial overlapping ranges including series data, arithmetic, observable, composition, differentiation and refinement paths"
+    },
+    {
+      "path": "src/Kernel/SeriesArithmetic.wl",
+      "coverage": "Lines 1-180: regular operands, held normalization, arithmetic dispatch"
+    },
+    {
+      "path": "src/Kernel/SeriesEnvelopeArithmetic.wl",
+      "coverage": "Full returned module: approach recovery, error normalization and arithmetic bounds"
+    },
+    {
+      "path": "src/Kernel/DirichletSpecialFunctions.wl",
+      "coverage": "Full: source of N01 and N02"
+    },
+    {
+      "path": "src/Kernel/GammaForward.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/BarnesForward.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/ExponentialForward.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/GammaInverseOperations.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/ReciprocalLogOperations.wl",
+      "coverage": "Substantial, lines 1-150"
+    },
+    {
+      "path": "src/Kernel/ParameterizedSpecialFunctions.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/SpecialFunctionIdentities.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/MathicsAssumptions.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/MathicsNumerical.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/MathicsInverseBranches.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/MathicsCompatibility.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/MathicsTaylor.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/MathicsSimplification.wl",
+      "coverage": "Full returned module"
+    },
+    {
+      "path": "src/Kernel/RefinementState.wl",
+      "coverage": "Selected, first roughly 180 lines"
+    },
+    {
+      "path": "src/Kernel/InverseCertificates.wl",
+      "coverage": "Substantial: lines 1-170 and 180-485"
+    },
+    {
+      "path": "src/Kernel/FourierCoefficients.wl",
+      "coverage": "Substantial/full returned ranges 1-335"
+    }
+  ],
+  "review_baseline": {
+    "retained_packages": 35,
+    "retired_packages": 10,
+    "waves": 5,
+    "tex_files_lexically_scanned": 62,
+    "waves_1_to_3_scan": {
+      "attempted": 47,
+      "read": 47,
+      "unread": []
+    },
+    "waves_4_to_5_scan": {
+      "files": 15,
+      "method": "Keyword contexts for Dirichlet, Lerch, Zeta, divisor and multiplicative"
+    },
+    "additional_evidence": "Five wave indexes, root review index, substantial consolidated status register, selected original report discussions",
+    "limitation": "A keyword/context scan is supplementary deduplication evidence, not full semantic review of every historical article or proof of absence."
+  }
+}
