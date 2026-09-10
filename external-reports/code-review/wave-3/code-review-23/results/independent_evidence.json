@@ -1,0 +1,108 @@
+{
+  "revision": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "execution": "Python only; actual fetched builder on isolated Wolfram-source fixtures, plus independent mathematical checks",
+  "native_wolfram_executed": false,
+  "builder_fixture_git_blob_matches_connector": true,
+  "builder_mutations": [
+    {
+      "case": "bracket_Get",
+      "source": "Get[\"missing.wl\"];",
+      "baseline_accepted": false,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "qualified_bracket",
+      "source": "System`Get[\"missing.wl\"];",
+      "baseline_accepted": false,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "prefix_Get",
+      "source": "Get @ \"missing.wl\";",
+      "baseline_accepted": true,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "postfix_Get",
+      "source": "\"missing.wl\" // Get;",
+      "baseline_accepted": true,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "prefix_Import",
+      "source": "Import @ \"missing.json\";",
+      "baseline_accepted": true,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "postfix_Needs",
+      "source": "\"Missing`\" // Needs;",
+      "baseline_accepted": true,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "Apply_Get",
+      "source": "Apply[Get, {\"missing.wl\"}];",
+      "baseline_accepted": true,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "qualified_prefix",
+      "source": "System`Get @ \"missing.wl\";",
+      "baseline_accepted": true,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "ReadList_prefix",
+      "source": "ReadList @ \"missing.wl\";",
+      "baseline_accepted": true,
+      "proposed_patch_accepted": false
+    },
+    {
+      "case": "URLDownload_prefix",
+      "source": "URLDownload @ \"https://example.invalid/x\";",
+      "baseline_accepted": true,
+      "proposed_patch_accepted": false
+    }
+  ],
+  "winding_sequence": [
+    {
+      "n": 1,
+      "y": "0.001867442731707989",
+      "false_remainder_ratio": "7.513235549552297"
+    },
+    {
+      "n": 2,
+      "y": "3.487342356208995e-6",
+      "false_remainder_ratio": "1336.812305296435"
+    },
+    {
+      "n": 3,
+      "y": "6.512412136079901e-9",
+      "false_remainder_ratio": "351444.8542478422"
+    },
+    {
+      "n": 5,
+      "y": "2.271101068324094e-14",
+      "false_remainder_ratio": "39357683234.87829"
+    },
+    {
+      "n": 10,
+      "y": "5.15790006254284e-28",
+      "false_remainder_ratio": "4.61038298658377e+23"
+    },
+    {
+      "n": 20,
+      "y": "2.660393305517944e-55",
+      "false_remainder_ratio": "2.306030870755232e+50"
+    }
+  ],
+  "winding_bound_constant": "514.311879893224285",
+  "mathematical_proof": "See article: g(y)=y+y^2 P(log y)+O(y^3), P(t)=Arg(exp(i t))^2",
+  "limitations": [
+    "Numerical samples are not interval certificates.",
+    "No public Wolfram counterexample or native patch pass was executed.",
+    "The complete upstream test suite was not run.",
+    "Only the Python builder was materialized exactly; there is no complete local repository checkout."
+  ]
+}

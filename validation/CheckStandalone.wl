@@ -38,6 +38,13 @@ If[loadingResult === $Failed || ! MemberQ[$Packages, "AsymptoticAnalysis`"],
 (* These expressions are parsed only AFTER the package has established its
    context, just as in a notebook's next input cell. *)
 loadingReport = TestReport[{
+  VerificationTest[Module[{x, s, t, bound = 2^($SystemWordLength - 1)},
+    s = AsymptoticExpansion[1 + x^(2^100), x -> 0, SeriesTermGoal -> 1];
+    t = AsymptoticExpansion[x^-1 + x^(bound - 1), x -> 0, SeriesTermGoal -> 1];
+    {Normal[s] === 1, Normal[t] === x^-1,
+      MatchQ[s["SeriesData"], Missing["NativeSeriesDataRange", _Association]],
+      MatchQ[t["SeriesData"], Missing["NativeSeriesDataRange", _Association]]}],
+    {True, True, True, True}, TestID -> "loading-native-index-and-span-overflow-preserve-sparse-result"],
   VerificationTest[{Names["AsymptoticAnalysis`Mathics`*"],
       MemberQ[$ContextPath, "AsymptoticAnalysis`Mathics`"],
       Context[Module], Context[Return], Context[Lookup], Context[Simplify]},

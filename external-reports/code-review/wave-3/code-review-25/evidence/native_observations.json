@@ -1,0 +1,107 @@
+{
+  "record_type": "Transcription of successful Wolfram connector observations, not an exported upstream TestReport",
+  "snapshot": "6687962f3c858a4f93623cfc496f33e35c6763d4",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "load": "Get[URLDownload[pinned repository-root AsymptoticAnalysis.wl URL]]",
+  "baseline_observations": [
+    {
+      "id": "N01-coarse",
+      "source": "AsymptoticExpansion[1-x,{x,0,1},\"Backend\"->\"Package\"]",
+      "operation": "SeriesObservable[s,FractionalPart[z],z]",
+      "input_expression": "1",
+      "input_remainder": "PowerLogRemainder[x,1,0]",
+      "output_expression": "0",
+      "output_remainder": "PowerLogRemainder[x,1,0]",
+      "output_derivative_order": "Infinity",
+      "mathematical_actual": "1-x for 0<x<1"
+    },
+    {
+      "id": "N01-retained",
+      "source": "AsymptoticExpansion[1-x,{x,0,2},\"Backend\"->\"Package\"]",
+      "operation": "SeriesObservable[s,FractionalPart[z],z]",
+      "output_expression": "-x",
+      "output_remainder": "PowerLogRemainder[x,2,0]",
+      "mathematical_actual": "1-x for 0<x<1"
+    },
+    {
+      "id": "N02",
+      "definition": "shortSin[0]=0; shortSin[t_?NumericQ]:=Sin[t]; shortSin /: Series[shortSin[v_],{u_Symbol,0,n_Integer},opts___] /; v===u := SeriesData[u,0,{1},1,2,1];",
+      "source": "AsymptoticExpansion[x,{x,0,5},\"Backend\"->\"Package\"]",
+      "operation": "SeriesObservable[s,shortSin[z],z,\"Cutoff\"->5]",
+      "native_oracle": "SeriesData[x,0,{1},1,2,1]",
+      "output_expression": "x",
+      "output_remainder": "PowerLogRemainder[x,5,0]",
+      "scope": "Truthful user-defined short Series oracle for the analytic function Sin; not a claim that built-in Sin returns insufficient native order"
+    },
+    {
+      "id": "N03-Series",
+      "default": "SetOptions[AsymptoticExpansion,\"Backend\"->\"Series\"]",
+      "request": "AsymptoticExpansion[Exp[x],{x,0,2}]",
+      "output_kind": "Forward",
+      "output_expression": "1+x",
+      "explicit_control_kind": "Native",
+      "explicit_control_expression": "1+x+x^2/2"
+    },
+    {
+      "id": "N03-Package",
+      "default": "SetOptions[AsymptoticExpansion,\"Backend\"->\"Package\"]",
+      "request": "AsymptoticExpansion[Exp[I x],{x,0,2}]",
+      "output_kind": "Native",
+      "explicit_control_failure": "InexactInput"
+    },
+    {
+      "id": "N04",
+      "source": "AsymptoticExpansion[x,{x,0,5},\"Backend\"->\"Package\"]",
+      "operation": "SeriesDifferentiate[s,0,\"Cutoff\"->1]",
+      "same_as_input": true,
+      "output_expression": "x",
+      "output_remainder": "0",
+      "invalid_MaxTerms_control": "Failure[\"InvalidOption\", ...] for MaxTerms->0; validation-bypass suspicion withdrawn"
+    },
+    {
+      "id": "N05",
+      "request": "AsymptoticExpansion[Exp[x],{x,0,2},MadeUpOption->123,\"Backend\"->\"Package\"]",
+      "output_kind": "Forward",
+      "output_expression": "1+x",
+      "messages": [
+        "Symbol::undefined",
+        "OptionValue::nodef (repeated)",
+        "General::stop"
+      ],
+      "scope": "Success with warnings, not silent success"
+    },
+    {
+      "id": "N06",
+      "definition": "normalProbe /: Normal[normalProbe] := (++calls;7)",
+      "direct_Series_result": "normalProbe",
+      "wrapper_backend": "Series",
+      "Normal_callback_count": 1,
+      "stored_NativeResult": "normalProbe",
+      "stored_Expression": "7",
+      "scope": "An eager projection observation and performance opportunity, not corruption of NativeResult"
+    }
+  ],
+  "native_mathematical_controls": {
+    "Series[FractionalPart[1-u],{u,0,2},Assumptions->u>0,Analytic->False]": "SeriesData[u,0,{1,-1},0,3,1]",
+    "Series[FractionalPart[1+u],{u,0,2},Assumptions->u>0,Analytic->False]": "SeriesData[u,0,{1},1,3,1]",
+    "FractionalPart[1]": "0",
+    "Limit[FractionalPart[1-u],u->0,Direction->-1]": "1",
+    "Limit[(Sin[x]-x)/x^5,x->0,Direction->-1]": "-Infinity",
+    "messages": "MinValue/MaxValue lpsub/lpsnf and Divide::infy messages accompanied the direct native control call. The returned objects above were preserved."
+  },
+  "prototype_patch_observations": {
+    "scope": "Temporary patched standalone with the same three edit mechanisms as patch_spec.json, but abbreviated diagnostic messages and formatting. The packaged WLT file was not run.",
+    "N01_retained_result": "Failure[\"UnprovedObservableContinuity\", ...]",
+    "Sin_control": "x-x^3/6 + PowerLogRemainder[x,5,0]",
+    "N03_Series_default": "Kind Native; expression 1+x+x^2/2",
+    "successful_mechanism_controls": 3
+  },
+  "execution_limits": {
+    "upstream_full_suite_run": false,
+    "packaged_WLT_run": false,
+    "packaged_exact_patch_integration_run": false,
+    "baseline_builder_run": false,
+    "native_timing_or_peak_memory_benchmark": false,
+    "connector_failures": "Several other calls returned network errors or HTTP 502. No outputs or passing tests are inferred from those calls."
+  }
+}

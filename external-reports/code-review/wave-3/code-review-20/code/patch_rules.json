@@ -1,0 +1,32 @@
+[
+  {
+    "id": "N01-main",
+    "count": 1,
+    "old": "backend = If[values === {}, Automatic, ReleaseHold[First[values]]];",
+    "new": "backend = If[values === {}, OptionValue[AsymptoticExpansion, {}, \"Backend\"], ReleaseHold[First[values]]];"
+  },
+  {
+    "id": "N01-alias",
+    "count": 1,
+    "old": "AsymptoticExpand[args___] := AsymptoticExpansion[args];",
+    "new": "AsymptoticExpand[args___] := AsymptoticExpansion[args, \"Backend\" :> OptionValue[AsymptoticExpand, {}, \"Backend\"]];"
+  },
+  {
+    "id": "N02-metadata",
+    "count": 1,
+    "old": "specifications = Select[parts, nativeSpecificationQ];",
+    "new": "specifications = If[parts === {}, {}, Join[If[MatchQ[First[parts], HoldComplete[{_Symbol, _, ___}] | HoldComplete[(Rule | RuleDelayed)[_Symbol, _]]], {First[parts]}, {}], Select[Rest[parts], nativeSpecificationQ]]];"
+  },
+  {
+    "id": "N03-remove-nested-function-test",
+    "count": 2,
+    "old": "_InverseFunction | _Function | _ConditionalExpression |",
+    "new": "_InverseFunction | _ConditionalExpression |"
+  },
+  {
+    "id": "N03-protect-unapplied-functions",
+    "count": 1,
+    "old": "automaticProtectedQ[request_HoldComplete, original_HoldComplete] :=\n",
+    "new": "automaticProtectedQ[request_HoldComplete, original_HoldComplete] :=\n  MatchQ[First[nativeHeldArguments[original]], HoldComplete[_Function]] ||\n  MatchQ[First[nativeHeldArguments[request]], HoldComplete[_Function]] ||\n"
+  }
+]
