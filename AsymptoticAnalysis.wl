@@ -2187,7 +2187,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 7df047f5768c58c9ce4f376e8dee6abc4a414da9f0b534eb198b61d41971456b *)
+   Source SHA256 (UTF-8/LF): 95e296794145d7bb77dcaeb25a8813f629419fe6bc6ac3dd1f6e84f8510f9be7 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2316,9 +2316,13 @@ seriesCompatible[a_, b_] := Module[{ass = seriesAss[a] && seriesAss[b]},
     ! TrueQ[Simplify[a["ScaleVariable"] == b["ScaleVariable"], ass]],
     fail["IncompatibleScales", "The operands must use the same variable and positive asymptotic coordinate."]]];
 
+(* Structural idempotence only: no assumption-dependent simplification. *)
+seriesStructuralAnd[conditions_List] := And @@ DeleteDuplicates[
+  Flatten[(If[Head[#] === And, List @@ #, {#}] &) /@ conditions, 1]];
+
 seriesAlign[a_, b_] := Join[b /. b["LogVariable"] -> a["LogVariable"],
-  <|"Assumptions" -> a["Assumptions"] && b["Assumptions"],
-    "Domain" -> Lookup[a, "Domain", True] && Lookup[b, "Domain", True]|>];
+  <|"Assumptions" -> seriesStructuralAnd[{a["Assumptions"], b["Assumptions"]}],
+    "Domain" -> seriesStructuralAnd[{Lookup[a, "Domain", True], Lookup[b, "Domain", True]}]|>];
 
 seriesBinary[op_, s_, t_, cut_, limit_] := Module[{a, b, af, bf, ratio, j, ell, ass, d, h, order},
   a = seriesData[s, limit]; b = seriesData[t, limit]; seriesCompatible[a, b]; b = seriesAlign[a, b];
@@ -2335,10 +2339,46 @@ seriesBinary[op_, s_, t_, cut_, limit_] := Module[{a, b, af, bf, ratio, j, ell, 
       fail["IncompatibleCarriers", "Multiplication of translated, non-power-log carriers requires explicit sector decomposition."]];
     j = pMul[a["Jet"], b["Jet"], ell, ass, limit];
     d = Join[a, <|"Jet" -> j, "Prefactor" -> a["Prefactor"] b["Prefactor"]|>]];
-  d = Join[d, <|"Assumptions" -> a["Assumptions"] && b["Assumptions"],
-    "Domain" -> Lookup[a, "Domain", True] && Lookup[b, "Domain", True], "RemainderDerivativeOrder" -> order|>];
+  d = Join[d, <|"Assumptions" -> seriesStructuralAnd[{a["Assumptions"], b["Assumptions"]}],
+    "Domain" -> seriesStructuralAnd[{Lookup[a, "Domain", True], Lookup[b, "Domain", True]}],
+    "RemainderDerivativeOrder" -> order|>];
   h = If[cut === Automatic, Automatic, seriesWorkingCut[d, cut]];
-  seriesMake[d, {op, {s, t}}, h]];
+  seriesTransportArithmeticBound[op, s, t, seriesMake[d, {op, {s, t}}, h]]];
+
+(* A quantitative forward tail bound survives a sum or product. With finite
+   parts e1, e2 and true values t_i = e_i + r_i, |r_i| <= B_i under C_i:
+     |t1 + t2 - e| <= B1 + B2 + |e1 + e2 - e|,
+     |t1 t2 - e|   <= |e1| B2 + |e2| B1 + B1 B2 + |e1 e2 - e|,
+   where e is the result's finite expression and the last term is the exact
+   part discarded by the result's cutoff. An exact operand contributes zero.
+   Signed lower bounds and constant-form bounds are not transported. This
+   closes the arithmetic half of C22. *)
+seriesTransportArithmeticBound[op_, s : GeneralizedSeries[a_Association], t : GeneralizedSeries[b_Association],
+  result : GeneralizedSeries[r_Association]] := Module[{boundOf, e1, e2, e, bound, discarded, conditions},
+  boundOf[data_] := Which[Lookup[data, "Remainder", None] === 0, {0, True},
+    KeyExistsQ[data, "AbsoluteRemainderBound"] && KeyExistsQ[data, "RemainderBoundConditions"],
+      {data["AbsoluteRemainderBound"], data["RemainderBoundConditions"]},
+    True, $Failed];
+  If[boundOf[a] === $Failed || boundOf[b] === $Failed, Return[result, Module]];
+  If[Lookup[r, "Remainder", None] === 0 || ! FreeQ[{a["Expression"], b["Expression"]}, _GeneralizedSeries],
+    Return[result, Module]];
+  conditions = boundOf[a][[2]] && boundOf[b][[2]];
+  (* Dirichlet scales store n^(-S) as (E^-S)^Log[n]; present both finite
+     expressions in the constructor's own form before differencing. *)
+  {e1, e2, e} = {a["Expression"], b["Expression"], r["Expression"]} /. (E^u_)^Log[n_Integer?Positive] :> n^u;
+  discarded = Simplify[If[op === "Add", e1 + e2, e1 e2] - e, conditions];
+  bound = If[op === "Add", boundOf[a][[1]] + boundOf[b][[1]],
+    Abs[e1] boundOf[b][[1]] + Abs[e2] boundOf[a][[1]] + boundOf[a][[1]] boundOf[b][[1]]] +
+    Simplify[Abs[discarded], conditions];
+  GeneralizedSeries[Join[r, <|"AbsoluteRemainderBound" -> bound, "RemainderBoundConditions" -> conditions,
+    "ArithmeticDiscardedPart" -> discarded,
+    "ForwardRemainderContract" -> <|"Type" -> "TransportedThroughArithmetic", "Operation" -> op,
+      "OperandContracts" -> {Lookup[a, "ForwardRemainderContract", Missing["Exact"]],
+        Lookup[b, "ForwardRemainderContract", Missing["Exact"]]},
+      "Statement" -> If[op === "Add",
+        "The omitted tail of the sum is bounded in absolute value by the sum of the operand bounds plus Abs[ArithmeticDiscardedPart], the exact part of the sum of the finite expressions beyond the result's cutoff, under the conjunction of the operand conditions.",
+        "The omitted tail of the product is bounded in absolute value by Abs[e1] B2 + Abs[e2] B1 + B1 B2 plus Abs[ArithmeticDiscardedPart], the exact part of the product of the finite expressions beyond the result's cutoff, under the conjunction of the operand conditions. Signed lower bounds and constant-form bounds are not transported."]|>|>]]];
+seriesTransportArithmeticBound[_, _, _, result_] := result;
 
 AsymptoticAnalysis`SeriesAdd[s_GeneralizedSeries, t_GeneralizedSeries, opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Add", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
@@ -2718,8 +2758,8 @@ AsymptoticAnalysis`SeriesTruncate[s_GeneralizedSeries, h_, opts : OptionsPattern
    |new tail| <= |discarded part| + old absolute bound on the same conditions.
    A signed lower bound and a constant-form bound describe only the original
    tail; they are retained only when truncation discards nothing. Bare
-   asymptotic remainders carry no bound to transport. Arithmetic on the
-   truncated result still drops these fields. *)
+   asymptotic remainders carry no bound to transport. Sums and products
+   transport the absolute bound through seriesTransportArithmeticBound. *)
 seriesTransportRemainderBound[s : GeneralizedSeries[a_Association], d_, result : GeneralizedSeries[r_Association]] :=
   Module[{ell, w, p, before, after, removed, discarded, keys, retained, transported},
   If[! KeyExistsQ[a, "AbsoluteRemainderBound"] || ! KeyExistsQ[a, "RemainderBoundConditions"],
@@ -2743,7 +2783,7 @@ seriesTransportRemainderBound[s : GeneralizedSeries[a_Association], d_, result :
     "TruncationDiscardedPart"};
   If[removed === {}, Return[GeneralizedSeries[Join[r, KeyTake[a, keys]]], Module]];
   retained = KeyTake[a, {"AbsoluteRemainderBound", "RemainderBoundConditions"}];
-  transported = <|"AbsoluteRemainderBound" -> a["AbsoluteRemainderBound"] + Abs[discarded],
+  transported = <|"AbsoluteRemainderBound" -> a["AbsoluteRemainderBound"] + Simplify[Abs[discarded], a["RemainderBoundConditions"]],
     "RemainderBoundConditions" -> a["RemainderBoundConditions"],
     "TruncationDiscardedPart" -> discarded,
     "ForwardRemainderContract" -> <|"Type" -> "TransportedThroughTruncation",
@@ -3307,7 +3347,7 @@ sourceCoordinateNumericalCheck[a_, yv_, wp_] := Module[
 (* END SOURCE: src/Kernel/SourceCoordinates.wl *)
 
 (* BEGIN SOURCE: src/Kernel/CorePerturbation.wl
-   Source SHA256 (UTF-8/LF): db58afaeed4cda7b3e9f5dfaaf682465db1b2fcb9bdc0a0e61f00a7a43759b95 *)
+   Source SHA256 (UTF-8/LF): aaa736665e7fa9837bf79aab73eeca9e22f434fdbe997d090285e1565a2c593f *)
 (* Exact-core marker expansions with a proved asymptotic contract for finite
    power-log cores and higher-power perturbations. Loaded in Private`. *)
 
@@ -3433,8 +3473,11 @@ corePerturbationConstruct[core_, perturbation_, x_, x0_, y_, depth_, opts : Opti
    expression, firstOmitted, n, p, q, delta, degree, rint, pd, truncationPair,
    inputPair = None, rho, logdegree, domain, side, targetLimit, rem, scale,
    exactPerturbation, majorant, sourceAssumptions, observable, coreObservable},
-  validateInput[core + perturbation, limit];
-  If[x === y || ! FreeQ[core + perturbation, y], fail["InvalidVariables", "Use distinct source and target symbols, with no target symbol in the forward data."]];
+  (* Validate the components, not their sum: a target-dependent offset that
+     cancels in core + perturbation would otherwise pass the fixed-data
+     premise and yield a false remainder scale (wave-7 reports 59 N01, 60). *)
+  validateInput[{core, perturbation}, limit];
+  If[x === y || ! FreeQ[{core, perturbation}, y], fail["InvalidVariables", "Use distinct source and target symbols, with no target symbol in the forward data."]];
   If[! FreeQ[ass, x | y], fail["InvalidAssumptions", "Assumptions concern parameters; the source branch is specified by endpoint and direction."]];
   If[! IntegerQ[depth] || depth < 0, fail["InvalidDepth", "The marker depth must be a nonnegative integer."]];
   If[! exactRealQ[r] || r === 0, fail["InvalidOption", "Power must be a nonzero exact real number."]];
@@ -3514,7 +3557,7 @@ AsymptoticAnalysis`AsymptoticCoreInverse[___] := Failure["InvalidArguments", <|
 (* END SOURCE: src/Kernel/CorePerturbation.wl *)
 
 (* BEGIN SOURCE: src/Kernel/InverseCertificates.wl
-   Source SHA256 (UTF-8/LF): aa726de90a2bf05881d56463774ab7d8e1f41e8054435094b06dd87b6a70f586 *)
+   Source SHA256 (UTF-8/LF): 1883b89a18fe72e596454155bb7248c4a61079284fbfe263e8ce60d0428319f4 *)
 (* Exact rational residual certificates. Decimal arithmetic is used only to
    choose a center; every successful proof uses rational interval endpoints. *)
 
@@ -3648,7 +3691,20 @@ certLogExpression[argument_, x_, interval_, ctx_] := Module[{candidate},
    huge translation and the interval that carries it; rounding the individually
    enclosed terms first can widen the constant by more than the whole
    verification interval at every admitted precision. *)
-certAffinePair[e_, x_Symbol] := Module[{pairs, acc},
+(* The affine recognizer is asked about every Plus/Times subtree, and when a
+   tree is not affine the evaluator recurses into its children and asks
+   again, so a nested Horner family visited every node once per ancestor.
+   One attempt keeps a memo of the pair per subtree; it is discarded with the
+   attempt (wave-5 reports 39 N02 and 42 N02). *)
+$certAffineMemo = None;
+certAffinePair[e_, x_Symbol] := Module[{cached, pair},
+  If[$certAffineMemo === None, Return[certAffinePairBody[e, x], Module]];
+  cached = $certAffineMemo[e];
+  If[MatchQ[cached, {_, _} | $Failed], Return[cached, Module]];
+  pair = certAffinePairBody[e, x];
+  $certAffineMemo[e] = pair;
+  pair];
+certAffinePairBody[e_, x_Symbol] := Module[{pairs, acc},
   Which[e === x, {1, 0}, certRationalQ[e], {0, e},
    Head[e] === Plus,
     pairs = certAffinePair[#, x] & /@ (List @@ e);
@@ -3805,7 +3861,9 @@ certRefinedSeed[a_, yv_, iteration_, wp_] := Module[{s, goal, x, y, options},
       Sequence @@ options]], 5, $Failed]];
   If[MatchQ[s, _GeneralizedSeries], certSeed[s[[1]], yv, wp], $Failed]];
 
-certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[
+certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[{memo},
+  Block[{$certAffineMemo = memo}, certAttemptBody[a, function, target, x, interval, center, ctx, route, knownRoot]]];
+certAttemptBody[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[
   {forward, derivative, derivativeExpression, residual, epsilon, mu, radius, bracket, correction, sharp, domain,
    leftResidual, rightResidual, endpointBracket = False},
   If[! certSourceInterval[a, interval, x, ctx],
@@ -5145,7 +5203,7 @@ AsymptoticAnalysis`FourierInverseCoefficient[___] := Failure["InvalidArguments",
 (* END SOURCE: src/Kernel/FourierCoefficients.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SpecialFunctionAdapters.wl
-   Source SHA256 (UTF-8/LF): 11a54e9e9510fe0a94e3245d0af4b3572aad511aefd014822fed885f444dddf4 *)
+   Source SHA256 (UTF-8/LF): 41e95ad2af0f2d0a68fed8edaec65f42c4262efc0a68481cff760e8ce28192cf *)
 (* Real special-function adapters with explicit forward-model provenance.
    Finite Poincare models are never labelled convergent exact forward data. *)
 
@@ -5201,6 +5259,8 @@ specialErfc[fam_, x_, endpoint_, y_, cutoff_, ass_, direction_, modelTerms_, off
     "Prefactor" -> sign representation["Prefactor"], "Offset" -> sign representation["Offset"]|>];
   GeneralizedSeries[Join[innerData, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction",
     "Adapter" -> "Erfc", "Expression" -> expression, "Terms" -> terms,
+    "FrontierTerm" -> If[MissingQ[innerData["FrontierTerm"]],
+      innerData["FrontierTerm"], sign innerData["FrontierTerm"]],
     "SeriesRepresentation" -> representation,
     "Remainder" -> remainder, "RemainderScaleExpression" -> tailScale,
     "Function" -> original, "Variable" -> y, "Variables" -> {x, y},
@@ -6384,7 +6444,7 @@ inverseFunctionSeparateFamily[___] :=
 (* END SOURCE: src/Kernel/InverseFunctionFamilies.wl *)
 
 (* BEGIN SOURCE: src/Kernel/InverseFunctionExpressions.wl
-   Source SHA256 (UTF-8/LF): edbce75c731a9575761f729ec3f1a4a54f2b11c96fcd1a59122ce8ee1301f07d *)
+   Source SHA256 (UTF-8/LF): 7386c0b88b7d79df3d41e44549827570c43f6270d73d46db1d118bb7fa79c19e *)
 (* Applied inverse functions are implicit scalar germs.  Parse their callable,
    establish its real source branch, then compose the existing inverse with
    the precision-tracked target argument.  Never use native Series on an
@@ -6487,7 +6547,11 @@ inverseFunctionConditionOnJet[c_, x_, input_, d_, cut_, limit_] := Module[
     Return[And @@ (inverseFunctionConditionOnJet[#[[2]][#[[1]], #[[3]]], x, input, d, cut, limit] & /@ pairs), Module]];
   If[head === Element && c[[2]] === Reals,
     j = seriesJetApply[c[[1]], x, input, d, cut, limit];
-    Return[And @@ (TrueQ[FullSimplify[Element[#[[2]], Reals], seriesAss[d] && Element[d["LogVariable"], Reals]]] & /@ j[[1]]), Module]];
+    (* Finite coefficients of a truncated jet are not an exact realness
+       proof: a cancelled complex Taylor tail can make an everywhere-false
+       membership look true at a low cutoff. Only an exact jet proves the
+       predicate (wave-7 report 61 N01). *)
+    Return[j[[2]] === Infinity && And @@ (TrueQ[FullSimplify[Element[#[[2]], Reals], seriesAss[d] && Element[d["LogVariable"], Reals]]] & /@ j[[1]]), Module]];
   If[! MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal, Unequal}, head], Return[False, Module]];
   If[Length[c] > 2,
     pairs = If[head === Unequal, Subsets[List @@ c, {2}], Partition[List @@ c, 2, 1]];
@@ -7532,7 +7596,7 @@ exponentialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] :
 (* END SOURCE: src/Kernel/ExponentialForward.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesEnvelopeArithmetic.wl
-   Source SHA256 (UTF-8/LF): 2cde86032fe867c7c59049e3f36c72f06ea25beb4f22aeb971f660651885a86a *)
+   Source SHA256 (UTF-8/LF): c4f11c33ad61e884ef331908edc5edf3acb8ebd89a948ae54224f258ab5ab849 *)
 (* Conservative arithmetic when no common ordered coefficient algebra applies.
    Each input denotes e + O(R), with R a nonnegative asymptotic envelope.
    Separate error summands are retained; cancellation of finite expressions
@@ -7844,9 +7908,25 @@ seriesEnvelopeUnary[head_, s_GeneralizedSeries, cut_, limit_] := Module[
       transport = "For real e and R tending to zero, Exp[e+O(R)] = Exp[e] + Exp[e] O(R).";
       evidence = <|"AbsoluteRemainderLimit" -> 0|>,
     Abs | Sin | Cos,
+      (* A real finite part does not prove that the omitted error is real.
+         Until a complete-real-germ contract is retained, use the complex
+         local bound only for a provably vanishing envelope. Abs is globally
+         Lipschitz on C and does not need this extra condition. *)
+      If[MemberQ[{Sin, Cos}, head] && a["Remainder"] =!= 0,
+        boundLimit = seriesEnvelopeLimit[a["Bound"], a["Variable"],
+          a["Approach"], a["Assumptions"], domain];
+        If[boundLimit =!= 0,
+          fail["UnprovedRealRemainder",
+            "A real finite approximation alone does not justify a global real sine/cosine error bound. The conservative guard requires a vanishing envelope.",
+            <|"EnvelopeLimit" -> boundLimit, "FunctionHead" -> head|>]]];
       remainder = a["Remainder"];
-      transport = "The real scalar function is globally 1-Lipschitz, so its output error is O(R) without a smallness or nonvanishing hypothesis.";
-      evidence = <|"LipschitzConstant" -> 1|>];
+      If[head === Abs,
+        transport = "Complex modulus is globally 1-Lipschitz, so its error is O(R).";
+        evidence = <|"LipschitzConstant" -> 1, "ArgumentDomain" -> "Complex"|>,
+        transport = "For a real finite part and a complex error O(R) with R tending to zero, sine and cosine have a bounded derivative on the intervening complex strip, hence output error O(R).";
+        evidence = <|"AbsoluteRemainderLimit" -> 0,
+          "ErrorTransportType" -> "LocalComplexStripBound",
+          "LipschitzConstant" -> Missing["NotAsserted"]|>]];
   seriesEnvelopeMake[head[expression], remainder, Join[a, <|"Domain" -> domain|>],
     Join[<|"Operation" -> "Unary", "FunctionHead" -> head, "Operands" -> {s},
       "ErrorTransport" -> transport|>, evidence], limit]];
@@ -8594,7 +8674,7 @@ specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] :
 (* END SOURCE: src/Kernel/ParameterizedSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/DirichletSpecialFunctions.wl
-   Source SHA256 (UTF-8/LF): 470835372ff1010568385b574343c431ec157873683ca63e93261d020aace3ac *)
+   Source SHA256 (UTF-8/LF): 1a62a48b43127b973d440bff633220eecd4fabcbdd657369eef5f43691c6fbcc *)
 (* Two convergent defining sums supply expansions unavailable from native
    Series. All parameters are fixed on the target approach. Zeta uses the
    exponential coordinate exp(-S); Lerch uses the reciprocal argument 1/a.
@@ -8701,7 +8781,7 @@ dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, 
   bound = Abs[alpha] first^(-argument) (1 + first/(argument - 1)) + Abs[charged];
   metadata = <|
     "Expression" -> expression, "RemainderScaleExpression" -> first^(-argument),
-    "FrontierTerm" -> alpha first^(-argument), "FirstOmittedInteger" -> first,
+    "FrontierTerm" -> alpha first^(-argument) + charged, "FirstOmittedInteger" -> first,
     "SpecialFunctionBackend" -> "ConvergentDirichletSeries", "SpecialFunctionFamily" -> "Zeta",
     "SourceArgument" -> argument, "ExpansionNature" -> "ConvergentDirichlet",
     "AbsoluteRemainderBound" -> bound, "RemainderLowerBound" -> alpha first^(-argument),
@@ -8744,7 +8824,7 @@ dirichletLerchBoundConstant[z_, s_, n_, ass_, limit_] := Module[{d, constant},
 
 dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, alpha_: 1, beta_: 0] := Module[
   {degree, rows = {}, k = 0, coefficient, frontier = None, rho, w, domain, boundConstant,
-    expression, exactSource, bound, conditions, charged, metadata},
+    expression, exactSource, bound, conditions, charged, metadata, scaleExpression, frontierTerm},
   If[! FreeQ[{z, s}, x] || ! exactRealQ[z] || ! exactRealQ[s] ||
       ! less[-1, z] || ! less[z, 1] || ! dirichletSpecialLargeArgumentQ[argument, x, coord, ass],
     Return[$Failed, Module]];
@@ -8768,14 +8848,22 @@ dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_,
   If[frontier === None, boundConstant = 0; bound = 0; conditions = domain,
     boundConstant = Abs[alpha] dirichletLerchBoundConstant[z, s, frontier[[3]], ass, limit];
     bound = boundConstant argument^(-rho); conditions = domain && argument >= 1];
+  scaleExpression = If[frontier === None, 0, argument^(-rho)];
+  frontierTerm = If[frontier === None, 0, alpha frontier[[2]] argument^(-rho)];
   If[charged =!= 0,
-    (* A charged constant lies above the cutoff, hence below the remainder
-       scale on the bound's domain a >= 1, where a^(-rho) >= 1. *)
-    boundConstant = boundConstant + Abs[charged]; bound = boundConstant argument^(-rho)];
+    (* A charged constant is O(1). It is dominated by the atom's tail only
+       when rho <= 0; for a positive rho the omitted constant is the leading
+       omitted term, so the remainder order drops to zero and the constant is
+       added to the bound as a separate term rather than folded into the
+       a^(-rho) coefficient (wave-7 report 57). *)
+    If[less[0, rho],
+      bound = bound + Abs[charged]; rho = 0; scaleExpression = 1; frontierTerm = charged;
+      conditions = domain && argument >= 1,
+      boundConstant = boundConstant + Abs[charged]; bound = boundConstant argument^(-rho)]];
   metadata = <|
     "Expression" -> expression,
-    "RemainderScaleExpression" -> If[frontier === None, 0, argument^(-rho)],
-    "FrontierTerm" -> If[frontier === None, 0, alpha frontier[[2]] argument^(-rho)],
+    "RemainderScaleExpression" -> scaleExpression,
+    "FrontierTerm" -> frontierTerm,
     "FirstOmittedMoment" -> If[frontier === None, None, frontier[[3]]],
     "SpecialFunctionBackend" -> "GeometricMomentExpansion", "SpecialFunctionFamily" -> "LerchPhi",
     "SourceArgument" -> argument, "LerchParameters" -> {z, s},

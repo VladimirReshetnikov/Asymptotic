@@ -309,9 +309,25 @@ seriesEnvelopeUnary[head_, s_GeneralizedSeries, cut_, limit_] := Module[
       transport = "For real e and R tending to zero, Exp[e+O(R)] = Exp[e] + Exp[e] O(R).";
       evidence = <|"AbsoluteRemainderLimit" -> 0|>,
     Abs | Sin | Cos,
+      (* A real finite part does not prove that the omitted error is real.
+         Until a complete-real-germ contract is retained, use the complex
+         local bound only for a provably vanishing envelope. Abs is globally
+         Lipschitz on C and does not need this extra condition. *)
+      If[MemberQ[{Sin, Cos}, head] && a["Remainder"] =!= 0,
+        boundLimit = seriesEnvelopeLimit[a["Bound"], a["Variable"],
+          a["Approach"], a["Assumptions"], domain];
+        If[boundLimit =!= 0,
+          fail["UnprovedRealRemainder",
+            "A real finite approximation alone does not justify a global real sine/cosine error bound. The conservative guard requires a vanishing envelope.",
+            <|"EnvelopeLimit" -> boundLimit, "FunctionHead" -> head|>]]];
       remainder = a["Remainder"];
-      transport = "The real scalar function is globally 1-Lipschitz, so its output error is O(R) without a smallness or nonvanishing hypothesis.";
-      evidence = <|"LipschitzConstant" -> 1|>];
+      If[head === Abs,
+        transport = "Complex modulus is globally 1-Lipschitz, so its error is O(R).";
+        evidence = <|"LipschitzConstant" -> 1, "ArgumentDomain" -> "Complex"|>,
+        transport = "For a real finite part and a complex error O(R) with R tending to zero, sine and cosine have a bounded derivative on the intervening complex strip, hence output error O(R).";
+        evidence = <|"AbsoluteRemainderLimit" -> 0,
+          "ErrorTransportType" -> "LocalComplexStripBound",
+          "LipschitzConstant" -> Missing["NotAsserted"]|>]];
   seriesEnvelopeMake[head[expression], remainder, Join[a, <|"Domain" -> domain|>],
     Join[<|"Operation" -> "Unary", "FunctionHead" -> head, "Operands" -> {s},
       "ErrorTransport" -> transport|>, evidence], limit]];

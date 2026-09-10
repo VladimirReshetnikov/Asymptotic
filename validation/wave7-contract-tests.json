@@ -1,722 +1,612 @@
 {
 	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-	"Scope":"Ten selected files: the new wave-6 boundary regressions and the coefficient, exponential-core, numerical-check, Fourier, observable, Dirichlet, expanded-input and inverse-function suites that share their code paths; no full package suite.",
+	"Scope":"Ten selected files: the new wave-7 contract regressions and the composite-envelope, core-perturbation, special-function, inverse-function, observable and operation suites that share the changed code; no full package suite.",
 	"PerSuiteTimeConstraintSeconds":900,
 	"Suites":[
-		"ReviewWave6Boundaries.wlt",
-		"ReviewCoefficientPowerResidualLabel.wlt",
-		"ExponentialCorePerturbation.wlt",
-		"ReviewNumericalLocalCoordinate.wlt",
-		"FourierRegressions.wlt",
-		"SeriesOperations.wlt",
-		"DirichletSpecialFunctions.wlt",
-		"ExpandedInputs.wlt",
+		"ReviewWave7Contracts.wlt",
+		"SeriesEnvelopeArithmetic.wlt",
+		"SeriesEnvelopeFunctions.wlt",
+		"EnvelopeRefactoring.wlt",
+		"CorePerturbation.wlt",
+		"CoreRefactoring.wlt",
+		"SpecialFunctionRegressions.wlt",
 		"InverseFunctionExpressions.wlt",
-		"ReviewObservableIngress.wlt"
+		"ReviewObservableIngress.wlt",
+		"SeriesOperations.wlt"
 	],
 	"SuiteResults":[
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"Succeeded":8,
+			"Suite":"ReviewWave7Contracts.wlt",
+			"Succeeded":5,
 			"Failed":0,
-			"Seconds":0.283444
+			"Seconds":0.2275905
 		},
 		{
-			"Suite":"ReviewCoefficientPowerResidualLabel.wlt",
-			"Succeeded":3,
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"Succeeded":17,
 			"Failed":0,
-			"Seconds":9.63283e-2
+			"Seconds":0.8018895
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"Succeeded":21,
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"Succeeded":11,
 			"Failed":0,
-			"Seconds":0.1220589
+			"Seconds":1.4035312
 		},
 		{
-			"Suite":"ReviewNumericalLocalCoordinate.wlt",
+			"Suite":"EnvelopeRefactoring.wlt",
+			"Succeeded":5,
+			"Failed":0,
+			"Seconds":5.3659e-2
+		},
+		{
+			"Suite":"CorePerturbation.wlt",
+			"Succeeded":39,
+			"Failed":0,
+			"Seconds":0.3699524
+		},
+		{
+			"Suite":"CoreRefactoring.wlt",
 			"Succeeded":6,
 			"Failed":0,
-			"Seconds":5.77831e-2
+			"Seconds":0.2266709
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"Succeeded":22,
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"Succeeded":23,
 			"Failed":0,
-			"Seconds":1.1524418
-		},
-		{
-			"Suite":"SeriesOperations.wlt",
-			"Succeeded":28,
-			"Failed":0,
-			"Seconds":0.691457
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"Succeeded":30,
-			"Failed":0,
-			"Seconds":0.4071376
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"Succeeded":10,
-			"Failed":0,
-			"Seconds":0.2798328
+			"Seconds":3.6010962
 		},
 		{
 			"Suite":"InverseFunctionExpressions.wlt",
 			"Succeeded":27,
 			"Failed":0,
-			"Seconds":1.40367596e1
+			"Seconds":1.40870858e1
 		},
 		{
 			"Suite":"ReviewObservableIngress.wlt",
 			"Succeeded":29,
 			"Failed":0,
-			"Seconds":1.5271024
+			"Seconds":1.4185128
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"Succeeded":28,
+			"Failed":0,
+			"Seconds":0.7549086
 		}
 	],
-	"Succeeded":184,
+	"Succeeded":190,
 	"Failed":0,
 	"Results":[
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"TestID":"coefficient-power-option-symbol-string-nested-and-delayed-spellings-agree-with-first-option-precedence",
+			"Suite":"ReviewWave7Contracts.wlt",
+			"TestID":"composite-sine-and-cosine-require-a-vanishing-envelope-when-the-omitted-tail-may-be-complex",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"TestID":"exponential-core-target-dependent-source-shift-is-refused-while-fixed-shifts-remain-admitted",
+			"Suite":"ReviewWave7Contracts.wlt",
+			"TestID":"binary-arithmetic-joins-conditions-idempotently",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"TestID":"numerical-check-labels-distinguish-the-positive-displacement-from-its-powered-observable",
+			"Suite":"ReviewWave7Contracts.wlt",
+			"TestID":"reflected-erfc-adapter-carries-the-source-sign-in-its-frontier-term",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"TestID":"named-numeric-constants-are-refused-as-expansion-and-target-coordinates",
+			"Suite":"ReviewWave7Contracts.wlt",
+			"TestID":"core-inverse-validates-core-and-perturbation-separately",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"TestID":"fourier-residual-options-without-a-cutoff-are-not-captured-by-the-optional-cutoff",
+			"Suite":"ReviewWave7Contracts.wlt",
+			"TestID":"membership-conditions-are-proved-only-on-exact-jets",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"TestID":"conditional-exact-observables-reach-the-exact-route-after-the-condition-is-proved",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-addition-sums-errors-and-retains-the-real-domain",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"TestID":"inline-parameter-conditions-become-parameter-assumptions-instead-of-approach-conditions",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-product-transports-two-linear-errors-and-their-product",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewWave6Boundaries.wlt",
-			"TestID":"affine-combinations-of-one-dirichlet-atom-are-expanded-with-the-atom",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-identical-coordinate-products-add-power-and-log-degree",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewCoefficientPowerResidualLabel.wlt",
-			"TestID":"coefficient-explicit-power-overrides-the-stored-observable-power-at-a-finite-endpoint",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-different-positive-coordinates-share-one-target-approach",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewCoefficientPowerResidualLabel.wlt",
-			"TestID":"coefficient-explicit-power-is-an-observable-power-at-an-infinite-endpoint",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-inverse-Gamma-plus-an-exact-constant-preserves-its-error",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewCoefficientPowerResidualLabel.wlt",
-			"TestID":"residual-label-and-offset-field-name-the-subtracted-finite-target",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-flat-and-ordinary-series-retain-the-complete-flat-tail",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-independent-first-two-corrections-to-xexpx",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-rejects-opposite-sides-and-different-target-endpoints",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-exact-Lambert-retained-in-first-sector",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-eventually-real-scalar-functions-retain-their-conditions",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-independent-normalized-original-equation-residual",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-cancellation-of-finite-expressions-does-not-cancel-independent-errors",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-automatic-source-shift-and-target-affine-core",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-fixed-real-powers-transport-a-proved-small-relative-error",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-negative-source-infinity-and-shift",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-negative-real-base-allows-integer-but-not-fractional-powers",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-elementary-exact-core-with-nonunit-phase-power",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-powers-reject-an-unproved-relative-error-or-leading-term",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-negative-core-power-selects-lower-real-Lambert-branch",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-positive-integer-powers-admit-a-pure-remainder",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-general-phase-power-and-logarithmic-perturbation",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-explicit-single-exponent-cutoffs-are-rejected",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-finite-source-reciprocal-reconstruction",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-recovers-a-derived-ordinary-series-target-from-its-coordinate",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-shifted-finite-endpoint-from-below",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-exact-zero-and-constant-arithmetic-keep-domain-and-indeterminacy",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-unknown-forward-error-stays-a-first-sector-ceiling",
+			"Suite":"SeriesEnvelopeArithmetic.wlt",
+			"TestID":"envelope-invalid-scalars-domains-and-resource-budgets-do-not-pass-through",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-zero-perturbation-exact-termination",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-logarithm-transports-relative-error-and-retains-the-domain",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-user-exact-core-expression-verified",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-exponential-retains-growing-exact-carrier-and-small-absolute-error",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-wrong-core-branch-rejected",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-absolute-value-handles-negative-and-pure-remainder-inputs",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-decaying-core-with-dominant-perturbation-rejected",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-sine-and-cosine-keep-an-unbounded-real-phase-without-Taylor-reexpansion",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-nonexact-core-not-silently-truncated",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-ordinary-unbounded-phase-enters-the-Lipschitz-fallback-and-keeps-its-error",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-additional-exponential-rank-needs-separate-contract",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-Lipschitz-observables-need-no-smallness-but-exponential-does",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-perturbation-coefficients-must-be-provably-real",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-logarithm-rejects-nonpositive-or-unresolved-relative-error",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-sector-depth-resource-budget",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-unary-exact-values-keep-exactness-and-target-domain",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-original-equation-known-source-numerical-oracle",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-nested-unary-normalization-keeps-composite-error-and-rejects-single-cutoff",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ExponentialCorePerturbation.wlt",
-			"TestID":"expcore-additional-exact-sector-improves-known-source-error",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-logarithm-of-shifted-inverse-Gamma-retains-the-Lambert-core-and-error",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewNumericalLocalCoordinate.wlt",
-			"TestID":"numerical-check-huge-source-offset-is-solved-in-the-local-displacement",
+			"Suite":"SeriesEnvelopeFunctions.wlt",
+			"TestID":"envelope-unary-proofs-reject-a-contradictory-input-domain",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewNumericalLocalCoordinate.wlt",
-			"TestID":"numerical-check-huge-source-offset-with-ramified-observable",
+			"Suite":"EnvelopeRefactoring.wlt",
+			"TestID":"envelope-identical-operands-retain-both-errors-and-the-product-error",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewNumericalLocalCoordinate.wlt",
-			"TestID":"numerical-check-huge-source-offset-approached-from-below",
+			"Suite":"EnvelopeRefactoring.wlt",
+			"TestID":"envelope-equal-finite-expressions-do-not-share-different-errors",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewNumericalLocalCoordinate.wlt",
-			"TestID":"numerical-check-zero-offset-fields-are-unchanged-by-the-local-coordinate",
+			"Suite":"EnvelopeRefactoring.wlt",
+			"TestID":"envelope-combined-domain-still-rejects-a-new-contradiction",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewNumericalLocalCoordinate.wlt",
-			"TestID":"numerical-check-at-infinity-uses-the-source-value-as-its-local-coordinate",
+			"Suite":"EnvelopeRefactoring.wlt",
+			"TestID":"envelope-exact-conditional-operand-retains-the-new-domain",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"ReviewNumericalLocalCoordinate.wlt",
-			"TestID":"numerical-check-domain-conditions-cancel-the-offset-before-numerical-evaluation",
+			"Suite":"EnvelopeRefactoring.wlt",
+			"TestID":"envelope-identical-operands-still-validate-the-original-domain",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-primary-inverse-example-and-nonoscillatory-remainder",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-identity-Catalan-marker-coefficients",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-independent-normalized-equation-residual",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-Lambert-correction-and-omitted-term",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-two-frequency-resonance-combines-direct-and-generated-modes",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-Lambert-preserved-exact-branch-and-marker-semantics",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-convolution-generates-and-merges-mode-sums",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-nonunit-leading-power",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-algebraic-frequency-equality-cancels-a-resonant-pair",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-infinity-observable-error-scaling",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-euler-derivative-agrees-with-direct-trigonometric-differentiation",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-shifted-source-reconstruction",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-polynomial-amplitudes-use-degree-envelopes",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-from-below-source-sign",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-oscillatory-leading-block-is-not-assigned-an-eventual-sign",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-explicit-algebraic-inverse-validated",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-positive-periodic-leading-core-is-outside-monomial-core-contract",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-wrong-exact-inverse-rejected",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-nonlinear-logarithmic-phase-is-rejected",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-zero-power-gap-requires-separate-log-scale",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-affine-phase-includes-exact-phase-shifts",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-pure-logarithm-not-misclassified",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-source-and-target-translations-preserve-the-logarithmic-coordinate",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-explicit-input-error-coarsens-certified-order",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-infinity-coordinate-reconstructs-the-original-variable",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-logarithmic-input-error-transport",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-nonunit-leading-power-and-observable-reconstruct-for-residual",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-zero-perturbation-exact-termination",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-frequency-budget-is-enforced-across-retained-blocks",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-budget-covers-first-omitted-coefficient",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-input-remainder-caps-target-precision",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-independent-marker-composition-residual",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-input-logarithmic-envelope-is-retained-at-the-precision-cap",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-Lambert-corrected-inverse-numerical-oracle",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-envelope-does-not-vanish-at-an-oscillatory-zero",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-power-plus-log-exact-Lambert-and-independent-coefficients",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-individual-coefficient-depth-has-an-explicit-resource-budget",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-power-plus-log-original-equation-marker-residual",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-large-residual-composition-has-an-explicit-resource-budget",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-supplied-power-plus-log-exact-inverse-preserved",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-conjugacy-localizes-the-real-logarithm-before-polynomial-validation",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-power-plus-log-target-offset-and-scales",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"FourierRegressions.wlt",
-			"TestID":"fourier-public-apis-return-failures-for-malformed-calls",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-power-minus-log-selects-divergent-lower-Lambert-branch",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-refinement-grows-an-automatically-expanded-forward-model",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-nonunit-divergent-power-plus-log",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-refinement-preserves-declared-forward-error-ceiling",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-power-plus-log-original-function-numerical-oracle",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-add-common-precision",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-negative-power-finite-Catalan-observable",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-product-error-transport",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-negative-power-independent-exact-algebraic-inverse",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-reciprocal-loses-absolute-precision",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-negative-power-infinity-Catalan-observable",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-logarithm-of-series",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-negative-power-plus-log-independent-coefficients",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-exponential-extracts-unbounded-carrier",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-shifted-finite-power-is-displacement-power",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-exponential-rejects-nonvanishing-argument-error",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-shifted-from-below-negative-odd-power-sign",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-log-exp-carrier-roundtrip",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-negative-infinity-negative-odd-power-sign",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-compose-ramified-inner",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-positive-source-ramified-real-observable",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-compose-retains-inner-uncertainty",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-negative-irrational-real-observable",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-compose-rejects-wrong-limit",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-negative-finite-power-input-error-ceiling",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-compose-respects-one-sided-coordinate",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-negative-infinite-power-input-error-ceiling",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-regular-analytic-observable",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-shifted-scaled-Lambert-negative-power-and-input-error",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-truncate-preserves-boundary-log-degree",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-shifted-scaled-Lambert-negative-power-original-numerical-oracle",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-refine-replays-original-function",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-invalid-or-unproved-real-observable-branches-rejected",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-refine-replays-inverse",
+			"Suite":"CorePerturbation.wlt",
+			"TestID":"core-exact-negative-power-retains-core-without-perturbation",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-refine-replays-observable-recipe",
+			"Suite":"CoreRefactoring.wlt",
+			"TestID":"core-frontier-skips-complete-cancelled-layer-and-counts-all-indices",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-does-not-differentiate-unqualified-big-o",
+			"Suite":"CoreRefactoring.wlt",
+			"TestID":"core-frontier-budget-fallback-preserves-original-cancelled-bound",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-differentiates-with-explicit-derivative-contract",
+			"Suite":"CoreRefactoring.wlt",
+			"TestID":"core-frontier-exhausted-cancellation-search-retains-first-bound",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-differentiates-exact-power-log-expression",
+			"Suite":"CoreRefactoring.wlt",
+			"TestID":"core-frontier-empty-model-has-no-omitted-block-or-work",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-derivative-chain-rule-at-infinity",
+			"Suite":"CoreRefactoring.wlt",
+			"TestID":"core-term-goal-uses-stored-next-weight-after-inverse-coefficient-cancellation",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-zero-power-is-exact",
+			"Suite":"CoreRefactoring.wlt",
+			"TestID":"core-term-goal-keeps-exact-termination-before-requested-count",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-normalizes-scaled-inverse-coordinate",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-erfc-independent-three-term-inverse",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-rejects-incompatible-variables",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-erfc-first-neglected-term-forward-bounds",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-rejects-approximate-scalar",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-erfc-matching-derivative-remainder-bound",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-known-finite-discarded-tail-is-differentiable",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-erfc-original-equation-numerical-reference",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"SeriesOperations.wlt",
-			"TestID":"calculus-refinement-does-not-upgrade-a-declared-derivative-bound",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-erfc-neighboring-model-order-overlap",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-public-zeta-dispatch-and-refinement-preserve-the-exponential-coordinate",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-erfc-reflected-signed-offset-tail",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-public-lerch-dispatch-and-source-refinement",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-erfc-insufficient-forward-model-rejected",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-five-terms-include-one-and-use-exponential-coordinate",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Stirling-exact-Lambert-core-first-correction",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-explicit-cutoff-is-exclusive-at-logarithmic-weights",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Stirling-value-and-digamma-remainder-bounds",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-cutoff-zero-retains-a-genuine-pure-order-remainder",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Stirling-model-floor-is-preserved",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-affine-arguments-support-both-real-infinity-approaches",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-LogGamma-original-equation-reference",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-fixed-symbolic-affine-parameters-require-real-positive-growth",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Stirling-neighboring-depth-overlap",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-actual-defining-sum-tail-satisfies-independent-integral-bounds",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Gamma-large-target-logarithmic-stability",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-large-cutoff-fails-before-exponential-enumeration",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Lambert-threshold-independent-Puiseux-coefficients",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-explicit-cutoff-and-term-goal-stop-independently",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Lambert-lower-threshold-branch-signs",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-affine-constant-above-a-nonpositive-cutoff-sets-the-remainder-order-to-zero",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Lambert-threshold-overlap-with-exact-ProductLog",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-declines-wrong-ray-and-outside-affine-scope",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Lambert-conflicting-real-branch-rejected",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-three-terms-and-first-omitted-moment-bound",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-Lambert-target-below-real-threshold-rejected",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-five-terms-match-independent-geometric-moments",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-exact-shifted-scaled-quadratic-threshold",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-negative-geometric-weight-uses-absolute-weight-in-tail-bound",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-quadratic-coalescing-branches-retain-direction",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-negative-noninteger-order-retains-growing-leading-block",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-tail-adapter-does-not-claim-finite-endpoint",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-tail-accounts-for-growth-of-the-Taylor-derivative",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-target-offset-must-be-provably-real",
 			"Outcome":"Success"
 		},
 		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-nonpositive-integer-order-is-exact-only-after-all-polynomial-blocks",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-zero-weight-and-zero-order-exact-cases-preserve-truncation-errors",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-cutoff-is-exclusive-in-absolute-reciprocal-argument-exponents",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-keeps-scaled-argument-and-supports-a-large-argument-at-a-finite-endpoint",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-actual-defining-sum-error-is-below-the-derived-Taylor-bound",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-growing-alternating-source-obeys-bound-down-to-positive-unit-argument",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-domain-ordered-representation-and-Poincare-contract-are-preserved",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-declines-boundary-weights-varying-parameters-and-negative-ray",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-remainder-moment-degree-is-resource-bounded",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-truncation-transports-the-absolute-tail-bound-and-drops-the-signed-lower-bound",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-zeta-no-op-truncation-retains-every-quantitative-bound-field",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"dirichlet-lerch-truncation-transports-the-bound-without-its-constant-form",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"DirichletSpecialFunctions.wlt",
-			"TestID":"ordinary-truncation-does-not-invent-a-quantitative-bound",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"automatic-infinity-transport-computes-correct-coefficient",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"puiseux-head-with-irrational-argument",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"meromorphic-head-with-irrational-argument",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"analytic-head-with-irrational-logarithmic-argument",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"absolute-value-uses-eventual-positive-sign",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"absolute-value-uses-leading-log-sign",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"term-goal-caps-unknown-frontier-without-discarding-known-blocks",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"frontier-applies-source-direction-sign",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"coefficient-distinguishes-target-and-uniformizer-exponents",
-			"Outcome":"Success"
-		},
-		{
-			"Suite":"ExpandedInputs.wlt",
-			"TestID":"forward-rejects-nonreal-and-inexact-cutoffs",
+			"Suite":"SpecialFunctionRegressions.wlt",
+			"TestID":"special-forward-model-resource-budget",
 			"Outcome":"Success"
 		},
 		{
@@ -998,6 +888,146 @@
 			"Suite":"ReviewObservableIngress.wlt",
 			"TestID":"review-observable-truthful-real-axis-provider-cannot-hide-constant-error-from-imaginary-tail",
 			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-refinement-grows-an-automatically-expanded-forward-model",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-refinement-preserves-declared-forward-error-ceiling",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-add-common-precision",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-product-error-transport",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-reciprocal-loses-absolute-precision",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-logarithm-of-series",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-exponential-extracts-unbounded-carrier",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-exponential-rejects-nonvanishing-argument-error",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-log-exp-carrier-roundtrip",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-compose-ramified-inner",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-compose-retains-inner-uncertainty",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-compose-rejects-wrong-limit",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-compose-respects-one-sided-coordinate",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-regular-analytic-observable",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-truncate-preserves-boundary-log-degree",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-refine-replays-original-function",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-refine-replays-inverse",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-refine-replays-observable-recipe",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-does-not-differentiate-unqualified-big-o",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-differentiates-with-explicit-derivative-contract",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-differentiates-exact-power-log-expression",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-derivative-chain-rule-at-infinity",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-zero-power-is-exact",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-normalizes-scaled-inverse-coordinate",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-rejects-incompatible-variables",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-rejects-approximate-scalar",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-known-finite-discarded-tail-is-differentiable",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"SeriesOperations.wlt",
+			"TestID":"calculus-refinement-does-not-upgrade-a-declared-derivative-bound",
+			"Outcome":"Success"
 		}
 	],
 	"SourcesUnchangedDuringRun":true,
@@ -1053,22 +1083,22 @@
 		"src\/Kernel\/RefinementState.wl":"57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
 		"src\/Kernel\/SeriesArithmetic.wl":"642401b840307a543801b5d121b26dac9c22e5daf1f756c74c840103625b73ef",
 		"src\/Kernel\/SeriesEnvelopeArithmetic.wl":"c4f11c33ad61e884ef331908edc5edf3acb8ebd89a948ae54224f258ab5ab849",
-		"src\/Kernel\/SeriesOperations.wl":"4045cb711d9db8eed27900d98d52987ea1bc6c57af8941bdbbf6c5203397e1e5",
+		"src\/Kernel\/SeriesOperations.wl":"95e296794145d7bb77dcaeb25a8813f629419fe6bc6ac3dd1f6e84f8510f9be7",
 		"src\/Kernel\/SourceCoordinates.wl":"92758cbbc06e63a99035735ee029074bda86e62414bf9c85a92ed6398e4478f0",
 		"src\/Kernel\/SpecialFunctionAdapters.wl":"41e95ad2af0f2d0a68fed8edaec65f42c4262efc0a68481cff760e8ce28192cf",
 		"src\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
 		"src\/Kernel\/SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c",
-		"src\/Tests\/ReviewWave6Boundaries.wlt":"1d23255b0dab9d741248f932ff631c97f20aa33e31f4c4f18ea877ac9c33ff8d",
-		"src\/Tests\/ReviewCoefficientPowerResidualLabel.wlt":"77670c612b72b1508ebfe08b3c0fb4be95b4857545d37fed4b8fe1cc7d96f792",
-		"src\/Tests\/ExponentialCorePerturbation.wlt":"6601c3f983e82547d2e9b406b050ed921c21f5e0af6752221127df598abc87bb",
-		"src\/Tests\/ReviewNumericalLocalCoordinate.wlt":"81a34507fa431301b3036e3f2ea087b90477bb5533d0021a719029d9484df552",
-		"src\/Tests\/FourierRegressions.wlt":"8dbcfbd56ecf729fa003bae527dc4fc9be5fbb7825ca4593d5c1f101b75bd868",
-		"src\/Tests\/SeriesOperations.wlt":"ee279316731ae33ff614dc2f932e863424a83cb200c9ebacba781701b177243b",
-		"src\/Tests\/DirichletSpecialFunctions.wlt":"dde882003b9520fb4905a58e6e5e013bcf4549445f7a727a52d009c6f9918ff8",
-		"src\/Tests\/ExpandedInputs.wlt":"bd31f678abcfe00b1dd187a34174e31bb49d4cfe12df9e61f5633947bcc73854",
+		"src\/Tests\/ReviewWave7Contracts.wlt":"d5868393b0271306162370bff710a94ff58df5461d2e28acd716a98e91b621ef",
+		"src\/Tests\/SeriesEnvelopeArithmetic.wlt":"6f493a36c688a167ec0d3ec1bf3b2584ccef3735a075017985e64842c3062ed6",
+		"src\/Tests\/SeriesEnvelopeFunctions.wlt":"c9b9e0ebc46ae6b1d19fd3f70c31403223b4cfdb38d93bce9a312f6413ab57cd",
+		"src\/Tests\/EnvelopeRefactoring.wlt":"c348f976fc2feb14e39ea1a0f812653830c43a87f0fb7104eb53f187b29eb9b4",
+		"src\/Tests\/CorePerturbation.wlt":"a2e800eb86bc0e0aded313ee8066f545cae3a85963c7d7871e442dc11856b5ca",
+		"src\/Tests\/CoreRefactoring.wlt":"1437f9c5f3cff1ffe304250b4b1dd98040b90f9639a4c06e2c74326bc106a86d",
+		"src\/Tests\/SpecialFunctionRegressions.wlt":"ca3eda096c3df0c8e66e8afe34b563a931e14869c7724f492e66ebbdfebe2ee4",
 		"src\/Tests\/InverseFunctionExpressions.wlt":"a8ee61f39a4bd740b6d4a1a982c0cdb9b84e68ea9e451f12083c8be3e0a376d2",
 		"src\/Tests\/ReviewObservableIngress.wlt":"f7f65703157fc979d02feae465bde4e8a2637b7ce86a604903e0e3834da78bf7",
-		"validation\/CheckWave6Boundaries.wl":"2ef3fba6ad13825c3d35c825987ef6e5b7bc0862cbdd6d73b434c9b1ad68a9d9",
+		"src\/Tests\/SeriesOperations.wlt":"ee279316731ae33ff614dc2f932e863424a83cb200c9ebacba781701b177243b",
+		"validation\/CheckWave7Contracts.wl":"3aaa06102dfdcf52bb05d8cbf6bda3fe0da3b96b6abf89f4600c5b2e37c6a9c0",
 		"validation\/FocusedTests.wl":"7e6157edcb33e21c4c5fde027186c6bf18255c90a5f250dc0c242e0975ba6a90"
 	}
 }

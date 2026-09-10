@@ -96,6 +96,21 @@ VerificationTest[Module[{x, zeta, cheap, lerch, zetaControl, lerchControl},
   {1, 1, 1, 2, 1, 2, True, 1, 2, 3, 3, 3},
   TestID -> "dirichlet-explicit-cutoff-and-term-goal-stop-independently"]
 
+(* Wave-7 report 57: an affine constant charged above a nonpositive cutoff is
+   O(1); with a positive atom tail order it becomes the leading omitted term,
+   so the remainder order is zero and the bound contains the constant. *)
+VerificationTest[Module[{x, s, zeta, negative},
+  s = AsymptoticExpansion[1 + LerchPhi[1/2, 2, x], {x, Infinity, 0}, "Backend" -> "Package"];
+  zeta = AsymptoticExpansion[Zeta[x] + 5, {x, Infinity, 0}, "Backend" -> "Package"];
+  negative = AsymptoticExpansion[LerchPhi[1/2, -5/2, x] + 7, {x, Infinity, -1}, "Backend" -> "Package"];
+  {Normal[s], s["RemainderPower"], s["FrontierTerm"], Simplify[s["AbsoluteRemainderBound"] - (1 + 2/x^2), x >= 1] === 0,
+    TrueQ[N[Abs[1 + LerchPhi[1/2, 2, 2]], 30] <= N[s["AbsoluteRemainderBound"] /. x -> 2, 30]],
+    Normal[zeta], zeta["RemainderPower"], TrueQ[N[Abs[Zeta[2] + 5], 30] <= N[zeta["AbsoluteRemainderBound"] /. x -> 2, 30]],
+    negative["RemainderPower"], TrueQ[N[Abs[LerchPhi[1/2, -5/2, 10] + 7 - (Normal[negative] /. x -> 10)], 30] <=
+      N[negative["AbsoluteRemainderBound"] /. x -> 10, 30]]}],
+  {0, 0, 1, True, True, 0, 0, True, -1/2, True},
+  TestID -> "dirichlet-affine-constant-above-a-nonpositive-cutoff-sets-the-remainder-order-to-zero"]
+
 VerificationTest[Module[{x},
   {dirichletExpandAt[Zeta[-x], x], dirichletExpandAt[Zeta[x^2], x],
     dirichletExpandAt[Sin[x], x]}],

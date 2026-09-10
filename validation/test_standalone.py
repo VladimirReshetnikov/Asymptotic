@@ -225,9 +225,22 @@ class StandaloneBuilderTests(unittest.TestCase):
         self.assertIn('End[];', statements[2])
 
     def test_mathics_bootstrap_rejects_unbalanced_source(self) -> None:
-        for text in ("f[x;", "f[x]];", "Module[{x}, x;"):
+        for text in ("f[x;", "f[x]];", "Module[{x}, x;", "f[x};", "<|a -> 1;", "g := (a -> 1|>;"):
             with self.subTest(text=text), self.assertRaisesRegex(ValueError, "Unbalanced"):
                 builder.mathics_bootstrap(text)
+
+    def test_mathics_bootstrap_keeps_association_statements_whole(self) -> None:
+        # Wave-5/7 report 59 N02: a semicolon inside an association is not a
+        # statement terminator, in ASCII, long-name and private-use spelling.
+        import json
+        for opening, closing in (("<|", "|>"), ("\\[LeftAssociation]", "\\[RightAssociation]"), ("", "")):
+            source = (f'f := {opening}"k" -> 1; 2, "n" -> {opening}"m" -> (a; b){closing}{closing};\n'
+                      'g := 3;\n')
+            with self.subTest(opening=opening):
+                encoded = builder.mathics_bootstrap(source).split('Scan[ToExpression, {\n', 1)[1].rsplit('\n}]];', 1)[0]
+                statements = json.loads('[' + encoded + ']')
+                self.assertEqual([statement.strip() for statement in statements],
+                                 [line.strip() for line in source.splitlines()])
 
     def test_mathics_bootstrap_preserves_condition_and_span_operators(self) -> None:
         import json

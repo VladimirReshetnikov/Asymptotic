@@ -1019,6 +1019,41 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Wave-7 contract repairs
+
+The [ten-file run](wave7-contract-tests.json) from
+[CheckWave7Contracts.wl](CheckWave7Contracts.wl) passes **190/190** on
+Wolfram 15.0.1 for Windows with unchanged sources. Its five new cases in
+[ReviewWave7Contracts.wlt](../src/Tests/ReviewWave7Contracts.wlt) pin report
+56's amplified complex tail (`Sin` and `Cos` refused with
+`UnprovedRealRemainder`, `Abs` and a vanishing envelope accepted), the
+idempotent conjunction after five self-additions, the reflected Erfc
+frontier sign against the direct adapter, the refusal of both report-60
+witnesses and report 59's squared witness beside a fixed-data control, and
+report 61's five low-cutoff predicate cases beside an exact control. Two
+existing envelope cases were updated for the sine/cosine guard: the vanishing
+envelope now records the local complex-strip transport instead of a global
+Lipschitz constant, and an unresolved `O(1)` error is refused rather than
+bounded. Report 57's charged-constant case is pinned in the Dirichlet suite,
+which runs inside the [wave-6 boundary run](wave6-boundaries-tests.json)
+(**184/184**). The [standalone builder tests](test_standalone.py) cover
+association delimiters in three spellings (59 N02).
+
+## C22 arithmetic transport and the affine memo
+
+The [seven-file run](arithmetic-bound-transport-tests.json) from
+[CheckArithmeticBoundTransport.wl](CheckArithmeticBoundTransport.wl) passes
+**155/155** with unchanged sources. Its two new cases in
+[ReviewArithmeticBoundTransport.wlt](../src/Tests/ReviewArithmeticBoundTransport.wlt)
+check that sums, products, scalar multiples and shifts of `Zeta` expansions
+carry an `"AbsoluteRemainderBound"` that contains the defining-sum error at
+`x = 10`, that the product records its discarded exact part, and that a
+truncation after a product transports the bound again. The run also
+includes the certificate regressions with the new affine-memo case (wave-5
+reports 39 N02 and 42 N02): the depth-8 Horner tree costs fewer than 40
+recognizer bodies within an attempt against more than 300 without the memo,
+with identical enclosures.
+
 ## Wave-6 public witnesses
 
 The [four-case characterization](wave6-witness-probe.json) from
@@ -1063,9 +1098,9 @@ scope of each entry and which ones are now implemented.
 ## Wave-6 public-boundary repairs
 
 The [ten-file run](wave6-boundaries-tests.json) from
-[CheckWave6Boundaries.wl](CheckWave6Boundaries.wl) passes **183/183** on
+[CheckWave6Boundaries.wl](CheckWave6Boundaries.wl) passes **184/184** on
 Wolfram 15.0.1 for Windows with all kernel, suite and runner hashes unchanged
-during execution. Its nine new cases in
+during execution. Its nine new cases (and the wave-7 Dirichlet constant case) in
 [ReviewWave6Boundaries.wlt](../src/Tests/ReviewWave6Boundaries.wlt) pin the
 repairs; the other nine files are the coefficient, exponential-core,
 numerical-check, Fourier, observable, Dirichlet, expanded-input,

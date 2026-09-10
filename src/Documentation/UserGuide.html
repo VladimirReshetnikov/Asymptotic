@@ -2305,7 +2305,18 @@ forward defining sum; they do not constitute a numerical interval
 certificate or an inverse-error certificate.
 <code>SeriesTruncate[s, Log[3]]</code> keeps <code>1 + 2^-x</code> and
 transports the upper bound to <code>4^-x (1 + 4/(x - 1)) + 3^-x</code>;
-see <a href="#SeriesTruncate">SeriesTruncate</a>.</p>
+see <a href="#SeriesTruncate">SeriesTruncate</a>. Sums, products, scalar
+multiples and shifts of such expansions transport the bound as well: for
+finite parts <code>e1</code>, <code>e2</code> with bounds
+<code>B1</code>, <code>B2</code>, a sum is bounded by
+<code>B1 + B2</code> and a product by
+<code>Abs[e1] B2 + Abs[e2] B1 + B1 B2</code>, each plus the absolute
+value of the exact part of the finite expressions discarded by the
+result&#39;s cutoff, which the result records as
+<code>&quot;ArithmeticDiscardedPart&quot;</code> with a
+<code>&quot;TransportedThroughArithmetic&quot;</code> contract under the
+conjunction of the operand conditions. The signed lower bound and the
+Lerch constant form are not transported through arithmetic.</p>
 <p>An affine combination of one such atom with fixed exact real
 coefficients is expanded with the atom: <code>Zeta[x] - 1</code> retains
 <code>2^-x + 3^-x + ...</code> with the same remainder, cutoff and first
@@ -3521,12 +3532,15 @@ nonnegative error scale:</p>
 </tr>
 <tr>
 <td><code>Abs[s]</code></td>
-<td>Real branch.</td>
+<td>None: the complex modulus is globally 1-Lipschitz.</td>
 <td><code>Abs[e] + O[R]</code>.</td>
 </tr>
 <tr>
 <td><code>Sin[s]</code>, <code>Cos[s]</code></td>
-<td>Real branch.</td>
+<td><code>e</code> is eventually real and, when the remainder is
+nonzero, <code>R -&gt; 0</code>; a real finite part does not prove that
+the omitted error is real, so a non-vanishing envelope returns
+<code>Failure[&quot;UnprovedRealRemainder&quot;, ...]</code>.</td>
 <td><code>Sin[e] + O[R]</code> or <code>Cos[e] + O[R]</code>.</td>
 </tr>
 </tbody>
@@ -3726,7 +3740,12 @@ is peeled before the route is chosen, so
 <code>ConditionalExpression[Exp[z], z &gt; 0]</code> reaches the same
 exact exponential route as <code>Exp[z]</code>, and the result records
 <code>&quot;ObservableCondition&quot;</code> and replays the conditional
-observable on refinement.</p>
+observable on refinement. A membership predicate such as
+<code>Element[expr, Reals]</code> in the condition is proved only when
+the argument&#39;s jet is exact: the finite coefficients of a truncated jet
+do not establish reality, since a cancelled complex Taylor tail can make
+an everywhere-false condition look true at a low cutoff, so such a
+condition on an inexact argument is refused.</p>
 <p><strong>Input</strong></p>
 <pre class="wolfram"><code>s = AsymptoticExpansion[x + x^2, {x, 0, 5}];
 Normal[SeriesObservable[s, Sin[z], z, &quot;Cutoff&quot; -&gt; 4]]</code></pre>
@@ -4353,7 +4372,12 @@ through inclusive marker degree <code>n</code>.</p>
 expressions. The core must have nonzero leading source power, and every
 perturbation power must be strictly higher. Automatic cores include
 monomials, affine logarithmic powers, and supported divergent
-power-plus-log expressions.</p>
+power-plus-log expressions. Each component is validated separately:
+neither may contain the target variable, even when a target-dependent
+offset would cancel in their sum, because the remainder scales are
+derived for fixed core and perturbation data;
+<code>AsymptoticCoreInverse[x - Re[y], Re[y] + 1/x, {x, Infinity}, {y, 2}]</code>
+is refused with <code>Failure[&quot;InvalidVariables&quot;, ...]</code>.</p>
 <table>
 <thead>
 <tr>

@@ -44,10 +44,13 @@ VerificationTest[Module[{x, negative, pure, absoluteNegative, absolutePure},
 VerificationTest[Module[{x, phase, sine, cosine},
   phase = envelopeFunctionFixture[1/x, PowerLogRemainder[x, 2, 0], x];
   sine = Sin[phase]; cosine = Cos[phase];
+  (* Wave-7 report 56 N01: the omitted error of a composite operand is not
+     known to be real, so the transport is the local complex-strip bound for
+     a vanishing envelope rather than a global real Lipschitz constant. *)
   {envelopeFunctionMatches[sine, Sin[1/x], x^2, 0 < x < 1],
     envelopeFunctionMatches[cosine, Cos[1/x], x^2, 0 < x < 1],
-    sine["CompositeRecipe"]["LipschitzConstant"] === 1,
-    cosine["CompositeRecipe"]["LipschitzConstant"] === 1}],
+    sine["CompositeRecipe"]["ErrorTransportType"] === "LocalComplexStripBound",
+    cosine["CompositeRecipe"]["AbsoluteRemainderLimit"] === 0}],
   {True, True, True, True},
   TestID -> "envelope-sine-and-cosine-keep-an-unbounded-real-phase-without-Taylor-reexpansion"]
 
@@ -65,11 +68,13 @@ VerificationTest[Module[{x, exact, phase, sine, cosine},
 
 VerificationTest[Module[{x, unresolved},
   unresolved = envelopeFunctionFixture[0, PowerLogRemainder[x, 0, 0], x];
-  {envelopeFunctionMatches[Sin[unresolved], 0, 1, 0 < x < 1],
-    envelopeFunctionMatches[Cos[unresolved], 1, 1, 0 < x < 1],
+  (* Abs is 1-Lipschitz on the complex plane and needs no smallness; a sine
+     or cosine of an error that is not proved real and does not vanish is
+     refused (wave-7 report 56 N01), as is the exponential. *)
+  {Sin[unresolved][[1]], Cos[unresolved][[1]],
     envelopeFunctionMatches[Abs[unresolved], 0, 1, 0 < x < 1],
     FailureQ[Exp[unresolved]]}],
-  {True, True, True, True},
+  {"UnprovedRealRemainder", "UnprovedRealRemainder", True, True},
   TestID -> "envelope-Lipschitz-observables-need-no-smallness-but-exponential-does"]
 
 VerificationTest[Module[{x, negative, uncertain, pure},

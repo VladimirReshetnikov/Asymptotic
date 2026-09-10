@@ -72,27 +72,39 @@ def mathics_bootstrap(source: str) -> str:
     source ignores semicolons in strings, comments, and nested expressions.
     """
     code = executable_text(source)
-    statements, start, depth = [], 0, 0
+    # Association delimiters group like brackets: a semicolon inside
+    # <| ... |>, in ASCII, long-name or private-use spelling, does not end a
+    # statement (wave-7 report 59 N02). A delimiter stack also rejects a
+    # mismatched closer, which a depth counter accepted.
+    opening = {"(": ")", "[": "]", "{": "}", "<|": "|>",
+               r"\[LeftAssociation]": "|>", "": "|>"}
+    closing = {")": ")", "]": "]", "}": "}", "|>": "|>",
+               r"\[RightAssociation]": "|>", "": "|>"}
+    tokens = sorted(set(opening) | set(closing), key=len, reverse=True)
+    statements, start, stack = [], 0, []
     i = 0
     while i < len(code):
-        char = code[i]
         # Condition (/;) and Span (;;) contain semicolons but do not end a
         # statement. Consume the complete operator before considering a
         # CompoundExpression terminator, including a trailing span (;;;).
         if code[i:i + 2] in {"/;", ";;"}:
             i += 2
             continue
-        if char in "[{(":
-            depth += 1
-        elif char in "]})":
-            depth -= 1
-            if depth < 0:
+        token = next((t for t in tokens if code.startswith(t, i)), None)
+        if token is not None:
+            if token in opening:
+                stack.append(opening[token])
+            elif not stack or stack[-1] != closing[token]:
                 raise ValueError("Unbalanced Mathics bootstrap source")
-        elif char == ";" and depth == 0:
+            else:
+                stack.pop()
+            i += len(token)
+            continue
+        if code[i] == ";" and not stack:
             statements.append(source[start:i + 1])
             start = i + 1
         i += 1
-    if depth:
+    if stack:
         raise ValueError("Unbalanced Mathics bootstrap source")
     if code[start:].strip():
         statements.append(source[start:])

@@ -131,7 +131,20 @@ certLogExpression[argument_, x_, interval_, ctx_] := Module[{candidate},
    huge translation and the interval that carries it; rounding the individually
    enclosed terms first can widen the constant by more than the whole
    verification interval at every admitted precision. *)
-certAffinePair[e_, x_Symbol] := Module[{pairs, acc},
+(* The affine recognizer is asked about every Plus/Times subtree, and when a
+   tree is not affine the evaluator recurses into its children and asks
+   again, so a nested Horner family visited every node once per ancestor.
+   One attempt keeps a memo of the pair per subtree; it is discarded with the
+   attempt (wave-5 reports 39 N02 and 42 N02). *)
+$certAffineMemo = None;
+certAffinePair[e_, x_Symbol] := Module[{cached, pair},
+  If[$certAffineMemo === None, Return[certAffinePairBody[e, x], Module]];
+  cached = $certAffineMemo[e];
+  If[MatchQ[cached, {_, _} | $Failed], Return[cached, Module]];
+  pair = certAffinePairBody[e, x];
+  $certAffineMemo[e] = pair;
+  pair];
+certAffinePairBody[e_, x_Symbol] := Module[{pairs, acc},
   Which[e === x, {1, 0}, certRationalQ[e], {0, e},
    Head[e] === Plus,
     pairs = certAffinePair[#, x] & /@ (List @@ e);
@@ -288,7 +301,9 @@ certRefinedSeed[a_, yv_, iteration_, wp_] := Module[{s, goal, x, y, options},
       Sequence @@ options]], 5, $Failed]];
   If[MatchQ[s, _GeneralizedSeries], certSeed[s[[1]], yv, wp], $Failed]];
 
-certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[
+certAttempt[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[{memo},
+  Block[{$certAffineMemo = memo}, certAttemptBody[a, function, target, x, interval, center, ctx, route, knownRoot]]];
+certAttemptBody[a_, function_, target_, x_, interval_, center_, ctx_, route_, knownRoot_: False] := Module[
   {forward, derivative, derivativeExpression, residual, epsilon, mu, radius, bracket, correction, sharp, domain,
    leftResidual, rightResidual, endpointBracket = False},
   If[! certSourceInterval[a, interval, x, ctx],

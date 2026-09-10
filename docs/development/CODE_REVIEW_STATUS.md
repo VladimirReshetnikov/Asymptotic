@@ -46,7 +46,7 @@ retained package that still carries each open obligation. Retiring a copy does
 not close an item, and the entry counts above still describe what arrived.
 References of the form `[Rn]` for a retired package resolve to that package's
 tombstone page, which records the disposition of each of its entries.
-Forty-five packages are retained across six waves.
+Fifty-one packages are retained across seven waves.
 
 The [wave-4 intake](WAVE_4_INTAKE.md) maps every report-local entry from
 reports 28–36 to implementation obligations and proposals. Source-audited
@@ -70,8 +70,8 @@ Reports 10–13, 17 and 18 record selected Wolfram 15.0.0 Linux observations;
 reports 14–16 record independent checks without successful package execution.
 Reports 10 and 12–14 are retired; their C05, C07, C14, C15, C17, C20 and C21
 evidence is superseded by the focused acceptance records cited below, as is
-report 14's C22 truncation evidence. C22's arithmetic transport stays open and
-is now carried by its register row rather than by a retained report.
+report 14's C22 truncation evidence. C22's arithmetic transport, carried by
+its register row rather than by a retained report, is now implemented as well.
 These snapshots precede the recent C04–C07 repairs. The first eight supplied packages
 were merged from `origin/main` commit `c19c0cd` without editing their contents.
 Report 18's nineteen files were added from
@@ -181,7 +181,7 @@ index counts each obligation once instead. The
 [ProbeWave6Witnesses](../../validation/ProbeWave6Witnesses.wl) reproduces four of
 its witnesses on the current source with unchanged sources during the run.
 
-Seven wave-6 public-boundary entries are now **focused verified — 183/0 across
+Seven wave-6 public-boundary entries are now **focused verified — 184/0 across
 ten selected files** in the
 [wave-6 boundary run](../../validation/wave6-boundaries-tests.json) from
 [CheckWave6Boundaries](../../validation/CheckWave6Boundaries.wl), with the seven
@@ -258,6 +258,32 @@ that selects one of the two policies report 16 identified. Report 49's E2 proves
 an obligation already recorded as R16 O01/O02 under X04/X05. Reports 47 N01 and
 50 E2 fall inside P08's stated lanes and 48 P1 inside P06's, and are governed by
 those items' acceptance rules rather than by new entries.
+
+Wave 7 supplied reports 56–61 at `efa1aee` (report 57 at `8f28084`), all six
+retained and indexed in the [wave-7 index](../../external-reports/code-review/wave-7/README.md).
+**It has no consolidated intake**; its entries are outside the 231 counted
+above. Every defect it reports is repaired and pinned in
+[ReviewWave7Contracts.wlt](../../src/Tests/ReviewWave7Contracts.wlt) with the
+[wave-7 contract run](../../validation/wave7-contract-tests.json): a composite
+`Sin` or `Cos` of a nonzero remainder requires a vanishing envelope, since a
+real finite part does not prove that the omitted error is real and an amplified
+complex tail gave a false global Lipschitz bound (56 N01, refused with
+`UnprovedRealRemainder`; `Abs` keeps its complex Lipschitz bound); operand
+conditions are joined idempotently, where repeated self-addition tripled the
+stored conjunction each step (56 N02); an affine constant charged above a
+nonpositive cutoff of the wave-6 Dirichlet integration inherited the atom's
+positive remainder exponent and now sets the remainder order to zero and enters
+the bound as its own term (57, a defect in this register's own wave-6 repair);
+the reflected Erfc adapter's `"FrontierTerm"` carries the source sign (58 G01);
+`AsymptoticCoreInverse` validates the core and the perturbation separately, so a
+target-dependent offset cancelling in their sum no longer yields a false
+remainder scale (59 N01, 60, whose `x + 1/x = y` witnesses claimed `O(y^-2)`
+and `O(y^-4)` errors against true `Θ(y^-1)`); the standalone builder's Mathics
+bootstrap splitter keeps association delimiters whole (59 N02); and a
+membership predicate is proved only on an exact jet, where a cancelled complex
+Taylor tail made an everywhere-false condition look true at a low cutoff
+(61 N01). The Lerch enclosure and transition proposals (56 E01, 58 E01) and the
+Hermitian half-spectrum prototype (61 H01) are recorded under X05 and X02.
 
 The first wave-4 [runner repair](../../validation/wave4-runner-integrity-tests.json)
 records **32 passed, 0 failed focused Python tests** on Windows, using synthetic
@@ -629,7 +655,7 @@ nested option list and a delayed rule return the same coefficient as the string
 spelling, the first occurrence wins, and an inexact or zero power is refused
 with `InvalidOption`. The
 [wave-6 boundary regression](../../src/Tests/ReviewWave6Boundaries.wlt) pins
-all six spellings and both refusals in the 183/0
+all six spellings and both refusals in the 184/0
 [focused run](../../validation/wave6-boundaries-tests.json).
 
 ### C10 — Include the target offset in residual normalization labels
@@ -697,7 +723,7 @@ source-admission policy.
 | C19 | **Focused verified — 58/0 across three selected files.** Automatic order planning includes relative tolerances and is capped without rejecting exact zero-residual proofs. Selective retries increase arithmetic precision when residual uncertainty or stalled progress limits a valid but insufficient certificate; useful geometric contraction keeps its existing arithmetic order. The reported error uses the sharp proved root interval; `ResidualRadius` retains the old residual/derivative majorant. Best retention uses exact normalized goal progress, absolute error and interval width, with stable ties. Budget exhaustion and an active arithmetic cap are reported separately; the cap does not stop interval contraction. The earlier R18 probe records the original `{60,60,60,60}` stall. Supplied external adapters remain unvalidated candidate artifacts. | [R15 F02][R15], [R16 N02][R16], [R18 N01][R18]; [baseline probe](../../validation/review-18-intake.json), [58/0 acceptance](../../validation/review-certificate-accuracy-tests.json), [focused runner](../../validation/CheckReviewCertificateAccuracy.wl), C08, X05 |
 | C20 | **Focused verified.** The certificate evaluator now computes the exact range of a rational affine tree (rational constants, the source symbol, `Plus`, `Times`) before any dyadic rounding, then rounds the two exact endpoints outward once. The review witness `x - (2^10000 + 1)` with a supplied exact center previously failed with `ResidualBracketOutsideInterval` at every admitted order ([baseline](../../validation/affine-certificate-baseline.txt)); it now certifies with zero residual and error bound at `"EnclosureOrder" -> 2`. Nonlinear and transcendental subexpressions keep the outward enclosures. The [two-file certificate run](../../validation/certificate-affine-tests.json) passes 46/46 and the portable case `certificate-exact-affine-translation` passes on both kernels. | [R14 N02][R14]; X05; [InverseCertificates](../../src/Kernel/InverseCertificates.wl). |
 | C21 | **Focused verified — ordinary checker.** `InverseNumericalCheck` now solves, tests the branch and compares errors in the local displacement `u` with `x = x0 + side u`, substituting the exact endpoint symbolically before numerical evaluation; the domain predicate is rewritten in `u` the same way. The review witness `(x - 10^100) + (x - 10^100)^2` previously failed with `OutsideBranch` because the displacement vanished at `WorkingPrecision + 10` digits ([baseline](../../validation/numerical-local-coordinate-baseline.txt)); it now returns the local root to 50 digits, and the zero-offset control reproduces its earlier root, error and ratio exactly. Reconstructed absolute values carry extra presentation digits. The [twelve-file run](../../validation/numerical-local-coordinate-tests.json) and the portable case `numerical-local-coordinate-huge-offset` record the change. The coordinate and special routes still solve in their own recorded charts; exposing unresolved ratio states remains open. | [R13 A3][R13], [R14 N03][R14], [R17 N3][R17]; D05, D06; [NumericalInverseChecks](../../src/Kernel/NumericalInverseChecks.wl). |
-| C22 | **Focused verified — truncation; arithmetic still open.** `SeriesTruncate` transports a quantitative forward tail bound: the new `"AbsoluteRemainderBound"` is the original bound plus `Abs` of the recorded `"TruncationDiscardedPart"` under unchanged `"RemainderBoundConditions"`, with a `"TransportedThroughTruncation"` contract retaining the original. The signed `"RemainderLowerBound"`, Lerch `"RemainderBoundConstant"` and `"FirstOmittedInteger"` are kept only by a no-op truncation and are never copied to a shorter expansion. The [four-file run](../../validation/truncation-bounds-tests.json) passes 94/94 on Wolfram 15.0.1 with independent numerical tail checks for Zeta and Lerch; the portable case `special-zeta-truncation-transports-bound` passes on both kernels. Supported arithmetic on such results still drops the bound fields; that transport remains open. | [R14 N05][R14]; D02, X05; [SeriesOperations](../../src/Kernel/SeriesOperations.wl), [DirichletSpecialFunctions tests](../../src/Tests/DirichletSpecialFunctions.wlt). |
+| C22 | **Focused verified — truncation and arithmetic.** `SeriesTruncate` transports a quantitative forward tail bound: the new `"AbsoluteRemainderBound"` is the original bound plus `Abs` of the recorded `"TruncationDiscardedPart"` under unchanged `"RemainderBoundConditions"`, with a `"TransportedThroughTruncation"` contract retaining the original. The signed `"RemainderLowerBound"`, Lerch `"RemainderBoundConstant"` and `"FirstOmittedInteger"` are kept only by a no-op truncation and are never copied to a shorter expansion. The [four-file run](../../validation/truncation-bounds-tests.json) passes 94/94 on Wolfram 15.0.1 with independent numerical tail checks for Zeta and Lerch; the portable case `special-zeta-truncation-transports-bound` passes on both kernels. `SeriesAdd` and `SeriesMultiply` now transport the bound as well: a sum carries `B1 + B2`, a product `Abs[e1] B2 + Abs[e2] B1 + B1 B2`, each plus the exact part of the finite expressions discarded by the result's cutoff, recorded as `"ArithmeticDiscardedPart"`, under the conjunction of the operand conditions and with a `"TransportedThroughArithmetic"` contract; scalar operands contribute zero. The [arithmetic transport run](../../validation/arithmetic-bound-transport-tests.json) from [CheckArithmeticBoundTransport](../../validation/CheckArithmeticBoundTransport.wl) checks sums, products, scalar multiples, shifts and a truncation after a product against the defining sums numerically. | [R14 N05][R14]; D02, X05; [SeriesOperations](../../src/Kernel/SeriesOperations.wl), [DirichletSpecialFunctions tests](../../src/Tests/DirichletSpecialFunctions.wlt). |
 | C23 | **Focused verified.** Flat products now collect every omitted contribution as a graded candidate (sector, algebraic/logarithmic pair), select the least sector, combine only those candidates by power-log dominance, and then weaken to the schema's sector `N + 1`, reporting the least sector as `"SectorTailGrade"`; sums combine tails by grade too, and exact constants carry an infinite grade. Retained sectors and the first omitted sector use full coefficient products so cancellations there are found; deeper omitted pairs use envelopes. The [baseline](../../validation/flat-graded-tail-baseline.txt) squares of the depth-1, 2, 3 inverses of `x + Exp[-1/x]` carried tail powers `-4, -8, -12`; they now carry `-1, -3, -5`, the review's graded values, with unchanged retained coefficients. Exact-zero annihilation, pure unknown inner coefficients, unequal depths and derivative-contract preservation are tested ([tests](../../src/Tests/ReviewFlatGradedTails.wlt)); the portable case `flat-graded-product-tail` covers both kernels. Preserving a grade above `N + 1` explicitly in the remainder remains a possible later extension. | [R15 F03][R15], [R17 N2][R17]; P01, P06, X08; [FlatSectorOperations](../../src/Kernel/FlatSectorOperations.wl). |
 
 Additional concrete existing-item work: R10 N02 supplies a sparse flat-product
@@ -780,10 +806,10 @@ inputs outside its proved contract.
 | ID | Proposal and boundary | Report source |
 | --- | --- | --- |
 | X01 | Primitive rationally commensurate flat-rate normalization. Current `flatModel` requires integer multiples of the smallest rate; rates 2 and 3 instead admit primitive rate 1. Bound lattice denominator/degree growth and keep genuinely irrational rate ratios distinct. **Pending scope decision; current restriction inspected.** | [R2 F07][R2], [R5 F07][R5], [R7 F05][R7]; [FlatSectors](../../src/Kernel/FlatSectors.wl). |
-| X02 | Shared coefficient algebra for rational/reciprocal logarithms, iterated slow variables, and compatible retained Gamma/Barnes cores. Improve ordered arithmetic, selected composition, Fourier term goals/refinement, and nonvanishing oscillatory coefficients under explicit hypotheses. Preserve conservative composite envelopes when no ordered closure is proved. | [R2 roadmap][R2-article], [R5 specialized scales][R5-article], [R7 roadmap][R7-roadmap], [R8 extensions][R8-article]. |
+| X02 | Shared coefficient algebra for rational/reciprocal logarithms, iterated slow variables, and compatible retained Gamma/Barnes cores. Improve ordered arithmetic, selected composition, Fourier term goals/refinement, and nonvanishing oscillatory coefficients under explicit hypotheses. Preserve conservative composite envelopes when no ordered closure is proved. Wave-7 report 61 H01 supplies an exact Hermitian half-spectrum prototype for Fourier-polynomial products (18 instead of 35 polynomial multiplications in its matched count), a candidate for the Fourier coefficient work here, not a measured package speedup. | [R2 roadmap][R2-article], [R5 specialized scales][R5-article], [R7 roadmap][R7-roadmap], [R8 extensions][R8-article]., wave-7 [61 H01](../../external-reports/code-review/wave-7/README.md) |
 | X03 | Integration of already constructed germs with an explicit integration constant/normalization, exponent `-1` resonance, coordinate Jacobian, and integrable remainder condition. This is a proposed operation, not a replacement for native asymptotic integration. | [R2 roadmap][R2-article], [R3 roadmap][R3-article], [R4 extensions][R4-article], [R5 roadmap][R5-article], [R8 extensions][R8-article]. |
 | X04 | A source-differentiation/re-expansion operation can complement differentiation under a retained derivative contract. It must not infer derivatives of unknown magnitude remainders. | [R16 O01/O02][R16]; [R3 roadmap][R3-article] (retired). |
-| X05 | Quantitative tail bounds from checked majorants, stronger interval subdivision/polynomial enclosures, and original-function Gamma/Barnes/Erfc inverse certificates. Require explicit function and derivative bounds; a high-precision residual or a finite asymptotic model is insufficient. | [R3 roadmap][R3-article], [R4 certification][R4-article], [R5 certification][R5-article], [R6 future work][R6-article], [R8 certification][R8-article]. |
+| X05 | Quantitative tail bounds from checked majorants, stronger interval subdivision/polynomial enclosures, and original-function Gamma/Barnes/Erfc inverse certificates. Require explicit function and derivative bounds; a high-precision residual or a finite asymptotic model is insufficient. Wave-7 report 56 E01 supplies a proved positive Euler-difference enclosure for `LerchPhi[-q, s, a]` including `q = 1`, and 58 E01 an additive prototype with a signed remainder bound for the unsupported Lerch transition regime; both are reference implementations outside the package. | [R3 roadmap][R3-article], [R4 certification][R4-article], [R5 certification][R5-article], [R6 future work][R6-article], [R8 certification][R8-article]., wave-7 [56 E01, 58 E01](../../external-reports/code-review/wave-7/README.md) |
 | X06 | Independent proof records/checkers for rational interval arithmetic, finite residual identities, and local remainder transport; optional proof-assistant formalization of this small trusted core. Keep formal identity, asymptotic theorem, numerical evidence, and root certification distinct. | [R2 roadmap][R2-article], [R3 verification boundary][R3-article], [R5 evidence architecture][R5-article], [R6 future work][R6-article], [R7 evidence][R7-roadmap], [R8 certification][R8-article]. |
 | X07 | Finite conditional parameter cases when a bounded decision procedure proves them. Keep a separate chart, branch and precision contract per case, and retain an inconclusive-within-budget outcome. | [R5 longer-range work][R5-article]. |
 | X08 | Multiple independent exponential rates, different phase orders, and nested transseries. Require rate-vector/valuation ordering, local finiteness, resonance handling, and adequate algebraic zero-sector precision. This is substantially larger than X01. | [R2 roadmap][R2-article], [R4 extensions][R4-article], [R5 longer-range work][R5-article], [R7 roadmap][R7-roadmap]. |
@@ -843,7 +869,7 @@ adds all 44 entries from reports 19–27 and the consolidated `W3-*` work items.
    margins with backward demand planning. Address P01–P03 as bounded resource
    fixes, followed by measured P04/P05 work.
 6. Address the remaining W3 items with focused contract checks;
-   C09, C10, C20, C21, C23, D04, D08 and V02 are closed above, and C22 is closed for truncation but not for arithmetic.
+   C09, C10, C20, C21, C22, C23, D04, D08 and V02 are closed above.
    Resolve D10's lower-cutoff refinement policy separately from a soundness fix.
    Distinguish correctness repairs, required coverage gaps, and additional
    mathematical generality when evaluating the recorded proposals. Map every

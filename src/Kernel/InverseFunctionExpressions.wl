@@ -100,7 +100,11 @@ inverseFunctionConditionOnJet[c_, x_, input_, d_, cut_, limit_] := Module[
     Return[And @@ (inverseFunctionConditionOnJet[#[[2]][#[[1]], #[[3]]], x, input, d, cut, limit] & /@ pairs), Module]];
   If[head === Element && c[[2]] === Reals,
     j = seriesJetApply[c[[1]], x, input, d, cut, limit];
-    Return[And @@ (TrueQ[FullSimplify[Element[#[[2]], Reals], seriesAss[d] && Element[d["LogVariable"], Reals]]] & /@ j[[1]]), Module]];
+    (* Finite coefficients of a truncated jet are not an exact realness
+       proof: a cancelled complex Taylor tail can make an everywhere-false
+       membership look true at a low cutoff. Only an exact jet proves the
+       predicate (wave-7 report 61 N01). *)
+    Return[j[[2]] === Infinity && And @@ (TrueQ[FullSimplify[Element[#[[2]], Reals], seriesAss[d] && Element[d["LogVariable"], Reals]]] & /@ j[[1]]), Module]];
   If[! MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal, Unequal}, head], Return[False, Module]];
   If[Length[c] > 2,
     pairs = If[head === Unequal, Subsets[List @@ c, {2}], Partition[List @@ c, 2, 1]];

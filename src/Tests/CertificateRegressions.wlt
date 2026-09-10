@@ -110,6 +110,26 @@ VerificationTest[
   "UnsupportedEnclosure", "NonRefinableArithmeticFailure", 1, True, True},
  TestID -> "certificate-non-refinable-failures-stop-before-the-refinement-budget"]
 
+(* Wave-5 reports 39 N02 and 42 N02: within one attempt the affine recognizer
+   is asked once per subtree, so a Horner family costs a linear number of
+   recognizer bodies instead of a quadratic one, with the same enclosures. *)
+VerificationTest[
+ Module[{t, ctx = <|"SeriesOrder" -> 12, "Bits" -> 88, "ExponentMagnitudeLimit" -> 10000|>, count, counted, plain, memo, body},
+  body = AsymptoticAnalysis`Private`certAffinePairBody;
+  counted[expr_, active_] := (count = 0;
+    Block[{AsymptoticAnalysis`Private`$certAffineMemo = If[active, memo, None]},
+     Internal`InheritedBlock[{AsymptoticAnalysis`Private`certAffinePairBody},
+      PrependTo[DownValues[AsymptoticAnalysis`Private`certAffinePairBody],
+       HoldPattern[AsymptoticAnalysis`Private`certAffinePairBody[e_, v_]] /; (count++; False) :> Null];
+      {AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certEnclose[expr, t, {0, 1/2}, ctx]], count}]]);
+  plain = counted[Nest[1 + t # &, 1 + t^2, 8], False];
+  memo = Unique["affineMemo$"];
+  {plain[[1]] === counted[Nest[1 + t # &, 1 + t^2, 8], True][[1]], plain[[2]] > 300,
+   counted[Nest[1 + t # &, 1 + t^2, 8], True][[2]] < 40,
+   counted[Nest[1 + t # &, 1 + t^2, 4], True][[2]] < 20}],
+ {True, True, True, True},
+ TestID -> "certificate-affine-recognizer-is-memoized-within-an-attempt"]
+
 VerificationTest[
  Module[{x, y, s, c},
   s = AsymptoticInverse[x + x^2, {x, 0}, {y, 3}];

@@ -53,6 +53,8 @@ specialErfc[fam_, x_, endpoint_, y_, cutoff_, ass_, direction_, modelTerms_, off
     "Prefactor" -> sign representation["Prefactor"], "Offset" -> sign representation["Offset"]|>];
   GeneralizedSeries[Join[innerData, <|"Kind" -> "SpecialInverse", "Scale" -> "SpecialFunction",
     "Adapter" -> "Erfc", "Expression" -> expression, "Terms" -> terms,
+    "FrontierTerm" -> If[MissingQ[innerData["FrontierTerm"]],
+      innerData["FrontierTerm"], sign innerData["FrontierTerm"]],
     "SeriesRepresentation" -> representation,
     "Remainder" -> remainder, "RemainderScaleExpression" -> tailScale,
     "Function" -> original, "Variable" -> y, "Variables" -> {x, y},

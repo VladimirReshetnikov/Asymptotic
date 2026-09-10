@@ -104,7 +104,7 @@ dirichletZetaForward[f_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, 
   bound = Abs[alpha] first^(-argument) (1 + first/(argument - 1)) + Abs[charged];
   metadata = <|
     "Expression" -> expression, "RemainderScaleExpression" -> first^(-argument),
-    "FrontierTerm" -> alpha first^(-argument), "FirstOmittedInteger" -> first,
+    "FrontierTerm" -> alpha first^(-argument) + charged, "FirstOmittedInteger" -> first,
     "SpecialFunctionBackend" -> "ConvergentDirichletSeries", "SpecialFunctionFamily" -> "Zeta",
     "SourceArgument" -> argument, "ExpansionNature" -> "ConvergentDirichlet",
     "AbsoluteRemainderBound" -> bound, "RemainderLowerBound" -> alpha first^(-argument),
@@ -147,7 +147,7 @@ dirichletLerchBoundConstant[z_, s_, n_, ass_, limit_] := Module[{d, constant},
 
 dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_, limit_, alpha_: 1, beta_: 0] := Module[
   {degree, rows = {}, k = 0, coefficient, frontier = None, rho, w, domain, boundConstant,
-    expression, exactSource, bound, conditions, charged, metadata},
+    expression, exactSource, bound, conditions, charged, metadata, scaleExpression, frontierTerm},
   If[! FreeQ[{z, s}, x] || ! exactRealQ[z] || ! exactRealQ[s] ||
       ! less[-1, z] || ! less[z, 1] || ! dirichletSpecialLargeArgumentQ[argument, x, coord, ass],
     Return[$Failed, Module]];
@@ -171,14 +171,22 @@ dirichletLerchForward[f_, z_, s_, argument_, x_, x0_, cut_, ass_, coord_, goal_,
   If[frontier === None, boundConstant = 0; bound = 0; conditions = domain,
     boundConstant = Abs[alpha] dirichletLerchBoundConstant[z, s, frontier[[3]], ass, limit];
     bound = boundConstant argument^(-rho); conditions = domain && argument >= 1];
+  scaleExpression = If[frontier === None, 0, argument^(-rho)];
+  frontierTerm = If[frontier === None, 0, alpha frontier[[2]] argument^(-rho)];
   If[charged =!= 0,
-    (* A charged constant lies above the cutoff, hence below the remainder
-       scale on the bound's domain a >= 1, where a^(-rho) >= 1. *)
-    boundConstant = boundConstant + Abs[charged]; bound = boundConstant argument^(-rho)];
+    (* A charged constant is O(1). It is dominated by the atom's tail only
+       when rho <= 0; for a positive rho the omitted constant is the leading
+       omitted term, so the remainder order drops to zero and the constant is
+       added to the bound as a separate term rather than folded into the
+       a^(-rho) coefficient (wave-7 report 57). *)
+    If[less[0, rho],
+      bound = bound + Abs[charged]; rho = 0; scaleExpression = 1; frontierTerm = charged;
+      conditions = domain && argument >= 1,
+      boundConstant = boundConstant + Abs[charged]; bound = boundConstant argument^(-rho)]];
   metadata = <|
     "Expression" -> expression,
-    "RemainderScaleExpression" -> If[frontier === None, 0, argument^(-rho)],
-    "FrontierTerm" -> If[frontier === None, 0, alpha frontier[[2]] argument^(-rho)],
+    "RemainderScaleExpression" -> scaleExpression,
+    "FrontierTerm" -> frontierTerm,
     "FirstOmittedMoment" -> If[frontier === None, None, frontier[[3]]],
     "SpecialFunctionBackend" -> "GeometricMomentExpansion", "SpecialFunctionFamily" -> "LerchPhi",
     "SourceArgument" -> argument, "LerchParameters" -> {z, s},

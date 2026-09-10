@@ -1348,7 +1348,7 @@ The result supplies explicit forward tail bounds. If `m = s["FirstOmittedInteger
 m^-S <= Zeta[S] - Normal[s] <= m^-S (1 + m/(S - 1))
 ```
 
-under `s["RemainderBoundConditions"]`, including `S > 1`. The corresponding properties are `"RemainderLowerBound"` and `"AbsoluteRemainderBound"`. For three blocks of `Zeta[x]`, the upper bound is `4^-x (1 + 4/(x - 1))`. These are analytic bounds for the forward defining sum; they do not constitute a numerical interval certificate or an inverse-error certificate. `SeriesTruncate[s, Log[3]]` keeps `1 + 2^-x` and transports the upper bound to `4^-x (1 + 4/(x - 1)) + 3^-x`; see [SeriesTruncate](#SeriesTruncate).
+under `s["RemainderBoundConditions"]`, including `S > 1`. The corresponding properties are `"RemainderLowerBound"` and `"AbsoluteRemainderBound"`. For three blocks of `Zeta[x]`, the upper bound is `4^-x (1 + 4/(x - 1))`. These are analytic bounds for the forward defining sum; they do not constitute a numerical interval certificate or an inverse-error certificate. `SeriesTruncate[s, Log[3]]` keeps `1 + 2^-x` and transports the upper bound to `4^-x (1 + 4/(x - 1)) + 3^-x`; see [SeriesTruncate](#SeriesTruncate). Sums, products, scalar multiples and shifts of such expansions transport the bound as well: for finite parts `e1`, `e2` with bounds `B1`, `B2`, a sum is bounded by `B1 + B2` and a product by `Abs[e1] B2 + Abs[e2] B1 + B1 B2`, each plus the absolute value of the exact part of the finite expressions discarded by the result's cutoff, which the result records as `"ArithmeticDiscardedPart"` with a `"TransportedThroughArithmetic"` contract under the conjunction of the operand conditions. The signed lower bound and the Lerch constant form are not transported through arithmetic.
 
 An affine combination of one such atom with fixed exact real coefficients is expanded with the atom: `Zeta[x] - 1` retains `2^-x + 3^-x + ...` with the same remainder, cutoff and first omitted integer as `Zeta[x]`, and `-2 Zeta[x] + 3` scales every retained coefficient and the absolute bound by the affine coefficient. The result records `"AffineCoefficients" -> {alpha, beta}` and `"SpecialFunctionAtom"`. `SeriesTermGoal` still counts the atom's terms, so `SeriesTermGoal -> 3` for `Zeta[x] - 1` returns the two nonconstant terms `2^-x + 3^-x`. The signed lower bound `"RemainderLowerBound"` is kept only for a positive coefficient; an affine constant lying above an explicit cutoff is charged to `"AbsoluteRemainderBound"` instead of being displayed. Products with the variable, two different atoms, and variable coefficients are outside this method.
 
@@ -2282,8 +2282,8 @@ The following unary operations use conservative bounds for a real represented fu
 | --- | --- | --- |
 | `Log[s]`, `SeriesLog[s]` | `e > 0` eventually and `R/Abs[e] -> 0`. | `Log[e] + O[R/Abs[e]]`. |
 | `Exp[s]`, `SeriesExp[s]` | `e` is eventually real and `R -> 0`. | `Exp[e] + O[Exp[e] R]`. |
-| `Abs[s]` | Real branch. | `Abs[e] + O[R]`. |
-| `Sin[s]`, `Cos[s]` | Real branch. | `Sin[e] + O[R]` or `Cos[e] + O[R]`. |
+| `Abs[s]` | None: the complex modulus is globally 1-Lipschitz. | `Abs[e] + O[R]`. |
+| `Sin[s]`, `Cos[s]` | `e` is eventually real and, when the remainder is nonzero, `R -> 0`; a real finite part does not prove that the omitted error is real, so a non-vanishing envelope returns `Failure["UnprovedRealRemainder", ...]`. | `Sin[e] + O[R]` or `Cos[e] + O[R]`. |
 
 The `Abs`, `Sin`, and `Cos` bounds use their real Lipschitz inequalities and do not require a finite limiting argument or a vanishing error. They need not identify a leading asymptotic term. The logarithm uses a vanishing relative error; the exponential requires a vanishing absolute error. An explicit cutoff remains unavailable for these composite results.
 
@@ -2411,7 +2411,7 @@ An exact outer expression can still transport uncertainty from the inner expansi
 <a id="SeriesObservable"></a>
 ### SeriesObservable
 
-`SeriesObservable[s, expr, z]` substitutes the expansion into the placeholder `z` in a supported real expression. It accepts `"InverseFunctionBranches" -> Automatic` in addition to the common operation options. An outer `ConditionalExpression[expr, condition]` is admitted when the condition is proved on the precision-tracked input germ; the condition is peeled before the route is chosen, so `ConditionalExpression[Exp[z], z > 0]` reaches the same exact exponential route as `Exp[z]`, and the result records `"ObservableCondition"` and replays the conditional observable on refinement.
+`SeriesObservable[s, expr, z]` substitutes the expansion into the placeholder `z` in a supported real expression. It accepts `"InverseFunctionBranches" -> Automatic` in addition to the common operation options. An outer `ConditionalExpression[expr, condition]` is admitted when the condition is proved on the precision-tracked input germ; the condition is peeled before the route is chosen, so `ConditionalExpression[Exp[z], z > 0]` reaches the same exact exponential route as `Exp[z]`, and the result records `"ObservableCondition"` and replays the conditional observable on refinement. A membership predicate such as `Element[expr, Reals]` in the condition is proved only when the argument's jet is exact: the finite coefficients of a truncated jet do not establish reality, since a cancelled complex Taylor tail can make an everywhere-false condition look true at a low cutoff, so such a condition on an inexact argument is refused.
 
 **Input**
 
@@ -2727,7 +2727,7 @@ This function returns a formula. It does not attach asymptotic ordering or a rem
 
 `AsymptoticCoreInverse[core, perturbation, {x, x0}, {y, n}]` retains an exact inverse of `core` and computes corrections through inclusive marker degree `n`.
 
-The core and perturbation must be supported finite power-log expressions. The core must have nonzero leading source power, and every perturbation power must be strictly higher. Automatic cores include monomials, affine logarithmic powers, and supported divergent power-plus-log expressions.
+The core and perturbation must be supported finite power-log expressions. The core must have nonzero leading source power, and every perturbation power must be strictly higher. Automatic cores include monomials, affine logarithmic powers, and supported divergent power-plus-log expressions. Each component is validated separately: neither may contain the target variable, even when a target-dependent offset would cancel in their sum, because the remainder scales are derived for fixed core and perturbation data; `AsymptoticCoreInverse[x - Re[y], Re[y] + 1/x, {x, Infinity}, {y, 2}]` is refused with `Failure["InvalidVariables", ...]`.
 
 | Option | Default |
 | --- | --- |

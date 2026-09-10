@@ -1,6 +1,6 @@
 # Code review reports
 
-Forty-five retained review packages are grouped into six waves. Each wave index
+Fifty-one retained review packages are grouped into seven waves. Each wave index
 links the reports, articles, evidence, proposed patches, and package-specific
 reproduction instructions.
 
@@ -12,6 +12,7 @@ reproduction instructions.
 | [Wave 4](wave-4/README.md) | Eight incremental review packages: 28–31, 33–36 | AsymptoticAnalysis; snapshots `7d1bc83` and `513917b` | September 9, 2026 |
 | [Wave 5](wave-5/README.md) | Seven incremental review packages: 37–39, 42–45 | AsymptoticAnalysis; snapshots `8e85996` and `651f202` | September 10, 2026 |
 | [Wave 6](wave-6/README.md) | Ten incremental review packages: 46–55 | AsymptoticAnalysis; snapshot `8cee870` | September 10, 2026 |
+| [Wave 7](wave-7/README.md) | Six incremental review packages: 56–61 | AsymptoticAnalysis; snapshots `efa1aee` and `8f28084` | September 10, 2026 |
 
 The maintained [implementation status](../../docs/development/CODE_REVIEW_STATUS.md)
 consolidates the findings and links completed fixes to focused validation, while
@@ -22,11 +23,13 @@ maps 64 more entries, including numbered advisories and extension proposals,
 to implementation obligations. Together with the earlier 123 entries, waves 1–4
 supplied 231 attributed report entries before consolidating overlaps. Those
 counts describe what arrived, not distinct current defects, completed changes,
-or the reduced set of packages retained here. Waves 5 and 6 have no intake yet;
-their entries are outside the 231 and outside every work item. No wave-6 package
-was retired: five of its defects are reported two or three times, but every copy
-carries a witness, a proof or a different proposed repair that the others lack,
-so its [index](wave-6/README.md) records those obligations once instead.
+or the reduced set of packages retained here. Waves 5, 6 and 7 have no intake;
+their entries are outside the 231 and outside every work item, and each wave
+index carries an implementation-status table mapping its entries to the
+register. No wave-6 or wave-7 package was retired: five wave-6 defects are
+reported two or three times, but every copy carries a witness, a proof or a
+different proposed repair that the others lack, so its
+[index](wave-6/README.md) records those obligations once instead.
 
 The wave indexes distinguish source and mathematical checks from native package
 observations, executed patch checks, and unrun regression specifications.
@@ -74,20 +77,20 @@ themselves remain unedited in Git history at `2396cb6` and earlier.
 | [10](wave-2/code-review-10.md) | 2 | N01 → C05 | N02 → P06 (1, 4, 6, 8, 16). |
 | [12](wave-2/code-review-12.md) | 2 | N01 → C05, N02 → C07, N03 → C17 | N02's C13 component (reports 4, 7) and its B01 component (11, 18). |
 | [13](wave-2/code-review-13.md) | 2 | A1 → C14, A2 → C07, A3 → C21 | A1's C12 component (report 6, the register's cited source); A2's B01 component (11, 18). |
-| [14](wave-2/code-review-14.md) | 2 | N01 → C15, N02 → C20, N03 → C21, N05 → C22 (truncation) | N04 → D01 (reports 1, 4, 6, 7, 16) and D02 (1, 4, 6, 7); C22's arithmetic transport stays open under the retained C22 record. |
+| [14](wave-2/code-review-14.md) | 2 | N01 → C15, N02 → C20, N03 → C21, N05 → C22 (truncation) | N04 → D01 (reports 1, 4, 6, 7, 16) and D02 (1, 4, 6, 7); C22's arithmetic transport, once carried only by the retained C22 record, is now implemented as well. |
 | [26](wave-3/code-review-26.md) | 3 | — | Every entry restates W3-01 (19, 20, 21, 23, 24, 25, 27), W3-02 (19, 20, 21, 24, 25, 27) or W3-04 (19, 20, 25). Its alias-default alternative is preserved in the wave-3 intake alongside report 20's. |
 | [32](wave-4/code-review-32.md) | 4 | T01 → W4-10 | M01 → W4-01 (28–30, 33, 34); M02/M03 → W4-03 (28, 35, 36); D-P06 → W4-07 (30, 33–36); D-V01 → W4-12 (28–30, 34, 35); L01 → W4-05 (28–31, 33–35); G01 → W4-08 (28, 30, 36). |
 | [40](wave-5/code-review-40.md) | 5 | — | ABS-01's algebraic finding duplicates 37 F01; its logarithmic witness was its own and is now a case in the [modulus characterization](../../validation/wave5-modulus-witness.json). ABS-02 duplicates 42 N01, which uses a different source family; 40's `AsymptoticFourierInverse` entry point is recorded in its tombstone. |
 | [41](wave-5/code-review-41.md) | 5 | — | ABS-01 duplicates 37 F01, but its second witness does not: `Abs[1+a z]^2 + Abs[1-a z]^2` returns a real coefficient of the wrong sign, and it is now a case in the [modulus characterization](../../validation/wave5-modulus-witness.json). Its complex-modulus reference algorithm and Hermitian pairing count are recorded in the [mathematical article](../../docs/article/sections/03-forward.tex). |
 
-The crosswalks were walked item by item, and **C22 is the single exception**
-that the rule has to state carefully. C22 is *focused verified for truncation*,
-not closed: the register adds that supported arithmetic on such results still
-drops the bound fields, and that transport remains open. Report 14's N05 — the
-entry that was implemented — was C22's only report source, so its open
-arithmetic half is now carried by the C22 register record and its own
-acceptance evidence rather than by any retained report. Every other open or
-partial item keeps at least one retained report.
+The crosswalks were walked item by item, and **C22 was the single exception**
+that the rule had to state carefully. C22 was at first *focused verified for
+truncation* only, with the register recording that supported arithmetic on such
+results still dropped the bound fields. Report 14's N05 — the entry that was
+implemented — was C22's only report source, so that arithmetic half was carried
+by the C22 register record and its own acceptance evidence rather than by any
+retained report; it has since been implemented and the register row records
+both halves. Every other open or partial item keeps at least one retained report.
 
 Thirty items now rest on a single retained report and twenty-seven already did.
 C12 (report 6), C15 (report 11) and C21 (report 17) became single-sourced

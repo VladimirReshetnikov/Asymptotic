@@ -126,9 +126,13 @@ seriesCompatible[a_, b_] := Module[{ass = seriesAss[a] && seriesAss[b]},
     ! TrueQ[Simplify[a["ScaleVariable"] == b["ScaleVariable"], ass]],
     fail["IncompatibleScales", "The operands must use the same variable and positive asymptotic coordinate."]]];
 
+(* Structural idempotence only: no assumption-dependent simplification. *)
+seriesStructuralAnd[conditions_List] := And @@ DeleteDuplicates[
+  Flatten[(If[Head[#] === And, List @@ #, {#}] &) /@ conditions, 1]];
+
 seriesAlign[a_, b_] := Join[b /. b["LogVariable"] -> a["LogVariable"],
-  <|"Assumptions" -> a["Assumptions"] && b["Assumptions"],
-    "Domain" -> Lookup[a, "Domain", True] && Lookup[b, "Domain", True]|>];
+  <|"Assumptions" -> seriesStructuralAnd[{a["Assumptions"], b["Assumptions"]}],
+    "Domain" -> seriesStructuralAnd[{Lookup[a, "Domain", True], Lookup[b, "Domain", True]}]|>];
 
 seriesBinary[op_, s_, t_, cut_, limit_] := Module[{a, b, af, bf, ratio, j, ell, ass, d, h, order},
   a = seriesData[s, limit]; b = seriesData[t, limit]; seriesCompatible[a, b]; b = seriesAlign[a, b];
@@ -145,10 +149,46 @@ seriesBinary[op_, s_, t_, cut_, limit_] := Module[{a, b, af, bf, ratio, j, ell, 
       fail["IncompatibleCarriers", "Multiplication of translated, non-power-log carriers requires explicit sector decomposition."]];
     j = pMul[a["Jet"], b["Jet"], ell, ass, limit];
     d = Join[a, <|"Jet" -> j, "Prefactor" -> a["Prefactor"] b["Prefactor"]|>]];
-  d = Join[d, <|"Assumptions" -> a["Assumptions"] && b["Assumptions"],
-    "Domain" -> Lookup[a, "Domain", True] && Lookup[b, "Domain", True], "RemainderDerivativeOrder" -> order|>];
+  d = Join[d, <|"Assumptions" -> seriesStructuralAnd[{a["Assumptions"], b["Assumptions"]}],
+    "Domain" -> seriesStructuralAnd[{Lookup[a, "Domain", True], Lookup[b, "Domain", True]}],
+    "RemainderDerivativeOrder" -> order|>];
   h = If[cut === Automatic, Automatic, seriesWorkingCut[d, cut]];
-  seriesMake[d, {op, {s, t}}, h]];
+  seriesTransportArithmeticBound[op, s, t, seriesMake[d, {op, {s, t}}, h]]];
+
+(* A quantitative forward tail bound survives a sum or product. With finite
+   parts e1, e2 and true values t_i = e_i + r_i, |r_i| <= B_i under C_i:
+     |t1 + t2 - e| <= B1 + B2 + |e1 + e2 - e|,
+     |t1 t2 - e|   <= |e1| B2 + |e2| B1 + B1 B2 + |e1 e2 - e|,
+   where e is the result's finite expression and the last term is the exact
+   part discarded by the result's cutoff. An exact operand contributes zero.
+   Signed lower bounds and constant-form bounds are not transported. This
+   closes the arithmetic half of C22. *)
+seriesTransportArithmeticBound[op_, s : GeneralizedSeries[a_Association], t : GeneralizedSeries[b_Association],
+  result : GeneralizedSeries[r_Association]] := Module[{boundOf, e1, e2, e, bound, discarded, conditions},
+  boundOf[data_] := Which[Lookup[data, "Remainder", None] === 0, {0, True},
+    KeyExistsQ[data, "AbsoluteRemainderBound"] && KeyExistsQ[data, "RemainderBoundConditions"],
+      {data["AbsoluteRemainderBound"], data["RemainderBoundConditions"]},
+    True, $Failed];
+  If[boundOf[a] === $Failed || boundOf[b] === $Failed, Return[result, Module]];
+  If[Lookup[r, "Remainder", None] === 0 || ! FreeQ[{a["Expression"], b["Expression"]}, _GeneralizedSeries],
+    Return[result, Module]];
+  conditions = boundOf[a][[2]] && boundOf[b][[2]];
+  (* Dirichlet scales store n^(-S) as (E^-S)^Log[n]; present both finite
+     expressions in the constructor's own form before differencing. *)
+  {e1, e2, e} = {a["Expression"], b["Expression"], r["Expression"]} /. (E^u_)^Log[n_Integer?Positive] :> n^u;
+  discarded = Simplify[If[op === "Add", e1 + e2, e1 e2] - e, conditions];
+  bound = If[op === "Add", boundOf[a][[1]] + boundOf[b][[1]],
+    Abs[e1] boundOf[b][[1]] + Abs[e2] boundOf[a][[1]] + boundOf[a][[1]] boundOf[b][[1]]] +
+    Simplify[Abs[discarded], conditions];
+  GeneralizedSeries[Join[r, <|"AbsoluteRemainderBound" -> bound, "RemainderBoundConditions" -> conditions,
+    "ArithmeticDiscardedPart" -> discarded,
+    "ForwardRemainderContract" -> <|"Type" -> "TransportedThroughArithmetic", "Operation" -> op,
+      "OperandContracts" -> {Lookup[a, "ForwardRemainderContract", Missing["Exact"]],
+        Lookup[b, "ForwardRemainderContract", Missing["Exact"]]},
+      "Statement" -> If[op === "Add",
+        "The omitted tail of the sum is bounded in absolute value by the sum of the operand bounds plus Abs[ArithmeticDiscardedPart], the exact part of the sum of the finite expressions beyond the result's cutoff, under the conjunction of the operand conditions.",
+        "The omitted tail of the product is bounded in absolute value by Abs[e1] B2 + Abs[e2] B1 + B1 B2 plus Abs[ArithmeticDiscardedPart], the exact part of the product of the finite expressions beyond the result's cutoff, under the conjunction of the operand conditions. Signed lower bounds and constant-form bounds are not transported."]|>|>]]];
+seriesTransportArithmeticBound[_, _, _, result_] := result;
 
 AsymptoticAnalysis`SeriesAdd[s_GeneralizedSeries, t_GeneralizedSeries, opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Add", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
@@ -528,8 +568,8 @@ AsymptoticAnalysis`SeriesTruncate[s_GeneralizedSeries, h_, opts : OptionsPattern
    |new tail| <= |discarded part| + old absolute bound on the same conditions.
    A signed lower bound and a constant-form bound describe only the original
    tail; they are retained only when truncation discards nothing. Bare
-   asymptotic remainders carry no bound to transport. Arithmetic on the
-   truncated result still drops these fields. *)
+   asymptotic remainders carry no bound to transport. Sums and products
+   transport the absolute bound through seriesTransportArithmeticBound. *)
 seriesTransportRemainderBound[s : GeneralizedSeries[a_Association], d_, result : GeneralizedSeries[r_Association]] :=
   Module[{ell, w, p, before, after, removed, discarded, keys, retained, transported},
   If[! KeyExistsQ[a, "AbsoluteRemainderBound"] || ! KeyExistsQ[a, "RemainderBoundConditions"],
@@ -553,7 +593,7 @@ seriesTransportRemainderBound[s : GeneralizedSeries[a_Association], d_, result :
     "TruncationDiscardedPart"};
   If[removed === {}, Return[GeneralizedSeries[Join[r, KeyTake[a, keys]]], Module]];
   retained = KeyTake[a, {"AbsoluteRemainderBound", "RemainderBoundConditions"}];
-  transported = <|"AbsoluteRemainderBound" -> a["AbsoluteRemainderBound"] + Abs[discarded],
+  transported = <|"AbsoluteRemainderBound" -> a["AbsoluteRemainderBound"] + Simplify[Abs[discarded], a["RemainderBoundConditions"]],
     "RemainderBoundConditions" -> a["RemainderBoundConditions"],
     "TruncationDiscardedPart" -> discarded,
     "ForwardRemainderContract" -> <|"Type" -> "TransportedThroughTruncation",

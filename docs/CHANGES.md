@@ -15,6 +15,27 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Wave-7 contract repairs and arithmetic bound transport
+
+A composite `Sin[s]` or `Cos[s]` of an expansion with a nonzero remainder now
+requires the remainder envelope to vanish and otherwise returns
+`Failure["UnprovedRealRemainder", ...]`, since a real finite part does not prove
+that the omitted error is real; `Abs[s]` keeps its complex Lipschitz bound.
+Operand conditions are joined idempotently, so repeated self-addition no
+longer triples the stored assumptions. An affine constant charged above a
+nonpositive cutoff of a `Zeta` or `LerchPhi` expansion sets the remainder
+order to zero and enters the absolute bound as its own term. The reflected
+`Erfc` adapter's `"FrontierTerm"` carries the source sign.
+`AsymptoticCoreInverse` validates the core and the perturbation separately and
+refuses a target-dependent offset that cancels in their sum. A membership
+condition on an observable is proved only on an exact jet. The standalone
+builder's Mathics bootstrap keeps association delimiters whole. `SeriesAdd`
+and `SeriesMultiply` now transport the explicit tail bound of `Zeta` and
+`LerchPhi` expansions, recording `"ArithmeticDiscardedPart"`, and the
+certificate evaluator memoizes its affine recognizer within one attempt. See
+the [implementation register](development/CODE_REVIEW_STATUS.md) (wave-7
+reports 56–61, C22, wave-5 reports 39 N02 and 42 N02).
+
 ### Modulus of nonreal expansions
 
 The forward `Abs` no longer replaces a modulus by its signed argument when a
@@ -76,7 +97,7 @@ with its atom, scaling the retained coefficients and absolute tail bound and
 recording `"AffineCoefficients"`; see the
 [Zeta section](../src/Documentation/UserGuide.md#zeta-dirichlet-expansions).
 The [focused run](../validation/README.md#wave-6-public-boundary-repairs)
-passes 183/183 across ten files, and the
+passes 184/184 across ten files, and the
 [implementation register](development/CODE_REVIEW_STATUS.md) records the
 repaired wave-6 entries. The documentation checker's gates now survive
 `python -O`, ignore TeX comments, and reject links that resolve outside the
