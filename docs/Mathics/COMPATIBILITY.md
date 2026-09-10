@@ -1,5 +1,10 @@
 # Running AsymptoticAnalysis in Mathics3
 
+**Complete compatibility with [Mathics3](https://mathics.org/), alongside the
+official Wolfram kernel, is a project goal. It is not yet achieved.** The goal
+covers the package's public operations and their mathematical contracts;
+successful loading and selected examples are intermediate milestones.
+
 Mathics support is being developed and tested against **Mathics3 10.0.1**
 with scanner 10.0.1, SymPy 1.14.0, and Python 3.11. The package's declared
 Wolfram Language requirement and Wolfram functionality are unchanged.
@@ -8,6 +13,24 @@ The [background notes](README.md) describe the language and evaluator
 differences. This page tracks the package's actual compatibility work;
 background claims about an interpreter are not evidence that a package
 feature has passed a regression test.
+
+## Goal and current status
+
+| Area | Current status | Work needed for complete compatibility |
+| --- | --- | --- |
+| Modular and standalone loading | Mathics-specific bootstrap and evaluator adapters are implemented. | Preserve clean loading, reloads, namespace isolation, and generated-source parity as both kernels evolve. |
+| Symbolic expansions and operations | Focused examples exercise inverse and forward calculus, arithmetic, refinement, and selected extended scales. | Validate the full supported public input and option space, including exceptional and resource-limited paths. |
+| Assumptions and inverse branches | Conservative exact rules cover selected polynomial and affine-domain proofs. | Extend unresolved domains and sign/uniqueness proofs without weakening branch hypotheses. |
+| Native backends and special functions | Coverage depends on the interpreter's available functions and package adapters. | Close missing functionality and parameter-range gaps; an inert native symbol is not compatibility. |
+| Numerical checks, certificates, and display | Selected smoke checks and exact rational certificate examples are available. | Establish feature-specific numerical accuracy, certificate behavior, and usable front-end presentation. |
+| Consolidated acceptance | Focused evidence is available; the consolidated final-source run described below is pending. | Complete reproducible runs against unchanged modular and standalone sources and compare public behavior with the Wolfram control. |
+
+The limitations below describe remaining work, not a permanently reduced
+Mathics feature target. Until a proof or operation is supported, a clear
+failure or unresolved result preserves the package's mathematical contract;
+it does not count as successful compatibility for that input. The
+[validation section](#validation-and-remaining-work) distinguishes executed
+checks from the remaining acceptance work.
 
 ## Install and load
 

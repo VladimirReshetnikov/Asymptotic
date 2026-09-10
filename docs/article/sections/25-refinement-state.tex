@@ -43,8 +43,8 @@ Section~\ref{sec:inverse-function-expressions}.
 Write the normalized inverse observable as
 \[
  z^r\sum_{\omega<H}z^\omega Q_\omega(\log z),
- \qquad \omega=\boldsymbol{k}\cdot\boldsymbol{d},\quad
- \boldsymbol{k}\in\mathbb N^m,\quad d_j>0.
+ \qquad \omega=\bk\cdot\bdelta,\quad
+ \bk\in\N^m,\quad \delta_j>0.
 \]
 The indices of weight less than $H$ form a finite downward-closed set.
 Its one-step outside boundary contains every index which can next enter
@@ -77,14 +77,19 @@ remains consistent with every finer projection of the same formal series.
 
 \subsection{The forward-data precision ceiling}
 
-Let the leading source exponent be $p\ne0$ and the internal observable
-exponent be $r\ne0$. Under the value and derivative hypotheses of the inverse
-error-transport theorem, a forward error
-$\OO(u^\rho\M(u)^k)$ generally guarantees target power accuracy through
+Let the leading source exponent be $p\ne0$ and the local-coordinate
+observable exponent be $r\ne0$. Under the hypotheses of
+Theorem~\ref{thm:transport}, a forward error
+$\OO(u^\rho\M(u)^k)$ with $\rho>p$ gives an inverse-observable error
 \[
- \frac{\rho-p+r}{|p|}.
+ \OO\bigl(z^{\rho-p+r}\M(z)^k\bigr)
+ =\OO\bigl(w^{(\rho-p+r)/|p|}\M(w)^k\bigr),
 \]
-At equal powers its logarithmic degree must be combined with that of the
+where $z$ is the uniformizer and $w=|y-y_0|$ for $p>0$, or
+$w=1/|y|$ for $p<0$. Thus these data determine complete blocks strictly
+below target exponent $(\rho-p+r)/|p|$. For a power $x^\nu$ of the
+original source at infinity, the local-coordinate exponent is $r=-\nu$.
+At equal powers the logarithmic degree must be combined with that of the
 model-inverse truncation error. Computing more coefficients of a fixed
 finite model does not remove the uncertainty inherited from the forward
 data. A stronger inverse statement requires a more accurate forward model

@@ -2,6 +2,12 @@
 
 AsymptoticAnalysis computes asymptotic expansions of functions and selected real inverse functions. It supports exact real exponents, logarithmic coefficients, finite and infinite endpoints, and explicit remainder classes. Additional constructors handle logarithmic hierarchies, exponential sectors, oscillatory coefficients, and selected special functions.
 
+**AsymptoticAnalysis must completely subsume Wolfram Language `Series`, `Asymptotic`, and `DiscreteAsymptotic`: every input successfully handled by any of them must also be handled correctly and successfully by this package.** The result representation may differ while preserving the mathematical result, requested order, conditions, and applicable contract. This is an open project requirement. The current implementation delegates to `Series` and `Asymptotic` in selected modes; `DiscreteAsymptotic` has no implemented backend. See [Known Deviations and Coverage Gaps](#native-coverage-gaps).
+
+**Complete package compatibility with both the official Wolfram kernel and [Mathics3](https://mathics.org/) is a project goal.** Mathics support is under active development: the implemented adapters and recorded checks currently cover selected operations. See [Mathics3 Compatibility](#mathics-compatibility) for loading instructions and the current coverage boundary.
+
+**Supporting all asymptotics documented in `vendor/proveit/docs` is also a project goal**, including q-analogs, inverses, and combinatorial sequences. The [consolidated coverage targets](../../docs/development/COVERAGE_TARGETS.md) and [vendored asymptotics register](../../docs/development/VENDORED_ASYMPTOTICS.md) distinguish required coverage from implementation and verified evidence. The presence of a mathematical result in a vendored article does not establish package support.
+
 The package name and context changed from AsymptoticInverse to AsymptoticAnalysis. Public function names, including `AsymptoticInverse`, are unchanged.
 
 Start a fresh kernel when switching from the old package to the renamed version. Update context-qualified references such as ``AsymptoticInverse`AsymptoticInverse`` to ``AsymptoticAnalysis`AsymptoticInverse``.
@@ -12,7 +18,7 @@ This guide describes the Wolfram Language interface. See the [mathematical artic
 
 ## Getting Started
 
-The package requires Wolfram Language 15.0 or later. Load the current `main` version directly from GitHub:
+The package's declared Wolfram Language requirement is version 15.0 or later. For Mathics3, use the [runtime-specific instructions](#mathics-compatibility) below. The Wolfram Language instructions here load the current `main` version directly from GitHub:
 
 ```wolfram
 Get[URLDownload[
@@ -59,6 +65,29 @@ Alternatively, register the local package directory and load its context:
 PacletDirectoryLoad["src"];
 Needs["AsymptoticAnalysis`"];
 ```
+
+<a id="mathics-compatibility"></a>
+### Mathics3 Compatibility
+
+Mathics3 uses the same public package context and file entry points. **The target is complete compatibility; the current implementation and verified coverage are incomplete.** Existing adapters cover selected exact calculations, and the full scope of the Wolfram Language interface below has not been established on Mathics. Start with the [Mathics installation and compatibility guide](../../docs/Mathics/COMPATIBILITY.md), which identifies the pinned interpreter dependencies, checked examples, and remaining work.
+
+From the repository root, load the modular source in the Mathics interpreter:
+
+```wolfram
+Get["src/Kernel/AsymptoticAnalysis.wl"];
+```
+
+Evaluate the load before entering package calls. In particular, do not combine the load and the first call in one command-line `--code` expression: Mathics can bind unknown package names to the global context while parsing that whole expression. A `.wl` script with separate input expressions supports the required loading order. The repository-root `AsymptoticAnalysis.wl` is the alternative standalone entry point.
+
+The portable examples use a larger Mathics iteration budget, set explicitly in the session:
+
+```wolfram
+If[StringContainsQ[$Version, "Mathics"], $IterationLimit = 1000000];
+```
+
+This evaluator budget is separate from the package's `"MaxTerms"` limit. The package does not raise the session's global iteration limit automatically. Inspect results through `Normal[s]`, `s["Remainder"]`, and `InputForm[s]` when front-end formatting differs.
+
+Mathics' currently implemented [assumption consequences](../../docs/Mathics/ASSUMPTIONS.md) and [inverse-branch proofs](../../docs/Mathics/CALLABLES.md) are bounded exact rules. A domain or sign that these rules cannot prove remains unresolved or produces a `Failure`. A native backend request uses the interpreter's actual `Series` or `Asymptotic` implementation; an inert built-in symbol does not provide that implementation. Package-local adapters leave the caller's native functions unchanged. These present limitations identify work toward the goal of complete compatibility.
 
 ### First Expansion
 
@@ -156,6 +185,30 @@ The first request has exclusive package cutoff `3`; the second requests native `
 
 <a id="native-backend-expansions"></a>
 ## Native Expansion Backends
+
+<a id="native-coverage-gaps"></a>
+### Known Deviations and Coverage Gaps
+
+The target includes **every successful input** of [Series](https://reference.wolfram.com/language/ref/Series.html), [Asymptotic](https://reference.wolfram.com/language/ref/Asymptotic.html), and [DiscreteAsymptotic](https://reference.wolfram.com/language/ref/DiscreteAsymptotic.html), including their options, conditions, and supported expression forms. Returning a different result head is permitted. Losing a condition, changing the requested approximation, or wrapping unresolved work as if it succeeded does not meet the requirement.
+
+**Complete coverage and correctness have not been established.** The following matrix summarizes known deviations and remaining verification gaps. The maintained [native compatibility plan](../../docs/development/NATIVE_COMPATIBILITY.md) records their implementation status and evidence; the [code-review register](../../docs/development/CODE_REVIEW_STATUS.md) tracks related correctness and API findings. Source inspection, a recorded counterexample, and a passing runtime check have different evidential scope.
+
+| Area | Current deviation or gap |
+| --- | --- |
+| `DiscreteAsymptotic` | No native backend or automatic route is implemented. `"Backend" -> "DiscreteAsymptotic"` is not an accepted selector. The discrete sequence, sum, product, coefficient, and recurrence problems covered by that built-in are part of the required target; existing continuous asymptotics do not establish their coverage. |
+| Automatic admission | Routing recognizes selected request shapes and a fixed list of package representation failures. Domain, inverse-branch, undecidable-order, resource, and other excluded failures can stop a request before a native engine that could handle it is tried. Explicit `"Series"` or `"Asymptotic"` selects the corresponding existing native path. |
+| Protected source forms and options | Any nested `Function`, `InverseFunction`, or `ConditionalExpression`, existing series/remainder objects, or an explicit direction, branch, or resource option keeps Automatic on the package path. This also protects ordinary expressions containing applied functions or algebraic-root encodings, and excludes some conditioned complex native requests. More precise classification remains open. |
+| Order and term goals | A successful package path retains its exclusive cutoff and nonzero-block count; native `Series` includes its requested order. Automatic can change between these conventions without translating the request. [Automatic Selection](#automatic-backend-routing) describes the currently admitted rule-form goals. Matching native order throughout the public interface remains unresolved. |
+| Configured defaults and the alias | Omitted backend selection currently hardcodes `Automatic`; it does not honor a configured `"Backend"` default. Configured term goals can also bypass the intended route. `AsymptoticExpand` forwards to `AsymptoticExpansion`, while ownership of independently configured alias defaults remains unresolved. Pass the intended backend and term goal explicitly. |
+| Option identity and argument roles | Computed option keys, equivalent string/symbol/context spellings, and variables named like options are not classified consistently. The same request can therefore receive different routing, diagnostics, or variable metadata. A shared option-resolution policy remains open. |
+| Native candidate search | Search uses runtime option-list membership to select compatible candidates and stops at the first syntactically computed result. Those lists do not characterize every form a native engine can actually accept; preserving the preferred unresolved result when attempts fail is also not successful coverage. |
+| Held, partial, and nonfinite outcomes | `"Computed"` means only that the stored expression contains none of the recognized abort, failure, or unevaluated native-call forms. Held native syntax can affect classification, and nested inactive or partly evaluated work needs a stronger completion policy. The status is not a correctness proof. |
+| Evaluation and storage | Automatic preparation can evaluate the source under a different assumption context or in a different order from a direct native call. Native construction also eagerly computes `Normal[result]`, potentially expanding a compact result before that view is requested. General evaluation compatibility and demand-driven storage remain open. |
+| Analytic import and later operations | Formal native coefficients do not establish an analytic tail theorem. Source-regularity admission and observable Taylor chart, endpoint, and one-sided-limit checks have open correctness audits. Package analytic arithmetic/refinement currently refuses native results; native operations must use `"NativeResult"`. |
+| Mathics runtime coverage | Current adapters and feature-specific checks cover part of the package. Native requests depend on the interpreter's actual implementations. Complete compatibility with Mathics, including the required three-function coverage, remains a project goal; see [Mathics3 Compatibility](#mathics-compatibility). |
+| Verification breadth | Focused differential suites cover selected native requests and preservation contracts. There is no exhaustive input catalog or validation of every native form, option combination, bound-variable arrangement, special function, or kernel version. Receipt counts apply to their recorded source snapshots and selections. |
+
+The distinct native result contract below preserves formal or backend-specific information without inventing a package analytic remainder. That representation is allowed by the target; it does not resolve admission, order, correctness, or runtime coverage gaps. Known limitations must remain documented as they are repaired and newly discovered cases are added to the compatibility plan.
 
 ### Details and Options
 
@@ -522,7 +575,7 @@ Normal[AsymptoticExpansion[x Log[-a] - x Log[-b] + x^2,
 x (Log[a] - Log[b]) + x^2
 ```
 
-The individual logarithms have imaginary parts that cancel. A surviving complex coefficient, as in `Log[-a] + x` under `a > 0` or `ArcSin[2 + x]` at zero, is rejected. The failure data distinguish `"Realness" -> "Nonreal"` from `"Realness" -> "Unproved"`; the latter means that the retained assumptions did not prove the required condition.
+The individual logarithms have imaginary parts that cancel. A surviving complex coefficient, as in `Log[-a] + x` under `a > 0` or `ArcSin[2 + x]` at zero, is rejected by `"Backend" -> "Package"`. An unprotected `Automatic` request can instead select a native representation. The package failure data distinguish `"Realness" -> "Nonreal"` from `"Realness" -> "Unproved"`; the latter means that the retained assumptions did not prove the required condition.
 
 `SeriesObservable` applies the same check to the completed observable, using its operand's retained assumptions. Complex intermediate Taylor coefficients may cancel across an expression, as in `ArcSin[2 + z] + ArcCos[2 + z]`. General coefficient checking does not discard imaginary parts. The structured special-function method can project a native approximation to its real part only after independently proving the source real and transporting its absolute error bound.
 
@@ -689,6 +742,22 @@ scaling. They apply even when only one coefficient is retained, and valid
 individual endpoints do not guarantee a valid difference. The sparse
 expansion, `Normal[s]`, and its remainder remain usable when this optional
 view is unavailable.
+
+For example, the following request retains the constant term and its exact
+omitted order even though the native index is too large:
+
+```wolfram
+Clear[x];
+large = 2^100;
+s = AsymptoticExpansion[1 + x^large, {x, 0, large},
+  "Backend" -> "Package"];
+{Normal[s], s["Remainder"],
+ MatchQ[s["SeriesData"], Missing["NativeSeriesDataRange", _Association]]}
+(* {1, PowerLogRemainder[x, 2^100, 0], True} *)
+```
+
+The `Missing` property describes an export limit; the construction itself
+still returned an analytic `GeneralizedSeries` result.
 
 <a id="PowerLogRemainder"></a>
 ## PowerLogRemainder
@@ -1557,6 +1626,8 @@ s = AsymptoticExpansion[operator[y], {y, 0, 2},
 ```
 
 The key is the inverse operator without its target argument. Every selection must satisfy the retained source condition and requested limiting target. A branch option cannot change a native closed form that has already replaced the operator.
+
+Automatic branch selection also needs evidence that its candidate search is complete or that the selected branch is unique. A single candidate in a finite search is insufficient by itself. For a supported connected real source domain, a strict derivative sign can establish uniqueness. Mathics supplies this proof only for the bounded polynomial and affine-domain cases described in its [callable guide](../../docs/Mathics/CALLABLES.md); its treatment of an unevaluated inverse can therefore differ from Wolfram's earlier conversion to a closed form.
 
 `InverseFunction[F, k, n][a1, ..., an]` solves for argument `k` of the scalar function `F`, using `ak` as the target. Other arguments remain parameters. Varying parameters are supported when the body has an established decomposition `A(x) F0(t) + B(x)` with nonzero `A(x)` eventually. Their variation is retained during composition.
 
@@ -2744,7 +2815,7 @@ For positive Gamma prefactors, `SeriesLog` returns the additive logarithmic expa
 | Ambiguous inverse branch | Restrict the source domain or supply `"InverseFunctionBranches"` for an unevaluated inverse operator. |
 | Incompatible source or target condition | Select an approach on which the condition holds eventually. |
 | Unexpected number of terms | Check whether the request is a cutoff, block goal, or marker/sector depth. Exact cancellations can remove blocks. |
-| Native and package requests retain different orders | Native `Series` includes its requested order; ordinary package cutoff excludes it. Inspect the selected `"Backend"`. |
+| Native and package requests retain different orders | Native `Series` includes its requested order; ordinary package cutoff excludes it. Inspect `"Kind"` and, for a native result, `"NativeBackend"`. |
 | Automatic returns a native result | Inspect `"BackendSelectionReason"`, `"NativeBackend"`, `"NativeAttempts"`, and `"OrderConvention"`. Native order and term goals can differ from package cutoff and block goals. |
 | A native result is unresolved or failed | Inspect `"NativeResult"`, `"NativeEvaluationStatus"`, and the automatic `"NativeAttempts"`. Explicit backend selection and backend-specific options can restrict the call to one engine. |
 | Native evaluation is aborted | Automatic search stops at `"Aborted"`; it does not retry the other engine. |
@@ -2758,10 +2829,12 @@ For positive Gamma prefactors, `SeriesLog` returns the additive logarithmic expa
 | `SeriesCompose` returns `"IncompatibleCompositionParameters"` | Choose a joint approach on which the original parameter assumptions hold eventually. |
 | Derivative operation fails | Establish the necessary derivative remainder contract; a value Big-O is insufficient. |
 | Certificate fails near an interval boundary | Check poles, endpoint signs, strict source conditions, and the interval's containment in the selected branch. |
-| `"SeriesData"` is missing | Inspect the reason. A positive logarithmic remainder degree, irrational exponents, separate error scales, or an excessive retained coefficient span can prevent the optional native view. Use the sparse result and its complete remainder. |
+| `"SeriesData"` is missing | Inspect the reason. A positive logarithmic remainder degree, irrational exponents, separate error scales, or native index and coefficient-allocation limits can prevent the optional view. Use the sparse result and its complete remainder; see [Native SeriesData View](#native-series-remainder-view). |
 | A composite result rejects `"Cutoff"` | Truncate or refine supported operands in their own scales, then combine them again. |
 | A quotient loses precision or fails | Check the denominator's leading term and relative remainder; normalization cannot infer a nonzero function from a pure remainder. |
 | Resource limit | Reduce the order or expression complexity, or raise the relevant budget. A partial result does not establish omitted coefficients. |
+| A Mathics call remains unevaluated after loading | Load the package in a separate input expression before parsing its calls, and check the [Mathics compatibility guide](../../docs/Mathics/COMPATIBILITY.md) for the selected operation's scope. |
+| Mathics reaches its iteration limit | Apply the explicit session setting in [Mathics3 Compatibility](#mathics-compatibility). Evaluator iterations, package term limits, and elapsed-time limits are separate budgets. |
 
 Ordinary power-log coefficients are polynomials in a single logarithm. Arbitrary nested logarithms, unrelated exponential-sector sums, and arbitrary oscillatory coefficients require a compatible specialized family for an ordered expansion. Arithmetic can retain compatible existing expansions as a composite bound without asserting closure in a single coefficient scale.
 
@@ -2773,11 +2846,12 @@ Use `FailureQ[result]` to check a result before querying its properties. Failure
 
 ## See Also
 
-Wolfram Language: [Series](https://reference.wolfram.com/language/ref/Series.html), [Asymptotic](https://reference.wolfram.com/language/ref/Asymptotic.html), [InverseFunction](https://reference.wolfram.com/language/ref/InverseFunction.html), [Function](https://reference.wolfram.com/language/ref/Function.html), [ConditionalExpression](https://reference.wolfram.com/language/ref/ConditionalExpression.html), [ProductLog](https://reference.wolfram.com/language/ref/ProductLog.html), [LogBarnesG](https://reference.wolfram.com/language/ref/LogBarnesG.html), [Normal](https://reference.wolfram.com/language/ref/Normal.html).
+Wolfram Language: [Series](https://reference.wolfram.com/language/ref/Series.html), [Asymptotic](https://reference.wolfram.com/language/ref/Asymptotic.html), [DiscreteAsymptotic](https://reference.wolfram.com/language/ref/DiscreteAsymptotic.html), [InverseFunction](https://reference.wolfram.com/language/ref/InverseFunction.html), [Function](https://reference.wolfram.com/language/ref/Function.html), [ConditionalExpression](https://reference.wolfram.com/language/ref/ConditionalExpression.html), [ProductLog](https://reference.wolfram.com/language/ref/ProductLog.html), [LogBarnesG](https://reference.wolfram.com/language/ref/LogBarnesG.html), [Normal](https://reference.wolfram.com/language/ref/Normal.html).
 
 ## Related Guides
 
 - [Mathematical article](../../docs/article/asymptotic-inverse.pdf): mathematical definitions, results, and proofs.
 - [Executable examples](../Examples/Examples.wl): additional package expressions.
+- [Mathics compatibility](../../docs/Mathics/COMPATIBILITY.md): installation, bounded runtime contracts, and feature-specific validation.
 - [Package entry point](../README.md): loading and documentation links.
 - [Wolfram Language asymptotic computations](https://reference.wolfram.com/language/guide/Asymptotics.html): related built-in functionality.

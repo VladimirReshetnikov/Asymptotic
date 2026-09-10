@@ -51,7 +51,7 @@ table:has(th:nth-child(3)) th:nth-child(3) { width: 54%; }
 ul, ol { padding-left: 1.4rem; }
 blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: #4d5660; }
 #TOC { position: fixed; inset: 0 auto 0 0; width: 288px; overflow: auto; background: #f5f6f8; border-right: 1px solid var(--line); padding: 2rem 1.45rem; font-size: .8rem; }
-#TOC::before { content: "AsymptoticInverse"; display: block; font-size: 1.15rem; color: var(--accent); font-weight: 600; margin-bottom: .3rem; }
+#TOC::before { content: "AsymptoticAnalysis"; display: block; font-size: 1.15rem; color: var(--accent); font-weight: 600; margin-bottom: .3rem; }
 #TOC::after { content: "Custom package reference"; display: block; font-size: .72rem; color: #68717b; margin-top: 1.5rem; }
 #TOC ul { padding: 0; list-style: none; margin: 0; }
 #TOC > ul > li > a { display: block; color: #505a66; font-size: .75rem; margin-bottom: .9rem; }
@@ -59,6 +59,7 @@ blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2re
 #TOC li li li { display: none; }
 @media (max-width: 1050px) { body > section { padding: 2rem 2.2rem 4rem; margin-left: 250px; } #TOC { width: 250px; padding: 1.6rem 1.2rem; } }
 @media (max-width: 760px) { #TOC { position: static; width: auto; max-height: 19rem; border-bottom: 1px solid var(--line); } body > section { margin-left: 0; padding: 1.7rem 1.2rem 3rem; } h1 { font-size: 2rem; } h2 { font-size: 1.45rem; } pre { padding: .8rem; } table { font-size: .8rem; } th, td { padding: .5rem; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 @media print { #TOC { display: none; } body { font-size: 10pt; } body > section { margin: 0; padding: 0; max-width: none; } h2, h3, h4 { break-after: avoid; } pre, tr { break-inside: avoid; } pre code { white-space: pre-wrap; } a { color: inherit; } }
 </style>
 <link rel="icon" href="data:,">
@@ -112,6 +113,13 @@ logarithmic coefficients, finite and infinite endpoints, and explicit
 remainder classes. Additional constructors handle logarithmic
 hierarchies, exponential sectors, oscillatory coefficients, and selected
 special functions.</p>
+<p><strong>Complete package compatibility with both the official Wolfram
+kernel and <a href="https://mathics.org/">Mathics3</a> is a project
+goal.</strong> Mathics support is under active development: the
+implemented adapters and recorded checks currently cover selected
+operations. See <a href="#mathics-compatibility">Mathics3
+Compatibility</a> for loading instructions and the current coverage
+boundary.</p>
 <p>The package name and context changed from AsymptoticInverse to
 AsymptoticAnalysis. Public function names, including
 <code>AsymptoticInverse</code>, are unchanged.</p>
@@ -128,7 +136,9 @@ Backends</a>.</p>
 article</a> for definitions, results, and proofs.</p>
 <section id="getting-started" class="level2">
 <h2>Getting Started</h2>
-<p>The package requires Wolfram Language 15.0 or later. Load the current
+<p>The package&#39;s declared Wolfram Language requirement is version 15.0
+or later. For Mathics3, use the <a href="#mathics-compatibility">runtime-specific instructions</a> below.
+The Wolfram Language instructions here load the current
 <code>main</code> version directly from GitHub:</p>
 <pre class="wolfram"><code>Get[URLDownload[
   &quot;https://raw.githubusercontent.com/VladimirReshetnikov/Asymptotic/main/AsymptoticAnalysis.wl&quot;]];</code></pre>
@@ -176,6 +186,45 @@ with:</p>
 context:</p>
 <pre class="wolfram"><code>PacletDirectoryLoad[&quot;src&quot;];
 Needs[&quot;AsymptoticAnalysis`&quot;];</code></pre>
+<p><a id="mathics-compatibility"></a></p>
+</section>
+<section id="mathics3-compatibility" class="level3">
+<h3>Mathics3 Compatibility</h3>
+<p>Mathics3 uses the same public package context and file entry points.
+<strong>The target is complete compatibility; the current implementation
+and verified coverage are incomplete.</strong> Existing adapters cover
+selected exact calculations, and the full scope of the Wolfram Language
+interface below has not been established on Mathics. Start with the <a href="../../docs/Mathics/COMPATIBILITY.md">Mathics installation and
+compatibility guide</a>, which identifies the pinned interpreter
+dependencies, checked examples, and remaining work.</p>
+<p>From the repository root, load the modular source in the Mathics
+interpreter:</p>
+<pre class="wolfram"><code>Get[&quot;src/Kernel/AsymptoticAnalysis.wl&quot;];</code></pre>
+<p>Evaluate the load before entering package calls. In particular, do
+not combine the load and the first call in one command-line
+<code>--code</code> expression: Mathics can bind unknown package names
+to the global context while parsing that whole expression. A
+<code>.wl</code> script with separate input expressions supports the
+required loading order. The repository-root
+<code>AsymptoticAnalysis.wl</code> is the alternative standalone entry
+point.</p>
+<p>The portable examples use a larger Mathics iteration budget, set
+explicitly in the session:</p>
+<pre class="wolfram"><code>If[StringContainsQ[$Version, &quot;Mathics&quot;], $IterationLimit = 1000000];</code></pre>
+<p>This evaluator budget is separate from the package&#39;s
+<code>&quot;MaxTerms&quot;</code> limit. The package does not raise the session&#39;s
+global iteration limit automatically. Inspect results through
+<code>Normal[s]</code>, <code>s[&quot;Remainder&quot;]</code>, and
+<code>InputForm[s]</code> when front-end formatting differs.</p>
+<p>Mathics&#39; currently implemented <a href="../../docs/Mathics/ASSUMPTIONS.md">assumption consequences</a> and
+<a href="../../docs/Mathics/CALLABLES.md">inverse-branch proofs</a> are
+bounded exact rules. A domain or sign that these rules cannot prove
+remains unresolved or produces a <code>Failure</code>. A native backend
+request uses the interpreter&#39;s actual <code>Series</code> or
+<code>Asymptotic</code> implementation; an inert built-in symbol does
+not provide that implementation. Package-local adapters leave the
+caller&#39;s native functions unchanged. These present limitations identify
+work toward the goal of complete compatibility.</p>
 </section>
 <section id="first-expansion" class="level3">
 <h3>First Expansion</h3>
@@ -1184,8 +1233,10 @@ Normal[AsymptoticExpansion[x Log[-a] - x Log[-b] + x^2,
 <pre class="wolfram"><code>x (Log[a] - Log[b]) + x^2</code></pre>
 <p>The individual logarithms have imaginary parts that cancel. A
 surviving complex coefficient, as in <code>Log[-a] + x</code> under
-<code>a &gt; 0</code> or <code>ArcSin[2 + x]</code> at zero, is
-rejected. The failure data distinguish
+<code>a &gt; 0</code> or <code>ArcSin[2 + x]</code> at zero, is rejected
+by <code>&quot;Backend&quot; -&gt; &quot;Package&quot;</code>. An unprotected
+<code>Automatic</code> request can instead select a native
+representation. The package failure data distinguish
 <code>&quot;Realness&quot; -&gt; &quot;Nonreal&quot;</code> from
 <code>&quot;Realness&quot; -&gt; &quot;Unproved&quot;</code>; the latter means that the
 retained assumptions did not prove the required condition.</p>
@@ -1493,6 +1544,18 @@ coefficient scaling. They apply even when only one coefficient is
 retained, and valid individual endpoints do not guarantee a valid
 difference. The sparse expansion, <code>Normal[s]</code>, and its
 remainder remain usable when this optional view is unavailable.</p>
+<p>For example, the following request retains the constant term and its
+exact omitted order even though the native index is too large:</p>
+<pre class="wolfram"><code>Clear[x];
+large = 2^100;
+s = AsymptoticExpansion[1 + x^large, {x, 0, large},
+  &quot;Backend&quot; -&gt; &quot;Package&quot;];
+{Normal[s], s[&quot;Remainder&quot;],
+ MatchQ[s[&quot;SeriesData&quot;], Missing[&quot;NativeSeriesDataRange&quot;, _Association]]}
+(* {1, PowerLogRemainder[x, 2^100, 0], True} *)</code></pre>
+<p>The <code>Missing</code> property describes an export limit; the
+construction itself still returned an analytic
+<code>GeneralizedSeries</code> result.</p>
 <p><a id="PowerLogRemainder"></a></p>
 </section>
 </section>
@@ -2364,6 +2427,14 @@ s = AsymptoticExpansion[operator[y], {y, 0, 2},
 selection must satisfy the retained source condition and requested
 limiting target. A branch option cannot change a native closed form that
 has already replaced the operator.</p>
+<p>Automatic branch selection also needs evidence that its candidate
+search is complete or that the selected branch is unique. A single
+candidate in a finite search is insufficient by itself. For a supported
+connected real source domain, a strict derivative sign can establish
+uniqueness. Mathics supplies this proof only for the bounded polynomial
+and affine-domain cases described in its <a href="../../docs/Mathics/CALLABLES.md">callable guide</a>; its treatment
+of an unevaluated inverse can therefore differ from Wolfram&#39;s earlier
+conversion to a closed form.</p>
 <p><code>InverseFunction[F, k, n][a1, ..., an]</code> solves for
 argument <code>k</code> of the scalar function <code>F</code>, using
 <code>ak</code> as the target. Other arguments remain parameters.
@@ -4292,8 +4363,8 @@ depth. Exact cancellations can remove blocks.</td>
 <tr>
 <td>Native and package requests retain different orders</td>
 <td>Native <code>Series</code> includes its requested order; ordinary
-package cutoff excludes it. Inspect the selected
-<code>&quot;Backend&quot;</code>.</td>
+package cutoff excludes it. Inspect <code>&quot;Kind&quot;</code> and, for a
+native result, <code>&quot;NativeBackend&quot;</code>.</td>
 </tr>
 <tr>
 <td>Automatic returns a native result</td>
@@ -4375,9 +4446,9 @@ interval&#39;s containment in the selected branch.</td>
 <tr>
 <td><code>&quot;SeriesData&quot;</code> is missing</td>
 <td>Inspect the reason. A positive logarithmic remainder degree,
-irrational exponents, separate error scales, or an excessive retained
-coefficient span can prevent the optional native view. Use the sparse
-result and its complete remainder.</td>
+irrational exponents, separate error scales, or native index and
+coefficient-allocation limits can prevent the optional view. Use the
+sparse result and its complete remainder; see <a href="#native-series-remainder-view">Native SeriesData View</a>.</td>
 </tr>
 <tr>
 <td>A composite result rejects <code>&quot;Cutoff&quot;</code></td>
@@ -4394,6 +4465,18 @@ remainder.</td>
 <td>Resource limit</td>
 <td>Reduce the order or expression complexity, or raise the relevant
 budget. A partial result does not establish omitted coefficients.</td>
+</tr>
+<tr>
+<td>A Mathics call remains unevaluated after loading</td>
+<td>Load the package in a separate input expression before parsing its
+calls, and check the <a href="../../docs/Mathics/COMPATIBILITY.md">Mathics compatibility
+guide</a> for the selected operation&#39;s scope.</td>
+</tr>
+<tr>
+<td>Mathics reaches its iteration limit</td>
+<td>Apply the explicit session setting in <a href="#mathics-compatibility">Mathics3 Compatibility</a>. Evaluator
+iterations, package term limits, and elapsed-time limits are separate
+budgets.</td>
 </tr>
 </tbody>
 </table>
@@ -4434,6 +4517,9 @@ unsupported scale, available precision, or best expansion.</p>
 article</a>: mathematical definitions, results, and proofs.</li>
 <li><a href="../Examples/Examples.wl">Executable examples</a>:
 additional package expressions.</li>
+<li><a href="../../docs/Mathics/COMPATIBILITY.md">Mathics
+compatibility</a>: installation, bounded runtime contracts, and
+feature-specific validation.</li>
 <li><a href="../README.md">Package entry point</a>: loading and
 documentation links.</li>
 <li><a href="https://reference.wolfram.com/language/guide/Asymptotics.html">Wolfram
