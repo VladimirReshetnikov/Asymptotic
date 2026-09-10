@@ -366,6 +366,22 @@ portableTest["inverse-residual", "inverse",
   Module[{x, y}, InverseResidual[AsymptoticInverse[x + x^2, {x, 0}, {y, 4}]]["ZeroBelowCutoff"]],
   True];
 
+portableTest["inverse-coefficient-explicit-power-precedence", "inverse",
+  Module[{x, y, s, s2}, s = AsymptoticInverse[x + x^2, {x, 0}, {y, 4}];
+    s2 = AsymptoticInverse[x + x^2, {x, 0}, {y, 4}, "Power" -> 2];
+    {InverseExpansionCoefficient[s, {2}]["Coefficient"],
+      InverseExpansionCoefficient[s, {2}, "Power" -> 1]["Coefficient"],
+      InverseExpansionCoefficient[s, {2}, "Power" -> 2]["Coefficient"] === InverseExpansionCoefficient[s2, {2}]["Coefficient"],
+      InverseExpansionCoefficient[s, {2}, "Power" -> 2]["Coefficient"] =!= InverseExpansionCoefficient[s, {2}]["Coefficient"]}],
+  {2, 2, True, True}];
+
+portableTest["inverse-residual-target-offset-label", "inverse",
+  Module[{x, y, r, control}, r = InverseResidual[AsymptoticInverse[3 + x + x^2, {x, 0}, {y, 4}]];
+    control = InverseResidual[AsymptoticInverse[x + x^2, {x, 0}, {y, 4}]];
+    {r["ZeroBelowCutoff"], r["TargetOffset"], StringTake[r["Normalization"], 14],
+      control["TargetOffset"], StringTake[control["Normalization"], 12]}],
+  {True, 3, "(f(g(y)) - y0)", 0, "f(g(y))/(a z"}];
+
 portableTest["inverse-perturbative-formula", "inverse",
   Module[{x, y}, Simplify[PerturbativeInverse[x^2 (1 + Log[x]), {x, y}, 2] -
     (y - y^2 (1 + Log[y]) + y^3 (2 Log[y]^2 + 5 Log[y] + 3))]],

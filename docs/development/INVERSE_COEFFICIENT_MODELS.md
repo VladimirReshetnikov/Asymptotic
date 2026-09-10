@@ -4,7 +4,8 @@
 inverse model. A `GeneralizedSeries` head alone does not imply that this model
 exists. This repair addresses W3-08, report 22 A01, and the associated C11/D02
 capability concern. The separate C09 stored-versus-explicit `"Power"` precedence
-issue remains open.
+issue is now resolved with explicit-option precedence; see the
+[implementation register](CODE_REVIEW_STATUS.md#c09--resolve-stored-versus-explicitly-supplied-coefficient-power).
 
 ## Public behavior
 

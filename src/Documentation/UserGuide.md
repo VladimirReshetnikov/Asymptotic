@@ -2541,7 +2541,7 @@ A value-only Big-O remainder does not establish a derivative remainder. Supply `
 <a id="InverseResidual"></a>
 ### InverseResidual
 
-`InverseResidual[s]` returns a report association checking composition of the retained forward model with the finite inverse. The report includes the normalized residual, cutoff, and scope. `InverseResidual[s, h]` supplies a relative residual cutoff in the recorded uniformizing coordinate. The option is `"MaxTerms" -> 200000`.
+`InverseResidual[s]` returns a report association checking composition of the retained forward model with the finite inverse. The report includes the normalized residual, cutoff, and scope. `InverseResidual[s, h]` supplies a relative residual cutoff in the recorded uniformizing coordinate. The option is `"MaxTerms" -> 200000`. The ordinary normalization is `(f(g(y)) - y0)/(a z^p) - 1`, where `y0` is the finite target offset reported as `"TargetOffset"` (zero at an infinite target, where the label reads `f(g(y))/(a z^p) - 1`) and `z` is the uniformizer of `y - y0`.
 
 **Input**
 
@@ -2686,7 +2686,7 @@ Inspect `"LeadingPower"`, `"LeadingCoefficient"`, `"Gaps"`, `"Polynomials"`, and
 <a id="InverseExpansionCoefficient"></a>
 ### InverseExpansionCoefficient
 
-`InverseExpansionCoefficient[s, {k1, k2, ...}]` returns an association describing the exact contribution of one ordinary inverse multi-index. A `PowerLogModel` association may replace `s`; for that form, `"Power" -> 1` selects the observable.
+`InverseExpansionCoefficient[s, {k1, k2, ...}]` returns an association describing the exact contribution of one ordinary inverse multi-index. A `PowerLogModel` association may replace `s`; for that form, `"Power" -> 1` selects the observable. For a result object, the option defaults to the object's stored `"Power"`, and an explicit `"Power"` takes precedence over it; both are observable powers of the source displacement, and at an infinite endpoint both are converted to the internal uniformizer convention in the same way, so `InverseExpansionCoefficient[s, k, "Power" -> 2]` agrees with the coefficient of the same inverse constructed with `"Power" -> 2`.
 
 The result must retain an ordinary inverse coefficient model. Forward expansions, derived results without that model, exact-core expansions, and Fourier inverses return `Failure["UnsupportedCoefficientModel", ...]` without emitting messages. The query does not construct an inverse model from a forward expansion. Native results retain their `"NativeSeriesContract"` refusal; logarithmic-scale inverses retain `"Unsupported"` and expose their coefficients through `"Terms"`.
 

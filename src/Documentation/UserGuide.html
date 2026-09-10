@@ -3849,7 +3849,11 @@ composition of the retained forward model with the finite inverse. The
 report includes the normalized residual, cutoff, and scope.
 <code>InverseResidual[s, h]</code> supplies a relative residual cutoff
 in the recorded uniformizing coordinate. The option is
-<code>&quot;MaxTerms&quot; -&gt; 200000</code>.</p>
+<code>&quot;MaxTerms&quot; -&gt; 200000</code>. The ordinary normalization is
+<code>(f(g(y)) - y0)/(a z^p) - 1</code>, where <code>y0</code> is the
+finite target offset reported as <code>&quot;TargetOffset&quot;</code> (zero at an
+infinite target, where the label reads <code>f(g(y))/(a z^p) - 1</code>)
+and <code>z</code> is the uniformizer of <code>y - y0</code>.</p>
 <p><strong>Input</strong></p>
 <pre class="wolfram"><code>s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
 InverseResidual[s][&quot;ZeroBelowCutoff&quot;]</code></pre>
@@ -4153,7 +4157,14 @@ the correction variables used by a coefficient request.</p>
 association describing the exact contribution of one ordinary inverse
 multi-index. A <code>PowerLogModel</code> association may replace
 <code>s</code>; for that form, <code>&quot;Power&quot; -&gt; 1</code> selects the
-observable.</p>
+observable. For a result object, the option defaults to the object&#39;s
+stored <code>&quot;Power&quot;</code>, and an explicit <code>&quot;Power&quot;</code> takes
+precedence over it; both are observable powers of the source
+displacement, and at an infinite endpoint both are converted to the
+internal uniformizer convention in the same way, so
+<code>InverseExpansionCoefficient[s, k, &quot;Power&quot; -&gt; 2]</code> agrees
+with the coefficient of the same inverse constructed with
+<code>&quot;Power&quot; -&gt; 2</code>.</p>
 <p>The result must retain an ordinary inverse coefficient model. Forward
 expansions, derived results without that model, exact-core expansions,
 and Fourier inverses return

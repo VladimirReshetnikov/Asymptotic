@@ -99,7 +99,7 @@ W3-08 now has [99/0 focused native acceptance](../../validation/inverse-coeffici
 The [coefficient-model note](INVERSE_COEFFICIENT_MODELS.md) records the four
 message-emitting unsupported object families, the capability check, preserved
 ordinary coefficients and special refusal tags, and the first-pass fixture
-corrections. C09's separate option precedence issue remains open.
+corrections. C09's separate option precedence issue is now closed with explicit precedence.
 
 W3-06 now has independently reproduced native failures and
 [131/0 focused native acceptance](../../validation/observable-ingress-main-sync-tests.json).
@@ -432,22 +432,26 @@ but weaker expansion must not be described as an achieved requested cutoff.
 
 ### C09 — Resolve stored versus explicitly supplied coefficient power
 
-**Pending — source inspected; policy decision needed.** The object overload of
-`InverseExpansionCoefficient` places the stored `"Power"` option before caller
-options. Choose explicit-option precedence or reject a conflict. Test omitted,
-matching, and conflicting options at finite and infinite source endpoints.
+**Focused verified — explicit precedence.** The object overload of
+`InverseExpansionCoefficient` now reads an explicit caller `"Power"` before
+the stored observable power, and converts either to the internal uniformizer
+convention at an infinite endpoint. Omitted and matching options reproduce the
+stored coefficient; a conflicting option agrees with the coefficient of the
+same inverse constructed with that power, at finite and infinite endpoints
+([tests](../../src/Tests/ReviewCoefficientPowerResidualLabel.wlt)).
 Source: [core coefficient overload](../../src/Kernel/AsymptoticAnalysis.wl).
 Finding: [R6 A03][R6].
 
 ### C10 — Include the target offset in residual normalization labels
 
-**Pending — source inspected.** The usage and ordinary residual label say
-`f(g(y))/(a z^p)-1`; the translated model requires
-`(f(g(y))-y0)/(a z^p)-1`. Inspect the actual residual calculation alongside the
-wording and retain its finite-model scope. Test nonzero target offset and the
-zero-offset control. Source: [core residual API](../../src/Kernel/AsymptoticAnalysis.wl).
-Finding: [R5 F05][R5]. This entry does not assert that the calculated residual
-has the same defect as the label.
+**Focused verified — label only.** The calculation already used `v = y - y0`;
+the usage and the `"Normalization"` label now read
+`(f(g(y)) - y0)/(a z^p) - 1` for a finite target offset, which the report also
+returns as `"TargetOffset"`, and keep `f(g(y))/(a z^p) - 1` at an infinite
+target. The nonzero-offset residual `3 + x + x^2` and the zero-offset control
+are [tested](../../src/Tests/ReviewCoefficientPowerResidualLabel.wlt).
+Source: [core residual API](../../src/Kernel/AsymptoticAnalysis.wl).
+Finding: [R5 F05][R5]. The calculated residual did not share the label's defect.
 
 ### C11 — Validate externally constructed or restored result associations
 
@@ -648,8 +652,8 @@ adds all 44 entries from reports 19–27 and the consolidated `W3-*` work items.
    zero-demand case; then replace the fixed
    margins with backward demand planning. Address P01–P03 as bounded resource
    fixes, followed by measured P04/P05 work.
-6. Address C23, C09/C10 and remaining W3 items with focused contract checks;
-   C20, C21, D04, D08 and V02 are closed above, and C22 is closed for truncation but not for arithmetic.
+6. Address C23 and remaining W3 items with focused contract checks;
+   C09, C10, C20, C21, D04, D08 and V02 are closed above, and C22 is closed for truncation but not for arithmetic.
    Resolve D10's lower-cutoff refinement policy separately from a soundness fix.
    Distinguish correctness repairs, required coverage gaps, and additional
    mathematical generality when evaluating the recorded proposals. Map every

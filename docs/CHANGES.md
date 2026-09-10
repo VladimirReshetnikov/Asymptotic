@@ -38,6 +38,11 @@ as `x - (2^10000 + 1)` with an exact supplied center, now certifies at the
 lowest enclosure order instead of failing at every order. Nonlinear parts
 keep their outward enclosures.
 
+`InverseExpansionCoefficient[s, k, "Power" -> p]` on a result object now
+lets the explicit option override the stored observable power, with the same
+infinite-endpoint conversion. `InverseResidual` reports `"TargetOffset"` and
+labels its normalization `(f(g(y)) - y0)/(a z^p) - 1` at a finite target.
+
 `InverseNumericalCheck` solves in the local source coordinate and reports
 `"LocalRoot"`, `"LocalApproximation"`, `"SourceOffset"` and `"SourceSide"`.
 A small displacement at a huge source origin such as `x -> 10^100` is no

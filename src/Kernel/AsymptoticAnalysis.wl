@@ -77,7 +77,7 @@ O[w^beta (1 + Abs[Log[w]])^k] as w -> 0+.";
 InverseResidual::usage =
 "InverseResidual[s] composes the forward model with the truncated inverse in the exact \
 power-log jet algebra and returns a report association containing the normalized residual \
-f(g(y))/(a z^p) - 1 below the residual cutoff, together with its cutoff and scope. \
+(f(g(y)) - y0)/(a z^p) - 1 below the residual cutoff, where y0 is the finite target offset (zero at an infinite target), together with its cutoff, offset and scope. \
 InverseResidual[s, h] uses the relative cutoff h in the uniformizer.
 For GammaInverse with Power -> 1, it checks the finite Stirling residual normalized by CoreInverse Log[CoreInverse], \
 reporting the separate forward-model error and the exact logarithmic equation residual expression. \
@@ -1258,10 +1258,14 @@ residual[a_Association, h_, limit_] := Module[{model = a["Model"], blocks = a["B
   res = modelEquation[U, d, polys, p, cut, ell, ass, limit];
   y = a["Variable"];
   v = If[a["Limit"] === Infinity || a["Limit"] === -Infinity, y, y - a["Limit"]];
+  (* The label states the translated model: the target offset y0 = Limit is
+     subtracted before normalization, exactly as v = y - y0 is used above. *)
   <|"ZeroBelowCutoff" -> (res === {}),
     "NormalizedResidual" -> Total[((v/aa)^ToRadicals[canon[#[[1]]/p]] (ToRadicals[#[[2]]] /. ell -> Log[v/aa]/p)) & /@ res],
     "ResidualBlocks" -> res, "RelativeCutoff" -> ToRadicals[cut],
-    "Normalization" -> "f(g(y))/(a z^p) - 1 with z the uniformizer; blocks are in z",
+    "TargetOffset" -> If[v === y, 0, a["Limit"]],
+    "Normalization" -> If[v === y, "f(g(y))/(a z^p) - 1 with z the uniformizer; blocks are in z",
+      "(f(g(y)) - y0)/(a z^p) - 1 with y0 = TargetOffset and z the uniformizer of y - y0; blocks are in z"],
     "Scope" -> "Formal composition with the finite forward model only."|>];
 
 (* ------------------------------------------------------------------ *)
@@ -1348,8 +1352,13 @@ InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : Opt
      "Kind" -> Lookup[a, "Kind", Missing["Unknown"]],
      "Scale" -> Lookup[a, "Scale", "PowerLog"]|>],
   True,
-   InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
-    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
+   (* An explicit caller "Power" takes precedence over the stored observable
+      power; both are observable powers of the source displacement and are
+      converted to the internal uniformizer convention at an infinite endpoint. *)
+   Module[{explicit = FilterRules[{opts}, "Power"], power},
+    power = If[explicit === {}, a["Power"], "Power" /. explicit];
+    InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
+     k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -power, power]]]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)

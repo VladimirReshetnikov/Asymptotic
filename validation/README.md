@@ -46,6 +46,17 @@ suite was run.
   `numerical-local-coordinate-huge-offset`; on Mathics the case also depends
   on the `"Ratio"` zero test becoming `scale > 0`, because Mathics' tolerant
   `Equal` treats a ten-digit `10^-12` as zero.
+* **C09 and C10 — coefficient power precedence and residual offset label.**
+  The [six-file run](coefficient-power-residual-label-tests.json) from
+  [CheckCoefficientPowerResidualLabel.wl](CheckCoefficientPowerResidualLabel.wl)
+  passes **111/111** with three new tests: omitted, matching and conflicting `"Power"`
+  options at a finite and an infinite endpoint, and the residual label with a
+  nonzero target offset against its zero-offset control. The
+  [official-kernel](wolfram-coefficient-power-residual-label-tests.json) and
+  [Mathics](mathics-modular-coefficient-power-residual-label-probe.json) probes
+  pass 3/3 each with the new cases
+  `inverse-coefficient-explicit-power-precedence` and
+  `inverse-residual-target-offset-label`.
 * **C22 — bound transport through truncation.** The
   [four-file run](truncation-bounds-tests.json) passes **94/94** from
   [CheckTruncationBounds.wl](CheckTruncationBounds.wl). Its new Zeta and
