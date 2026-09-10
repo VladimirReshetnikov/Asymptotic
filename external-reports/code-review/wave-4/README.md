@@ -53,7 +53,9 @@ the further checks needed before integration.
 
 The supplied package directories, including their READMEs, articles, code,
 evidence, historical links, and notices, remain preserved. Their own READMEs
-describe reproduction commands and platform limits. POSIX process supervisors
+describe reproduction commands and platform limits. Some commands regenerate
+evidence, so reproduce in a separate copy when preserving the submitted
+record. Candidate patches may require their original pinned source layout. POSIX process supervisors
 do not establish Windows process-tree behavior. Source excerpts and original
 review material may have different licenses; see, for example,
 [29's upstream license](code-review-29/fixtures/LICENSE-upstream.txt),
@@ -61,6 +63,11 @@ review material may have different licenses; see, for example,
 and [35's upstream license](code-review-35/upstream/LICENSE).
 This index does not establish a common license or imply that supplied programs
 have been executed during intake.
+
+For maintained runtime evidence, consult the
+[Mathics compatibility guide](../../../docs/Mathics/COMPATIBILITY.md),
+[portable API inventory](../../../docs/Mathics/API-COVERAGE.md), and
+[validation record](../../../validation/README.md).
 
 Return to the [four-wave index](../README.md) or the
 [development workflow](../../../docs/development/README.md).

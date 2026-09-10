@@ -2573,6 +2573,24 @@ check["Error"]
 
 Use exact targets or targets with sufficient input precision. Exact target offsets are subtracted before numerical evaluation. The operation also supports the admitted transformed, logarithmic, Fourier, flat, core, and special inverse families. Its output is numerical evidence, not an interval certificate.
 
+`WorkingPrecision` is a requested solver setting. The
+[ordinary checker](../Kernel/NumericalInverseChecks.wl) checks the input target's
+precision and the recovered source branch, but does not verify the achieved
+`Precision` or `Accuracy` of the reference root.
+
+In Mathics 10.0.1, the
+[root-finder implementation](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/builtin/numbers/calculus.py#L606-L620)
+does not list `WorkingPrecision` and evaluates the seed through `eval_N`, whose
+[default precision is machine precision](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/eval/nevaluator.py#L24-L42).
+Increasing the request or applying `N[root, digits]` afterward does not recover
+digits lost by that solver path. Depending on the request, Mathics can instead
+fail or leave the check unresolved.
+
+The recorded Mathics
+[`numerical-exact-quadratic-inverse` smoke check](../../validation/mathics-modular-tests.json)
+establishes its exact-root example, not general high-precision accuracy.
+See [Mathics coverage](../../docs/Mathics/API-COVERAGE.md) for the tested scope.
+
 <a id="InverseCertificate"></a>
 ### InverseCertificate
 
@@ -2635,6 +2653,18 @@ When several valid attempts are available, the best certificate is selected lexi
 An exhausted retry budget returns `Failure["AccuracyNotReached", ...]` if a valid certificate was found, retaining it as `"BestCertificate"`. Its `"EnclosureOrder"` can differ from the final attempted order. The failure records `"StoppingReason" -> "RefinementBudgetExhausted"`, `"FinalEnclosureOrder"`, `"EnclosureOrderLimit"`, and the retry counts. These distinguish the retry budget from the order cap. A fixed center with a proved positive accuracy floor can return `Failure["AccuracyFloor", ...]`, containing both `"BestCertificate"` and the `"AccuracyFloorCertificate"` that proves the obstruction.
 
 The certificate concerns the stored explicit equation within the supplied interval. It does not establish a global inverse branch or enclose unspecified terms represented only by an input remainder. All retained source conditions must hold throughout the closed verification interval. A strict source condition therefore also constrains its endpoints.
+
+The numerical-root limitation above does not replace the certificate's
+separate proof obligation. In the
+[certificate implementation](../Kernel/InverseCertificates.wl), numerical
+seeds and `WorkingPrecision` plan the computation; successful error bounds
+come from exact rational enclosures and explicit inequalities. Mathics evidence
+currently includes an exact rational quadratic-root certificate and a
+fixed-center `AccuracyFloor` case in the
+[recorded portable checks](../../validation/mathics-modular-tests.json).
+Those cases do not establish all adaptive, relative-tolerance, or
+nonpolynomial elementary-tail paths. Their coverage remains listed separately
+in the [Mathics API inventory](../../docs/Mathics/API-COVERAGE.md).
 
 <a id="PowerLogModel"></a>
 ### PowerLogModel

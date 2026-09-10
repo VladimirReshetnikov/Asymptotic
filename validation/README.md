@@ -1,5 +1,21 @@
 # Review and validation record
 
+This page preserves evidence from individual source snapshots. A historical
+passing count does not validate today's checkout. The project-wide
+[coverage targets](../docs/development/COVERAGE_TARGETS.md) remain open;
+consult the [native deviations](../docs/development/NATIVE_COMPATIBILITY.md),
+[Mathics status](../docs/Mathics/COMPATIBILITY.md), and
+[vendored article coverage](../docs/development/VENDORED_ASYMPTOTICS.md)
+for known implementation and acceptance gaps.
+
+| Task | Current instructions |
+| --- | --- |
+| Check documentation sources and generated artifacts | [Documentation maintenance](../docs/MAINTAINING.md) |
+| Select a Wolfram regression check | [Focused checks](#choose-a-focused-check) and [test guide](../src/Tests/README.md) |
+| Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
+| Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
+| Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
+
 ## Wave-4 integration and merged artifacts
 
 The first [runner-integrity check](wave4-runner-integrity-tests.json) passes
@@ -33,6 +49,14 @@ LaTeX passes over 32 unchanged TeX files. Its [layout record](wave4-merge-pdf-la
 records all 102 pages rendered, visual inspection of pages 1–6 and 67–72 plus
 full page 68, and no text outside page bounds. Earlier repair receipts retain
 their exact historical inputs; the full package suite remains skipped.
+
+The later documentation-only integration through `9b83d04` retains those
+61 loading inputs, all 32 TeX inputs and the same PDF hash. It resolves the
+overlapping wave-4 navigation edits against the completed intake, retains
+the refined Mathics numerical/symbolic limitations, and passes the three
+new maintained-text encoding tests. The earlier incoming layout receipt
+below keeps its own historical scope; it is not a replacement for the
+current wave-4 merge artifact record.
 
 ## Fourier composition stops before unused products
 
@@ -177,23 +201,23 @@ but were not visually inspected in this checkpoint. The earlier
 [layout record](observable-ingress-pdf-layout.json) belong to the pre-merge
 article. Both build histories retain their own source and artifact hashes.
 
-This page preserves evidence from individual source snapshots. A historical
-passing count does not validate today's checkout. The project-wide
-[coverage targets](../docs/development/COVERAGE_TARGETS.md) remain open;
-consult the [native deviations](../docs/development/NATIVE_COMPATIBILITY.md),
-[Mathics status](../docs/Mathics/COMPATIBILITY.md), and
-[vendored article coverage](../docs/development/VENDORED_ASYMPTOTICS.md)
-for known implementation and acceptance gaps.
-
-| Task | Current instructions |
-| --- | --- |
-| Check documentation sources and generated artifacts | [Documentation maintenance](../docs/MAINTAINING.md) |
-| Select a Wolfram regression check | [Focused checks](#choose-a-focused-check) and [test guide](../src/Tests/README.md) |
-| Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
-| Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
-| Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
 
 ## Documentation quality and coverage register
+
+The [102-page merge-layout record](documentation-merge-layout-2026-09-09.json)
+identifies the article retained in merge `38aa253`: all 32 TeX inputs and the
+PDF are unchanged from `9f8f434`. It preserves three successful strict LaTeX
+build logs, geometry diagnostics, source hashes, and the corrected contents
+page. Every page is covered by visual review: pages 1–6 were reinspected
+after widening the subsection-number column, while pages 7–102 have identical
+rendered bytes to the preceding complete review. This is document-build and
+layout evidence, separate from package execution.
+
+The [39-check example run](documentation-help-merged-examples-2026-09-09.json)
+and [100-check loading run](documentation-help-merged-loading-2026-09-09.json)
+belong to the earlier `9f8f434` merge inputs. Their source hashes distinguish
+them from the recursive logarithm changes merged subsequently in `38aa253`;
+they do not establish runtime acceptance of those later definitions.
 
 The [public-help consistency pass](documentation-help-2026-09-09.json) corrects
 seven usage messages and the corresponding guide descriptions: positive

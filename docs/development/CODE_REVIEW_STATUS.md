@@ -34,7 +34,9 @@ Updated September 9, 2026. This register and the linked wave-3 and wave-4 intake
 work items: 123 entries from waves 1–2, 44 from wave 3, and 64 from wave 4. They also record
 substantive roadmap proposals separately. This is a
 work map, not a claim that every recommendation is a defect or an accepted API
-change.
+change. The [wave-4 index](../../external-reports/code-review/wave-4/README.md)
+links the supplied reports; the completed intake records their implementation
+obligations without implying acceptance of every proposed change.
 
 Reviews 1–6, 8, and 9 examine `07a9781212beb2eeb9ff16aa625b50ac27974078`;
 review 7 examines `75de8756175911cd8830704fd1a3406c1022f018`. Their supplied

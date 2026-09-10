@@ -239,3 +239,15 @@ Those current checks are distinct from the reviewer's source inspection and
 from earlier repair acceptance receipts. No full suite or new Mathics package
 run was performed for this merge. The [wave-4 intake](WAVE_4_INTAKE.md) records
 the independently read report findings and remaining implementation scope.
+
+The subsequent read-only review of `4d9785c`, `c0469fe`, `b145cb9` and
+`9b83d04` found no blocker in the exact/numerical Mathics boundary notes or
+the new maintained-text encoding check. It confirmed that the incoming
+102-page layout receipt is historical at `38aa253`/`9f8f434` and does not
+supersede the newer Fourier article. Root resolved eight overlapping
+navigation/index conflicts in favor of the completed 64-entry intake and
+231-entry total while retaining the independent incoming documentation.
+The three new encoding tests passed; source checks cover 89 maintained text
+files. The kernel/loading inputs and 32 TeX hashes still match the current
+105/0 loading and three-pass PDF receipts, so no repeated kernel or article
+build was needed for this documentation-only merge.

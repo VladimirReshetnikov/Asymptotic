@@ -165,11 +165,25 @@ checks reject the original forms.
 * **Fourier and exact cores:** bounded coefficient rules and trigonometric
   identities preserve inverse coefficients and sector metadata. Principal
   Lambert expressions are normalized to one-argument `ProductLog` before
-  numerical specialization, avoiding Mathics' unsupported two-argument
-  numerical form and incorrect argument order when converting it to SymPy.
-  Exact nonprincipal formulas remain available; applying native Mathics `N`
-  to them can produce incorrect surrounding values. Numerical nonprincipal Lambert evaluation
-  remains unsupported; see [algebra and core-function details](ALGEBRA.md).
+  specialization. Mathics 10.0.1's
+  [`ProductLog` implementation](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/builtin/specialfns/expintegral.py#L89-L127)
+  inherits an argument-order defect in exact SymPy conversion as well as an
+  unsupported two-argument numerical path. Retained nonprincipal formulas
+  therefore do not establish general symbolic or numerical correctness;
+  individual checked formulas retain their own evidence scope. The
+  coefficient-rules adapter also uses a dense degree-sized intermediate.
+  See [algebra and core-function details](ALGEBRA.md) for these boundaries.
+* **Numerical checks:** `WorkingPrecision` requests solver work; it is not an
+  achieved-accuracy postcondition. The
+  [Mathics 10.0.1 root finder](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/builtin/numbers/calculus.py#L606-L620)
+  does not list `WorkingPrecision` and evaluates its seed through a helper
+  whose [default is machine precision](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/eval/nevaluator.py#L24-L42).
+  The package's [ordinary numerical checker](../../src/Kernel/NumericalInverseChecks.wl)
+  checks target precision and the recovered branch, but not the achieved
+  precision or accuracy of the reference root. The exact quadratic smoke
+  check does not establish arbitrary-precision root finding. See the
+  [numerical-check guide](../../src/Documentation/UserGuide.md#InverseNumericalCheck)
+  and [coverage inventory](API-COVERAGE.md).
 * **Time budgets:** internal symbolic proof attempts receive four times their
   Wolfram wall-clock allowance because Mathics interpretation is slower.
   Proof criteria and fallbacks are unchanged. Explicit `CoreCheckTimeConstraint`
