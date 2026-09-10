@@ -206,6 +206,19 @@ Newton and recipe refinement. This is
 not a single full run of the current source. The full Linux matrix remains
 pending. Individual examples do not establish every parameter range of a family.
 
+A separate [observable merge audit](../../validation/mathics-observable-merge-audit.json)
+checks the new observable helpers on a frozen 55-module snapshot after
+`ffe08b1`. Exact assertions pass for sine composition, composite normalization,
+sine with a real coefficient of unknown sign, and Taylor-provider chart and
+order guards. The source-coordinate example is refused with an earlier
+`InexactInput` failure instead of the upstream expected tag. A local
+square-root observable returns an equivalent trigonometric coefficient, but
+the original `Expand`/`SameQ` comparison is retained as a mismatch. The
+symbolic complex-tail and varying-source-coordinate fixtures reach their
+180-second process limits and remain unvalidated. This bounded modular audit
+does not add passing cases to the portable receipt summary or establish
+standalone or Wolfram acceptance.
+
 | Area | Checked behavior |
 | --- | --- |
 | Loading and evaluator primitives | Clean load, reload, public contexts, held returns, association operations, pattern positions. |
