@@ -73,7 +73,15 @@ def mathics_bootstrap(source: str) -> str:
     """
     code = executable_text(source)
     statements, start, depth = [], 0, 0
-    for i, char in enumerate(code):
+    i = 0
+    while i < len(code):
+        char = code[i]
+        # Condition (/;) and Span (;;) contain semicolons but do not end a
+        # statement. Consume the complete operator before considering a
+        # CompoundExpression terminator, including a trailing span (;;;).
+        if code[i:i + 2] in {"/;", ";;"}:
+            i += 2
+            continue
         if char in "[{(":
             depth += 1
         elif char in "]})":
@@ -83,6 +91,7 @@ def mathics_bootstrap(source: str) -> str:
         elif char == ";" and depth == 0:
             statements.append(source[start:i + 1])
             start = i + 1
+        i += 1
     if depth:
         raise ValueError("Unbalanced Mathics bootstrap source")
     if code[start:].strip():

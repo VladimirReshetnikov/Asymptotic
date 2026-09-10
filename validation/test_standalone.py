@@ -229,6 +229,18 @@ class StandaloneBuilderTests(unittest.TestCase):
             with self.subTest(text=text), self.assertRaisesRegex(ValueError, "Unbalanced"):
                 builder.mathics_bootstrap(text)
 
+    def test_mathics_bootstrap_preserves_condition_and_span_operators(self) -> None:
+        import json
+        source = ('f[x_] /; x > 0 := x;\n'
+                  'g[x_] := x /; x < 0;\n'
+                  'span = 1;;3;\n'
+                  'openSpan = 1;;;\n'
+                  'h[x_] := Module[{}, x /; x > 0];\n')
+        encoded = builder.mathics_bootstrap(source).split('Scan[ToExpression, {\n', 1)[1].rsplit('\n}]];', 1)[0]
+        statements = json.loads('[' + encoded + ']')
+        self.assertEqual([statement.strip() for statement in statements],
+                         [line.strip() for line in source.splitlines()])
+
 
 if __name__ == "__main__":
     unittest.main()

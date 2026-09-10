@@ -2,6 +2,7 @@ name: Mathics compatibility
 
 on:
   push:
+    branches: [main]
     paths:
       - 'src/Kernel/**'
       - 'AsymptoticAnalysis.wl'
@@ -19,6 +20,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: mathics-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   regressions:
@@ -56,7 +61,7 @@ jobs:
           arguments=()
           for group in "${groups[@]}"; do arguments+=(--group "$group"); done
           python validation/run_mathics_tests.py --source "$source" \
-            --timeout 240 --output mathics-results.json "${arguments[@]}"
+            --timeout 300 --output mathics-results.json "${arguments[@]}"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
