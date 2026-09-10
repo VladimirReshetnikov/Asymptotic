@@ -12,6 +12,13 @@ Gamma and Barnes G families compute the smallest inverse-logarithmic power
 of the first omitted coefficient. It preserves exact symbolic coefficients
 and delegates unsupported argument forms to the interpreter.
 
+The current adapter constructs `CoefficientList` before removing zero
+entries. Its intermediate storage therefore grows with polynomial degree,
+even when only a few powers have nonzero coefficients. A sparse input and
+the package's outer term budget do not bound this dense allocation. This is
+a source-level resource limitation of this adapter, separate from the guarded
+optional `SeriesData` export; no Mathics timing or allocation bound is claimed.
+
 The Fourier reader uses the usual exact exponential identities for sine,
 cosine, hyperbolic sine, and hyperbolic cosine. The reverse conversion uses
 Euler's identity for each exponential; its argument can be complex. These
@@ -34,21 +41,31 @@ and reject interpreter diagnostics as well as compare exact coefficients.
 The late module
 [`MathicsCoreFunctions.wl`](../../src/Kernel/MathicsCoreFunctions.wl) also
 normalizes package-created principal Lambert values from `ProductLog[0, z]`
-to the equivalent `ProductLog[z]`. Mathics 10 lacks a numerical implementation
-for the two-argument form, and its conversion to SymPy uses Wolfram's argument
-order instead of SymPy's order; for example,
-`N[ProductLog[0, E]]` can return `-Infinity`. The package normalizes its four
-construction sites before numerical specialization, while retaining ordinary
-`System` heads in the returned expressions. Native interpreter definitions
-are unchanged. Symbolic nonprincipal branches remain explicit, but this
-adapter does not supply their missing reliable numerical evaluation.
+to the equivalent `ProductLog[z]` at four construction sites, while retaining
+ordinary `System` heads in returned expressions. Native interpreter
+definitions are unchanged.
 
-Nonprincipal formulas remain available symbolically for inputs Mathics retains
-correctly, including the checked exact `s[-1/100]` substitution below.
-This does not establish arbitrary exact specialization: even raw
-`ProductLog[-1, 0]` becomes the wrong one-argument `ProductLog[-1]` in the
-tested interpreter before a package adapter can inspect it.
-Applying native Mathics `N` afterward can leave some
+The limitation extends to exact symbolic conversion. Mathics 10.0.1's
+[`ProductLog` class](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/builtin/specialfns/expintegral.py#L89-L127)
+uses the
+[generic SymPy bridge](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/core/builtin.py#L711-L729),
+which preserves argument order in both directions. Wolfram's
+`ProductLog[k, z]` consequently reaches SymPy as `LambertW(k, z)`, although
+[SymPy expects the argument before the branch](https://docs.sympy.org/latest/modules/functions/elementary.html#sympy.functions.elementary.exponential.LambertW).
+Exact input can enter this
+bridge before any explicit `N` call. The inherited
+[numerical dispatcher](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/core/builtin.py#L734-L783)
+also accepts only one numerical argument; an inexact two-argument call can
+remain unresolved instead of following the exact-input conversion path.
+
+Nonprincipal cores retain active `System` expressions, so retaining an exact
+formula or successfully substituting one exact target does not establish
+general symbolic conversion, simplification, differentiation, or numerical
+correctness in Mathics. This source-level bridge defect does not imply that
+every retained nonprincipal formula is already incorrect. Raw `ProductLog[-1, 0]` also becomes the wrong one-argument
+`ProductLog[-1]` before a package adapter can inspect it.
+The exact specialization checked below remains a bounded example.
+Applying native Mathics `N` can leave some
 `ProductLog` terms unresolved while producing incorrect complex values for
 surrounding functions. For example,
 `N[Log[-ProductLog[-1, -1/100]], 30]` produces a nonreal value in the tested
@@ -56,7 +73,7 @@ interpreter, although the real lower branch makes that logarithm real.
 Evaluate such numerical formulas in the official Wolfram kernel. The package
 does not replace native `ProductLog` or `N`.
 
-The checked lower-branch core example
+The previously checked lower-branch core example
 `AsymptoticCoreInverse[x Log[x], x^2, {x, 0}, {y, 1}]` retains the correct exact
 formula at `y = -1/100`. Its `InverseNumericalCheck` returns a conservative
 failure when Mathics cannot establish the recorded branch condition; it does

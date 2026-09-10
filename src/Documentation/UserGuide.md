@@ -2539,7 +2539,7 @@ A value-only Big-O remainder does not establish a derivative remainder. Supply `
 <a id="InverseResidual"></a>
 ### InverseResidual
 
-`InverseResidual[s]` checks composition of the retained forward model with the finite inverse. `InverseResidual[s, h]` supplies a relative residual cutoff in the recorded uniformizing coordinate. The option is `"MaxTerms" -> 200000`.
+`InverseResidual[s]` returns a report association checking composition of the retained forward model with the finite inverse. The report includes the normalized residual, cutoff, and scope. `InverseResidual[s, h]` supplies a relative residual cutoff in the recorded uniformizing coordinate. The option is `"MaxTerms" -> 200000`.
 
 **Input**
 
@@ -2559,7 +2559,7 @@ Read the returned `"Scope"` when checking a transformed, logarithmic, Fourier, o
 <a id="InverseNumericalCheck"></a>
 ### InverseNumericalCheck
 
-`InverseNumericalCheck[s, y1]` compares the finite inverse with a numerical root of the retained original equation on its selected branch. Its option is `WorkingPrecision -> 50`.
+`InverseNumericalCheck[s, y1]` returns an association comparing the finite expansion with the requested source observable of a numerical root of the retained original equation on its selected branch. Its option is `WorkingPrecision -> 50`.
 
 ```wolfram
 s = AsymptoticInverse[x + x^2, {x, 0}, {y, 5}];
@@ -2573,6 +2573,30 @@ check["Error"]
 
 Use exact targets or targets with sufficient input precision. Exact target offsets are subtracted before numerical evaluation. The operation also supports the admitted transformed, logarithmic, Fourier, flat, core, and special inverse families. Its output is numerical evidence, not an interval certificate.
 
+`WorkingPrecision` is a requested solver setting. The
+[ordinary checker](../Kernel/NumericalInverseChecks.wl) checks the input target's
+precision and the recovered source branch, but does not verify the achieved
+`Precision` or `Accuracy` of the reference root.
+
+In Mathics 10.0.1, the
+[root-finder implementation](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/builtin/numbers/calculus.py#L606-L620)
+does not list `WorkingPrecision` and evaluates the seed through `eval_N`, whose
+[default precision is machine precision](https://github.com/Mathics3/mathics-core/blob/10.0.1/mathics/eval/nevaluator.py#L24-L42).
+Increasing the request or applying `N[root, digits]` afterward does not recover
+digits lost by that solver path. The package's Mathics-only adapter now rejects
+unavailable reference-root precision with
+`Failure["MathicsNumericalPrecisionUnavailable", ...]` and checks the precision
+of delegated roots. An unchanged integer seed is accepted exactly only when
+direct substitution proves the exact polynomial equation. The ordinary
+official-kernel checker retains its behavior described above.
+
+The recorded Mathics
+[`numerical-exact-quadratic-inverse` smoke check](../../validation/mathics-modular-tests.json)
+establishes its exact-root example, not general high-precision accuracy.
+See [Mathics numerical contracts](../../docs/Mathics/NUMERICAL.md) for the
+supported examples and remaining precision limits, and
+[Mathics coverage](../../docs/Mathics/API-COVERAGE.md) for the broader tested scope.
+
 <a id="InverseCertificate"></a>
 ### InverseCertificate
 
@@ -2580,7 +2604,7 @@ Use exact targets or targets with sufficient input precision. Exact target offse
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `"Interval"` | `Automatic` | Verification interval. Supply exact rational endpoints for an explicit request. |
+| `"Interval"` | `Automatic` | Required verification interval with ordered exact rational endpoints. Leaving the default `Automatic` returns `Failure["InvalidInterval", ...]`. |
 | `"Center"` | `Automatic` | Initial or fixed rational approximation. An explicitly supplied center remains fixed. |
 | `"TargetError"` | `Automatic` | Positive exact rational absolute error goal for the returned center. |
 | `"RelativeError"` | `Automatic` | Positive exact rational relative error goal using a proved root-magnitude bound. |
@@ -2636,6 +2660,18 @@ An exhausted retry budget returns `Failure["AccuracyNotReached", ...]` if a vali
 
 The certificate concerns the stored explicit equation within the supplied interval. It does not establish a global inverse branch or enclose unspecified terms represented only by an input remainder. All retained source conditions must hold throughout the closed verification interval. A strict source condition therefore also constrains its endpoints.
 
+The numerical-root limitation above does not replace the certificate's
+separate proof obligation. In the
+[certificate implementation](../Kernel/InverseCertificates.wl), numerical
+seeds and `WorkingPrecision` plan the computation; successful error bounds
+come from exact rational enclosures and explicit inequalities. Mathics evidence
+currently includes an exact rational quadratic-root certificate and a
+fixed-center `AccuracyFloor` case in the
+[recorded portable checks](../../validation/mathics-modular-tests.json).
+Those cases do not establish all adaptive, relative-tolerance, or
+nonpolynomial elementary-tail paths. Their coverage remains listed separately
+in the [Mathics API inventory](../../docs/Mathics/API-COVERAGE.md).
+
 <a id="PowerLogModel"></a>
 ### PowerLogModel
 
@@ -2646,7 +2682,7 @@ Inspect `"LeadingPower"`, `"LeadingCoefficient"`, `"Gaps"`, `"Polynomials"`, and
 <a id="InverseExpansionCoefficient"></a>
 ### InverseExpansionCoefficient
 
-`InverseExpansionCoefficient[s, {k1, k2, ...}]` returns the exact block associated with an ordinary inverse multi-index. A `PowerLogModel` association may replace `s`; for that form, `"Power" -> 1` selects the observable.
+`InverseExpansionCoefficient[s, {k1, k2, ...}]` returns an association describing the exact contribution of one ordinary inverse multi-index. A `PowerLogModel` association may replace `s`; for that form, `"Power" -> 1` selects the observable.
 
 The coefficient query inherits the model's assumptions and ignores later ambient assumptions:
 
@@ -2867,6 +2903,31 @@ A leading oscillatory coefficient without an eventual nonzero sign is outside th
 ### FourierInverseResidual
 
 `FourierInverseResidual[s]` checks the finite Fourier equation at its stored relative source-weight cutoff. `FourierInverseResidual[s, h]` supplies another relative cutoff. Its option is `"MaxTerms" -> 20000`.
+
+Check a polynomial source using an explicit residual-work budget:
+
+```wolfram
+s = AsymptoticFourierInverse[
+  x + x^2, {x, 0}, {y, 7}, "MaxTerms" -> 7];
+check = FourierInverseResidual[s, Automatic, "MaxTerms" -> 7];
+{check["ZeroBelowCutoff"], check["ResidualBlocks"], check["RelativeCutoff"]}
+```
+
+```wolfram
+{True, {}, 6}
+```
+
+The composition stops when every remaining source weight is outside the
+exclusive cutoff or its complete Fourier coefficient is identically zero.
+Products needed for retained contributions still obey the resource limits.
+An integer exponent alone does not imply termination when a coefficient
+contains a nonzero frequency or a logarithmic amplitude.
+
+`"ZeroBelowCutoff" -> True` checks the stored finite forward equation below
+the reported relative cutoff. Unspecified `"InputRemainder"` terms are not
+composed, and this result is not a numerical root certificate. See the
+[Fourier termination notes](../../docs/development/FOURIER_TERMINATION.md)
+for the before/after characterization and validation scope.
 
 <a id="FourierInverseCoefficient"></a>
 ### FourierInverseCoefficient

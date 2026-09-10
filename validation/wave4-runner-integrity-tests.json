@@ -1,0 +1,36 @@
+{
+  "Scope": "Focused Python portable-runner tests with synthetic protocol peers and real temporary Python processes/virtual environments. No Mathics or Wolfram package execution.",
+  "Command": [
+    "C:\\Users\\vresh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "validation",
+    "-p",
+    "test_mathics_runner.py",
+    "-v"
+  ],
+  "PythonVersion": "3.14.4",
+  "Platform": "Windows-11-10.0.26340-SP0",
+  "FullPackageSuiteRun": false,
+  "Succeeded": 32,
+  "Failed": 0,
+  "Skipped": 0,
+  "ExitCode": 0,
+  "ElapsedSeconds": 2.409,
+  "SourcesUnchangedDuringRun": true,
+  "SourceSHA256": {
+    "validation/run_mathics_tests.py": "48de15d50aa2a867b23723996680f46baff4681af491210b0587dff9dacb4529",
+    "validation/test_mathics_runner.py": "58ac5ec1bc5e165f06d02c40552c2f856a4ecd385ab04abeccad0a208663b825"
+  },
+  "TestOutput": "test_bare_path_command_is_preserved (test_mathics_runner.PortableInputValidationTests.test_bare_path_command_is_preserved) ... ok\ntest_direct_case_invalid_timeout_is_rejected_before_process_creation (test_mathics_runner.PortableInputValidationTests.test_direct_case_invalid_timeout_is_rejected_before_process_creation) ... ok\ntest_existing_executable_is_absolute_without_resolving_symlinks (test_mathics_runner.PortableInputValidationTests.test_existing_executable_is_absolute_without_resolving_symlinks) ... ok\ntest_existing_symlink_keeps_its_lexical_executable_path (test_mathics_runner.PortableInputValidationTests.test_existing_symlink_keeps_its_lexical_executable_path) ... ok\ntest_invalid_cli_timeouts_never_launch_a_case (test_mathics_runner.PortableInputValidationTests.test_invalid_cli_timeouts_never_launch_a_case) ... ok\ntest_main_preserves_selected_python_default_python_and_wolfram_paths (test_mathics_runner.PortableInputValidationTests.test_main_preserves_selected_python_default_python_and_wolfram_paths) ... ok\ntest_selected_virtual_environment_keeps_its_prefix_and_private_module (test_mathics_runner.PortableInputValidationTests.test_selected_virtual_environment_keeps_its_prefix_and_private_module) ... ok\ntest_timeout_accepts_finite_positive_values_through_daily_limit (test_mathics_runner.PortableInputValidationTests.test_timeout_accepts_finite_positive_values_through_daily_limit) ... ok\ntest_timeout_rejects_nonfinite_nonpositive_oversized_and_nonnumeric_values (test_mathics_runner.PortableInputValidationTests.test_timeout_rejects_nonfinite_nonpositive_oversized_and_nonnumeric_values) ... ok\ntest_alias_created_after_launch_is_rejected_before_report_write (test_mathics_runner.PortableOutputProtectionTests.test_alias_created_after_launch_is_rejected_before_report_write) ... ok\ntest_all_fingerprinted_inputs_are_protected_before_main_launch (test_mathics_runner.PortableOutputProtectionTests.test_all_fingerprinted_inputs_are_protected_before_main_launch) ... ok\ntest_direct_and_relative_aliases_are_rejected (test_mathics_runner.PortableOutputProtectionTests.test_direct_and_relative_aliases_are_rejected) ... ok\ntest_hard_link_aliases_of_both_report_targets_are_rejected (test_mathics_runner.PortableOutputProtectionTests.test_hard_link_aliases_of_both_report_targets_are_rejected) ... ok\ntest_main_staging_collision_is_rejected_before_launch (test_mathics_runner.PortableOutputProtectionTests.test_main_staging_collision_is_rejected_before_launch) ... ok\ntest_staging_file_cannot_be_a_fingerprinted_input (test_mathics_runner.PortableOutputProtectionTests.test_staging_file_cannot_be_a_fingerprinted_input) ... ok\ntest_symlink_aliases_of_both_report_targets_are_rejected (test_mathics_runner.PortableOutputProtectionTests.test_symlink_aliases_of_both_report_targets_are_rejected) ... ok\ntest_unrelated_existing_output_can_be_replaced (test_mathics_runner.PortableOutputProtectionTests.test_unrelated_existing_output_can_be_replaced) ... ok\ntest_interrupt_cleans_up_the_owned_process_tree (test_mathics_runner.PortableProcessTests.test_interrupt_cleans_up_the_owned_process_tree) ... ok\ntest_missing_executable_reports_launch_error (test_mathics_runner.PortableProcessTests.test_missing_executable_reports_launch_error) ... ok\ntest_real_process_returns_complete_record_and_diagnostics (test_mathics_runner.PortableProcessTests.test_real_process_returns_complete_record_and_diagnostics) ... ok\ntest_timeout_terminates_spawned_descendant (test_mathics_runner.PortableProcessTests.test_timeout_terminates_spawned_descendant) ... ok\ntest_completed_success_and_failure_are_distinct (test_mathics_runner.PortableProtocolTests.test_completed_success_and_failure_are_distinct) ... ok\ntest_effective_iteration_limit_is_recorded (test_mathics_runner.PortableProtocolTests.test_effective_iteration_limit_is_recorded) ... ok\ntest_kernel_exit_status_must_agree_with_record (test_mathics_runner.PortableProtocolTests.test_kernel_exit_status_must_agree_with_record) ... ok\ntest_multiline_unicode_output_is_preserved (test_mathics_runner.PortableProtocolTests.test_multiline_unicode_output_is_preserved) ... ok\ntest_no_record_cannot_pass_even_with_successful_exit (test_mathics_runner.PortableProtocolTests.test_no_record_cannot_pass_even_with_successful_exit) ... ok\ntest_wrong_duplicate_or_incomplete_records_cannot_pass (test_mathics_runner.PortableProtocolTests.test_wrong_duplicate_or_incomplete_records_cannot_pass) ... ok\ntest_changed_sources_force_failure_despite_successful_cases (test_mathics_runner.PortableReportTests.test_changed_sources_force_failure_despite_successful_cases) ... ok\ntest_interrupted_run_preserves_completed_case_evidence (test_mathics_runner.PortableReportTests.test_interrupted_run_preserves_completed_case_evidence) ... ok\ntest_observed_source_change_stays_latched_after_restoration (test_mathics_runner.PortableReportTests.test_observed_source_change_stays_latched_after_restoration) ... ok\ntest_relocated_modular_source_fingerprints_include_siblings (test_mathics_runner.PortableReportTests.test_relocated_modular_source_fingerprints_include_siblings) ... ok\ntest_running_cases_use_frozen_suite_bytes (test_mathics_runner.PortableReportTests.test_running_cases_use_frozen_suite_bytes) ... ok\n\n----------------------------------------------------------------------\nRan 32 tests in 2.050s\n\nOK\n",
+  "RemainingScope": [
+    "Coherent complete executable snapshots and init/renamed dependency coverage",
+    "Executed-copy integrity and changes wholly between original-source observations",
+    "Mandatory successful package-load gate",
+    "Output byte limits and interrupted-attempt records",
+    "Cross-platform acceptance beyond the recorded host"
+  ]
+}

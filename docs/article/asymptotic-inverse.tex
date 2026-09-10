@@ -16,6 +16,10 @@
 \setlength{\emergencystretch}{2.5em}
 \allowdisplaybreaks
 \numberwithin{equation}{section}
+% Leave a visible gap after two-digit subsection numbers such as 12.10.
+\makeatletter
+\renewcommand*{\l@subsection}{\@dottedtocline{2}{1.5em}{3.1em}}
+\makeatother
 
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]

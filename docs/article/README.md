@@ -25,9 +25,15 @@ bounds, convergence, parameter-uniform estimates, and numerical root
 enclosures are separate claims. The introduction gives a reading map and
 explains these distinctions before the detailed constructions.
 Mathematical treatment of a class of expansions does not by itself establish
-package support. Complete input coverage of built-in `Series` and `Asymptotic`
-remains a development target tracked in the
+package support. Complete input coverage of built-in `Series`, `Asymptotic`,
+and `DiscreteAsymptotic` remains a development target tracked in the
 [native compatibility plan](../development/NATIVE_COMPATIBILITY.md).
+The other [complete-coverage goals](../development/COVERAGE_TARGETS.md) are
+compatibility with Mathics alongside the official Wolfram kernel and successful
+computation of every asymptotic construction in the vendored article corpus,
+including q-analogs, inverse q-analogs, and combinatorial sequences.
+Those goals remain open; the mathematical article alone establishes none of
+the corresponding software acceptance claims.
 The user guide describes the implemented integration and its result contracts.
 
 ## Reading by topic

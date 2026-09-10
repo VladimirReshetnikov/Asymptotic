@@ -28,13 +28,15 @@ standalone evidence at checkpoint `01b18ab` predates this rename. Earlier
 passing counts likewise apply to their recorded source snapshots, not to new
 path/context hashes after the rename.
 
-Updated September 9, 2026. This register and the linked wave-3 intake consolidate
-**167 identified finding entries in all twenty-seven
+Updated September 9, 2026. This register and the linked wave-3 and wave-4 intakes consolidate
+**231 identified finding entries in all thirty-six
 [review packages](../../external-reports/code-review/README.md)** into shared
-work items: 123 entries from waves 1–2 and 44 from wave 3. They also record
+work items: 123 entries from waves 1–2, 44 from wave 3, and 64 from wave 4. They also record
 substantive roadmap proposals separately. This is a
 work map, not a claim that every recommendation is a defect or an accepted API
-change.
+change. The [wave-4 index](../../external-reports/code-review/wave-4/README.md)
+links the supplied reports; the completed intake records their implementation
+obligations without implying acceptance of every proposed change.
 
 Reviews 1–6, 8, and 9 examine `07a9781212beb2eeb9ff16aa625b50ac27974078`;
 review 7 examines `75de8756175911cd8830704fd1a3406c1022f018`. Their supplied
@@ -68,6 +70,21 @@ merged from `68b8e1e70731998c5bc1533be1bec0f5b507acd7` without editing them.
 Current source inspection does not turn their historical or unrun witnesses
 into current native reproductions.
 
+Wave 4 adds reports 28–36 at the two exact snapshots recorded in the
+[wave-4 intake](WAVE_4_INTAKE.md). Its **64 identified entries and unnumbered
+proposals are included in scope**, with current-source comparisons and
+focused acceptance obligations. All 180 supplied files, including nine TeX
+and nine PDF articles, match their [arrival Git blobs](../../validation/wave4-payload-provenance.json).
+Review evidence and candidate code do not establish current Mathics or
+Wolfram package behavior; no bundled programs were executed during intake.
+
+The first wave-4 [runner repair](../../validation/wave4-runner-integrity-tests.json)
+passes 32/0 focused Python tests. It addresses finite bounded deadlines and
+lexical launcher selection (W4-10/W4-11), latches observed source drift
+(part of W4-12), and prevents report/staging aliases of fingerprinted inputs
+(part of W4-13). Complete executed-source coverage and freezing, mandatory
+load admission, output caps and interruption records remain pending.
+
 W3-06 now has independently reproduced native failures and
 [131/0 focused native acceptance](../../validation/observable-ingress-main-sync-tests.json).
 The [observable Taylor notes](OBSERVABLE_INGRESS.md)
@@ -98,6 +115,21 @@ pass in the [completed second run](../../validation/log-power-normalization-test
 which records 65 source hashes and unchanged sources during execution.
 The constructive periodic coefficient API remains
 an open proposal, separate from this identity guard.
+
+W3-13's separate Fourier recurrence is **focused verified — 68/0 across four
+selected files**. The [17-observation baseline](../../validation/fourier-termination-baseline.json)
+and [after-fix probes](../../validation/fourier-termination-after-fix.json)
+record unchanged sources and reproduce the private terminating cases plus a
+public budget-seven residual that now has zero residual blocks at relative
+cutoff six. The [Fourier termination notes](FOURIER_TERMINATION.md) explain
+the support and complete-coefficient stopping proofs, preserved genuine
+resource failures, and the 19 new cases. The
+[completed acceptance](../../validation/fourier-termination-tests.json) includes
+22 Fourier regressions, 11 Fourier refactoring cases and 16 ordinary recurrence
+cases, with 61 stable input hashes. Separate
+[loading checks](../../validation/fourier-termination-loading-tests.json) pass
+105/0 in five fresh native kernels. The earlier ordinary P03 acceptance alone
+did not establish this separate path; the new records retain their own scope.
 
 Status meanings:
 

@@ -238,6 +238,12 @@ Newton and recipe refinement. This historical aggregate is separate from
 the complete Linux run. Individual examples do not establish every parameter
 range of a family.
 
+The summary retains exact receipt-byte hashes and adds separate CRLF-to-LF
+normalized comparison hashes, with explicit policies for both. Git preserves
+the captured receipt bytes; historical package and suite byte hashes remain unchanged.
+The API inventory separately identifies the reported original-Wolfram
+control evidence and the limits of its published per-case records.
+
 A separate [observable merge audit](../../validation/mathics-observable-merge-audit.json)
 checks the new observable helpers on a frozen 55-module snapshot after
 `ffe08b1`. Exact assertions pass for sine composition, composite normalization,

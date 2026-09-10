@@ -8,6 +8,7 @@ exercise the same process cleanup used for interpreter timeouts.
 from __future__ import annotations
 
 from contextlib import redirect_stderr, redirect_stdout
+import argparse
 import importlib.util
 import io
 import json
@@ -19,6 +20,7 @@ import tempfile
 import time
 import unittest
 from unittest.mock import patch
+import venv
 
 
 SPEC = importlib.util.spec_from_file_location(
@@ -125,7 +127,7 @@ class PortableProcessTests(unittest.TestCase):
         with patch.object(runner.subprocess, "Popen", return_value=process), \
                 patch.object(runner, "stop_process_tree") as stop:
             result = runner.run_case(["fixture"], runner.SUITE, "fixture", "fixture",
-                                     sys.float_info.max, self.work)
+                                     180, self.work)
         stop.assert_called_once_with(process)
         self.assertEqual(result["Outcome"], "LaunchError")
         self.assertEqual(result["ExitCode"], -9)
@@ -134,78 +136,216 @@ class PortableProcessTests(unittest.TestCase):
         self.assertEqual(process.communicate.call_args_list[-1], unittest.mock.call(timeout=10))
 
 
-class PortableReportTests(unittest.TestCase):
-    def test_output_cannot_overwrite_any_fingerprinted_input(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="mathics-collision-test-") as temporary:
-            directory = Path(temporary)
-            kernel = directory / "src/Kernel"
-            kernel.mkdir(parents=True)
-            source = kernel / "AsymptoticAnalysis.wl"
-            companion = kernel / "Companion.wl"
-            suite = directory / "MathicsTests.wl"
-            script = directory / "run_mathics_tests.py"
-            protected = (source, companion, suite, script)
-            for path in protected:
-                path.write_bytes(b"protected input")
-            for output in protected:
-                with self.subTest(output=output.name):
-                    args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
-                    with patch.object(sys, "argv", args), patch.object(runner, "SUITE", suite), \
-                            patch.object(runner, "__file__", str(script)), \
-                            patch.object(runner, "available_cases", return_value=[("fixture", "fixture")]), \
-                            patch.object(runner, "run_case") as run, \
-                            patch.object(runner, "fingerprints") as fingerprints, redirect_stderr(io.StringIO()):
-                        with self.assertRaises(SystemExit) as stopped:
-                            runner.main()
-                    self.assertEqual(stopped.exception.code, 2)
-                    run.assert_not_called()
-                    fingerprints.assert_not_called()
-                    self.assertTrue(all(path.read_bytes() == b"protected input" for path in protected))
+class PortableInputValidationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temporary = tempfile.TemporaryDirectory(prefix="mathics-input-test-")
+        self.addCleanup(temporary.cleanup)
+        self.work = Path(temporary.name)
 
-    def test_temporary_output_cannot_overwrite_source(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="mathics-collision-test-") as temporary:
-            output = Path(temporary) / "receipt"
-            source = output.with_name(output.name + ".tmp")
-            source.write_bytes(b"protected input")
-            args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
-            with patch.object(sys, "argv", args), patch.object(runner, "run_case") as run, \
-                    redirect_stderr(io.StringIO()):
-                with self.assertRaises(SystemExit) as stopped:
+    def test_timeout_accepts_finite_positive_values_through_daily_limit(self) -> None:
+        for value in ("0.125", 180, "86400"):
+            with self.subTest(value=value):
+                self.assertEqual(runner.case_timeout(value), float(value))
+
+    def test_timeout_rejects_nonfinite_nonpositive_oversized_and_nonnumeric_values(self) -> None:
+        for value in ("nan", "inf", "-inf", "1e100", "86400.1", "0", "-1", "text"):
+            with self.subTest(value=value), self.assertRaises(argparse.ArgumentTypeError):
+                runner.case_timeout(value)
+
+    def test_invalid_cli_timeouts_never_launch_a_case(self) -> None:
+        output = self.work / "report.json"
+        for value in ("nan", "inf", "-inf", "1e100", "86400.1", "0", "-1"):
+            args = ["run_mathics_tests.py", f"--timeout={value}", "--output", str(output)]
+            with self.subTest(value=value), patch.object(sys, "argv", args), \
+                    patch.object(runner, "run_case") as execute, \
+                    patch.object(runner, "fingerprints") as fingerprints, redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as failure:
                     runner.main()
-            self.assertEqual(stopped.exception.code, 2)
-            run.assert_not_called()
-            self.assertEqual(source.read_bytes(), b"protected input")
-            self.assertFalse(output.exists())
+                self.assertEqual(failure.exception.code, 2)
+                execute.assert_not_called()
+                fingerprints.assert_not_called()
+                self.assertFalse(output.exists())
 
-    def test_existing_hardlink_output_alias_is_protected(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="mathics-collision-test-") as temporary:
-            source = Path(temporary) / "source.wl"
-            output = Path(temporary) / "report.json"
-            source.write_bytes(b"protected input")
+    def test_direct_case_invalid_timeout_is_rejected_before_process_creation(self) -> None:
+        with patch.object(runner.subprocess, "Popen") as process:
+            with self.assertRaises(argparse.ArgumentTypeError):
+                runner.run_case([sys.executable], runner.SUITE, "fixture", "fixture",
+                                float("nan"), self.work)
+            process.assert_not_called()
+
+    def test_existing_executable_is_absolute_without_resolving_symlinks(self) -> None:
+        executable = self.work / "directory with spaces" / "python"
+        executable.parent.mkdir()
+        executable.write_text("synthetic launcher", encoding="utf-8")
+        relative = os.path.relpath(executable)
+        with patch.object(Path, "resolve", side_effect=AssertionError("Do not dereference the launcher")):
+            self.assertEqual(runner.executable_path(relative), os.path.abspath(relative))
+
+    def test_bare_path_command_is_preserved(self) -> None:
+        self.assertEqual(runner.executable_path("synthetic-python-on-PATH"), "synthetic-python-on-PATH")
+
+    def test_existing_symlink_keeps_its_lexical_executable_path(self) -> None:
+        launcher = self.work / "linked python"
+        try:
+            launcher.symlink_to(sys.executable)
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f"Executable symlinks unavailable: {error}")
+        self.assertNotEqual(launcher.resolve(), launcher.absolute())
+        self.assertEqual(runner.executable_path(str(launcher)), str(launcher.absolute()))
+
+    def test_selected_virtual_environment_keeps_its_prefix_and_private_module(self) -> None:
+        environment = self.work / "environment with spaces"
+        venv.EnvBuilder(with_pip=False, symlinks=os.name != "nt").create(environment)
+        executable = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        selected = runner.executable_path(str(executable))
+        query = "import json,sys,sysconfig; print(json.dumps([sys.prefix,sysconfig.get_path('purelib')]))"
+        prefix, purelib = json.loads(subprocess.check_output(
+            [selected, "-c", query], cwd=self.work, text=True, timeout=20))
+        self.assertEqual(Path(prefix).resolve(), environment.resolve())
+        (Path(purelib) / "portable_environment_fixture.py").write_text("MARKER = 731\n", encoding="utf-8")
+        value = subprocess.check_output(
+            [selected, "-c", "import portable_environment_fixture as fixture; print(fixture.MARKER)"],
+            cwd=self.work, text=True, timeout=20)
+        self.assertEqual(value.strip(), "731")
+
+    def test_main_preserves_selected_python_default_python_and_wolfram_paths(self) -> None:
+        executable = self.work / "selected launcher"
+        executable.write_text("synthetic launcher", encoding="utf-8")
+        expected = os.path.abspath(os.path.relpath(executable))
+        for selector in ("--python", "--wolfram", None):
+            args = ["run_mathics_tests.py", "--source", str(runner.SUITE),
+                    "--output", str(self.work / "report.json")]
+            if selector:
+                args.extend([selector, os.path.relpath(executable)])
+            result = {"Outcome": "Success", "TestID": "fixture", "ElapsedSeconds": 0.1}
+            with self.subTest(selector=selector), patch.object(sys, "argv", args), \
+                    patch.object(sys, "executable", os.path.relpath(executable)), \
+                    patch.object(runner, "available_cases", return_value=[("fixture", "fixture")]), \
+                    patch.object(runner, "run_case", return_value=result) as execute, \
+                    redirect_stdout(io.StringIO()):
+                self.assertEqual(runner.main(), 0)
+                self.assertEqual(execute.call_args.args[0][0], expected)
+
+
+class PortableOutputProtectionTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temporary = tempfile.TemporaryDirectory(prefix="mathics-output-test-")
+        self.addCleanup(temporary.cleanup)
+        self.work = Path(temporary.name)
+        self.source = self.work / "input.wl"
+        self.source.write_text("original input", encoding="utf-8")
+
+    def test_direct_and_relative_aliases_are_rejected(self) -> None:
+        directory = self.work / "subdirectory"
+        directory.mkdir()
+        for output in (self.source, directory / ".." / self.source.name):
+            with self.subTest(output=output), self.assertRaisesRegex(ValueError, "fingerprinted input"):
+                runner.protect_output_inputs(output, {self.source})
+        self.assertEqual(self.source.read_text(encoding="utf-8"), "original input")
+
+    def test_staging_file_cannot_be_a_fingerprinted_input(self) -> None:
+        source = self.work / "receipt.json.tmp"
+        source.write_text("input with tmp suffix", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "fingerprinted input"):
+            runner.protect_output_inputs(self.work / "receipt.json", {source})
+
+    def test_hard_link_aliases_of_both_report_targets_are_rejected(self) -> None:
+        for suffix in ("", ".tmp"):
+            output = self.work / ("hard-link" + ("-staging" if suffix else "") + ".json")
+            target = output.with_name(output.name + suffix)
             try:
-                os.link(source, output)
-            except OSError as error:
-                self.skipTest(f"Filesystem cannot create hardlinks: {error}")
-            self.assertEqual(runner.report_input_collision(output, source), source)
-            self.assertEqual(source.read_bytes(), b"protected input")
+                os.link(self.source, target)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"Hard links unavailable: {error}")
+            with self.subTest(suffix=suffix), self.assertRaisesRegex(ValueError, "fingerprinted input"):
+                runner.protect_output_inputs(output, {self.source})
 
-    def test_invalid_timeouts_fail_before_reporting_or_launching(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="mathics-timeout-test-") as temporary:
-            output = Path(temporary) / "report.json"
-            for value in ("nan", "inf", "-inf", "0", "-1"):
-                with self.subTest(timeout=value):
-                    args = ["run_mathics_tests.py", "--timeout=" + value, "--output", str(output)]
-                    errors = io.StringIO()
-                    with patch.object(sys, "argv", args), patch.object(runner, "run_case") as run, \
-                            patch.object(runner, "fingerprints") as fingerprints, redirect_stderr(errors):
-                        with self.assertRaises(SystemExit) as stopped:
-                            runner.main()
-                    self.assertEqual(stopped.exception.code, 2)
-                    self.assertIn("finite and positive", errors.getvalue())
-                    run.assert_not_called()
-                    fingerprints.assert_not_called()
-                    self.assertFalse(output.exists())
+    def test_symlink_aliases_of_both_report_targets_are_rejected(self) -> None:
+        for suffix in ("", ".tmp"):
+            output = self.work / ("symbolic-link" + ("-staging" if suffix else "") + ".json")
+            target = output.with_name(output.name + suffix)
+            try:
+                target.symlink_to(self.source)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"File symlinks unavailable: {error}")
+            with self.subTest(suffix=suffix), self.assertRaisesRegex(ValueError, "fingerprinted input"):
+                runner.protect_output_inputs(output, {self.source})
 
+    def test_all_fingerprinted_inputs_are_protected_before_main_launch(self) -> None:
+        kernel = self.work / "src/Kernel"
+        kernel.mkdir(parents=True)
+        source = kernel / "AsymptoticAnalysis.wl"
+        module = kernel / "Companion.wl"
+        suite = self.work / "MathicsTests.wl"
+        script = self.work / "run_mathics_tests.py"
+        for path in (source, module, suite, script):
+            path.write_text("protected input", encoding="utf-8")
+        for target in (source, module, suite, script):
+            args = ["run_mathics_tests.py", "--source", str(source), "--output", str(target)]
+            with self.subTest(target=target), patch.object(sys, "argv", args), \
+                    patch.object(runner, "SUITE", suite), patch.object(runner, "__file__", str(script)), \
+                    patch.object(runner, "available_cases", return_value=[("fixture", "fixture")]), \
+                    patch.object(runner, "run_case") as execute, \
+                    patch.object(runner, "fingerprints") as fingerprints, redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as failure:
+                    runner.main()
+                self.assertEqual(failure.exception.code, 2)
+                execute.assert_not_called()
+                fingerprints.assert_not_called()
+                self.assertTrue(all(path.read_text(encoding="utf-8") == "protected input"
+                                    for path in (source, module, suite, script)))
+
+    def test_main_staging_collision_is_rejected_before_launch(self) -> None:
+        source = self.work / "receipt.json.tmp"
+        source.write_text("protected staged input", encoding="utf-8")
+        output = self.work / "receipt.json"
+        args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
+        with patch.object(sys, "argv", args), \
+                patch.object(runner, "available_cases", return_value=[("fixture", "fixture")]), \
+                patch.object(runner, "run_case") as execute, redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as failure:
+                runner.main()
+            self.assertEqual(failure.exception.code, 2)
+            execute.assert_not_called()
+        self.assertEqual(source.read_text(encoding="utf-8"), "protected staged input")
+        self.assertFalse(output.exists())
+
+    def test_alias_created_after_launch_is_rejected_before_report_write(self) -> None:
+        output = self.work / "report.json"
+        staging = output.with_name(output.name + ".tmp")
+        args = ["run_mathics_tests.py", "--source", str(self.source), "--output", str(output)]
+
+        def execute(*_args):
+            try:
+                os.link(self.source, staging)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"Hard links unavailable: {error}")
+            return {"Outcome": "Success", "TestID": "fixture", "ElapsedSeconds": 0.1}
+
+        with patch.object(sys, "argv", args), \
+                patch.object(runner, "available_cases", return_value=[("fixture", "fixture")]), \
+                patch.object(runner, "run_case", side_effect=execute), \
+                redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as failure:
+                runner.main()
+            self.assertEqual(failure.exception.code, 2)
+        self.assertEqual(self.source.read_text(encoding="utf-8"), "original input")
+        self.assertFalse(json.loads(output.read_text(encoding="utf-8"))["RunComplete"])
+
+    def test_unrelated_existing_output_can_be_replaced(self) -> None:
+        output = self.work / "report.json"
+        output.write_text("old report", encoding="utf-8")
+        args = ["run_mathics_tests.py", "--source", str(self.source), "--output", str(output)]
+        result = {"Outcome": "Success", "TestID": "fixture", "ElapsedSeconds": 0.1}
+        with patch.object(sys, "argv", args), \
+                patch.object(runner, "available_cases", return_value=[("fixture", "fixture")]), \
+                patch.object(runner, "run_case", return_value=result), redirect_stdout(io.StringIO()):
+            self.assertEqual(runner.main(), 0)
+        self.assertTrue(json.loads(output.read_text(encoding="utf-8"))["SourcesUnchangedDuringRun"])
+        self.assertEqual(self.source.read_text(encoding="utf-8"), "original input")
+
+
+class PortableReportTests(unittest.TestCase):
     def test_relocated_modular_source_fingerprints_include_siblings(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mathics-fingerprint-test-") as temporary:
             kernel = Path(temporary) / "src/Kernel"
@@ -260,6 +400,33 @@ class PortableReportTests(unittest.TestCase):
             self.assertEqual(report["Executed"], 1)
             self.assertEqual(report["NotRun"], 1)
 
+    def test_observed_source_change_stays_latched_after_restoration(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mathics-source-drift-test-") as temporary:
+            source = Path(temporary) / "source.wl"
+            source.write_text("original", encoding="utf-8")
+            output = Path(temporary) / "report.json"
+            args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
+
+            def execute(command, selected_source, test_id, group, timeout, work):
+                contents = {"first": "changed-first", "second": "changed-second", "third": "original"}
+                selected_source.write_text(contents[test_id], encoding="utf-8")
+                return {"Outcome": "Success", "TestID": test_id, "ElapsedSeconds": 0.1}
+
+            with patch.object(sys, "argv", args), \
+                    patch.object(runner, "available_cases", return_value=[("first", "fixture"), ("second", "fixture"), ("third", "fixture")]), \
+                    patch.object(runner, "run_case", side_effect=execute), redirect_stdout(io.StringIO()):
+                self.assertEqual(runner.main(), 1)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertTrue(report["RunComplete"])
+            self.assertEqual(report["Succeeded"], 3)
+            self.assertFalse(report["SourcesUnchangedDuringRun"])
+            self.assertEqual(report["TestedSourcesSHA256"], report["SourcesSHA256AfterRun"])
+            self.assertNotEqual(report["TestedSourcesSHA256"], report["FirstObservedSourceDriftSHA256"])
+            self.assertEqual(report["FirstObservedSourceDriftSHA256"][str(source)],
+                             runner.hashlib.sha256(b"changed-first").hexdigest())
+            self.assertEqual(report["Executed"], 3)
+            self.assertEqual(report["NotRun"], 0)
+
     def test_changed_sources_force_failure_despite_successful_cases(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mathics-report-test-") as temporary:
             output = Path(temporary) / "report.json"
@@ -276,26 +443,6 @@ class PortableReportTests(unittest.TestCase):
             self.assertTrue(report["RunComplete"])
             self.assertFalse(report["SourcesUnchangedDuringRun"])
             self.assertEqual(report["Succeeded"], 1)
-
-    def test_observed_source_change_remains_failure_after_restoration(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="mathics-report-test-") as temporary:
-            output = Path(temporary) / "report.json"
-            args = ["run_mathics_tests.py", "--source", str(runner.SUITE), "--output", str(output)]
-            result = {"Outcome": "Success", "TestID": "fixture", "ElapsedSeconds": 0.1}
-            original, first_change, second_change = ({"source": value} for value in ("original", "first", "second"))
-            with patch.object(sys, "argv", args), \
-                    patch.object(runner, "available_cases", return_value=[("first", "fixture"), ("second", "fixture")]), \
-                    patch.object(runner, "run_case", return_value=result), \
-                    patch.object(runner, "fingerprints", side_effect=[original, original, first_change,
-                                 second_change, original]), redirect_stdout(io.StringIO()):
-                self.assertEqual(runner.main(), 1)
-            report = json.loads(output.read_text(encoding="utf-8"))
-            self.assertTrue(report["RunComplete"])
-            self.assertFalse(report["SourcesUnchangedDuringRun"])
-            self.assertEqual(report["Succeeded"], 2)
-            self.assertEqual(report["FirstObservedChangedSourcesSHA256"], first_change)
-            self.assertEqual(report["SourcesSHA256AfterRun"], original)
-
 
 if __name__ == "__main__":
     unittest.main()

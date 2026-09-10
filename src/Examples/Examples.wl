@@ -1,4 +1,5 @@
-(* Examples for AsymptoticAnalysis.  Evaluate after loading Kernel/AsymptoticAnalysis.wl. *)
+(* Examples for AsymptoticAnalysis. The script loads the package itself.
+   From the repository root: wolfram.exe -noinit -script src/Examples/Examples.wl *)
 Get[FileNameJoin[{DirectoryName[DirectoryName[$InputFileName]], "Kernel", "AsymptoticAnalysis.wl"}]];
 ClearAll[x, y, z, alpha, a, b];
 show[label_, e_] := Print[label, ": ", ToString[e, InputForm]];

@@ -34,6 +34,7 @@ Run from the repository root:
 python validation/build_user_guide.py
 python validation/check_documentation.py
 python -m unittest discover -s validation -p test_documentation_links.py -v
+python -m unittest discover -s validation -p test_documentation_text.py -v
 git diff --check
 ```
 
@@ -47,6 +48,15 @@ Imported report bodies, vendored source libraries, and saved question texts
 retain their original references; their maintained indexes are checked.
 External web availability, mathematical correctness, and runtime behavior are
 outside this static check.
+
+Save maintained text as UTF-8. The checker also scans maintained Markdown,
+article TeX, and generated HTML/CSS for invalid UTF-8, replacement characters,
+misdecoded punctuation, and unexpected control characters. Diagnostics name
+the file and line; repair the editable source and regenerate affected outputs.
+Use explicit UTF-8 encoding in scripts (`encoding="utf-8"` in Python or
+`-Encoding utf8` with PowerShell `Set-Content`) rather than relying on a
+terminal's legacy code page. Imported report bodies and historical evidence
+remain unchanged by this check.
 
 For the mathematical PDF, follow the
 [three-pass build and rendering procedure](article/README.md#build-and-inspect).

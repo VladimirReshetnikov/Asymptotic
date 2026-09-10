@@ -25,6 +25,7 @@ Use another entry script when its explicit selection matches the change:
 
 | Coverage | Entry script |
 | --- | --- |
+| Fourier coefficient termination, public residual budgets and convolution controls | [CheckFourierTermination.wl](../../validation/CheckFourierTermination.wl) |
 | Principal-log normalization and symbolic-depth, core, flat-sector and assumption consumers | [CheckLogPowerNormalization.wl](../../validation/CheckLogPowerNormalization.wl) |
 | Observable Taylor endpoints, sided constants and complete-argument reality, with calculus neighbors | [CheckObservableIngress.wl](../../validation/CheckObservableIngress.wl) |
 | Merged-source normalization, native search, and package identity | [CheckMergedReviewFixes.wl](../../validation/CheckMergedReviewFixes.wl) |

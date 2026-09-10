@@ -1,5 +1,99 @@
 # Review and validation record
 
+This page preserves evidence from individual source snapshots. A historical
+passing count does not validate today's checkout. The project-wide
+[coverage targets](../docs/development/COVERAGE_TARGETS.md) remain open;
+consult the [native deviations](../docs/development/NATIVE_COMPATIBILITY.md),
+[Mathics status](../docs/Mathics/COMPATIBILITY.md), and
+[vendored article coverage](../docs/development/VENDORED_ASYMPTOTICS.md)
+for known implementation and acceptance gaps.
+
+| Task | Current instructions |
+| --- | --- |
+| Check documentation sources and generated artifacts | [Documentation maintenance](../docs/MAINTAINING.md) |
+| Select a Wolfram regression check | [Focused checks](#choose-a-focused-check) and [test guide](../src/Tests/README.md) |
+| Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
+| Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
+| Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
+
+## Wave-4 integration and merged artifacts
+
+The first [runner-integrity check](wave4-runner-integrity-tests.json) passes
+**32/32 Python tests**, including 18 new cases, with no skips and two unchanged
+source hashes. `run_mathics_tests.py` now accepts deadlines only in
+`(0, 86400]` seconds, preserves lexical executable paths for virtual-environment
+launchers, keeps every observed source mismatch invalid after restoration,
+and protects both report and `.tmp` paths from aliasing fingerprinted inputs.
+The first mismatch hashes remain in `FirstObservedSourceDriftSHA256`.
+Tests include actual symlinks/hard links, a temporary venv-only import and
+owned-descendant timeout cleanup on Windows. They do not load Mathics or
+Wolfram. Package inputs still remain live; unseen between-checkpoint changes,
+complete dependency/copy coverage, output byte limits and interrupted-attempt
+records remain open in the intake.
+
+The [wave-4 intake](../docs/development/WAVE_4_INTAKE.md) maps all 64 new
+identified entries and the unnumbered proposals. Its
+[crosswalk audit](wave4-intake-crosswalk.json) verifies every local ID against
+the original ledgers; the [payload audit](wave4-payload-provenance.json)
+verifies all 180 supplied files against arrival `8cb9b7f`. These are static
+intake/provenance checks, not package runtime acceptance.
+
+The wave-4 integration merges `origin/main` through `38aa253`, preserving the
+Fourier recurrence repair and the incoming public-help corrections. The
+[merged loading receipt](wave4-merge-loading-tests.json) records **105/0** in
+five fresh Wolfram kernels, with 61 unchanged input hashes and no local HTTP
+server. Seven receipt-summary tests and sixteen acceptance-verifier tests
+pass separately; these are Python tooling checks, not Mathics feature runs.
+The [merged PDF build](wave4-merge-pdf-build.json) records three serial strict
+LaTeX passes over 32 unchanged TeX files. Its [layout record](wave4-merge-pdf-layout.json)
+records all 102 pages rendered, visual inspection of pages 1–6 and 67–72 plus
+full page 68, and no text outside page bounds. Earlier repair receipts retain
+their exact historical inputs; the full package suite remains skipped.
+
+The later documentation-only integration through `9b83d04` retains those
+61 loading inputs, all 32 TeX inputs and the same PDF hash. It resolves the
+overlapping wave-4 navigation edits against the completed intake, retains
+the refined Mathics numerical/symbolic limitations, and passes the three
+new maintained-text encoding tests. The earlier incoming layout receipt
+below keeps its own historical scope; it is not a replacement for the
+current wave-4 merge artifact record.
+
+## Fourier composition stops before unused products
+
+The [four-file native run](fourier-termination-tests.json) passes **68/68**
+on Wolfram 15.0.1: 19 new [termination tests](../src/Tests/ReviewFourierTermination.wlt),
+22 Fourier regressions, 11 Fourier convolution/refactoring checks, and 16
+ordinary recurrence controls. All 61 recorded input hashes stayed unchanged.
+The [17-observation baseline](fourier-termination-baseline.json) matches
+the 55-module snapshot at `cc1b06c`; the [same probes after the fix](fourier-termination-after-fix.json)
+preserve genuine resource failures while repairing the terminating cases.
+Both probe runs check source and probe immutability and record no timeouts.
+
+The public residual witness now succeeds with an explicit `"MaxTerms" -> 7`
+and reports empty residual blocks below relative cutoff six. Its baseline
+failed while forming an unnecessary square with ten retained pairs; the
+required quadratic composition uses six retained pairs. These exact counts
+and the availability repair do not establish a general timing improvement.
+See [the Fourier termination note](../docs/development/FOURIER_TERMINATION.md)
+for complete-coefficient identities, positive-valuation stopping, and the
+distinction from the earlier ordinary-engine P03 repair.
+
+The [loading check](fourier-termination-loading-tests.json) passes **105/105
+in five fresh kernels**, with 21 cases in each local standalone, modular,
+`init.m`, `Needs`, and paclet mode. It records 61 unchanged input hashes and
+starts no HTTP server. The updated 55-module standalone matches its sources.
+The full package and Mathics feature suites remain skipped.
+
+The [article build](fourier-termination-pdf-build.json) records exactly three
+serial strict LaTeX passes, all 32 TeX hashes and the final 102-page PDF.
+The [render record](fourier-termination-pdf-layout.json) records all pages
+rendered, zero text-outside-page findings, and visual inspection of pages
+1–6, 61–72, and 97–102 on contact sheets plus full page 68. Other pages were
+rendered but not visually inspected at this checkpoint. The
+[artifact audit](fourier-termination-artifacts.json) checks current input
+and PDF equality and preserves the preceding logarithm milestone against
+its committed revision rather than relabeling its receipts as current.
+
 ## Principal-logarithm normalization and positive nested bases
 
 The [eight-file native run](log-power-normalization-tests.json) passes
@@ -107,23 +201,34 @@ but were not visually inspected in this checkpoint. The earlier
 [layout record](observable-ingress-pdf-layout.json) belong to the pre-merge
 article. Both build histories retain their own source and artifact hashes.
 
-This page preserves evidence from individual source snapshots. A historical
-passing count does not validate today's checkout. The project-wide
-[coverage targets](../docs/development/COVERAGE_TARGETS.md) remain open;
-consult the [native deviations](../docs/development/NATIVE_COMPATIBILITY.md),
-[Mathics status](../docs/Mathics/COMPATIBILITY.md), and
-[vendored article coverage](../docs/development/VENDORED_ASYMPTOTICS.md)
-for known implementation and acceptance gaps.
-
-| Task | Current instructions |
-| --- | --- |
-| Check documentation sources and generated artifacts | [Documentation maintenance](../docs/MAINTAINING.md) |
-| Select a Wolfram regression check | [Focused checks](#choose-a-focused-check) and [test guide](../src/Tests/README.md) |
-| Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
-| Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
-| Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
 
 ## Documentation quality and coverage register
+
+The [102-page merge-layout record](documentation-merge-layout-2026-09-09.json)
+identifies the article retained in merge `38aa253`: all 32 TeX inputs and the
+PDF are unchanged from `9f8f434`. It preserves three successful strict LaTeX
+build logs, geometry diagnostics, source hashes, and the corrected contents
+page. Every page is covered by visual review: pages 1–6 were reinspected
+after widening the subsection-number column, while pages 7–102 have identical
+rendered bytes to the preceding complete review. This is document-build and
+layout evidence, separate from package execution.
+
+The [39-check example run](documentation-help-merged-examples-2026-09-09.json)
+and [100-check loading run](documentation-help-merged-loading-2026-09-09.json)
+belong to the earlier `9f8f434` merge inputs. Their source hashes distinguish
+them from the recursive logarithm changes merged subsequently in `38aa253`;
+they do not establish runtime acceptance of those later definitions.
+
+The [public-help consistency pass](documentation-help-2026-09-09.json) corrects
+seven usage messages and the corresponding guide descriptions: positive
+target coordinates, stored expressions and missing properties, report
+associations, source observables, certificate planning, individual coefficient
+contributions, and sided Taylor contracts. Only help strings changed in the
+kernel. The regenerated standalone package passes [95 local loading and reload
+checks in five fresh Wolfram kernels](documentation-help-loading-2026-09-09.json).
+This pass also repairs reproducible Mathics receipt hashing and the documented
+summary command, preserving historical runtime hashes and outcomes. It does
+not rerun the full package suite or establish new Mathics runtime acceptance.
 
 The [merged documentation receipt](documentation-deep-review-2026-09-09.json)
 incorporates `origin/main` through `41ac72d`, including observable admission
@@ -257,8 +362,10 @@ checks; this full run remains tied to its original source.
 The [public API inventory](../docs/Mathics/API-COVERAGE.md) maps all 38 exports
 to representative cases. The [receipt summary](mathics-test-coverage.json)
 records **101 distinct cases with successful Mathics evidence in each layout,
-across three explicitly identified package snapshots**. All 101 expectations
-also have original Wolfram controls across separate batches.
+across three explicitly identified package snapshots**. The maintained suite
+contains 101 cases. The [Wolfram preservation audit](mathics-wolfram-preservation.json)
+also reports controls for all 101 expectations across separate batches;
+per-case Wolfram execution receipts for those batches are not published here.
 
 | Snapshot | Modular evidence | Standalone evidence |
 | --- | --- | --- |
@@ -283,10 +390,13 @@ python validation/summarize_mathics_tests.py --reconcile validation/mathics-modu
 Reconciliation requires identical package hashes and successful targeted
 corrections for every original failing case. The summarizer rejects incomplete,
 drifting, or inconsistent receipts and retains the distinct supplemental
-snapshots. Six focused tests check these evidence boundaries, relative
-modular paths, and protection against overwriting an input receipt.
-The raw receipts are exempt from Git newline conversion, preserving the
-captured bytes identified by the summary's SHA-256 values.
+snapshots. [Focused tests](test_mathics_summary.py) check these evidence
+boundaries, relative modular paths, line-ending comparison, and protection
+against overwriting an input receipt. Raw receipts are exempt from Git newline
+conversion: `ReceiptSHA256` identifies their exact captured bytes. The separate
+`NormalizedReceiptSHA256` hashes CRLF-to-LF-normalized bytes for comparison.
+Embedded runtime source and suite hashes remain the exact historical
+fingerprints and are not normalized retroactively.
 
 ```text
 python -m pip install -r validation/requirements-mathics.txt
