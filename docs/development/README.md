@@ -33,19 +33,21 @@ The maintained reader-facing documentation consists of the
 [mathematical article](../article/asymptotic-inverse.pdf) and the
 [package user guide](../../src/Documentation/UserGuide.html).
 
-The [code review library](../../external-reports/code-review/README.md) contains twenty-seven
-packages in three waves: [reports 1–9](../../external-reports/code-review/wave-1/README.md),
-[reports 10–18](../../external-reports/code-review/wave-2/README.md), and
-[reports 19–27](../../external-reports/code-review/wave-3/README.md). The maintained
+The [code review library](../../external-reports/code-review/README.md) contains thirty-six
+packages in four waves: [reports 1–9](../../external-reports/code-review/wave-1/README.md),
+[reports 10–18](../../external-reports/code-review/wave-2/README.md),
+[reports 19–27](../../external-reports/code-review/wave-3/README.md), and
+[reports 28–36](../../external-reports/code-review/wave-4/README.md). The maintained
 [code review status](CODE_REVIEW_STATUS.md) consolidates findings, links current
 implementation evidence, and keeps pending repairs separate from deferred API
 and research proposals. The wave indexes record each package's pinned snapshot
 and distinguish executed native observations from independent models and
 unrun regression specifications.
-The [wave-3 intake](WAVE_3_INTAKE.md) maps all 44 new attributed ledger entries
+The [wave-3 intake](WAVE_3_INTAKE.md) maps that wave's 44 attributed ledger entries
 and consolidates their proposals. There are 167 identified entries across
-the reports before overlapping findings are grouped; they are not 167
-distinct current defects. Current work implements and documents the reviewed
+the first three waves before overlapping findings are grouped; they are not
+167 distinct current defects. Wave 4's detailed intake remains pending, so its
+findings are not included in that entry count. Current work implements and documents the reviewed
 recommendations, with each repair tied to its own focused validation.
 
 The [request-resolution workplan](REQUEST_RESOLUTION.md) connects W3-01–W3-03

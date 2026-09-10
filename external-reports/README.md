@@ -10,16 +10,19 @@ different collections with separate numbering, source snapshots, and evidence.
 | Code reviews, wave 1 | Nine review packages, numbered 1–9, concerning the recorded `07a9781` or `75de875` snapshot. | [Wave 1 index](code-review/wave-1/README.md) |
 | Code reviews, wave 2 | Nine incremental review packages, numbered 10–18, concerning snapshot `921387e`. | [Wave 2 index](code-review/wave-2/README.md) |
 | Code reviews, wave 3 | Nine incremental review packages, numbered 19–27, concerning snapshot `6687962`. | [Wave 3 index](code-review/wave-3/README.md) |
+| Code reviews, wave 4 | Nine Mathics and engineering review packages, numbered 28–36, concerning snapshots `7d1bc83` and `513917b`. | [Wave 4 index](code-review/wave-4/README.md) |
 
-The twenty-seven code reviews are separate from the nine original proposals.
+The thirty-six code reviews are separate from the nine original proposals.
 The [code review index](code-review/README.md) explains the reviewed revisions
 and evidence categories. For current implementation decisions, use the
 [maintained status register](../docs/development/CODE_REVIEW_STATUS.md), which
 groups overlapping findings and links integrated fixes to focused validation.
 A report finding or proposed patch is not automatically a current defect or
 an implemented change.
-The [wave-3 intake](../docs/development/WAVE_3_INTAKE.md) maps the latest
-44 attributed entries and associated proposals to current work.
+The [wave-3 intake](../docs/development/WAVE_3_INTAKE.md) maps that wave's
+44 attributed entries and associated proposals to current work. The
+[wave-4 index](code-review/wave-4/README.md) links the newer Mathics and
+validation-runner reviews with their own pinned revisions and execution limits.
 
 ## Provenance and reproduction
 

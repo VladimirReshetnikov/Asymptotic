@@ -126,6 +126,21 @@ article. Both build histories retain their own source and artifact hashes.
 
 ## Documentation quality and coverage register
 
+The [102-page merge-layout record](documentation-merge-layout-2026-09-09.json)
+identifies the article retained in merge `38aa253`: all 32 TeX inputs and the
+PDF are unchanged from `9f8f434`. It preserves three successful strict LaTeX
+build logs, geometry diagnostics, source hashes, and the corrected contents
+page. Every page is covered by visual review: pages 1–6 were reinspected
+after widening the subsection-number column, while pages 7–102 have identical
+rendered bytes to the preceding complete review. This is document-build and
+layout evidence, separate from package execution.
+
+The [39-check example run](documentation-help-merged-examples-2026-09-09.json)
+and [100-check loading run](documentation-help-merged-loading-2026-09-09.json)
+belong to the earlier `9f8f434` merge inputs. Their source hashes distinguish
+them from the recursive logarithm changes merged subsequently in `38aa253`;
+they do not establish runtime acceptance of those later definitions.
+
 The [public-help consistency pass](documentation-help-2026-09-09.json) corrects
 seven usage messages and the corresponding guide descriptions: positive
 target coordinates, stored expressions and missing properties, report
