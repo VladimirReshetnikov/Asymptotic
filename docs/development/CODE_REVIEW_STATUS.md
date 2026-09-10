@@ -76,6 +76,13 @@ and nine PDF articles, match their [arrival Git blobs](../../validation/wave4-pa
 Review evidence and candidate code do not establish current Mathics or
 Wolfram package behavior; no bundled programs were executed during intake.
 
+The first wave-4 [runner repair](../../validation/wave4-runner-integrity-tests.json)
+passes 32/0 focused Python tests. It addresses finite bounded deadlines and
+lexical launcher selection (W4-10/W4-11), latches observed source drift
+(part of W4-12), and prevents report/staging aliases of fingerprinted inputs
+(part of W4-13). Complete executed-source coverage and freezing, mandatory
+load admission, output caps and interruption records remain pending.
+
 W3-06 now has independently reproduced native failures and
 [131/0 focused native acceptance](../../validation/observable-ingress-main-sync-tests.json).
 The [observable Taylor notes](OBSERVABLE_INGRESS.md)

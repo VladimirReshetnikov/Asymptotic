@@ -9,8 +9,9 @@ The suite uses independent exact expected values on both kernels; explicitly
 documented runtime-contract cases cover different native pre-evaluation of
 InverseFunction. No MUnit or Mathics JSON exporter is needed. Every case has an
 OS-enforced timeout and a fresh kernel, so an interpreter crash or unsupported operation cannot hide later
-results. Failures, crashes, timeouts, protocol errors, and changed sources all
-produce a nonzero exit status. --list never starts a kernel.
+results. Failures, crashes, timeouts, protocol errors, and observed source changes
+all produce a nonzero exit status. Timeouts must be finite, positive, and at most
+86400 seconds. --list never starts a kernel.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from datetime import datetime, timezone
 import fnmatch
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -33,6 +35,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 SUITE = Path(__file__).with_name("MathicsTests.wl")
 PREFIX = "ASYMPTOTIC_PORTABLE_"
+MAX_CASE_TIMEOUT_SECONDS = 86400.0
 CASE_PATTERN = re.compile(r'^portableTest\["([a-z0-9-]+)", "([a-z]+)",', re.MULTILINE)
 
 
@@ -43,17 +46,48 @@ def available_cases() -> list[tuple[str, str]]:
     return cases
 
 
-def fingerprints(source: Path) -> dict[str, str]:
+def fingerprinted_inputs(source: Path) -> set[Path]:
     files = {source, SUITE, Path(__file__).resolve()}
     if source.name == "AsymptoticAnalysis.wl" and source.parent.name == "Kernel":
         # --source can select a relocated modular tree, including an untouched
         # Wolfram baseline. Its sibling modules are part of the tested input.
         files.update(source.parent.glob("*.wl"))
+    return files
+
+
+def fingerprints(source: Path) -> dict[str, str]:
     return {
         path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path):
         hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted(files)
+        for path in sorted(fingerprinted_inputs(source))
     }
+
+
+def executable_path(value: str) -> str:
+    """Anchor an existing launcher without following a virtualenv symlink."""
+    return os.path.abspath(value) if Path(value).is_file() else value
+
+
+def case_timeout(value: str | float) -> float:
+    try:
+        seconds = float(value)
+    except (ValueError, TypeError, OverflowError) as error:
+        raise argparse.ArgumentTypeError("--timeout must be a number") from error
+    if not math.isfinite(seconds) or not 0 < seconds <= MAX_CASE_TIMEOUT_SECONDS:
+        raise argparse.ArgumentTypeError("--timeout must be finite and in (0, 86400] seconds")
+    return seconds
+
+
+def protect_output_inputs(output: Path, inputs: set[Path]) -> None:
+    """Neither the report nor its staging file may alias a tested input."""
+    for target in (output, output.with_name(output.name + ".tmp")):
+        canonical = target.resolve()
+        for source in inputs:
+            # resolve covers relative paths and symlinks; samefile also covers
+            # hard links, whose inode would be overwritten by write_text.
+            if canonical == source.resolve() or (
+                    target.exists() and source.exists() and target.samefile(source)):
+                raise ValueError(f"Report target {target} aliases fingerprinted input {source}")
 
 
 def as_text(output: bytes | str | None) -> str:
@@ -100,6 +134,7 @@ def parse_output(output: str, test_id: str, returncode: int | None) -> dict:
 
 def run_case(command: list[str], source: Path, test_id: str, group: str,
              timeout: float, work: Path) -> dict:
+    timeout = case_timeout(timeout)
     env = dict(os.environ, ASYMPTOTIC_PORTABLE_SOURCE=str(source),
                ASYMPTOTIC_PORTABLE_CASE=test_id, PYTHONIOENCODING="utf-8",
                PYTHONUNBUFFERED="1")
@@ -167,7 +202,8 @@ def main() -> int:
                         help="Package entry file; pass AsymptoticAnalysis.wl for the generated single file")
     parser.add_argument("--case", action="append", default=[], help="Test ID or shell wildcard; repeat to select several")
     parser.add_argument("--group", action="append", default=[], help="Select groups (see --list); repeat to select several")
-    parser.add_argument("--timeout", type=float, default=180, help="Hard seconds per fresh kernel, including startup (default: 180)")
+    parser.add_argument("--timeout", type=case_timeout, default=180,
+                        help="Finite hard seconds per fresh kernel, including startup (0 < seconds <= 86400; default: 180)")
     parser.add_argument("--output", type=Path, default=ROOT / "validation/mathics-tests.json")
     parser.add_argument("--list", action="store_true", help="List selected IDs and groups without running Mathics")
     args = parser.parse_args()
@@ -186,27 +222,36 @@ def main() -> int:
         for name, group in cases:
             print(f"{group}\t{name}")
         return 0
-    if args.timeout <= 0:
-        parser.error("--timeout must be positive")
     source = args.source.resolve()
     if not source.is_file():
         parser.error(f"Package source does not exist: {source}")
     if args.wolfram:
-        executable = str(Path(args.wolfram).resolve()) if Path(args.wolfram).is_file() else args.wolfram
+        executable = executable_path(args.wolfram)
         command = [executable, "-noinit", "-script", str(SUITE)]
         runtime_name = "Wolfram"
     else:
-        executable = args.python or sys.executable
-        if Path(executable).is_file():
-            executable = str(Path(executable).resolve())
+        executable = executable_path(args.python or sys.executable)
         command = [executable, "-m", "mathics", "--quiet", "--no-readline", "--file", str(SUITE)]
         runtime_name = "Mathics"
+    initial_inputs = fingerprinted_inputs(source)
+    try:
+        protect_output_inputs(args.output, initial_inputs)
+    except ValueError as error:
+        parser.error(str(error))
     before = fingerprints(source)
     suite_snapshot = SUITE.read_bytes()
     results = []
+    first_source_drift = None
 
     def write_report(complete: bool) -> dict:
+        nonlocal first_source_drift
         after = fingerprints(source)
+        # The package tree remains live. Latch every observed mismatch; later
+        # restoration cannot turn a mixed-source run into passing evidence.
+        # Changes wholly between observations still require a frozen tree to
+        # detect or prevent and are not certified by these comparisons.
+        if after != before and first_source_drift is None:
+            first_source_drift = after
         succeeded = sum(result["Outcome"] == "Success" for result in results)
         report = {
             "Runtime": runtime_name, "Command": command,
@@ -216,11 +261,18 @@ def main() -> int:
             "FullPackageSuiteRun": False, "RunComplete": complete, "Selected": len(cases),
             "TestSuiteSnapshotSHA256": hashlib.sha256(suite_snapshot).hexdigest(),
             "Executed": len(results), "Succeeded": succeeded, "Failed": len(results) - succeeded,
-            "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": before == after,
+            "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": first_source_drift is None,
             "TestedSourcesSHA256": before, "Results": results,
         }
-        if before != after:
+        if first_source_drift is not None:
             report["SourcesSHA256AfterRun"] = after
+            report["FirstObservedSourceDriftSHA256"] = first_source_drift
+        # Recheck aliases before every write, including inputs added during a
+        # run. This is an observed-path guard, not a hostile-filesystem lock.
+        try:
+            protect_output_inputs(args.output, initial_inputs | fingerprinted_inputs(source))
+        except ValueError as error:
+            parser.error(str(error))
         args.output.parent.mkdir(parents=True, exist_ok=True)
         temporary_output = args.output.with_name(args.output.name + ".tmp")
         temporary_output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -233,7 +285,7 @@ def main() -> int:
         frozen_suite.write_bytes(suite_snapshot)
         # Mathics streams the input file. Replacing an open file during test
         # development changes its byte offsets and can produce bogus syntax
-        # failures. Use immutable suite bytes for this invocation, while the
+        # failures. Use a private suite copy for this invocation, while the
         # original-source fingerprints still invalidate a changed-source run.
         frozen_command = command[:-1] + [str(frozen_suite)]
         for test_id, group in cases:

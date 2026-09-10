@@ -2,6 +2,19 @@
 
 ## Wave-4 integration and merged artifacts
 
+The first [runner-integrity check](wave4-runner-integrity-tests.json) passes
+**32/32 Python tests**, including 18 new cases, with no skips and two unchanged
+source hashes. `run_mathics_tests.py` now accepts deadlines only in
+`(0, 86400]` seconds, preserves lexical executable paths for virtual-environment
+launchers, keeps every observed source mismatch invalid after restoration,
+and protects both report and `.tmp` paths from aliasing fingerprinted inputs.
+The first mismatch hashes remain in `FirstObservedSourceDriftSHA256`.
+Tests include actual symlinks/hard links, a temporary venv-only import and
+owned-descendant timeout cleanup on Windows. They do not load Mathics or
+Wolfram. Package inputs still remain live; unseen between-checkpoint changes,
+complete dependency/copy coverage, output byte limits and interrupted-attempt
+records remain open in the intake.
+
 The [wave-4 intake](../docs/development/WAVE_4_INTAKE.md) maps all 64 new
 identified entries and the unnumbered proposals. Its
 [crosswalk audit](wave4-intake-crosswalk.json) verifies every local ID against
