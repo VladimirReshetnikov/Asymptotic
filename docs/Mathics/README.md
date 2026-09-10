@@ -2,10 +2,14 @@
 
 For installation, package-specific validation, compatibility subtleties, and
 current limitations, see [AsymptoticAnalysis compatibility](COMPATIBILITY.md).
+The [public API inventory](API-COVERAGE.md) maps exported operations to exact
+portable cases and records remaining input and option coverage.
 For the maintained implementation gotchas and reproducible checking rules,
 see [MATHICS-NOTES.md](../MATHICS-NOTES.md), the companion to the Wolfram notes.
 The [empty-list notes](LISTS.md) explain the package-local mapping workaround
 used by flat-series and Fourier operations.
+The [inline assumption notes](INPUT-ASSUMPTIONS.md) explain how held entry
+points preserve symbolic membership conditions before native evaluation.
 The comparison below is background material, not a package acceptance record.
 
 https://mathics.org/

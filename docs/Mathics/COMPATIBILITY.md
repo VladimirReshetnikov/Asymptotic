@@ -114,6 +114,11 @@ checks reject the original forms.
   A conservative [exact assumption adapter](ASSUMPTIONS.md) proves finite
   realness and signs from explicit conjunctions, preserving unresolved
   branches. It does not implement quantifier elimination.
+  Held analytic entry points also preserve membership predicates inside
+  inline `Assumptions` values before native Mathics can weaken them. Immediate
+  and delayed values retain their evaluation counts. Conditions already
+  changed during caller-side evaluation cannot be recovered; see the
+  [inline assumption boundary](INPUT-ASSUMPTIONS.md).
   Unresolved ordered predicates are kept out of native simplification until
   their operands are proved real. This prevents cancellation of a common
   complex offset from manufacturing a real inequality.
@@ -222,8 +227,9 @@ and the subsequent matching full rerun instead of discarding that evidence.
 Independent review fixes were subsequently merged from `origin/main`.
 Native definition comparisons separately record the `021c584` review merge
 and the later `350c70f` control. The latest comparison uses `a55df16`, including
-its independent native rule-goal changes, as the control for the 54-module
-Mathics candidate. All 2,051 modular and 2,050 standalone package symbols
+its independent native rule-goal changes, as the control for the 55-module
+Mathics candidate with held inline-assumption protection. The earlier
+54-module comparison is retained separately. All 2,051 modular and 2,050 standalone package symbols
 match across attributes, options, own/down/up/sub/numeric/default/format
 values, messages, and contexts. Six System builtins, including `Map`, retain
 their definitions before loading, after loading, and after reloading; eight

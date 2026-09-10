@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): d063314b1d7ae687aac781aeb54685b9952aa5c50b644041e55c7555aaaa81f5 *)
+   Source SHA256 (UTF-8/LF): eacccbfa6eb64d6e82b8870d4cb54d4f5a14e04d50cc9bc1cb98a0a420a22ead *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -8865,6 +8865,14 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\nDownValues[fwdAnalytic] = {};",
 "\nfwdAnalytic[LogGamma, {rows_List, precision_, degree_}, e_, u_, ell_, ass_, cutoff_, limit_] /;\n    mathicsGrowingPositiveJetQ[rows, ell, ass] := Module[\n  {argument = First[e], rate = -rows[[1, 1]], count, model, result},\n  If[cutoff === Infinity,\n    fail[\"InfiniteSeries\", \"The Gamma logarithm requires a finite Poincare working order.\"]];\n  count = Max[0, Ceiling[(cutoff/rate + 1)/2] - 1];\n  If[count + 1 > limit,\n    fail[\"ResourceLimit\", \"The Stirling Bernoulli tail exceeds MaxTerms.\"]];\n  model = (argument - 1/2) Log[argument] - argument + Log[2 Pi]/2 +\n    Total[Table[BernoulliB[2 k]/(2 k (2 k - 1) argument^(2 k - 1)), {k, 1, count}]];\n  result = fwd[model, u, ell, ass, cutoff, limit];\n  pAdd[result, {{}, (2 count + 1) rate, 0}, ell, ass]];",
 "\nDownValues[fwdAnalytic] = Join[DownValues[fwdAnalytic], $mathicsOriginalFwdAnalytic];"
+}]];
+If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
+"(* BEGIN SOURCE: src/Kernel/MathicsInputAssumptions.wl\n   Source SHA256 (UTF-8/LF): c82eea58c4a6d0a89488cd65c3b60949426cda821222bdfd3415842b1da6363e *)\n(* Mathics' native Element rules can weaken a symbolic membership condition:\n   Element[Sin[a],Reals] becomes Element[a,Reals], although a=Pi/2+I is a\n   counterexample to that equivalence. The package's held public entries can\n   preserve an inline assumption before ordinary option evaluation reaches\n   those rules. Already evaluated caller values cannot be reconstructed.\n\n   The private catch boundary is held and is entered by the analytic paths\n   before option evaluation. Literal explicit native backend calls bypass\n   it. Keep the established assumption scope and exception behavior in the\n   original held delegate; change only membership heads inside syntactic\n   Assumptions rule values. Position and ReplacePart operate on held trees,\n   so immediate and delayed option programs retain their evaluation count. *)\n\nClearAll[mathicsProtectInputAssumptions];",
+"\nmathicsProtectInputAssumptions[held_HoldComplete] := If[\n  FreeQ[held, System`Element], held, System`Module[\n  {options, heads, positions},\n  options = Position[held,\n    HoldPattern[Rule[Assumptions, _] | RuleDelayed[Assumptions, _]],\n    {0, Infinity}, Heads -> False];\n  If[options === {}, held,\n  heads = Position[held, System`Element, {0, Infinity}, Heads -> True];\n  positions = Select[heads, Function[position,\n    Or @@ (Function[option,\n      Length[position] >= Length[option] + 1 &&\n        Take[position, Length[option] + 1] === Append[option, 2]] /@ options)]];\n  ReplacePart[held, (# -> AsymptoticAnalysis`Mathics`Element) & /@ positions]]]];",
+"\n\nIf[DownValues[mathicsOriginalInputCatch] === {},\n  SetAttributes[mathicsOriginalInputCatch, HoldAll];\n  DownValues[mathicsOriginalInputCatch] = DownValues[catch] /.\n    catch -> mathicsOriginalInputCatch];",
+"\nClear[catch];",
+"\nSetAttributes[catch, HoldAll];",
+"\ncatch[body_] := Replace[mathicsProtectInputAssumptions[HoldComplete[body]],\n  HoldComplete[protected_] :> mathicsOriginalInputCatch[protected]];"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "(* BEGIN SOURCE: src/Kernel/MathicsLists.wl\n   Source SHA256 (UTF-8/LF): 1a05f146c5d7a1d26aa8d6d8cedb7b2e87524c9236ab2001a1105e44e896f962 *)\n(* Mathics 10.0.1 Map[f, emptyList] can corrupt that list's cached element\n   properties. Reusing it in a nested numeric list then raises a Python\n   AssertionError. For example, without this package:\n     b = {}; f /@ b; {b, 2, 0}\n   Mapping at the default first level of an empty list has no applications\n   of f and returns an empty list. Bypass only that exact case. Other inputs,\n   explicit levels, Heads options, and invalid arguments retain native Map.\n\n   This late adapter changes references in package-private definitions only;\n   the interpreter and System`Map definitions are untouched. *)\n\nClearAll[mathicsMap, mathicsInstallMap];",
