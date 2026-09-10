@@ -3901,13 +3901,17 @@ blocks without touching the retained state, and compare
 accepts the options of <a href="#InverseCertificate">InverseCertificate</a> as association keys.
 Do not mix <code>&quot;AdditionalBlocks&quot;</code> with a numerical request.</p>
 <p>Refinement preserves the original function, assumptions, selected
-branch, and declared input precision. It ignores later ambient
-<code>$Assumptions</code>, including when replaying a constructor or an
-operation recipe; see <a href="#assumption-context">Assumptions and
-Parameter Domains</a>. Exact terminating results can stop before an
-additional-block goal. A numerical request returns a certificate for the
-source root; it does not replace the symbolic remainder with a numerical
-tolerance.</p>
+branch, and declared input precision. A derived result retains its
+operands in an operation recipe for replay; a scalar or regular operand
+lifted beside an expansion retains only a chart template of that
+expansion, so <code>s + 1</code> and <code>s Sin[x]</code> chains grow
+linearly, while an expression that names the same object twice, such as
+<code>SeriesAdd[t, t]</code>, stores it twice in <code>InputForm</code>.
+Refinement ignores later ambient <code>$Assumptions</code>, including
+when replaying a constructor or an operation recipe; see <a href="#assumption-context">Assumptions and Parameter Domains</a>. Exact
+terminating results can stop before an additional-block goal. A
+numerical request returns a certificate for the source root; it does not
+replace the symbolic remainder with a numerical tolerance.</p>
 <p>Special-function adapters replay their own order convention. For
 standalone exact-core, exponential-core, flat, and Fourier constructors,
 request additional terms by calling the corresponding constructor again;

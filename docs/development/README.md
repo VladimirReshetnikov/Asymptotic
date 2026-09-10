@@ -123,6 +123,9 @@ reproduced public budget-seven residual, and 68/0 focused acceptance.
 The [equal-exponent notes](EXPONENT_EQUALITY.md) describe exact mathematical
 collection before block counts, logarithmic frontier degrees and inverse
 enumeration, while preserving genuinely distinct close powers.
+The [provenance growth note](PROVENANCE_GROWTH.md) records the measured size
+of retained operation recipes, refinement caches and native finite
+expressions, and the chart-template repair for lifted operands (P07, W3-04).
 The [composition parameter-scope notes](COMPOSITION_PARAMETER_SCOPE.md)
 explain why a fixed-parameter remainder needs a new joint proof when an inner
 variable captures a parameter, and when complete source replay supplies one.

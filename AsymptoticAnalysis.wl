@@ -2188,7 +2188,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): d31b798796b87a6f06921dec392d9fbf6812b61544b29bb57fafe27af1bc56ca *)
+   Source SHA256 (UTF-8/LF): 292104e6428b44faa6dffeac504e6deecb5bb653910f77099c974d020b119ca0 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2386,12 +2386,23 @@ AsymptoticAnalysis`SeriesAdd[s_GeneralizedSeries, t_GeneralizedSeries, opts : Op
 AsymptoticAnalysis`SeriesMultiply[s_GeneralizedSeries, t_GeneralizedSeries, opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Multiply", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 
+(* A lifted scalar or regular operand records the series it was lifted
+   beside only as a chart template: its variable, scale, assumptions and
+   representation, without the template's own operation recipe. Retaining the
+   whole operand made every `t + c` step reference `t` twice (once as the
+   other operand and once inside the lifted operand's recipe), so the recipe
+   tree, InputForm and Compress size of an n-step chain grew like 2^n while
+   the in-memory object stayed linear (P07 measurements). Replay never
+   refines a template; the lifted operand is re-expanded to the requested
+   working cutoff against the chart. *)
+seriesRecipeTemplate[s : GeneralizedSeries[a_Association]] := GeneralizedSeries[KeyDrop[a, "SeriesRecipe"]];
+seriesRecipeTemplateQ[recipe_] := ListQ[recipe] && MemberQ[{"Constant", "RegularOperand"}, First[recipe]];
 seriesConstant[c_, s_, limit_] := Module[{d = seriesData[s, limit]},
   If[! FreeQ[c, d["Variable"]], fail["InvalidConstant", "The scalar must be independent of the expansion variable."]];
   validateInput[c, limit];
   If[! TrueQ[Simplify[Element[c, Reals], seriesAss[d]]], fail["UnprovedRealCoefficient", "The scalar must be provably real under the series assumptions."]];
   seriesMake[Join[d, <|"Offset" -> 0, "Prefactor" -> 1,
-    "Jet" -> pConst[c, d["LogVariable"], seriesAss[d]], "RemainderDerivativeOrder" -> Infinity|>], {"Constant", {s}, c}]];
+    "Jet" -> pConst[c, d["LogVariable"], seriesAss[d]], "RemainderDerivativeOrder" -> Infinity|>], {"Constant", {seriesRecipeTemplate[s]}, c}]];
 AsymptoticAnalysis`SeriesAdd[s_GeneralizedSeries, c_ /; FreeQ[c, _GeneralizedSeries], opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Add", s, c, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 AsymptoticAnalysis`SeriesAdd[c_ /; FreeQ[c, _GeneralizedSeries], s_GeneralizedSeries, opts : OptionsPattern[]] :=
@@ -2640,7 +2651,9 @@ seriesCompositionScope[s : GeneralizedSeries[data_Association], variable_] := Mo
     "ConditionalSourceReplay", "ForwardModel", "InputRemainder", "DeclaredInputRemainder", "InputDomains"}]];
   recipe = Lookup[data, "SeriesRecipe", None];
   If[ListQ[recipe] && Length[recipe] >= 2 && ListQ[recipe[[2]]],
-    operands = Select[recipe[[2]], MatchQ[#, _GeneralizedSeries] &];
+    (* A chart template is not an operand: a lifted scalar or regular
+       operand is determined by its expression and the chart, both retained. *)
+    operands = If[seriesRecipeTemplateQ[recipe], {}, Select[recipe[[2]], MatchQ[#, _GeneralizedSeries] &]];
     extra = Drop[recipe, 2];
     If[recipe[[1]] === "Observable" && Length[recipe] >= 4,
       extra = If[recipe[[4]] === variable, {}, {recipe[[3]]}]]];
@@ -2649,7 +2662,7 @@ seriesCompositionScope[s : GeneralizedSeries[data_Association], variable_] := Mo
     extra = {extra, Last /@ Lookup[data, "CoordinateSubstitution", {}]}];
   scopes = seriesCompositionScope[#, variable] & /@ DeleteDuplicates[operands];
   known = Lookup[data, "Remainder", None] === 0 || KeyExistsQ[data, "Function"] ||
-    (scopes =!= {} && And @@ scopes[[All, 1]]);
+    seriesRecipeTemplateQ[recipe] || (scopes =!= {} && And @@ scopes[[All, 1]]);
   captured = ! FreeQ[{dependencies, source, extra}, variable] ||
     (scopes =!= {} && Or @@ scopes[[All, 2]]);
   {known, captured}];
@@ -2884,8 +2897,11 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
   If[MissingQ[recipe], fail["MissingRefinementSource", "The expansion has no retained source or operation recipe; its existing remainder cannot be improved by truncation."]];
   operands = recipe[[2]];
   (* Recompute operands with a guard margin. The final operation still clips
-     to its actual transported precision, so this never invents coefficients. *)
-  args = AsymptoticAnalysis`SeriesRefine[#, h + 2 + Abs[Min[0, Lookup[seriesData[#, limit], "Jet"][[2]] /. Infinity -> 0]], "MaxTerms" -> limit] & /@ operands;
+     to its actual transported precision, so this never invents coefficients.
+     A lifted operand's chart template is not an operand: it is passed as
+     stored, and the lifted expression is re-expanded to the working cutoff. *)
+  args = If[seriesRecipeTemplateQ[recipe], operands,
+    AsymptoticAnalysis`SeriesRefine[#, h + 2 + Abs[Min[0, Lookup[seriesData[#, limit], "Jet"][[2]] /. Infinity -> 0]], "MaxTerms" -> limit] & /@ operands];
   If[AnyTrue[args, FailureQ], Return[First[Select[args, FailureQ]], Module]];
   Switch[recipe[[1]],
     "Add", seriesBinary["Add", args[[1]], args[[2]], h, limit],
@@ -7967,7 +7983,7 @@ seriesEnvelopeUnary[head_, s_GeneralizedSeries, cut_, limit_] := Module[
 (* END SOURCE: src/Kernel/SeriesEnvelopeArithmetic.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesArithmetic.wl
-   Source SHA256 (UTF-8/LF): 642401b840307a543801b5d121b26dac9c22e5daf1f756c74c840103625b73ef *)
+   Source SHA256 (UTF-8/LF): 9fe5a8f9ce9188c81135a6a418db4ca338a0b762d56a1f1e047d0eba0b69a8bb *)
 (* Ordinary arithmetic is a thin, guarded entry to the precision calculus.
    The explicit normalizer holds the expression tree before evaluation so that
    a reciprocal is checked before Times can cancel its denominator. *)
@@ -8037,7 +8053,7 @@ seriesRegularOperand[e_, s_GeneralizedSeries, op_, working_, limit_] := Module[
     fail["UnprovedRealCoefficient", "The regular operand must have provably real coefficients on the series branch."]];
   seriesMake[Join[d, <|"Offset" -> 0, "Prefactor" -> 1, "Jet" -> j,
     "RemainderDerivativeOrder" -> If[j[[2]] === Infinity, Infinity, 0]|>],
-    {"RegularOperand", {s}, e, op}]];
+    {"RegularOperand", {seriesRecipeTemplate[s]}, e, op}]];
 
 seriesArithmeticBinary[op_, s_GeneralizedSeries, t_, working_, limit_] := Module[{result, operand = t, data, z},
   If[FailureQ[t], Throw[t, $tag]];

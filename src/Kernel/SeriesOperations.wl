@@ -195,12 +195,23 @@ AsymptoticAnalysis`SeriesAdd[s_GeneralizedSeries, t_GeneralizedSeries, opts : Op
 AsymptoticAnalysis`SeriesMultiply[s_GeneralizedSeries, t_GeneralizedSeries, opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Multiply", s, t, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 
+(* A lifted scalar or regular operand records the series it was lifted
+   beside only as a chart template: its variable, scale, assumptions and
+   representation, without the template's own operation recipe. Retaining the
+   whole operand made every `t + c` step reference `t` twice (once as the
+   other operand and once inside the lifted operand's recipe), so the recipe
+   tree, InputForm and Compress size of an n-step chain grew like 2^n while
+   the in-memory object stayed linear (P07 measurements). Replay never
+   refines a template; the lifted operand is re-expanded to the requested
+   working cutoff against the chart. *)
+seriesRecipeTemplate[s : GeneralizedSeries[a_Association]] := GeneralizedSeries[KeyDrop[a, "SeriesRecipe"]];
+seriesRecipeTemplateQ[recipe_] := ListQ[recipe] && MemberQ[{"Constant", "RegularOperand"}, First[recipe]];
 seriesConstant[c_, s_, limit_] := Module[{d = seriesData[s, limit]},
   If[! FreeQ[c, d["Variable"]], fail["InvalidConstant", "The scalar must be independent of the expansion variable."]];
   validateInput[c, limit];
   If[! TrueQ[Simplify[Element[c, Reals], seriesAss[d]]], fail["UnprovedRealCoefficient", "The scalar must be provably real under the series assumptions."]];
   seriesMake[Join[d, <|"Offset" -> 0, "Prefactor" -> 1,
-    "Jet" -> pConst[c, d["LogVariable"], seriesAss[d]], "RemainderDerivativeOrder" -> Infinity|>], {"Constant", {s}, c}]];
+    "Jet" -> pConst[c, d["LogVariable"], seriesAss[d]], "RemainderDerivativeOrder" -> Infinity|>], {"Constant", {seriesRecipeTemplate[s]}, c}]];
 AsymptoticAnalysis`SeriesAdd[s_GeneralizedSeries, c_ /; FreeQ[c, _GeneralizedSeries], opts : OptionsPattern[]] :=
   seriesArithmeticPublicBinary["Add", s, c, OptionValue["Cutoff"], OptionValue["MaxTerms"]];
 AsymptoticAnalysis`SeriesAdd[c_ /; FreeQ[c, _GeneralizedSeries], s_GeneralizedSeries, opts : OptionsPattern[]] :=
@@ -449,7 +460,9 @@ seriesCompositionScope[s : GeneralizedSeries[data_Association], variable_] := Mo
     "ConditionalSourceReplay", "ForwardModel", "InputRemainder", "DeclaredInputRemainder", "InputDomains"}]];
   recipe = Lookup[data, "SeriesRecipe", None];
   If[ListQ[recipe] && Length[recipe] >= 2 && ListQ[recipe[[2]]],
-    operands = Select[recipe[[2]], MatchQ[#, _GeneralizedSeries] &];
+    (* A chart template is not an operand: a lifted scalar or regular
+       operand is determined by its expression and the chart, both retained. *)
+    operands = If[seriesRecipeTemplateQ[recipe], {}, Select[recipe[[2]], MatchQ[#, _GeneralizedSeries] &]];
     extra = Drop[recipe, 2];
     If[recipe[[1]] === "Observable" && Length[recipe] >= 4,
       extra = If[recipe[[4]] === variable, {}, {recipe[[3]]}]]];
@@ -458,7 +471,7 @@ seriesCompositionScope[s : GeneralizedSeries[data_Association], variable_] := Mo
     extra = {extra, Last /@ Lookup[data, "CoordinateSubstitution", {}]}];
   scopes = seriesCompositionScope[#, variable] & /@ DeleteDuplicates[operands];
   known = Lookup[data, "Remainder", None] === 0 || KeyExistsQ[data, "Function"] ||
-    (scopes =!= {} && And @@ scopes[[All, 1]]);
+    seriesRecipeTemplateQ[recipe] || (scopes =!= {} && And @@ scopes[[All, 1]]);
   captured = ! FreeQ[{dependencies, source, extra}, variable] ||
     (scopes =!= {} && Or @@ scopes[[All, 2]]);
   {known, captured}];
@@ -693,8 +706,11 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
   If[MissingQ[recipe], fail["MissingRefinementSource", "The expansion has no retained source or operation recipe; its existing remainder cannot be improved by truncation."]];
   operands = recipe[[2]];
   (* Recompute operands with a guard margin. The final operation still clips
-     to its actual transported precision, so this never invents coefficients. *)
-  args = AsymptoticAnalysis`SeriesRefine[#, h + 2 + Abs[Min[0, Lookup[seriesData[#, limit], "Jet"][[2]] /. Infinity -> 0]], "MaxTerms" -> limit] & /@ operands;
+     to its actual transported precision, so this never invents coefficients.
+     A lifted operand's chart template is not an operand: it is passed as
+     stored, and the lifted expression is re-expanded to the working cutoff. *)
+  args = If[seriesRecipeTemplateQ[recipe], operands,
+    AsymptoticAnalysis`SeriesRefine[#, h + 2 + Abs[Min[0, Lookup[seriesData[#, limit], "Jet"][[2]] /. Infinity -> 0]], "MaxTerms" -> limit] & /@ operands];
   If[AnyTrue[args, FailureQ], Return[First[Select[args, FailureQ]], Module]];
   Switch[recipe[[1]],
     "Add", seriesBinary["Add", args[[1]], args[[2]], h, limit],

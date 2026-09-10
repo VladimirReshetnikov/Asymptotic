@@ -1019,6 +1019,31 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Lifted-operand templates and provenance measurements
+
+[MeasureProvenanceGrowth.wl](MeasureProvenanceGrowth.wl) is a read-only
+measurement script (no assertions): for eight-step self-addition,
+fixed-multiplication and `t + 1` / power chains, an inverse refinement pair,
+and native `1/(1 - x^7)` expansions through order 56, it records `ByteCount`,
+`LeafCount`, `Compress` and `InputForm` sizes, recipe tree and distinct node
+counts, and retained-memory estimates. The
+[baseline receipt](provenance-growth-baseline.json) measured the kernel
+exported from `8d42b5d` (`ASYMPTOTIC_MEASURE_ROOT`) and the
+[current receipt](provenance-growth-measurements.json) the repaired kernel,
+both on Wolfram 15.0.1 for Windows with unchanged sources; the
+[provenance growth note](../docs/development/PROVENANCE_GROWTH.md)
+interprets them. The [eleven-file run](recipe-template-tests.json) from
+[CheckRecipeTemplates.wl](CheckRecipeTemplates.wl) passes **153/153** with
+unchanged sources: the two new cases in
+[ReviewProvenanceGrowth.wlt](../src/Tests/ReviewProvenanceGrowth.wlt) pin
+the linear node counts of `t + 1`, `2 t` and `t Sin[x] + 1` chains, the
+template without a recipe, and replayed refinements of sum, product, mixed
+and negative-valuation chains against fresh expansions, beside the
+refinement, arithmetic, operation, bound-transport, composite, flat-sector,
+envelope, result and composition-scope suites. The `operations` and
+`primitive` Mathics groups are rerun below once complete. No full package
+suite was run.
+
 ## Composite target charts, refinement policy, and tooling
 
 The [eight-file run](composite-approach-tests.json) from

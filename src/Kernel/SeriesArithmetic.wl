@@ -67,7 +67,7 @@ seriesRegularOperand[e_, s_GeneralizedSeries, op_, working_, limit_] := Module[
     fail["UnprovedRealCoefficient", "The regular operand must have provably real coefficients on the series branch."]];
   seriesMake[Join[d, <|"Offset" -> 0, "Prefactor" -> 1, "Jet" -> j,
     "RemainderDerivativeOrder" -> If[j[[2]] === Infinity, Infinity, 0]|>],
-    {"RegularOperand", {s}, e, op}]];
+    {"RegularOperand", {seriesRecipeTemplate[s]}, e, op}]];
 
 seriesArithmeticBinary[op_, s_GeneralizedSeries, t_, working_, limit_] := Module[{result, operand = t, data, z},
   If[FailureQ[t], Throw[t, $tag]];

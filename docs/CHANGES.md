@@ -15,6 +15,20 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Lifted-operand templates and provenance measurements
+
+A scalar or regular operand lifted beside an expansion (`s + 1`, `s Sin[x]`)
+now records only a chart template of that expansion in its operation recipe,
+not the expansion with its own ancestry. An `n`-step `t + c` chain previously
+referenced each ancestor twice per level, so its `InputForm` and `Compress`
+size grew like `2^n` (a megabyte at eight steps) although the live object
+stayed linear; it is now linear in both. `SeriesRefine` replays such recipes
+by re-expanding the lifted expression against the template and reproduces
+the fresh expansions. Objects that name the same expansion twice, such as
+`SeriesAdd[t, t]`, still serialize its recipe twice per level; see the
+[provenance growth note](development/PROVENANCE_GROWTH.md) for the
+measurements (P07, W3-04).
+
 ### Composite target charts, minimum-precision refinement, and tooling
 
 The composite fallback derives an operand's target endpoint and approach side
