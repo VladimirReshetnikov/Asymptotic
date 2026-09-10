@@ -15,6 +15,9 @@ background claims about an interpreter are not evidence that a package
 feature has passed a regression test.
 The maintained [Mathics implementation notes](../MATHICS-NOTES.md) collect
 reproducible evaluator gotchas in the same form as the Wolfram notes.
+The [portable validation guide](PORTABLE-VALIDATION.md) explains what the
+runner and acceptance verifier check, along with their source-provenance,
+loading, timeout, and interpreter-selection limits.
 
 ## Goal and current status
 
@@ -25,7 +28,7 @@ reproducible evaluator gotchas in the same form as the Wolfram notes.
 | Assumptions and inverse branches | Conservative exact rules cover selected polynomial and affine-domain proofs. | Extend unresolved domains and sign/uniqueness proofs without weakening branch hypotheses. |
 | Native backends and special functions | Coverage depends on the interpreter's available functions and package adapters. | Close missing functionality and parameter-range gaps; an inert native symbol is not compatibility. |
 | Numerical checks, certificates, and display | Selected smoke checks and exact rational certificate examples are available. | Establish feature-specific numerical accuracy, certificate behavior, and usable front-end presentation. |
-| Consolidated acceptance | 101 distinct portable cases have successful evidence in each layout across three recorded snapshots; the full current-source Linux matrix is pending. | Complete reproducible runs against unchanged modular and standalone sources and compare public behavior with the Wolfram control. |
+| Consolidated acceptance | The complete Linux portable suite passed all 101 cases per layout at `ffe08b1`; later changes require their own validation. | Preserve complete reproducible runs as sources change, compare public behavior with the Wolfram control, and extend coverage beyond the finite portable inventory. |
 
 The limitations below describe remaining work, not a permanently reduced
 Mathics feature target. Until a proof or operation is supported, a clear

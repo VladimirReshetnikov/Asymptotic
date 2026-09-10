@@ -15,6 +15,7 @@ for known implementation and acceptance gaps.
 | Compare Mathics and Wolfram behavior | [Mathics compatibility](#mathics-compatibility) |
 | Rebuild the standalone distribution | [Standalone source and freshness checks](../docs/development/README.md#standalone-package) |
 | Interpret a saved result | [Evidence by scope](#read-the-evidence-by-scope) |
+| Interpret portable-runner guarantees and limits | [Portable validation contracts](../docs/Mathics/PORTABLE-VALIDATION.md) |
 
 ## Wave-4 integration and merged artifacts
 
@@ -176,6 +177,16 @@ article. Both build histories retain their own source and artifact hashes.
 
 ## Documentation quality and coverage register
 
+The [wave-4 documentation review](documentation-wave4-review-2026-09-09.json)
+records complete attribution of 64 report-local entries to 20 work groups,
+the portable-runner contract audit, and the updated Mathics numerical and
+symbolic-conversion guidance. Static checks include maintained-text encoding,
+local links, and generated HTML. Desktop and narrow browser reviews cover the
+new numerical-precision explanation. The merged Fourier PDF has complete
+102-page visual coverage: 37 changed pages were reviewed and 65 page renders
+match the preceding reviewed artifact exactly. Existing runtime evidence
+retains its own source hashes; this documentation pass runs no kernel suite.
+
 The [102-page merge-layout record](documentation-merge-layout-2026-09-09.json)
 identifies the article retained in merge `38aa253`: all 32 TeX inputs and the
 PDF are unchanged from `9f8f434`. It preserves three successful strict LaTeX
@@ -282,7 +293,13 @@ The first failing fixture used `Expand` where Mathics required `Simplify` to
 recognize the same exact zero. Its corrected oracle also passes the untouched
 Wolfram package. The summary preserves the original failure and counter values;
 it does not rewrite either full run as 77/77 or claim one full 101-case run on
-the last snapshot. The full Linux matrix for the current package is pending.
+the last snapshot. Separately, the complete
+[Linux workflow at `ffe08b1`](https://github.com/VladimirReshetnikov/Asymptotic/actions/runs/34430399328)
+finished successfully with 101 cases per layout. An independent pass of the
+acceptance verifier checked its ten shard receipts against the immutable
+reference revision. Those 202 observations cover the portable inventory at
+that snapshot, not later source changes or complete Mathics compatibility;
+the [runner contracts](../docs/Mathics/PORTABLE-VALIDATION.md) explain the evidence limits.
 
 Regenerate that explicitly scoped summary with:
 

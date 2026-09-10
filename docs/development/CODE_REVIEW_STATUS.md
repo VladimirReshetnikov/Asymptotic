@@ -35,10 +35,13 @@ work items: 123 entries from waves 1–2 and 44 from wave 3. They also record
 substantive roadmap proposals separately. This is a
 work map, not a claim that every recommendation is a defect or an accepted API
 change. The full library now contains **36 reports in four waves**. The
-[wave-4 index](../../external-reports/code-review/wave-4/README.md) links reports
-28–36 and their evidence; detailed intake into this register remains pending.
-Their findings are not included in the 167-entry count, and their import does
-not establish implementation or acceptance of their proposed changes.
+[wave-4 intake](WAVE_4_INTAKE.md) separately maps **64 report-local entries**
+from reports 28–36 to shared implementation obligations and proposals.
+Its source-audited mechanisms, unverified public manifestations, and later
+peer evidence have separate status. These entries are not included in the
+167-entry count, and neither count measures distinct current defects or
+completed changes. The [wave index](../../external-reports/code-review/wave-4/README.md)
+preserves each report's article and supplied evidence.
 
 Reviews 1–6, 8, and 9 examine `07a9781212beb2eeb9ff16aa625b50ac27974078`;
 review 7 examines `75de8756175911cd8830704fd1a3406c1022f018`. Their supplied

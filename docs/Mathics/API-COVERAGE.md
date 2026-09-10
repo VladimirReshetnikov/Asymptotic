@@ -28,8 +28,13 @@ Three further cases for Newton inversion, retained Newton refinement,
 additional-block requests and product-recipe replay passed on the same
 55-module modular and standalone snapshots. The current receipt totals are
 therefore **101 modular cases and 101 standalone cases**,
-each across three recorded package snapshots. A full 101-case run on one
-current snapshot remains a separate acceptance check.
+each across three recorded package snapshots. Separately, the complete
+[Linux workflow at `ffe08b1`](https://github.com/VladimirReshetnikov/Asymptotic/actions/runs/34430399328)
+finished successfully with all **101 cases in each layout**, or 202 successful
+observations. Its ten shard receipts were independently checked against that
+exact revision with the [acceptance verifier](../../validation/check_mathics_acceptance.py).
+This closes the missing complete portable-run evidence at that snapshot;
+it does not cover later source changes or all possible package inputs.
 
 The [Wolfram preservation audit](../../validation/mathics-wolfram-preservation.json),
 under `PortableOriginalOracleCheck`, reports original-Wolfram controls for
@@ -48,7 +53,7 @@ and [full standalone](../../validation/mathics-standalone-tests.json) receipts
 remain unchanged. The [summary generator](../../validation/summarize_mathics_tests.py)
 rejects reconciliations between different package sources or with unresolved
 original failures. Additional operation receipts retain their own source scope.
-Schema version 2 retains `ReceiptSHA256` as the hash of the exact receipt
+Schema version 3 retains `ReceiptSHA256` as the hash of the exact receipt
 bytes. It additionally computes `NormalizedReceiptSHA256` after replacing
 CRLF with LF, with all other bytes unchanged; both policies are explicit
 in the corresponding `*Normalization` fields. The normalized hash allows
@@ -58,6 +63,10 @@ package and suite byte hashes used for its run, including historical CRLF
 snapshots. The summary copies those source hashes without normalization;
 publishing the current suite with LF does not make its bytes identical to a
 historical tested snapshot.
+
+The [portable validation contracts](PORTABLE-VALIDATION.md) explain the
+runner's source-fingerprint and loading limits, case-selection semantics,
+and what the acceptance verifier adds to a saved receipt.
 The initial publication checkpoint `bc6d570` normalized those receipt files
 to LF. The publication correction restores their captured bytes and marks
 `validation/mathics-*-tests.json` with `-text`, so Git preserves their recorded

@@ -46,8 +46,9 @@ unrun regression specifications.
 The [wave-3 intake](WAVE_3_INTAKE.md) maps that wave's 44 attributed ledger entries
 and consolidates their proposals. There are 167 identified entries across
 the first three waves before overlapping findings are grouped; they are not
-167 distinct current defects. Wave 4's detailed intake remains pending, so its
-findings are not included in that entry count. Current work implements and documents the reviewed
+167 distinct current defects. The [wave-4 intake](WAVE_4_INTAKE.md) maps another
+64 report-local entries, including findings, advisories, and extensions, to
+shared obligations; they remain a separate count. Current work implements and documents the reviewed
 recommendations, with each repair tied to its own focused validation.
 
 The [request-resolution workplan](REQUEST_RESOLUTION.md) connects W3-01–W3-03

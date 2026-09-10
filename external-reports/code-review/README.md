@@ -18,7 +18,8 @@ attributed ledger entries and related proposals. Together with the earlier
 overlaps; this is not a count of distinct current defects or a total including
 wave 4. The [wave-4 index](wave-4/README.md) links the later findings and their
 novelty ledgers without treating independent or synthetic checks as current
-package acceptance.
+package acceptance. The [wave-4 intake](../../docs/development/WAVE_4_INTAKE.md)
+maps its 64 report-local entries to current-source obligations and proposals.
 
 The wave indexes distinguish source and mathematical checks from native package observations, executed patch checks, and unrun regression specifications. Reviewers' independent test counts are not a combined acceptance run of this repository.
 

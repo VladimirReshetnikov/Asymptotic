@@ -15,6 +15,8 @@ and selected earlier work; they do not claim that every earlier article was
 reread in full. The [implementation register](../../../docs/development/CODE_REVIEW_STATUS.md)
 tracks current decisions and verified fixes. This index records the supplied
 reports' scope, not whether each finding still applies to the latest source.
+The [wave-4 intake](../../../docs/development/WAVE_4_INTAKE.md) maps all 64
+report-local ledger entries to grouped obligations with explicit evidence scope.
 
 | Package | Article | Main focus | Supplied evidence and limits |
 | --- | --- | --- | --- |
