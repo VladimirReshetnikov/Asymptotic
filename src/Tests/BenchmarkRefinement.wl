@@ -1,5 +1,5 @@
 (* Run in a fresh kernel:
-     wolfram -script AsymptoticAnalysis/Tests/BenchmarkRefinement.wl
+     wolfram -script src/Tests/BenchmarkRefinement.wl
    ASYMPTOTIC_BENCHMARK_OUTPUT optionally names the JSON result file.
    The reference repeats the public constructor at every requested cutoff.
    The current path constructs once, then uses public SeriesRefine. Both

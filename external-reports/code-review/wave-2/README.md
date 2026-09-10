@@ -12,7 +12,7 @@ or independently verified every earlier article.
 Findings, candidate patches and proposed extensions refer to the pinned
 revision. Their inclusion does not establish that a finding still applies,
 or that a proposed fix is implemented and verified in the current checkout.
-The [implementation status](../../docs/development/CODE_REVIEW_STATUS.md)
+The [implementation status](../../../docs/development/CODE_REVIEW_STATUS.md)
 tracks findings, accepted repairs, focused validation and deferred decisions.
 The execution column below summarizes each supplied package's own records.
 
@@ -66,12 +66,12 @@ items and two attributed deltas to earlier findings. Its README mentions
 `CHECKSUMS.sha256`, which is absent from the supplied nineteen-file package;
 no replacement manifest or common license has been invented.
 
-The separate [report-18 intake characterization](../../validation/review-18-intake.json)
+The separate [report-18 intake characterization](../../../validation/review-18-intake.json)
 records seven bounded observations on Wolfram 15.0.1 Windows. It reproduces
 relative-certificate stagnation and lower-cutoff coarsening, distinguishes
 strict real admission from native formal output, and checks a degree-two
 nonlinear frontier control. This predates the C19 repair and is not an
-acceptance suite. The subsequent [58/0 certificate acceptance](../../validation/review-certificate-accuracy-tests.json)
+acceptance suite. The subsequent [58/0 certificate acceptance](../../../validation/review-certificate-accuracy-tests.json)
 verifies relative planning, selective arithmetic retries, sharp error bounds,
 best-result retention and budget/cap semantics. Lower-cutoff refinement remains
 the D10 policy item; current status is maintained in the register.

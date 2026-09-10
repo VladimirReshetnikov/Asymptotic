@@ -2,7 +2,7 @@
 
 This note records the C03 export and C06 analytic-import decisions in the
 [code review register](CODE_REVIEW_STATUS.md). The
-[user guide](../../AsymptoticAnalysis/Documentation/UserGuide.md#native-series-remainder-view)
+[user guide](../../src/Documentation/UserGuide.md#native-series-remainder-view)
 describes the public behavior. Implementation and focused native validation
 are separate evidence; this document does not certify a test run.
 
@@ -136,12 +136,12 @@ and actual `NativeRequest` together when diagnosing these distinctions.
 ## Proof sources and maintenance obligations
 
 The mathematical article separates the exponent quotient from analytic
-remainders in [the power-log scale](../../article/sections/02-scale.tex).
-[Finite-order propagation](../../article/sections/03-forward.tex), especially
+remainders in [the power-log scale](../article/sections/02-scale.tex).
+[Finite-order propagation](../article/sections/03-forward.tex), especially
 `lem:tail` and `prop:soundness`, requires complete input-tail assertions.
-[The inverse remainder theorem](../../article/sections/08-remainders.tex)
+[The inverse remainder theorem](../article/sections/08-remainders.tex)
 derives its first omitted block from that complete-tail control.
-[The special-function chapter](../../article/sections/35-special-function-expansions.tex),
+[The special-function chapter](../article/sections/35-special-function-expansions.tex),
 `lem:special-function-logarithmic-margin`, proves the exponent allowance and
 states its finite-degree premise.
 

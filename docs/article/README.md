@@ -7,8 +7,8 @@ extended scales used by the package. It contains mathematical examples
 and algorithms, without package syntax or implementation history.
 
 Package usage belongs to the separate
-**[user guide](../AsymptoticAnalysis/Documentation/UserGuide.html)**
-([Markdown](../AsymptoticAnalysis/Documentation/UserGuide.md)), organized in the
+**[user guide](../../src/Documentation/UserGuide.html)**
+([Markdown](../../src/Documentation/UserGuide.md)), organized in the
 style of Wolfram documentation. It is this package's guide, not an official
 Wolfram reference page.
 
@@ -25,7 +25,7 @@ bounds, convergence, and parameter-uniform estimates are separate claims.
 Mathematical treatment of a class of expansions does not by itself establish
 package support. In particular, complete compatibility with built-in `Series`
 and `Asymptotic` is a
-[pending implementation plan](../docs/development/NATIVE_COMPATIBILITY.md).
+[pending implementation plan](../development/NATIVE_COMPATIBILITY.md).
 
 ## Build and inspect
 
@@ -42,18 +42,18 @@ From the repository root, render every page with Poppler and generate
 contact sheets and geometry diagnostics (Python requires Pillow and pdfplumber):
 
 ```powershell
-python validation/inspect_pdf.py article/asymptotic-inverse.pdf "$env:TEMP/asymptotic-article-review"
+python validation/inspect_pdf.py docs/article/asymptotic-inverse.pdf "$env:TEMP/asymptotic-article-review"
 ```
 
 Inspect the contact sheets and any dense pages at full size. Geometry checks
 alone do not establish readable layout. Commit the source and rebuilt PDF
 together. Documentation-specific evidence is in
-[validation/README.md](../validation/README.md); each milestone's artifact
+[validation/README.md](../../validation/README.md); each milestone's artifact
 record identifies the PDF hash and the scope of its visual review. A review
 of an earlier PDF does not establish that later source edits were built or
 visually checked. Package tests are recorded separately.
 
 The former software chapters and engineering roadmap are preserved under
-[docs/development/](../docs/development/README.md); they are not included in this article.
-The [documentation index](../docs/README.md) also routes to review reports and
+[docs/development/](../development/README.md); they are not included in this article.
+The [documentation index](../README.md) also routes to review reports and
 the separate vendored research library.

@@ -1,7 +1,7 @@
 """Render an article with Poppler and record reproducible layout diagnostics.
 
 The contact sheets support visual review; geometry checks do not replace it.
-Usage: python validation/inspect_pdf.py article/asymptotic-inverse.pdf TEMP_DIR
+Usage: python validation/inspect_pdf.py docs/article/asymptotic-inverse.pdf TEMP_DIR
 """
 
 from __future__ import annotations

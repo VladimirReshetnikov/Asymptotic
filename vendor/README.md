@@ -19,6 +19,6 @@ refreshing the pinned copy and its evidence. The collection README describes
 the refresh and validation tools. Building a PDF or verifying copied bytes
 does not independently verify the article's mathematical claims.
 
-The package's own [mathematical article](../article/README.md) and
-[user guide](../AsymptoticAnalysis/Documentation/README.md) remain the entry
+The package's own [mathematical article](../docs/article/README.md) and
+[user guide](../src/Documentation/README.md) remain the entry
 points for its theory and supported behavior.

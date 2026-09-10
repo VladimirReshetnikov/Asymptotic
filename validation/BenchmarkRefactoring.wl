@@ -8,10 +8,13 @@ benchmarkRoot = Environment["ASYMPTOTIC_BENCHMARK_ROOT"];
 If[! StringQ[benchmarkRoot] || benchmarkRoot === "",
   benchmarkRoot = DirectoryName[DirectoryName[$InputFileName]]];
 (* Select both the current package and immutable pre-rename baselines. *)
-benchmarkPackage = If[FileExistsQ[FileNameJoin[{benchmarkRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]],
-  "AsymptoticAnalysis", "AsymptoticInverse"];
+benchmarkDirectory = Which[
+  FileExistsQ[FileNameJoin[{benchmarkRoot, "src", "Kernel", "AsymptoticAnalysis.wl"}]], "src",
+  FileExistsQ[FileNameJoin[{benchmarkRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]], "AsymptoticAnalysis",
+  True, "AsymptoticInverse"];
+benchmarkPackage = If[benchmarkDirectory === "AsymptoticInverse", "AsymptoticInverse", "AsymptoticAnalysis"];
 benchmarkContext = benchmarkPackage <> "`";
-benchmarkKernel = FileNameJoin[{benchmarkRoot, benchmarkPackage, "Kernel"}];
+benchmarkKernel = FileNameJoin[{benchmarkRoot, benchmarkDirectory, "Kernel"}];
 benchmarkSources = FileNames["*.wl", benchmarkKernel];
 benchmarkHashes[] := Association[(FileNameTake[#] -> IntegerString[FileHash[#, "SHA256"], 16, 64]) & /@ benchmarkSources];
 benchmarkBefore = benchmarkHashes[];
@@ -131,7 +134,7 @@ benchmarkOutput = Environment["ASYMPTOTIC_BENCHMARK_OUTPUT"];
 If[! StringQ[benchmarkOutput] || benchmarkOutput === "",
   benchmarkOutput = FileNameJoin[{DirectoryName[$InputFileName], ToLowerCase[benchmarkSet] <> "-refactoring-benchmark.json"}]];
 Export[benchmarkOutput, <|"Kernel" -> $Version, "WarmupRuns" -> 1, "MeasuredRuns" -> 3,
-  "Scope" -> "Selected fixtures; local timings are not portable performance guarantees.", "FixtureSet" -> benchmarkSet, "PackageContext" -> benchmarkContext,
+  "Scope" -> "Selected fixtures; local timings are not portable performance guarantees.", "FixtureSet" -> benchmarkSet, "PackageContext" -> benchmarkContext, "PackageDirectory" -> benchmarkDirectory,
   "SourcesUnchangedDuringRun" -> benchmarkUnchanged, "TestedSourceSHA256" -> benchmarkBefore,
   "BenchmarkSHA256" -> IntegerString[FileHash[$InputFileName, "SHA256"], 16, 64],
   "Results" -> benchmarkResults|>, "RawJSON"];

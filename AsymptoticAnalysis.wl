@@ -1,12 +1,12 @@
 (* ::Package:: *)
-(* GENERATED FILE. Edit AsymptoticAnalysis/Kernel/*.wl instead.
+(* GENERATED FILE. Edit src/Kernel/*.wl instead.
    Rebuild: python validation/build_standalone.py
    Verify:  python validation/build_standalone.py --check
    This file is self-contained and can be loaded directly by URL.
    SPDX-License-Identifier: MIT *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): b01a659d783a7b47960af07dd777e7e63aa2d9339a9942275fe10449b2c7edb1 *)
+(* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
+   Source SHA256 (UTF-8/LF): 8f4639ec1d4fda96e8ddb914205e2814c19ef21b165b0280717060698abaa60a *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -14,7 +14,7 @@
 
    Written after analysing nine independent reports on Mathematica Stack Exchange
    question 236367 and question "Asymptotic expansion for a function containing
-   irrational exponents".  Theory: article/asymptotic-inverse.tex.
+   irrational exponents".  Theory: docs/article/asymptotic-inverse.tex.
 
    SPDX-License-Identifier: MIT
 *)
@@ -936,7 +936,7 @@ parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, 
     If[ok, AppendTo[rows, {expo, coef}]]], {term, summands}];
   If[! ok, $Failed, rows]];
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/ExactTermination.wl
+(* BEGIN SOURCE: src/Kernel/ExactTermination.wl
    Source SHA256 (UTF-8/LF): 9a2ae123b5f01c40b1e70e47b93326c6ce31d2303f4b4eb94cb9e587bdd94a17 *)
 (* Loaded in AsymptoticAnalysis`Private`.  This is a bounded verification of an
    already computed inverse candidate against the ORIGINAL expression.  It
@@ -968,7 +968,7 @@ exactInverseTermination[f_, x_, x0_, coord_Association, model_Association,
   <|"Verification" -> "Exact symbolic composition with the original forward expression",
     "Uniformizer" -> z, "Candidate" -> candidate, "Target" -> target,
     "BranchAssumptions" -> domain, "Verified" -> True|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/ExactTermination.wl *)
+(* END SOURCE: src/Kernel/ExactTermination.wl *)
 
 
 construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
@@ -1309,7 +1309,7 @@ InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : Opt
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/LambertInverse.wl
+(* BEGIN SOURCE: src/Kernel/LambertInverse.wl
    Source SHA256 (UTF-8/LF): 58f5b8eaaefac7413cd127a94ec5d613b8774d9d955366c1508700f97fbbb0a4 *)
 (* Loaded in AsymptoticAnalysis`Private`.  Inverse-logarithmic expansions of
    real Lambert-W cores.  The finite bracket is an actual power-log jet in
@@ -1587,9 +1587,9 @@ lambertResidual[a_Association, h_, limit_] := Module[
       "Formal residual of the logarithmic leading core; higher-power perturbations are beyond every inverse-logarithmic order.",
       TrueQ[Lookup[a, "LambertPolynomialLog", False]], "Formal composition with the complete leading polynomial in the logarithm, in the inverse-logarithmic variable.",
       True, "Formal residual of the exact Lambert core in the inverse-logarithmic variable."]|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/LambertInverse.wl *)
+(* END SOURCE: src/Kernel/LambertInverse.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/CoordinateInverse.wl
+(* BEGIN SOURCE: src/Kernel/CoordinateInverse.wl
    Source SHA256 (UTF-8/LF): db983454b4c6ab9c5ed0bf3c389ce482adc6adecefbd9cc3f8ac608d074b7a1c *)
 (* Exact changes of coordinates around the existing inverse engines.
    Loaded inside AsymptoticAnalysis`Private`. *)
@@ -1698,9 +1698,9 @@ coordinateNumericalCheck[a_, yv_, wp_] := Module[
     "Ratio" -> If[TrueQ[scale == 0], Indeterminate, err/scale],
     "PhaseResidual" -> N[(phase /. x -> xr) - target, wp],
     "Evidence" -> "High-precision numerical comparison; no interval certificate."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/CoordinateInverse.wl *)
+(* END SOURCE: src/Kernel/CoordinateInverse.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/IncrementalInverse.wl
+(* BEGIN SOURCE: src/Kernel/IncrementalInverse.wl
    Source SHA256 (UTF-8/LF): a410833cc04cfb857eeafe07072e39846e9df4bbb68089c870810b4e973c6e00 *)
 (* Incremental exact-weight inversion helpers. Loaded in the package's Private
    context. State is returned by value; no process-global coefficient cache is
@@ -1877,9 +1877,9 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
      {term, powers}];
    result = jetAdd[result, rows, cut, ell, ass]];
   result];
-(* END SOURCE: AsymptoticAnalysis/Kernel/IncrementalInverse.wl *)
+(* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/SeriesOperations.wl
+(* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
    Source SHA256 (UTF-8/LF): 8993956cb2cb83936e38179c428b0a4478389d88b79fe8d7f55ef57f1d5e6bfe *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
@@ -2315,9 +2315,9 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
         fail["UnprovedRefinedDerivative", "A derivative bound declared for the old remainder does not establish the stronger bound for the refined remainder. Refine the source first, then supply its derivative contract."]];
       seriesDerivative[First[args], recipe[[3]], Automatic, h, limit],
     _, fail["MissingRefinementSource", "This internal derived representation has no replayable public recipe."]]], s, h]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/SeriesOperations.wl *)
+(* END SOURCE: src/Kernel/SeriesOperations.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/RefinementState.wl
+(* BEGIN SOURCE: src/Kernel/RefinementState.wl
    Source SHA256 (UTF-8/LF): 57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c *)
 (* Reuse of ordinary inverse coefficient prefixes. No global cache is used.
    $Failed requests the existing source-replay path (for example when a new
@@ -2502,9 +2502,9 @@ refineStoredInverse[s : GeneralizedSeries[a_Association], cutoff_, limit_] := Mo
     "CountingConvention" -> "ReusedCoefficientEvaluations counts available individual index contributions, reconstructed from the stored complete region when necessary; seeding does not reevaluate them. NewCoefficientEvaluations counts actual new Lagrange calls, including uncached frontier work. Newton reports new step cutoffs and independent frontier Euler evaluations. ReusedBlocks counts source blocks retained below the requested cutoff.",
     "Evidence" -> "Exact complete-block reuse and symbolic Newton residual invariants; no runtime claim is implied."|>];
   refinementAssemble[a, cutoff, blocks, frontier, state, stats]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/RefinementState.wl *)
+(* END SOURCE: src/Kernel/RefinementState.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/SourceCoordinates.wl
+(* BEGIN SOURCE: src/Kernel/SourceCoordinates.wl
    Source SHA256 (UTF-8/LF): d79d7d82152835aa5a804a9ab41a60ff77572f002b1a4135a7c0d19d917c0086 *)
 (* Exact source charts, loaded in AsymptoticAnalysis`Private` after the series
    calculus. Each underlying inverse is for the chart variable itself; the
@@ -2758,9 +2758,9 @@ sourceCoordinateNumericalCheck[a_, yv_, wp_] := Module[
     "Ratio" -> If[TrueQ[scale == 0], Indeterminate, error/scale],
     "ChartRoot" -> N[zr, wp], "ChartResidual" -> N[(phase /. z -> zr) - yy, wp],
     "Evidence" -> "High-precision comparison in the exact source chart; no interval certificate."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/SourceCoordinates.wl *)
+(* END SOURCE: src/Kernel/SourceCoordinates.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/CorePerturbation.wl
+(* BEGIN SOURCE: src/Kernel/CorePerturbation.wl
    Source SHA256 (UTF-8/LF): db58afaeed4cda7b3e9f5dfaaf682465db1b2fcb9bdc0a0e61f00a7a43759b95 *)
 (* Exact-core marker expansions with a proved asymptotic contract for finite
    power-log cores and higher-power perturbations. Loaded in Private`. *)
@@ -2965,9 +2965,9 @@ AsymptoticAnalysis`AsymptoticCoreInverse[core_, perturbation_, {x_Symbol, x0_}, 
   opts : OptionsPattern[]] := catch[corePerturbationConstruct[core, perturbation, x, x0, y, depth, opts]];
 AsymptoticAnalysis`AsymptoticCoreInverse[___] := Failure["InvalidArguments", <|
   "MessageTemplate" -> "Use AsymptoticCoreInverse[core, perturbation, {x,x0}, {y,depth}, CoreInverse->phi], with CoreInverse written as a string option."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/CorePerturbation.wl *)
+(* END SOURCE: src/Kernel/CorePerturbation.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/InverseCertificates.wl
+(* BEGIN SOURCE: src/Kernel/InverseCertificates.wl
    Source SHA256 (UTF-8/LF): d01d9efa24865548b96876f9fddce752584e73285caf3dc87521a3a2cf93eedc *)
 (* Exact rational residual certificates. Decimal arithmetic is used only to
    choose a center; every successful proof uses rational interval endpoints. *)
@@ -3409,9 +3409,9 @@ AsymptoticAnalysis`InverseCertificate[GeneralizedSeries[a_Association], yv_, opt
 
 AsymptoticAnalysis`InverseCertificate[___] := Failure["InvalidArguments", <|"Certified" -> False,
   "MessageTemplate" -> "Use InverseCertificate[expansion, exactTarget, Interval -> {lo, hi}]."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/InverseCertificates.wl *)
+(* END SOURCE: src/Kernel/InverseCertificates.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/LogarithmicScales.wl
+(* BEGIN SOURCE: src/Kernel/LogarithmicScales.wl
    Source SHA256 (UTF-8/LF): 72138884f10994a4922d60cb4970da594966edae592b09b0ba7bf0eab81d34d2 *)
 (* Finite logarithmic hierarchies. Loaded in AsymptoticAnalysis`Private`.
    Exact source-coordinate charts live separately in SourceCoordinates.wl. *)
@@ -3831,9 +3831,9 @@ logarithmicResidual[a_, requested_, limit_] := Module[{data, t, w, polynomial, o
 
 AsymptoticAnalysis`LogarithmicInverseResidual[GeneralizedSeries[a_Association]] := catch[logarithmicResidual[a, Automatic, 200000]];
 AsymptoticAnalysis`LogarithmicInverseResidual[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Supply a logarithmic-unit expansion object."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/LogarithmicScales.wl *)
+(* END SOURCE: src/Kernel/LogarithmicScales.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/FlatSectors.wl
+(* BEGIN SOURCE: src/Kernel/FlatSectors.wl
    Source SHA256 (UTF-8/LF): ea3f7f6fea967ec56b54da2931a9d72ee695c6454f6c1da79dd5e35cf432ff8a *)
 (* Finite commensurate flat sectors around an exact monomial core.
    This module is loaded in Private` and uses a separate exponential degree.
@@ -3957,9 +3957,9 @@ AsymptoticAnalysis`AsymptoticFlatInverse[f_, {x_Symbol, x0_}, {y_Symbol, n_}, op
  catch[flatConstruct[f, x, x0, y, n, opts]];
 AsymptoticAnalysis`AsymptoticFlatInverse[___] := Failure["InvalidArguments", <|
  "MessageTemplate" -> "Use AsymptoticFlatInverse[f,{x,x0},{y,positiveIntegerSectorDepth}]."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/FlatSectors.wl *)
+(* END SOURCE: src/Kernel/FlatSectors.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/FlatSectorOperations.wl
+(* BEGIN SOURCE: src/Kernel/FlatSectorOperations.wl
    Source SHA256 (UTF-8/LF): 3bbcc50a0c5ca167800ef29f3318235eccfb04b38f5ace0b6e5c215b06274d28 *)
 (* Two independent truncations: inclusive exponential degree and exclusive
    inner power. A discarded inner coefficient remains in its own sector. *)
@@ -4183,9 +4183,9 @@ AsymptoticAnalysis`FlatSeriesTruncate[___] := Failure["InvalidArguments", <|"Mes
 AsymptoticAnalysis`FlatSeriesMultiply[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use FlatSeriesMultiply[flatSeries,flatSeriesOrExactScalar]."|>];
 AsymptoticAnalysis`FlatSeriesObservable[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use FlatSeriesObservable[flatSeries,polynomial,formalVariable]."|>];
 AsymptoticAnalysis`FlatSeriesDifferentiate[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use FlatSeriesDifferentiate[flatSeries,nonnegativeIntegerOrder]."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/FlatSectorOperations.wl *)
+(* END SOURCE: src/Kernel/FlatSectorOperations.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/FourierCoefficients.wl
+(* BEGIN SOURCE: src/Kernel/FourierCoefficients.wl
    Source SHA256 (UTF-8/LF): 9e22b0a627b792788dcfef12c2da60083fdba8f40a9da92dbd67ccbd9c4cfa70 *)
 (* Finite Fourier-polynomial coefficient algebra in L = Log[u].
    A coefficient is {{omega,P_omega(L)},...}, representing
@@ -4455,9 +4455,9 @@ AsymptoticAnalysis`FourierInverseCoefficient[GeneralizedSeries[a_Association], k
     "LogVariable" -> a["LogVariable"]|>]];
 AsymptoticAnalysis`FourierInverseCoefficient[___] := Failure["InvalidArguments", <|
   "MessageTemplate" -> "Use FourierInverseCoefficient[FourierInverseResult,nonnegativeIntegerMultiIndex]."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/FourierCoefficients.wl *)
+(* END SOURCE: src/Kernel/FourierCoefficients.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/SpecialFunctionAdapters.wl
+(* BEGIN SOURCE: src/Kernel/SpecialFunctionAdapters.wl
    Source SHA256 (UTF-8/LF): 374d1c7007a1736568fc52d2840b44840cacfbcce8441340d73f8f79c14b639a *)
 (* Real special-function adapters with explicit forward-model provenance.
    Finite Poincare models are never labelled convergent exact forward data. *)
@@ -4674,9 +4674,9 @@ specialNumerical[a_, target_, wp_] := Module[{x, y, approximate, reference, equa
 AsymptoticAnalysis`SpecialInverseNumericalCheck[GeneralizedSeries[a_Association], target_, opts : OptionsPattern[]] :=
   catch[If[Lookup[a, "Kind", None] =!= "SpecialInverse", fail["InvalidAdapterObject", "Supply a special-function adapter result."]]; specialNumerical[a, target, OptionValue[WorkingPrecision]]];
 AsymptoticAnalysis`SpecialInverseNumericalCheck[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use SpecialInverseNumericalCheck[adapterResult,target]."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/SpecialFunctionAdapters.wl *)
+(* END SOURCE: src/Kernel/SpecialFunctionAdapters.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/ExponentialCorePerturbation.wl
+(* BEGIN SOURCE: src/Kernel/ExponentialCorePerturbation.wl
    Source SHA256 (UTF-8/LF): 8c5e8bcc4f87f6ce37d86f88d9d1dad81ae3e0ec0654d4f5bcb4a821b01f9f2a *)
 (* Exact growing exponential cores with finite power-log perturbations.
    Loaded in Private`.  Exact Lambert/elementary cores remain unexpanded. *)
@@ -4848,9 +4848,9 @@ AsymptoticAnalysis`AsymptoticExponentialCoreInverse[core_, perturbation_, {x_Sym
   catch[exponentialCoreConstruct[core, perturbation, x, endpoint, y, depth, opts]];
 AsymptoticAnalysis`AsymptoticExponentialCoreInverse[___] := Failure["InvalidArguments", <|
   "MessageTemplate" -> "Use AsymptoticExponentialCoreInverse[core,perturbation,{x,endpoint},{y,depth}]."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/ExponentialCorePerturbation.wl *)
+(* END SOURCE: src/Kernel/ExponentialCorePerturbation.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/NumericalInverseChecks.wl
+(* BEGIN SOURCE: src/Kernel/NumericalInverseChecks.wl
    Source SHA256 (UTF-8/LF): a3f1fd51ff3232b01025ed59eff3628cf1e693533f0a8627f439f32768f656d5 *)
 (* Numerical evidence for inverse objects and their power observables.
    Exact target substitution precedes numerical evaluation so large offsets
@@ -4915,9 +4915,9 @@ numericalInverseEvidence[a_, target_, wp_] := Module[
    "ForwardResidual" -> N[equation /. x -> seed, wp], "RootResidual" -> N[equation /. x -> root, wp],
    "Scope" -> "Stored explicit forward equation; a declared input remainder is not a numerical function.",
    "Evidence" -> "High-precision numerical comparison, not an interval certificate. ExactInverse is a legacy alias for ReferenceRoot."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/NumericalInverseChecks.wl *)
+(* END SOURCE: src/Kernel/NumericalInverseChecks.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/RefinementRequests.wl
+(* BEGIN SOURCE: src/Kernel/RefinementRequests.wl
    Source SHA256 (UTF-8/LF): d07fd2048c224b6a147f0b3e9a8b913527b337174c52363018b83fd11bd9b41c *)
 (* Structured refinement requests keep coefficient goals distinct from
    certified numerical tolerances. Resource failures preserve the last object. *)
@@ -4963,9 +4963,9 @@ refinementRequest[s : GeneralizedSeries[a_Association], request_, limit_, maximu
 
 AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[_Association], request_Association, opts : OptionsPattern[]] :=
  catch[refinementRequest[s, request, OptionValue["MaxTerms"], OptionValue["MaxRefinements"]]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/RefinementRequests.wl *)
+(* END SOURCE: src/Kernel/RefinementRequests.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/ReciprocalLogOperations.wl
+(* BEGIN SOURCE: src/Kernel/ReciprocalLogOperations.wl
    Source SHA256 (UTF-8/LF): a32c53929053b8a39ef72ff6e4879a68e99d5cc04b3555ca0e760d96a4a587ea *)
 (* Analytic calculus for C y^alpha A(epsilon/Log[y]), epsilon = +/-1.
    Hooks return $Failed outside their proved reciprocal-log scope. *)
@@ -5119,9 +5119,9 @@ AsymptoticAnalysis`ReciprocalLogCompose[outer_GeneralizedSeries, inner_Generaliz
 AsymptoticAnalysis`ReciprocalLogDifferentiate[s_GeneralizedSeries, n_Integer : 1, opts : OptionsPattern[]] := catch[
   Module[{result = reciprocalLogDifferentiate[s, n, Automatic, OptionValue["Cutoff"], OptionValue["MaxTerms"]]},
     If[result === $Failed, fail["UnsupportedReciprocalLogDerivative", "A retained exact reciprocal-log implicit model or its supported calculus result is required; unknown and omitted higher-power input sectors are excluded."], result]]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/ReciprocalLogOperations.wl *)
+(* END SOURCE: src/Kernel/ReciprocalLogOperations.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/InverseFunctionSyntax.wl
+(* BEGIN SOURCE: src/Kernel/InverseFunctionSyntax.wl
    Source SHA256 (UTF-8/LF): cee9ea02101c02f5e72476de2589beafb9d150383719258453b7ca124c48973e *)
 (* Loaded in AsymptoticAnalysis`Private`.
 
@@ -5262,9 +5262,9 @@ inverseFunctionApplicationData[e_, parameterAss_, limit_] := Module[
 
 inverseFunctionApplicationData[___] :=
   fail["InvalidArguments", "InverseFunction syntax parsing requires an expression, parameter assumptions, and MaxTerms."];
-(* END SOURCE: AsymptoticAnalysis/Kernel/InverseFunctionSyntax.wl *)
+(* END SOURCE: src/Kernel/InverseFunctionSyntax.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/InverseFunctionBranches.wl
+(* BEGIN SOURCE: src/Kernel/InverseFunctionBranches.wl
    Source SHA256 (UTF-8/LF): 727c43fd3e873a3853caa82ddbbd83be18d1923353e8be62f154e904e804eafe *)
 (* Real local branches for unevaluated InverseFunction nodes. This module
    never equates a bounded candidate search with a completeness proof. *)
@@ -5481,9 +5481,9 @@ inverseFunctionSelectBranchInternal[data_, target_, targetSide_, ass_, limit_, s
 
 inverseFunctionSelectBranch[data_, target_, targetSide_, ass_, limit_, selection_: Automatic] :=
   catch[inverseFunctionSelectBranchInternal[data, target, targetSide, ass, limit, selection]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/InverseFunctionBranches.wl *)
+(* END SOURCE: src/Kernel/InverseFunctionBranches.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/InverseFunctionFamilies.wl
+(* BEGIN SOURCE: src/Kernel/InverseFunctionFamilies.wl
    Source SHA256 (UTF-8/LF): d7c6d4c1acf616bdf990e44c2f8729a583b836cd757a95e64d81ed65ead3abe0 *)
 (* Loaded in AsymptoticAnalysis`Private`.
 
@@ -5594,9 +5594,9 @@ inverseFunctionSeparateFamily[data_Association, x_Symbol, ass_, limit_] := Modul
 
 inverseFunctionSeparateFamily[___] :=
   fail["InvalidArguments", "Inverse-family separation requires parsed inverse data, an expansion symbol, parameter assumptions and MaxTerms."];
-(* END SOURCE: AsymptoticAnalysis/Kernel/InverseFunctionFamilies.wl *)
+(* END SOURCE: src/Kernel/InverseFunctionFamilies.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/InverseFunctionExpressions.wl
+(* BEGIN SOURCE: src/Kernel/InverseFunctionExpressions.wl
    Source SHA256 (UTF-8/LF): edbce75c731a9575761f729ec3f1a4a54f2b11c96fcd1a59122ce8ee1301f07d *)
 (* Applied inverse functions are implicit scalar germs.  Parse their callable,
    establish its real source branch, then compose the existing inverse with
@@ -5850,9 +5850,9 @@ inverseFunctionJetApply[e_, x_, input_, d_, cut_, limit_] := Module[
   record = <|"Expression" -> e, "Syntax" -> data, "Branch" -> branch, "InverseSeries" -> outer|>;
   If[ListQ[$inverseFunctionProvenance], AppendTo[$inverseFunctionProvenance, record]];
   flat["Jet"] /. flat["LogVariable"] -> d["LogVariable"]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/InverseFunctionExpressions.wl *)
+(* END SOURCE: src/Kernel/InverseFunctionExpressions.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/GammaForward.wl
+(* BEGIN SOURCE: src/Kernel/GammaForward.wl
    Source SHA256 (UTF-8/LF): f9fb80f55892521f0150bca280d448e53c1aa3c3dcb5b1d542a45642a61e5d40 *)
 (* Combine real Gamma products in the logarithmic domain. Stirling's
    expansion is Poincare asymptotic, not a convergent series:
@@ -6040,9 +6040,9 @@ logarithmicForwardExpansion[f_, logFunction_, sign_, domain_, x_, x0_, cutoff0_,
     "ReturnedTermCount" -> Length[result["Terms"]], "LogarithmicExpansion" -> logarithmic,
     "ExactModel" -> TrueQ[result["Exact"]], "ExpansionNature" -> "Poincare",
     "LogarithmicFunction" -> logFunction|>, metadata]]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/GammaForward.wl *)
+(* END SOURCE: src/Kernel/GammaForward.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/BarnesForward.wl
+(* BEGIN SOURCE: src/Kernel/BarnesForward.wl
    Source SHA256 (UTF-8/LF): 036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479 *)
 (* Positive-real Barnes G products use the same logarithmic carrier calculus
    as Gamma products. barnesLog is an exact internal logarithm, not a finite
@@ -6137,9 +6137,9 @@ barnesLogJet[arg_, u_, ell_, ass_, Kw_, limit_] := Module[
     Sum[BernoulliB[2 k + 2]/(2 k (2 k + 2) z^(2 k)), {k, 1, count}];
   result = fwd[model, u, ell, ass, Kw, limit];
   pAdd[result, {{}, 2 (count + 1) rate, 0}, ell, ass]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/BarnesForward.wl *)
+(* END SOURCE: src/Kernel/BarnesForward.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/GammaInverse.wl
+(* BEGIN SOURCE: src/Kernel/GammaInverse.wl
    Source SHA256 (UTF-8/LF): 646aa421554e971c09a4c51ad47b3e873e94aecf26042796937c74921b26a729 *)
 (* Ordered inverse-Gamma corrections around an exact Lambert core.
    The coefficients are polynomials in q=1/Log[X], retained whole at each
@@ -6315,9 +6315,9 @@ gammaInverseTruncate[s : GeneralizedSeries[a_Association], h_, limit_] := Module
     "CoefficientFrontier" -> frontier,
     "FrontierTerm" -> core^(-frontier[[1]]) (frontier[[2]] /. a["CoefficientSubstitution"]),
     "ReturnedTermCount" -> Length[kept]|>, bound]]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/GammaInverse.wl *)
+(* END SOURCE: src/Kernel/GammaInverse.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/BarnesInverse.wl
+(* BEGIN SOURCE: src/Kernel/BarnesInverse.wl
    Source SHA256 (UTF-8/LF): 56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500 *)
 (* Reversion about H(X)=X^2 (Log[X]-3/2)/2, with the Barnes argument
    equal to 1+X(1+U). q=1/(Log[X]-1) normalizes H'(X)=X/q.
@@ -6403,9 +6403,9 @@ barnesInverseBranch[data_, target_, targetSide_, ass_, limit_, selection_] := Mo
       "A proved sufficient real domain containing the explicitly selected source tail; the original condition is retained separately."],
     "OriginalInverseExpression" -> Lookup[data, "OriginalExpression", Missing["NotRecorded"]],
     "BranchProofScope" -> "Strict monotonicity on the positive Barnes branch and the verified source tail establish its unique inverse germ. No asymptotic validity threshold is claimed."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/BarnesInverse.wl *)
+(* END SOURCE: src/Kernel/BarnesInverse.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/GammaInverseChecks.wl
+(* BEGIN SOURCE: src/Kernel/GammaInverseChecks.wl
    Source SHA256 (UTF-8/LF): 4a51a03be40b24a6d454d24ae5b717aacdc58a249bdf54974ab32c03a9050a8e *)
 (* Checks for inverse Gamma expansions in powers of the retained Lambert
    core. Numerical comparisons use the original logarithmic equation.
@@ -6552,9 +6552,9 @@ gammaInverseResidual[a_Association, h_, limit_] := Module[
       "ForwardRemainderContract" -> <|"Type" -> "StirlingPoincareAtFixedOrder",
         "ConvergentForwardSeries" -> False, "Reference" -> "https://dlmf.nist.gov/5.11.ii"|>,
       "Scope" -> "Formal normalized residual of a finite Stirling model evaluated at the retained source approximation. ZeroBelowCutoff means cancellation only below the stated cutoff; it does not assert that the exact Gamma equation is solved identically. The first omitted Stirling term has the separately reported normalized remainder scale."|>]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/GammaInverseChecks.wl *)
+(* END SOURCE: src/Kernel/GammaInverseChecks.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/BarnesInverseChecks.wl
+(* BEGIN SOURCE: src/Kernel/BarnesInverseChecks.wl
    Source SHA256 (UTF-8/LF): 70de0268030051fefa1c9c323036488936a84fd309689c22abea51f179b0f6f0 *)
 (* Independently evaluate the retained source in a finite Barnes phase.
    The normalization is X^2(Log[X]-1), so a source error at power P
@@ -6579,9 +6579,9 @@ barnesInverseResidual[a_Association, h_, limit_] := Module[
       "ForwardRemainderContract" -> <|"Type" -> "BarnesPoincareAtFixedOrder",
         "ConvergentForwardSeries" -> False, "Reference" -> "https://dlmf.nist.gov/5.17.E5"|>,
       "Scope" -> "Formal normalized residual of a finite Barnes model at the retained source approximation. ZeroBelowCutoff asserts cancellation only below the stated cutoff; the omitted Barnes tail is reported separately. This is not an exact identity or an interval certificate."|>]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/BarnesInverseChecks.wl *)
+(* END SOURCE: src/Kernel/BarnesInverseChecks.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/GammaInverseOperations.wl
+(* BEGIN SOURCE: src/Kernel/GammaInverseOperations.wl
    Source SHA256 (UTF-8/LF): c449679dd9b8686a15fb985c5e6304a492ed350bddbcedcd12b66af98e484062 *)
 (* A power of an inverse-Gamma observable is another observable of the
    same source root. Replaying its exact defining equation determines the
@@ -6666,9 +6666,9 @@ gammaInverseSeriesPower[s : GeneralizedSeries[a_Association], k_, cut_, limit_] 
   GeneralizedSeries[Join[data, bounded, <|
     "TargetDomain" -> targetDomain && data["TargetDomain"],
     (kind <> "Operation") -> operation|>]]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/GammaInverseOperations.wl *)
+(* END SOURCE: src/Kernel/GammaInverseOperations.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/ExponentialForward.wl
+(* BEGIN SOURCE: src/Kernel/ExponentialForward.wl
    Source SHA256 (UTF-8/LF): f92c050fc4cd3216a08fd7aafceef4202a8aad070f33402959434053195da345 *)
 (* Normalize multiplicative elementary factors without asking Log to
    rediscover the exponent of Exp. A varying real power uses its positive
@@ -6739,9 +6739,9 @@ exponentialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] :
   logarithmicForwardExpansion[f, source["Logarithm"], source["Sign"], source["Domain"],
     x, x0, cutoff, ass, coord, goal, limit,
     <|"Transformation" -> "The expression equals Sign[coefficient] Exp[LogarithmicFunction] on the proved real domain."|>]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/ExponentialForward.wl *)
+(* END SOURCE: src/Kernel/ExponentialForward.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/SeriesEnvelopeArithmetic.wl
+(* BEGIN SOURCE: src/Kernel/SeriesEnvelopeArithmetic.wl
    Source SHA256 (UTF-8/LF): 2cde86032fe867c7c59049e3f36c72f06ea25beb4f22aeb971f660651885a86a *)
 (* Conservative arithmetic when no common ordered coefficient algebra applies.
    Each input denotes e + O(R), with R a nonnegative asymptotic envelope.
@@ -7060,9 +7060,9 @@ seriesEnvelopeUnary[head_, s_GeneralizedSeries, cut_, limit_] := Module[
   seriesEnvelopeMake[head[expression], remainder, Join[a, <|"Domain" -> domain|>],
     Join[<|"Operation" -> "Unary", "FunctionHead" -> head, "Operands" -> {s},
       "ErrorTransport" -> transport|>, evidence], limit]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/SeriesEnvelopeArithmetic.wl *)
+(* END SOURCE: src/Kernel/SeriesEnvelopeArithmetic.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/SeriesArithmetic.wl
+(* BEGIN SOURCE: src/Kernel/SeriesArithmetic.wl
    Source SHA256 (UTF-8/LF): 707749457e126120e6a6a607cdb983f2b2108caf22d3c5d42610b473f942c0a1 *)
 (* Ordinary arithmetic is a thin, guarded entry to the precision calculus.
    The explicit normalizer holds the expression tree before evaluation so that
@@ -7279,9 +7279,9 @@ AsymptoticAnalysis`SeriesNormalize[expr_, OptionsPattern[]] := Block[{$seriesAri
       If[! less[precision, next], Break[]]; precision = next]];
   seriesArithmeticFinish[result, cut, limit]]]];
 AsymptoticAnalysis`SeriesNormalize[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use SeriesNormalize[expression, options]."|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/SeriesArithmetic.wl *)
+(* END SOURCE: src/Kernel/SeriesArithmetic.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/SpecialFunctionRealDomain.wl
+(* BEGIN SOURCE: src/Kernel/SpecialFunctionRealDomain.wl
    Source SHA256 (UTF-8/LF): 6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c *)
 (* Sufficient real domains for the original function, before a native
    asymptotic expansion is projected onto its real part. This is not an
@@ -7511,9 +7511,9 @@ specialFunctionRealDomainCore[f_, x_, coord_, ass_] := Module[
     "LocalDomain" -> condition, "RealFunctionVerified" -> True,
     "Method" -> method, "References" -> DeleteDuplicates[references], "Assumptions" -> ass|>
 ];
-(* END SOURCE: AsymptoticAnalysis/Kernel/SpecialFunctionRealDomain.wl *)
+(* END SOURCE: src/Kernel/SpecialFunctionRealDomain.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/SpecialFunctionIdentities.wl
+(* BEGIN SOURCE: src/Kernel/SpecialFunctionIdentities.wl
    Source SHA256 (UTF-8/LF): 58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4 *)
 (* Exact special-function identities applied before any finite asymptotic
    expansion. A terminating dominant expansion need not be the exact function:
@@ -7684,9 +7684,9 @@ specialFunctionNormalize[f_, x_, coord_, ass_, limit_] := Module[
     fail["ResourceLimit", "Exact special-function normalization exceeds MaxTerms expression leaves."]];
   <|"Expression" -> normalized, "Domain" -> And @@ domains,
     "Changed" -> (normalized =!= f), "References" -> DeleteDuplicates[references]|>];
-(* END SOURCE: AsymptoticAnalysis/Kernel/SpecialFunctionIdentities.wl *)
+(* END SOURCE: src/Kernel/SpecialFunctionIdentities.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/ParameterizedSpecialFunctions.wl
+(* BEGIN SOURCE: src/Kernel/ParameterizedSpecialFunctions.wl
    Source SHA256 (UTF-8/LF): 19370b301debf8107b96e356b00bc06a6c4bf04ee7aa9bab3060fff822afa204 *)
 (* Fixed-parameter special functions in the finite-argument composition
    calculus. Realness of the original expression is checked independently;
@@ -7797,9 +7797,9 @@ specialParameterizedForwardJetCore[e_, position_, u_, ell_, ass_, Kw_, limit_] :
       TrueQ[TimeConstrained[FullSimplify[Element[#[[2]], Reals],
         ass && Element[ell, Reals]], 1, False]] &], Return[$Failed, Module]];
   result];
-(* END SOURCE: AsymptoticAnalysis/Kernel/ParameterizedSpecialFunctions.wl *)
+(* END SOURCE: src/Kernel/ParameterizedSpecialFunctions.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/DirichletSpecialFunctions.wl
+(* BEGIN SOURCE: src/Kernel/DirichletSpecialFunctions.wl
    Source SHA256 (UTF-8/LF): 381e36cab5d980c050fb208236308b0118c8b97be9b2f457f297bfc203ea9a6c *)
 (* Two convergent defining sums supply expansions unavailable from native
    Series. All parameters are fixed on the target approach. Zeta uses the
@@ -7948,9 +7948,9 @@ dirichletSpecialForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_]
   If[Head[f] === Zeta,
     dirichletZetaForward[f, First[f], x, x0, cut, ass, coord, goal, limit],
     dirichletLerchForward[f, f[[1]], f[[2]], f[[3]], x, x0, cut, ass, coord, goal, limit]]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/DirichletSpecialFunctions.wl *)
+(* END SOURCE: src/Kernel/DirichletSpecialFunctions.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/NativeSpecialFunctions.wl
+(* BEGIN SOURCE: src/Kernel/NativeSpecialFunctions.wl
    Source SHA256 (UTF-8/LF): 75d91565e8ad96d0e498bf41c055b3012aa07e45905c9010736100478d3382ed *)
 (* Import structured native asymptotic series without discarding their O terms.
    Native special-function expansions may contain several exact exponential
@@ -8246,9 +8246,9 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
     "TermConvention" -> "Each exact carrier has an amplitude in powers of the positive local coordinate with polynomial logarithms and bounded oscillations. Cutoffs and term goals apply separately to amplitude blocks; exact constant offsets are retained. Oscillatory and distinct exponential sectors retain separate absolute error bounds.",
     "AsymptoticReferences" -> Join[Lookup[domain, "References", {}], normalized["References"],
       {"https://reference.wolfram.com/language/ref/Series.html", "https://dlmf.nist.gov/2.1.iii"}]|>]]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/NativeSpecialFunctions.wl *)
+(* END SOURCE: src/Kernel/NativeSpecialFunctions.wl *)
 
-(* BEGIN SOURCE: AsymptoticAnalysis/Kernel/NativeCompatibility.wl
+(* BEGIN SOURCE: src/Kernel/NativeCompatibility.wl
    Source SHA256 (UTF-8/LF): 63844f835e6e8571bf3d45c01603666ff48346de23afe4ebfb9f3a748e1353be *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
@@ -8488,9 +8488,9 @@ nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module
     "ExpansionSpecifications" -> specifications, "Variable" -> variable,
     "AmbientAssumptions" -> ambient, "Assumptions" -> Missing["NativeContract"],
     "NativeKernelVersion" -> $Version, "NativeSystemID" -> $SystemID|>]];
-(* END SOURCE: AsymptoticAnalysis/Kernel/NativeCompatibility.wl *)
+(* END SOURCE: src/Kernel/NativeCompatibility.wl *)
 
 
 End[];
 EndPackage[];
-(* END SOURCE: AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl *)
+(* END SOURCE: src/Kernel/AsymptoticAnalysis.wl *)

@@ -8,7 +8,7 @@ Start a fresh kernel when switching from the old package to the renamed version.
 
 Explicit native backends and selected automatic routes preserve Wolfram Language `Series` and `Asymptotic` results in the same result head, with a separate formal or native asymptotic contract. See [Native Expansion Backends](#native-backend-expansions).
 
-This guide describes the Wolfram Language interface. See the [mathematical article](../../article/asymptotic-inverse.pdf) for definitions, results, and proofs.
+This guide describes the Wolfram Language interface. See the [mathematical article](../../docs/article/asymptotic-inverse.pdf) for definitions, results, and proofs.
 
 ## Getting Started
 
@@ -45,16 +45,16 @@ Get["/absolute/path/to/AsymptoticAnalysis.wl"];
 
 ### Loading a Local Checkout
 
-The file under `AsymptoticAnalysis/Kernel/` loads companion files from a local checkout. From that checkout's repository directory, load it with:
+The file under `src/Kernel/` loads companion files from a local checkout. From that checkout's repository directory, load it with:
 
 ```wolfram
-Get["AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl"];
+Get["src/Kernel/AsymptoticAnalysis.wl"];
 ```
 
 Alternatively, register the local package directory and load its context:
 
 ```wolfram
-PacletDirectoryLoad["AsymptoticAnalysis"];
+PacletDirectoryLoad["src"];
 Needs["AsymptoticAnalysis`"];
 ```
 
@@ -2647,7 +2647,7 @@ Wolfram Language: [Series](https://reference.wolfram.com/language/ref/Series.htm
 
 ## Related Guides
 
-- [Mathematical article](../../article/asymptotic-inverse.pdf): mathematical definitions, results, and proofs.
+- [Mathematical article](../../docs/article/asymptotic-inverse.pdf): mathematical definitions, results, and proofs.
 - [Executable examples](../Examples/Examples.wl): additional package expressions.
 - [Package entry point](../README.md): loading and documentation links.
 - [Wolfram Language asymptotic computations](https://reference.wolfram.com/language/guide/Asymptotics.html): related built-in functionality.

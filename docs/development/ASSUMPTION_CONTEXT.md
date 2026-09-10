@@ -2,7 +2,7 @@
 
 This note specifies the C05 contract from the
 [code review register](CODE_REVIEW_STATUS.md#c05--retain-every-assumption-used-to-establish-a-reusable-result).
-The [user guide](../../AsymptoticAnalysis/Documentation/UserGuide.md#assumption-context)
+The [user guide](../../src/Documentation/UserGuide.md#assumption-context)
 describes the public behavior. Implementation and native acceptance must be
 recorded separately in the [validation record](../../validation/README.md);
 this explanation alone is not test evidence.
@@ -125,12 +125,12 @@ make an asymptotic estimate uniform over that domain. Error constants and
 neighborhood sizes may depend on each fixed parameter. Uniform parameter limits,
 especially near a vanishing leading coefficient or a changing branch, require
 additional mathematics. See the article's parameter-domain discussion in
-[refinement by complete weight layers](../../article/sections/25-refinement-state.tex).
+[refinement by complete weight layers](../article/sections/25-refinement-state.tex).
 
 ## Focused regression obligations
 
 The bounded regression file
-[ReviewAssumptions.wlt](../../AsymptoticAnalysis/Tests/ReviewAssumptions.wlt)
+[ReviewAssumptions.wlt](../../src/Tests/ReviewAssumptions.wlt)
 is the starting point. Acceptance should cover:
 
 - Positive, negative and nested ambient constructor contexts; explicit replacement

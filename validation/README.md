@@ -1,12 +1,31 @@
 # Review and validation record
 
-## Package rename and historical evidence
+## Package rename, directory moves, and historical evidence
 
 The maintained package directory, standalone file and Wolfram context are now
-`AsymptoticAnalysis/`, `AsymptoticAnalysis.wl` and ``"AsymptoticAnalysis`"``.
+`src/`, `AsymptoticAnalysis.wl` and ``"AsymptoticAnalysis`"``.
 The public `AsymptoticInverse` function is unchanged. Current loading commands
 and navigation use the renamed package; see the
-[loading guide](../AsymptoticAnalysis/Documentation/UserGuide.md#loading-fixed-versions).
+[loading guide](../src/Documentation/UserGuide.md#loading-fixed-versions).
+
+The current `src/` layout passes **226 tests, zero failures**, in twelve
+selected files, plus **60 loading checks in five fresh kernels**. See
+[source-layout-tests.json](source-layout-tests.json),
+[source-layout-loading-tests.json](source-layout-loading-tests.json), and the
+[layout artifact receipt](source-layout-artifacts.json). The checks cover
+the new namespace, all 38 public symbols, native routing, inverse syntax,
+certificates, isolated standalone loading, modular loading, `init.m`, `Needs`,
+paclet registration and reloads. All 53 focused-test source hashes and all 45
+loading source hashes matched the final layout and stayed unchanged during
+their respective runs. The full package suite was skipped.
+
+For a new local run, write separate evidence files:
+
+```powershell
+$env:ASYMPTOTIC_VALIDATION_OUTPUT = Join-Path $env:TEMP 'asymptotic-layout-tests.json'
+wolfram.exe -noinit -script validation/CheckPackageRename.wl
+python -B validation/check_standalone_loading.py --local-only --output "$env:TEMP/asymptotic-layout-loading.json"
+```
 
 The 163/0 automatic-routing, 58/0 certificate and 11/0 standalone records below
 belong to the pre-rename checkpoint `01b18ab`. Their source paths, contexts,
@@ -17,7 +36,8 @@ in historical run descriptions retain their original paths; reproduce them
 from the corresponding revision, or use the current focused runners for a new
 run. Current `main` download URLs point to `AsymptoticAnalysis.wl`.
 
-The renamed package passes **226 tests, zero failures**, across the twelve
+At checkpoint `a6c90ce`, before the later directory reorganization, the renamed
+package passed **226 tests, zero failures**, across the twelve
 explicitly selected files in [package-rename-tests.json](package-rename-tests.json),
 run by [CheckPackageRename.wl](CheckPackageRename.wl). The five identity tests
 check all 38 public names, the new context, the unchanged inverse constructor,
@@ -28,23 +48,40 @@ The [225/1 first pass](package-rename-first-pass.json) preserves a new test
 fixture mistake: `Names` returns short names for contexts on `$ContextPath`.
 Normalizing those names fixed the assertion; no package behavior changed.
 
-[Local loading acceptance](package-rename-loading-tests.json) passes **60
+[Local loading acceptance](package-rename-loading-tests.json) recorded **60
 checks in five fresh kernels**, covering an isolated standalone file, the
 modular entry point, `init.m`, standalone `Needs`, and the guide's
 `PacletDirectoryLoad` followed by `Needs`. Each mode also checks reload,
 namespace cleanliness, native delegation, inverse expansion and certificates.
-Run it without creating a local server:
+The historical command at that checkpoint was:
 
 ```powershell
 python -B validation/check_standalone_loading.py --local-only --output validation/package-rename-loading-tests.json
 ```
 
-The [rename artifact receipt](package-rename-artifacts.json) records source
+The [rename artifact receipt](package-rename-artifacts.json), preserved from
+checkpoint `a6c90ce`, records source
 and output hashes, eleven passing Python builder tests, and documentation
 consistency. All 39 kernel modules differ from the pre-rename checkpoint only
 by package identity substitutions. Mathematical TeX and the 98-page PDF are
 unchanged, so this rename did not require another PDF build. The full package
 suite and benchmark measurements were not run.
+
+The subsequent layout moves place the mathematical article in
+[`docs/article/`](../docs/article/README.md), Wolfram notes in
+[`docs/WOLFRAM-NOTES.md`](../docs/WOLFRAM-NOTES.md), and both report collections
+under [`external-reports/`](../external-reports/README.md). Saved test results
+and receipts retain the paths and hashes of their original runs. They are not
+rewritten to assert matching paths or hashes after the moves. The 98-page
+mathematical PDF was relocated without changing its bytes; relocation alone
+does not require a new typesetting or visual-review claim.
+
+The modular package directory subsequently moved to [`src/`](../src/README.md).
+Its package name and context remain AsymptoticAnalysis, and the standalone
+download remains `AsymptoticAnalysis.wl`. Current local commands use
+`Get["src/Kernel/AsymptoticAnalysis.wl"]` or `PacletDirectoryLoad["src"]`
+followed by ``Needs["AsymptoticAnalysis`"]``. The earlier rename receipts
+retain their then-current `AsymptoticAnalysis/` directory paths.
 
 ## Automatic native routing and report 18 certificate repair
 
@@ -113,7 +150,7 @@ inspected at full size. There were no overfull or underfull boxes. The build
 records the `epstopdf` warning that shell escape is disabled; no layout repair
 was needed. Sources, output hashes, and review scope are in the receipt.
 
-Late [report 18](../code-review/wave-2/code-review-18/README.md) was imported
+Late [report 18](../external-reports/code-review/wave-2/code-review-18/README.md) was imported
 unchanged from `84650f3521cfcc89ae832f5bad3554f65faaab31`. It reviews the older
 `921387e` snapshot. The current [seven-case characterization](review-18-intake.json)
 from [ProbeReview18.wl](ProbeReview18.wl) records:
@@ -135,10 +172,10 @@ The full package suite remains skipped.
 
 This directory contains focused runners, characterization probes, build and
 provenance tools, benchmarks, and saved evidence from individual milestones.
-The [test directory guide](../AsymptoticAnalysis/Tests/README.md) explains test
+The [test directory guide](../src/Tests/README.md) explains test
 selection and how to add a small reproducible harness. The
 [implementation register](../docs/development/CODE_REVIEW_STATUS.md) tracks
-review findings; the [review archive](../code-review/README.md) preserves the
+review findings; the [review archive](../external-reports/code-review/README.md) preserves the
 reviewers' reports and their original execution scope.
 
 ## Choose a focused check
@@ -220,7 +257,7 @@ recorded explicit-mode cases, not complete input-superset coverage. The
 held metadata and the distinct formal or native asymptotic contract. Document
 build and artifact acceptance must be recorded separately.
 
-[RunTests.wl](../AsymptoticAnalysis/Tests/RunTests.wl) discovers every `.wlt`
+[RunTests.wl](../src/Tests/RunTests.wl) discovers every `.wlt`
 file. A historical all-passing run therefore does not establish acceptance
 of a later test set. Existing native ingress
 and export tests concern the package's current analytic representation;
@@ -379,7 +416,7 @@ wolfram.exe -noinit -script validation/CheckReviewAssumptions.wl
 wolfram.exe -noinit -script validation/CheckReviewAssumptionReplay.wl
 ```
 
-The [user guide](../AsymptoticAnalysis/Documentation/UserGuide.html#assumption-context)
+The [user guide](../src/Documentation/UserGuide.html#assumption-context)
 and [implementation notes](../docs/development/ASSUMPTION_CONTEXT.md) describe
 explicit-option replacement, retained contexts, specialized domain restrictions,
 and ordinary evaluation limits. The article now explains retained parameter
@@ -868,7 +905,7 @@ python validation/build_user_guide.py
 python validation/check_documentation.py
 ```
 
-The article build and rendering commands are in `article/README.md`.
+The current article build and rendering commands are in [docs/article/README.md](../docs/article/README.md).
 
 The automatic series arithmetic update is recorded in
 `series-arithmetic-tests.json` and `series-arithmetic-validation.json`.
@@ -910,7 +947,7 @@ python validation/build_user_guide.py
 python validation/check_documentation.py
 ```
 
-The article build and rendering commands are in `article/README.md`.
+The current article build and rendering commands are in [docs/article/README.md](../docs/article/README.md).
 
 The invisible `PowerLogSeries` display update is recorded in
 `formatting-tests.json` and `formatting-validation.json`. **All 13 focused
@@ -1046,7 +1083,7 @@ python validation/check_documentation.py
 
 The runner exports per-test outcomes and hashes of the tested kernel,
 test, and runner files. Article build and render commands are in
-[article/README.md](../article/README.md).
+[article/README.md](../docs/article/README.md).
 
 The logarithmic Gamma update is recorded in `gamma-logarithms-tests.json`
 and `gamma-logarithms-validation.json`. **All 87 focused tests passed**, with
@@ -1155,7 +1192,7 @@ wolfram.exe -script validation/CheckDocumentation.wl
 The native runner exports `validation/documentation-tests.json` by default;
 set `ASYMPTOTIC_VALIDATION_OUTPUT` to use another destination. Each example
 has a 60-second limit. PDF build and render commands are documented in
-[article/README.md](../article/README.md).
+[article/README.md](../docs/article/README.md).
 
 The final exact-recovery follow-up is recorded in
 `growth-exact-recovery-tests.json`: **57 focused tests passed in four suites,
@@ -1462,7 +1499,9 @@ wolfram.exe -script AsymptoticInverse/Tests/BenchmarkPerformance.wl
 
 ## Article
 
-The final TeX is built with three serial strict passes:
+The following commands record the earlier repository layout. Use the
+[current article build instructions](../docs/article/README.md) for the moved
+sources. The historical TeX workflow used three serial strict passes:
 
 ```powershell
 Push-Location article

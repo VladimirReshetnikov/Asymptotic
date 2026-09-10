@@ -1,4 +1,4 @@
-(* Run with wolfram -script AsymptoticAnalysis/Tests/BenchmarkPerformance.wl.
+(* Run with wolfram -script src/Tests/BenchmarkPerformance.wl.
    The reference algorithms reproduce the original four implementations.
    Timings are evidence for these fixtures, not portable performance tests. *)
 root = DirectoryName[DirectoryName[$InputFileName]];

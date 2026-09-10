@@ -29,13 +29,13 @@ the packages have different public names and order conventions and are not
 interchangeable with the maintained implementation. Load a historical
 package in a separate kernel when reproducing its results.
 
-For current work, use the [maintained package](../AsymptoticAnalysis/README.md),
-[mathematical article](../article/README.md), and
-[user guide](../AsymptoticAnalysis/Documentation/README.md). Later reviews of
+For current work, use the [maintained package](../../src/README.md),
+[mathematical article](../../docs/article/README.md), and
+[user guide](../../src/Documentation/README.md). Later reviews of
 the unified package are indexed separately under
 [code-review/](../code-review/README.md); current fixes and outstanding
 findings are tracked in the
-[implementation register](../docs/development/CODE_REVIEW_STATUS.md).
+[implementation register](../../docs/development/CODE_REVIEW_STATUS.md).
 
 Keep submitted source, PDFs, evidence, and attribution notices together.
 Updates to the unified package belong in its maintained source and docs;

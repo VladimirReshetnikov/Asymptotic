@@ -1,4 +1,4 @@
-(* Run with:  wolfram -script AsymptoticAnalysis/Tests/RunTests.wl   (from the repository root or anywhere) *)
+(* Run with:  wolfram -script src/Tests/RunTests.wl   (from the repository root or anywhere) *)
 root = DirectoryName[DirectoryName[$InputFileName]];
 Get[FileNameJoin[{root, "Kernel", "AsymptoticAnalysis.wl"}]];
 testFiles = FileNames["*.wlt", FileNameJoin[{root, "Tests"}]];

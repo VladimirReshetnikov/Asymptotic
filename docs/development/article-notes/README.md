@@ -12,17 +12,17 @@ at revision `2a3d75a` when the documentation was separated:
 
 They are archival chapter fragments, not standalone LaTeX documents; their
 cross-references refer to the former combined article. The current
-[user guide](../../../AsymptoticAnalysis/Documentation/UserGuide.html) is the
+[user guide](../../../src/Documentation/UserGuide.html) is the
 maintained interface reference, with
-[Markdown source and build instructions](../../../AsymptoticAnalysis/Documentation/README.md).
+[Markdown source and build instructions](../../../src/Documentation/README.md).
 The
-[mathematical article](../../../article/asymptotic-inverse.pdf) contains the
-theory; its [source and build instructions](../../../article/README.md) are
+[mathematical article](../../article/asymptotic-inverse.pdf) contains the
+theory; its [source and build instructions](../../article/README.md) are
 maintained separately. These archived fragments are not included in that build.
 
 The report comparison here belongs to the
-[original report collection](../../../reports/COMPARISON.md). The later
-[code review library](../../../code-review/README.md) contains eighteen
+[original report collection](../../../external-reports/original-proposals/COMPARISON.md). The later
+[code review library](../../../external-reports/code-review/README.md) contains eighteen
 packages in two waves. Consult the
 [current finding register](../CODE_REVIEW_STATUS.md) for implementation status
 and the [validation record](../../../validation/README.md) for the exact

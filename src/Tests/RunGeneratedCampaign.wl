@@ -2,7 +2,7 @@
    modest generated regression suite. No package Private` jet, enumeration,
    Lagrange, Newton or residual helper is used to compute expected results.
 
-   CLI: wolfram -script AsymptoticAnalysis/Tests/RunGeneratedCampaign.wl
+   CLI: wolfram -script src/Tests/RunGeneratedCampaign.wl
    Optional environment variables: ASYMPTOTIC_CAMPAIGN_SEED, _CASES,
    _CASE_SECONDS, _SHRINK_ATTEMPTS, _SHRINK_SECONDS, _OUTPUT.
    Loading with GeneratedCampaign`$LibraryOnly=True defines helpers only. *)

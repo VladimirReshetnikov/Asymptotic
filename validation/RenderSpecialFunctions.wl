@@ -1,6 +1,6 @@
 (* Native StandardForm and Normal preview; never runs the full suite. *)
 specialRenderRoot = DirectoryName[DirectoryName[$InputFileName]];
-Get[FileNameJoin[{specialRenderRoot, "AsymptoticAnalysis", "Kernel", "AsymptoticAnalysis.wl"}]];
+Get[FileNameJoin[{specialRenderRoot, "src", "Kernel", "AsymptoticAnalysis.wl"}]];
 Clear[x];
 bessel = AsymptoticExpansion[BesselI[0, x] BesselK[0, x], x -> Infinity, SeriesTermGoal -> 3];
 gaussian = AsymptoticExpansion[Erfc[x], x -> Infinity, SeriesTermGoal -> 3];

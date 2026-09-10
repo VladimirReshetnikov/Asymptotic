@@ -7,7 +7,7 @@ Eighteen review packages are grouped into two waves. Each wave index links the r
 | [Wave 1](wave-1/README.md) | Nine independent review packages, numbered 1–9 | AsymptoticInverse 1.8.0; snapshots `07a9781` and `75de875` | September 9, 2026 |
 | [Wave 2](wave-2/README.md) | Nine incremental review packages, numbered 10–18 | AsymptoticInverse 1.8.0; snapshot `921387e` | September 9, 2026 |
 
-The maintained [implementation status](../docs/development/CODE_REVIEW_STATUS.md) consolidates the findings and links completed fixes to focused validation, while tracking pending work and design decisions.
+The maintained [implementation status](../../docs/development/CODE_REVIEW_STATUS.md) consolidates the findings and links completed fixes to focused validation, while tracking pending work and design decisions.
 
 The wave indexes distinguish source and mathematical checks from native package observations, executed patch checks, and unrun regression specifications. Reviewers' independent test counts are not a combined acceptance run of this repository.
 
@@ -20,12 +20,12 @@ and which fixes have focused evidence. Follow the relevant wave index to the
 original report, then check its reproduction against the current source.
 Proposed patches and tests are review material until integrated and validated.
 
-The [development instructions](../docs/development/README.md) describe the
-source and documentation workflow; the [validation record](../validation/README.md)
+The [development instructions](../../docs/development/README.md) describe the
+source and documentation workflow; the [validation record](../../validation/README.md)
 links executable focused runners and their recorded scope. The current
 instruction is to skip the full package suite.
 
 These reviews concern the unified package. The nine earlier research and
-implementation submissions have their own [reports index](../reports/README.md)
-and comparison. Return to the [repository README](../README.md) for package
+implementation submissions have their own [reports index](../original-proposals/README.md)
+and comparison. Return to the [repository README](../../README.md) for package
 loading and the mathematical article and user guide.

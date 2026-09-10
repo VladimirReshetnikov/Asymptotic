@@ -9,7 +9,7 @@ definitions and should not be loaded independently.
 From the repository root:
 
 ```wolfram
-Get["AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl"];
+Get["src/Kernel/AsymptoticAnalysis.wl"];
 ```
 
 The [package README](../README.md) covers paclet and remote loading. Public

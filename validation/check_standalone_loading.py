@@ -33,9 +33,9 @@ def check(url: str | None, output: Path, repeat: int = 1,
     artifact = build(check=True)
     tracked = [TARGET, ROOT / "validation/build_standalone.py",
                ROOT / "validation/CheckStandalone.wl", Path(__file__).resolve()]
-    tracked += sorted((ROOT / "AsymptoticAnalysis/Kernel").glob("*.wl"))
-    tracked.append(ROOT / "AsymptoticAnalysis/Kernel/init.m")
-    tracked.append(ROOT / "AsymptoticAnalysis/PacletInfo.wl")
+    tracked += sorted((ROOT / "src/Kernel").glob("*.wl"))
+    tracked.append(ROOT / "src/Kernel/init.m")
+    tracked.append(ROOT / "src/PacletInfo.wl")
 
     def fingerprints():
         return {str(p.relative_to(ROOT)).replace("\\", "/"):
@@ -94,11 +94,11 @@ def check(url: str | None, output: Path, repeat: int = 1,
             ("isolated-local", "Get", str(isolated), ""),
             ("isolated-http", "Get", origin + "/AsymptoticAnalysis.wl", ""),
             ("isolated-gzip-http", "Get", origin + "/compressed/AsymptoticAnalysis.wl", ""),
-            ("modular", "Get", str(ROOT / "AsymptoticAnalysis/Kernel/AsymptoticAnalysis.wl"), ""),
-            ("modular-init", "Get", str(ROOT / "AsymptoticAnalysis/Kernel/init.m"), ""),
+            ("modular", "Get", str(ROOT / "src/Kernel/AsymptoticAnalysis.wl"), ""),
+            ("modular-init", "Get", str(ROOT / "src/Kernel/init.m"), ""),
             ("needs", "Needs", str(isolated), str(serving)),
-            ("paclet", "Paclet", str(ROOT / "AsymptoticAnalysis/Kernel/init.m"),
-             str(ROOT / "AsymptoticAnalysis")),
+            ("paclet", "Paclet", str(ROOT / "src/Kernel/init.m"),
+             str(ROOT / "src")),
             ("missing-http", "Missing", origin + "/missing.wl", ""),
         ]
         if local_only:
@@ -170,6 +170,6 @@ if __name__ == "__main__":
     mode.add_argument("--local-only", action="store_true",
                       help="Check local standalone, modular, init.m, Needs, paclet registration and reloads without any HTTP server")
     parser.add_argument("--repeat", type=int, default=1, help="Repeat published loading in fresh kernels")
-    parser.add_argument("--output", type=Path, default=ROOT / "validation/package-rename-loading-tests.json")
+    parser.add_argument("--output", type=Path, default=ROOT / "validation/source-layout-loading-tests.json")
     args = parser.parse_args()
     check(args.url, args.output, args.repeat, args.local_only)

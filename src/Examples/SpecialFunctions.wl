@@ -1,5 +1,5 @@
 (* Run from the repository root:
-   wolfram.exe -script AsymptoticAnalysis/Examples/SpecialFunctions.wl *)
+   wolfram.exe -script src/Examples/SpecialFunctions.wl *)
 Get[FileNameJoin[{DirectoryName[DirectoryName[$InputFileName]], "Kernel", "AsymptoticAnalysis.wl"}]];
 Clear[x];
 specialExamples = {

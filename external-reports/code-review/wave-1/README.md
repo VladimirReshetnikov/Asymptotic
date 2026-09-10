@@ -4,7 +4,7 @@ These nine review packages examine AsymptoticInverse 1.8.0 and document their so
 
 Findings and proposed patches refer to those pinned snapshots. Their inclusion here does not establish that a finding still applies, or that a proposed fix is implemented and verified in the current checkout. The execution column summarizes each package's own records.
 
-The maintained [implementation status](../../docs/development/CODE_REVIEW_STATUS.md) consolidates the findings across these packages and links completed fixes to their focused validation, while tracking pending work and design decisions.
+The maintained [implementation status](../../../docs/development/CODE_REVIEW_STATUS.md) consolidates the findings across these packages and links completed fixes to their focused validation, while tracking pending work and design decisions.
 
 | Package | Article | Main focus | Recorded execution |
 | --- | --- | --- | --- |

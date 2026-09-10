@@ -118,7 +118,7 @@ in this directory. It has no suite-selection argument. Do not use it as the focu
 for the present task. A deliberate full run uses:
 
 ```powershell
-wolfram.exe -noinit -script AsymptoticAnalysis/Tests/RunTests.wl
+wolfram.exe -noinit -script src/Tests/RunTests.wl
 ```
 
 Its optional `ASYMPTOTIC_VALIDATION_OUTPUT` export records the kernel, selected
@@ -128,7 +128,7 @@ counts belong to the source and test set recorded at that milestone.
 
 [RunGeneratedCampaign.wl](RunGeneratedCampaign.wl) is a separate deterministic
 campaign with independent oracles and failure shrinking. Its command is
-`wolfram.exe -noinit -script AsymptoticAnalysis/Tests/RunGeneratedCampaign.wl`.
+`wolfram.exe -noinit -script src/Tests/RunGeneratedCampaign.wl`.
 The `ASYMPTOTIC_CAMPAIGN_` environment variables `SEED`, `CASES`, `CASE_SECONDS`,
 `SHRINK_ATTEMPTS`, `SHRINK_SECONDS`, and `OUTPUT` control its bounds and output
 directory. The current defaults are seed 236369, 24 cases, 30 seconds per
