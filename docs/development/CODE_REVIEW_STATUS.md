@@ -84,7 +84,9 @@ unnumbered proposals are included in scope** and mapped in the
 [wave-3 intake](WAVE_3_INTAKE.md). That document records every local finding
 ID, current source evidence, overlapping earlier work, policy alternatives,
 and focused acceptance obligations. The supplied 166 payload files were
-merged from `68b8e1e70731998c5bc1533be1bec0f5b507acd7` without editing them.
+merged from `68b8e1e70731998c5bc1533be1bec0f5b507acd7` without editing them;
+report 26's files have since been retired, and the remaining eight packages are
+still unedited.
 Current source inspection does not turn their historical or unrun witnesses
 into current native reproductions.
 

@@ -63,17 +63,30 @@ the work. The removed directories remain in Git history at
 | 2 | 1 | F01 → C04, F02 → C02, F03 → C03, F04 → C01 | F05 → C08 (reports 5, 6, 9, 18); F06 → P04 (5, 9); F07 → X01 (5, 7). Roadmap proposals X02, X03, X06 and X08 keep their other cited sources. |
 | 3 | 1 | F01 → C02, F02 → C01, F03 → C03, F04 → C05 | F05 → P04 (5, 9). The X04 proposal now cites report 16's derivative-tail entries. |
 | 10 | 2 | N01 → C05 | N02 → P06 (1, 4, 6, 8, 16). |
-| 12 | 2 | N01 → C05, N02 → C07, N03 → C17 | N02's C13 component (reports 4, 7) and its B01 component (11, 13, 18). |
+| 12 | 2 | N01 → C05, N02 → C07, N03 → C17 | N02's C13 component (reports 4, 7) and its B01 component (11, 18). |
 | 13 | 2 | A1 → C14, A2 → C07, A3 → C21 | A1's C12 component (report 6, the register's cited source); A2's B01 component (11, 18). |
-| 14 | 2 | N01 → C15, N02 → C20, N03 → C21, N05 → C22 (truncation) | N04 → D01/D02 (1, 4, 6, 7, 16); C22's arithmetic transport stays open under the retained C22 record. |
+| 14 | 2 | N01 → C15, N02 → C20, N03 → C21, N05 → C22 (truncation) | N04 → D01 (reports 1, 4, 6, 7, 16) and D02 (1, 4, 6, 7); C22's arithmetic transport stays open under the retained C22 record. |
 | 26 | 3 | — | Every entry restates W3-01 (19, 20, 21, 23, 24, 25, 27), W3-02 (19, 20, 21, 24, 25, 27) or W3-04 (19, 20, 25). Its alias-default alternative is preserved in the wave-3 intake alongside report 20's. |
 | 32 | 4 | T01 → W4-10 | M01 → W4-01 (28–30, 33, 34); M02/M03 → W4-03 (28, 35, 36); D-P06 → W4-07 (30, 33–36); D-V01 → W4-12 (28–30, 34, 35); L01 → W4-05 (28–31, 33–35); G01 → W4-08 (28, 30, 36). |
 | 40 | 5 | — | ABS-01 duplicates 37 F01; ABS-02 duplicates 42 N01. |
 | 41 | 5 | — | ABS-01 duplicates 37 F01. Its complex-modulus reference algorithm and the Hermitian pairing count are recorded in the [mathematical article](../../docs/article/sections/03-forward.tex) and the wave-5 index. |
 
+Every open or partial work item still has at least one retained report: the
+crosswalk was checked item by item before the removals, and no item lost its
+last source. Nineteen items now rest on a single retained report, and all but
+C12 already did. Four closed items — C14, C17, C20 and C22 — were reported only
+by a retired package; each is focused verified with its own acceptance record,
+and the register keeps the original attribution.
+
 Mathematical content that was unique to a retired package was merged into the
 [mathematical article](../../docs/article/README.md) before removal, not
 discarded; the wave-5 index names the merged results.
+
+Retained packages cite each other by commit-pinned URL. Those citations record
+what a reviewer actually compared against and still resolve on GitHub, so they
+were left untouched even where they name a retired package. Nothing in a
+supplied package was edited: retirement removes whole directories, and every
+retained directory keeps its original files, evidence and notices.
 
 These reviews concern the unified package. The nine earlier research and
 implementation submissions have their own [reports index](../original-proposals/README.md)
