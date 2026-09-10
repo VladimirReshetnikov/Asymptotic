@@ -7,6 +7,23 @@ oscillatory scales. Analytic results carry an explicit remainder and real branch
 information. Native backends preserve built-in formal and asymptotic results
 with their own contracts, selected explicitly or by automatic routing.
 
+**AsymptoticAnalysis is intended to completely subsume Wolfram's `Series`,
+`Asymptotic`, and `DiscreteAsymptotic`: it must correctly and successfully
+handle every input that any of those functions handles.** The returned
+representation may differ. This is a project requirement, not an achieved
+coverage claim. Current native delegation supports `Series` and `Asymptotic`
+with selected automatic routing; a `DiscreteAsymptotic` backend is not yet
+implemented. The [native compatibility plan](docs/development/NATIVE_COMPATIBILITY.md)
+and [native backend guide](src/Documentation/UserGuide.md#native-backend-expansions)
+record implemented behavior and known deviations from the requirement.
+
+**Complete Mathics3 compatibility, alongside support for the official Wolfram
+kernel, is a project goal.** Mathics support is under active development:
+focused checks cover loading, core expansion and inverse operations, and
+selected special functions. Complete compatibility is not yet established.
+The [Mathics compatibility guide](docs/Mathics/COMPATIBILITY.md) records the
+tested environments, supported cases, and remaining work.
+
 The package and Wolfram context are now named `AsymptoticAnalysis`. Public
 function names, including `AsymptoticInverse`, are unchanged. The
 [loading guide](src/Documentation/UserGuide.md#loading-fixed-versions)
@@ -149,9 +166,9 @@ Version 1.8.0 declares Wolfram Language 15.0 or later. Native validation
 records use Wolfram 15.0.1 for Windows; see the [validation record](validation/README.md)
 for the exact scope of each run.
 
-Mathics3 compatibility is also under active validation. See the
-[Mathics compatibility guide](docs/Mathics/COMPATIBILITY.md) for installation,
-tested features, interpreter settings, and remaining limitations.
+For Mathics3 installation and interpreter settings, follow the
+[Mathics compatibility guide](docs/Mathics/COMPATIBILITY.md). Its portable
+regression records are separate from the official Wolfram test results.
 
 ## Repository
 
@@ -167,6 +184,7 @@ tested features, interpreter settings, and remaining limitations.
 | [validation/](validation/README.md) | Reproducible checks and historical validation evidence. |
 | [docs/mathematica.stackexchange.com/](docs/mathematica.stackexchange.com/README.md) | The two motivating questions, original online sources, and saved snapshots. |
 | [docs/WOLFRAM-NOTES.md](docs/WOLFRAM-NOTES.md) | Development notes on Wolfram Language behavior. |
+| [docs/MATHICS-NOTES.md](docs/MATHICS-NOTES.md) | Verified Mathics evaluator gotchas, package workarounds, and checking rules. |
 
 When changing the kernel sources, regenerate the standalone file with
 `python validation/build_standalone.py`. The

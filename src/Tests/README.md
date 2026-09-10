@@ -26,7 +26,7 @@ Use another entry script when its explicit selection matches the change:
 | Coverage | Entry script |
 | --- | --- |
 | Observable Taylor endpoints, sided constants and complete-argument reality, with calculus neighbors | [CheckObservableIngress.wl](../../validation/CheckObservableIngress.wl) |
-| Merged-source normalization, native search and package identity: 425/0 across 23 selected files | [CheckMergedReviewFixes.wl](../../validation/CheckMergedReviewFixes.wl) |
+| Merged-source normalization, native search, and package identity | [CheckMergedReviewFixes.wl](../../validation/CheckMergedReviewFixes.wl) |
 | Compatible native-backend retries, held evaluation, and adjacent native contracts | [CheckNativeSearch.wl](../../validation/CheckNativeSearch.wl) |
 | Equal-exponent collection and composition parameter scope, with arithmetic and scale neighbors | [CheckReviewNormalization.wl](../../validation/CheckReviewNormalization.wl) |
 | Only the equal-exponent and composition-scope regressions | [CheckReviewScopeAndEquality.wl](../../validation/CheckReviewScopeAndEquality.wl) |
@@ -142,6 +142,37 @@ collection before truncation and remainder calculations. The
 explain fixed parameters, retained source and operation provenance, exact
 source replay, and refusals when a transported remainder lacks a uniform bound.
 These focused runs do not replace the full package suite.
+
+## Portable Mathics and Wolfram cases
+
+The portable suite lives in [validation/MathicsTests.wl](../../validation/MathicsTests.wl),
+separately from this directory's MUnit files. Its
+[Python runner](../../validation/run_mathics_tests.py) selects named cases
+or groups and starts one fresh interpreter process per case. First inspect
+the available selection without starting a kernel:
+
+```powershell
+python validation/run_mathics_tests.py --list
+```
+
+After installing the environment described in the
+[Mathics compatibility guide](../../docs/Mathics/COMPATIBILITY.md), a focused
+run can use a case pattern and a fresh output destination:
+
+```powershell
+$portableOutput = Join-Path $env:TEMP ('asymptotic-portable-' + [guid]::NewGuid().ToString() + '.json')
+python validation/run_mathics_tests.py --python .venv/mathics/Scripts/python.exe --case 'inverse-*' --timeout 300 --output $portableOutput
+if ($LASTEXITCODE -ne 0) { throw 'Portable validation failed' }
+```
+
+Use `--wolfram wolfram.exe` in place of `--python ...` for the official
+kernel, and `--source AsymptoticAnalysis.wl` to select the standalone instead
+of the default modular source. `--case` and `--group` can be repeated. The
+runner records source hashes, kernel identity, complete case output, and
+process-enforced time limits; crashes and protocol failures cannot count as
+passing cases. Selected inverse-callable tests explicitly distinguish the
+two runtimes' pre-evaluation contracts. Portable acceptance is separate from
+the focused MUnit records and from a full package-suite run.
 
 ## Full runner, generated campaigns, and benchmarks
 

@@ -1,7 +1,7 @@
 """Check the documentation split without executing the package test suite.
 
 Checks the deterministic guide build, mathematical cross-references and
-separation, landing-page links, and preserved engineering files. Requires
+separation, maintained Markdown links, and preserved engineering files. Requires
 Pandoc. Native examples and PDF rendering are separate commands.
 """
 
@@ -11,9 +11,9 @@ import json
 from pathlib import Path
 import re
 import subprocess
-from urllib.parse import unquote, urlsplit
 
 from build_user_guide import ROOT, build
+from documentation_links import check_local_links, maintained_pages
 
 
 def check() -> dict:
@@ -31,38 +31,7 @@ def check() -> dict:
     assert not set(references) - set(labels), "Missing mathematical references"
     assert not set(citations) - set(bibliography), "Missing bibliography entries"
     assert not re.search(r"\\wl\{|lstlisting|AsymptoticExpansion|PowerLogSeries|GeneralizedSeries|\.wl\b|sec:package|sec:reports", text), "Software content in the mathematical article"
-    routes = [ROOT / "README.md", ROOT / "src/README.md",
-              ROOT / "src/Kernel/README.md", ROOT / "src/Tests/README.md",
-              ROOT / "src/Examples/README.md",
-              ROOT / "docs/README.md", ROOT / "docs/article/README.md",
-              ROOT / "docs/WOLFRAM-NOTES.md", ROOT / "src/Documentation/README.md",
-              ROOT / "docs/development/README.md", ROOT / "docs/development/article-notes/README.md",
-              ROOT / "validation/README.md", ROOT / "validation/archive/README.md",
-              ROOT / "external-reports/README.md",
-              ROOT / "external-reports/code-review/README.md",
-              ROOT / "external-reports/code-review/wave-1/README.md",
-              ROOT / "external-reports/code-review/wave-2/README.md",
-              ROOT / "external-reports/code-review/wave-3/README.md",
-              ROOT / "docs/development/WAVE_3_INTAKE.md",
-              ROOT / "docs/development/OBSERVABLE_INGRESS.md",
-              ROOT / "docs/development/PEER_REVIEWS.md",
-              ROOT / "external-reports/original-proposals/README.md",
-              ROOT / "vendor/README.md", ROOT / "vendor/proveit/README.md"]
-    local_links = 0
-    for path in routes:
-        for href in re.findall(r"\[[^]\n]+\]\(([^)]+)\)", path.read_text(encoding="utf-8")):
-            url = urlsplit(href)
-            if url.scheme or url.netloc or not url.path:
-                continue
-            destination = path.parent / unquote(url.path)
-            assert destination.exists(), f"Missing destination from {path}: {href}"
-            if url.fragment and destination.suffix == ".md":
-                target_text = destination.read_text(encoding="utf-8")
-                headings = re.findall(r"^#+ (.+)$", target_text, re.M)
-                anchors = {re.sub(r"[^\w\s-]", "", title.lower()).replace(" ", "-") for title in headings}
-                anchors.update(re.findall(r'<a id="([^"]+)"', target_text))
-                assert unquote(url.fragment) in anchors, f"Missing heading from {path}: {href}"
-            local_links += 1
+    links = check_local_links(maintained_pages(ROOT))
     # Keys are paths in the pinned historical commit, not the live docs/article
     # layout. Preserve them when current documentation is relocated.
     archived = {f"article/sections/{name}": f"docs/development/article-notes/{name}"
@@ -79,8 +48,7 @@ def check() -> dict:
     result = {"Guide": guide, "MathematicalChapters": len(chapters),
               "MathematicalLabels": len(labels), "MathematicalReferences": len(references),
               "BibliographyEntries": len(bibliography), "MissingReferences": 0,
-              "MissingCitations": 0, "LandingPagesChecked": len(routes),
-              "LandingPageLocalLinks": local_links,
+              "MissingCitations": 0, "DocumentationLinks": links,
               "PreservedEngineeringFiles": len(archived),
               "FullPackageSuiteRun": False}
     print(json.dumps(result, indent=2))

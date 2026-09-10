@@ -1,5 +1,9 @@
 # Notes on subtle Wolfram Language behaviour
 
+For observations from the alternate interpreter, see the maintained
+[Mathics evaluation notes](MATHICS-NOTES.md). Their workarounds are confined
+to Mathics; they do not replace the native behaviours recorded here.
+
 The maintained package is now named AsymptoticAnalysis; its standalone entry
 point is `AsymptoticAnalysis.wl` and its Wolfram context is
 ``"AsymptoticAnalysis`"``. Public `AsymptoticInverse` calls are unchanged.

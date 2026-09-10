@@ -5,12 +5,31 @@ article and a separate package user guide organized in the style of Wolfram
 documentation. The guide documents this custom package; it is not an official
 Wolfram reference page.
 
+**The package must completely subsume Wolfram's `Series`, `Asymptotic`, and
+`DiscreteAsymptotic`: every input successfully handled by any of them must
+also be handled correctly and successfully by AsymptoticAnalysis.** Its
+result representation may differ. Complete coverage is not yet established;
+the current native backends cover `Series` and `Asymptotic`, while
+`DiscreteAsymptotic` delegation remains to be implemented. The
+[native compatibility plan](development/NATIVE_COMPATIBILITY.md) and
+[backend guide](../src/Documentation/UserGuide.md#native-backend-expansions)
+document the current behavior and known deviations from this requirement.
+
+**Complete compatibility with Mathics3, in addition to the official Wolfram
+kernel, is a project goal.** The package already has interpreter-specific
+adapters and focused portable checks; complete Mathics coverage is not yet
+established. The [compatibility guide](Mathics/COMPATIBILITY.md) distinguishes
+the tested runtime and feature scope from remaining implementation and
+validation work.
+
 | Read or do | Start here |
 | --- | --- |
 | Learn the theory, hypotheses, and proofs | [Mathematical article (PDF)](article/asymptotic-inverse.pdf) · [LaTeX source and build instructions](article/README.md) |
 | Load and use the package | [User guide (HTML)](../src/Documentation/UserGuide.html) · [Markdown source](../src/Documentation/UserGuide.md) |
+| Install and use the package in Mathics3 | [Mathics compatibility guide](Mathics/COMPATIBILITY.md) · [Interpreter background and contracts](Mathics/README.md) |
 | Rebuild the guide or inspect its examples | [Guide build instructions](../src/Documentation/README.md) · [Examples](../src/Examples/README.md) |
-| Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients · [Wolfram evaluation notes](WOLFRAM-NOTES.md) |
+| Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients · [Wolfram evaluation notes](WOLFRAM-NOTES.md) · [Mathics evaluation notes](MATHICS-NOTES.md) |
+| Use the package in Mathics3 | [Compatibility and validation guide](Mathics/COMPATIBILITY.md) · [Exact assumptions](Mathics/ASSUMPTIONS.md) · [Callable branch proofs](Mathics/CALLABLES.md) |
 | Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Twenty-seven code review packages in three waves](../external-reports/code-review/README.md) · [Wave-3 intake](development/WAVE_3_INTAKE.md) |
 | Check what was actually validated | [Validation record](../validation/README.md), with focused test results and artifact-specific build and review evidence |
 | Explore related asymptotic and inverse theory | [Vendored ProveIt article catalog](../vendor/proveit/README.md), with TeX/PDF sources, reading lists, and provenance |

@@ -19,17 +19,32 @@ wolfram.exe -noinit -script src/Examples/Arithmetic.wl
 wolfram.exe -noinit -script src/Examples/SpecialFunctions.wl
 ```
 
-For interactive exploration, open a script and evaluate selected expressions
-after its loading statement. `SpecialFunctions.wl` calls `Exit` at the end,
+For interactive exploration, first load the package explicitly:
+
+```wolfram
+Get["src/Kernel/AsymptoticAnalysis.wl"];
+```
+
+Then evaluate selected expressions from a script. Its file-relative loading
+statement uses `$InputFileName`, which is available during file loading but
+need not identify the script when pasted into a notebook.
+`SpecialFunctions.wl` calls `Exit` at the end,
 returning a nonzero status when one of its checks fails; run that complete
 script in a separate kernel. The other scripts are demonstrations, and their
 printed output is not an aggregate test report.
 
-`Normal[s]` gives the retained expression; `s["Remainder"]` exposes its
-remainder. Keep both when assessing an approximation. Supported branches,
+For the analytic results demonstrated here, `Normal[s]` gives the retained
+finite expression and `s["Remainder"]` exposes its remainder. Keep both when
+assessing an approximation. Native-backend results have a separate contract;
+see the guide's [native examples](../Documentation/UserGuide.md#native-backend-expansions).
+Supported branches,
 cutoff conventions, and the limits of residual and numerical checks are
 explained in the [user guide](../Documentation/UserGuide.md).
 
 See the [test directory](../Tests/README.md) and
 [validation instructions](../../validation/README.md) for focused acceptance
 checks. Return to the [package README](../README.md).
+
+Mathics users should start with the [compatibility guide](../../docs/Mathics/COMPATIBILITY.md)
+and its selected portable tests. The presence of an example script does not
+establish that every example has passed on each supported interpreter.

@@ -1,5 +1,22 @@
 # AsymptoticAnalysis
 
+**The package must completely subsume Wolfram's `Series`, `Asymptotic`, and
+`DiscreteAsymptotic`, correctly and successfully handling every input that
+any of them handles.** The result representation may differ. Complete
+coverage is not yet established: native `Series` and `Asymptotic` delegation
+and selected automatic routing exist, but `DiscreteAsymptotic` delegation
+is not yet implemented. The
+[compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md) and
+[native backend guide](Documentation/UserGuide.md#native-backend-expansions)
+record implemented behavior and known deviations from this requirement.
+
+**Complete Mathics3 compatibility, alongside support for the official Wolfram
+kernel, is a project goal.** Mathics support is under active development, with
+focused checks for core operations and selected special-function paths.
+Complete compatibility is not yet established; the
+[compatibility guide](../docs/Mathics/COMPATIBILITY.md) records current
+coverage, interpreter settings, and remaining work.
+
 The package was renamed from AsymptoticInverse. Its context is
 ``"AsymptoticAnalysis`"``; public functions such as `AsymptoticInverse` retain
 their names. See [fixed-version loading](Documentation/UserGuide.md#loading-fixed-versions)
@@ -11,8 +28,9 @@ not change the package context or the repository-root standalone filename
 
 Real asymptotic expansions of functions and selected inverse branches in Wolfram
 Language, with exact exponents, logarithmic coefficients, and retained remainders.
-Explicit native backends also preserve built-in `Series` and `Asymptotic`
-results under a distinct formal or native asymptotic contract.
+Native backends, selected explicitly or by automatic routing, also preserve
+built-in `Series` and `Asymptotic` results under a distinct formal or native
+asymptotic contract.
 
 - **[User guide](Documentation/UserGuide.html)** — syntax, options, worked
   examples, result properties, supported scales, and possible issues.
@@ -60,12 +78,18 @@ The [paclet metadata](PacletInfo.wl) declares version 1.8.0 and Wolfram Language
 15.0 or later. The [loading validation](../validation/README.md) records the
 tested distribution paths and native runtime versions.
 
+For Mathics3, follow the separate
+[compatibility guide](../docs/Mathics/COMPATIBILITY.md) for the tested interpreter
+environment, loading sequence, iteration budget, and supported features. Its
+portable regression results and the Wolfram acceptance records describe
+different runtimes and selections.
+
 ## Choose an interface
 
 | Task | Entry point and guide |
 | --- | --- |
 | Expand a function or a supported callable inverse | [`AsymptoticExpansion`](Documentation/UserGuide.md#AsymptoticExpansion), held alias [`AsymptoticExpand`](Documentation/UserGuide.md#AsymptoticExpand) |
-| Preserve a built-in expansion result | [Explicit native backends](Documentation/UserGuide.md#native-backend-expansions) |
+| Select a built-in backend or inspect automatic routing | [Native expansion backends](Documentation/UserGuide.md#native-backend-expansions) |
 | Select an inverse by its source endpoint and side | [`AsymptoticInverse`](Documentation/UserGuide.md#AsymptoticInverse) |
 | Add, multiply, compose, or apply an observable | [Series arithmetic](Documentation/UserGuide.md#series-operations) |
 | Change the retained order | [`SeriesTruncate`](Documentation/UserGuide.md#SeriesTruncate), [`SeriesRefine`](Documentation/UserGuide.md#SeriesRefine) |
@@ -118,7 +142,8 @@ The optional `s["SeriesData"]` view can be `Missing` when a native representatio
 would lose remainder information or require excessive allocation. The sparse
 result and its remainder remain available.
 
-An explicit native result instead stores `"Kind" -> "Native"`, its complete
+An explicitly selected or automatically routed native result stores
+`"Kind" -> "Native"`, its complete
 `"NativeResult"`, and `"Remainder" -> Missing["NativeContract"]`. `Normal`
 normalizes that native expression and may retain infinite sums. Native formal
 operations use `s["NativeResult"]`; package analytic operations cannot infer a
@@ -170,8 +195,11 @@ exponential factors occur. See [Other Special Functions](Documentation/UserGuide
 for supported endpoint examples, real-branch and fixed-parameter conditions,
 carrier-specific cutoffs, and exact versus exponentially small contributions.
 
-Support depends on the function, endpoint, scale, and proved branch; an
-unsupported request returns a diagnostic `Failure`. The guide's
+Analytic support depends on the function, endpoint, scale, and proved branch.
+With `"Backend" -> "Package"`, an unsupported request returns a diagnostic
+`Failure`. `Automatic` can route selected representation failures to a native
+backend; native results retain unresolved output when the backend does not
+complete. The guide's
 [possible issues](Documentation/UserGuide.md#possible-issues) explain domain,
 precision, and resource restrictions. Start with the
 [example index](Examples/README.md) for executable Wolfram Language usage.
@@ -180,7 +208,7 @@ describe the implementation and focused tests; the
 [validation record](../validation/README.md) distinguishes recorded test and
 artifact evidence.
 
-## Explicit native backends
+## Native backends and automatic routing
 
 ```wolfram
 s = AsymptoticExpand[Exp[I x], {x, 0, 3}, "Backend" -> "Series"];
@@ -189,14 +217,17 @@ AsymptoticExpansion[Gamma[x], {x, Infinity, 3}, "Backend" -> "Asymptotic"]
 ```
 
 These explicit modes use their native input forms and order conventions;
-native `Series` includes the requested order. The
-[focused acceptance record](../validation/native-compatibility-tests.json)
-reports 130 passed, zero failed across eight selected files for the explicit
-backend milestone. `Automatic` now routes native specifications/options and
-selected representation failures to a native backend, recording native order
-semantics. Successful package calls retain their existing conventions;
-`"Package"` keeps the strict analytic contract. The
+native `Series` includes the requested order. Explicit selection makes one
+native call. `Automatic` routes admitted native specifications/options and
+selected representation failures to compatible native backends. If the
+preferred backend fails or leaves an unresolved call, it tries the other
+compatible backend and records the ordered attempts in `"NativeAttempts"`.
+Successful package calls retain their existing conventions;
+`"Package"` keeps the analytic contract and disables native routing. The
 [compatibility plan](../docs/development/NATIVE_COMPATIBILITY.md) records the
 remaining work toward complete native input coverage.
 See the [native result contract](../docs/development/NATIVE_RESULT_CONTRACTS.md)
 for held request metadata, option conflicts, and analytic-operation boundaries.
+The [focused test guide](Tests/README.md#focused-native-backend-acceptance)
+links the relevant runners and saved results, each tied to its own source
+snapshot; a historical passing total does not validate later source changes.
