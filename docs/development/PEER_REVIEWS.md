@@ -120,3 +120,38 @@ input does not prove an approach side. These address concrete information-loss
 cases. This inspection is not acceptance of that worktree's pending files;
 a later merge still requires an updated native control and relevant Mathics
 observable regressions. No files in either peer worktree were edited.
+
+## September 9, 2026 — merged documentation and Mathics observable audit
+
+A bounded read-only review of `ce55fd2` and the documentation merge
+`1e7a713` found no material claim or API-reference issue in the result-family
+reference, migration notes, and validation boundaries inspected. The 39
+recorded Wolfram example checks remain explicitly separate from Mathics and
+full-package acceptance; rendering receipts are separate artifact evidence.
+The newer `ac91e66` native control and the 2,059 modular / 2,058 standalone
+definition-comparison wording survived the merge. This documentation review
+did not execute kernels or render the article.
+
+Separately, root's post-merge source checks before this audit entry passed for 49 maintained
+Markdown pages, 1,758 local links, and 242 local fragments. Both generated
+guide/reference pages are fresh. The mathematical source check records 31
+chapters, 331 labels, 311 references, and 11 bibliography entries. These are
+current source/artifact consistency checks, not a new kernel run or PDF
+render, and do not replace the earlier revision-specific receipts.
+Repeating the documentation checker after adding the two audit links passes
+with the same counts except for 1,760 local links, and no broken destinations.
+
+The [bounded Mathics observable integration audit](../../validation/mathics-observable-merge-audit.json)
+records all 55 frozen module hashes and the exact input programs after
+`ffe08b1`. Four of eight main fixture groups pass their original exact
+assertions: sine composition, composite normalization, a real coefficient
+of unknown sign, and the Taylor-provider chart/order guards. Of the four
+remaining groups, the source-coordinate case fails conservatively with an
+earlier Mathics refusal tag, the local square-root result uses an equivalent
+exact trigonometric form that does not satisfy the original syntactic
+comparison, and the complex-tail and varying-coordinate cases time out at
+180 seconds. These mismatches and timeouts remain recorded; they are not
+promoted to passing portable-suite evidence. Stage diagnostics are marked
+non-acceptance evidence because their progress output shares a compound
+input with the calculation, which can affect Mathics `Check`. No incorrect
+mathematical result was observed, and no package source changes were made.
