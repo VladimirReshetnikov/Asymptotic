@@ -1,13 +1,18 @@
 # Code review reports
 
-Eighteen review packages are grouped into two waves. Each wave index links the reports, articles, evidence, proposed patches, and package-specific reproduction instructions.
+Twenty-seven review packages are grouped into three waves. Each wave index links the reports, articles, evidence, proposed patches, and package-specific reproduction instructions.
 
 | Wave | Reports | Reviewed version | Date |
 | --- | --- | --- | --- |
 | [Wave 1](wave-1/README.md) | Nine independent review packages, numbered 1–9 | AsymptoticInverse 1.8.0; snapshots `07a9781` and `75de875` | September 9, 2026 |
 | [Wave 2](wave-2/README.md) | Nine incremental review packages, numbered 10–18 | AsymptoticInverse 1.8.0; snapshot `921387e` | September 9, 2026 |
+| [Wave 3](wave-3/README.md) | Nine incremental review packages, numbered 19–27 | AsymptoticAnalysis; snapshot `6687962` | September 9, 2026 |
 
 The maintained [implementation status](../../docs/development/CODE_REVIEW_STATUS.md) consolidates the findings and links completed fixes to focused validation, while tracking pending work and design decisions.
+The [wave-3 intake](../../docs/development/WAVE_3_INTAKE.md) maps its 44
+attributed ledger entries and related proposals. Together with the earlier
+123 entries, the collection has 167 identified report entries before
+consolidating overlaps; this is not a count of distinct current defects.
 
 The wave indexes distinguish source and mathematical checks from native package observations, executed patch checks, and unrun regression specifications. Reviewers' independent test counts are not a combined acceptance run of this repository.
 

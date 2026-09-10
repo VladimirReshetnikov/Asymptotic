@@ -11,14 +11,14 @@ Wolfram reference page.
 | Load and use the package | [User guide (HTML)](../src/Documentation/UserGuide.html) · [Markdown source](../src/Documentation/UserGuide.md) |
 | Rebuild the guide or inspect its examples | [Guide build instructions](../src/Documentation/README.md) · [Examples](../src/Examples/README.md) |
 | Understand implementation contracts and gotchas | [Development notes](development/README.md), including assumptions, native remainder semantics, and real coefficients · [Wolfram evaluation notes](WOLFRAM-NOTES.md) |
-| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Eighteen code review packages in two waves](../external-reports/code-review/README.md) |
+| Track reported issues and proposed changes | [Implementation status](development/CODE_REVIEW_STATUS.md) · [Twenty-seven code review packages in three waves](../external-reports/code-review/README.md) · [Wave-3 intake](development/WAVE_3_INTAKE.md) |
 | Check what was actually validated | [Validation record](../validation/README.md), with focused test results and artifact-specific build and review evidence |
 | Explore related asymptotic and inverse theory | [Vendored ProveIt article catalog](../vendor/proveit/README.md), with TeX/PDF sources, reading lists, and provenance |
-| Read submitted research and reviews | [External reports](../external-reports/README.md): nine original proposals and eighteen later code reviews |
+| Read submitted research and reviews | [External reports](../external-reports/README.md): nine original proposals and twenty-seven later code reviews |
 
 The [native compatibility plan](development/NATIVE_COMPATIBILITY.md) records
-the accepted requirement to cover every input successfully handled by built-in
-`Series` or `Asymptotic`. Explicit native delegation, the held alias, and
+the native comparison target and the interface findings now included in the
+review implementation scope. Explicit native delegation, the held alias, and
 automatic routing for selected native forms and representation limitations
 are implemented. The [226-test rename record](../validation/package-rename-tests.json)
 checks selected cases at checkpoint `a6c90ce`, before the documentation and

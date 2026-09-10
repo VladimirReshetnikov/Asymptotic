@@ -254,7 +254,7 @@ VerificationTest[
 
 VerificationTest[
   Module[{x},
-    MatchQ[AsymptoticExpansion[Exp[x], x -> 0, SeriesTermGoal -> 0],
+    MatchQ[AsymptoticExpansion[Exp[x], x -> 0, SeriesTermGoal -> 0, "Backend" -> "Package"],
       Failure["InvalidCutoff", _Association]] &&
     MatchQ[AsymptoticExpansion[Exp[x], x -> Infinity,
       Direction -> "FromAbove", SeriesTermGoal -> 2], Failure["InvalidDirection", _Association]] &&

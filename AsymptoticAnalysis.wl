@@ -8505,7 +8505,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
 (* END SOURCE: src/Kernel/NativeSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeCompatibility.wl
-   Source SHA256 (UTF-8/LF): 1f4e525fd41add4202291335dc1e1646a236718773d5349b2d8b555016f03314 *)
+   Source SHA256 (UTF-8/LF): b4d385be5f39b86e174f58a59d53133f63dd90651f9b34fcd5e14f5058e6a3e9 *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
    do not resolve native delayed options for a second metadata lookup. *)
@@ -8758,6 +8758,15 @@ automaticPreparedExpansion[request_HoldComplete, original_HoldComplete] := Modul
   goal = OptionValue[AsymptoticExpansion, options, SeriesTermGoal];
   limit = OptionValue[AsymptoticExpansion, options, "MaxTerms"];
   branches = OptionValue[AsymptoticExpansion, options, "InverseFunctionBranches"];
+  (* Native rule-form leading requests admit Automatic and nonpositive
+     integer goals even though those are not package nonzero-block counts.
+     Reuse the common values already consumed above, including delayed ones. *)
+  If[MatchQ[specifications, {HoldComplete[_Rule]}] &&
+      MemberQ[keys, HoldComplete[SeriesTermGoal]] &&
+      (goal === Automatic || (IntegerQ[goal] && goal <= 0)),
+    replay = nativeHeldJoin[Prepend[automaticNativeOption[#, <|
+      Assumptions -> ass, SeriesTermGoal -> goal|>] & /@ Rest[parts], First[parts]]];
+    Return[automaticNativeResult[replay, original, "NativeSpecification"], Module]];
   packageRequest = nativeHeldJoin[Join[Take[parts, 1], specifications,
     With[{a = ass, d = dir, g = goal, m = limit, b = branches},
       {HoldComplete[Assumptions -> a], HoldComplete[Direction -> d],
