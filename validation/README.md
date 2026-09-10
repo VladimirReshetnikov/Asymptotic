@@ -1064,10 +1064,10 @@ mathematics is in the [mathematical article](../docs/article/README.md).
   reverse triangle inequality, and the Hermitian pairing that forms
   `r(r+1)/2` rather than `r^2` coefficient products. Section 16 gains subsection
   16.2 on magnitude bounds not transporting differentiability, with the cusp
-  family `f(x) = x + x^2 Sin[Log[x]]`. The rebuilt PDF has **105 pages**, built
+  family `f(x) = x + x^2 Sin[Log[x]]`. The rebuilt PDF has **106 pages**, built
   with three `pdflatex` passes, no undefined or multiply-defined references and
   no overfull or underfull boxes reported, and SHA-256
-  `ae48c36d2c5ce3f2037a9145afae0247af4c13536b95615128a0eb2d82cd9714`. Pages 15, 16, 52 and 53 were rendered and inspected at full size.
+  `f4cc381431d108e58479329dd08021713f11e1340b7ed8d9d948c598451c5e66`. Pages 15, 16, 53 and 54 were rendered and inspected at full size. Subsection 3.2 also cross-references the formal complex jets and the resolved-coefficient reality lemma of Section 2.
 
 This directory contains focused runners, characterization probes, build and
 provenance tools, benchmarks, and saved evidence from individual milestones.

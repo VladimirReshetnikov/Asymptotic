@@ -28,7 +28,7 @@ was closed *by* removing it.
 | A1 | …its comparator component | C12 | Audit candidate | report 6, the register's cited source |
 | A2 | Exact nonreal expressions such as `ArcSin[2]` bypass a syntactic `Complex`-atom check | C07 | Focused verified | — |
 | A2 | …its native-representation component | B01 | Partial | reports 11, 18 |
-| A3 | A numerical inverse check returns a zero whose uncertainty exceeds the true error | C21 | Focused verified | — |
+| A3 | A numerical inverse check returns a zero whose uncertainty exceeds the true error | C21 | Focused verified for the local-coordinate solve | A3 also asked for an explicit unresolved-error state, which C21 still records as open; retained report 17 (N3) carries it |
 
 The [equal-exponent notes](../../../docs/development/EXPONENT_EQUALITY.md) now
 cite the C14 baseline and the 276/0 acceptance instead of this package's
