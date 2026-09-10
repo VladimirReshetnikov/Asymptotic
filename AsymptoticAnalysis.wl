@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): cd116cb984a1a059510506072f00c22e36afa046e8d1115f2db6a077dfb0136e *)
+   Source SHA256 (UTF-8/LF): ae6b2a9153f5483842b1163b9c87bba0e088dd77aa616518f7993cc111b8fc23 *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -1465,8 +1465,19 @@ powerLogModelEntry[f_, x_Symbol, opts : OptionsPattern[PowerLogModel]] := powerL
 powerLogModelEntry[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use PowerLogModel[f,{x,x0}] or PowerLogModel[f,x]."|>];
 
 Options[InverseExpansionCoefficient] = {"Power" -> 1};
+(* Coefficient queries need the ordinary inverse model, not merely a series
+   result with a finite expression. Check its schema before reading fields. *)
+inverseCoefficientModelQ[model_] := AssociationQ[model] &&
+  And @@ (KeyExistsQ[model, #] & /@
+    {"Gaps", "Polynomials", "LeadingPower", "LogVariable", "Symbolic"}) &&
+  ListQ[model["Gaps"]] && ListQ[model["Polynomials"]] &&
+  Length[model["Gaps"]] === Length[model["Polynomials"]] &&
+  Head[model["LogVariable"]] === Symbol &&
+  MemberQ[{True, False}, model["Symbolic"]] && model["LeadingPower"] =!= 0;
 InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catch[Module[
    {r = OptionValue["Power"], c, ass = Lookup[model, "Assumptions", True]},
+   If[! inverseCoefficientModelQ[model],
+    fail["UnsupportedCoefficientModel", "Give an ordinary inverse coefficient model produced by PowerLogModel or retained by an inverse expansion."]];
    If[Length[k] =!= Length[model["Gaps"]] || ! (And @@ (IntegerQ[#] && # >= 0 & /@ k)),
     fail["InvalidMultiIndex", "Give one nonnegative integer per correction block of the model."]];
    c = lagrangeCoefficient[k, model["Gaps"], model["Polynomials"], model["LeadingPower"], r, model["LogVariable"], ass, model["Symbolic"]];
@@ -1475,12 +1486,19 @@ InverseExpansionCoefficient[model_Association, k_List, OptionsPattern[]] := catc
      "UniformizerExponent" -> ToRadicals[r + c[[1]]], "Assumptions" -> ass,
      "Meaning" -> "(v/a)^Exponent Coefficient[\[FormalL]] with z = (v/a)^(1/p), \[FormalL] = Log[z]"|>]];
 InverseExpansionCoefficient[GeneralizedSeries[a_Association], k_List, opts : OptionsPattern[]] :=
-  If[Lookup[a, "Kind", None] === "Native",
+  Which[Lookup[a, "Kind", None] === "Native",
    Failure["NativeSeriesContract", <|"MessageTemplate" -> "Native results do not supply an inverse coefficient model."|>],
-  If[Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
+  Lookup[a, "Scale", "PowerLog"] === "Logarithmic",
    Failure["Unsupported", <|"MessageTemplate" -> "Lambert coefficients are listed in the logarithmic expansion's Terms property; they have no power-gap multi-index."|>],
+  ! inverseCoefficientModelQ[Lookup[a, "Model", None]] ||
+    ! KeyExistsQ[a, "Power"] || ! KeyExistsQ[a, "ExpansionPoint"],
+   Failure["UnsupportedCoefficientModel", <|
+     "MessageTemplate" -> "This result does not retain an ordinary inverse coefficient model.",
+     "Kind" -> Lookup[a, "Kind", Missing["Unknown"]],
+     "Scale" -> Lookup[a, "Scale", "PowerLog"]|>],
+  True,
    InverseExpansionCoefficient[Join[a["Model"], <|"Assumptions" -> Lookup[a, "Assumptions", Lookup[a["Model"], "Assumptions", True]]|>],
-    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]]];
+    k, "Power" -> If[a["ExpansionPoint"] === Infinity || a["ExpansionPoint"] === -Infinity, -a["Power"], a["Power"]], opts]];
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
