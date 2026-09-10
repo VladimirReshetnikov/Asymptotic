@@ -503,6 +503,15 @@ portableTest["numerical-exact-quadratic-inverse", "numerical",
       TrueQ[Abs[c["ForwardResidual"]] < 10^-15]],
   True];
 
+portableTest["numerical-local-coordinate-huge-offset", "numerical",
+  Module[{x, y, a = 10^100, s, c, exact}, s = AsymptoticInverse[(x - a) + (x - a)^2, {x, a}, {y, 4}];
+    c = InverseNumericalCheck[s, 1/1000, WorkingPrecision -> 10];
+    exact = 2/1000/(1 + Sqrt[1 + 4/1000]);
+    AssociationQ[c] && c["SourceOffset"] === a && c["SourceSide"] === 1 &&
+      TrueQ[Abs[c["LocalRoot"] - exact] < 10^-8] && TrueQ[c["LocalRoot"] > 0] &&
+      TrueQ[Abs[c["RootResidual"]] < 10^-8] && TrueQ[c["Ratio"] < 10]],
+  True];
+
 (* These contracts explicitly distinguish an unavailable Mathics precision
    from an official-kernel high-precision result. Both branches execute the
    public numerical check and verify its actual result. *)

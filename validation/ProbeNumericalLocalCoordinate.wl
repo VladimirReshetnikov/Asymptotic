@@ -1,0 +1,15 @@
+Get["src/Kernel/AsymptoticAnalysis.wl"];
+A = 10^100;
+s = AsymptoticInverse[(x - A) + (x - A)^2, {x, A}, {y, 4}];
+Print[InputForm[Normal[s]]];
+c = InverseNumericalCheck[s, 1/1000, WorkingPrecision -> 50];
+Print[InputForm[If[FailureQ[c], {c[[1]], c[[2]]["MessageTemplate"]}, {c["ReferenceRoot"], Precision[c["ReferenceRoot"]], c["Error"], c["RemainderScale"], c["Ratio"], c["RootResidual"]}]]];
+t = AsymptoticInverse[(x - A)^3 + (x - A)^4, {x, A}, {y, 2}];
+Print[InputForm[Normal[t]]];
+d = InverseNumericalCheck[t, 1/1000, WorkingPrecision -> 50];
+Print[InputForm[If[FailureQ[d], {d[[1]], d[[2]]["MessageTemplate"]}, {d["ReferenceRoot"], d["Error"], d["RemainderScale"], d["Ratio"]}]]];
+u = AsymptoticInverse[x + x^2, {x, 0}, {y, 4}];
+e = InverseNumericalCheck[u, 1/1000, WorkingPrecision -> 50];
+Print[InputForm[{e["ReferenceRoot"], e["Error"], e["Ratio"]}]];
+Print[InputForm[{c["LocalRoot"], c["SourceOffset"], Precision[c["ReferenceRoot"]], c["ReferenceRoot"] - A == c["LocalRoot"], N[2/1000/(1 + Sqrt[1 + 4/1000]) - c["LocalRoot"], 10]}]];
+Print[InputForm[Keys[e]]];

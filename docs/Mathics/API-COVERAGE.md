@@ -8,7 +8,7 @@ The [compatibility status](COMPATIBILITY.md) describes the broader goal.
 
 ## Evidence and current scope
 
-The maintained suite has **111 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation. The additional
+The maintained suite has **112 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation, and the local-coordinate numerical check. The additional
 contracts cover empty lookup state, shared lazy defaults, the empty inverse multi-index, retained
 nonprincipal `ProductLog` proofs, and numerical precision. The quadratic
 integer-root test now also verifies the returned precision. Focused paired
@@ -129,7 +129,7 @@ returned data head and its public evaluation behavior.
 | `GeneralizedSeries` | `loading-reload`, `operations-series-data-reconstruction` | Returned head, `Normal`, properties and reload are **Core**; explicit reconstruction from stored association and exact point evaluation are **Latest**. |
 | `InverseCertificate` | `certificate-exact-rational-root`, `certificate-fixed-center-accuracy-floor`, `certificate-omitted-interval-diagnostic`, `certificate-exact-affine-translation` | Exact rational quadratic-root certificate, explicit fixed-center accuracy-floor failure, the distinct omitted-interval and malformed-interval refusals, and exact affine cancellation under a `2^300` translation. **Core**. |
 | `InverseExpansionCoefficient` | `families-single-index-coefficient`, `operations-empty-inverse-multi-index` | Direct Euler coefficient at index `{2}` with a degree-two formal-log polynomial. **Core**; empty inverse multi-index checked in the later wave-4 batch. |
-| `InverseNumericalCheck` | `numerical-exact-quadratic-inverse`, `numerical-noninteger-quadratic-precision`, `numerical-rational-root-precision`, `numerical-machine-capability-is-usable` | Exact quadratic-root numerical smoke check is **Core**. The wave-4 checks additionally require sufficient returned precision, explicit Mathics refusals for unavailable 30-digit noninteger roots, and a successful 10-digit request. This is not a general numerical-stability certificate. |
+| `InverseNumericalCheck` | `numerical-exact-quadratic-inverse`, `numerical-noninteger-quadratic-precision`, `numerical-rational-root-precision`, `numerical-machine-capability-is-usable`, `numerical-local-coordinate-huge-offset` | Exact quadratic-root numerical smoke check is **Core**. The wave-4 checks additionally require sufficient returned precision, explicit Mathics refusals for unavailable 30-digit noninteger roots, and a successful 10-digit request. The local-coordinate case solves a 10-digit request at a `10^100` source offset. This is not a general numerical-stability certificate. |
 | `InverseResidual` | `inverse-residual` | Exact vanished residual below a quadratic inverse cutoff. **Core**. |
 | `LogarithmicInverseResidual` | `operations-logarithmic-inverse-residual` | Exact zero, vanishing and cutoff metadata for reciprocal-log inversion. **Latest**. |
 | `PerturbativeInverse` | `inverse-perturbative-formula`, `inverse-perturbative-general-core`, `inverse-perturbative-zero-order`, `contracts-perturbative-variables` | Finite formula, nonidentity core, order-zero identity and invalid-variable contract. **Core**, with the explicit normalization reconciliation. |

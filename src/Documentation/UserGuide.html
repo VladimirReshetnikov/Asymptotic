@@ -3878,6 +3878,24 @@ check[&quot;Error&quot;]</code></pre>
 <code>&quot;Power&quot;</code>. <code>&quot;Error&quot;</code> compares that observable with
 the finite approximation. <code>&quot;ExactInverse&quot;</code> is a compatibility
 alias for the numerical reference root.</p>
+<p>The ordinary checker solves in the local source coordinate
+<code>x = SourceOffset + SourceSide u</code>, with <code>u &gt; 0</code>
+on the selected side; at an infinite endpoint the offset is
+<code>0</code>. The exact endpoint is substituted symbolically before
+any numerical evaluation, so a small displacement at a huge source
+origin, such as <code>(x - 10^100) + (x - 10^100)^2</code> at
+<code>x -&gt; 10^100</code>, is solved, tested against the branch and
+compared at full working precision. <code>&quot;LocalRoot&quot;</code> and
+<code>&quot;LocalApproximation&quot;</code> are the local values of <code>u</code>
+for <code>&quot;Power&quot; -&gt; 1</code> and of <code>u^p</code> otherwise;
+<code>&quot;Error&quot;</code>, <code>&quot;ForwardResidual&quot;</code> and
+<code>&quot;RootResidual&quot;</code> are computed locally.
+<code>&quot;ReferenceRoot&quot;</code>, <code>&quot;Approximation&quot;</code> and
+<code>&quot;ApproximationSourceRoot&quot;</code> reconstruct absolute source
+values with enough extra digits to show the displacement, so their
+<code>Precision</code> can exceed <code>WorkingPrecision</code> at a
+large offset. With a zero offset every field agrees with the direct
+computation.</p>
 <p>Use exact targets or targets with sufficient input precision. Exact
 target offsets are subtracted before numerical evaluation. The operation
 also supports the admitted transformed, logarithmic, Fourier, flat,

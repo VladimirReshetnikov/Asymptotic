@@ -135,6 +135,12 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   the default once. An empty key list uses it zero times; multiple missing
   results share one lazy default. See
   [LISTS.md](Mathics/LISTS.md).
+- `Equal` on arbitrary-precision numbers is tolerant in Mathics 10.0.1:
+  `N[10^-12, 10] == 0` evaluates to `True`, while `N[10^-12, 10] > 0` is
+  `True` as well; Wolfram returns `False` for the equality. A zero test on a
+  small numerical scale must therefore be written as `TrueQ[scale > 0]`
+  rather than `TrueQ[scale == 0]`; the numerical checker's `"Ratio"` was
+  `Indeterminate` on Mathics for every small remainder scale until it did.
 - `KeyExistsQ` is not implemented in Mathics 10.0.1: `KeyExistsQ[<|"k" -> 1|>, "k"]`
   stays unevaluated, even for a plain association. The package supplies its
   own adapter inside its compatibility context, so package code may use it,

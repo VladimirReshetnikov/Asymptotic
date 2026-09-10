@@ -30,6 +30,22 @@ suite was run.
   [portable certificate group](wolfram-certificate-interval-tests.json) passes
   3/3 on the official kernel with the new case
   `certificate-omitted-interval-diagnostic`.
+* **C21 — numerical checks in the local source coordinate.** The
+  [baseline transcript](numerical-local-coordinate-baseline.txt) records the
+  review witness `(x - 10^100) + (x - 10^100)^2` failing with `OutsideBranch`
+  before the change. The [twelve-file run](numerical-local-coordinate-tests.json)
+  from [CheckNumericalLocalCoordinate.wl](CheckNumericalLocalCoordinate.wl)
+  passes **245/245**: six new local-coordinate tests and every existing suite
+  that calls `InverseNumericalCheck`. Two corrections preceded acceptance: a
+  new test expected an integer `Precision`, and the first local form used
+  `u^power` instead of the signed `(x - x0)^power` convention, which the
+  existing negative-power left-approach integration test caught. The
+  [official-kernel](wolfram-numerical-local-coordinate-tests.json) and
+  [Mathics](mathics-modular-numerical-local-probe.json) portable numerical
+  groups pass 5/5 each with the new case
+  `numerical-local-coordinate-huge-offset`; on Mathics the case also depends
+  on the `"Ratio"` zero test becoming `scale > 0`, because Mathics' tolerant
+  `Equal` treats a ten-digit `10^-12` as zero.
 * **C22 — bound transport through truncation.** The
   [four-file run](truncation-bounds-tests.json) passes **94/94** from
   [CheckTruncationBounds.wl](CheckTruncationBounds.wl). Its new Zeta and

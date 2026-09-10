@@ -2573,6 +2573,8 @@ check["Error"]
 
 `"ReferenceRoot"` is the numerical source root. `"ReferenceObservable"` is the source observable requested by `"Power"`. `"Error"` compares that observable with the finite approximation. `"ExactInverse"` is a compatibility alias for the numerical reference root.
 
+The ordinary checker solves in the local source coordinate `x = SourceOffset + SourceSide u`, with `u > 0` on the selected side; at an infinite endpoint the offset is `0`. The exact endpoint is substituted symbolically before any numerical evaluation, so a small displacement at a huge source origin, such as `(x - 10^100) + (x - 10^100)^2` at `x -> 10^100`, is solved, tested against the branch and compared at full working precision. `"LocalRoot"` and `"LocalApproximation"` are the local values of `u` for `"Power" -> 1` and of `u^p` otherwise; `"Error"`, `"ForwardResidual"` and `"RootResidual"` are computed locally. `"ReferenceRoot"`, `"Approximation"` and `"ApproximationSourceRoot"` reconstruct absolute source values with enough extra digits to show the displacement, so their `Precision` can exceed `WorkingPrecision` at a large offset. With a zero offset every field agrees with the direct computation.
+
 Use exact targets or targets with sufficient input precision. Exact target offsets are subtracted before numerical evaluation. The operation also supports the admitted transformed, logarithmic, Fourier, flat, core, and special inverse families. Its output is numerical evidence, not an interval certificate.
 
 `WorkingPrecision` is a requested solver setting. The

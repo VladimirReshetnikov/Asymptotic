@@ -38,6 +38,13 @@ as `x - (2^10000 + 1)` with an exact supplied center, now certifies at the
 lowest enclosure order instead of failing at every order. Nonlinear parts
 keep their outward enclosures.
 
+`InverseNumericalCheck` solves in the local source coordinate and reports
+`"LocalRoot"`, `"LocalApproximation"`, `"SourceOffset"` and `"SourceSide"`.
+A small displacement at a huge source origin such as `x -> 10^100` is no
+longer lost; absolute fields gain extra presentation digits at large offsets,
+and zero-offset results are unchanged. See the
+[numerical check guide](../src/Documentation/UserGuide.md#InverseNumericalCheck).
+
 `SeriesTruncate` now transports the explicit tail bound of a large-argument
 `Zeta` or `LerchPhi` expansion instead of discarding it: the truncated result's
 `"AbsoluteRemainderBound"` adds the absolute discarded part, recorded as
