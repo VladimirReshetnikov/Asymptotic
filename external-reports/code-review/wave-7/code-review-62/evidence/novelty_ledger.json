@@ -1,0 +1,56 @@
+{
+  "commit": "efa1aeec4845a9c35e140963a0333d0c9ec33b05",
+  "exclusion_root": "external-reports/code-review",
+  "baseline": "All six wave indexes and the maintained register were screened. Selected articles and targeted predecessor passages were inspected; this is not an exhaustive rereading of every retained article.",
+  "new_finding": {
+    "id": "CG-01",
+    "title": "Operational proof-condition amplification in binary series arithmetic",
+    "mechanism": "seriesAlign installs A AND B; seriesBinary persists A AND (A AND B). Scalar promotion additionally reuses the left domain as the right domain.",
+    "new_evidence": "Native predicate counts 2^(n+1)-1 with a fixed independent zero series; 3^n with scalar zero; merge-only candidate remains 2^n; normalized join candidate constant on selected controls.",
+    "nearest_prior_entries": [
+      {
+        "id": "P07 / report 1 A13 / report 4 A04 / report 7 R02",
+        "distinction": "Existing issue concerns retained operand/recipe/cache provenance and graph sharing. New finding measures only live TargetDomain, with a fixed independent operand and no serialization or refinement. Supplied repair changes condition construction, not recipe representation."
+      },
+      {
+        "id": "P08",
+        "distinction": "General profiling/caching of proof and normalization calls is not re-proposed; duplicate-free predicate propagation is a specific local invariant and code change."
+      },
+      {
+        "id": "wave 6 / report 47 N01",
+        "distinction": "Mathics mutual recursion between sign and realness helpers is a different mechanism. CG-01 is reproduced on Wolfram 15 and originates in shared metadata construction."
+      }
+    ],
+    "novelty_confidence": "No matching condition-merge mechanism was found in the screened material. Whole-corpus absence was not established by GitHub search, which returned empty results even for known source symbols."
+  },
+  "excluded_from_finding_count": [
+    {
+      "topic": "Zero-order differentiation ignores Cutoff",
+      "reason": "Already recorded by wave-3 report 25."
+    },
+    {
+      "topic": "Negative-source Gamma/Barnes powered observables",
+      "reason": "Already covered by wave-2 report 15."
+    },
+    {
+      "topic": "General provenance graph growth and serialization",
+      "reason": "P07; no repeated recommendation."
+    },
+    {
+      "topic": "Source-domain bypass in coordinate numerical helper",
+      "reason": "Public wrapper enforces retained domain; proposed defect refuted by native controls."
+    },
+    {
+      "topic": "Numeric Direction aliases on quadratic adapter",
+      "reason": "Native calls reject invalid aliases rather than silently changing branches."
+    },
+    {
+      "topic": "N[GeneralizedSeries] followed by exact arithmetic",
+      "reason": "Observed exact-input rejection; not promoted to a new mathematical correctness defect."
+    },
+    {
+      "topic": "Cancellation of identical uncertain operands",
+      "reason": "No new defect established under the package remainder semantics."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "commit": "efa1aeec4845a9c35e140963a0333d0c9ec33b05",
+  "scope_note": "Substantial or selected source inspection does not mean every line was reviewed; no module is certified correct.",
+  "substantial_inspection": [
+    "SeriesOperations.wl",
+    "SeriesArithmetic.wl",
+    "MathicsAssumptions.wl",
+    "MathicsTaylor.wl",
+    "MathicsCompatibility.wl",
+    "MathicsNumerical.wl",
+    "MathicsAlgebra.wl",
+    "MathicsTimeBudget.wl",
+    "ParameterizedSpecialFunctions.wl",
+    "SpecialFunctionIdentities.wl",
+    "GammaInverseOperations.wl",
+    "BarnesInverse.wl",
+    "ReciprocalLogOperations.wl",
+    "NumericalInverseChecks.wl",
+    "CoordinateInverse.wl",
+    "SpecialFunctionAdapters.wl"
+  ],
+  "selected_sections": [
+    "AsymptoticAnalysis.wl",
+    "InverseCertificates.wl",
+    "NativeSpecialFunctions.wl",
+    "GammaInverse.wl",
+    "LogarithmicScales.wl"
+  ],
+  "all_six_review_wave_indexes_screened": true,
+  "whole_repository_line_by_line": false,
+  "finding_source_ranges": {
+    "src/Kernel/SeriesOperations.wl": [
+      [
+        123,
+        151
+      ]
+    ],
+    "src/Kernel/SeriesArithmetic.wl": "scalar and regular-operand promotion path; see article"
+  },
+  "source_retrieval": "Pinned GitHub connector reads and selected URLRead reads in Wolfram kernel."
+}

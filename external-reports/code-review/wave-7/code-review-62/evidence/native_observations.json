@@ -1,0 +1,209 @@
+{
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "commit": "efa1aeec4845a9c35e140963a0333d0c9ec33b05",
+  "kernel": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "record_type": "Manual transcription of successful connector outputs; not a captured full-suite log.",
+  "package_loading": "Complete URLRead Body streamed through Get[StringToStream[...]]; symbols fully qualified in submitted code.",
+  "observations": {
+    "baseline_fixed_zero_chain": {
+      "input": "s=AsymptoticExpansion[x,{x,0,3},\"Backend\"->\"Package\"]; z=AsymptoticExpansion[0,{x,0,3},\"Backend\"->\"Package\"]; repeated SeriesAdd[s,z]",
+      "final_Normal": "x",
+      "rows": [
+        {
+          "step": 0,
+          "domain_leaf_count": 3,
+          "copies_of_x_gt_0": 1,
+          "object_byte_count": 4584,
+          "step_seconds": null
+        },
+        {
+          "step": 1,
+          "domain_leaf_count": 10,
+          "copies_of_x_gt_0": 3,
+          "object_byte_count": 15968,
+          "step_seconds": 0.017234
+        },
+        {
+          "step": 2,
+          "domain_leaf_count": 22,
+          "copies_of_x_gt_0": 7,
+          "object_byte_count": 28464,
+          "step_seconds": 0.003814
+        },
+        {
+          "step": 3,
+          "domain_leaf_count": 46,
+          "copies_of_x_gt_0": 15,
+          "object_byte_count": 43088,
+          "step_seconds": 0.005528
+        },
+        {
+          "step": 4,
+          "domain_leaf_count": 94,
+          "copies_of_x_gt_0": 31,
+          "object_byte_count": 60112,
+          "step_seconds": 0.006444
+        },
+        {
+          "step": 5,
+          "domain_leaf_count": 190,
+          "copies_of_x_gt_0": 63,
+          "object_byte_count": 81744,
+          "step_seconds": 0.008595
+        },
+        {
+          "step": 6,
+          "domain_leaf_count": 382,
+          "copies_of_x_gt_0": 127,
+          "object_byte_count": 113936,
+          "step_seconds": 0.010146
+        },
+        {
+          "step": 7,
+          "domain_leaf_count": 766,
+          "copies_of_x_gt_0": 255,
+          "object_byte_count": 168144,
+          "step_seconds": 0.01323
+        },
+        {
+          "step": 8,
+          "domain_leaf_count": 1534,
+          "copies_of_x_gt_0": 511,
+          "object_byte_count": 266384,
+          "step_seconds": 0.027537
+        }
+      ],
+      "timing_scope": "One unreplicated session; no speedup, confidence interval, peak RSS, or asymptotic runtime fit inferred."
+    },
+    "baseline_scalar_zero_chain": {
+      "steps": 4,
+      "copies": [
+        3,
+        9,
+        27,
+        81
+      ],
+      "Normal_at_every_step": "x"
+    },
+    "merge_only_candidate_scalar_zero_chain": {
+      "replacement_occurrences": 1,
+      "steps": 4,
+      "copies": [
+        2,
+        4,
+        8,
+        16
+      ],
+      "Normal_at_every_step": "x",
+      "disposition": "Insufficient repair. Retained only as an explanatory counterexample."
+    },
+    "complete_candidate": {
+      "replacement_occurrences": [
+        1,
+        1
+      ],
+      "validation_mode": "Exact source substitutions in pinned standalone before loading; same expressions as candidate, explanatory comments/whitespace differ.",
+      "fixed_zero_chain_copies": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "scalar_zero_chain_copies": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "scalar_one_multiplication_chain_copies": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "Normal_at_every_step": "x",
+      "distinct_parameter_control": {
+        "Normal": "(a+b)*x",
+        "Assumptions": "a>0 && b>0",
+        "TargetDomain": "x>0"
+      },
+      "contradictory_parameter_control": {
+        "left_assumptions": "a>0",
+        "right_assumptions": "a<0",
+        "result": "Failure[\"IncompatibleDomains\", ...]"
+      }
+    },
+    "ordinary_observable_screen": {
+      "source_functions": [
+        "1+x+x^2",
+        "Exp[x]",
+        "1/(1-x)",
+        "Sin[x]",
+        "Log[1+x]",
+        "x/(1+x)"
+      ],
+      "observables": [
+        "z^2",
+        "1/z",
+        "Sqrt[z]",
+        "Exp[z]",
+        "Sin[z]",
+        "Cos[z]",
+        "Log[z]"
+      ],
+      "attempted_combinations": 42,
+      "eligible_checked": 41,
+      "discrepancies": 0,
+      "scope": "Unchanged baseline only. GeneralizedSeries results with numeric 0<RemainderPower<20. One combination was not assessed; original response did not identify which. Residual checked through Ceiling[RemainderPower]-1 with native Series. This is not a proof or a Mathics run."
+    },
+    "source_domain_controls": [
+      {
+        "function": "ConditionalExpression[Exp[x^2],x>3]",
+        "endpoint": "Infinity",
+        "cutoff": 3,
+        "target": "E^4",
+        "result": "Failure[\"OutsideBranch\", ...]",
+        "reference_root": "2"
+      },
+      {
+        "function": "ConditionalExpression[Exp[x^2],x>3]",
+        "endpoint": "Infinity",
+        "cutoff": 3,
+        "target": "E^16",
+        "result": "Association",
+        "reference_root": "4",
+        "SourceDomainVerified": true
+      },
+      {
+        "function": "ConditionalExpression[Exp[x^2+x],x>3]",
+        "endpoint": "Infinity",
+        "cutoff": 3,
+        "target": "E^6",
+        "coordinate_kind": "TargetLog",
+        "result": "Failure[\"OutsideBranch\", ...]",
+        "reference_root": "2"
+      },
+      {
+        "function": "ConditionalExpression[Exp[x^2+x],x>3]",
+        "endpoint": "Infinity",
+        "cutoff": 3,
+        "target": "E^20",
+        "coordinate_kind": "TargetLog",
+        "result": "Association",
+        "reference_root": "4",
+        "error_approx": "4.227989247773039874871e-9",
+        "ratio_approx": "0.00015126514185853949585"
+      }
+    ]
+  },
+  "not_executed": [
+    "Actual Mathics3 package execution",
+    "Complete upstream test suite",
+    "Full supplied probe runner as one program",
+    "Full staged modular patch integration",
+    "Full staged standalone candidate integration through supplied Python CLI",
+    "Patched 41-case observable screen",
+    "Performance comparison on matched replicated sessions"
+  ],
+  "service_failures": "Several connector calls returned 502/network errors, including candidate attempts and simple version probes. Only successful outputs are transcribed above. No source correctness conclusion is drawn from those failures."
+}
