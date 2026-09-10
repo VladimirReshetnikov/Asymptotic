@@ -45,9 +45,15 @@ condition on an observable is proved only on an exact jet. The standalone
 builder's Mathics bootstrap keeps association delimiters whole. `SeriesAdd`
 and `SeriesMultiply` now transport the explicit tail bound of `Zeta` and
 `LerchPhi` expansions, recording `"ArithmeticDiscardedPart"`, and the
-certificate evaluator memoizes its affine recognizer within one attempt. See
+certificate evaluator memoizes its affine recognizer within one attempt. The
+certificate logarithm keeps relative precision near one: a rational below one
+is enclosed as the negated logarithm of its reciprocal, and a rational affine
+argument passes its exact range to the logarithm instead of a dyadically
+rounded interval, so `Log[1 - 2^-200]` and `Log[1 + 2^-200]` certificates at
+enclosure order 2 succeed instead of failing with
+`ResidualBracketOutsideInterval`. See
 the [implementation register](development/CODE_REVIEW_STATUS.md) (wave-7
-reports 56–62, C22, wave-5 reports 39 N02 and 42 N02).
+reports 56–63, C22, wave-5 reports 39 N02 and 42 N02).
 
 ### Modulus of nonreal expansions
 

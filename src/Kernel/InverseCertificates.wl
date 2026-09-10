@@ -94,6 +94,11 @@ certLogPoint[q_?certRationalQ, ctx_] := Module[{exponent, z, unit, logTwo},
   If[q <= 0, certFail["IntervalDomain", "A logarithm argument is not strictly positive.",
     <|"UnprovedCondition" -> (q > 0), "Argument" -> q|>]];
   If[q === 1, Return[{0, 0}, Module]];
+  (* Below one, Log[q] = -Log[1/q] keeps relative precision: reducing
+     1 - delta as Log[2 - 2 delta] - Log[2] subtracts two near-equal unit
+     enclosures and straddles zero for every fixed order once delta is small
+     (report 63 F01). *)
+  If[q < 1, Return[certNeg[certLogPoint[1/q, ctx]], Module]];
   exponent = IntegerLength[Numerator[q], 2] - IntegerLength[Denominator[q], 2];
   If[q < 2^exponent, exponent--];
   z = q/2^exponent;
@@ -109,6 +114,13 @@ certLog[a_, ctx_] := (
 (* Apply logarithmic identities only after each factor has acquired a real
    logarithm enclosure. No unrestricted PowerExpand is used. *)
 certLogExpression[argument_, x_, interval_, ctx_] := Module[{candidate},
+  (* A rational affine argument keeps its exact range through the logarithm.
+     Rounding 1 + delta to the dyadic grid first turns the singleton into
+     [1, 1 + 2^(1 - Bits)], whose logarithm must contain zero however
+     accurately it is then computed (report 63 F02). *)
+  If[MemberQ[{Plus, Times}, Head[argument]],
+   candidate = certAffineRange[argument, x, interval];
+   If[ListQ[candidate], Return[certLog[candidate, ctx], Module]]];
   If[argument === E, Return[{1, 1}, Module]];
   If[Head[argument] === Power && argument[[1]] === E,
    Return[certEnclose[argument[[2]], x, interval, ctx], Module]];

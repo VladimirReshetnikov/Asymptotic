@@ -259,7 +259,7 @@ an obligation already recorded as R16 O01/O02 under X04/X05. Reports 47 N01 and
 50 E2 fall inside P08's stated lanes and 48 P1 inside P06's, and are governed by
 those items' acceptance rules rather than by new entries.
 
-Wave 7 supplied reports 56–62 at `efa1aee` (report 57 at `8f28084`), all seven
+Wave 7 supplied reports 56–63 at `efa1aee` (report 57 at `8f28084`), all eight
 retained and indexed in the [wave-7 index](../../external-reports/code-review/wave-7/README.md).
 **It has no consolidated intake**; its entries are outside the 231 counted
 above. Every defect it reports is repaired and pinned in
@@ -283,8 +283,16 @@ and `O(y^-4)` errors against true `Θ(y^-1)`); the standalone builder's Mathics
 bootstrap splitter keeps association delimiters whole (59 N02); and a
 membership predicate is proved only on an exact jet, where a cancelled complex
 Taylor tail made an everywhere-false condition look true at a low cutoff
-(61 N01). The Lerch enclosure and transition proposals (56 E01, 58 E01) and the
-Hermitian half-spectrum prototype (61 H01) are recorded under X05 and X02.
+(61 N01); and the exact-rational certificate logarithm keeps relative precision
+near one, where a rational just below one was reduced as `Log[2 - 2 delta] -
+Log[2]` and straddled zero at every fixed order, and an exact affine argument
+was rounded to the dyadic grid before the logarithm (63 F01, F02; below one
+the point logarithm now negates the logarithm of the reciprocal, and a rational
+affine argument passes its exact range to the logarithm, so the three public
+witnesses certify at enclosure order 2 without refinement instead of failing
+with `ResidualBracketOutsideInterval`). The Lerch enclosure and transition
+proposals (56 E01, 58 E01), the Hermitian half-spectrum prototype (61 H01) and
+the centered log-ratio residual (63 E01) are recorded under X05 and X02.
 
 The first wave-4 [runner repair](../../validation/wave4-runner-integrity-tests.json)
 records **32 passed, 0 failed focused Python tests** on Windows, using synthetic
@@ -810,7 +818,7 @@ inputs outside its proved contract.
 | X02 | Shared coefficient algebra for rational/reciprocal logarithms, iterated slow variables, and compatible retained Gamma/Barnes cores. Improve ordered arithmetic, selected composition, Fourier term goals/refinement, and nonvanishing oscillatory coefficients under explicit hypotheses. Preserve conservative composite envelopes when no ordered closure is proved. Wave-7 report 61 H01 supplies an exact Hermitian half-spectrum prototype for Fourier-polynomial products (18 instead of 35 polynomial multiplications in its matched count), a candidate for the Fourier coefficient work here, not a measured package speedup. | [R2 roadmap][R2-article], [R5 specialized scales][R5-article], [R7 roadmap][R7-roadmap], [R8 extensions][R8-article]., wave-7 [61 H01](../../external-reports/code-review/wave-7/README.md) |
 | X03 | Integration of already constructed germs with an explicit integration constant/normalization, exponent `-1` resonance, coordinate Jacobian, and integrable remainder condition. This is a proposed operation, not a replacement for native asymptotic integration. | [R2 roadmap][R2-article], [R3 roadmap][R3-article], [R4 extensions][R4-article], [R5 roadmap][R5-article], [R8 extensions][R8-article]. |
 | X04 | A source-differentiation/re-expansion operation can complement differentiation under a retained derivative contract. It must not infer derivatives of unknown magnitude remainders. | [R16 O01/O02][R16]; [R3 roadmap][R3-article] (retired). |
-| X05 | Quantitative tail bounds from checked majorants, stronger interval subdivision/polynomial enclosures, and original-function Gamma/Barnes/Erfc inverse certificates. Require explicit function and derivative bounds; a high-precision residual or a finite asymptotic model is insufficient. Wave-7 report 56 E01 supplies a proved positive Euler-difference enclosure for `LerchPhi[-q, s, a]` including `q = 1`, and 58 E01 an additive prototype with a signed remainder bound for the unsupported Lerch transition regime; both are reference implementations outside the package. | [R3 roadmap][R3-article], [R4 certification][R4-article], [R5 certification][R5-article], [R6 future work][R6-article], [R8 certification][R8-article]., wave-7 [56 E01, 58 E01](../../external-reports/code-review/wave-7/README.md) |
+| X05 | Quantitative tail bounds from checked majorants, stronger interval subdivision/polynomial enclosures, and original-function Gamma/Barnes/Erfc inverse certificates. Require explicit function and derivative bounds; a high-precision residual or a finite asymptotic model is insufficient. Wave-7 report 56 E01 supplies a proved positive Euler-difference enclosure for `LerchPhi[-q, s, a]` including `q = 1`, and 58 E01 an additive prototype with a signed remainder bound for the unsupported Lerch transition regime; both are reference implementations outside the package. Report 63 E01 proposes a positivity-guarded centered log-ratio residual, `Log[p] - Log[q] = Log[p/q]` for an exact rational affine `p` and positive rational `q`, which keeps an exact zero at a rational center; its primitive is exercised by the wave-7 regressions, but the residual integration (positivity evidence, equation provenance, existing root checks) is not implemented. | [R3 roadmap][R3-article], [R4 certification][R4-article], [R5 certification][R5-article], [R6 future work][R6-article], [R8 certification][R8-article]., wave-7 [56 E01, 58 E01, 63 E01](../../external-reports/code-review/wave-7/README.md) |
 | X06 | Independent proof records/checkers for rational interval arithmetic, finite residual identities, and local remainder transport; optional proof-assistant formalization of this small trusted core. Keep formal identity, asymptotic theorem, numerical evidence, and root certification distinct. | [R2 roadmap][R2-article], [R3 verification boundary][R3-article], [R5 evidence architecture][R5-article], [R6 future work][R6-article], [R7 evidence][R7-roadmap], [R8 certification][R8-article]. |
 | X07 | Finite conditional parameter cases when a bounded decision procedure proves them. Keep a separate chart, branch and precision contract per case, and retain an inconclusive-within-budget outcome. | [R5 longer-range work][R5-article]. |
 | X08 | Multiple independent exponential rates, different phase orders, and nested transseries. Require rate-vector/valuation ordering, local finiteness, resonance handling, and adequate algebraic zero-sector precision. This is substantially larger than X01. | [R2 roadmap][R2-article], [R4 extensions][R4-article], [R5 longer-range work][R5-article], [R7 roadmap][R7-roadmap]. |

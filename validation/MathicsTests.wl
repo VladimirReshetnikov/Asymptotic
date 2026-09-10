@@ -534,6 +534,22 @@ portableTest["certificate-exact-affine-translation", "certificate",
       c["RootEnclosure"] === {a + 1/2, a + 1/2} && c["ResidualEnclosure"] === {0, 0}],
   True];
 
+portableTest["certificate-logarithm-near-one-relative-precision", "certificate",
+  Module[{x, y, d = 2^-200, a, b, c, summary},
+    summary[r_, root_] := AssociationQ[r] && TrueQ[r["Certified"]] &&
+      TrueQ[r["RootEnclosure"][[1]] <= root <= r["RootEnclosure"][[2]]] &&
+      TrueQ[r["CertifiedErrorBound"] < d/8] && r["Refinements"] === 0;
+    a = AsymptoticInverse[Log[x], {x, 1}, {y, 3}, Direction -> "FromBelow"];
+    b = AsymptoticInverse[Log[1 + x], {x, 0}, {y, 3}];
+    c = AsymptoticInverse[Log[1 + x], {x, 0}, {y, 3}, Direction -> "FromBelow"];
+    {summary[InverseCertificate[a, Log[1 - d], "Interval" -> {1 - 2 d, 1 - d/2}, "Center" -> 1 - d,
+       "EnclosureOrder" -> 2, "MaxRefinements" -> 0], 1 - d],
+     summary[InverseCertificate[b, Log[1 + d], "Interval" -> {d/2, 2 d}, "Center" -> d,
+       "EnclosureOrder" -> 2, "MaxRefinements" -> 0], d],
+     summary[InverseCertificate[c, Log[1 - d], "Interval" -> {-2 d, -d/2}, "Center" -> -d,
+       "EnclosureOrder" -> 2, "MaxRefinements" -> 0], -d]}],
+  {True, True, True}];
+
 portableTest["numerical-exact-quadratic-inverse", "numerical",
   Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
     c = InverseNumericalCheck[s, 4, WorkingPrecision -> 30];

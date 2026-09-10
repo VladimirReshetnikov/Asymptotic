@@ -208,8 +208,11 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-The suite now contains **120 cases**. The newest cases check the omitted-interval
-certificate diagnostic, Zeta truncation bound transport, exact affine certificate translation the local-coordinate numerical check at a `10^100` offset, explicit coefficient power precedence, the residual target-offset label, and the explicit `Erfc`, `LogGamma`, `Gamma` and `LambertThreshold` adapters with the Erfc numerical contract; the earlier wave-4 additions cover reused empty
+The suite now contains **129 cases**. The newest cases check the report-63
+logarithmic certificate witnesses near one, the two-sided `Limit` and
+`FirstPosition` option grammar, the wave-6 assumption protector, positive
+grammar and rational seed, the omitted-interval
+certificate diagnostic, Zeta truncation bound transport, exact affine certificate translation, the local-coordinate numerical check at a `10^100` offset, explicit coefficient power precedence, the residual target-offset label, and the explicit `Erfc`, `LogGamma`, `Gamma` and `LambertThreshold` adapters with the Erfc numerical contract; the earlier wave-4 additions cover reused empty
 lookup lists, shared lazy defaults, an empty inverse multi-index, conservative
 nonprincipal branch proofs, and numerical precision. The final focused Windows
 checks pass **8/8 in both layouts on both kernels**, including the strengthened

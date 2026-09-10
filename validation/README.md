@@ -1041,10 +1041,24 @@ platform-conditional statement that the Windows host cannot exercise.
 
 ## Wave-7 contract repairs
 
-The [ten-file run](wave7-contract-tests.json) from
-[CheckWave7Contracts.wl](CheckWave7Contracts.wl) passes **192/192** on
-Wolfram 15.0.1 for Windows with unchanged sources. Its six new cases in
+The [twelve-file run](wave7-contract-tests.json) from
+[CheckWave7Contracts.wl](CheckWave7Contracts.wl) passes **245/245** on
+Wolfram 15.0.1 for Windows with unchanged sources; the two certificate suites
+joined the runner with report 63. Its eight new cases in
 [ReviewWave7Contracts.wlt](../src/Tests/ReviewWave7Contracts.wlt) pin report
+63's certificate logarithm (the point logarithm of `1 - 2^-200` at order 2
+and 48 bits is negative with relative width below `2^-44`, the exact affine
+`Log[1 + x]` at the singleton `2^-200` is positive with the same relative
+width, six point logarithms on both sides of one contain the true value, the
+exact-one and nonpositive-domain controls are unchanged, a nonaffine argument
+and a positive product with negative factors still use the direct route, and
+the centered ratio `(1 + x)/(1 + 2^-200)` gives the exact `{0, 0}`) and its
+three public witnesses, `Log[x]` from below at one and `Log[1 + x]` on either
+side of zero, certified at enclosure order 2 without refinement with the
+known root inside the enclosure and an error bound below `2^-203`; the first
+version of the containment case emitted `N::meprec` because `N[Log[1 -
+2^-200], 300]` needs more than the default `$MaxExtraPrecision`, and raises
+it inside the test. The earlier cases pin report
 56's amplified complex tail (`Sin` and `Cos` refused with
 `UnprovedRealRemainder`, `Abs` and a vanishing envelope accepted), the
 idempotent conjunction after five self-additions and, for report 62, after
@@ -1059,7 +1073,12 @@ Lipschitz constant, and an unresolved `O(1)` error is refused rather than
 bounded. Report 57's charged-constant case is pinned in the Dirichlet suite,
 which runs inside the [wave-6 boundary run](wave6-boundaries-tests.json)
 (**185/185**). The [standalone builder tests](test_standalone.py) cover
-association delimiters in three spellings (59 N02).
+association delimiters in three spellings (59 N02). The portable case
+`certificate-logarithm-near-one-relative-precision` runs the three report-63
+witnesses in the Mathics `certificate` group; its
+[modular](mathics-modular-wave7-certificate-tests.json) and
+[standalone](mathics-standalone-wave7-certificate-tests.json) receipts are
+recorded below once the runs complete.
 
 ## C22 arithmetic transport and the affine memo
 

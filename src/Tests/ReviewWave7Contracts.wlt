@@ -81,3 +81,44 @@ VerificationTest[
    contradictory[[1]]}],
  {{1}, {1}, {1}, True, True, True, True, True, "IncompatibleDomains"},
  TestID -> "binary-arithmetic-keeps-one-copy-of-each-aligned-operational-condition"]
+
+(* Report 63 F01/F02: the exact-rational certificate logarithm keeps relative
+   precision just below one (reciprocal reduction) and for an exact affine
+   argument near one (exact range passed to the logarithm), so the three
+   public witnesses certify at enclosure order 2 without refinement. *)
+VerificationTest[
+ Module[{x, d = 2^-200, ctx = <|"SeriesOrder" -> 2, "Bits" -> 48, "ExponentMagnitudeLimit" -> 10000|>,
+   below, affine, contained, fallback, product},
+  below = AsymptoticAnalysis`Private`certLogPoint[1 - d, ctx];
+  affine = AsymptoticAnalysis`Private`certLogExpression[1 + x, x, {d, d}, ctx];
+  contained = Block[{$MaxExtraPrecision = 1000}, And @@ Table[With[{v = AsymptoticAnalysis`Private`certLogPoint[q, ctx]},
+     v[[1]] <= N[Log[q], 300] <= v[[2]]], {q, {1/3, 999/1000, 1 - d, 1/1024, 1 + d, 7/5}}]];
+  fallback = AsymptoticAnalysis`Private`certLogExpression[x^2 + x, x, {2, 2}, ctx];
+  product = AsymptoticAnalysis`Private`certLogExpression[(x - 3) (x - 4), x, {1, 1}, ctx];
+  {below[[2]] < 0, (below[[2]] - below[[1]])/d < 2^-44,
+   affine[[1]] > 0, (affine[[2]] - affine[[1]])/d < 2^-44, contained,
+   AsymptoticAnalysis`Private`certLogPoint[1, ctx],
+   First[AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certLogPoint[0, ctx]]],
+   First[AsymptoticAnalysis`Private`catch[AsymptoticAnalysis`Private`certLogExpression[1 + x, x, {-2, -1}, ctx]]],
+   fallback[[1]] <= N[Log[6], 100] <= fallback[[2]], product[[1]] <= N[Log[6], 100] <= product[[2]],
+   AsymptoticAnalysis`Private`certLogExpression[(1 + x)/(1 + d), x, {d, d}, ctx]}],
+ {True, True, True, True, True, {0, 0}, "IntervalDomain", "IntervalDomain", True, True, {0, 0}},
+ TestID -> "certificate-logarithm-keeps-relative-precision-near-one"]
+
+VerificationTest[
+ Module[{x, y, d = 2^-200, a, b, c, summary},
+  summary[r_, root_] := If[AssociationQ[r],
+    {TrueQ[r["Certified"]], TrueQ[r["RootEnclosure"][[1]] <= root <= r["RootEnclosure"][[2]]],
+     TrueQ[r["CertifiedErrorBound"] < d/8], r["EnclosureOrder"], r["Refinements"]},
+    {r[[1]], r[[2]]["Reason"]}];
+  a = AsymptoticInverse[Log[x], {x, 1}, {y, 3}, Direction -> "FromBelow"];
+  b = AsymptoticInverse[Log[1 + x], {x, 0}, {y, 3}];
+  c = AsymptoticInverse[Log[1 + x], {x, 0}, {y, 3}, Direction -> "FromBelow"];
+  {summary[InverseCertificate[a, Log[1 - d], "Interval" -> {1 - 2 d, 1 - d/2}, "Center" -> 1 - d,
+     "EnclosureOrder" -> 2, "MaxRefinements" -> 0], 1 - d],
+   summary[InverseCertificate[b, Log[1 + d], "Interval" -> {d/2, 2 d}, "Center" -> d,
+     "EnclosureOrder" -> 2, "MaxRefinements" -> 0], d],
+   summary[InverseCertificate[c, Log[1 - d], "Interval" -> {-2 d, -d/2}, "Center" -> -d,
+     "EnclosureOrder" -> 2, "MaxRefinements" -> 0], -d]}],
+ {{True, True, True, 2, 0}, {True, True, True, 2, 0}, {True, True, True, 2, 0}},
+ TestID -> "certificate-logarithmic-witnesses-certify-at-the-lowest-order-without-refinement"]
