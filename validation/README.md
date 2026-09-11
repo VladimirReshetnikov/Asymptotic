@@ -1019,6 +1019,22 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Hypergeometric defining series on Mathics
+
+The Mathics defining-series provider builds rising factorials as explicit
+products and admits terminating sums of any rank and exact negative
+noninteger lower parameters (W4-08). Before the change, the public
+`AsymptoticExpansion[Hypergeometric0F1[3/2, x], {x, 0, 4}]` and the
+`2F1(1/3, 2/3; 5/4; x)` control were aborted silently on Mathics 10.0.1 with
+the pre-session standalone (`8d42b5d`); the portable cases
+`special-hypergeometric-parameter-admission` and
+`special-hypergeometric-defining-series` now pass **2/2** in the
+[modular](mathics-modular-wave7-hypergeometric-tests.json) and
+[standalone](mathics-standalone-wave7-hypergeometric-tests.json) layouts,
+and the same case bodies give the same values on Wolfram 15.0.1 through
+native `Series` (checked in a Wolfram kernel; the provider is not loaded
+there).
+
 ## Scale-coordinate branches and eventual-sign certificates
 
 The [twelve-file run](scale-coordinate-branch-tests.json) from

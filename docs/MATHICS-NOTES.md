@@ -264,6 +264,14 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   formula correct while corrupting its remainder metadata. Validate both.
   Likewise, Fourier exponential identities do not replace the separate
   real-conjugacy and frequency-budget checks.
+- `Pochhammer[a, k]` with an exact rational `a` evaluates to factorial
+  ratios such as `(-3/2)! (1/3)!^2/((-2/3)!^2 (-1/2)!)`, and a request whose
+  coefficients contain such forms was aborted silently: `CheckAbort` reports
+  `$Aborted`, no message is printed, and a `-f` script continues with the
+  next statement leaving the assignment unmade. The defining-series
+  provider therefore builds rising factorials as explicit products of
+  `a + j`, which keep exact rationals as rationals. Test a suspected silent
+  abort with `CheckAbort[expr, "aborted"]`, not with `Check`.
 - The tested Mathics two-argument `ProductLog[k, z]` lacks a numerical arity
   implementation and converts to SymPy using the wrong argument order. In particular,
   `N[ProductLog[0, E]]` can return `-Infinity`. Package-created principal

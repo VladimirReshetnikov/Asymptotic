@@ -566,6 +566,33 @@ portableTest["callable-eventual-sign-certificate-primitives", "callable",
      prove[u < a, a > 0], prove[u - u^3 < 0, True], prove[Inequality[0, Less, u, Less, 10^-40], True]}],
   {True, False, True, True, False, True}];
 
+(* W4-08: the Mathics defining-series provider admits an exact negative
+   noninteger lower parameter of a nonterminating sum and still refuses a
+   divergent rank and a lower parameter at a pole. Mathics itself evaluates
+   terminating sums to polynomials before the provider is reached. *)
+portableTest["special-hypergeometric-parameter-admission", "special",
+  Module[{x, s, mathicsQ = StringContainsQ[$Version, "Mathics"], value, provider, model},
+    value[e_] := N[e /. x -> 1/10, 20];
+    model[upper_, lower_, n_] := Total[Table[(Times @@ (Pochhammer[#, k] & /@ upper))/(Factorial[k] Times @@ (Pochhammer[#, k] & /@ lower)) x^k, {k, 0, n}]];
+    provider[e_] := If[mathicsQ, AsymptoticAnalysis`Mathics`mathicsDefiningTaylor[e, {x, 0, 3}, True], Series[e, {x, 0, 3}]];
+    s = AsymptoticExpansion[Hypergeometric2F1[1/3, 1/3, -1/2, x], {x, 0, 3}];
+    {If[MatchQ[s, _GeneralizedSeries], {Abs[value[Normal[s]] - value[model[{1/3, 1/3}, {-1/2}, 2]]] < 10^-15, s["RemainderPower"]}, s[[1]]],
+     Abs[value[Normal[provider[HypergeometricPFQ[{1/3, 1/3, 1/3}, {-1/2, 5/2}, x]]]] - value[model[{1/3, 1/3, 1/3}, {-1/2, 5/2}, 3]]] < 10^-15,
+     If[mathicsQ, {AsymptoticAnalysis`Mathics`mathicsDefiningTaylor[HypergeometricPFQ[{1, 1, 1}, {1/2}, x], {x, 0, 3}, True],
+        AsymptoticAnalysis`Mathics`mathicsDefiningTaylor[HypergeometricPFQ[{1/3, 1/3}, {-2}, x], {x, 0, 3}, True]}, {$Failed, $Failed}]}],
+  {{True, 3}, True, {$Failed, $Failed}}];
+
+(* The defining-series provider builds rising factorials as explicit
+   products, so hypergeometric expansions carry exact rational coefficients
+   on Mathics instead of aborting on factorial-ratio forms. *)
+portableTest["special-hypergeometric-defining-series", "special",
+  Module[{x, a, b},
+    a = AsymptoticExpansion[Hypergeometric0F1[3/2, x], {x, 0, 4}];
+    b = AsymptoticExpansion[Hypergeometric2F1[1/3, 2/3, 5/4, x], {x, 0, 3}];
+    {If[MatchQ[a, _GeneralizedSeries], {Expand[Normal[a] - (1 + 2 x/3 + 2 x^2/15 + 4 x^3/315)], a["RemainderPower"]}, a[[1]]],
+     If[MatchQ[b, _GeneralizedSeries], {Expand[Normal[b] - (1 + 8 x/45 + 64 x^2/729)], b["RemainderPower"]}, b[[1]]]}],
+  {{0, 4}, {0, 3}}];
+
 portableTest["numerical-exact-quadratic-inverse", "numerical",
   Module[{x, y, s, c}, s = AsymptoticInverse[x^2, {x, Infinity}, {y, 1}];
     c = InverseNumericalCheck[s, 4, WorkingPrecision -> 30];

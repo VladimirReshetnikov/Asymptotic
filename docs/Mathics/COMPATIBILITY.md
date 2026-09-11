@@ -208,7 +208,9 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-The suite now contains **131 cases**. The newest cases check the W4-03
+The suite now contains **133 cases**. The newest cases check the W4-08
+hypergeometric defining series with exact rational coefficients and its
+parameter admission, the W4-03
 tiny-neighbourhood approach condition and eventual-sign certificate
 primitives, the report-63
 logarithmic certificate witnesses near one, the two-sided `Limit` and

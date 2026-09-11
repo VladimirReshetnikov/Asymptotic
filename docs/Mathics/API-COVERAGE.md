@@ -8,7 +8,7 @@ The [compatibility status](COMPATIBILITY.md) describes the broader goal.
 
 ## Evidence and current scope
 
-The maintained suite has **131 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation, the local-coordinate numerical check, explicit coefficient power precedence, the residual offset label, the four explicit special-function adapters with the Erfc numerical contract, the wave-6 protector, positive-grammar and rational-seed cases, the two-sided `Limit` and `FirstPosition` option-grammar cases, the report-63 logarithmic certificate witnesses, and the wave-4 W4-03 tiny-neighbourhood condition with its eventual-sign certificate primitives. The additional
+The maintained suite has **133 cases** after wave-4 hardening, the omitted-interval certificate diagnostic, the Zeta truncation bound transport, and the exact affine certificate translation, the local-coordinate numerical check, explicit coefficient power precedence, the residual offset label, the four explicit special-function adapters with the Erfc numerical contract, the wave-6 protector, positive-grammar and rational-seed cases, the two-sided `Limit` and `FirstPosition` option-grammar cases, the report-63 logarithmic certificate witnesses, the wave-4 W4-03 tiny-neighbourhood condition with its eventual-sign certificate primitives, and the W4-08 hypergeometric defining-series cases. The additional
 contracts cover empty lookup state, shared lazy defaults, the empty inverse multi-index, retained
 nonprincipal `ProductLog` proofs, and numerical precision. The quadratic
 integer-root test now also verifies the returned precision. Focused paired

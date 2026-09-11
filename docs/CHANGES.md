@@ -15,6 +15,16 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Hypergeometric defining series on Mathics
+
+On Mathics, expansions of `Hypergeometric0F1`, `Hypergeometric1F1`,
+`Hypergeometric2F1` and `HypergeometricPFQ` at zero now succeed with exact
+rational coefficients; the defining-series provider previously produced
+factorial-ratio coefficients that aborted the request silently. The provider
+also admits terminating sums of any rank and exact negative noninteger lower
+parameters, while a lower parameter at a pole and a divergent nonterminating
+rank are still refused (wave-4 W4-08). The official kernel is unaffected.
+
 ### Proved scale-coordinate branches and exact eventual signs
 
 A regular operand beside an expansion whose scale coordinate has several
