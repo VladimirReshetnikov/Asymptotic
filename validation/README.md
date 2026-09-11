@@ -1188,6 +1188,50 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## Remaining register items: source admission, monotonicity certificate, equivalent requests
+
+Three suites close the last open register items.
+[ReviewSourceAdmission.wlt](../src/Tests/ReviewSourceAdmission.wlt) (C16)
+pins that an opaque head with five assumed-real derivatives is refused on
+the package path with `UnsupportedSourceHead` (before the gate in the
+forward dispatcher it received `PowerLogRemainder[x, 3, 0]` through the
+unary analytic route), that a derivative of an opaque head is refused, that
+the Automatic search delegates the same source natively under the formal
+contract, and that built-in heads, pure-function inverses and user
+functions evaluating to built-in heads are expanded as before; the rule is
+written in [SOURCE_ADMISSION.md](../docs/development/SOURCE_ADMISSION.md).
+[ReviewPolynomialMonotonicity.wlt](../src/Tests/ReviewPolynomialMonotonicity.wlt)
+(wave-5 report 43 E01) exercises the exact Sturm certificate on the quintic
+`t - 2 t^3/3 + t^5/5` (two double stationary points), `t^3`, a septic with
+a positive sextic derivative, and the refused `t - t^3`, `t^2`, a constant
+and a symbolic coefficient, and expands the quintic inverse and a cubic with
+a double stationary point at infinity.
+[ReviewEquivalentRequests.wlt](../src/Tests/ReviewEquivalentRequests.wlt)
+(B04) is the differential-behavior catalog: alpha-renaming, rule-form
+against list-form specifications, string against symbol option spellings,
+assumption clause order, constant multiples, sums of sources against
+`SeriesAdd`, and inverse alpha-renaming over six sources. The eighteen-file
+[CheckRemainingItems.wl](CheckRemainingItems.wl) run (these three suites
+with the inverse-function, native, request-resolution, operation,
+expanded-input, observable, special-function, proof-context and callable
+suites) passes **338/338** on Wolfram 15.0.1 for Windows with unchanged
+sources ([remaining-items-tests.json](remaining-items-tests.json), official
+kernel; the MCP evaluator agrees). That run also caught a regression of the
+September 10 proof-context change: the exact-numeric fast path of
+`realPolynomialCondition` skipped the `FullSimplify` fallback, so
+`ArcSin[2] + ArcCos[2]` (real, `Pi/2`) was refused as unproved in the
+observable-ingress suite; the fallback is restored and that suite passes
+29/29 again. On Mathics the quintic case first failed with
+`IncompleteInverseBranchInference`: the local branch validator proved the
+sign of the source near its point through a forward jet under an
+8-second budget, and the quintic's jet takes about 11 s on Mathics 10.0.1
+(the cubic's 6.8 s), so the sign was dropped although the certificate held.
+`inverseBranchSign` now decides a polynomial sign question exactly with the
+eventual-sign prover before forming any jet, on both kernels. The portable cases
+`callable-quintic-inverse-with-even-multiplicity-stationary-points`,
+`primitive-source-admission-refuses-opaque-heads` and
+`primitive-equivalent-requests-catalog` pin the same on Mathics.
+
 ## One inventory for the portable suite and the CI matrix (W4-14)
 
 [run_mathics_tests.py](run_mathics_tests.py) and

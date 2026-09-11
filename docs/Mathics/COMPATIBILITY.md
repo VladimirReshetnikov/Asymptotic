@@ -208,7 +208,9 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-The suite now contains **138 cases**. The newest cases check the W4-17
+The suite now contains **141 cases**. The newest cases check the source
+admission gate (C16), the polynomial monotonicity certificate (43 E01) and the
+equivalent-request catalog (B04), the W4-17
 loading lifecycle (an abort inside a companion module restores the caller's
 context, and a load from a stale package context returns to `` Global` ``),
 the W4-15 adapter postconditions (all six checks hold, and the predicate

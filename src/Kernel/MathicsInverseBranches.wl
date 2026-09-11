@@ -60,7 +60,7 @@ If[DownValues[mathicsOriginalGlobalMonotonicity] === {},
       inverseBranchGlobalMonotonicity -> mathicsOriginalGlobalMonotonicity];
 Clear[inverseBranchGlobalMonotonicity];
 inverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[
-  {derivative = D[body, x], positive, negative},
+  {derivative = D[body, x], positive, negative, certificate},
   If[! PolynomialQ[body, x] || ! mathicsConvexRealDomainQ[domain, x, ass],
     Return[mathicsOriginalGlobalMonotonicity[body, x, domain, ass], Module]];
   positive = inverseBranchTry[FullSimplify[derivative > 0,
@@ -73,6 +73,10 @@ inverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[
   If[TrueQ[negative],
     Return[<|"Type" -> "StrictDerivativeOnRealInterval", "Sign" -> -1,
       "Domain" -> domain, "Derivative" -> derivative|>, Module]];
+  (* An even-multiplicity stationary point defeats the strict sign proofs
+     above; the exact Sturm certificate (report 43 E01) decides it. *)
+  certificate = inverseBranchPolynomialMonotonicity[body, x];
+  If[AssociationQ[certificate], Return[Join[certificate, <|"Domain" -> domain|>], Module]];
   None];
 
 (* For an affine expression on 0<u<r, every value is a strict convex

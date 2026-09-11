@@ -629,7 +629,7 @@ s = AsymptoticExpansion[a + Sin[a] x, {x, 0, 2},
 {a + Sin[a] x, 0}
 ```
 
-Without the realness assumption, a coefficient `a` produces `Failure["UnprovedRealCoefficient", ...]` in strict `"Package"` mode. Automatic mode can instead retain a native formal result; that result does not assert real coefficients. A real argument alone does not make every function value real: `ArcSin[a]` needs a suitable interval assumption, such as `-1 < a < 1`, for a real analytic representation.
+A source applying a function head outside the built-in contexts, such as an undefined `g[x]` or `Derivative[1][g][x]`, produces `Failure["UnsupportedSourceHead", ...]` in strict `"Package"` mode even when its derivatives are assumed real: the package cannot know the regularity of such a function, so it grants no analytic remainder; Automatic mode delegates it natively under the formal contract. Without the realness assumption, a coefficient `a` produces `Failure["UnprovedRealCoefficient", ...]` in strict `"Package"` mode. Automatic mode can instead retain a native formal result; that result does not assert real coefficients. A real argument alone does not make every function value real: `ArcSin[a]` needs a suitable interval assumption, such as `-1 < a < 1`, for a real analytic representation.
 
 Contributions at equal powers are combined and simplified before their coefficients are checked. For example:
 

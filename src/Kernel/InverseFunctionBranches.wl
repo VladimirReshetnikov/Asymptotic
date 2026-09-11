@@ -47,9 +47,88 @@ inverseBranchContinuousQ[body_, x_] := Module[{heads},
     Sinh, Cosh, Tanh, Coth, Sech, Csch, ArcSin, ArcCos, ArcTan,
     ArcSinh, ArcCosh, ArcTanh, Erf, Erfc, Gamma, LogGamma, BarnesG, LogBarnesG, ProductLog}, #] & /@ heads)];
 
+(* Polynomial monotonicity certificate (wave-5 report 43 E01). A polynomial
+   with exact rational coefficients is strictly monotone on the whole real
+   line when its derivative keeps one sign and vanishes only at isolated
+   points: the derivative's factors of odd multiplicity (Yun's squarefree
+   decomposition, computed with exact rational coefficient lists) must have no
+   real root, which a Sturm chain of that odd part certifies exactly, and the
+   derivative's leading coefficient gives the direction. Stationary points of
+   even multiplicity, such as the two real zeros of (1 - t^2)^2, do not break
+   strict monotonicity. Whole-line strictness implies strictness and
+   injectivity on every real domain, so no domain proof is needed. Nothing
+   here asserts a positive slope lower bound or an inverse error bound. *)
+inverseBranchRationalQ[v_] := IntegerQ[v] || Head[v] === Rational;
+inverseBranchPolyTrim[c_List] := Module[{list = c},
+  While[list =!= {} && Last[list] === 0, list = Most[list]]; list];
+inverseBranchPolyDegree[c_List] := Length[c] - 1;
+inverseBranchPolyDerivative[c_List] := inverseBranchPolyTrim[Table[k c[[k + 1]], {k, 1, Length[c] - 1}]];
+inverseBranchPolyMultiply[a_List, b_List] := inverseBranchPolyTrim[
+  Table[Sum[If[1 <= k - j + 1 <= Length[b], a[[j]] b[[k - j + 1]], 0], {j, 1, Length[a]}], {k, 1, Length[a] + Length[b] - 1}]];
+inverseBranchPolyRemainder[a_List, b_List] := Module[{r = inverseBranchPolyTrim[a], shift, factor},
+  While[r =!= {} && Length[r] >= Length[b],
+    shift = Length[r] - Length[b]; factor = Last[r]/Last[b];
+    r = inverseBranchPolyTrim[r - factor Join[ConstantArray[0, shift], b]]];
+  r];
+inverseBranchPolyQuotient[a_List, b_List] := Module[{r = inverseBranchPolyTrim[a], q, shift, factor},
+  q = ConstantArray[0, Max[Length[a] - Length[b] + 1, 1]];
+  While[r =!= {} && Length[r] >= Length[b],
+    shift = Length[r] - Length[b]; factor = Last[r]/Last[b];
+    q[[shift + 1]] = factor;
+    r = inverseBranchPolyTrim[r - factor Join[ConstantArray[0, shift], b]]];
+  inverseBranchPolyTrim[q]];
+inverseBranchPolyMonic[c_List] := If[c === {}, c, c/Last[c]];
+inverseBranchPolyGCD[a_List, b_List] := Module[{x = inverseBranchPolyTrim[a], y = inverseBranchPolyTrim[b], r},
+  While[y =!= {}, r = inverseBranchPolyRemainder[x, y]; x = y; y = r];
+  inverseBranchPolyMonic[x]];
+(* Yun: the product of the squarefree factors of odd multiplicity. *)
+inverseBranchPolyOddPart[c_List] := Module[{d = inverseBranchPolyTrim[c], g, b, cc, factor, i = 1, odd = {1}, guard = 0},
+  If[Length[d] <= 1, Return[odd, Module]];
+  g = inverseBranchPolyGCD[d, inverseBranchPolyDerivative[d]];
+  b = inverseBranchPolyQuotient[d, g];
+  cc = inverseBranchPolyTrim[inverseBranchPolyQuotient[inverseBranchPolyDerivative[d], g] - inverseBranchPolyDerivative[b]];
+  While[Length[b] > 1 && guard++ < 128,
+    factor = inverseBranchPolyGCD[b, cc];
+    If[Length[factor] > 1 && OddQ[i], odd = inverseBranchPolyMultiply[odd, factor]];
+    b = inverseBranchPolyQuotient[b, factor];
+    cc = inverseBranchPolyTrim[inverseBranchPolyQuotient[cc, factor] - inverseBranchPolyDerivative[b]];
+    i++];
+  odd];
+inverseBranchSturmChain[c_List] := Module[{chain, r, guard = 0},
+  chain = {c, inverseBranchPolyDerivative[c]};
+  If[Last[chain] === {}, Return[{c}, Module]];
+  While[guard++ < 128,
+    r = inverseBranchPolyRemainder[chain[[-2]], chain[[-1]]];
+    If[r === {}, Break[]];
+    AppendTo[chain, -r]];
+  chain];
+inverseBranchSignAtInfinity[c_List, direction_] := If[c === {}, 0,
+  Sign[Last[c]] If[direction === 1 || EvenQ[Length[c] - 1], 1, -1]];
+inverseBranchSignVariations[signs_List] := Module[{nonzero = DeleteCases[signs, 0]},
+  Count[Partition[nonzero, 2, 1], {a_, b_} /; a =!= b]];
+inverseBranchRealRootCount[c_List] := Module[{chain = inverseBranchSturmChain[c]},
+  inverseBranchSignVariations[inverseBranchSignAtInfinity[#, -1] & /@ chain] -
+    inverseBranchSignVariations[inverseBranchSignAtInfinity[#, 1] & /@ chain]];
+(* The certificate for a polynomial body: None when the body is not a
+   rational polynomial of degree at most 64, is constant, or is not strictly
+   monotone on the real line. *)
+inverseBranchPolynomialMonotonicity[body_, x_] := Module[{coefficients, derivative, odd, sign},
+  If[! PolynomialQ[body, x], Return[None, Module]];
+  coefficients = inverseBranchPolyTrim[CoefficientList[body, x]];
+  If[Length[coefficients] <= 1 || Length[coefficients] > 65 ||
+      ! And @@ (inverseBranchRationalQ /@ coefficients), Return[None, Module]];
+  derivative = inverseBranchPolyDerivative[coefficients];
+  odd = inverseBranchPolyOddPart[derivative];
+  If[OddQ[Length[odd] - 1] || inverseBranchRealRootCount[odd] =!= 0, Return[None, Module]];
+  sign = Sign[Last[derivative]];
+  <|"Type" -> "PolynomialSturmCertificate", "Sign" -> sign,
+    "Derivative" -> D[body, x], "StationaryRealRoots" -> inverseBranchRealRootCount[derivative],
+    "OddMultiplicityPart" -> odd,
+    "Proof" -> "The derivative's factors of odd multiplicity have no real root (Sturm count 0), so the derivative keeps the sign of its leading coefficient and vanishes only at isolated points; the body is strictly monotone on the whole real line."|>];
+
 inverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[
   {left = Unique["left$"], right = Unique["right$"], middle = Unique["middle$"],
-   convex, derivative, positive, negative, ratio},
+   convex, derivative, positive, negative, ratio, certificate},
   If[! inverseBranchContinuousQ[body, x], Return[None, Module]];
   convex = inverseBranchTry[Reduce[ass && (domain /. x -> left) && (domain /. x -> right) &&
     left < middle < right && ! (domain /. x -> middle), {left, middle, right}, Reals]];
@@ -63,6 +142,10 @@ inverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[
   If[! TrueQ[negative], negative = inverseBranchTry[Reduce[ass && domain && derivative >= 0, x, Reals]] === False];
   If[TrueQ[negative], Return[<|"Type" -> "StrictDerivativeOnRealInterval", "Sign" -> -1,
     "Domain" -> domain, "Derivative" -> derivative|>, Module]];
+  (* A rational polynomial body with an even-multiplicity stationary point
+     (report 43 E01) is certified exactly when the sign proofs above fail. *)
+  certificate = inverseBranchPolynomialMonotonicity[body, x];
+  If[AssociationQ[certificate], Return[Join[certificate, <|"Domain" -> domain|>], Module]];
   (* Article Proposition 4.2: x(3+2 Log[x]) has minimum -2 Exp[-5/2]
      on x>0. A nonzero real scalar preserves strict monotonicity. *)
   If[TrueQ[inverseBranchTry[FullSimplify[x > 0, ass && domain && Element[x, Reals]]]],
@@ -93,6 +176,15 @@ inverseBranchEventualQ[predicate_, u_, ass_, radius_] := Module[{simple, bad, go
   If[good === False, False, None]];
 
 inverseBranchSign[expression_, u_, ass_, radius_, limit_] := Module[{ell = Unique["branchLog$"], jet, row, degree, leading},
+  (* A polynomial sign question is decided exactly by the eventual-sign
+     prover before any jet is formed: on Mathics the jet of a quintic exceeds
+     the validator's time budget (about 11 s against 8), which left the
+     quintic of report 43 E01 unresolved although its certificate held. *)
+  If[PolynomialQ[expression, u] && FreeQ[ass, u],
+    If[TrueQ[inverseFunctionEventually[expression > 0, u, ass]],
+      Return[<|"Sign" -> 1, "Type" -> "ExactEventualSign"|>, Module]];
+    If[TrueQ[inverseFunctionEventually[expression < 0, u, ass]],
+      Return[<|"Sign" -> -1, "Type" -> "ExactEventualSign"|>, Module]]];
   jet = inverseBranchTry[catch[forwardJet[expression, u, ell, ass, 1, limit]]];
   If[ListQ[jet] && Length[jet] === 3 && jet[[1]] =!= {},
     row = First[jet[[1]]]; degree = polyDegree[row[[2]], ell];

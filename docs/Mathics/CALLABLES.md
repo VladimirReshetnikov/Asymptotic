@@ -42,6 +42,11 @@ supplies three exact facts for a bounded class of conditional inverse calls:
   proved real under them is admitted, so `InverseFunction[Function[t, a t +
   t^3]][x]` under `a > 0` expands as in the official kernel; an unknown or
   nonreal coefficient keeps the conservative refusal (wave-4 W4-03).
+- A rational polynomial body whose derivative has real zeros of even
+  multiplicity (`t - 2 t^3/3 + t^5/5`) is certified strictly monotone by
+  an exact Sturm certificate where `FullSimplify` cannot prove the strict
+  derivative sign, so its inverse expands as in the official kernel
+  (wave-5 report 43 E01).
 
 The existing branch validator still checks the conditional source domain,
 the target limit, the approach side, and the local derivative sign. When a

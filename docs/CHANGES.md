@@ -13,6 +13,29 @@ remain open: Wolfram built-in input coverage, Mathics compatibility, and all
 asymptotics in the vendored article corpus. The changes below are implemented
 milestones within that scope.
 
+## September 11, 2026
+
+### Source admission, polynomial monotonicity certificate, equivalent requests
+
+A source applying a function head outside the built-in contexts (an
+undefined `g[x]`, `Derivative[1][g][x]`, a user-context function) is refused
+on the package path with `Failure["UnsupportedSourceHead", ...]`: a few
+assumed-real derivatives are not a regularity proof, so no analytic
+remainder is granted; the Automatic search still delegates such a source
+natively under the formal contract ([source admission](development/SOURCE_ADMISSION.md), C16).
+A rational polynomial body whose derivative has real zeros of even
+multiplicity, such as `t - 2 t^3/3 + t^5/5`, is certified strictly
+monotone by an exact Sturm certificate where the strict sign proofs fail,
+so its inverse expands on both kernels (wave-5 report 43 E01). The
+equivalent-request catalog pins alpha-renaming, rule-form against
+list-form specifications, option spellings, assumption clause order,
+constant multiples and sums of sources (B04). The exact-numeric fast path
+of the coefficient reality proof, introduced on September 10, skipped the
+`FullSimplify` fallback and refused `ArcSin[2] + ArcCos[2]` as unproved;
+the fallback is restored. The branch validator's local sign proof decides a
+polynomial question exactly before forming a jet, so a source whose jet is
+slow on Mathics is no longer left unresolved within the validator's budget.
+
 ## September 10, 2026
 
 ### Portable suite inventory is checked, not assumed

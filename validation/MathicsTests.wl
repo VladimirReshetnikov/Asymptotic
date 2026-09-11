@@ -650,6 +650,49 @@ portableTest["primitive-polynomial-domain-proof-with-assumptions", "primitive",
     "MathicsOnly"],
   If[StringContainsQ[$Version, "Mathics"], {True, True, True, False, False, False, True}, "MathicsOnly"]];
 
+(* Wave-5 report 43 E01: a rational polynomial body whose derivative has
+   even-multiplicity real zeros is strictly monotone; the exact Sturm
+   certificate decides it where the strict sign proofs fail, so the quintic
+   inverse expands on both kernels. *)
+portableTest["callable-quintic-inverse-with-even-multiplicity-stationary-points", "callable",
+  Module[{x, t, s, c},
+    s = AsymptoticExpansion[ConditionalExpression[InverseFunction[Function[t, t - 2 t^3/3 + t^5/5]][x], x > 0], {x, 0, 6}];
+    c = AsymptoticAnalysis`Private`inverseBranchPolynomialMonotonicity;
+    {If[MatchQ[s, _GeneralizedSeries], {Expand[Normal[s] - (x + 2 x^3/3 + 17 x^5/15)], s["RemainderPower"]}, s[[1]]],
+     c[t - 2 t^3/3 + t^5/5, t]["StationaryRealRoots"], c[t^3, t]["Sign"], c[-t - t^3, t]["Sign"],
+     c[t - t^3, t], c[t^2, t], c[t^7/7 - 2 t^5/5 + t^3/3 + t, t]["StationaryRealRoots"]}],
+  {{0, 7}, 2, 1, -1, None, None, 0}];
+
+(* C16: a source applying a function head outside the built-in contexts has
+   no proved regularity and is refused on the package path, even with
+   assumed-real derivatives; built-in heads are expanded as before. *)
+portableTest["primitive-source-admission-refuses-opaque-heads", "primitive",
+  Module[{x, g, refused, derivative, builtin},
+    refused = AsymptoticExpansion[g[x], {x, 0, 3}, "Backend" -> "Package",
+      Assumptions -> Element[g[0], Reals] && Element[Derivative[1][g][0], Reals] && Element[Derivative[2][g][0], Reals]];
+    derivative = AsymptoticExpansion[Exp[x] + Derivative[1][g][x], {x, 0, 3}, "Backend" -> "Package"];
+    builtin = AsymptoticExpansion[Sin[x] + Erf[x], {x, 0, 4}, "Backend" -> "Package"];
+    {refused[[1]], refused[[2]]["Heads"] === {g}, derivative[[1]],
+     If[MatchQ[builtin, _GeneralizedSeries], Expand[Normal[builtin] - (x - x^3/6 + 2 x/Sqrt[Pi] - 2 x^3/(3 Sqrt[Pi]))], builtin[[1]]],
+     AsymptoticAnalysis`Private`opaqueSourceHeads[Exp[x] + Function[t, t^2][x] + g[x]] === {g}}],
+  {"UnsupportedSourceHead", True, "UnsupportedSourceHead", 0, True}];
+
+(* B04: requests that differ only in spelling or by a controlled
+   transformation give the same expansion. *)
+portableTest["primitive-equivalent-requests-catalog", "primitive",
+  Module[{x, y, signature, sources, direct, renamed, listForm, ruleForm, scaled},
+    signature[s_] := If[MatchQ[s, _GeneralizedSeries], {Expand[Normal[s]], s["RemainderPower"]}, s[[1]]];
+    (* Two sources and cutoff 3 keep the ten expansions inside the Mathics
+       per-case deadline; the official-kernel catalog covers six sources. *)
+    sources[v_] := {Exp[v] + v^2, Sqrt[1 + v]};
+    direct = signature[AsymptoticExpansion[#, {x, 0, 3}, "Backend" -> "Package"]] & /@ sources[x];
+    renamed = (signature[AsymptoticExpansion[#, {y, 0, 3}, "Backend" -> "Package"]] /. y -> x) & /@ sources[y];
+    listForm = signature[AsymptoticExpansion[#, {x, 0}, SeriesTermGoal -> 2, "Backend" -> "Package"]] & /@ sources[x];
+    ruleForm = signature[AsymptoticExpansion[#, x -> 0, SeriesTermGoal -> 2, "Backend" -> "Package"]] & /@ sources[x];
+    scaled = signature[AsymptoticExpansion[3 #, {x, 0, 3}, "Backend" -> "Package"]] & /@ sources[x];
+    {renamed === direct, listForm === ruleForm, scaled === ({Expand[3 #[[1]]], #[[2]]} & /@ direct)}],
+  {True, True, True}];
+
 (* W4-08: the Mathics defining-series provider admits an exact negative
    noninteger lower parameter of a nonterminating sum and still refuses a
    divergent rank and a lower parameter at a pole. Mathics itself evaluates

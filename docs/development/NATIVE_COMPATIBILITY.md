@@ -132,8 +132,10 @@ rule forms select `Asymptotic`.
 Remaining inputs try the package engine. Only the following failures permit
 fallback: `InexactInput`, `UnprovedRealCoefficient`, `UnsupportedInput`,
 `UnsupportedCoefficient`, `SymbolicExponent`, `ComplexExponent`,
-`LogarithmicLeadingPower`, `ExponentialScale`, `UnsupportedNumber`, and
-`InfiniteSeries`. Invalid options, inverse-branch failures, domain failures,
+`LogarithmicLeadingPower`, `ExponentialScale`, `UnsupportedNumber`,
+`InfiniteSeries`, and `UnsupportedSourceHead` (a source applying a function
+head outside the built-in contexts, whose regularity the package cannot
+know; see [source admission](SOURCE_ADMISSION.md)). Invalid options, inverse-branch failures, domain failures,
 undecidable ordering and resource failures are not general fallback triggers.
 
 Native results record `BackendSelection -> Automatic`, a reason of

@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): c04399db5a9714252855d94399f493f8cc99c70d8da649dbf52d645f8071543a *)
+   Source SHA256 (UTF-8/LF): 5f780d71b66ee6d56d659bac2d3b0f13fc43db8c80b0f94d2e34d5c67e32705a *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -421,7 +421,11 @@ realPolynomialCondition[p_, ell_, ass_] := Module[{coefficients = CoefficientLis
   (* Exact numbers need no assumptions: this also keeps Simplify from
      evaluating the assumptions themselves for every numeric coefficient. *)
   If[And @@ (NumericQ[#] && exactQ[#] & /@ coefficients),
-    Return[Simplify[And @@ (Element[#, Reals] & /@ coefficients)], Module]];
+    condition = Simplify[And @@ (Element[#, Reals] & /@ coefficients)];
+    (* The same fallback as below: ArcSin[2] + ArcCos[2] is real only
+       through FullSimplify's cancellation to Pi/2. *)
+    Return[If[condition === True || condition === False, condition,
+      TimeConstrained[FullSimplify[condition], 1, condition]], Module]];
   condition = Simplify[And @@ (Element[#, Reals] & /@ coefficients), ass];
   If[condition === True || condition === False, condition,
     TimeConstrained[FullSimplify[condition, ass], 1, condition]]];
@@ -644,6 +648,9 @@ fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e], parameterized},
    h === Exp, fwdExp[fwd[e[[1]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
    h === Sqrt, fwdPower[fwd[e[[1]], u, ell, ass, Kw, limit], 1/2, u, ell, ass, Kw, limit],
    h === Abs, fwdAbs[fwd[e[[1]], u, ell, ass, Kw, limit], ell, ass, u, Kw, limit],
+   (* A head outside the admitted contexts has no proved regularity (C16);
+      the generic jet refuses it. *)
+   opaqueSourceHeads[e] =!= {}, fwdSeries[e, u, ell, ass, Kw, limit],
    Length[e] == 1, fwdAnalytic[h, fwd[e[[1]], u, ell, ass, Kw, limit], e, u, ell, ass, Kw, limit],
    True, fwdSeries[e, u, ell, ass, Kw, limit]]];
 
@@ -824,8 +831,30 @@ nativeRefineSeriesTail[first_, second_, ell_, ass_] := Module[{delta, pd},
   {first[[1]], pd[[1]], pd[[2]]}];
 
 (* The optional extra native probe supplies evidence, never a guessed degree. *)
-fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, first, s2, second},
+(* Source admission (C16). The generic native jet is a formal Taylor
+   expansion, and the package grants it an analytic power-log remainder only
+   for heads whose regularity the native Series knows: System` functions
+   (Sin, BesselJ, Erf, ...), whose analytic branches it expands truthfully
+   or leaves unexpanded. A head that involves any other symbol (an undefined
+   g[x], Derivative[1][g], a user-context function) carries no regularity
+   information, so a few provably real derivatives must not become an
+   analytic remainder claim; such a source is refused on the package path,
+   while a native backend still delegates it under its formal contract.
+   Formal variables of pure functions and package symbols are not opaque
+   heads; parameters occur as arguments, never as heads. *)
+sourceAdmittedContextQ[s_Symbol] := With[{context = Context[s]},
+  context === "System`" || (StringLength[context] >= 19 && StringTake[context, 19] === "AsymptoticAnalysis`")];
+opaqueSourceHeads[e_] := Module[{formal, heads},
+  formal = DeleteDuplicates[Flatten[Cases[e, HoldPattern[Function[v_, ___]] :> Flatten[{v}], {0, Infinity}, Heads -> True]]];
+  heads = DeleteDuplicates[Cases[e, f_[___] :> f, {0, Infinity}, Heads -> True]];
+  DeleteDuplicates[Select[Flatten[Cases[{#}, s_Symbol, {0, Infinity}, Heads -> True] & /@ heads],
+    ! MemberQ[formal, #] && ! sourceAdmittedContextQ[#] &]]];
+fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, first, s2, second, opaque},
   If[Kw === Infinity, fail["InfiniteSeries", "The expression is not a finite power-log sum and no finite working order was given.", <|"Expression" -> e|>]];
+  opaque = opaqueSourceHeads[e];
+  If[opaque =!= {},
+    fail["UnsupportedSourceHead", "The package analytic engine expands built-in functions whose regularity the native Series knows; a source applying a user-defined or undefined function head has no proved regularity, so no analytic remainder is granted. Select a native backend for a formal expansion.",
+      <|"Heads" -> opaque, "Expression" -> e|>]];
   order = Max[1, Ceiling[canon[Kw]]];
   s = Quiet[Series[e, {u, 0, order}, Assumptions -> ass && u > 0]];
   first = nativePowerLogSeries[s, u, ell, ass, Kw, limit];
@@ -6269,7 +6298,7 @@ inverseFunctionApplicationData[___] :=
 (* END SOURCE: src/Kernel/InverseFunctionSyntax.wl *)
 
 (* BEGIN SOURCE: src/Kernel/InverseFunctionBranches.wl
-   Source SHA256 (UTF-8/LF): 727c43fd3e873a3853caa82ddbbd83be18d1923353e8be62f154e904e804eafe *)
+   Source SHA256 (UTF-8/LF): 4a0de1b0dc591eca6f5bfdf29a94a6f86b72bb5b68c519ae4d768d9045dbac10 *)
 (* Real local branches for unevaluated InverseFunction nodes. This module
    never equates a bounded candidate search with a completeness proof. *)
 
@@ -6319,9 +6348,88 @@ inverseBranchContinuousQ[body_, x_] := Module[{heads},
     Sinh, Cosh, Tanh, Coth, Sech, Csch, ArcSin, ArcCos, ArcTan,
     ArcSinh, ArcCosh, ArcTanh, Erf, Erfc, Gamma, LogGamma, BarnesG, LogBarnesG, ProductLog}, #] & /@ heads)];
 
+(* Polynomial monotonicity certificate (wave-5 report 43 E01). A polynomial
+   with exact rational coefficients is strictly monotone on the whole real
+   line when its derivative keeps one sign and vanishes only at isolated
+   points: the derivative's factors of odd multiplicity (Yun's squarefree
+   decomposition, computed with exact rational coefficient lists) must have no
+   real root, which a Sturm chain of that odd part certifies exactly, and the
+   derivative's leading coefficient gives the direction. Stationary points of
+   even multiplicity, such as the two real zeros of (1 - t^2)^2, do not break
+   strict monotonicity. Whole-line strictness implies strictness and
+   injectivity on every real domain, so no domain proof is needed. Nothing
+   here asserts a positive slope lower bound or an inverse error bound. *)
+inverseBranchRationalQ[v_] := IntegerQ[v] || Head[v] === Rational;
+inverseBranchPolyTrim[c_List] := Module[{list = c},
+  While[list =!= {} && Last[list] === 0, list = Most[list]]; list];
+inverseBranchPolyDegree[c_List] := Length[c] - 1;
+inverseBranchPolyDerivative[c_List] := inverseBranchPolyTrim[Table[k c[[k + 1]], {k, 1, Length[c] - 1}]];
+inverseBranchPolyMultiply[a_List, b_List] := inverseBranchPolyTrim[
+  Table[Sum[If[1 <= k - j + 1 <= Length[b], a[[j]] b[[k - j + 1]], 0], {j, 1, Length[a]}], {k, 1, Length[a] + Length[b] - 1}]];
+inverseBranchPolyRemainder[a_List, b_List] := Module[{r = inverseBranchPolyTrim[a], shift, factor},
+  While[r =!= {} && Length[r] >= Length[b],
+    shift = Length[r] - Length[b]; factor = Last[r]/Last[b];
+    r = inverseBranchPolyTrim[r - factor Join[ConstantArray[0, shift], b]]];
+  r];
+inverseBranchPolyQuotient[a_List, b_List] := Module[{r = inverseBranchPolyTrim[a], q, shift, factor},
+  q = ConstantArray[0, Max[Length[a] - Length[b] + 1, 1]];
+  While[r =!= {} && Length[r] >= Length[b],
+    shift = Length[r] - Length[b]; factor = Last[r]/Last[b];
+    q[[shift + 1]] = factor;
+    r = inverseBranchPolyTrim[r - factor Join[ConstantArray[0, shift], b]]];
+  inverseBranchPolyTrim[q]];
+inverseBranchPolyMonic[c_List] := If[c === {}, c, c/Last[c]];
+inverseBranchPolyGCD[a_List, b_List] := Module[{x = inverseBranchPolyTrim[a], y = inverseBranchPolyTrim[b], r},
+  While[y =!= {}, r = inverseBranchPolyRemainder[x, y]; x = y; y = r];
+  inverseBranchPolyMonic[x]];
+(* Yun: the product of the squarefree factors of odd multiplicity. *)
+inverseBranchPolyOddPart[c_List] := Module[{d = inverseBranchPolyTrim[c], g, b, cc, factor, i = 1, odd = {1}, guard = 0},
+  If[Length[d] <= 1, Return[odd, Module]];
+  g = inverseBranchPolyGCD[d, inverseBranchPolyDerivative[d]];
+  b = inverseBranchPolyQuotient[d, g];
+  cc = inverseBranchPolyTrim[inverseBranchPolyQuotient[inverseBranchPolyDerivative[d], g] - inverseBranchPolyDerivative[b]];
+  While[Length[b] > 1 && guard++ < 128,
+    factor = inverseBranchPolyGCD[b, cc];
+    If[Length[factor] > 1 && OddQ[i], odd = inverseBranchPolyMultiply[odd, factor]];
+    b = inverseBranchPolyQuotient[b, factor];
+    cc = inverseBranchPolyTrim[inverseBranchPolyQuotient[cc, factor] - inverseBranchPolyDerivative[b]];
+    i++];
+  odd];
+inverseBranchSturmChain[c_List] := Module[{chain, r, guard = 0},
+  chain = {c, inverseBranchPolyDerivative[c]};
+  If[Last[chain] === {}, Return[{c}, Module]];
+  While[guard++ < 128,
+    r = inverseBranchPolyRemainder[chain[[-2]], chain[[-1]]];
+    If[r === {}, Break[]];
+    AppendTo[chain, -r]];
+  chain];
+inverseBranchSignAtInfinity[c_List, direction_] := If[c === {}, 0,
+  Sign[Last[c]] If[direction === 1 || EvenQ[Length[c] - 1], 1, -1]];
+inverseBranchSignVariations[signs_List] := Module[{nonzero = DeleteCases[signs, 0]},
+  Count[Partition[nonzero, 2, 1], {a_, b_} /; a =!= b]];
+inverseBranchRealRootCount[c_List] := Module[{chain = inverseBranchSturmChain[c]},
+  inverseBranchSignVariations[inverseBranchSignAtInfinity[#, -1] & /@ chain] -
+    inverseBranchSignVariations[inverseBranchSignAtInfinity[#, 1] & /@ chain]];
+(* The certificate for a polynomial body: None when the body is not a
+   rational polynomial of degree at most 64, is constant, or is not strictly
+   monotone on the real line. *)
+inverseBranchPolynomialMonotonicity[body_, x_] := Module[{coefficients, derivative, odd, sign},
+  If[! PolynomialQ[body, x], Return[None, Module]];
+  coefficients = inverseBranchPolyTrim[CoefficientList[body, x]];
+  If[Length[coefficients] <= 1 || Length[coefficients] > 65 ||
+      ! And @@ (inverseBranchRationalQ /@ coefficients), Return[None, Module]];
+  derivative = inverseBranchPolyDerivative[coefficients];
+  odd = inverseBranchPolyOddPart[derivative];
+  If[OddQ[Length[odd] - 1] || inverseBranchRealRootCount[odd] =!= 0, Return[None, Module]];
+  sign = Sign[Last[derivative]];
+  <|"Type" -> "PolynomialSturmCertificate", "Sign" -> sign,
+    "Derivative" -> D[body, x], "StationaryRealRoots" -> inverseBranchRealRootCount[derivative],
+    "OddMultiplicityPart" -> odd,
+    "Proof" -> "The derivative's factors of odd multiplicity have no real root (Sturm count 0), so the derivative keeps the sign of its leading coefficient and vanishes only at isolated points; the body is strictly monotone on the whole real line."|>];
+
 inverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[
   {left = Unique["left$"], right = Unique["right$"], middle = Unique["middle$"],
-   convex, derivative, positive, negative, ratio},
+   convex, derivative, positive, negative, ratio, certificate},
   If[! inverseBranchContinuousQ[body, x], Return[None, Module]];
   convex = inverseBranchTry[Reduce[ass && (domain /. x -> left) && (domain /. x -> right) &&
     left < middle < right && ! (domain /. x -> middle), {left, middle, right}, Reals]];
@@ -6335,6 +6443,10 @@ inverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[
   If[! TrueQ[negative], negative = inverseBranchTry[Reduce[ass && domain && derivative >= 0, x, Reals]] === False];
   If[TrueQ[negative], Return[<|"Type" -> "StrictDerivativeOnRealInterval", "Sign" -> -1,
     "Domain" -> domain, "Derivative" -> derivative|>, Module]];
+  (* A rational polynomial body with an even-multiplicity stationary point
+     (report 43 E01) is certified exactly when the sign proofs above fail. *)
+  certificate = inverseBranchPolynomialMonotonicity[body, x];
+  If[AssociationQ[certificate], Return[Join[certificate, <|"Domain" -> domain|>], Module]];
   (* Article Proposition 4.2: x(3+2 Log[x]) has minimum -2 Exp[-5/2]
      on x>0. A nonzero real scalar preserves strict monotonicity. *)
   If[TrueQ[inverseBranchTry[FullSimplify[x > 0, ass && domain && Element[x, Reals]]]],
@@ -6365,6 +6477,15 @@ inverseBranchEventualQ[predicate_, u_, ass_, radius_] := Module[{simple, bad, go
   If[good === False, False, None]];
 
 inverseBranchSign[expression_, u_, ass_, radius_, limit_] := Module[{ell = Unique["branchLog$"], jet, row, degree, leading},
+  (* A polynomial sign question is decided exactly by the eventual-sign
+     prover before any jet is formed: on Mathics the jet of a quintic exceeds
+     the validator's time budget (about 11 s against 8), which left the
+     quintic of report 43 E01 unresolved although its certificate held. *)
+  If[PolynomialQ[expression, u] && FreeQ[ass, u],
+    If[TrueQ[inverseFunctionEventually[expression > 0, u, ass]],
+      Return[<|"Sign" -> 1, "Type" -> "ExactEventualSign"|>, Module]];
+    If[TrueQ[inverseFunctionEventually[expression < 0, u, ass]],
+      Return[<|"Sign" -> -1, "Type" -> "ExactEventualSign"|>, Module]]];
   jet = inverseBranchTry[catch[forwardJet[expression, u, ell, ass, 1, limit]]];
   If[ListQ[jet] && Length[jet] === 3 && jet[[1]] =!= {},
     row = First[jet[[1]]]; degree = polyDegree[row[[2]], ell];
@@ -9371,7 +9492,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
 (* END SOURCE: src/Kernel/NativeSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeCompatibility.wl
-   Source SHA256 (UTF-8/LF): b4147335258ea87da80a935f0864b2d800309cca390c2ac8eceae95c58994632 *)
+   Source SHA256 (UTF-8/LF): 53e7104a37cfc04a5ce3f124dfa41289bb886e8fbfef52fc7fbb3e0563f2d915 *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
    do not resolve native delayed options for a second metadata lookup. *)
@@ -9709,7 +9830,8 @@ automaticNativeShapeQ[request_HoldComplete] := Module[{parts, specifications, ce
    analytic evidence. *)
 $automaticNativeRepresentationFailures = {"InexactInput", "UnprovedRealCoefficient",
   "UnsupportedInput", "UnsupportedCoefficient", "SymbolicExponent", "ComplexExponent",
-  "LogarithmicLeadingPower", "ExponentialScale", "UnsupportedNumber", "InfiniteSeries"};
+  "LogarithmicLeadingPower", "ExponentialScale", "UnsupportedNumber", "InfiniteSeries",
+  "UnsupportedSourceHead"};
 
 automaticPreparedExpansion[request_HoldComplete, original_HoldComplete] := Module[
   {parts, specifications, options, keys, ass, dir, goal, limit, branches, packageRequest, replay, result},
@@ -9808,7 +9930,7 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\nmathicsRefinementAssociation[rules_List] := Association @@ rules;"
 }]];
 If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
-"(* BEGIN SOURCE: src/Kernel/MathicsInverseBranches.wl\n   Source SHA256 (UTF-8/LF): 6f292bc2248b2ca53ce191d602bc0ae0dca4b41a3cf7f9c8b46ef0955cfdbd05 *)\n(* Loaded late in Private, only on Mathics. Two bounded exact facts fill the\n   polynomial branch-inference path without emulating Reduce: a polynomial\n   with real constant coefficients is real on the whole real axis, and an\n   intersection of affine real half-lines is convex. The ordinary branch\n   validator still proves the source condition, limit, target side and local\n   derivative sign. Unsupported domains retain the conservative failure. *)\n\nmathicsPolynomialFunctionDomain[body_, x_Symbol, Reals] :=\n  mathicsPolynomialFunctionDomain[body, x, Reals, True];",
+"(* BEGIN SOURCE: src/Kernel/MathicsInverseBranches.wl\n   Source SHA256 (UTF-8/LF): e67cbfe5ea8236603b3fc65dcd0fa3c03475d531c25baa38c5c92c1c26c10f20 *)\n(* Loaded late in Private, only on Mathics. Two bounded exact facts fill the\n   polynomial branch-inference path without emulating Reduce: a polynomial\n   with real constant coefficients is real on the whole real axis, and an\n   intersection of affine real half-lines is convex. The ordinary branch\n   validator still proves the source condition, limit, target side and local\n   derivative sign. Unsupported domains retain the conservative failure. *)\n\nmathicsPolynomialFunctionDomain[body_, x_Symbol, Reals] :=\n  mathicsPolynomialFunctionDomain[body, x, Reals, True];",
 "\n(* W4-03: a parameter coefficient is admitted when the retained assumptions\n   prove it real; an unknown, nonreal or unproved coefficient keeps the\n   conservative fallback. Coefficients are free of the source variable by\n   construction, and assumptions mentioning it are not accepted. *)\nmathicsPolynomialFunctionDomain[body_, x_Symbol, Reals, ass_] :=\n  If[PolynomialQ[body, x] && FreeQ[ass, x] &&\n      And @@ (mathicsProvedRealCoefficientQ[#, ass] & /@ CoefficientList[body, x]),\n    True, System`FunctionDomain[body, x, Reals]];",
 "\nmathicsProvedRealCoefficientQ[coefficient_, ass_] := exactRealQ[coefficient] ||\n  (FreeQ[coefficient, _Complex] && TrueQ[FullSimplify[Element[coefficient, Reals], ass]]);",
 "\n\n(* Replace only this private consumer's unavailable FunctionDomain call,\n   threading the consumer's retained parameter assumptions into the proof.\n   No definition or attribute of a System symbol is changed. *)\nDownValues[inverseFunctionSelectBranchInternal] =\n  DownValues[inverseFunctionSelectBranchInternal] /.\n    HoldPattern[System`FunctionDomain[b_, v_, Reals]] :> mathicsPolynomialFunctionDomain[b, v, Reals, ass];",
@@ -9816,7 +9938,7 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 "\n\nmathicsConvexRealDomainQ[domain_, x_, ass_] := Module[{head = Head[domain], parts},\n  If[FreeQ[domain, x], Return[True, Module]];\n  If[head === And,\n    Return[And @@ (mathicsConvexRealDomainQ[#, x, ass] & /@ List @@ domain), Module]];\n  If[MemberQ[{Element, System`Element}, head],\n    Return[SameQ[domain[[1]], x] && SameQ[domain[[2]], Reals], Module]];\n  If[MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal}, head],\n    parts = List @@ domain;\n    If[head =!= Equal &&\n      ! And @@ (mathicsAffineRealExpressionQ[#, x, ass] & /@ parts), Return[False, Module]];\n    Return[And @@ (mathicsAffineRealExpressionQ[Subtract @@ #, x, ass] & /@\n      Partition[parts, 2, 1]), Module]];\n  If[head === Inequality,\n    parts = List @@ domain;\n    If[! And @@ (MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal}, #] & /@\n        parts[[2 ;; -1 ;; 2]]), Return[False, Module]];\n    If[! And @@ (mathicsAffineRealExpressionQ[#, x, ass] & /@ parts[[1 ;; -1 ;; 2]]),\n      Return[False, Module]];\n    Return[And @@ (mathicsAffineRealExpressionQ[Subtract @@ #, x, ass] & /@\n      Partition[parts[[1 ;; -1 ;; 2]], 2, 1]), Module]];\n  False];",
 "\n\n(* Retain the existing general proof path as a fallback. Clear the dispatch\n   symbol before installing its wrapper: Mathics otherwise evaluates an old\n   definition while reading the left-hand side of a new definition. *)\nIf[DownValues[mathicsOriginalGlobalMonotonicity] === {},\n  DownValues[mathicsOriginalGlobalMonotonicity] =\n    DownValues[inverseBranchGlobalMonotonicity] /.\n      inverseBranchGlobalMonotonicity -> mathicsOriginalGlobalMonotonicity];",
 "\nClear[inverseBranchGlobalMonotonicity];",
-"\ninverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[\n  {derivative = D[body, x], positive, negative},\n  If[! PolynomialQ[body, x] || ! mathicsConvexRealDomainQ[domain, x, ass],\n    Return[mathicsOriginalGlobalMonotonicity[body, x, domain, ass], Module]];\n  positive = inverseBranchTry[FullSimplify[derivative > 0,\n    ass && domain && Element[x, Reals]]];\n  If[TrueQ[positive],\n    Return[<|\"Type\" -> \"StrictDerivativeOnRealInterval\", \"Sign\" -> 1,\n      \"Domain\" -> domain, \"Derivative\" -> derivative|>, Module]];\n  negative = inverseBranchTry[FullSimplify[derivative < 0,\n    ass && domain && Element[x, Reals]]];\n  If[TrueQ[negative],\n    Return[<|\"Type\" -> \"StrictDerivativeOnRealInterval\", \"Sign\" -> -1,\n      \"Domain\" -> domain, \"Derivative\" -> derivative|>, Module]];\n  None];",
+"\ninverseBranchGlobalMonotonicity[body_, x_, domain_, ass_] := Module[\n  {derivative = D[body, x], positive, negative, certificate},\n  If[! PolynomialQ[body, x] || ! mathicsConvexRealDomainQ[domain, x, ass],\n    Return[mathicsOriginalGlobalMonotonicity[body, x, domain, ass], Module]];\n  positive = inverseBranchTry[FullSimplify[derivative > 0,\n    ass && domain && Element[x, Reals]]];\n  If[TrueQ[positive],\n    Return[<|\"Type\" -> \"StrictDerivativeOnRealInterval\", \"Sign\" -> 1,\n      \"Domain\" -> domain, \"Derivative\" -> derivative|>, Module]];\n  negative = inverseBranchTry[FullSimplify[derivative < 0,\n    ass && domain && Element[x, Reals]]];\n  If[TrueQ[negative],\n    Return[<|\"Type\" -> \"StrictDerivativeOnRealInterval\", \"Sign\" -> -1,\n      \"Domain\" -> domain, \"Derivative\" -> derivative|>, Module]];\n  (* An even-multiplicity stationary point defeats the strict sign proofs\n     above; the exact Sturm certificate (report 43 E01) decides it. *)\n  certificate = inverseBranchPolynomialMonotonicity[body, x];\n  If[AssociationQ[certificate], Return[Join[certificate, <|\"Domain\" -> domain|>], Module]];\n  None];",
 "\n\n(* For an affine expression on 0<u<r, every value is a strict convex\n   combination of the endpoint values. This proves the whole deleted\n   interval, including strict inequalities with one zero endpoint. *)\nmathicsAffineIntervalRelation[left_, head_, right_, u_, ass_, radius_] := Module[\n  {difference = Expand[left - right], endpoints, nonnegative, nonpositive,\n   positive, negative, zero},\n  If[! mathicsAffineRealExpressionQ[difference, u, ass], Return[None, Module]];\n  If[MemberQ[{Less, LessEqual, Greater, GreaterEqual}, head] &&\n    ! (TrueQ[FullSimplify[Element[left, Reals], ass && Element[u, Reals]]] &&\n       TrueQ[FullSimplify[Element[right, Reals], ass && Element[u, Reals]]]),\n    Return[None, Module]];\n  endpoints = {difference /. u -> 0, difference /. u -> radius};\n  nonnegative = And @@ (TrueQ[FullSimplify[# >= 0, ass]] & /@ endpoints);\n  nonpositive = And @@ (TrueQ[FullSimplify[# <= 0, ass]] & /@ endpoints);\n  positive = nonnegative && Or @@ (provablyPositive[#, ass] & /@ endpoints);\n  negative = nonpositive && Or @@ (provablyNegative[#, ass] & /@ endpoints);\n  zero = And @@ (TrueQ[FullSimplify[# == 0, ass]] & /@ endpoints);\n  Switch[head,\n    Greater, Which[positive, True, nonpositive, False, True, None],\n    GreaterEqual, Which[nonnegative, True, negative, False, True, None],\n    Less, Which[negative, True, nonnegative, False, True, None],\n    LessEqual, Which[nonpositive, True, positive, False, True, None],\n    Equal, Which[zero, True, positive || negative, False, True, None],\n    Unequal, Which[positive || negative, True, zero, False, True, None],\n    _, None]];",
 "\n\nmathicsAffineIntervalTruth[predicate_, u_, ass_, radius_] := Module[\n  {head = Head[predicate], parts, truths},\n  If[predicate === True || predicate === False, Return[predicate, Module]];\n  (* Unequal with more than two operands asserts every pair is unequal;\n     the consecutive-pair reduction used for ordered chains is insufficient. *)\n  If[head === Unequal && Length[predicate] =!= 2, Return[None, Module]];\n  If[head === And,\n    truths = mathicsAffineIntervalTruth[#, u, ass, radius] & /@ List @@ predicate,\n    If[MemberQ[{Less, LessEqual, Greater, GreaterEqual, Equal, Unequal}, head],\n      truths = mathicsAffineIntervalRelation[#[[1]], head, #[[2]], u, ass, radius] & /@\n        Partition[List @@ predicate, 2, 1],\n      If[head === Inequality,\n        parts = List @@ predicate;\n        truths = Table[mathicsAffineIntervalRelation[parts[[j]], parts[[j + 1]],\n          parts[[j + 2]], u, ass, radius], {j, 1, Length[parts] - 2, 2}],\n        Return[None, Module]]]];\n  Which[MemberQ[truths, False], False, And @@ (TrueQ /@ truths), True, True, None]];",
 "\n\nIf[DownValues[mathicsOriginalBranchEventualQ] === {},\n  DownValues[mathicsOriginalBranchEventualQ] = DownValues[inverseBranchEventualQ] /.\n    inverseBranchEventualQ -> mathicsOriginalBranchEventualQ];",

@@ -105,6 +105,10 @@ achieving the requested accuracy.
 The [assumption-context notes](ASSUMPTION_CONTEXT.md) explain how constructor
 hypotheses survive coefficient queries, arithmetic and refinement, including
 delayed options, nested representations and Wolfram evaluation subtleties.
+The [source admission note](SOURCE_ADMISSION.md) states which function heads
+may receive the package's analytic remainder and why an opaque head is
+refused on the package path (C16).
+
 The [native-series remainder notes](NATIVE_SERIES_REMAINDERS.md) distinguish
 formal native order from analytic bounds and explain incoming and outgoing
 logarithmic-tail policies.

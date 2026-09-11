@@ -91,8 +91,13 @@ that exercise the walker. No full package suite was run.
   and any expression that names one derived object twice serialize its
   recipe tree twice per level. A DAG serialization (shared immutable nodes
   with identifiers) would remove this at the cost of a new object format and
-  its migration; the live object does not need it. This is the P07 design
-  lane, now with measurements, and it is not implemented.
+  its migration; the live object does not need it. Decision (P07): not
+  implemented. A result is reconstructible through `InputForm` within one
+  kernel session and is not a persistence format (D03), the live DAG is
+  what every consumer holds, and the only doubling left after the
+  lifted-operand repair is the deliberate repeated reference, which
+  `Compress` already shares in practice; a second object format would add a
+  migration for no consumer.
 - **Refinement caches are retained by design.** An inverse at cutoff 12
   retains about 30 kB; its coarser view at cutoff 4 keeps the larger cache
   (about 40 kB with the view) and a later refinement to 16 about 98 kB. D10

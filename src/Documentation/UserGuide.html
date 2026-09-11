@@ -203,6 +203,15 @@ with:</p>
 context:</p>
 <pre class="wolfram"><code>PacletDirectoryLoad[&quot;src&quot;];
 Needs[&quot;AsymptoticAnalysis`&quot;];</code></pre>
+<p>A load that does not complete leaves nothing half-installed in the
+caller&#39;s session: if a companion module is missing, has a syntax error
+or emits a message while loading, the load stops with
+<code>AsymptoticExpansion::loadfail</code> and <code>$Context</code> and
+<code>$ContextPath</code> are restored; an abort or time constraint that
+interrupts a module load restores them as well before it propagates.
+Loading again after such an interruption, or after one inside the entry
+file or the single-file package, returns to <code>Global`</code> with
+the package on the search path.</p>
 <p><a id="mathics-compatibility"></a></p>
 </section>
 <section id="mathics3-compatibility" class="level3">
@@ -1472,8 +1481,15 @@ s = AsymptoticExpansion[a + Sin[a] x, {x, 0, 2},
 {Normal[s], s[&quot;Remainder&quot;]}</code></pre>
 <p><strong>Output</strong></p>
 <pre class="wolfram"><code>{a + Sin[a] x, 0}</code></pre>
-<p>Without the realness assumption, a coefficient <code>a</code>
-produces <code>Failure[&quot;UnprovedRealCoefficient&quot;, ...]</code> in strict
+<p>A source applying a function head outside the built-in contexts, such
+as an undefined <code>g[x]</code> or <code>Derivative[1][g][x]</code>,
+produces <code>Failure[&quot;UnsupportedSourceHead&quot;, ...]</code> in strict
+<code>&quot;Package&quot;</code> mode even when its derivatives are assumed real:
+the package cannot know the regularity of such a function, so it grants
+no analytic remainder; Automatic mode delegates it natively under the
+formal contract. Without the realness assumption, a coefficient
+<code>a</code> produces
+<code>Failure[&quot;UnprovedRealCoefficient&quot;, ...]</code> in strict
 <code>&quot;Package&quot;</code> mode. Automatic mode can instead retain a native
 formal result; that result does not assert real coefficients. A real
 argument alone does not make every function value real:

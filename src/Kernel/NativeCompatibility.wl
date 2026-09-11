@@ -335,7 +335,8 @@ automaticNativeShapeQ[request_HoldComplete] := Module[{parts, specifications, ce
    analytic evidence. *)
 $automaticNativeRepresentationFailures = {"InexactInput", "UnprovedRealCoefficient",
   "UnsupportedInput", "UnsupportedCoefficient", "SymbolicExponent", "ComplexExponent",
-  "LogarithmicLeadingPower", "ExponentialScale", "UnsupportedNumber", "InfiniteSeries"};
+  "LogarithmicLeadingPower", "ExponentialScale", "UnsupportedNumber", "InfiniteSeries",
+  "UnsupportedSourceHead"};
 
 automaticPreparedExpansion[request_HoldComplete, original_HoldComplete] := Module[
   {parts, specifications, options, keys, ass, dir, goal, limit, branches, packageRequest, replay, result},

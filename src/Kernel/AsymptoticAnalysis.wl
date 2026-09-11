@@ -318,7 +318,11 @@ realPolynomialCondition[p_, ell_, ass_] := Module[{coefficients = CoefficientLis
   (* Exact numbers need no assumptions: this also keeps Simplify from
      evaluating the assumptions themselves for every numeric coefficient. *)
   If[And @@ (NumericQ[#] && exactQ[#] & /@ coefficients),
-    Return[Simplify[And @@ (Element[#, Reals] & /@ coefficients)], Module]];
+    condition = Simplify[And @@ (Element[#, Reals] & /@ coefficients)];
+    (* The same fallback as below: ArcSin[2] + ArcCos[2] is real only
+       through FullSimplify's cancellation to Pi/2. *)
+    Return[If[condition === True || condition === False, condition,
+      TimeConstrained[FullSimplify[condition], 1, condition]], Module]];
   condition = Simplify[And @@ (Element[#, Reals] & /@ coefficients), ass];
   If[condition === True || condition === False, condition,
     TimeConstrained[FullSimplify[condition, ass], 1, condition]]];
@@ -541,6 +545,9 @@ fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e], parameterized},
    h === Exp, fwdExp[fwd[e[[1]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
    h === Sqrt, fwdPower[fwd[e[[1]], u, ell, ass, Kw, limit], 1/2, u, ell, ass, Kw, limit],
    h === Abs, fwdAbs[fwd[e[[1]], u, ell, ass, Kw, limit], ell, ass, u, Kw, limit],
+   (* A head outside the admitted contexts has no proved regularity (C16);
+      the generic jet refuses it. *)
+   opaqueSourceHeads[e] =!= {}, fwdSeries[e, u, ell, ass, Kw, limit],
    Length[e] == 1, fwdAnalytic[h, fwd[e[[1]], u, ell, ass, Kw, limit], e, u, ell, ass, Kw, limit],
    True, fwdSeries[e, u, ell, ass, Kw, limit]]];
 
@@ -721,8 +728,30 @@ nativeRefineSeriesTail[first_, second_, ell_, ass_] := Module[{delta, pd},
   {first[[1]], pd[[1]], pd[[2]]}];
 
 (* The optional extra native probe supplies evidence, never a guessed degree. *)
-fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, first, s2, second},
+(* Source admission (C16). The generic native jet is a formal Taylor
+   expansion, and the package grants it an analytic power-log remainder only
+   for heads whose regularity the native Series knows: System` functions
+   (Sin, BesselJ, Erf, ...), whose analytic branches it expands truthfully
+   or leaves unexpanded. A head that involves any other symbol (an undefined
+   g[x], Derivative[1][g], a user-context function) carries no regularity
+   information, so a few provably real derivatives must not become an
+   analytic remainder claim; such a source is refused on the package path,
+   while a native backend still delegates it under its formal contract.
+   Formal variables of pure functions and package symbols are not opaque
+   heads; parameters occur as arguments, never as heads. *)
+sourceAdmittedContextQ[s_Symbol] := With[{context = Context[s]},
+  context === "System`" || (StringLength[context] >= 19 && StringTake[context, 19] === "AsymptoticAnalysis`")];
+opaqueSourceHeads[e_] := Module[{formal, heads},
+  formal = DeleteDuplicates[Flatten[Cases[e, HoldPattern[Function[v_, ___]] :> Flatten[{v}], {0, Infinity}, Heads -> True]]];
+  heads = DeleteDuplicates[Cases[e, f_[___] :> f, {0, Infinity}, Heads -> True]];
+  DeleteDuplicates[Select[Flatten[Cases[{#}, s_Symbol, {0, Infinity}, Heads -> True] & /@ heads],
+    ! MemberQ[formal, #] && ! sourceAdmittedContextQ[#] &]]];
+fwdSeries[e_, u_, ell_, ass_, Kw_, limit_] := Module[{order, s, first, s2, second, opaque},
   If[Kw === Infinity, fail["InfiniteSeries", "The expression is not a finite power-log sum and no finite working order was given.", <|"Expression" -> e|>]];
+  opaque = opaqueSourceHeads[e];
+  If[opaque =!= {},
+    fail["UnsupportedSourceHead", "The package analytic engine expands built-in functions whose regularity the native Series knows; a source applying a user-defined or undefined function head has no proved regularity, so no analytic remainder is granted. Select a native backend for a formal expansion.",
+      <|"Heads" -> opaque, "Expression" -> e|>]];
   order = Max[1, Ceiling[canon[Kw]]];
   s = Quiet[Series[e, {u, 0, order}, Assumptions -> ass && u > 0]];
   first = nativePowerLogSeries[s, u, ell, ass, Kw, limit];

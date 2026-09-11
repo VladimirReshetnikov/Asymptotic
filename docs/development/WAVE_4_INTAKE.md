@@ -96,9 +96,7 @@ Retain parser errors, exact boundaries, ordinary finite timeouts, process cleanu
 
 ### Executed source provenance and dependency closure — W4-12
 
-**Partly addressed.** The [runner][runner] now latches the first observed mismatch in `FirstObservedSourceDriftSHA256`, retains final hashes, and exits unsuccessfully even after restoration. It still fingerprints siblings only for an entry named `AsymptoticAnalysis.wl` in a directory named `Kernel`; `init.m` and other relocated layouts need separate treatment. It executes a live package path, copies only the suite, and does not recheck that executed copy.
-
-Preserve monotone invalidation and the first mismatch; explicitly describe the source layout or dependency set. Stage coherent package, suite and runner inputs before execution and verify the staged inputs. Endpoint hashes cannot exclude a change-and-restore wholly between observations. The [acceptance checker][acceptance] validates recorded hashes against Git blobs; it does not freeze the runner inputs.
+**Implemented.** The [runner][runner] latches the first observed mismatch in `FirstObservedSourceDriftSHA256`, retains final hashes, and exits unsuccessfully even after restoration; it now also copies the package closure (the entry, or the modular `Kernel` directory's `*.wl` files and `init.m`) into its private directory after fingerprinting, refuses to launch when the copy does not reproduce the recorded hashes, runs every kernel from that copy, and rehashes the executed copy at every checkpoint, while an edit of the live tree is reported separately as `LiveSourcesChangedDuringRun`. An A–B–A edit of the live tree between observations is therefore harmless rather than undetected. The [acceptance checker][acceptance] validates recorded hashes against Git blobs.
 
 ### Interpreter invocation identity — W4-11
 
@@ -134,13 +132,13 @@ Test exact, symbolic, approximate, forward and reverse conversion, derivatives, 
 
 ### Achieved numerical precision — W4-02
 
-**Source gap identified; public witness unverified.** [NumericalInverseChecks.wl][numerics] requests working precision and validates numeric/branch/domain results, but has no explicit achieved-precision postcondition for the returned root. Its output calls the result a high-precision comparison. Report 28 traces interpreter numerical limitations; this intake does not reproduce them. The [compatibility note][compatibility-doc] now distinguishes requested working precision from achieved accuracy.
+**Verified on Mathics.** [NumericalInverseChecks.wl][numerics] requests working precision and validates numeric/branch/domain results; the Mathics numerical adapter refuses a `PrecisionGoal` above machine precision before solving and, after a solve, refuses a root whose returned precision is below the goal, so no machine-precision root is labelled a high-precision comparison (probed on Mathics 10.0.1 with `InverseNumericalCheck` on `Exp[x] - 1` at 50 digits and `x + x^2` at 40). The [compatibility note][compatibility-doc] distinguishes requested working precision from achieved accuracy.
 
 Characterize well-conditioned exact roots at increasing requested precision, then ill-conditioned cases and branch-sensitive targets. Require measured achieved accuracy/precision or a clear unsupported/failure result; extra printed digits are not evidence. Retain the distinction between a numerical comparison, a residual, and an interval certificate. Include the separate Gamma/Barnes and special-adapter numerical paths when defining a shared contract.
 
 ### Limit default semantics — W4-05
 
-**Mechanism present; public wrong-result reachability unverified.** [MathicsSimplification.wl][simplification] maps omitted/`Automatic` direction to `1`. Reports compare this with the recorded Wolfram real two-sided default. Several inspected branch consumers already supply a direction, so the helper mismatch alone does not establish an incorrect public expansion.
+**Addressed.** The private Mathics `Limit` adapter in [MathicsSimplification.wl][simplification] takes both one-sided limits when the direction is omitted or `Automatic` at a finite point and returns their common value, `Indeterminate` when they disagree, or the unresolved form when a side is unresolved, as the official kernel does; explicit sides and infinite endpoints are unchanged (portable case `primitive-limit-automatic-direction-is-two-sided`).
 
 Identify every implicit-direction consumer. Supply an explicit local side where mathematically justified; otherwise implement or conservatively retain two-sided semantics. Test agreeing and disagreeing one-sided limits, unresolved sides, assumptions, infinities, and explicit direction controls. Replacing the lower side with the upper side does not implement a two-sided limit.
 
