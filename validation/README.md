@@ -1101,8 +1101,8 @@ the Mathics `callable` group passes **11/11** in the
 [modular](mathics-modular-wave7-callable-tests.json) and
 [standalone](mathics-standalone-wave7-callable-tests.json) layouts with
 unchanged sources, and the official kernel gives the same values through its
-general prover (the official-kernel receipt of the two cases is recorded
-below once a batch seat is free).
+general prover: the [official-kernel receipt](wolfram-wave7-callable-tests.json)
+of the two cases passes **2/2** on Wolfram 15.0.1 with unchanged sources.
 
 ## Refinement postconditions and canonical budgets
 
