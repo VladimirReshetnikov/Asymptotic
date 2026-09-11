@@ -15,6 +15,13 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Parametric polynomial inverses on Mathics
+
+The Mathics polynomial real-domain proof receives the retained parameter
+assumptions, so `InverseFunction[Function[t, a t + t^3]][x]` under `a > 0`
+expands on Mathics as in the official kernel; an unknown or nonreal
+coefficient still keeps the conservative refusal (W4-03).
+
 ### Mathics adapters check their own installation
 
 On Mathics, a final module declares every late definition rewrite and

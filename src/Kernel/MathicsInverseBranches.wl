@@ -6,14 +6,24 @@
    derivative sign. Unsupported domains retain the conservative failure. *)
 
 mathicsPolynomialFunctionDomain[body_, x_Symbol, Reals] :=
-  If[PolynomialQ[body, x] && And @@ (exactRealQ /@ CoefficientList[body, x]),
+  mathicsPolynomialFunctionDomain[body, x, Reals, True];
+(* W4-03: a parameter coefficient is admitted when the retained assumptions
+   prove it real; an unknown, nonreal or unproved coefficient keeps the
+   conservative fallback. Coefficients are free of the source variable by
+   construction, and assumptions mentioning it are not accepted. *)
+mathicsPolynomialFunctionDomain[body_, x_Symbol, Reals, ass_] :=
+  If[PolynomialQ[body, x] && FreeQ[ass, x] &&
+      And @@ (mathicsProvedRealCoefficientQ[#, ass] & /@ CoefficientList[body, x]),
     True, System`FunctionDomain[body, x, Reals]];
+mathicsProvedRealCoefficientQ[coefficient_, ass_] := exactRealQ[coefficient] ||
+  (FreeQ[coefficient, _Complex] && TrueQ[FullSimplify[Element[coefficient, Reals], ass]]);
 
-(* Replace only this private consumer's unavailable FunctionDomain call.
+(* Replace only this private consumer's unavailable FunctionDomain call,
+   threading the consumer's retained parameter assumptions into the proof.
    No definition or attribute of a System symbol is changed. *)
 DownValues[inverseFunctionSelectBranchInternal] =
   DownValues[inverseFunctionSelectBranchInternal] /.
-    System`FunctionDomain -> mathicsPolynomialFunctionDomain;
+    HoldPattern[System`FunctionDomain[b_, v_, Reals]] :> mathicsPolynomialFunctionDomain[b, v, Reals, ass];
 
 mathicsAffineRealExpressionQ[expression_, x_, ass_] :=
   PolynomialQ[expression, x] && Exponent[expression, x] <= 1 &&

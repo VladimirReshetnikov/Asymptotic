@@ -37,6 +37,11 @@ supplies three exact facts for a bounded class of conditional inverse calls:
   relational chains are decided clause by clause. Only nonpolynomial
   conditions still use the seven dyadic trial radii `2^-j`, whose failure at
   every radius says nothing about smaller neighbourhoods (wave-4 W4-03).
+- The polynomial real-domain proof of the branch validator receives its
+  retained parameter assumptions: a coefficient that is an exact real or is
+  proved real under them is admitted, so `InverseFunction[Function[t, a t +
+  t^3]][x]` under `a > 0` expands as in the official kernel; an unknown or
+  nonreal coefficient keeps the conservative refusal (wave-4 W4-03).
 
 The existing branch validator still checks the conditional source domain,
 the target limit, the approach side, and the local derivative sign. When a

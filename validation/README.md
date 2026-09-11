@@ -1134,6 +1134,23 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## Assumption-aware polynomial domain proofs on Mathics (W4-03)
+
+The late rewrite in
+[MathicsInverseBranches.wl](../src/Kernel/MathicsInverseBranches.wl) now
+passes the branch validator's retained parameter assumptions to the
+polynomial real-domain proof, admitting a coefficient that is an exact real
+or proved real under those assumptions and keeping the conservative fallback
+for an unknown, nonreal or unproved coefficient. On Mathics 10.0.1,
+`AsymptoticExpansion[InverseFunction[Function[t, a t + t^3]][x], {x, 0, 4},
+Assumptions -> a > 0]` now gives `x/a - x^3/a^4` with remainder power 5 and
+the same request at infinity gives the official kernel's four-term
+expansion with remainder power `11/3`, where both were refused as
+`UnprovedInverseRealDomain` before; `b t + t^3` without assumptions is still
+refused. The portable cases `callable-parametric-polynomial-inverse-domain`
+(both kernels) and `primitive-polynomial-domain-proof-with-assumptions`
+(Mathics only) pin the public path and the predicate.
+
 ## Mathics adapter postconditions (W4-15)
 
 [MathicsAdapterPostconditions.wl](../src/Kernel/MathicsAdapterPostconditions.wl),
