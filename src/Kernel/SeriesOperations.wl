@@ -536,7 +536,7 @@ seriesCompositionSourceReplay[outer_, inner_, cut_, limit_] := Module[
       <|"Condition" -> Lookup[oa, "TargetDomain", True]|>]];
   expression = Normal[inner];
   condition = Lookup[ia, "TargetDomain", True] && (Lookup[oa, "TargetDomain", True] /. oa["Variable"] -> expression);
-  result = AsymptoticExpansion[ConditionalExpression[source /. oa["Variable"] -> expression, condition],
+  result = AsymptoticExpansion[ConditionalExpression[source /. oa["Variable"] -> expression, condition], "Backend" -> "Package",
     {ia["Variable"], ia["ExpansionPoint"], h}, Assumptions -> (oa["Assumptions"] && ia["Assumptions"]),
     Direction -> ia["Direction"], "Backend" -> "Package", "MaxTerms" -> limit];
   If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
@@ -686,7 +686,7 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
   requireAnalyticSeries[s];
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
   If[KeyExistsQ[a, "InverseFunctionExpression"],
-    Return[AsymptoticExpansion[a["InverseFunctionExpression"], {a["Variable"], a["InverseFunctionExpansionPoint"], h},
+    Return[AsymptoticExpansion[a["InverseFunctionExpression"], {a["Variable"], a["InverseFunctionExpansionPoint"], h}, "Backend" -> "Package",
       Assumptions -> a["Assumptions"], Direction -> a["InverseFunctionExpansionDirection"],
       "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit], Module]];
   r = refineStoredInverse[s, h, limit];
@@ -707,7 +707,7 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
     Return[AsymptoticAnalysis`AsymptoticLogarithmicInverse[a["Function"], {x, a["ExpansionPoint"]}, {y, h},
       Assumptions -> a["Assumptions"], Direction -> a["Direction"], "Power" -> a["Power"],
       "LogarithmicLevels" -> a["LogarithmicLevels"], "MaxTerms" -> limit], Module]];
-  If[Lookup[a, "Kind", ""] === "Forward", Return[AsymptoticExpansion[a["Function"], {a["Variable"], a["ExpansionPoint"], h},
+  If[Lookup[a, "Kind", ""] === "Forward", Return[AsymptoticExpansion[a["Function"], {a["Variable"], a["ExpansionPoint"], h}, "Backend" -> "Package",
     Assumptions -> a["Assumptions"], Direction -> a["Direction"],
     "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit], Module]];
   If[MemberQ[{"Inverse", "GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]] && MatchQ[Lookup[a, "Variables", None], {_Symbol, _Symbol}],

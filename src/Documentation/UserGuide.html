@@ -420,6 +420,21 @@ Functions</a>.</p>
 <code>&quot;InverseFunctionBranches&quot; -&gt; Automatic</code>, and
 <code>&quot;Backend&quot; -&gt; Automatic</code>. Explicit native modes accept
 their selected backend&#39;s options. See <a href="#assumption-context">Assumptions and Parameter Domains</a>.</p>
+<p>Option resolution: a default configured with
+<code>SetOptions[AsymptoticExpansion, &quot;Backend&quot; -&gt; ...]</code>
+applies to calls that omit the selector, and an explicit selector in the
+call comes first. The string-named options also accept their symbol
+spellings (<code>Backend -&gt; &quot;Package&quot;</code>,
+<code>MaxTerms -&gt; 7</code>), a rule whose key is a variable holding
+an option name is resolved once like a computed option list, and a
+delayed option value is evaluated once per request. A trailing rule
+whose key is a symbol that is not an option is the rule-form
+specification only when it is the first such rule and no list
+specification precedes it; otherwise the request returns
+<code>Failure[&quot;UnknownOption&quot;, ...]</code> naming the rule instead of
+treating it as a native expansion specification. Refinement replays of
+package results always use the package engine, whatever backend default
+is configured.</p>
 <table>
 <thead>
 <tr>
@@ -480,7 +495,13 @@ Expansion Backends</a>.</p>
 <p><code>AsymptoticExpand[args]</code> is a held alias of
 <code>AsymptoticExpansion[args]</code>. It accepts the same call forms
 and options, including the same <code>&quot;Backend&quot; -&gt; Automatic</code>
-default. The alias does not select native order semantics by itself.</p>
+default. A default configured on the alias itself
+(<code>SetOptions[AsymptoticExpand, &quot;Backend&quot; -&gt; &quot;Asymptotic&quot;]</code>)
+applies to alias calls that omit the selector and overrides the
+primary&#39;s configured default, while an explicit selector in the call
+still wins; an alias left at <code>Automatic</code> follows the
+primary&#39;s configured default. The alias does not select native order
+semantics by itself.</p>
 <pre class="wolfram"><code>AsymptoticExpand[Exp[x], {x, 0, 3}, &quot;Backend&quot; -&gt; &quot;Package&quot;]
 AsymptoticExpand[Exp[x], {x, 0, 3}, &quot;Backend&quot; -&gt; &quot;Series&quot;]</code></pre>
 <p>The first request has exclusive package cutoff <code>3</code>; the

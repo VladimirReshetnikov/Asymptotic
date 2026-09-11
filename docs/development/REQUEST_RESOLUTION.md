@@ -1,11 +1,17 @@
 # Request resolution workplan
 
 This plan addresses **W3-01, W3-02, W3-03 and W3-15** in the
-[wave-3 intake](WAVE_3_INTAKE.md). The current source checkpoint is `a76c0b5`.
-The observations below are **source inspection only**; the proposed changes and
-characterization matrix have **not been run against this checkpoint**.
-Supplied reviewer executions remain historical evidence tied to their own
-snapshots. This document does not claim these items are implemented or closed.
+[wave-3 intake](WAVE_3_INTAKE.md). It was written against source checkpoint
+`a76c0b5` from source inspection only. **Status:** W3-01 and the key cases of
+W3-02 are implemented and focused-verified by the
+[request-resolution run](../../validation/request-resolution-tests.json)
+(configured and alias backend defaults with explicit precedence, insulated
+internal replay, configured rule-form term goals, once-materialized delayed
+package options, computed keys, symbol spellings of string-named options,
+and refusal of unknown symbol-keyed options); W3-15 was measured and shows no
+quadratic traversal; W3-03 and the positional-name metadata part of W3-02
+remain design lanes. The mechanism table below describes the checkpoint it
+inspected, not the current source.
 
 The affected code is [NativeCompatibility.wl](../../src/Kernel/NativeCompatibility.wl),
 the public entry and assumption boundary in

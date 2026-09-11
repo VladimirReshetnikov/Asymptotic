@@ -158,6 +158,8 @@ An applied inverse can also occur inside a supported expression. See [Callable a
 
 `AsymptoticExpansion` accepts `Assumptions :> $Assumptions`, `Direction -> Automatic`, `SeriesTermGoal -> Automatic`, `"MaxTerms" -> 20000`, `"InverseFunctionBranches" -> Automatic`, and `"Backend" -> Automatic`. Explicit native modes accept their selected backend's options. See [Assumptions and Parameter Domains](#assumption-context).
 
+Option resolution: a default configured with `SetOptions[AsymptoticExpansion, "Backend" -> ...]` applies to calls that omit the selector, and an explicit selector in the call comes first. The string-named options also accept their symbol spellings (`Backend -> "Package"`, `MaxTerms -> 7`), a rule whose key is a variable holding an option name is resolved once like a computed option list, and a delayed option value is evaluated once per request. A trailing rule whose key is a symbol that is not an option is the rule-form specification only when it is the first such rule and no list specification precedes it; otherwise the request returns `Failure["UnknownOption", ...]` naming the rule instead of treating it as a native expansion specification. Refinement replays of package results always use the package engine, whatever backend default is configured.
+
 | `"Backend"` setting | Meaning |
 | --- | --- |
 | `Automatic` | Preserve supported package expansions; route native request forms and native-specific options, or selected real-representation failures, to one native backend. |
@@ -176,7 +178,7 @@ The package's real representations require coefficients provably real under the 
 
 ### Usage
 
-`AsymptoticExpand[args]` is a held alias of `AsymptoticExpansion[args]`. It accepts the same call forms and options, including the same `"Backend" -> Automatic` default. The alias does not select native order semantics by itself.
+`AsymptoticExpand[args]` is a held alias of `AsymptoticExpansion[args]`. It accepts the same call forms and options, including the same `"Backend" -> Automatic` default. A default configured on the alias itself (`SetOptions[AsymptoticExpand, "Backend" -> "Asymptotic"]`) applies to alias calls that omit the selector and overrides the primary's configured default, while an explicit selector in the call still wins; an alias left at `Automatic` follows the primary's configured default. The alias does not select native order semantics by itself.
 
 ```wolfram
 AsymptoticExpand[Exp[x], {x, 0, 3}, "Backend" -> "Package"]

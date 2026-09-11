@@ -2225,7 +2225,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 4b5b30c57328a2747d36cf0a7bdcb3bfa6877486ae71922ff7ea1c691eb4c05b *)
+   Source SHA256 (UTF-8/LF): 7b3f5b51b1ebfc8575ab00545026bb538042a828e1f398cb52750ea0da0e826b *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2764,7 +2764,7 @@ seriesCompositionSourceReplay[outer_, inner_, cut_, limit_] := Module[
       <|"Condition" -> Lookup[oa, "TargetDomain", True]|>]];
   expression = Normal[inner];
   condition = Lookup[ia, "TargetDomain", True] && (Lookup[oa, "TargetDomain", True] /. oa["Variable"] -> expression);
-  result = AsymptoticExpansion[ConditionalExpression[source /. oa["Variable"] -> expression, condition],
+  result = AsymptoticExpansion[ConditionalExpression[source /. oa["Variable"] -> expression, condition], "Backend" -> "Package",
     {ia["Variable"], ia["ExpansionPoint"], h}, Assumptions -> (oa["Assumptions"] && ia["Assumptions"]),
     Direction -> ia["Direction"], "Backend" -> "Package", "MaxTerms" -> limit];
   If[! MatchQ[result, _GeneralizedSeries], Return[result, Module]];
@@ -2914,7 +2914,7 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
   requireAnalyticSeries[s];
   If[! exactRealQ[h], fail["InvalidCutoff", "The refinement cutoff must be an exact real number."]];
   If[KeyExistsQ[a, "InverseFunctionExpression"],
-    Return[AsymptoticExpansion[a["InverseFunctionExpression"], {a["Variable"], a["InverseFunctionExpansionPoint"], h},
+    Return[AsymptoticExpansion[a["InverseFunctionExpression"], {a["Variable"], a["InverseFunctionExpansionPoint"], h}, "Backend" -> "Package",
       Assumptions -> a["Assumptions"], Direction -> a["InverseFunctionExpansionDirection"],
       "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit], Module]];
   r = refineStoredInverse[s, h, limit];
@@ -2935,7 +2935,7 @@ AsymptoticAnalysis`SeriesRefine[s : GeneralizedSeries[a_Association], h_, opts :
     Return[AsymptoticAnalysis`AsymptoticLogarithmicInverse[a["Function"], {x, a["ExpansionPoint"]}, {y, h},
       Assumptions -> a["Assumptions"], Direction -> a["Direction"], "Power" -> a["Power"],
       "LogarithmicLevels" -> a["LogarithmicLevels"], "MaxTerms" -> limit], Module]];
-  If[Lookup[a, "Kind", ""] === "Forward", Return[AsymptoticExpansion[a["Function"], {a["Variable"], a["ExpansionPoint"], h},
+  If[Lookup[a, "Kind", ""] === "Forward", Return[AsymptoticExpansion[a["Function"], {a["Variable"], a["ExpansionPoint"], h}, "Backend" -> "Package",
     Assumptions -> a["Assumptions"], Direction -> a["Direction"],
     "InverseFunctionBranches" -> Lookup[a, "InverseFunctionBranches", Automatic], "MaxTerms" -> limit], Module]];
   If[MemberQ[{"Inverse", "GammaInverse", "BarnesGInverse"}, Lookup[a, "Kind", ""]] && MatchQ[Lookup[a, "Variables", None], {_Symbol, _Symbol}],
@@ -9333,7 +9333,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
 (* END SOURCE: src/Kernel/NativeSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeCompatibility.wl
-   Source SHA256 (UTF-8/LF): b4d385be5f39b86e174f58a59d53133f63dd90651f9b34fcd5e14f5058e6a3e9 *)
+   Source SHA256 (UTF-8/LF): 88caae2ae33c3ee8220d870d0b5ce4e62cf7431b1a838e5cf2b6f21b9a96e9fb *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
    do not resolve native delayed options for a second metadata lookup. *)
@@ -9343,7 +9343,12 @@ Options[AsymptoticExpansion] = DeleteDuplicatesBy[Join[
   Options[System`Series], Options[System`Asymptotic]], First];
 Options[AsymptoticExpand] = Options[AsymptoticExpansion];
 SetAttributes[AsymptoticExpand, HoldAllComplete];
-AsymptoticExpand[args___] := AsymptoticExpansion[args];
+(* Alias ownership (W3-01): a default configured on the alias itself is
+   appended as a trailing selector, so an explicit selector in the call
+   still comes first; an alias left at Automatic inherits the primary's
+   configured default through the ordinary dispatch. *)
+AsymptoticExpand[args___] := With[{configured = OptionValue[AsymptoticExpand, "Backend"]},
+  If[configured === Automatic, AsymptoticExpansion[args], AsymptoticExpansion[args, "Backend" -> configured]]];
 
 nativeSeriesQ[GeneralizedSeries[a_Association]] := Lookup[a, "Kind", None] === "Native";
 nativeSeriesQ[_] := False;
@@ -9389,26 +9394,74 @@ nativeStripSelector[held_] := held;
 (* Resolve computed trailing argument containers before selecting a backend,
    keeping the source held for that backend's evaluation context. Literal
    native requests bypass this preparation altogether. *)
-nativeComputedArgumentQ[HoldComplete[_Rule | _RuleDelayed]] := False;
+(* A rule whose key is a symbol with an own value is a computed option
+   (key = "Backend"; f[..., key -> "Series"]) and is resolved once on the
+   prepared path like a computed container (W3-02). *)
+nativeComputedArgumentQ[HoldComplete[(Rule | RuleDelayed)[key_, _]]] :=
+  If[MatchQ[Hold[key], Hold[_Symbol]], OwnValues[key] =!= {}, False];
 nativeComputedArgumentQ[HoldComplete[{x_Symbol, _, ___}]] /; OwnValues[x] === {} := False;
 nativeComputedArgumentQ[HoldComplete[List[args___]]] :=
   Or @@ (nativeComputedArgumentQ /@ nativeHeldArguments[HoldComplete[args]]);
 nativeComputedArgumentQ[HoldComplete[Sequence[args___]]] :=
   Or @@ (nativeComputedArgumentQ /@ nativeHeldArguments[HoldComplete[args]]);
 nativeComputedArgumentQ[_] := True;
+(* String-named options accept their symbol spellings (Backend -> "Series",
+   MaxTerms -> 5): the held key is rewritten to the string without
+   evaluating the option value, so every later classifier sees one
+   identity (W3-02). *)
+$nativeStringOptionNames = {"Backend", "MaxTerms", "InverseFunctionBranches"};
+nativeCanonicalKey[HoldComplete[(head : Rule | RuleDelayed)[key_Symbol, value_]]] /;
+    OwnValues[key] === {} && MemberQ[$nativeStringOptionNames, SymbolName[Unevaluated[key]]] :=
+  With[{name = SymbolName[Unevaluated[key]]}, HoldComplete[head[name, value]]];
+nativeCanonicalKey[HoldComplete[Sequence[args___]]] :=
+  Replace[nativeHeldJoin[nativeCanonicalKey /@ nativeHeldArguments[HoldComplete[args]]],
+    HoldComplete[items___] :> HoldComplete[Sequence[items]]];
+nativeCanonicalKey[held : HoldComplete[List[args___]]] /; nativeOptionTreeQ[held] :=
+  Replace[nativeHeldJoin[nativeCanonicalKey /@ nativeHeldArguments[HoldComplete[args]]],
+    HoldComplete[items___] :> HoldComplete[List[items]]];
+nativeCanonicalKey[held_] := held;
+
+(* An unknown symbol-keyed rule is a specification only in the rule form
+   f[expr, x -> x0, ...] and only for the first such rule; after a list
+   specification or a first rule specification it is an unknown option
+   and is refused instead of silently becoming a native specification. *)
+nativeKnownOptionQ[HoldComplete[key_]] := MemberQ[First /@ Options[AsymptoticExpansion], Unevaluated[key]];
+nativeUnknownOptions[parts_List] := Module[{tail = Rest[parts], specificationSeen = False, unknown = {}, scan},
+  scan[HoldComplete[{_Symbol, _, ___}]] := (specificationSeen = True);
+  scan[held : HoldComplete[(Rule | RuleDelayed)[key_Symbol, _]]] := Which[
+    nativeKnownOptionQ[HoldComplete[key]], Null,
+    specificationSeen, AppendTo[unknown, HoldComplete[key]],
+    True, specificationSeen = True];
+  scan[held : HoldComplete[(List | Sequence)[args___]]] /; nativeOptionTreeQ[held] :=
+    Scan[scan, nativeHeldArguments[HoldComplete[args]]];
+  scan[_] := Null;
+  Scan[scan, tail];
+  unknown];
+
+(* The configured default of the primary applies to omitted selectors of
+   public requests (W3-01); internal replays select the package engine
+   explicitly and never inherit a user-selected native default. *)
+nativeConfiguredBackend[] := OptionValue[AsymptoticExpansion, "Backend"];
 SetAttributes[expansionHeldEntry, HoldAllComplete];
 expansionHeldEntry[args___] := expansionDispatch[HoldComplete[args], False];
 expansionPreparedEntry[original_HoldComplete, source_HoldComplete, args___] :=
   expansionDispatch[nativeHeldJoin[{source, HoldComplete[args]}], True, original];
-expansionDispatch[request_HoldComplete, prepared_, original_: Automatic] := Module[
-  {parts = nativeHeldArguments[request], values, backend, clean, sourceRequest},
+expansionDispatch[request0_HoldComplete, prepared_, original_: Automatic] := Module[
+  {request, parts, values, backend, clean, sourceRequest, unknown},
+  parts = nativeHeldArguments[request0];
   If[parts === {}, Return[catch[forwardEntry[]], Module]];
-  sourceRequest = If[original === Automatic, request, original];
+  parts = Prepend[nativeCanonicalKey /@ Rest[parts], First[parts]];
+  request = nativeHeldJoin[parts];
+  sourceRequest = If[original === Automatic, request0, original];
   values = Flatten[nativeSelectorValues /@ Rest[parts], 1];
   If[! TrueQ[prepared] && Or @@ (nativeComputedArgumentQ /@ Rest[parts]),
     Return[Replace[request, HoldComplete[f_, args___] :>
       expansionPreparedEntry[sourceRequest, HoldComplete[f], args]], Module]];
-  backend = If[values === {}, Automatic, ReleaseHold[First[values]]];
+  unknown = nativeUnknownOptions[parts];
+  If[unknown =!= {}, Return[Failure["UnknownOption", <|
+    "MessageTemplate" -> "These trailing rules are neither options of AsymptoticExpansion nor its native backends nor the single rule-form specification.",
+    "Options" -> unknown|>], Module]];
+  backend = If[values === {}, nativeConfiguredBackend[], ReleaseHold[First[values]]];
   clean = nativeHeldJoin[Prepend[nativeStripSelector /@ Rest[parts], First[parts]]];
   Switch[backend,
     "Series" | "Asymptotic", nativeExpansion[clean, backend, sourceRequest],
@@ -9442,11 +9495,25 @@ nativeExclusiveOptionKeys[request_HoldComplete] := Complement[
 packageExpansion[request_HoldComplete] := Replace[request,
   HoldComplete[f_, args___] :> catch[packageEvaluatedEntry[forwardHeldExpression[f], args]]];
 packageEvaluatedEntry[args___] := packagePreparedExpansion[HoldComplete[args]];
-packagePreparedExpansion[request_HoldComplete] := Module[{extra = nativeExclusiveOptionKeys[request]},
+(* A delayed package option is one program: its value is materialized once
+   here instead of at every OptionValue read inside the engines (W3-01/02).
+   Assumptions keep their own once-only ambient resolution. *)
+packageMaterializeOption[HoldComplete[RuleDelayed[key : ("MaxTerms" | SeriesTermGoal | Direction | "InverseFunctionBranches"), value_]]] :=
+  With[{materialized = value}, HoldComplete[key -> materialized]];
+packageMaterializeOption[HoldComplete[Sequence[args___]]] :=
+  Replace[nativeHeldJoin[packageMaterializeOption /@ nativeHeldArguments[HoldComplete[args]]],
+    HoldComplete[items___] :> HoldComplete[Sequence[items]]];
+packageMaterializeOption[held : HoldComplete[List[args___]]] /; nativeOptionTreeQ[held] :=
+  Replace[nativeHeldJoin[packageMaterializeOption /@ nativeHeldArguments[HoldComplete[args]]],
+    HoldComplete[items___] :> HoldComplete[List[items]]];
+packageMaterializeOption[held_] := held;
+packagePreparedExpansion[request_HoldComplete] := Module[{extra = nativeExclusiveOptionKeys[request], parts, materialized},
   If[extra =!= {}, Return[Failure["UnsupportedOption", <|
     "MessageTemplate" -> "The package analytic engine does not implement these native options. Select a compatible native backend or Automatic.",
     "Options" -> extra|>], Module]];
-  Replace[request, HoldComplete[args___] :> catch[forwardEntry[args]]]];
+  parts = nativeHeldArguments[request];
+  materialized = nativeHeldJoin[Prepend[packageMaterializeOption /@ Rest[parts], First[parts]]];
+  Replace[materialized, HoldComplete[args___] :> catch[forwardEntry[args]]]];
 
 (* Native-only options must be dispatched before an otherwise successful
    package calculation can silently ignore them. No backend may discard an
@@ -9560,7 +9627,8 @@ automaticNativeShapeQ[request_HoldComplete] := Module[{parts, specifications, ce
   If[! MemberQ[{Infinity, -Infinity}, center] && ! exactRealQ[center], Return[True, Module]];
   order = Replace[First[specifications], {HoldComplete[{_, _, n_}] :> n, _ :> Automatic}];
   If[order =!= Automatic, Return[! exactRealQ[order], Module]];
-  ! MemberQ[nativeRequestOptionKeys[request], HoldComplete[SeriesTermGoal]]];
+  ! MemberQ[nativeRequestOptionKeys[request], HoldComplete[SeriesTermGoal]] &&
+    OptionValue[AsymptoticExpansion, SeriesTermGoal] === Automatic];
 
 (* These tags describe limitations of the real power-log representation.
    Domain, inverse branch, arithmetic budget and invalid-option failures are

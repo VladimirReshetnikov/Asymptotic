@@ -1019,6 +1019,27 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Request resolution
+
+The [fourteen-file run](request-resolution-tests.json) from
+[CheckRequestResolution.wl](CheckRequestResolution.wl) passes **276/276**
+on Wolfram 15.0.1 for Windows with unchanged sources (MCP kernel, `Exit`-free
+copy). Its three cases in
+[ReviewRequestResolution.wlt](../src/Tests/ReviewRequestResolution.wlt) pin
+W3-01 and W3-02: a configured `"Backend" -> "Series"` routes an omitted
+selector natively while an explicit `"Package"` selector wins and a
+refinement replay stays on the package engine, the alias applies its own
+configured `"Asymptotic"` default and the options are restored afterwards;
+a computed key, a computed container, the symbol spellings `Backend` and
+`MaxTerms`, and a delayed `"MaxTerms"` program evaluated exactly once; and
+`Foo -> 1` after a list specification or after a rule-form specification
+is refused with `UnknownOption` while the rule form with an explicit or a
+configured `SeriesTermGoal` stays on the package engine. The other eleven
+files are the native routing, rule-goal, contract, search, compatibility,
+special-ingress, presentation, observable, assumption, refinement,
+operation, composition-scope and inverse-function suites that share the
+held entry. No full package suite was run.
+
 ## Coherent source snapshots in the portable runner
 
 [run_mathics_tests.py](run_mathics_tests.py) freezes the package closure as

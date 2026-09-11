@@ -15,6 +15,18 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Request resolution: configured defaults, option identity, unknown options
+
+`SetOptions[AsymptoticExpansion, "Backend" -> ...]` now applies to calls that
+omit the selector (an explicit selector still wins), `AsymptoticExpand`
+honours its own configured default, and refinement replays never inherit a
+native default. `Backend -> "Package"` and `MaxTerms -> 7` are the same
+options as their string spellings, a rule whose key is a variable holding an
+option name resolves once, delayed package options are evaluated once per
+request, and an unknown symbol-keyed rule after a specification returns
+`Failure["UnknownOption", ...]` instead of silently becoming a native
+specification that ignored the option (wave-3 W3-01, W3-02).
+
 ### Coherent source snapshots in the portable runner
 
 `run_mathics_tests.py` now copies the package closure into its private

@@ -67,8 +67,10 @@ including empty multi-indices, infinity coordinates, and stored assumptions.
 
 The [request-resolution workplan](REQUEST_RESOLUTION.md) connects W3-01–W3-03
 and W3-15 through shared argument roles, effective defaults, and once-only
-option evaluation. Its design and characterization matrix remain pending
-implementation and native acceptance.
+option evaluation. Configured and alias backend defaults, computed and
+symbol option keys, unknown-option refusal and once-materialized delayed
+package options are implemented; W3-03 and positional-name metadata remain
+design lanes.
 
 [Periodic peer-work reviews](PEER_REVIEWS.md) record inspections of other
 worktrees and incoming `main` changes, with committed work distinguished from
