@@ -1097,7 +1097,11 @@ passes alone within the CI deadline
 ([receipt](mathics-modular-wave7-newton-deadline-tests.json)). The CI
 workflow's per-case deadline is raised to 600 s for the `special` and
 `operations` shards, with the job limit at 50 minutes, so that a shared
-runner has margin without hiding a regression of this size again.
+runner has margin without hiding a regression of this size again. The
+[workflow run for `8ff24ff`](https://github.com/VladimirReshetnikov/Asymptotic/actions/runs/34569279952)
+passed all ten shards with the fix: the Newton case took 264 s, the
+Barnes-Stirling case 204 s and the Lambert negative-branch case 191 s on the
+GitHub runner, all inside the previous 300-second deadline.
 
 ## Coherent source snapshots in the portable runner
 
