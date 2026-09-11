@@ -25,7 +25,10 @@ options as their string spellings, a rule whose key is a variable holding an
 option name resolves once, delayed package options are evaluated once per
 request, and an unknown symbol-keyed rule after a specification returns
 `Failure["UnknownOption", ...]` instead of silently becoming a native
-specification that ignored the option (wave-3 W3-01, W3-02).
+specification that ignored the option (wave-3 W3-01, W3-02). A `Function`
+consumed inside a source, such as the defining function of a `Root` object or
+an applied identity, no longer blocks the native fallback; only a source that
+is itself a pure function is a callable contract (W3-03).
 
 ### Coherent source snapshots in the portable runner
 

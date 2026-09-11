@@ -9333,7 +9333,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
 (* END SOURCE: src/Kernel/NativeSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeCompatibility.wl
-   Source SHA256 (UTF-8/LF): 88caae2ae33c3ee8220d870d0b5ce4e62cf7431b1a838e5cf2b6f21b9a96e9fb *)
+   Source SHA256 (UTF-8/LF): c6e83aef653eb2e9abc0e6dd78144d7b2e78b2b75d1d7be5d8f8d3cc2fc461b2 *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
    do not resolve native delayed options for a second metadata lookup. *)
@@ -9518,9 +9518,17 @@ packagePreparedExpansion[request_HoldComplete] := Module[{extra = nativeExclusiv
 (* Native-only options must be dispatched before an otherwise successful
    package calculation can silently ignore them. No backend may discard an
    explicit branch, direction, or resource contract to obtain a result. *)
+(* A pure function is a callable-source contract only when it is the source
+   itself; a Function consumed inside the source (an applied identity, the
+   defining function of a Root object) is ordinary data that both engines
+   evaluate, and must not block the native fallback (W3-03). Inverse,
+   conditional and retained-object contracts are protected wherever they
+   occur. *)
 automaticProtectedQ[request_HoldComplete, original_HoldComplete] :=
-  ! FreeQ[First[nativeHeldArguments[original]], _InverseFunction | _Function | _ConditionalExpression | _GeneralizedSeries | _PowerLogRemainder] ||
-  ! FreeQ[First[nativeHeldArguments[request]], _InverseFunction | _Function | _ConditionalExpression | _forwardCallable | _GeneralizedSeries | _PowerLogRemainder] ||
+  MatchQ[First[nativeHeldArguments[original]], HoldComplete[_Function]] ||
+  MatchQ[First[nativeHeldArguments[request]], HoldComplete[_Function | _forwardCallable]] ||
+  ! FreeQ[First[nativeHeldArguments[original]], _InverseFunction | _ConditionalExpression | _GeneralizedSeries | _PowerLogRemainder] ||
+  ! FreeQ[First[nativeHeldArguments[request]], _InverseFunction | _ConditionalExpression | _forwardCallable | _GeneralizedSeries | _PowerLogRemainder] ||
   Intersection[nativeRequestOptionKeys[request],
     {HoldComplete[Direction], HoldComplete["MaxTerms"], HoldComplete["InverseFunctionBranches"]}] =!= {};
 

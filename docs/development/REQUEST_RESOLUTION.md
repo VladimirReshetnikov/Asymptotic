@@ -9,9 +9,12 @@ W3-02 are implemented and focused-verified by the
 internal replay, configured rule-form term goals, once-materialized delayed
 package options, computed keys, symbol spellings of string-named options,
 and refusal of unknown symbol-keyed options); W3-15 was measured and shows no
-quadratic traversal; W3-03 and the positional-name metadata part of W3-02
-remain design lanes. The mechanism table below describes the checkpoint it
-inspected, not the current source.
+quadratic traversal; W3-03 is implemented as proposed below (only a source
+that is itself a pure function, or the package's own callable marker, is a
+callable contract, while inverse, conditional and retained-object contracts
+stay protected wherever they occur), and the positional-name metadata part
+of W3-02 remains a design lane. The mechanism table below describes the
+checkpoint it inspected, not the current source.
 
 The affected code is [NativeCompatibility.wl](../../src/Kernel/NativeCompatibility.wl),
 the public entry and assumption boundary in

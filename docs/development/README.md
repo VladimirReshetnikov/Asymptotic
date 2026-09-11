@@ -69,8 +69,9 @@ The [request-resolution workplan](REQUEST_RESOLUTION.md) connects W3-01–W3-03
 and W3-15 through shared argument roles, effective defaults, and once-only
 option evaluation. Configured and alias backend defaults, computed and
 symbol option keys, unknown-option refusal and once-materialized delayed
-package options are implemented; W3-03 and positional-name metadata remain
-design lanes.
+package options are implemented, and only a source that is itself a pure
+function counts as a callable contract (W3-03); positional-name metadata
+remains a design lane.
 
 [Periodic peer-work reviews](PEER_REVIEWS.md) record inspections of other
 worktrees and incoming `main` changes, with committed work distinguished from

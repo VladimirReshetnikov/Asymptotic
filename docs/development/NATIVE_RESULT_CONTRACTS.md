@@ -144,9 +144,10 @@ interpret missing generated conditions as unconditional validity. An unresolved 
 must not be described as a successfully computed expansion. Automatic fallback
 keeps callable/inverse and conditional source requests, existing package
 series/remainders, and explicit direction, branch and resource options on the
-package path. Its recursive `Function` search also protects some ordinary
-expressions containing function syntax, even when they are not callable
-sources (W3-03). Conditional-source protection excludes some otherwise
+package path. A `Function` is a callable-source contract only when it is the
+source itself; a function consumed inside the source (an applied identity,
+the defining function of a `Root` object) no longer blocks the native
+fallback (W3-03). Conditional-source protection excludes some otherwise
 native-supported complex requests (W3-09). These are known coverage obstacles,
 not exceptions to the full-subsumption requirement. Its narrow failure
 classifier excludes malformed requests,

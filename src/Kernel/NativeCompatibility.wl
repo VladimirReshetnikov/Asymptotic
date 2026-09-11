@@ -182,9 +182,17 @@ packagePreparedExpansion[request_HoldComplete] := Module[{extra = nativeExclusiv
 (* Native-only options must be dispatched before an otherwise successful
    package calculation can silently ignore them. No backend may discard an
    explicit branch, direction, or resource contract to obtain a result. *)
+(* A pure function is a callable-source contract only when it is the source
+   itself; a Function consumed inside the source (an applied identity, the
+   defining function of a Root object) is ordinary data that both engines
+   evaluate, and must not block the native fallback (W3-03). Inverse,
+   conditional and retained-object contracts are protected wherever they
+   occur. *)
 automaticProtectedQ[request_HoldComplete, original_HoldComplete] :=
-  ! FreeQ[First[nativeHeldArguments[original]], _InverseFunction | _Function | _ConditionalExpression | _GeneralizedSeries | _PowerLogRemainder] ||
-  ! FreeQ[First[nativeHeldArguments[request]], _InverseFunction | _Function | _ConditionalExpression | _forwardCallable | _GeneralizedSeries | _PowerLogRemainder] ||
+  MatchQ[First[nativeHeldArguments[original]], HoldComplete[_Function]] ||
+  MatchQ[First[nativeHeldArguments[request]], HoldComplete[_Function | _forwardCallable]] ||
+  ! FreeQ[First[nativeHeldArguments[original]], _InverseFunction | _ConditionalExpression | _GeneralizedSeries | _PowerLogRemainder] ||
+  ! FreeQ[First[nativeHeldArguments[request]], _InverseFunction | _ConditionalExpression | _forwardCallable | _GeneralizedSeries | _PowerLogRemainder] ||
   Intersection[nativeRequestOptionKeys[request],
     {HoldComplete[Direction], HoldComplete["MaxTerms"], HoldComplete["InverseFunctionBranches"]}] =!= {};
 

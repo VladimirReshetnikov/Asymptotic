@@ -563,13 +563,14 @@ corresponding existing native path.</td>
 </tr>
 <tr>
 <td>Protected source forms and options</td>
-<td>Any nested <code>Function</code>, <code>InverseFunction</code>, or
-<code>ConditionalExpression</code>, existing series/remainder objects,
-or an explicit direction, branch, or resource option keeps Automatic on
-the package path. This also protects ordinary expressions containing
-applied functions or algebraic-root encodings, and excludes some
-conditioned complex native requests. More precise classification remains
-open.</td>
+<td>A source that is itself a pure <code>Function</code>, any nested
+<code>InverseFunction</code> or <code>ConditionalExpression</code>,
+existing series/remainder objects, or an explicit direction, branch, or
+resource option keeps Automatic on the package path. A
+<code>Function</code> consumed inside the source, such as an applied
+identity or the defining function of a <code>Root</code> object, is
+ordinary data and does not block the native fallback. Conditioned
+complex native requests remain excluded.</td>
 </tr>
 <tr>
 <td>Order and term goals</td>

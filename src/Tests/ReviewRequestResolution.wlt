@@ -55,3 +55,20 @@ VerificationTest[
    ruleGoal["Kind"], stringUnknown[[1]], configuredGoal["Kind"], Normal[configuredGoal] === 1 + x}],
  {"UnknownOption", {HoldComplete[Foo]}, "UnknownOption", "Forward", True, "Native", "NativeOptionConflict", "Forward", True},
  TestID -> "unknown-symbol-options-are-refused-and-configured-term-goals-route-rule-forms-to-the-package"]
+
+(* W3-03: a pure function is a callable-source contract only as the source
+   itself; a Function consumed inside the source (an applied identity or the
+   defining function of a Root object) no longer blocks the native fallback
+   for a representation the package refuses. *)
+VerificationTest[
+ Module[{x, root, applied, plain, callable, callableReal},
+  root = AsymptoticExpansion[Root[#^3 - # - 1 &, 1] x + Exp[I x], {x, 0, 3}];
+  applied = AsymptoticExpansion[Function[t, t^2][x] + Exp[I x], {x, 0, 3}];
+  plain = AsymptoticExpansion[Exp[I x], {x, 0, 3}];
+  callable = AsymptoticExpansion[Function[t, Exp[I t]], {x, 0, 3}];
+  callableReal = AsymptoticExpansion[Function[t, Exp[t]], {x, 0, 3}];
+  {root["Kind"], Simplify[Normal[root] - Normal[Series[Root[#^3 - # - 1 &, 1] x + Exp[I x], {x, 0, 3}]]] === 0,
+   applied["Kind"], Simplify[Normal[applied] - (1 + I x + x^2/2 - (I/6) x^3)] === 0, plain["Kind"],
+   Head[callable], callable[[1]], callableReal["Kind"], Normal[callableReal] === 1 + x + x^2/2}],
+ {"Native", True, "Native", True, "Native", Failure, "InexactInput", "Forward", True},
+ TestID -> "consumed-functions-inside-a-source-do-not-block-the-native-fallback"]
