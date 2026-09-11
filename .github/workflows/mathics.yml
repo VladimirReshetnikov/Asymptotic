@@ -36,7 +36,7 @@ concurrency:
 jobs:
   regressions:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 50
     strategy:
       fail-fast: false
       max-parallel: 10
@@ -76,10 +76,15 @@ jobs:
             special) groups=(special families) ;;
             operations) groups=(operations) ;;
           esac
+          # The special and operations shards hold the Newton refinement,
+          # Lambert branch and Barnes-Stirling cases, which take a few
+          # hundred seconds on a shared runner.
+          timeout=300
+          case '${{ matrix.suite }}' in special|operations) timeout=600 ;; esac
           arguments=()
           for group in "${groups[@]}"; do arguments+=(--group "$group"); done
           python validation/run_mathics_tests.py --source "$source" \
-            --timeout 300 --output mathics-results.json "${arguments[@]}"
+            --timeout "$timeout" --output mathics-results.json "${arguments[@]}"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1068,10 +1068,36 @@ well); alone, the current kernel completes the whole case in about 880 s.
 Rerun on its own with an 1800-second deadline, the case passes on both
 layouts: [modular](mathics-modular-wave7-newton-refinement-tests.json) in
 1158 s and [standalone](mathics-standalone-wave7-newton-refinement-tests.json)
-in 1113 s. The earlier operations receipts recorded 520 s for the same case
-on a quieter machine; under Mathics its cost is the Newton coefficient work
-itself, and the deadline for a full `operations` run on a shared machine
-should be 1800 s.
+in 1113 s.
+
+That comparison excluded a regression only from `b1b9854` onward. The
+Mathics CI workflow had in fact been failing since `bdaf79d`, the first push
+after the last green run at `8f28084`: the same Newton case, plus
+`families-lambert-negative-branch` and `special-barnes-stirling`, reached the
+300-second CI deadline that they had met before (the Newton case took 221 s
+in the [refinement receipt](mathics-modular-refinement-tests.json) of
+September 9). Timing the case concurrently on exported kernels under equal
+load located the whole slowdown in `bd6e6bc`, the first commit after the
+green run (`8f28084` 312 s, `dde9a0c` 492 s, `bdaf79d` 498 s in one round;
+`bd6e6bc`, `2b46f5d` and the current kernel all about 540 s in the next), and
+then in one function of that commit: the Mathics assumption walker's new
+request-local proof memo computed the fact table and re-entered the whole
+walker under the memo block, so every outer call paid for its fact table
+twice. Bypassing the memo storage alone changed nothing (263 s against
+263 s); disabling the re-entry restored the green run's speed (352 s
+against 526 s for the unmodified kernel and 347 s for `8f28084` in the same
+round). The walker now installs the memo before any work (341 s against
+324 s for `8f28084` in a final concurrent round, the memo storage itself
+being the remaining difference); the memo's
+matched evaluation counts are unchanged since the stored bodies are the
+same. With the fix, the `assumptions` and `numerical` groups pass **21/21**
+on both layouts ([modular](mathics-modular-wave7-memo-tests.json),
+[standalone](mathics-standalone-wave7-memo-tests.json)) and the Newton case
+passes alone within the CI deadline
+([receipt](mathics-modular-wave7-newton-deadline-tests.json)). The CI
+workflow's per-case deadline is raised to 600 s for the `special` and
+`operations` shards, with the job limit at 50 minutes, so that a shared
+runner has margin without hiding a regression of this size again.
 
 ## Coherent source snapshots in the portable runner
 

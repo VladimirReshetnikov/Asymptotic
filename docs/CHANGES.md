@@ -15,6 +15,14 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Mathics proof memo installed without re-entry
+
+The Mathics assumption walker installs its request-local proof memo before
+any work instead of computing the fact table and re-entering itself, which
+had cost about half again the running time of every Mathics request that
+proves assumptions since the wave-6 repairs; the Newton refinement case is
+back to the speed of the last green CI run.
+
 ### Parametric polynomial inverses on Mathics
 
 The Mathics polynomial real-domain proof receives the retained parameter

@@ -68,6 +68,12 @@ keyed by the query and the fact table derived from the assumptions: a proved
 answer is reused at any depth, an unresolved answer is reused only at depths
 no larger than the one that produced it, and the memo is discarded when the
 entry returns. Nothing is shared across requests or assumption contexts. The
+memo is installed before any work: the first version computed the fact
+table and then re-entered the whole walker under the memo block, so every
+outer call paid for its fact table twice, which cost about half again the
+running time of every Mathics request that proves assumptions (the wave-7
+operations receipts and the CI deadline exposed it; see the validation
+record). The
 [matched measurements](../../validation/wave6-prover-memo-measurements.json)
 record identical proof results with body evaluations reduced from thousands
 to tens on nested queries.

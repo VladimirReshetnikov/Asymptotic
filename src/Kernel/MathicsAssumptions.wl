@@ -14,6 +14,7 @@ ClearAll[AsymptoticAnalysis`Mathics`Element,
   AsymptoticAnalysis`Mathics`mathicsRealProofBody,
   AsymptoticAnalysis`Mathics`mathicsSignProofBody,
   AsymptoticAnalysis`Mathics`mathicsProofMemoized,
+  AsymptoticAnalysis`Mathics`mathicsAssumptionWalk,
   AsymptoticAnalysis`Mathics`$mathicsProofMemo,
   AsymptoticAnalysis`Mathics`mathicsRelationProof,
   AsymptoticAnalysis`Mathics`mathicsAssumptionSimplify];
@@ -180,17 +181,25 @@ mathicsRelationProof[left_, head_, right_, facts_] := Module[{signs, accepted},
   Which[mathicsSignsWithinQ[signs, accepted], True,
     ListQ[signs] && signs =!= {} && Intersection[signs, accepted] === {}, False, True, None]];
 
-mathicsAssumptionSimplify[expression_, assumptions_] := Module[{facts, walk, memo},
+(* One memo per entry call; nested entries with other assumptions are
+   separated by the fact table inside the key. The memo is installed before
+   any work: an earlier version computed the fact table and then re-entered
+   the whole walker under the memo block, so every outer call paid for its
+   fact table twice, which cost about half again the running time of every
+   Mathics request that proves assumptions (the wave-7 operations receipts
+   and the CI deadline exposed it). *)
+mathicsAssumptionSimplify[expression_, assumptions_] := Module[{memo},
+  If[$mathicsProofMemo === None,
+    Block[{$mathicsProofMemo = memo}, mathicsAssumptionWalk[expression, assumptions]],
+    mathicsAssumptionWalk[expression, assumptions]]];
+
+mathicsAssumptionWalk[expression_, assumptions_] := Module[{facts, walk},
   (* Direct Taylor-admission calls also reach this walker. Do not let its
      Factor/Together path convert retained ProductLog[k,z] through Mathics'
      incorrect SymPy argument order. Leave the proof unresolved. *)
   If[! FreeQ[{expression, assumptions}, HoldPattern[System`ProductLog[_, _]]],
     Return[expression, Module]];
   facts = mathicsAssumptionFacts[assumptions];
-  (* One memo per entry call; nested entries with other assumptions are
-     separated by the fact table inside the key. *)
-  If[$mathicsProofMemo === None,
-    Return[Block[{$mathicsProofMemo = memo}, mathicsAssumptionSimplify[expression, assumptions]], Module]];
   walk[e_] := Module[{head = Head[e], value, proof, signs, base, results},
     If[AtomQ[e], Return[e, Module]];
     If[MemberQ[{Element, System`Element}, head] && Length[e] === 2 && e[[2]] === Reals,
