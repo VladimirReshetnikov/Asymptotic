@@ -1,0 +1,37 @@
+[
+  {
+    "id": "N01",
+    "class": "source-established correctness defect",
+    "title": "Aggregate validation erases target dependence between core and perturbation",
+    "public_behavior_status": "source-predicted; isolated Wolfram recurrence and selected predicates executed",
+    "affected_file": "src/Kernel/CorePerturbation.wl",
+    "affected_function": "corePerturbationConstruct",
+    "closest_prior": [
+      "R46/R50 SourceShift",
+      "C15 fixed parameter scope",
+      "R43 eliminated-source leakage"
+    ],
+    "delta": "Different constructor and input operands. FreeQ is applied after addition, so separately retained varying data disappear from admission. All-depth failure plus a vanishing-marker-ratio family and fixed-data controls.",
+    "repair": "Validate the operand list and test target independence on that list before constructing the model.",
+    "mathics_status": "Shared source defect; public manifestation of Abs-based witness may be blocked by conservative realness admission; unrun."
+  },
+  {
+    "id": "E01",
+    "class": "concrete algorithmic development contribution",
+    "title": "Two-Meixner Gauss/Radau rational enclosure hierarchy for LerchPhi[q,1,a]",
+    "closest_prior": [
+      "R49 signed mean-variance remainder bounds",
+      "R50 Eulerian moment table",
+      "X05 quantitative bound development lane"
+    ],
+    "delta": "Explicit higher-order rational endpoint recurrences; positive finite denominator representation; exact signed errors, norm caps and nesting; linear arithmetic-step implementation without moment matrix or nodes. Order-one mean bound is a control, not new.",
+    "scope": "0<=q<1, a>0, exact rational inputs; general s and complex parameters excluded",
+    "executed": "Independent Python suite and four isolated native recurrence examples; WL wrapper file and Mathics unrun."
+  },
+  {
+    "id": "SCREENED-COMPARATOR",
+    "class": "not counted",
+    "title": "Unproved positive inference at final comparator branch",
+    "reason": "Two exact identity candidates normalize to zero in native FullSimplify before the suspect branch. No admissible public counterexample established; no new bug claimed."
+  }
+]

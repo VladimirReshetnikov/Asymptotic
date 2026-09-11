@@ -1,0 +1,58 @@
+{
+  "repository": "VladimirReshetnikov/Asymptotic",
+  "commit": "efa1aeec4845a9c35e140963a0333d0c9ec33b05",
+  "date": "2026-09-10",
+  "review_type": "Incremental selected-source contract audit after six review waves",
+  "new_correctness_findings": 1,
+  "algorithmic_development_contributions": 1,
+  "complete_repository_checkout_obtained": false,
+  "full_original_package_executed": false,
+  "full_patched_package_executed": false,
+  "mathics_executed": false,
+  "complete_wl_prototype_file_executed": false,
+  "upstream_test_suite_executed": false,
+  "m_unit_regressions_executed": false,
+  "isolated_wolfram_engine": "15.0.0 for Linux x86 (64-bit) (May 6, 2026)",
+  "native_scope": [
+    "N01 marker-term recurrence and selected predicates",
+    "E01 arithmetic recurrence at four orders; four built-in Lerch comparisons",
+    "Rejected comparator-candidate normalization controls"
+  ],
+  "python_scope": "Independent models, exact sum/moment oracles, and synthetic patch-emitter fixtures",
+  "comparison_baseline": [
+    "Review root and six wave indexes",
+    "Maintained CODE_REVIEW_STATUS register, selected ranges",
+    "Relevant original Lerch sections in reports 49 and 50"
+  ],
+  "novelty_limit": "No exhaustive reread of every line in all 45 retained articles is claimed. GitHub code search returned empty results even for a control query and was not treated as evidence of absence.",
+  "source_coverage": {
+    "complete_or_retrieved_across_chunks": [
+      "src/Kernel/CorePerturbation.wl",
+      "src/Kernel/CoordinateInverse.wl",
+      "src/Kernel/InverseFunctionSyntax.wl",
+      "src/Kernel/SpecialFunctionIdentities.wl",
+      "src/Kernel/MathicsAssumptions.wl"
+    ],
+    "selected_portions": [
+      "src/Kernel/AsymptoticAnalysis.wl",
+      "src/Kernel/ExponentialCorePerturbation.wl",
+      "src/Kernel/SourceCoordinates.wl",
+      "src/Kernel/SeriesOperations.wl",
+      "src/Kernel/ReciprocalLogOperations.wl",
+      "src/Kernel/FourierCoefficients.wl",
+      "src/Kernel/DirichletSpecialFunctions.wl",
+      "src/Kernel/ParameterizedSpecialFunctions.wl",
+      "src/Kernel/SpecialFunctionRealDomain.wl",
+      "src/Kernel/NativeSpecialFunctions.wl",
+      "src/Kernel/InverseFunctionBranches.wl",
+      "src/Kernel/InverseCertificates.wl"
+    ]
+  },
+  "limitations": [
+    "Container network/download failure prevented a checkout",
+    "Remote package loads failed at service boundary",
+    "No local Mathics or Wolfram executable",
+    "Patch emitter verified on synthetic source anchors, not a real checkout",
+    "No performance benchmark of either runtime"
+  ]
+}

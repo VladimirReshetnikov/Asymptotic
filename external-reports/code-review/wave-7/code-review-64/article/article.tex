@@ -1,0 +1,1077 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=25mm,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,array,enumitem}
+\usepackage{xcolor,listings,fancyhdr}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+\hypersetup{pdftitle={AsymptoticAnalysis after Six Review Waves},pdfauthor={Technical review prepared for Vladimir Reshetnikov},pdfsubject={Incremental source audit and rational Lerch certificate prototype}}
+\definecolor{codeback}{gray}{0.965}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,
+ breaklines=true,breakatwhitespace=false,showstringspaces=false,
+ backgroundcolor=\color{codeback},frame=single,rulecolor=\color{black!15},
+ xleftmargin=0.3em,xrightmargin=0.3em,aboveskip=0.9em,belowskip=0.9em}
+\setlength{\emergencystretch}{3em}
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{0pt}
+\widowpenalty=10000
+\clubpenalty=10000
+\setlist{nosep,leftmargin=1.5em}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small AsymptoticAnalysis: incremental technical audit}
+\fancyhead[R]{\small \texttt{efa1aeec}}
+\fancyfoot[C]{\thepage}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{remark}\newtheorem{remark}[theorem]{Remark}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\PhiL}{\Phi}
+\newcommand{\dd}{\,\mathrm d}
+\newcommand{\repo}{\url{https://github.com/VladimirReshetnikov/Asymptotic}}
+\title{\textbf{AsymptoticAnalysis after Six Review Waves}\\[0.5em]
+\large Operand-preserving validation, an all-depth inverse counterexample,\\
+and exact-rational Lerch certificates}
+\author{Technical review prepared for Vladimir Reshetnikov}
+\date{10 September 2026\\[0.6em]\small Source snapshot:\\
+\texttt{efa1aeec4845a9c35e140963a0333d0c9ec33b05}}
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\begin{abstract}
+This incremental audit identifies a correctness defect in the exact-core inverse
+constructor: it checks target independence after adding the core and perturbation,
+although it subsequently uses the operands separately. Cancellation can therefore
+admit target-dependent model data into a theorem whose constants must be fixed.
+For a particularly simple input, the total forward function is exactly $1/x$,
+but the source-derived marker approximations alternate between $0$ and $2/y$ while
+the claimed remainder improves by one power at every depth. A second family has
+a genuinely vanishing perturbation ratio and still violates the reported scale.
+The report gives an all-depth proof, a narrowly scoped repair, and executable
+independent checks.
+
+A separate development contribution constructs a hierarchy of rational lower and
+upper bounds for $\Phi(q,1,a)$ using the two Meixner measures naturally associated
+with the defining sum. The implementation evaluates two three-term recurrences:
+it needs neither a moment matrix nor quadrature nodes, a special-function call,
+or floating-point arithmetic. Positivity, error identities, nesting and explicit
+error caps are proved. Python code is independently tested; an equivalent Wolfram
+Language prototype is supplied.
+
+The comparison baseline consists of the six review indexes, the maintained
+register, and focused original passages relevant to the proposed deltas. Existing
+findings are not presented as new. Evidence is deliberately separated: source
+inspection, mathematical proof, isolated Wolfram 15 evaluations, and independent
+Python tests do not constitute an upstream package or Mathics acceptance run.
+\end{abstract}
+\vfill
+\textbf{Deliverable boundary.} One new source-established correctness finding;
+one concrete algorithmic development proposal. No new benchmark result, complete
+compatibility claim, integrated patch, or full-suite acceptance is asserted.
+\newpage
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+
+\section{Executive assessment and evidence boundary}
+\label{sec:assessment}
+
+\subsection{What should change first}
+
+\textbf{N01: validate the two operands before combining them.}
+The highest-priority change is in \code{corePerturbationConstruct}, in
+\code{src/Kernel/CorePerturbation.wl}. The constructor tests
+\code{FreeQ[core + perturbation, y]}, not
+\code{FreeQ[{core, perturbation}, y]}. Its parser then keeps separate core and
+perturbation rows, extracts an offset from the core, constructs an exact core
+inverse, and computes a marker expansion with a fixed-data majorant.
+Those operations depend on facts about the operands that the sum cannot
+preserve. The public error message already requires no target symbol in the
+forward data; the implementation enforces a weaker condition.\cite{core}
+
+This is not merely an overly optimistic numerical estimate. For the witness in
+\cref{sec:counterexample}, the error divided by the stored remainder scale tends
+to infinity. No finite hidden big-$O$ constant can repair the result. Its source
+and target domains are nonempty and contain the entire required eventual ray.
+The bad result is also not dependent on a difficult special-function identity.
+
+\textbf{E01: implement a specific rational certificate family for the Lerch
+slice $s=1$.} The repository already has proposals for Lerch remainder bounds and
+exact moments. This report does not repeat either request. Its additional
+contribution is the explicit two-measure Gauss/Radau construction in
+\cref{sec:lerch}: a nested rational interval, a positive denominator formula,
+closed error caps, and a linear number of exact recurrence steps. It supplies a
+bounded implementation that can be tested independently of either symbolic
+kernel.\cite{r49,r50}
+
+\subsection{What actually ran}
+
+\begin{longtable}{@{}p{0.27\textwidth}p{0.65\textwidth}@{}}
+\toprule
+Evidence class & Actual scope\\\midrule\endhead
+Repository reads & Commit-pinned GitHub connector reads of the modules and
+review material described below. No local checkout was obtained.\\
+Mathematical analysis & Exact all-depth counterexample and fixed-data controls;
+proofs of the rational certificate construction and its error identities.\\
+Wolfram 15 isolation & A transcribed evaluation of the upstream marker-term
+recurrence, the relevant cancellation and realness predicates, and five
+coefficients; a separate evaluation of the proposed rational recurrence for
+four orders, with four native Lerch comparisons.\\
+Python execution & 24 unittest methods, zero failures and zero errors in the
+final run. The methods include exact-rational models, independent defining-sum
+and moment oracles, and synthetic patch-emitter fixtures.\\
+Not executed & The complete original package, the patched package, the supplied
+MUnit regressions, the complete supplied WL wrapper file, and all Mathics runs.\\
+\bottomrule
+\end{longtable}
+
+The available remote kernel reported
+\code{15.0.0 for Linux x86 (64-bit) (May 6, 2026)}. Package-loading requests
+failed at the service boundary. Container downloads also failed, and no local
+Wolfram or Mathics executable was available. These are environment limitations,
+not package test failures. Isolated native calculations are consequently marked
+as such throughout this article. In particular, the full public N01 call is a
+\emph{source-predicted manifestation}, not a fabricated native transcript.
+
+The final Python count must not be added to any historical acceptance count in
+the repository. Likewise, the 144 containment subcases in one test method are
+not 144 extra unittest methods. The machine-readable scope record and test log
+are included in \code{evidence/}.
+
+\subsection{Review coverage}
+
+The audit concentrated on semantic admission, coordinate transformations,
+remainder construction, observable operations, exact arithmetic, and portable
+proof boundaries. It read the complete exact-core module and selected portions
+of the general core, the source and inverse coordinate modules, ordinary and
+reciprocal-logarithmic operations, Fourier coefficients, Dirichlet special
+functions, native special-function admission, inverse syntax and branches,
+certificates, and the Mathics assumption prover. The six wave indexes and the
+maintained status register were used to screen candidate findings. Relevant
+original sections of reports 49 and 50 were read for the Lerch proposal.
+
+This is a bounded source review, not a statement that every source line, every
+retained article, or every test has been re-executed. Unread portions and
+unsupported runtimes are not silently converted into coverage. The accompanying
+\code{evidence/scope.json} and novelty ledger make that distinction explicit.
+
+\section{Novelty relative to the existing review corpus}
+\label{sec:novelty}
+
+The pinned review index retains 45 packages across six waves. Its own accounting
+separates report entries from distinct obligations and records overlaps rather
+than treating every report-local identifier as a separate bug. That is the
+appropriate baseline for an incremental review.\cite{reviewindex,status}
+
+\subsection{N01 is a different admission defect}
+
+The closest existing work is the target-dependent \code{SourceShift} finding
+in reports 46 and 50, the fixed-parameter scope principle recorded under C15,
+and report 43's source-symbol leakage through an exact core inverse. N01 is
+not another example of one of those call paths.\cite{wave5,wave6,status}
+
+\begin{longtable}{@{}p{0.26\textwidth}p{0.66\textwidth}@{}}
+\toprule
+Comparison & Additional obligation established here\\\midrule\endhead
+Reports 46/50 & N01 affects \code{AsymptoticCoreInverse}, not the exponential
+constructor's \code{SourceShift} option. The distinguishing mechanism is an
+aggregate dependency test that loses information through cancellation.\\
+C15 & Parameter capture during composition and admission of two independently
+varying operands are different operations. The repair here belongs before the
+core model is built, not in substitution or composition.\\
+Report 43 & The eliminated source symbol is not retained in N01's inverse.
+The target has entered the model through the separately stored core and
+perturbation. An output-only source-freedom check would pass this witness.\\
+\bottomrule
+\end{longtable}
+
+The exponential-core sibling is also an instructive local control: its variable
+admission uses a list containing the two operands. This is a precedent for the
+minimal repair, not a new request to redesign every chart abstraction.
+\cite{expcore}
+
+\subsection{E01 is an algorithm, not a repeated roadmap request}
+
+Report 49 already develops signed mean--variance information for the Lerch
+remainder. Report 50 supplies an exact Eulerian moment table and discusses
+removing special-function dependence from those moments. The present proposal
+uses the same defining positive measure but computes a different object:
+two rational resolvent approximants of arbitrary finite order, evaluated by
+closed three-term recurrences.\cite{r49,r50}
+
+The added obligations are the two shifted Meixner parameterizations, the
+positive-denominator formula, the exact error identities and caps, the nested
+interval proof, and a recurrence implementation requiring $O(n)$ arithmetic
+steps for a single order-$n$ interval. Order one includes a familiar mean-based
+lower bound and is used as a control, not advertised as a new result. The useful
+additional family is the higher-order hierarchy and its constructive certificate.
+
+The underlying orthogonal-polynomial and quadrature ideas are classical.
+The contribution is a concrete, proved and tested application to this
+repository's bounded Lerch certificate lane, not a claim of mathematical priority.
+
+\section{N01: cancellation defeats fixed-operand validation}
+\label{sec:counterexample}
+
+\subsection{The source path}
+
+At the constructor boundary the current source contains:
+\begin{lstlisting}
+validateInput[core + perturbation, limit];
+If[x === y || ! FreeQ[core + perturbation, y],
+  fail["InvalidVariables",
+    "Use distinct source and target symbols, with no target symbol in the forward data."]];
+\end{lstlisting}
+The public overload separately restricts the coordinate slots to symbols.
+The problem is therefore not a missing symbol pattern in this particular
+argument form. It is the expression on which dependency is tested.\cite{core}
+
+The subsequent data flow is structurally different:
+\begin{lstlisting}
+f0 = Simplify[core /. x -> coord["Substitution"], ...];
+rr = Simplify[perturbation /. x -> coord["Substitution"], ...];
+rows = parseFinite[f0, ...];
+remainderRows = parseFinite[rr, ...];
+offset = Total[Cases[rows, {0,c_} :> Coefficient[c,ell,0]]];
+...
+v = y - model["Offset"];
+u0 = (v/a)^(1/p);        (* monomial exact core *)
+\end{lstlisting}
+Here the parser and inverse builder genuinely need the two operands, not merely
+their sum. The model records their separate finite supports, the perturbation's
+relative source-power gap, and the core offset.\cite{core}
+
+For observable power one at a finite positive-side endpoint, the omitted-tail
+pair is constructed as
+\begin{lstlisting}
+{canon[1 + (depth + 1) delta], (depth + 1) degree}
+\end{lstlisting}
+when the perturbation is nonzero. The stored majorant explicitly quantifies over
+\emph{fixed data}: it asserts existence of finite constants and a threshold for
+an expansion in a small source-coordinate scale.\cite{core}
+
+\subsection{A public witness with a trivial true inverse}
+
+Take the target $y$ positive and eventually large, and use
+\begin{lstlisting}
+AsymptoticCoreInverse[
+  1/x + Abs[y]/2,
+  -Abs[y]/2,
+  {x, 0}, {y, n}
+]
+\end{lstlisting}
+with a fixed nonnegative integer depth $n$. This call is deliberately written
+with \code{Abs[y]} rather than a bare $y$ in the coefficient. Native Wolfram
+arithmetic can prove \code{Abs[y]} real without a separate assumption about $y$.
+The constructor prohibits target-dependent assumptions, so using an unproved-real
+bare coefficient would obscure the actual validation defect.
+
+The total forward expression is
+\[
+ \left(\frac1x+\frac{|y|}{2}\right)-\frac{|y|}{2}=\frac1x.
+\]
+Consequently the existing \code{FreeQ} test sees no target. On the positive
+source chart, both operands are finite power-log expressions. Their source
+powers are $-1$ for the leading core term and $0$ for the perturbation. The
+computed relative power gap is therefore $\delta=1$, and the logarithmic
+degree is zero. The leading amplitude is one. Nothing in those source-power
+checks detects that the coefficient at source power zero grows with the target.
+
+On $y>0$, put $A=y/2$. The exact core and perturbation are
+\[
+ f_0(u)=u^{-1}+A,\qquad r(u)=-A,
+ \qquad u_0=\frac1{y-A}=\frac2y.
+\]
+The stored target-domain ingredients are satisfied for all sufficiently large
+$y$: $y-A>0$, $u_0\in\R$, and $0<u_0<1/e$ whenever $y>2e$.
+Thus the counterexample does not rely on evaluating outside the selected domain.
+
+\subsection{The marker equation exposes the error}
+
+Introduce the marker $\lambda$ exactly as the algorithm does:
+\[
+ f_0(u)+\lambda r(u)=y.
+\]
+For an arbitrary value $A=A(y)$ independent of the source coordinate,
+\begin{equation}
+ u(\lambda)=\frac1{y-A+\lambda A}
+ =\frac{u_0}{1+\lambda A u_0}.
+ \label{eq:marker}
+\end{equation}
+The degree-$j$ marker coefficient is therefore
+\begin{equation}
+ t_j=(-A)^j u_0^{j+1},\qquad j\geq0.
+ \label{eq:marker-coefficient}
+\end{equation}
+This agrees with the source recurrence based on $r^j/f_0'$ and repeated
+application of $(1/f_0')\,\mathrm d/\mathrm du$. It also follows directly by
+expanding the rational function in \cref{eq:marker}; no numerical inference is
+needed.
+
+For $A=y/2$ one has $A u_0=1$. The finite approximation is
+\begin{equation}
+ S_n=\sum_{j=0}^{n}t_j
+ =\begin{cases}2/y,&n\text{ even},\\0,&n\text{ odd}.\end{cases}
+ \label{eq:alternating}
+\end{equation}
+The true inverse is $u(1)=1/y$, so the absolute error is $1/y$ at every depth.
+But the source constructs the remainder pair $(n+2,0)$ and scale
+$u_0^{n+2}=(2/y)^{n+2}$. Their ratio is
+\begin{equation}
+ \frac{|S_n-1/y|}{u_0^{n+2}}
+ =\frac{y^{n+1}}{2^{n+2}}\longrightarrow\infty.
+ \label{eq:false-scale}
+\end{equation}
+This refutes the asymptotic remainder at every fixed marker depth.
+
+\begin{theorem}[All-depth cancellation witness]
+For each integer $n\geq0$, the source path described above associates a remainder
+scale of order $y^{-n-2}$ with an approximation whose error is exactly $y^{-1}$
+on an eventual positive target ray. Its claimed big-$O$ statement is false.
+\end{theorem}
+\begin{proof}
+The source-power gap and observable power give $(n+2,0)$. Equations
+\eqref{eq:alternating} and \eqref{eq:false-scale} give the finite approximation,
+exact error, and unbounded normalized error. The domain check above establishes
+that the ray is admitted by the stored domain formula.
+\end{proof}
+
+\subsection{The failure survives a genuinely small perturbation ratio}
+
+The previous example has marker ratio $A u_0=1$. A repair that merely checks
+whether a marker ratio tends to zero would still miss the more fundamental
+fixed-data failure. Set instead
+\[
+ A(y)=\sqrt y\quad(y>0),
+\]
+represented in the call by \code{Sqrt[Abs[y]]}. Now
+\[
+ A u_0=\frac{\sqrt y}{y-\sqrt y}\longrightarrow0.
+\]
+The marker expansion is geometrically convergent at $\lambda=1$ for all large
+enough $y$, and its truncations do improve. Nevertheless they do not improve at
+the rate stated in the stored source-power remainder.
+
+\begin{proposition}[General moving-offset identity]
+Let $A(y)\geq0$, $y>A(y)$, and $u_0=(y-A(y))^{-1}$. For the degree-$n$ finite
+sum from \cref{eq:marker-coefficient},
+\begin{align}
+ S_n-\frac1y&=-\frac{(-A u_0)^{n+1}}{y},\label{eq:general-error}\\
+ \frac{|S_n-1/y|}{u_0^{n+2}}
+ &= A(y)^{n+1}\left(1-\frac{A(y)}y\right).
+ \label{eq:general-ratio}
+\end{align}
+If $A(y)=y^\sigma$ with $0<\sigma<1$, the normalized error diverges like
+$y^{\sigma(n+1)}$, although $A u_0\to0$.
+\end{proposition}
+\begin{proof}
+Apply the finite geometric-sum identity to \cref{eq:marker}. Since
+$u_0/(1+A u_0)=1/y$, the finite remainder has exactly the form
+\eqref{eq:general-error}. Dividing its magnitude by $u_0^{n+2}$ gives
+\eqref{eq:general-ratio}. The final assertion follows from $A/y\to0$.
+\end{proof}
+
+In particular, $A=\sqrt y$ gives an actual error of order
+$y^{-(n+3)/2}$, whereas the reported scale is of order $y^{-(n+2)}$.
+This second family rules out dismissing the defect as only a borderline
+convergence example. The constants in the claimed source-coordinate theorem
+are being allowed to depend on the variable that is tending to its limit.
+
+\subsection{The valid fixed-data control}
+
+If $A$ is a genuine fixed real constant, the same algebra yields a bounded
+normalized error:
+\[
+ \frac{|S_n-1/y|}{u_0^{n+2}}
+ =|A|^{n+1}\left(1-\frac Ay\right)
+\]
+on a sufficiently large positive ray. For $y\geq2|A|$ this is at most
+$\tfrac32|A|^{n+1}$. A looser factor two is used in the independent tests.
+The $A=0$ control is exact and follows the constructor's empty-perturbation path.
+
+The correct fix must therefore distinguish fixed cancellations from moving
+cancellations. Rejecting every decomposition in which a constant cancels would
+be unnecessary and would remove mathematically valid inputs.
+
+\subsection{Native isolation: what is confirmed}
+
+The successful isolated Wolfram 15 evaluation used the upstream
+\code{corePerturbationTerm} body, changing only resource-failure plumbing to a
+local throw in a branch that was not reached. Its observed values included:
+\begin{lstlisting}
+Total forward expression:              1/x
+FreeQ[core + perturbation, y]:         True
+FullSimplify[Element[perturbation,Reals]]: True
+FullSimplify[u0, y>0]:                 2/y
+Marker coefficients, degrees 1..5:
+  {-2/y, 2/y, -2/y, 2/y, -2/y}
+Finite sums, depths 0..5:
+  {2/y, 0, 2/y, 0, 2/y, 0}
+\end{lstlisting}
+This confirms the cancellation gate, the native coefficient-realness control,
+and the recurrence mechanics. It does \emph{not} establish that the entire
+constructor or the complete patched package was executed. The integration probe
+included in this archive is the next required acceptance step, not evidence
+that it already ran.
+
+\section{Repair, regression design, and dual-runtime implications}
+\label{sec:repair}
+
+\subsection{Minimal semantic change}
+
+The essential repair is to replace the dependency check by
+\begin{lstlisting}
+If[x === y || ! FreeQ[{core, perturbation}, y],
+  fail["InvalidVariables",
+    "Use distinct source and target symbols, with no target symbol in either core or perturbation."]];
+\end{lstlisting}
+The list preserves which expression supplied the data. Ordinary evaluation
+inside each operand may still remove a mathematically irrelevant occurrence;
+the important point is that addition must not erase a dependency \emph{between}
+two operands that the algorithm keeps separate. \code{FreeQ} is a structural
+query on its evaluated expression; it cannot recover information already erased
+by prior evaluation.\cite{freeq}
+
+The companion change
+\begin{lstlisting}
+validateInput[{core, perturbation}, limit];
+\end{lstlisting}
+keeps the exact-input and nonfinite-input checks on the same semantic unit.
+For example, inexact constants can cancel in the sum even though the core model
+still receives them separately. This companion change is an explicit strengthening
+of operand admission, not a separate counted bug and not a claim that every such
+input previously produced a wrong answer.
+
+The patch retains the existing failure tag \code{InvalidVariables}. The total
+forward function may still be stored as \code{core + perturbation}; it is the
+right expression for the defining equation after both operands have passed
+admission. There is no need to change the valid fixed-data marker formula,
+change the result head, or reclassify this object as an exponent-sorted jet.
+
+\subsection{Why an output-only repair is inadequate}
+
+Three apparently reasonable postconditions would all miss the first witness:
+the total forward expression is target-free, the exact core inverse is free of
+the eliminated source symbol, and every displayed coefficient is real on the
+target ray. The obstruction belongs to the model's quantifiers, not to the
+syntactic cleanliness of the final expression.
+
+Likewise, multiplying the first omitted term by a guessed numerical constant
+would not repair the declared remainder theorem. The all-depth ratio proof
+shows that a constant independent of the target does not exist for the stored
+scale. A general moving-parameter theory would need its own asymptotic grading,
+but the existing public contract calls for rejecting this input before invoking
+a fixed-data theorem. That much narrower change is the recommended repair.
+
+\subsection{Regression expectations}
+
+The supplied \code{tests/CoreOperandScope.wlt} is a desired-contract MUnit file.
+It is unrun. It requires both moving-coefficient families to return the
+structured variable-admission failure, keeps a fixed cancellation as a
+\code{GeneralizedSeries}, checks the exact zero-perturbation control, and checks
+that inexact operands do not disappear before the exact-input boundary.
+
+The separate \code{ProbeCoreOperandScope.wl} is suitable for observational use
+in either session after loading the package. It prints the runtime and explicitly
+distinguishes a series result from a refusal. For a series it reads the actual
+\code{CoreInverse} fields \code{Expression}, \code{RemainderPower},
+\code{RemainderScaleExpression}, and \code{TargetDomain}. It does not reuse an
+ordinary-forward-field assumption or count an unevaluated numerical guard as a
+passing comparison.
+
+A useful native acceptance sequence is: run the probe on the original pin;
+apply the two-line semantic repair to a separate working copy; rebuild the
+standalone using the repository's maintained procedure; rerun the probe and
+MUnit file; then execute existing exact-core controls. The patch emitter does
+not perform these steps or claim their results.
+
+\subsection{Mathics: common source is not common observed behavior}
+
+The offending dependency check is shared source, so it should be corrected
+independently of which runtime first reproduces the bad public call. However,
+the particular \code{Abs[y]} witness relies on a realness fact that native
+Wolfram can discharge. The Mathics assumption adapter has a more conservative
+recursive realness prover; it may refuse the expression before reaching the
+same public result. Reading common source is not evidence that this public
+witness succeeds identically in Mathics.\cite{mathicsassumptions}
+
+The precise claims are therefore: the shared guard loses operand information;
+the native isolated realness and recurrence controls pass; the full Wolfram
+manifestation follows the inspected source path but was not integration-run;
+and Mathics public reachability remains unmeasured. The proposed list-based
+admission itself uses elementary operations already present in the sibling
+implementation and does not introduce a new special-function dependency.
+
+The Lerch prototype in \cref{sec:lerch} is intentionally separate. It uses exact
+rational operations, finite loops, lists, and a small association wrapper.
+That is a design for portability, not proof of runtime compatibility. A fresh
+Mathics run of the supplied file is still required.
+
+\section{E01: a rational Lerch certificate hierarchy}
+\label{sec:lerch}
+
+\subsection{The bounded target}
+
+For fixed $0<q<1$ and $a>0$, define
+\begin{equation}
+ F_q(a)=\PhiL(q,1,a)=\sum_{k=0}^{\infty}\frac{q^k}{a+k}.
+ \label{eq:lerch}
+\end{equation}
+This is the $s=1$ slice of the defining Lerch series.\cite{dlmflerch}
+The proposed primitive returns an exact interval for the \emph{function value},
+not a replacement remainder for an arbitrary generalized-series object.
+Its first implementation accepts rational $q,a$ and a positive integer order.
+It treats $q=0$ separately, where $F_0(a)=1/a$ exactly.
+
+The restriction is useful. A positive discrete measure is available, all moments
+are finite, and both denominator families have explicit positive evaluations
+on the negative real axis. No nonprincipal branches or numerical sign decisions
+enter the certificate. Extending to $q<0$, complex parameters, or arbitrary $s$
+is outside this prototype.
+
+\subsection{Two positive measures, not a moment matrix}
+
+Let
+\[
+ \mu=\sum_{k\geq0}q^k\delta_k,
+ \qquad \mu_1=\sum_{k\geq0}kq^k\delta_k.
+\]
+Their masses are
+\begin{equation}
+ m_0=\frac1{1-q},\qquad m_1=\frac{q}{(1-q)^2}.
+ \label{eq:masses}
+\end{equation}
+Then $F_q(a)=\int(a+t)^{-1}\dd\mu(t)$. The weighted transform satisfies
+\begin{equation}
+ H_q(a)=\int\frac1{a+t}\dd\mu_1(t)
+       =m_0-aF_q(a).
+ \label{eq:weighted}
+\end{equation}
+The first measure has support in $[0,\infty)$; the second has support in
+$[1,\infty)$ after its zero weight at $k=0$ is discarded. This one-unit shift
+will improve its elementary error cap.
+
+The first measure is the Meixner weight with parameter $\beta=1$. Writing
+$k=t+1$ in the second gives $q(t+1)q^t$, namely $q$ times the Meixner weight
+with $\beta=2$, translated by one. The defining Meixner orthogonality and
+finite hypergeometric representation are recorded in DLMF
+\S\S18.19--18.20.\cite{dlmfmeixner,dlmfexplicit}
+
+\subsection{A general resolvent identity}
+
+Let $P_n$ be the monic degree-$n$ polynomial orthogonal for a positive measure
+$\nu$ supported in $[b,\infty)$, where $b\geq0$. Define
+\begin{equation}
+ G_n^{\nu}(a)=\frac1{P_n(-a)}
+ \int\frac{P_n(-a)-P_n(t)}{a+t}\dd\nu(t).
+ \label{eq:gauss}
+\end{equation}
+The quotient in the integral is a polynomial of degree $n-1$, so this is a
+rational function computable from finite polynomial information. The formula
+also identifies the usual Gaussian resolvent approximant without requiring
+its quadrature nodes.
+
+\begin{theorem}[Positive exact error identity]
+Assume $a>0$ and $P_n(-a)\ne0$. Then
+\begin{equation}
+ \int\frac1{a+t}\dd\nu(t)-G_n^{\nu}(a)
+ =\frac1{P_n(-a)^2}\int\frac{P_n(t)^2}{a+t}\dd\nu(t).
+ \label{eq:gauss-error}
+\end{equation}
+In particular the error is positive for a nondegenerate measure, and with
+$h_n^{\nu}=\int P_n^2\dd\nu$ it is at most
+\begin{equation}
+ \frac{h_n^{\nu}}{(a+b)P_n(-a)^2}.
+ \label{eq:norm-bound}
+\end{equation}
+\end{theorem}
+\begin{proof}
+The polynomial $(P_n(t)-P_n(-a))/(t+a)$ has degree $n-1$. Orthogonality gives
+\[
+ 0=\int P_n(t)\frac{P_n(t)-P_n(-a)}{a+t}\dd\nu(t).
+\]
+Rearranging yields
+$\int P_n(t)/(a+t)\dd\nu(t)=
+ P_n(-a)^{-1}\int P_n(t)^2/(a+t)\dd\nu(t)$.
+Subtract \cref{eq:gauss} from the original transform and substitute this
+identity. Positivity follows from the integrand. Finally $a+t\geq a+b$
+gives \cref{eq:norm-bound}.
+\end{proof}
+
+\subsection{The lower and upper endpoints}
+
+Use $G_n=G_n^{\mu}$ and $J_n=G_n^{\mu_1}$, and set
+\begin{equation}
+ L_n(a)=G_n(a),\qquad
+ U_n(a)=\frac{m_0-J_n(a)}a.
+ \label{eq:bounds}
+\end{equation}
+By \cref{eq:weighted,eq:gauss-error},
+\begin{equation}
+ L_n(a)<F_q(a)<U_n(a)\qquad(0<q<1,\ a>0).
+ \label{eq:strict-enclosure}
+\end{equation}
+The upper endpoint is the Gauss/Radau-type bound obtained by applying the
+Gaussian lower-bound construction to the size-biased measure. Both endpoints
+are rational when $q,a$ are rational.
+
+This avoids a common integration mistake: an accurate lower approximation to
+$H_q$ becomes an \emph{upper} approximation to $F_q$ because of the minus sign
+in \cref{eq:weighted}. The implementation keeps the two measures separate and
+its independent oracle checks both orientations.
+
+\subsection{Closed recurrence coefficients}
+
+For a Meixner parameter $\beta>0$ translated by $\delta\geq0$, the monic
+three-term recurrence has coefficients
+\begin{align}
+ b_j&=\delta+\frac{(1+q)j+\beta q}{1-q},\label{eq:diagonal}\\
+ \lambda_j&=\frac{qj(j+\beta-1)}{(1-q)^2},\qquad j\geq1.
+ \label{eq:subdiagonal}
+\end{align}
+They follow by substituting the finite Meixner representation into the monic
+recurrence, or by matching its polynomial coefficients. The independent tests
+also reconstruct the finite polynomials and their exact moments, rather than
+using this recurrence as their sole oracle.
+
+For total mass $m$, initialize
+\[
+ D_0=1,\quad D_1=a+b_0,\qquad N_0=0,\quad N_1=m.
+\]
+For $j=1,\ldots,n-1$, compute
+\begin{align}
+ D_{j+1}&=(a+b_j)D_j-\lambda_jD_{j-1},\\
+ N_{j+1}&=(a+b_j)N_j-\lambda_jN_{j-1}.
+ \label{eq:recurrence}
+\end{align}
+The rational approximant is $N_n/D_n$. The denominator is
+$D_n=(-1)^nP_n(-a)$. For $L_n$, use $(\beta,\delta,m)=(1,0,m_0)$;
+for $J_n$, use $(2,1,m_1)$.
+
+Only two consecutive numerator and denominator values are needed. For a
+single requested order $n$, two recurrences cost $O(n)$ exact arithmetic
+operations and $O(1)$ live scalar slots. This is not an $O(n)$ bit-complexity
+claim: the numerators and denominators grow, and rational reductions have
+nonconstant cost. The proposal nevertheless removes moment-matrix construction,
+linear-system solution, root isolation and special-function evaluation from
+this certificate's production path.
+
+\subsection{Denominator positivity without approximate roots}
+
+A subtraction recurrence deserves a denominator proof even when sample outputs
+look positive. The finite Meixner formula gives
+\begin{equation}
+ D_n(a;\beta,\delta)=
+ (\beta)_n\left(\frac q{1-q}\right)^n
+ \sum_{j=0}^{n}\binom nj
+ \frac{(a+\delta)_j}{(\beta)_j}
+ \left(\frac{1-q}{q}\right)^j.
+ \label{eq:positive-denominator}
+\end{equation}
+Every summand is positive in the stated parameter domain. Thus $D_n>0$
+exactly, without computing a root or rounding a sign. The production code
+additionally checks its positive-denominator invariant to catch an implementation
+error; the mathematical guarantee is \cref{eq:positive-denominator}, not that
+runtime check.
+
+For the two required parameter choices, all factors are rational at rational
+$a,q$. Although \cref{eq:positive-denominator} is also an evaluation algorithm,
+the recurrence is used in production; the finite sum is an independent exact
+check and a convenient proof certificate.
+
+\subsection{Nested bounds}
+
+Let $W_n=N_nD_{n-1}-N_{n-1}D_n$. Equation \eqref{eq:recurrence} gives
+\[
+ W_{n+1}=\lambda_nW_n,\qquad W_1=m.
+\]
+Consequently
+\begin{equation}
+ \frac{N_{n+1}}{D_{n+1}}-\frac{N_n}{D_n}
+ =\frac{m\lambda_1\cdots\lambda_n}{D_nD_{n+1}}>0.
+ \label{eq:nesting}
+\end{equation}
+The lower endpoints increase. The Gaussian approximants to $H_q$ also increase,
+so \cref{eq:weighted} makes the upper endpoints decrease:
+\[
+ L_n<L_{n+1}<F_q<U_{n+1}<U_n.
+\]
+Thus increasing the order retains the previous enclosure while shrinking its
+width. This is a property proved for the exact construction, not an empirical
+rule inferred from the numerical examples.
+
+\subsection{Explicit error caps and asymptotic order}
+
+The monic squared norms are
+\begin{align}
+ h_n&=\frac{(n!)^2q^n}{(1-q)^{2n+1}},\label{eq:norm0}\\
+ h_n^{(1)}&=\frac{n!(n+1)!q^{n+1}}{(1-q)^{2n+2}}.
+ \label{eq:norm1}
+\end{align}
+These follow from the Meixner normalization, or from $h_n=m\prod_{j=1}^n
+\lambda_j$ with the two parameter choices.\cite{dlmfmeixner}
+Writing $D_n^{(1)}$ for the denominator of $J_n$ gives the separately valid caps
+\begin{align}
+ 0<F_q-L_n&\leq \frac{h_n}{aD_n^2},\label{eq:lower-cap}\\
+ 0<U_n-F_q&\leq
+ \frac{h_n^{(1)}}{a(a+1)(D_n^{(1)})^2}.
+ \label{eq:upper-cap}
+\end{align}
+The factor $a+1$ uses the actual support of $\mu_1$; replacing it by $a$
+would remain sound but lose information.
+
+At fixed $q,n$, the exact error identities also give
+\begin{align}
+ F_q-L_n&=h_n a^{-2n-1}+O(a^{-2n-2}),\\
+ U_n-F_q&=h_n^{(1)}a^{-2n-2}+O(a^{-2n-3}).
+\end{align}
+To justify these statements, $D_n$ is monic in $a$, and the difference between
+$\int P_n(t)^2/(a+t)\dd\nu$ and $h_n/a$ is bounded in magnitude by
+$a^{-2}\int tP_n(t)^2\dd\nu$. The required moment is finite. No uniformity as
+$q\to1$ is claimed; the displayed norms explicitly reveal the deterioration
+near that endpoint.
+
+\subsection{Concrete exact example}
+
+For $q=1/2$, $a=10$, the first four intervals are:
+\begin{center}
+\begin{tabular}{@{}rrrr@{}}\toprule
+$n$ & $L_n$ & $U_n$ & $U_n-L_n$\\\midrule
+1 & $2/11$ & $12/65$ & $2/715$\\
+2 & $7/38$ & $47/255$ & $1/9690$\\
+3 & $115/624$ & $857/4650$ & $1/161200$\\
+4 & $1087/5898$ & $8863/48090$ & $4/7878745$\\
+\bottomrule\end{tabular}
+\end{center}
+The corresponding width displays are approximately
+$2.80\cdot10^{-3}$, $1.03\cdot10^{-4}$, $6.20\cdot10^{-6}$, and
+$5.08\cdot10^{-7}$. The fractions, not these decimal displays, are the
+certificates. At order two the additional caps are
+\[
+ F_{1/2}(10)-\frac7{38}\leq\frac1{7220},\qquad
+ \frac{47}{255}-F_{1/2}(10)\leq\frac1{47685}.
+\]
+The isolated Wolfram 15 recurrence evaluation returned precisely the four
+rational endpoint pairs and their error caps. Four native comparisons with
+\code{LerchPhi[1/2,1,10]} returned \code{True}. The independent exact oracle
+provides a separate check not based on that built-in function.
+
+\section{Implementation contracts and tests for E01}
+\label{sec:implementation}
+
+\subsection{A small API with explicit semantics}
+
+The Python entry point is
+\begin{lstlisting}
+lerch_bounds(q: int | Fraction,
+             a: int | Fraction,
+             order: int) -> LerchBounds
+\end{lstlisting}
+It returns exact endpoints, their width, two separate error caps, the requested
+order, the input values, and a method identifier. Approximate inputs, strings,
+booleans used as numbers, invalid domains, and noninteger orders are rejected.
+The prototype caps the order at 64 as an explicit resource policy; the theorem
+is not limited to 64. Its degenerate $q=0$ branch returns an exact point interval.
+
+The WL counterpart is \code{ReviewLerch`LerchRationalBounds[q,a,n]} in a separate
+context. It returns a small association or a structured failure. It does not
+install definitions on \code{System`} symbols, alter the repository's private
+helpers, or modify \code{LerchPhi}. The supplied wrapper file has not been run
+as a complete file in either runtime; the native observation executes the same
+arithmetic recurrence body with an isolation wrapper.
+
+\subsection{Why value bounds must not become series metadata accidentally}
+
+An enclosure of $F_q(a)$ is not automatically an error bound for an arbitrary
+stored truncated expression $T(a)$. At a given exact parameter value, the valid
+transport is
+\[
+ F_q(a)-T(a)\in[L_n(a)-T(a),\ U_n(a)-T(a)].
+\]
+An absolute error bound is then the maximum of the absolute values of these two
+endpoints, provided $T(a)$ itself has been evaluated exactly or enclosed
+independently. A decimal approximation to $T(a)$ is not sufficient for that
+step. The new primitive must not silently declare a derivative contract, a
+uniform parameter-domain theorem, or an inverse-branch certificate.
+
+A first integration should therefore remain an opt-in value-certificate helper.
+It can attach its exact input point, theorem family, order, endpoints and
+arithmetic domain to a result. Promotion into more general remainder metadata
+should be a separate, explicitly tested transport operation. This is a concrete
+contract for this new family, not a replacement proposal for the repository's
+already-recorded result-schema work.
+
+\subsection{Independent validation paths}
+
+The production recurrence is checked in three different ways.
+First, the defining sum gives the entirely rational enclosure
+\begin{equation}
+ S_K\leq F_q(a)\leq S_K+
+ \frac{q^K}{(a+K)(1-q)},\qquad
+ S_K=\sum_{k=0}^{K-1}\frac{q^k}{a+k}.
+ \label{eq:sum-oracle}
+\end{equation}
+The test increases $K$ until this oracle interval lies inside the proposed
+interval and is fine enough to verify both explicit error caps.
+
+Second, test-only code constructs Meixner polynomials from their terminating
+finite formula. It forms the polynomial quotient in \cref{eq:gauss} and
+integrates it using exact factorial moments. Those moments are obtained from
+\[
+ \sum_{k\geq0}\frac{(\beta)_k}{k!}q^k
+ k^{\underline j}
+ =\frac{(\beta)_j q^j}{(1-q)^{\beta+j}}.
+\]
+A Stirling-number conversion supplies ordinary moments. This is a different
+construction from the production three-term recurrence.
+
+Third, the tests verify orthogonality and squared norms exactly, compare the
+positive finite denominator sum with the recurrence, and check interval nesting.
+These are algebraic identities, not floating-point residual thresholds.
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}\toprule
+Selected subcase population & Count\\\midrule
+Defining-sum containment and error-cap cases & 144\\
+Exact orthogonality identities & 224\\
+Moment/quotient endpoint comparisons & 144\\
+Adjacent-order nesting comparisons & 264\\
+Moving-parameter inverse cases & 66\\
+Largest defining-sum cutoff needed & 512\\
+\bottomrule\end{tabular}
+\end{center}
+These populations belong to the 24 unittest methods; they are not additive
+acceptance counts. The parameter grid for containment is
+$q\in\{1/5,1/2,3/4,9/10\}$,
+$a\in\{1/2,1,2,10,100,1000\}$ and $n=1,\ldots,6$.
+
+\subsection{A test-harness correction, preserved in the evidence}
+
+The first Python pass had two subcase failures. The oracle-refinement loop
+initially stopped as soon as its interval lay inside $[L_n,U_n]$, then tried to
+verify the tighter individual error caps with the same insufficiently refined
+oracle. The endpoint-enclosure tests had succeeded; the oracle did not yet have
+enough resolution to establish the separate cap inequalities.
+
+The correction was to require all four inequalities in the loop's stopping
+condition. Neither the recurrence nor the mathematical caps were changed.
+The final pass has 24 successful methods and no failures. Both first-pass and
+final records are included so that the improvement in the test harness is not
+misrepresented as an unexplained change in mathematical output.
+
+\subsection{Performance claims that are and are not supported}
+
+For each measure the implementation performs $n-1$ recurrence steps after
+initialization, and it updates a norm product at the same time. It keeps only
+two consecutive values of each recurrence. Those structural work bounds follow
+from the source and can be inspected directly.
+
+No Wolfram-versus-Mathics timing comparison was run. There is no claim that this
+prototype outperforms the existing package on a measured workload, that order
+64 is an optimal cap, or that exact arithmetic prevents all expression growth.
+Near $q=1$ or with large rational input heights, numerator growth can dominate.
+A production implementation should expose the cost of this particular finite
+certificate separately from the approximation order of an unrelated series.
+
+\section{Other inspected candidates not counted as findings}
+\label{sec:negative}
+
+A careful incremental audit needs to discard attractive but unsupported claims.
+One examined path was the terminal branch of the private exponent comparator,
+which can infer a positive ordering from a simplified negation of a negative
+comparison. In isolation, $\neg(d<0)$ only implies $d\geq0$, not $d>0$.
+However, the actual comparator first canonicalizes its exact inputs and checks
+for zero. A public counterexample must survive that earlier stage and satisfy
+the caller's admitted input domain; a purely symbolic private-helper example
+would not establish this.\cite{maincore}
+
+Two proposed noncanonical-zero witnesses were rejected during this audit.
+A Bessel Wronskian combination and a rational-argument dilogarithm five-term
+identity both reduced to zero under the available native \code{FullSimplify}
+control. The latter evaluation returned a canonical absolute difference of zero.
+That canonical zero is decisive: it prevents the alleged
+path through the comparator's final branch. No second public ordering defect or
+repair is claimed from those examples.
+
+This matters for the evidence standard. A suspicious implication in a helper,
+a failed direct numerical comparison, and a mathematical identity are not enough
+when the real control flow has an earlier successful normalization. The article
+therefore retains N01 as its one new correctness finding rather than inflating
+the count with an unestablished public manifestation.
+
+\section{Integration priorities and reproducibility}
+\label{sec:reproduce}
+
+\subsection{Recommended sequence}
+
+The first change should be the operand-preserving N01 admission rule, with the
+moving-small family as well as the alternating family in acceptance. The valid
+fixed-cancellation and exact-zero controls are essential: they prevent an
+unnecessarily broad rejection policy.
+
+The second stage is a focused execution of those requests in each runtime.
+A Mathics refusal caused by a separate realness limitation should be recorded
+as such, not described as proof that the underlying shared admission is sound.
+The generated standalone and modular loading routes should agree after rebuilding.
+This report's source patch has not established that agreement.
+
+The rational Lerch primitive should be integrated separately. First run the
+supplied WL wrapper on the same exact fixtures as the Python implementation.
+Then attach it only to the $s=1$, $0\leq q<1$, $a>0$ value-certificate path.
+Broader symbolic parameters or automatic dispatch should wait for a separately
+stated admission and transport contract. This sequencing prevents a small
+correctness repair from being entangled with an unrelated algorithmic extension.
+
+\subsection{Archive layout}
+\begin{lstlisting}
+article/article.tex
+article/article.pdf
+code/emit_core_patch.py
+code/lerch_rational.py
+code/LerchRationalBounds.wl
+tests/test_review.py
+tests/run_tests.py
+tests/CoreOperandScope.wlt
+tests/ProbeCoreOperandScope.wl
+evidence/...
+README.md
+build.sh
+LICENSE
+\end{lstlisting}
+The archive contains no checksum files and no complete copy of the upstream
+repository. The patch emitter reads a local checkout supplied by the reader and
+emits a unified diff without modifying source. It requires each exact source
+anchor to occur once; missing, duplicated, or already-patched anchors are
+rejected. Its tests use synthetic fixtures and do not prove that a full checkout
+was patched successfully.
+
+\subsection{Commands}
+
+From the archive root, the independent tests require only a standard Python
+installation supporting the supplied syntax:
+\begin{lstlisting}
+python tests/run_tests.py
+python code/lerch_rational.py 1/2 10 4
+python code/emit_core_patch.py /path/to/Asymptotic --output core-operands.patch
+\end{lstlisting}
+The test runner regenerates the final evidence files; preserve the supplied
+records elsewhere before overwriting them for a new environment. The initial
+historical pass is retained separately.
+
+For a symbolic session, load the files explicitly:
+\begin{lstlisting}
+Get["/path/to/archive/code/LerchRationalBounds.wl"];
+ReviewLerch`LerchRationalBounds[1/2,10,4]
+
+Get["/path/to/Asymptotic/AsymptoticAnalysis.wl"];
+Get["/path/to/archive/tests/ProbeCoreOperandScope.wl"];
+\end{lstlisting}
+Use the repository's own rebuilding instructions after applying a patch to its
+modular sources. A generated standalone must not be assumed current merely
+because the modular file was edited. This archive does not automate or assert
+that repository-specific rebuild.
+
+The article builds with three \code{pdflatex} passes; \code{build.sh} runs them in
+a temporary directory and copies only the final PDF into \code{article/}.
+No bibliography program, network request, or proprietary font is required.
+
+\section{Conclusion}
+
+The new correctness result is a failure of \emph{operand-level admission}, not
+of the marker coefficient formula. Checking the simplified sum establishes a
+property of the total forward function but not of the separately retained model
+data. The exact counterexample shows why that distinction matters: the defining
+function is elementary, its inverse is unambiguous, and yet the stored asymptotic
+scale is false at every depth. A genuinely small moving perturbation produces
+the same contract failure, so convergence screening alone cannot repair it.
+
+The rational Lerch proposal illustrates a complementary development direction:
+identify a narrow mathematical family, derive the certificate including its
+denominator and remainder obligations, and implement the arithmetic without
+requiring the symbolic kernel to rediscover those facts. Here two explicit
+Meixner recurrences provide a nested exact interval and separately bounded
+endpoint errors. The independent tests and isolated native controls support that
+prototype at their stated scopes. Full package integration and Mathics execution
+remain concrete acceptance work, not results claimed by this review.
+
+\appendix
+\section{Source and evidence map}
+
+\begin{longtable}{@{}p{0.31\textwidth}p{0.61\textwidth}@{}}
+\toprule
+Claim & Primary evidence\\\midrule\endhead
+N01 sum-only admission & \code{corePerturbationConstruct} in
+\code{CorePerturbation.wl}; pinned source in reference \cite{core}.\\
+Separate model operands & \code{corePerturbationModel}, including separate
+\code{rows}, \code{remainderRows}, and \code{Offset}.\\
+Exact inverse and marker terms & \code{corePerturbationAutomaticInverse},
+\code{corePerturbationTerm}, and constructor assembly.\\
+Remainder theorem quantified over fixed data & Constructor
+\code{truncationPair}, \code{scale}, and \code{MajorantContract}.\\
+Native recurrence observation & \code{evidence/native-observations.json},
+record N01-isolated-recurrence; transcribed selected tool output.\\
+Native rational prototype observation & Same file, record E01-isolated-recurrence;
+not a complete wrapper-file or package run.\\
+Independent models and fixtures & \code{tests/test_review.py},\newline
+\code{evidence/python-results.json}, and \code{python-tests.txt}.\\
+First test-oracle pass & \code{python-first-pass.json} and
+\code{python-first-pass.txt}; two subcase failures before oracle refinement.\\
+Exact rational sample intervals & \code{evidence/lerch-exact-samples.json}.
+Decimal values in the CSV are display-only.\\
+Novelty and omissions & \code{evidence/novelty-ledger.json} and
+\code{evidence/scope.json}.\\
+\bottomrule
+\end{longtable}
+
+\begin{thebibliography}{99}\small
+\bibitem{core} V. Reshetnikov, \emph{AsymptoticAnalysis},
+\code{src/Kernel/CorePerturbation.wl}, reviewed commit
+\code{efa1aeec4845a9c35e140963a0333d0c9ec33b05}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/CorePerturbation.wl}.
+\bibitem{expcore} Same repository and commit,
+\code{src/Kernel/ExponentialCorePerturbation.wl}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/ExponentialCorePerturbation.wl}.
+\bibitem{maincore} Same repository and commit,
+\code{src/Kernel/AsymptoticAnalysis.wl}, exact-real canonicalization and comparison.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/AsymptoticAnalysis.wl}.
+\bibitem{mathicsassumptions} Same repository and commit,
+\code{src/Kernel/MathicsAssumptions.wl}, finite-real and sign proof rules.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/src/Kernel/MathicsAssumptions.wl}.
+\bibitem{reviewindex} Same repository and commit, review index and six linked wave indexes.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/README.md}.
+\bibitem{status} Same repository and commit,
+\code{docs/development/CODE_REVIEW_STATUS.md}.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/docs/development/CODE_REVIEW_STATUS.md}.
+\bibitem{wave5} Same repository and commit, wave-5 review index.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/wave-5/README.md}.
+\bibitem{wave6} Same repository and commit, wave-6 review index.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/wave-6/README.md}.
+\bibitem{r49} Retained review 49, \emph{Incremental Contract Audit of
+AsymptoticAnalysis}, section on signed Lerch remainder bounds, at the reviewed commit.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/wave-6/code-review-49/article.tex}.
+\bibitem{r50} Retained review 50, \emph{Fixed charts, exact cores, rational
+moments}, section on Eulerian Lerch moments, at the reviewed commit.
+\url{https://github.com/VladimirReshetnikov/Asymptotic/blob/efa1aeec4845a9c35e140963a0333d0c9ec33b05/external-reports/code-review/wave-6/code-review-50/article/article.tex}.
+\bibitem{freeq} Wolfram Research, \emph{FreeQ}, Wolfram Language documentation,
+accessed 10 September 2026.
+\url{https://reference.wolfram.com/language/ref/FreeQ.html}.
+\bibitem{dlmflerch} NIST Digital Library of Mathematical Functions,
+\S25.14, \emph{Lerch's Transcendent}, accessed 10 September 2026.
+\url{https://dlmf.nist.gov/25.14}.
+\bibitem{dlmfmeixner} NIST DLMF, \S18.19, \emph{Hahn Class: Definitions},
+Meixner weights, norms and leading coefficients, accessed 10 September 2026.
+\url{https://dlmf.nist.gov/18.19}.
+\bibitem{dlmfexplicit} NIST DLMF, \S18.20, \emph{Hahn Class: Explicit
+Representations}, Meixner finite hypergeometric representation, accessed
+10 September 2026. \url{https://dlmf.nist.gov/18.20}.
+\end{thebibliography}
+\end{document}
