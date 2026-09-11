@@ -1533,12 +1533,15 @@ expression happens to be exact.</td>
 </tr>
 <tr>
 <td><code>&quot;NativeEvaluationStatus&quot;</code></td>
-<td>Structural classification, in priority order: <code>&quot;Aborted&quot;</code>
-if <code>$Aborted</code> occurs; <code>&quot;Failed&quot;</code> if
-<code>$Failed</code> or a <code>Failure</code> occurs;
-<code>&quot;Unresolved&quot;</code> if a native Series/Asymptotic call remains;
-otherwise <code>&quot;Computed&quot;</code>. This is not a theorem that the
-requested expansion is complete or correct.</td>
+<td>Structural classification of the result outside
+<code>Hold</code>-family wrappers, in priority order:
+<code>&quot;Aborted&quot;</code> if <code>$Aborted</code> occurs;
+<code>&quot;Failed&quot;</code> if <code>$Failed</code> or a <code>Failure</code>
+occurs; <code>&quot;Unresolved&quot;</code> if a native Series/Asymptotic call
+with a specification remains; <code>&quot;Nonfinite&quot;</code> if the value, a
+term, factor, series coefficient or list entry is an infinity or
+<code>Indeterminate</code>; otherwise <code>&quot;Computed&quot;</code>. This is
+not a theorem that the requested expansion is complete or correct.</td>
 </tr>
 <tr>
 <td><code>&quot;NativeRequest&quot;</code>, <code>&quot;OriginalArguments&quot;</code></td>

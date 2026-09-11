@@ -72,3 +72,21 @@ VerificationTest[
    Head[callable], callable[[1]], callableReal["Kind"], Normal[callableReal] === 1 + x + x^2/2}],
  {"Native", True, "Native", True, "Native", Failure, "InexactInput", "Forward", True},
  TestID -> "consumed-functions-inside-a-source-do-not-block-the-native-fallback"]
+
+(* W3-05: the native evaluation status describes the delegated call, not the
+   user's data: a held native call in the source is data, a nonfinite value
+   is a computed outcome labelled Nonfinite, and only a native call that still
+   carries a specification is Unresolved. *)
+VerificationTest[
+ Module[{x, y, k, held, nonfinite, unresolved, computed, infiniteSum},
+  held = AsymptoticExpansion[Hold[Series[y, {y, 0, 1}]] + Exp[x], {x, 0, 3}, "Backend" -> "Series"];
+  nonfinite = AsymptoticExpansion[Log[0] + x, {x, 0, 2}, "Backend" -> "Series"];
+  unresolved = Quiet[AsymptoticExpansion[{Exp[x], Sin[x]}, x -> 0, SeriesTermGoal -> 0, "Backend" -> "Asymptotic"]];
+  computed = AsymptoticExpansion[Exp[x], {x, 0, 3}, "Backend" -> "Series"];
+  infiniteSum = AsymptoticExpansion[1/(1 - x), {x, 0, Infinity}, "Backend" -> "Asymptotic", GeneratedParameters -> (k[#] &)];
+  {held["NativeEvaluationStatus"], ! FreeQ[held["NativeResult"], Hold[Series[y, {y, 0, 1}]]],
+   nonfinite["NativeEvaluationStatus"], nonfinite["NativeResult"],
+   unresolved["NativeEvaluationStatus"], computed["NativeEvaluationStatus"],
+   infiniteSum["NativeEvaluationStatus"], ! FreeQ[infiniteSum["NativeResult"], Infinity]}],
+ {"Computed", True, "Nonfinite", -Infinity, "Unresolved", "Computed", "Computed", True},
+ TestID -> "native-evaluation-status-ignores-held-data-and-labels-nonfinite-values"]

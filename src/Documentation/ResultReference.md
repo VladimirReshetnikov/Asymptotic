@@ -377,7 +377,7 @@ semantics and current coverage gaps.
 | `"Remainder"`, `"Assumptions"` | Both are `Missing["NativeContract"]`. No independent package analytic remainder or proof context is manufactured. |
 | `"Exact"` | `Missing["NotEstablished"]`, even if the returned expression happens to be exact. |
 | `"RemainderContract"` | `"NativeFormalOrder"` for Series, `"NativeAsymptotic"` for Asymptotic. |
-| `"NativeEvaluationStatus"` | Structural classification, in priority order: `"Aborted"` if `$Aborted` occurs; `"Failed"` if `$Failed` or a `Failure` occurs; `"Unresolved"` if a native Series/Asymptotic call remains; otherwise `"Computed"`. This is not a theorem that the requested expansion is complete or correct. |
+| `"NativeEvaluationStatus"` | Structural classification of the result outside `Hold`-family wrappers, in priority order: `"Aborted"` if `$Aborted` occurs; `"Failed"` if `$Failed` or a `Failure` occurs; `"Unresolved"` if a native Series/Asymptotic call with a specification remains; `"Nonfinite"` if the value, a term, factor, series coefficient or list entry is an infinity or `Indeterminate`; otherwise `"Computed"`. This is not a theorem that the requested expansion is complete or correct. |
 | `"NativeRequest"`, `"OriginalArguments"` | Held delegated call and held original argument record. They preserve provenance; they are not instructions to evaluate the request again during inspection. |
 | `"ExpansionSpecifications"` | Recognized specifications retained in held form. |
 | `"Variable"` | The unique recognized expansion variable, or `Missing["MultipleOrUnresolvedVariables"]`. In the latter case numerical application returns `Failure["NativeVariables", ...]`; substitute explicitly into `Normal[s]` or `"NativeResult"`. |

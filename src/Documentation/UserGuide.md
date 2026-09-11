@@ -239,7 +239,7 @@ Otherwise the package engines are tried first. A selected representation limitat
 
 Native-specific options determine which backends are compatible: `Series` is preferred when it accepts all such option keys, then `Asymptotic`. Conflicting option sets return `Failure["NativeOptionConflict", ...]`. Without those options, a triple specification or successive specifications prefer `Series`; a single order-`Infinity` request and ordinary rule forms prefer `Asymptotic`.
 
-If the preferred native result is `"Unresolved"` or `"Failed"`, `Automatic` tries the other backend when it accepts all supplied option keys. Search stops on `"Computed"` or `"Aborted"`. If every attempted result is unresolved or failed, the preferred result is retained. An explicit native backend, or an option set accepted by only one backend, permits one attempt. The ordered `"NativeAttempts"` records show which automatic native calls were made.
+If the preferred native result is `"Unresolved"` or `"Failed"`, `Automatic` tries the other backend when it accepts all supplied option keys. Search stops on `"Computed"`, `"Nonfinite"` or `"Aborted"`. If every attempted result is unresolved or failed, the preferred result is retained. An explicit native backend, or an option set accepted by only one backend, permits one attempt. The ordered `"NativeAttempts"` records show which automatic native calls were made.
 
 ```wolfram
 Clear[x, y];
@@ -349,20 +349,21 @@ Native results have the following contract:
 | `"ExpansionSpecifications"` | Recognized specification forms retained individually inside `HoldComplete`, in their supplied order. Literal explicit requests retain their syntax; automatic preparation can resolve expressions before these records are formed. |
 | `"AmbientAssumptions"` | Ambient assumption value captured at native entry. |
 | `"Assumptions"` | `Missing["NativeContract"]`; the wrapper does not independently reconstruct the backend's effective proof context. |
-| `"NativeEvaluationStatus"` | Syntactic evaluation status: `"Computed"`, `"Unresolved"`, `"Failed"`, or `"Aborted"`; see the definitions below. |
+| `"NativeEvaluationStatus"` | Syntactic evaluation status: `"Computed"`, `"Nonfinite"`, `"Unresolved"`, `"Failed"`, or `"Aborted"`; see the definitions below. |
 | `"NativeAttempts"` | For automatic native results, ordered records with `"Backend"`, `"EvaluationStatus"`, and held `"Request"`. Explicit native delegation does not add this history. |
 | `"NativeKernelVersion"`, `"NativeSystemID"` | Runtime that produced the native result. |
 | `"BackendSelection"`, `"BackendSelectionReason"` | For automatic native results, `Automatic` and one of `"NativeOptions"`, `"NativeSpecification"`, or `"PackageRepresentation"`. |
 | `"OrderConvention"` | `"Native"` for an automatically selected native result. |
 | `"PackageFailure"` | The preceding package failure for a representation fallback; `None` when native routing occurred before a package attempt. |
 
-Evaluation status is determined by inspecting the native result, in this order:
+Evaluation status is determined by inspecting the native result outside `Hold`-family wrappers (a held native call in the source is data), in this order:
 
 | Status | Condition |
 | --- | --- |
 | `"Aborted"` | The result contains `$Aborted`. |
 | `"Failed"` | The result contains `$Failed` or a `Failure` expression. |
-| `"Unresolved"` | An unevaluated native `Series` or `Asymptotic` call remains. |
+| `"Unresolved"` | An unevaluated native `Series` or `Asymptotic` call that still carries a specification remains. |
+| `"Nonfinite"` | The result, one of its terms or factors, a series coefficient, or a list entry is an infinity or `Indeterminate`; an infinite iterator bound inside a retained `Sum` does not count. This is a computed outcome, not a failure. |
 | `"Computed"` | None of the preceding forms remains. |
 
 These statuses do not establish an analytic remainder, exactness, or mathematical correctness. In particular, `"Computed"` does not change the missing analytic contract of a native result.

@@ -59,7 +59,7 @@ as an established continuous-domain result.
 | `ExpansionSpecifications` | Individually held recognized specification forms, in order. Literal routes preserve syntax; preparation may resolve values. Recognition has the positional-name limitations in W3-02. |
 | `AmbientAssumptions` | Actual assumption value at native entry. |
 | `Assumptions` | `Missing["NativeContract"]`. |
-| `NativeEvaluationStatus` | `"Computed"`, `"Unresolved"`, `"Failed"`, or `"Aborted"`, determined syntactically from the native output. |
+| `NativeEvaluationStatus` | `"Computed"`, `"Nonfinite"`, `"Unresolved"`, `"Failed"`, or `"Aborted"`, determined syntactically from the native output outside `Hold`-family wrappers; `"Unresolved"` requires a native call that still carries a specification, and `"Nonfinite"` marks an infinite or indeterminate value without treating it as a failure (W3-05). |
 | `NativeBackend`, `NativeKernelVersion`, `NativeSystemID` | Selected backend and producing runtime. |
 | `BackendSelection`, `BackendSelectionReason`, `OrderConvention` | Automatic native results record `Automatic`, their routing reason, and `"Native"` order semantics. |
 | `PackageFailure` | The representation failure leading to automatic fallback, or `None` for direct native routing. |

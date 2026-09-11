@@ -716,11 +716,12 @@ ordinary rule forms prefer <code>Asymptotic</code>.</p>
 <p>If the preferred native result is <code>&quot;Unresolved&quot;</code> or
 <code>&quot;Failed&quot;</code>, <code>Automatic</code> tries the other backend
 when it accepts all supplied option keys. Search stops on
-<code>&quot;Computed&quot;</code> or <code>&quot;Aborted&quot;</code>. If every attempted
-result is unresolved or failed, the preferred result is retained. An
-explicit native backend, or an option set accepted by only one backend,
-permits one attempt. The ordered <code>&quot;NativeAttempts&quot;</code> records
-show which automatic native calls were made.</p>
+<code>&quot;Computed&quot;</code>, <code>&quot;Nonfinite&quot;</code> or
+<code>&quot;Aborted&quot;</code>. If every attempted result is unresolved or
+failed, the preferred result is retained. An explicit native backend, or
+an option set accepted by only one backend, permits one attempt. The
+ordered <code>&quot;NativeAttempts&quot;</code> records show which automatic
+native calls were made.</p>
 <pre class="wolfram"><code>Clear[x, y];
 s = AsymptoticExpand[Exp[I x], {x, 0, 3}];
 {s[&quot;NativeBackend&quot;], s[&quot;BackendSelectionReason&quot;],
@@ -876,8 +877,9 @@ independently reconstruct the backend&#39;s effective proof context.</td>
 <tr>
 <td><code>&quot;NativeEvaluationStatus&quot;</code></td>
 <td>Syntactic evaluation status: <code>&quot;Computed&quot;</code>,
-<code>&quot;Unresolved&quot;</code>, <code>&quot;Failed&quot;</code>, or
-<code>&quot;Aborted&quot;</code>; see the definitions below.</td>
+<code>&quot;Nonfinite&quot;</code>, <code>&quot;Unresolved&quot;</code>,
+<code>&quot;Failed&quot;</code>, or <code>&quot;Aborted&quot;</code>; see the definitions
+below.</td>
 </tr>
 <tr>
 <td><code>&quot;NativeAttempts&quot;</code></td>
@@ -911,8 +913,9 @@ attempt.</td>
 </tr>
 </tbody>
 </table>
-<p>Evaluation status is determined by inspecting the native result, in
-this order:</p>
+<p>Evaluation status is determined by inspecting the native result
+outside <code>Hold</code>-family wrappers (a held native call in the
+source is data), in this order:</p>
 <table>
 <thead>
 <tr>
@@ -933,7 +936,14 @@ expression.</td>
 <tr>
 <td><code>&quot;Unresolved&quot;</code></td>
 <td>An unevaluated native <code>Series</code> or <code>Asymptotic</code>
-call remains.</td>
+call that still carries a specification remains.</td>
+</tr>
+<tr>
+<td><code>&quot;Nonfinite&quot;</code></td>
+<td>The result, one of its terms or factors, a series coefficient, or a
+list entry is an infinity or <code>Indeterminate</code>; an infinite
+iterator bound inside a retained <code>Sum</code> does not count. This
+is a computed outcome, not a failure.</td>
 </tr>
 <tr>
 <td><code>&quot;Computed&quot;</code></td>

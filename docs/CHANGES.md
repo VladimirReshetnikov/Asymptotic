@@ -28,7 +28,10 @@ request, and an unknown symbol-keyed rule after a specification returns
 specification that ignored the option (wave-3 W3-01, W3-02). A `Function`
 consumed inside a source, such as the defining function of a `Root` object or
 an applied identity, no longer blocks the native fallback; only a source that
-is itself a pure function is a callable contract (W3-03).
+is itself a pure function is a callable contract (W3-03). The native
+evaluation status ignores held data in the source, calls `"Unresolved"` only
+a native call that still carries a specification, and reports an infinite or
+indeterminate value as `"Nonfinite"` instead of `"Computed"` (W3-05).
 
 ### Coherent source snapshots in the portable runner
 

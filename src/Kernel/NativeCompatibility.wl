@@ -249,11 +249,24 @@ automaticNativeSearchRequest[request_HoldComplete] := Module[{keys, options, val
   parts = nativeHeldArguments[request];
   nativeHeldJoin[Prepend[automaticNativeOption[#, values] & /@ Rest[parts], First[parts]]]];
 
-nativeEvaluationStatus[result_] := Which[
-  ! FreeQ[result, $Aborted], "Aborted",
-  ! FreeQ[result, $Failed | _Failure], "Failed",
-  ! FreeQ[result, _System`Series | _System`Asymptotic], "Unresolved",
-  True, "Computed"];
+(* The status describes the delegated evaluation, not the user's data: held
+   bodies are not searched, an unresolved native call is one that still
+   carries a specification (a malformed one-argument Series inside the
+   source is data), and a nonfinite value is a computed outcome reported
+   as such rather than a failure (W3-05). *)
+nativeVisibleResult[result_] := result /. (h : Hold | HoldComplete | HoldForm | HoldPattern | Unevaluated)[___] :> h[];
+(* A value is nonfinite when an infinity or Indeterminate is the result, a
+   term or factor of it, a series coefficient, or a list entry; an infinite
+   iterator bound inside a retained Sum is not a nonfinite value. *)
+nativeNonfiniteQ[e_] := MatchQ[e, _DirectedInfinity | Indeterminate] ||
+  (MatchQ[e, _Plus | _Times | _List] && AnyTrue[List @@ e, nativeNonfiniteQ]) ||
+  (MatchQ[e, _SeriesData] && AnyTrue[e[[3]], nativeNonfiniteQ]);
+nativeEvaluationStatus[result_] := Module[{visible = nativeVisibleResult[result]}, Which[
+  ! FreeQ[visible, $Aborted], "Aborted",
+  ! FreeQ[visible, $Failed | _Failure], "Failed",
+  ! FreeQ[visible, (System`Series | System`Asymptotic)[_, _, ___]], "Unresolved",
+  nativeNonfiniteQ[visible], "Nonfinite",
+  True, "Computed"]];
 
 automaticNativeResult[request_HoldComplete, original_HoldComplete, reason_, failure_: None] := Module[
   {backends, prepared, result, selected = None, attempts = {}, backend, status},
@@ -266,7 +279,7 @@ automaticNativeResult[request_HoldComplete, original_HoldComplete, reason_, fail
     status = If[MatchQ[result, _GeneralizedSeries], result["NativeEvaluationStatus"], "Failed"];
     AppendTo[attempts, <|"Backend" -> backend, "EvaluationStatus" -> status,
       "Request" -> If[MatchQ[result, _GeneralizedSeries], result["NativeRequest"], Missing["NotDelegated"]]|>];
-    If[MemberQ[{"Computed", "Aborted"}, status], selected = result; Break[]],
+    If[MemberQ[{"Computed", "Nonfinite", "Aborted"}, status], selected = result; Break[]],
     {backend, backends}];
   If[! MatchQ[selected, _GeneralizedSeries], Return[selected, Module]];
   GeneralizedSeries[Join[selected[[1]], <|"BackendSelection" -> Automatic,

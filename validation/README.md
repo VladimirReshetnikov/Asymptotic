@@ -1022,9 +1022,9 @@ The full package suite remains skipped.
 ## Request resolution
 
 The [fourteen-file run](request-resolution-tests.json) from
-[CheckRequestResolution.wl](CheckRequestResolution.wl) passes **277/277**
+[CheckRequestResolution.wl](CheckRequestResolution.wl) passes **278/278**
 on Wolfram 15.0.1 for Windows with unchanged sources (MCP kernel, `Exit`-free
-copy). Its four cases in
+copy). Its five cases in
 [ReviewRequestResolution.wlt](../src/Tests/ReviewRequestResolution.wlt) pin
 W3-01 and W3-02: a configured `"Backend" -> "Series"` routes an omitted
 selector natively while an explicit `"Package"` selector wins and a
@@ -1036,7 +1036,10 @@ a computed key, a computed container, the symbol spellings `Backend` and
 is refused with `UnknownOption` while the rule form with an explicit or a
 configured `SeriesTermGoal` stays on the package engine; and (W3-03) a
 `Root`-containing and an applied-function complex source fall back natively
-while a complex pure-function source stays refused. The other thirteen
+while a complex pure-function source stays refused; and (W3-05) a held
+native call in the source is `"Computed"`, `Log[0] + x` is `"Nonfinite"`, a
+list source under `Asymptotic` is `"Unresolved"`, and an infinite retained
+`Sum` stays `"Computed"`. The other thirteen
 files are the native routing, rule-goal, contract, search, compatibility,
 special-ingress, presentation, observable, assumption, refinement,
 operation, composition-scope and inverse-function suites that share the
