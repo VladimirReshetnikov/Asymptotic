@@ -15,6 +15,19 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Silent proofs, inexact cutoffs, and stale Gamma refusals
+
+The proof context now states scale positivity as `x > 0` rather than
+`x^(-1) > 0` and drops the tautology `E^(-x) > 0`, and exact numeric
+coefficients skip the assumption prover, so `SeriesAdd` of two `Zeta`
+expansions and `Gamma` expansions at infinity no longer emit `Power::infy`
+and `Greater::nord` from inside `Simplify`; the exponent comparison also
+silences `N::meprec` on an exact zero difference. An inexact cutoff such as
+`{x, Infinity, 3.5}` is refused as `InvalidCutoff` on every route instead of
+returning an unresolved native object with the built-in's messages. Two
+Gamma forward regressions that pinned refusals from before automatic native
+routing now select the package backend explicitly.
+
 ### Request resolution: configured defaults, option identity, unknown options
 
 `SetOptions[AsymptoticExpansion, "Backend" -> ...]` now applies to calls that

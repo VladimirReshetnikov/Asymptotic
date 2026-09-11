@@ -195,14 +195,17 @@ canon[e_?NumericQ] := Module[{r},
 canon[e_] := FullSimplify[e];
 
 compare[a_, b_] := Module[{d, t},
-  If[a === b, Return[0, Module]];
+  If[a === b || logCanonicalSameQ[a, b], Return[0, Module]];
   If[a === Infinity, Return[1, Module]]; If[b === Infinity, Return[-1, Module]];
   If[a === -Infinity, Return[-1, Module]]; If[b === -Infinity, Return[1, Module]];
   If[(Head[a] === Integer || Head[a] === Rational) && (Head[b] === Integer || Head[b] === Rational),
    Return[Sign[a - b], Module]];
+  (* An exact zero difference such as 2 Log[2] - Log[4] exhausts the
+     numerical comparison's extra precision and reports N::meprec before the
+     exact canonicalization below decides it; the comparison is silent. *)
   If[NumericQ[a] && NumericQ[b],
-   If[Quiet[TrueQ[a < b], {Less::meprec}], Return[-1, Module]];
-   If[Quiet[TrueQ[a > b], {Greater::meprec}], Return[1, Module]]];
+   If[Quiet[TrueQ[a < b], {Less::meprec, N::meprec}], Return[-1, Module]];
+   If[Quiet[TrueQ[a > b], {Greater::meprec, N::meprec}], Return[1, Module]]];
   d = canon[a - b];
   If[d === 0, Return[0, Module]];
   If[TrueQ[d < 0], Return[-1, Module]];
@@ -215,7 +218,11 @@ leq[a_, b_] := compare[a, b] <= 0;
 equal[a_, b_] := compare[a, b] == 0;
 minOf[a_, b_] := If[leq[a, b], a, b];
 
-symbolicEqualQ[a_, b_, ass_] := a === b || TrueQ[Simplify[a - b == 0, ass]];
+(* Exact logarithms compare structurally after prime-factor canonicalization,
+   so weights such as Log[4] and 2 Log[2] are decided without a numerical
+   comparison of their exact zero difference. *)
+logCanonicalSameQ[a_, b_] := ! FreeQ[{a, b}, Log] && logCanon[a] === logCanon[b];
+symbolicEqualQ[a_, b_, ass_] := a === b || logCanonicalSameQ[a, b] || TrueQ[Simplify[a - b == 0, ass]];
 
 (* ------------------------------------------------------------------ *)
 (* Coefficient normalization                                            *)
@@ -266,8 +273,12 @@ polyCanonicalZeroQ[p_, ell_, ass_] :=
 polyZeroQ[q_, ell_, ass_] := polyCanonicalZeroQ[polyCanon[q, ell, ass], ell, ass];
 polyDegree[q_, ell_] := If[q === 0, 0, Exponent[q, ell]];
 
-realPolynomialCondition[p_, ell_, ass_] := Module[{condition},
-  condition = Simplify[And @@ (Element[#, Reals] & /@ CoefficientList[p, ell]), ass];
+realPolynomialCondition[p_, ell_, ass_] := Module[{coefficients = CoefficientList[p, ell], condition},
+  (* Exact numbers need no assumptions: this also keeps Simplify from
+     evaluating the assumptions themselves for every numeric coefficient. *)
+  If[And @@ (NumericQ[#] && exactQ[#] & /@ coefficients),
+    Return[Simplify[And @@ (Element[#, Reals] & /@ coefficients)], Module]];
+  condition = Simplify[And @@ (Element[#, Reals] & /@ coefficients), ass];
   If[condition === True || condition === False, condition,
     TimeConstrained[FullSimplify[condition, ass], 1, condition]]];
 realPolynomialQ[p_, ell_, ass_] := PolynomialQ[p, ell] &&

@@ -1,6 +1,6 @@
 {
 	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
-	"Scope":"Eleven selected files: the new provenance-growth regressions and the refinement, arithmetic, operation, bound-transport, composite, flat-sector, envelope, result and composition-scope suites that share the recipe replay and the scope walker; no full package suite.",
+	"Scope":"Fifteen selected files: the provenance-growth and proof-context regressions and the refinement, arithmetic, operation, bound-transport, composite, flat-sector, envelope, result, composition-scope, Dirichlet, Gamma and assumption suites that share the recipe replay, the scope walker and the proof context; no full package suite.",
 	"PerSuiteTimeConstraintSeconds":900,
 	"Suites":[
 		"ReviewProvenanceGrowth.wlt",
@@ -13,77 +13,105 @@
 		"SeriesEnvelopeArithmetic.wlt",
 		"GeneralizedSeries.wlt",
 		"ReviewCompositionScope.wlt",
-		"CompositionRefactoring.wlt"
+		"CompositionRefactoring.wlt",
+		"ReviewProofContext.wlt",
+		"DirichletSpecialFunctions.wlt",
+		"GammaForward.wlt",
+		"ReviewAssumptions.wlt"
 	],
 	"SuiteResults":[
 		{
 			"Suite":"ReviewProvenanceGrowth.wlt",
 			"Succeeded":2,
 			"Failed":0,
-			"Seconds":2.6630072
+			"Seconds":2.7080495
 		},
 		{
 			"Suite":"RefinementRegressions.wlt",
 			"Succeeded":21,
 			"Failed":0,
-			"Seconds":5.6411437
+			"Seconds":6.2578977
 		},
 		{
 			"Suite":"SeriesArithmetic.wlt",
 			"Succeeded":28,
 			"Failed":0,
-			"Seconds":4.7056054
+			"Seconds":4.1667554
 		},
 		{
 			"Suite":"SeriesOperations.wlt",
 			"Succeeded":29,
 			"Failed":0,
-			"Seconds":1.7671471
+			"Seconds":1.8307824
 		},
 		{
 			"Suite":"ReviewArithmeticBoundTransport.wlt",
 			"Succeeded":2,
 			"Failed":0,
-			"Seconds":0.4727553
+			"Seconds":0.4723716
 		},
 		{
 			"Suite":"ReviewCompositeApproach.wlt",
 			"Succeeded":3,
 			"Failed":0,
-			"Seconds":0.5877936
+			"Seconds":0.7460984
 		},
 		{
 			"Suite":"FlatSectorOperations.wlt",
 			"Succeeded":23,
 			"Failed":0,
-			"Seconds":1.4093967
+			"Seconds":2.0494599
 		},
 		{
 			"Suite":"SeriesEnvelopeArithmetic.wlt",
 			"Succeeded":17,
 			"Failed":0,
-			"Seconds":0.6666388
+			"Seconds":0.8959817
 		},
 		{
 			"Suite":"GeneralizedSeries.wlt",
 			"Succeeded":4,
 			"Failed":0,
-			"Seconds":0.2751734
+			"Seconds":0.4141722
 		},
 		{
 			"Suite":"ReviewCompositionScope.wlt",
 			"Succeeded":20,
 			"Failed":0,
-			"Seconds":1.9648814
+			"Seconds":2.6387383
 		},
 		{
 			"Suite":"CompositionRefactoring.wlt",
 			"Succeeded":4,
 			"Failed":0,
-			"Seconds":2.650606
+			"Seconds":2.686293
+		},
+		{
+			"Suite":"ReviewProofContext.wlt",
+			"Succeeded":1,
+			"Failed":0,
+			"Seconds":1.3057983
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"Succeeded":30,
+			"Failed":0,
+			"Seconds":1.2643706
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"Succeeded":18,
+			"Failed":0,
+			"Seconds":6.13343388e1
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"Succeeded":17,
+			"Failed":0,
+			"Seconds":2.2405103
 		}
 	],
-	"Succeeded":153,
+	"Succeeded":219,
 	"Failed":0,
 	"Results":[
 		{
@@ -850,11 +878,341 @@
 			"Suite":"CompositionRefactoring.wlt",
 			"TestID":"composition-finite-probes-still-decline-complex-parameters-branches-and-centers",
 			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewProofContext.wlt",
+			"TestID":"proof-context-positivity-is-normalized-and-numeric-coefficients-skip-the-prover",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-public-zeta-dispatch-and-refinement-preserve-the-exponential-coordinate",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-public-lerch-dispatch-and-source-refinement",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-five-terms-include-one-and-use-exponential-coordinate",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-explicit-cutoff-is-exclusive-at-logarithmic-weights",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-cutoff-zero-retains-a-genuine-pure-order-remainder",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-affine-arguments-support-both-real-infinity-approaches",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-fixed-symbolic-affine-parameters-require-real-positive-growth",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-actual-defining-sum-tail-satisfies-independent-integral-bounds",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-large-cutoff-fails-before-exponential-enumeration",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-explicit-cutoff-and-term-goal-stop-independently",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-affine-constant-above-a-nonpositive-cutoff-sets-the-remainder-order-to-zero",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-declines-wrong-ray-and-outside-affine-scope",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-three-terms-and-first-omitted-moment-bound",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-five-terms-match-independent-geometric-moments",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-negative-geometric-weight-uses-absolute-weight-in-tail-bound",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-negative-noninteger-order-retains-growing-leading-block",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-tail-accounts-for-growth-of-the-Taylor-derivative",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-nonpositive-integer-order-is-exact-only-after-all-polynomial-blocks",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-zero-weight-and-zero-order-exact-cases-preserve-truncation-errors",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-cutoff-is-exclusive-in-absolute-reciprocal-argument-exponents",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-keeps-scaled-argument-and-supports-a-large-argument-at-a-finite-endpoint",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-actual-defining-sum-error-is-below-the-derived-Taylor-bound",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-growing-alternating-source-obeys-bound-down-to-positive-unit-argument",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-domain-ordered-representation-and-Poincare-contract-are-preserved",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-declines-boundary-weights-varying-parameters-and-negative-ray",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-remainder-moment-degree-is-resource-bounded",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-truncation-transports-the-absolute-tail-bound-and-drops-the-signed-lower-bound",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-zeta-no-op-truncation-retains-every-quantitative-bound-field",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"dirichlet-lerch-truncation-transports-the-bound-without-its-constant-form",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"DirichletSpecialFunctions.wlt",
+			"TestID":"ordinary-truncation-does-not-invent-a-quantitative-bound",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-user-rule-five-independent-Stirling-coefficients",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-remainder-includes-exact-growing-prefactor",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-native-numerical-value-agrees-at-first-omitted-scale",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-one-term-counts-normalized-leading-one",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-sixth-coefficient-is-independent-first-omitted-oracle",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-rational-relative-cutoff-retains-complete-blocks",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-refinement-replays-original-Gamma-function",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-truncation-transports-relative-error-prefactor",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-positive-scaled-argument",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-ramified-argument-counts-sparse-nonzero-blocks",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-reciprocal-argument-at-positive-finite-endpoint",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-parameter-positivity-justifies-argument-branch",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-conditional-domain-survives-representation-and-refinement",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-regular-finite-Gamma-expansion-remains-supported",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-invalid-goals-budgets-and-inexact-cutoffs-fail",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-rejects-pole-filled-negative-tail-and-incompatible-domain",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-SeriesLog-recovers-additive-Stirling-expansion",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"GammaForward.wlt",
+			"TestID":"gamma-forward-scalar-product-and-reciprocal-preserve-prefactor-calculus",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-forward-captures-positive-and-negative-ambient-branches",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-nested-ambient-scopes-are-captured-together",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-inverse-retains-the-sign-used-in-its-coefficients",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-explicit-constructor-option-replaces-conflicting-ambient",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-explicit-true-cannot-borrow-ambient-inverse-sign",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-explicit-true-preserves-unspecialized-forward-coefficients",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-primary-forward-separates-ambient-parameter-and-approach-conditions",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-inverse-refinement-uses-stored-context-under-conflicting-ambient",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-forward-refinement-does-not-specialize-under-new-ambient-sign",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-observable-coefficients-ignore-unrecorded-ambient-equalities",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-automatic-arithmetic-merges-stored-contexts-without-ambient-specialization",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-scalar-operation-uses-declared-reality-not-ambient-reality",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-gamma-dispatch-captures-symbolic-power-context",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-logarithmic-constructor-captures-real-coefficient-context",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-flat-constructor-captures-real-target-offset-context",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-fourier-constructor-captures-real-amplitude-context",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewAssumptions.wlt",
+			"TestID":"review-assumptions-finite-model-and-later-coefficient-use-recorded-context",
+			"Outcome":"Success"
 		}
 	],
 	"SourcesUnchangedDuringRun":true,
 	"TestedSourceSHA256":{
-		"src\/Kernel\/AsymptoticAnalysis.wl":"c4101675a4d7626fd25eea21edafb87fda251dada10030847ad7c6fc9171d788",
+		"src\/Kernel\/AsymptoticAnalysis.wl":"6310d9ef2e7a5ada858e7898460ff56e69e01b3ae13aa840b16a97b2eae03add",
 		"src\/Kernel\/BarnesForward.wl":"036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479",
 		"src\/Kernel\/BarnesInverseChecks.wl":"70de0268030051fefa1c9c323036488936a84fd309689c22abea51f179b0f6f0",
 		"src\/Kernel\/BarnesInverse.wl":"56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
@@ -888,15 +1246,15 @@
 		"src\/Kernel\/MathicsCoreFunctions.wl":"7d1a26186c367ba43146b4af0504ead6eb7d8a3a8f6bc05c0fd5c59c170d3337",
 		"src\/Kernel\/MathicsFormatting.wl":"c0fe6dc19f67df7c3cae5f2f4f972acb0392472423b4103af0b3ec422a95df2c",
 		"src\/Kernel\/MathicsInputAssumptions.wl":"77facd132248995eaa63ea48956d2b3a288db38c43651b18009379a5e3111aad",
-		"src\/Kernel\/MathicsInverseBranches.wl":"79ecef295c917a8a53c809b49e181f718811c9fe481693b440f3ca942d4ce022",
+		"src\/Kernel\/MathicsInverseBranches.wl":"117bbe908b1381177e96f7d39427d78493888e812d635fc16dc4f05856133fc8",
 		"src\/Kernel\/MathicsLists.wl":"523f9e8af7cdc30bd9897d69e379ddbe0b4d01a91193e78d5a76304d16cd7da0",
 		"src\/Kernel\/MathicsNumerical.wl":"fbe5ebfb58863ca9d9e83229c4f05349a76aac299297246f48fd2b42a38bff34",
 		"src\/Kernel\/MathicsRefinement.wl":"1f02dff6cad0e3c3d78d747daaac3fd950b82cb7a19f310c3bbf7dd3ca2b5551",
 		"src\/Kernel\/MathicsSimplification.wl":"181a2b74e661717c11161307736fae98b28bed04150ba9cd91a408a404cd704f",
 		"src\/Kernel\/MathicsSpecialFunctions.wl":"78ab28f9dcf8f87f2a22413ebc263788552333a91f485c2edc2e126a1030383b",
-		"src\/Kernel\/MathicsTaylor.wl":"e6324cb1e8cf5718e2bf160d26f6a6cae5b06ef16a4a5bc88aae97bc08068631",
+		"src\/Kernel\/MathicsTaylor.wl":"209b6d3af70b867780e9d214b3cf2adf5ecda8b5090933cce2f1d7a7e3abd49d",
 		"src\/Kernel\/MathicsTimeBudget.wl":"779416eb1646b55fb77ac7210de37b177916bcdcdf1f74c666ba02cd40c4a98f",
-		"src\/Kernel\/NativeCompatibility.wl":"b4d385be5f39b86e174f58a59d53133f63dd90651f9b34fcd5e14f5058e6a3e9",
+		"src\/Kernel\/NativeCompatibility.wl":"b4147335258ea87da80a935f0864b2d800309cca390c2ac8eceae95c58994632",
 		"src\/Kernel\/NativeSpecialFunctions.wl":"7292639d9b1c6a37482deee38d054ddd40c7a7b1d39474a3410ea2c96fefb012",
 		"src\/Kernel\/NumericalInverseChecks.wl":"c04427b0d30cab4e988e755dbe4a2a3a773f898acb2283f85e19c308326a1d38",
 		"src\/Kernel\/ParameterizedSpecialFunctions.wl":"19370b301debf8107b96e356b00bc06a6c4bf04ee7aa9bab3060fff822afa204",
@@ -905,7 +1263,7 @@
 		"src\/Kernel\/RefinementState.wl":"57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
 		"src\/Kernel\/SeriesArithmetic.wl":"9fe5a8f9ce9188c81135a6a418db4ca338a0b762d56a1f1e047d0eba0b69a8bb",
 		"src\/Kernel\/SeriesEnvelopeArithmetic.wl":"c0b233dd0e3502aed2bd4243299c5cd5a73fb256a62ffd83b08e1af3fd74edc8",
-		"src\/Kernel\/SeriesOperations.wl":"292104e6428b44faa6dffeac504e6deecb5bb653910f77099c974d020b119ca0",
+		"src\/Kernel\/SeriesOperations.wl":"9498cb553edcb728a775dd0eb10d78e1d9ecf8462f772b462db3ca36f5219a26",
 		"src\/Kernel\/SourceCoordinates.wl":"92758cbbc06e63a99035735ee029074bda86e62414bf9c85a92ed6398e4478f0",
 		"src\/Kernel\/SpecialFunctionAdapters.wl":"41e95ad2af0f2d0a68fed8edaec65f42c4262efc0a68481cff760e8ce28192cf",
 		"src\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
@@ -921,7 +1279,11 @@
 		"src\/Tests\/GeneralizedSeries.wlt":"857e7ccc6602caf5395d9b0f4d25f5f7b3edfa5b6c90ff287c0392b883b87e01",
 		"src\/Tests\/ReviewCompositionScope.wlt":"b1110f696e75b5a9e12d03fc564a1176392a3ca0f04c01c5a2c774655e073091",
 		"src\/Tests\/CompositionRefactoring.wlt":"0e2c3b134fbf7cf9606587511602132c283891d634377d9c3541e50ccc4f6cd3",
-		"validation\/CheckRecipeTemplates.wl":"1bf615a9f04a7933005a08818c7958fec42d72ec9a6e4234ebc4ed085319306c",
+		"src\/Tests\/ReviewProofContext.wlt":"159d6ec9b8ae559537db9b8d5f37a2ea500a2d9a4d54d5f1e0fdf91ff1222a2c",
+		"src\/Tests\/DirichletSpecialFunctions.wlt":"dde882003b9520fb4905a58e6e5e013bcf4549445f7a727a52d009c6f9918ff8",
+		"src\/Tests\/GammaForward.wlt":"7e17472c66a839e0e551db2874b8ed84ef2b87e3a915407e38331e008b13a75b",
+		"src\/Tests\/ReviewAssumptions.wlt":"ca0f98a568ef2cc12a557289467473cceac7f0fec1d78021fd3e1739a1b239d2",
+		"validation\/CheckRecipeTemplates.wl":"49a40cc6e5733c4b591056064a18f22d40f95b00ebc4e5203467706060de8b9f",
 		"validation\/FocusedTests.wl":"7e6157edcb33e21c4c5fde027186c6bf18255c90a5f250dc0c242e0975ba6a90"
 	}
 }

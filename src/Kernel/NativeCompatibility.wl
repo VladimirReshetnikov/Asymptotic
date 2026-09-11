@@ -321,7 +321,11 @@ automaticNativeShapeQ[request_HoldComplete] := Module[{parts, specifications, ce
     HoldComplete[(Rule | RuleDelayed)[_, point_]] :> point}];
   If[! MemberQ[{Infinity, -Infinity}, center] && ! exactRealQ[center], Return[True, Module]];
   order = Replace[First[specifications], {HoldComplete[{_, _, n_}] :> n, _ :> Automatic}];
-  If[order =!= Automatic, Return[! exactRealQ[order], Module]];
+  (* A symbolic order is a native shape; an inexact number such as 3.5 is
+     valid for neither engine and keeps the package path so that the request
+     is refused as an invalid cutoff instead of returning an unresolved
+     native object with the built-in's own messages. *)
+  If[order =!= Automatic, Return[! exactRealQ[order] && ! InexactNumberQ[order], Module]];
   ! MemberQ[nativeRequestOptionKeys[request], HoldComplete[SeriesTermGoal]] &&
     OptionValue[AsymptoticExpansion, SeriesTermGoal] === Automatic];
 

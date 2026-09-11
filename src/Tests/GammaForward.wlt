@@ -126,16 +126,24 @@ VerificationTest[Module[{x, s},
       (EulerGamma^2/2 + Pi^2/12) (x - 1)^2], s["RemainderPower"]}],
   {True, 3}, TestID -> "gamma-forward-regular-finite-Gamma-expansion-remains-supported"]
 
+(* The package engine refuses these budgets and goals; under Automatic a
+   nonpositive rule-form goal is a native leading request by design, so the
+   goal case selects the package backend explicitly. An inexact cutoff is
+   refused on every route. *)
 VerificationTest[Module[{x},
-  {FailureQ[AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 0]],
+  {FailureQ[AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 0, "Backend" -> "Package"]],
     FailureQ[AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 5, "MaxTerms" -> 0]],
     FailureQ[AsymptoticExpansion[Gamma[x], x -> Infinity, SeriesTermGoal -> 5, "MaxTerms" -> 1]],
-    FailureQ[AsymptoticExpansion[Gamma[x], {x, Infinity, 3.5}]]}],
-  {True, True, True, True},
+    FailureQ[AsymptoticExpansion[Gamma[x], {x, Infinity, 3.5}]],
+    AsymptoticExpansion[Gamma[x], {x, Infinity, 3.5}][[1]]}],
+  {True, True, True, True, "InvalidCutoff"},
   TestID -> "gamma-forward-invalid-goals-budgets-and-inexact-cutoffs-fail"]
 
+(* The package engine rejects the pole-filled negative tail; under Automatic
+   that representation failure falls back to a native formal result by
+   design, so the refusal is pinned on the package backend. *)
 VerificationTest[Module[{x},
-  {Quiet[FailureQ[AsymptoticExpansion[Gamma[-x], x -> Infinity, SeriesTermGoal -> 5]]],
+  {Quiet[FailureQ[AsymptoticExpansion[Gamma[-x], x -> Infinity, SeriesTermGoal -> 5, "Backend" -> "Package"]]],
     FailureQ[AsymptoticExpansion[ConditionalExpression[Gamma[x], x < 0],
       x -> Infinity, SeriesTermGoal -> 5]]}],
   {True, True}, TestID -> "gamma-forward-rejects-pole-filled-negative-tail-and-incompatible-domain"]

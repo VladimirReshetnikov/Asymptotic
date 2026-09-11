@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): ad350baae6a0be7421dab866f6eb2e79deb0056c8f567f5e5f3581db7e8716ba *)
+   Source SHA256 (UTF-8/LF): 6310d9ef2e7a5ada858e7898460ff56e69e01b3ae13aa840b16a97b2eae03add *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -321,14 +321,17 @@ canon[e_?NumericQ] := Module[{r},
 canon[e_] := FullSimplify[e];
 
 compare[a_, b_] := Module[{d, t},
-  If[a === b, Return[0, Module]];
+  If[a === b || logCanonicalSameQ[a, b], Return[0, Module]];
   If[a === Infinity, Return[1, Module]]; If[b === Infinity, Return[-1, Module]];
   If[a === -Infinity, Return[-1, Module]]; If[b === -Infinity, Return[1, Module]];
   If[(Head[a] === Integer || Head[a] === Rational) && (Head[b] === Integer || Head[b] === Rational),
    Return[Sign[a - b], Module]];
+  (* An exact zero difference such as 2 Log[2] - Log[4] exhausts the
+     numerical comparison's extra precision and reports N::meprec before the
+     exact canonicalization below decides it; the comparison is silent. *)
   If[NumericQ[a] && NumericQ[b],
-   If[Quiet[TrueQ[a < b], {Less::meprec}], Return[-1, Module]];
-   If[Quiet[TrueQ[a > b], {Greater::meprec}], Return[1, Module]]];
+   If[Quiet[TrueQ[a < b], {Less::meprec, N::meprec}], Return[-1, Module]];
+   If[Quiet[TrueQ[a > b], {Greater::meprec, N::meprec}], Return[1, Module]]];
   d = canon[a - b];
   If[d === 0, Return[0, Module]];
   If[TrueQ[d < 0], Return[-1, Module]];
@@ -341,7 +344,11 @@ leq[a_, b_] := compare[a, b] <= 0;
 equal[a_, b_] := compare[a, b] == 0;
 minOf[a_, b_] := If[leq[a, b], a, b];
 
-symbolicEqualQ[a_, b_, ass_] := a === b || TrueQ[Simplify[a - b == 0, ass]];
+(* Exact logarithms compare structurally after prime-factor canonicalization,
+   so weights such as Log[4] and 2 Log[2] are decided without a numerical
+   comparison of their exact zero difference. *)
+logCanonicalSameQ[a_, b_] := ! FreeQ[{a, b}, Log] && logCanon[a] === logCanon[b];
+symbolicEqualQ[a_, b_, ass_] := a === b || logCanonicalSameQ[a, b] || TrueQ[Simplify[a - b == 0, ass]];
 
 (* ------------------------------------------------------------------ *)
 (* Coefficient normalization                                            *)
@@ -392,8 +399,12 @@ polyCanonicalZeroQ[p_, ell_, ass_] :=
 polyZeroQ[q_, ell_, ass_] := polyCanonicalZeroQ[polyCanon[q, ell, ass], ell, ass];
 polyDegree[q_, ell_] := If[q === 0, 0, Exponent[q, ell]];
 
-realPolynomialCondition[p_, ell_, ass_] := Module[{condition},
-  condition = Simplify[And @@ (Element[#, Reals] & /@ CoefficientList[p, ell]), ass];
+realPolynomialCondition[p_, ell_, ass_] := Module[{coefficients = CoefficientList[p, ell], condition},
+  (* Exact numbers need no assumptions: this also keeps Simplify from
+     evaluating the assumptions themselves for every numeric coefficient. *)
+  If[And @@ (NumericQ[#] && exactQ[#] & /@ coefficients),
+    Return[Simplify[And @@ (Element[#, Reals] & /@ coefficients)], Module]];
+  condition = Simplify[And @@ (Element[#, Reals] & /@ coefficients), ass];
   If[condition === True || condition === False, condition,
     TimeConstrained[FullSimplify[condition, ass], 1, condition]]];
 realPolynomialQ[p_, ell_, ass_] := PolynomialQ[p, ell] &&
@@ -2225,7 +2236,7 @@ groupedLagrangeBlocks[d_List, polys_List, p_, r_, cut_, ell_, ass_, limit_] := M
 (* END SOURCE: src/Kernel/IncrementalInverse.wl *)
 
 (* BEGIN SOURCE: src/Kernel/SeriesOperations.wl
-   Source SHA256 (UTF-8/LF): 7b3f5b51b1ebfc8575ab00545026bb538042a828e1f398cb52750ea0da0e826b *)
+   Source SHA256 (UTF-8/LF): 9498cb553edcb728a775dd0eb10d78e1d9ecf8462f772b462db3ca36f5219a26 *)
 (* Explicit calculus for expansions.  A representation means
    Offset + Prefactor (Jet + remainder), in the positive ScaleVariable.
    The prefactor is exact; the jet precision is relative to that prefactor. *)
@@ -2241,7 +2252,16 @@ Options[AsymptoticAnalysis`SeriesDifferentiate] = {
   "Cutoff" -> Automatic, "MaxTerms" -> 20000,
   "RemainderDerivativeOrder" -> Automatic};
 
-seriesAss[d_] := d["Assumptions"] && Lookup[d, "Domain", True] && d["ScaleVariable"] > 0;
+(* The proof context states positivity in the form Simplify handles
+   cleanly: a reciprocal scale 1/x > 0 becomes x > 0, a reflected one
+   -1/x > 0 becomes x < 0, and E^(-x) > 0 is a tautology on the real
+   approach. Simplify given x^(-1) > 0 together with E^(-x) > 0 evaluates
+   1/0 internally and emits Power::infy and Greater::nord for every
+   coefficient proof; stored domains are not rewritten. *)
+seriesPositivityCanon[condition_] := condition /. {
+  HoldPattern[Times[-1, Power[v_, -1]] > 0] :> v < 0, HoldPattern[Power[v_, -1] > 0] :> v > 0,
+  HoldPattern[0 < Power[v_, -1]] :> v > 0, HoldPattern[Power[E, _] > 0] :> True, HoldPattern[0 < Power[E, _]] :> True};
+seriesAss[d_] := seriesPositivityCanon[d["Assumptions"] && Lookup[d, "Domain", True] && d["ScaleVariable"] > 0];
 seriesJetExpression[j_, w_, ell_] := Total[(w^#[[1]] (#[[2]] /. ell -> Log[w])) & /@ j[[1]]];
 seriesBound[a_Association] := Lookup[a, "RemainderScaleExpression",
   a["Remainder"] /. rr_PowerLogRemainder :> remainderScale[rr]];
@@ -9333,7 +9353,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
 (* END SOURCE: src/Kernel/NativeSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeCompatibility.wl
-   Source SHA256 (UTF-8/LF): df262db2fe1de332fa96845e5cda5be302fc0d8efcde50810fb221b155f43e93 *)
+   Source SHA256 (UTF-8/LF): b4147335258ea87da80a935f0864b2d800309cca390c2ac8eceae95c58994632 *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
    do not resolve native delayed options for a second metadata lookup. *)
@@ -9657,7 +9677,11 @@ automaticNativeShapeQ[request_HoldComplete] := Module[{parts, specifications, ce
     HoldComplete[(Rule | RuleDelayed)[_, point_]] :> point}];
   If[! MemberQ[{Infinity, -Infinity}, center] && ! exactRealQ[center], Return[True, Module]];
   order = Replace[First[specifications], {HoldComplete[{_, _, n_}] :> n, _ :> Automatic}];
-  If[order =!= Automatic, Return[! exactRealQ[order], Module]];
+  (* A symbolic order is a native shape; an inexact number such as 3.5 is
+     valid for neither engine and keeps the package path so that the request
+     is refused as an invalid cutoff instead of returning an unresolved
+     native object with the built-in's own messages. *)
+  If[order =!= Automatic, Return[! exactRealQ[order] && ! InexactNumberQ[order], Module]];
   ! MemberQ[nativeRequestOptionKeys[request], HoldComplete[SeriesTermGoal]] &&
     OptionValue[AsymptoticExpansion, SeriesTermGoal] === Automatic];
 

@@ -1134,6 +1134,32 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## Proof-context normalization and message-free expansions
+
+`seriesAss` now states scale positivity as `x > 0` for a reciprocal scale,
+`x < 0` for a reflected one, and drops the tautology `E^(-x) > 0`; exact
+numeric coefficients skip the assumption prover in
+`realPolynomialCondition`; and the exponent comparison silences `N::meprec`
+on an exact zero difference. Under the old context, `Simplify` given
+`x^(-1) > 0` together with `E^(-x) > 0` evaluated `1/0` internally and
+emitted `Power::infy` and `Greater::nord` twice per coefficient proof: 40
+messages for `SeriesAdd` of two `Zeta` expansions and 29 for a `Gamma`
+expansion at infinity on Wolfram 15.0.1 (counted with a message handler after
+`ClearSystemCache[]`; the messages are cache-dependent and invisible to
+`Trace`). The new case in
+[ReviewProofContext.wlt](../src/Tests/ReviewProofContext.wlt) clears the
+system cache and evaluates both requests inside `VerificationTest`, which
+reports any message as a failure, and pins the normalized context and the
+numeric fast path. An inexact cutoff such as `{x, Infinity, 3.5}` is refused
+as `InvalidCutoff` before any native delegation. The
+[recipe-template runner](CheckRecipeTemplates.wl) now carries fifteen files
+and passes **219/219**: it added this case, the Dirichlet, Gamma forward and
+assumption suites, and two [Gamma forward](../src/Tests/GammaForward.wlt)
+regressions that had pinned refusals from before automatic native routing
+existed (`SeriesTermGoal -> 0` in rule form and `Gamma[-x]` at infinity now
+select the package backend explicitly; both also failed on the pre-session
+build `8d42b5d`, so the change is in the tests, not the engine).
+
 ## Lifted-operand templates and provenance measurements
 
 [MeasureProvenanceGrowth.wl](MeasureProvenanceGrowth.wl) is a read-only
@@ -1148,7 +1174,7 @@ exported from `8d42b5d` (`ASYMPTOTIC_MEASURE_ROOT`) and the
 both on Wolfram 15.0.1 for Windows with unchanged sources; the
 [provenance growth note](../docs/development/PROVENANCE_GROWTH.md)
 interprets them. The [eleven-file run](recipe-template-tests.json) from
-[CheckRecipeTemplates.wl](CheckRecipeTemplates.wl) passes **153/153** with
+[CheckRecipeTemplates.wl](CheckRecipeTemplates.wl) passed **153/153** with
 unchanged sources: the two new cases in
 [ReviewProvenanceGrowth.wlt](../src/Tests/ReviewProvenanceGrowth.wlt) pin
 the linear node counts of `t + 1`, `2 t` and `t Sin[x] + 1` chains, the

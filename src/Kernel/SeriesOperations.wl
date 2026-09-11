@@ -13,7 +13,16 @@ Options[AsymptoticAnalysis`SeriesDifferentiate] = {
   "Cutoff" -> Automatic, "MaxTerms" -> 20000,
   "RemainderDerivativeOrder" -> Automatic};
 
-seriesAss[d_] := d["Assumptions"] && Lookup[d, "Domain", True] && d["ScaleVariable"] > 0;
+(* The proof context states positivity in the form Simplify handles
+   cleanly: a reciprocal scale 1/x > 0 becomes x > 0, a reflected one
+   -1/x > 0 becomes x < 0, and E^(-x) > 0 is a tautology on the real
+   approach. Simplify given x^(-1) > 0 together with E^(-x) > 0 evaluates
+   1/0 internally and emits Power::infy and Greater::nord for every
+   coefficient proof; stored domains are not rewritten. *)
+seriesPositivityCanon[condition_] := condition /. {
+  HoldPattern[Times[-1, Power[v_, -1]] > 0] :> v < 0, HoldPattern[Power[v_, -1] > 0] :> v > 0,
+  HoldPattern[0 < Power[v_, -1]] :> v > 0, HoldPattern[Power[E, _] > 0] :> True, HoldPattern[0 < Power[E, _]] :> True};
+seriesAss[d_] := seriesPositivityCanon[d["Assumptions"] && Lookup[d, "Domain", True] && d["ScaleVariable"] > 0];
 seriesJetExpression[j_, w_, ell_] := Total[(w^#[[1]] (#[[2]] /. ell -> Log[w])) & /@ j[[1]]];
 seriesBound[a_Association] := Lookup[a, "RemainderScaleExpression",
   a["Remainder"] /. rr_PowerLogRemainder :> remainderScale[rr]];
