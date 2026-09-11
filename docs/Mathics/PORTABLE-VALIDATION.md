@@ -188,11 +188,17 @@ then terminates its owned process group/tree. Cleanup and output draining have
 additional waits. The option is not a strict total wall-clock limit for either
 the case including cleanup or the whole suite.
 
-Captured output has no byte limit. The runner buffers complete diagnostics and
-serializes accumulated results again at checkpoints, so a time limit does not
-also bound memory use or receipt size. There is no `--max-output` or aggregate
-suite-timeout option in this version. The related source findings are recorded
-in [report 31, N4](../../external-reports/code-review/wave-4/code-review-31/evidence/novelty_ledger.csv).
+Captured output is bounded per case. `--max-output-bytes` (a positive integer;
+default 4,000,000) is the amount of merged kernel output the runner retains for
+one case, recorded in the receipt as `MaxOutputBytesPerCase`. A reader thread
+drains the pipe as the kernel writes; a kernel that writes past the bound is
+stopped through the same process-tree termination as a timeout, the retained
+prefix is kept as `KernelOutput` with a note of the bound, and the case ends
+with the terminal outcome `OutputOverflow` even when a complete success record
+precedes the flood. So a time limit now also bounds memory use and receipt
+size for each case; there is still no aggregate suite-timeout option. The
+historical unbounded capture is recorded in
+[report 31, N4](../../external-reports/code-review/wave-4/code-review-31/evidence/novelty_ledger.csv).
 
 On interruption while a case is active, the runner attempts to terminate only
 that process's tree/group and then re-raises the interruption. The active case

@@ -30,12 +30,14 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SUITE = Path(__file__).with_name("MathicsTests.wl")
 PREFIX = "ASYMPTOTIC_PORTABLE_"
+DEFAULT_MAX_OUTPUT_BYTES = 4_000_000
 MAX_CASE_TIMEOUT_SECONDS = 86400.0
 CASE_PATTERN = re.compile(r'^portableTest\["([a-z0-9-]+)", "([a-z]+)",', re.MULTILINE)
 
@@ -165,9 +167,37 @@ def parse_output(output: str, test_id: str, returncode: int | None) -> dict:
     return result
 
 
+def max_output_bytes(value: str | int) -> int:
+    try:
+        limit = int(value)
+    except (ValueError, TypeError) as error:
+        raise argparse.ArgumentTypeError("--max-output-bytes must be an integer") from error
+    if limit <= 0:
+        raise argparse.ArgumentTypeError("--max-output-bytes must be positive")
+    return limit
+
+
+def drain_bounded(process: subprocess.Popen, limit: int, chunks: list, overflow: threading.Event) -> None:
+    """Retain at most limit bytes of kernel output. A kernel that writes past
+    the bound is stopped: the receipt keeps the retained prefix instead of
+    growing without limit, and the case cannot pass."""
+    total = 0
+    while True:
+        chunk = process.stdout.read(65536)
+        if not chunk:
+            return
+        if total < limit:
+            chunks.append(chunk[:limit - total])
+        total += len(chunk)
+        if total > limit and not overflow.is_set():
+            overflow.set()
+            stop_process_tree(process)
+
+
 def run_case(command: list[str], source: Path, test_id: str, group: str,
-             timeout: float, work: Path) -> dict:
+             timeout: float, work: Path, output_limit: int = DEFAULT_MAX_OUTPUT_BYTES) -> dict:
     timeout = case_timeout(timeout)
+    output_limit = max_output_bytes(output_limit)
     env = dict(os.environ, ASYMPTOTIC_PORTABLE_SOURCE=str(source),
                ASYMPTOTIC_PORTABLE_CASE=test_id, PYTHONIOENCODING="utf-8",
                PYTHONUNBUFFERED="1")
@@ -179,38 +209,53 @@ def run_case(command: list[str], source: Path, test_id: str, group: str,
         process = subprocess.Popen(command, cwd=work, env=env,
                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                    start_new_session=os.name != "nt")
+        chunks: list[bytes] = []
+        overflow = threading.Event()
+        reader = threading.Thread(target=drain_bounded, args=(process, output_limit, chunks, overflow),
+                                  name=f"portable-output-{test_id}", daemon=True)
+        reader.start()
+
+        def collect(timeout_seconds: float) -> str:
+            process.wait(timeout=timeout_seconds)
+            reader.join(timeout=10)
+            return as_text(b"".join(chunks))
+
         try:
-            captured, _ = process.communicate(timeout=timeout)
-            output = as_text(captured)
-            result = parse_output(output, test_id, process.returncode)
-            result["ExitCode"] = process.returncode
+            output = collect(timeout)
+            if overflow.is_set():
+                # Terminal even when a success record precedes the flood: the
+                # retained prefix is diagnostics, not evidence of a pass.
+                output += f"\nKernel output exceeded {output_limit} bytes; the case was stopped and its output truncated.\n"
+                result = {"Outcome": "OutputOverflow", "ExitCode": process.returncode}
+            else:
+                result = parse_output(output, test_id, process.returncode)
+                result["ExitCode"] = process.returncode
         except subprocess.TimeoutExpired:
             # Windows virtual-environment Python is a redirector that launches
             # the real interpreter. Killing only the redirector leaves the
             # evaluation running and its stdout pipe open indefinitely.
             stop_process_tree(process)
-            captured, _ = process.communicate(timeout=10)
-            output = as_text(captured)
+            output = collect(10)
             result = {"Outcome": "Timeout", "ExitCode": process.returncode}
         except OverflowError as error:
             # A finite float can exceed the platform's native timer range.
             # Keep that configuration failure in the report and clean up the
-            # process already launched before communicate rejected its timer.
+            # process already launched before the wait rejected its timer.
             stop_process_tree(process)
-            captured, _ = process.communicate(timeout=10)
-            output = as_text(captured) + f"\nTimer setup failed: {type(error).__name__}: {error}\n"
+            output = collect(10) + f"\nTimer setup failed: {type(error).__name__}: {error}\n"
             result = {"Outcome": "LaunchError", "ExitCode": process.returncode}
         except BaseException:
             stop_process_tree(process)
-            process.communicate(timeout=10)
+            collect(10)
             raise
     except OSError as error:
         output = str(error)
         result = {"Outcome": "LaunchError", "ExitCode": None}
     result.update(TestID=test_id, Group=group,
                   ElapsedSeconds=round(time.monotonic() - started, 3))
-    # Keep complete diagnostics; they are essential when Mathics leaves a
-    # builtin unevaluated or raises a Python exception before a WL assertion.
+    # Keep the diagnostics up to the bound; they are essential when Mathics
+    # leaves a builtin unevaluated or raises a Python exception before a WL
+    # assertion, and the bound keeps a runaway kernel from growing the receipt.
     result["KernelOutput"] = output
     return result
 
@@ -246,6 +291,9 @@ def main() -> int:
     parser.add_argument("--timeout", type=case_timeout, default=180,
                         help="Finite hard seconds per fresh kernel, including startup (0 < seconds <= 86400; default: 180)")
     parser.add_argument("--output", type=Path, default=ROOT / "validation/mathics-tests.json")
+    parser.add_argument("--max-output-bytes", type=max_output_bytes, default=DEFAULT_MAX_OUTPUT_BYTES,
+                        help="Retained kernel output per case; a kernel writing more is stopped and the case "
+                             "fails as OutputOverflow (default: 4000000)")
     parser.add_argument("--list", action="store_true", help="List selected IDs and groups without running Mathics")
     args = parser.parse_args()
     all_cases = available_cases()
@@ -312,7 +360,8 @@ def main() -> int:
         report = {
             "Runtime": runtime_name, "Command": command,
             "UTC": datetime.now(timezone.utc).isoformat(), "Source": str(source),
-            "PerCaseTimeoutSeconds": args.timeout, "FreshKernelPerCase": True,
+            "PerCaseTimeoutSeconds": args.timeout, "MaxOutputBytesPerCase": args.max_output_bytes,
+            "FreshKernelPerCase": True,
             "MathicsIterationLimitConfiguredBySuite": 1000000 if runtime_name == "Mathics" else None,
             "FullPackageSuiteRun": False, "RunComplete": complete, "Selected": len(cases),
             "TestSuiteSnapshotSHA256": hashlib.sha256(suite_snapshot).hexdigest(),
@@ -365,7 +414,8 @@ def main() -> int:
             # interrupted or killed run names the case it was executing.
             in_progress = test_id
             write_report(False)
-            result = run_case(frozen_command, executed_source, test_id, group, args.timeout, Path(temporary))
+            result = run_case(frozen_command, executed_source, test_id, group, args.timeout, Path(temporary),
+                              args.max_output_bytes)
             in_progress = None
             results.append(result)
             write_report(False)

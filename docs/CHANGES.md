@@ -15,6 +15,13 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Bounded kernel output in the portable runner
+
+`validation/run_mathics_tests.py` retains at most `--max-output-bytes`
+(default 4,000,000) of kernel output per case, stops a kernel that writes past
+the bound, and records the case as the terminal `OutputOverflow` even after a
+success record; the bound is recorded in receipts as `MaxOutputBytesPerCase`.
+
 ### Silent proofs, inexact cutoffs, and stale Gamma refusals
 
 The proof context now states scale positivity as `x > 0` rather than

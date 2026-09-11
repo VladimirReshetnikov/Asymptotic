@@ -1134,6 +1134,20 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## Bounded kernel output in the portable runner (W4-13)
+
+[run_mathics_tests.py](run_mathics_tests.py) now retains at most
+`--max-output-bytes` (default 4,000,000) of merged kernel output per case and
+records the bound as `MaxOutputBytesPerCase`. A reader thread drains the pipe;
+a kernel that writes past the bound is stopped through the process-tree
+termination used for timeouts, `KernelOutput` keeps the prefix with a note,
+and the case ends as the terminal `OutputOverflow` even when a complete
+success record precedes the flood. The runner tests in
+[test_mathics_runner.py](test_mathics_runner.py) launch a real flooding child
+(stopped well inside its 30-second deadline with under 200,200 retained bytes),
+a child within the bound, and reject nonpositive or noninteger bounds both on
+the command line and in direct `run_case` calls before any process is created.
+
 ## Proof-context normalization and message-free expansions
 
 `seriesAss` now states scale positivity as `x > 0` for a reciprocal scale,

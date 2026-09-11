@@ -112,9 +112,39 @@ class PortableProcessTests(unittest.TestCase):
         time.sleep(0.15)
         self.assertEqual(heartbeat.read_text(), stopped_value, "The timed-out child is still running")
 
+    def test_output_overflow_is_terminal_even_after_a_success_record(self) -> None:
+        # The kernel prints a complete success record and then floods stdout.
+        # The bound stops it, keeps only the prefix, and the case cannot pass.
+        flood = (f"print({record()!r}, flush=True)\n"
+                 "import sys\n"
+                 "while True:\n"
+                 "    sys.stdout.write('x' * 65536)\n"
+                 "    sys.stdout.flush()\n")
+        started = time.monotonic()
+        result = runner.run_case([sys.executable, "-c", flood], runner.SUITE, "fixture", "fixture",
+                                 30, self.work, 200_000)
+        self.assertEqual(result["Outcome"], "OutputOverflow")
+        self.assertLess(time.monotonic() - started, 20)
+        self.assertIn("Fixture kernel", result["KernelOutput"])
+        self.assertIn("exceeded 200000 bytes", result["KernelOutput"])
+        self.assertLess(len(result["KernelOutput"]), 200_000 + 200)
+
+    def test_output_within_the_bound_is_kept_completely(self) -> None:
+        command = [sys.executable, "-c", f"print('y' * 150_000); print({record()!r})"]
+        result = runner.run_case(command, runner.SUITE, "fixture", "fixture", 30, self.work, 200_000)
+        self.assertEqual(result["Outcome"], "Success", result["KernelOutput"][-500:])
+        self.assertIn("y" * 150_000, result["KernelOutput"])
+
+    def test_output_bound_must_be_a_positive_integer(self) -> None:
+        for value in (0, -1, "abc", None):
+            with self.subTest(value=value), patch.object(runner.subprocess, "Popen") as launch:
+                with self.assertRaises(argparse.ArgumentTypeError):
+                    runner.run_case([sys.executable], runner.SUITE, "fixture", "fixture", 1, self.work, value)
+                launch.assert_not_called()
+
     def test_interrupt_cleans_up_the_owned_process_tree(self) -> None:
-        process = unittest.mock.Mock()
-        process.communicate.side_effect = [KeyboardInterrupt(), (b"", None)]
+        process = unittest.mock.Mock(stdout=io.BytesIO(b""))
+        process.wait.side_effect = [KeyboardInterrupt(), None]
         with patch.object(runner.subprocess, "Popen", return_value=process), \
                 patch.object(runner, "stop_process_tree") as stop:
             with self.assertRaises(KeyboardInterrupt):
@@ -122,8 +152,8 @@ class PortableProcessTests(unittest.TestCase):
         stop.assert_called_once_with(process)
 
     def test_native_timer_overflow_reports_failure_and_cleans_up_process(self) -> None:
-        process = unittest.mock.Mock(returncode=-9)
-        process.communicate.side_effect = [OverflowError("timer out of range"), (b"child diagnostic", None)]
+        process = unittest.mock.Mock(returncode=-9, stdout=io.BytesIO(b"child diagnostic"))
+        process.wait.side_effect = [OverflowError("timer out of range"), None]
         with patch.object(runner.subprocess, "Popen", return_value=process), \
                 patch.object(runner, "stop_process_tree") as stop:
             result = runner.run_case(["fixture"], runner.SUITE, "fixture", "fixture",
@@ -133,7 +163,7 @@ class PortableProcessTests(unittest.TestCase):
         self.assertEqual(result["ExitCode"], -9)
         self.assertIn("child diagnostic", result["KernelOutput"])
         self.assertIn("Timer setup failed: OverflowError: timer out of range", result["KernelOutput"])
-        self.assertEqual(process.communicate.call_args_list[-1], unittest.mock.call(timeout=10))
+        self.assertEqual(process.wait.call_args_list[-1], unittest.mock.call(timeout=10))
 
 
 class PortableInputValidationTests(unittest.TestCase):
@@ -151,6 +181,20 @@ class PortableInputValidationTests(unittest.TestCase):
         for value in ("nan", "inf", "-inf", "1e100", "86400.1", "0", "-1", "text"):
             with self.subTest(value=value), self.assertRaises(argparse.ArgumentTypeError):
                 runner.case_timeout(value)
+
+    def test_invalid_cli_output_bounds_never_launch_a_case(self) -> None:
+        output = self.work / "report.json"
+        for value in ("0", "-5", "2.5", "many"):
+            args = ["run_mathics_tests.py", f"--max-output-bytes={value}", "--output", str(output)]
+            with self.subTest(value=value), patch.object(sys, "argv", args), \
+                    patch.object(runner, "run_case") as execute, \
+                    patch.object(runner, "fingerprints") as fingerprints, redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as failure:
+                    runner.main()
+                self.assertEqual(failure.exception.code, 2)
+                execute.assert_not_called()
+                fingerprints.assert_not_called()
+                self.assertFalse(output.exists())
 
     def test_invalid_cli_timeouts_never_launch_a_case(self) -> None:
         output = self.work / "report.json"
@@ -335,13 +379,18 @@ class PortableOutputProtectionTests(unittest.TestCase):
     def test_unrelated_existing_output_can_be_replaced(self) -> None:
         output = self.work / "report.json"
         output.write_text("old report", encoding="utf-8")
-        args = ["run_mathics_tests.py", "--source", str(self.source), "--output", str(output)]
+        args = ["run_mathics_tests.py", "--source", str(self.source), "--output", str(output),
+                "--max-output-bytes", "12345"]
         result = {"Outcome": "Success", "TestID": "fixture", "ElapsedSeconds": 0.1}
         with patch.object(sys, "argv", args), \
                 patch.object(runner, "available_cases", return_value=[("fixture", "fixture")]), \
-                patch.object(runner, "run_case", return_value=result), redirect_stdout(io.StringIO()):
+                patch.object(runner, "run_case", return_value=result) as execute, redirect_stdout(io.StringIO()):
             self.assertEqual(runner.main(), 0)
-        self.assertTrue(json.loads(output.read_text(encoding="utf-8"))["SourcesUnchangedDuringRun"])
+        report = json.loads(output.read_text(encoding="utf-8"))
+        self.assertTrue(report["SourcesUnchangedDuringRun"])
+        # The configured bound reaches every case and is recorded in the receipt.
+        self.assertEqual(execute.call_args.args[-1], 12345)
+        self.assertEqual(report["MaxOutputBytesPerCase"], 12345)
         self.assertEqual(self.source.read_text(encoding="utf-8"), "original input")
 
 
@@ -368,7 +417,7 @@ class PortableReportTests(unittest.TestCase):
             output = Path(temporary) / "report.json"
             args = ["run_mathics_tests.py", "--source", str(suite), "--output", str(output)]
 
-            def execute(command, source, test_id, group, timeout, work):
+            def execute(command, source, test_id, group, timeout, work, output_limit):
                 frozen = Path(command[-1])
                 self.assertNotEqual(frozen, suite)
                 self.assertEqual(frozen.read_text(encoding="utf-8"), "original complete suite")
@@ -411,7 +460,7 @@ class PortableReportTests(unittest.TestCase):
             output = Path(temporary) / "report.json"
             args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
 
-            def execute(command, selected_source, test_id, group, timeout, work):
+            def execute(command, selected_source, test_id, group, timeout, work, output_limit):
                 contents = {"first": "changed-first", "second": "changed-second", "third": "original"}
                 selected_source.write_text(contents[test_id], encoding="utf-8")
                 return {"Outcome": "Success", "TestID": test_id, "ElapsedSeconds": 0.1}
@@ -439,7 +488,7 @@ class PortableReportTests(unittest.TestCase):
             args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
             seen = []
 
-            def execute(command, selected_source, test_id, group, timeout, work):
+            def execute(command, selected_source, test_id, group, timeout, work, output_limit):
                 seen.append((selected_source, selected_source.read_text(encoding="utf-8")))
                 source.write_text("edited during the run", encoding="utf-8")
                 return {"Outcome": "Success", "TestID": test_id, "ElapsedSeconds": 0.1}
@@ -475,7 +524,7 @@ class PortableReportTests(unittest.TestCase):
             args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
             observed = {}
 
-            def execute(command, selected_source, test_id, group, timeout, work):
+            def execute(command, selected_source, test_id, group, timeout, work, output_limit):
                 observed["entry"] = selected_source
                 observed["files"] = sorted(path.name for path in selected_source.parent.iterdir())
                 observed["in_progress"] = json.loads(output.read_text(encoding="utf-8")).get("InProgressCase")
