@@ -1139,8 +1139,9 @@ hashes. No full package suite was run.
 `seriesAss` now states scale positivity as `x > 0` for a reciprocal scale,
 `x < 0` for a reflected one, and drops the tautology `E^(-x) > 0`; exact
 numeric coefficients skip the assumption prover in
-`realPolynomialCondition`; and the exponent comparison silences `N::meprec`
-on an exact zero difference. Under the old context, `Simplify` given
+`realPolynomialCondition`; and `compare` and `symbolicEqualQ` short-circuit
+logarithmic weights that agree after prime-factor canonicalization instead
+of reporting `N::meprec` on their exact zero difference. Under the old context, `Simplify` given
 `x^(-1) > 0` together with `E^(-x) > 0` evaluated `1/0` internally and
 emitted `Power::infy` and `Greater::nord` twice per coefficient proof: 40
 messages for `SeriesAdd` of two `Zeta` expansions and 29 for a `Gamma`
