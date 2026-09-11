@@ -1134,6 +1134,31 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## Loading lifecycle: interrupted and failed loads (W4-17)
+
+The entry file records the caller's `$Context` and `$ContextPath` before
+`BeginPackage` and loads every companion module through `loadModule`. A
+module that cannot be read, has a syntax error or emits a message while
+loading abandons the load with `AsymptoticExpansion::loadfail` and the
+caller's state restored; an abort, and on Wolfram a time constraint or
+`Throw`, unwinding through a module load restores the caller's state and
+propagates unchanged. A load that starts inside the package's own contexts
+returns to `` Global` `` after `EndPackage`. Before this change, an abort
+inside a module left `$Context` at ``AsymptoticAnalysis`Private` `` on both
+runtimes, and on Wolfram a syntax error made `Get` skip the rest of that
+module and continue loading. The six cases in
+[ReviewLoadingLifecycle.wlt](../src/Tests/ReviewLoadingLifecycle.wlt) load
+damaged copies of the modular tree (a module replaced by `Abort[]`, a
+deleted module, a module with a syntax error), a time-constrained load, a
+load from a stale private context, and an ordinary reload.
+[CheckLoadingLifecycle.wl](CheckLoadingLifecycle.wl) runs them with the
+package-identity, native, object, formatting, request-resolution and
+proof-context suites (eight files, 103 cases); the receipt is recorded in
+[loading-lifecycle-tests.json](loading-lifecycle-tests.json) once a batch
+seat is free. In the Wolfram MCP evaluator, whose caller context is a
+session context rather than `` Global` ``, the six lifecycle cases pass and
+only the pre-existing package-identity case that pins `` Global` `` differs.
+
 ## Bounded kernel output in the portable runner (W4-13)
 
 [run_mathics_tests.py](run_mathics_tests.py) now retains at most

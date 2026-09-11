@@ -15,6 +15,17 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Interrupted or failed package loads restore the caller's context
+
+Every companion module is loaded through a guard. A module that cannot be
+read, has a syntax error or emits a message while loading abandons the load
+with `AsymptoticExpansion::loadfail` and the caller's `$Context` and
+`$ContextPath` restored, instead of installing part of the package; an
+abort (and, in the official kernel, a time constraint or `Throw`) unwinding
+through a module load restores the caller's state and propagates unchanged.
+A load started from a stale package context, left by an interruption inside
+the entry file or the single-file standalone, returns to `` Global` ``.
+
 ### Bounded kernel output in the portable runner
 
 `validation/run_mathics_tests.py` retains at most `--max-output-bytes`

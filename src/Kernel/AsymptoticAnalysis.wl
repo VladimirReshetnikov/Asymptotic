@@ -17,6 +17,21 @@
 If[StringQ[$Version] && StringContainsQ[$Version, "Mathics"],
   ClearAll["AsymptoticAnalysis`Private`*"]];
 
+(* Loading lifecycle (wave-4 W4-17). The caller's context state is recorded
+   before the package contexts are entered, so a module load that is
+   interrupted or fails can hand it back. A load that starts inside the
+   package's own contexts follows an earlier load that was interrupted in
+   the entry file itself, where no module boundary could restore the
+   caller; that load returns to Global` with the package contexts removed
+   from the search path. *)
+AsymptoticAnalysis`Private`$loaderRecovered =
+  StringLength[$Context] >= 19 && StringTake[$Context, 19] === "AsymptoticAnalysis`";
+AsymptoticAnalysis`Private`$loaderEntryContext =
+  If[AsymptoticAnalysis`Private`$loaderRecovered, "Global`", $Context];
+AsymptoticAnalysis`Private`$loaderEntryPath = If[AsymptoticAnalysis`Private`$loaderRecovered,
+  Select[$ContextPath, ! (StringLength[#] >= 19 && StringTake[#, 19] === "AsymptoticAnalysis`") &],
+  $ContextPath];
+
 BeginPackage["AsymptoticAnalysis`"];
 
 AsymptoticExpansion::usage =
@@ -123,15 +138,41 @@ Begin["`Private`"];
 
 $kernelDirectory = DirectoryName[$InputFileName];
 
+(* BEGIN MODULAR LOADER *)
+(* Each companion module is loaded through a guard. A module that cannot
+   be read, has a syntax error or emits a message while loading is not a
+   partial installation: the load is abandoned with AsymptoticExpansion::loadfail
+   and the caller's context state restored. An abort (or, in the
+   official kernel, a time constraint or a Throw) unwinding through a
+   module load restores the caller's state and then propagates unchanged.
+   The Begin/End stack entries of the abandoned load are not popped; they
+   are below every later balanced pair. The standalone file has no
+   module boundaries and relies on the entry-state recovery above. *)
+AsymptoticExpansion::loadfail = "The package module `1` could not be loaded. The package is not installed; the caller's context state has been restored.";
+loaderRestoreEntryState[] := ($Context = $loaderEntryContext; $ContextPath = $loaderEntryPath);
+loadModuleChecked[path_] := Module[{result},
+  result = Check[Get[path], $Failed];
+  If[result === $Failed,
+    Message[AsymptoticExpansion::loadfail, path]; loaderRestoreEntryState[]; Abort[]];
+  result];
+If[StringQ[$Version] && StringContainsQ[$Version, "Mathics"],
+  loadModule[file_] := CheckAbort[loadModuleChecked[FileNameJoin[{$kernelDirectory, file}]],
+    (loaderRestoreEntryState[]; Abort[])],
+  loadModule[file_] := Module[{complete = False},
+    Internal`WithLocalSettings[Null,
+      loadModuleChecked[FileNameJoin[{$kernelDirectory, file}]]; complete = True,
+      If[! complete, loaderRestoreEntryState[]]]]];
+(* END MODULAR LOADER *)
+
 (* Bind evaluator adapters only when loading in Mathics. The official Wolfram
    kernel continues to resolve every existing definition to System` symbols. *)
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCompatibility.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsTimeBudget.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCalls.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsAlgebra.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsAssumptions.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsTaylor.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsSimplification.wl"}]]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsCompatibility.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsTimeBudget.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsCalls.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsAlgebra.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsAssumptions.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsTaylor.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsSimplification.wl"]];
 
 (* ------------------------------------------------------------------ *)
 (* Failure handling                                                     *)
@@ -1106,7 +1147,7 @@ parseFinite[e_, u_Symbol, ell_Symbol, ass_] := Module[{ex, summands, rows = {}, 
     If[ok, AppendTo[rows, {expo, coef}]]], {term, summands}];
   If[! ok, $Failed, rows]];
 
-Get[FileNameJoin[{$kernelDirectory, "ExactTermination.wl"}]];
+loadModule["ExactTermination.wl"];
 
 construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] := Module[
   {ass = optionAssumptions[AsymptoticInverse, {opts}], dir = OptionValue[AsymptoticInverse, {opts}, Direction],
@@ -1506,56 +1547,64 @@ inverseCoefficientOriented[a_, power_, c_] := Module[{sigma, y, y0, lead, p, v, 
 InverseExpansionCoefficient[___] := Failure["InvalidArguments", <|"MessageTemplate" -> "Use InverseExpansionCoefficient[expansion, {k1, k2, ...}]."|>];
 
 (* The logarithmic-scale engine shares the exact jet algebra above. *)
-Get[FileNameJoin[{$kernelDirectory, "LambertInverse.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "CoordinateInverse.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "IncrementalInverse.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "SeriesOperations.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "RefinementState.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "SourceCoordinates.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "CorePerturbation.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "InverseCertificates.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "LogarithmicScales.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "FlatSectors.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "FlatSectorOperations.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "FourierCoefficients.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "SpecialFunctionAdapters.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "ExponentialCorePerturbation.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "NumericalInverseChecks.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "RefinementRequests.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "ReciprocalLogOperations.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "InverseFunctionSyntax.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "InverseFunctionBranches.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "InverseFunctionFamilies.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "InverseFunctionExpressions.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "GammaForward.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "BarnesForward.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "GammaInverse.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "BarnesInverse.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "GammaInverseChecks.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "BarnesInverseChecks.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "GammaInverseOperations.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "ExponentialForward.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "SeriesEnvelopeArithmetic.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "SeriesArithmetic.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "SpecialFunctionRealDomain.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "SpecialFunctionIdentities.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "ParameterizedSpecialFunctions.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "DirichletSpecialFunctions.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "NativeSpecialFunctions.wl"}]];
-Get[FileNameJoin[{$kernelDirectory, "NativeCompatibility.wl"}]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCalculus.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCoreFunctions.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsCertificate.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsRefinement.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsInverseBranches.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsSpecialFunctions.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsInputAssumptions.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsNumerical.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsLists.wl"}]]];
-If[StringContainsQ[$Version, "Mathics"], Get[FileNameJoin[{$kernelDirectory, "MathicsFormatting.wl"}]]];
+loadModule["LambertInverse.wl"];
+loadModule["CoordinateInverse.wl"];
+loadModule["IncrementalInverse.wl"];
+loadModule["SeriesOperations.wl"];
+loadModule["RefinementState.wl"];
+loadModule["SourceCoordinates.wl"];
+loadModule["CorePerturbation.wl"];
+loadModule["InverseCertificates.wl"];
+loadModule["LogarithmicScales.wl"];
+loadModule["FlatSectors.wl"];
+loadModule["FlatSectorOperations.wl"];
+loadModule["FourierCoefficients.wl"];
+loadModule["SpecialFunctionAdapters.wl"];
+loadModule["ExponentialCorePerturbation.wl"];
+loadModule["NumericalInverseChecks.wl"];
+loadModule["RefinementRequests.wl"];
+loadModule["ReciprocalLogOperations.wl"];
+loadModule["InverseFunctionSyntax.wl"];
+loadModule["InverseFunctionBranches.wl"];
+loadModule["InverseFunctionFamilies.wl"];
+loadModule["InverseFunctionExpressions.wl"];
+loadModule["GammaForward.wl"];
+loadModule["BarnesForward.wl"];
+loadModule["GammaInverse.wl"];
+loadModule["BarnesInverse.wl"];
+loadModule["GammaInverseChecks.wl"];
+loadModule["BarnesInverseChecks.wl"];
+loadModule["GammaInverseOperations.wl"];
+loadModule["ExponentialForward.wl"];
+loadModule["SeriesEnvelopeArithmetic.wl"];
+loadModule["SeriesArithmetic.wl"];
+loadModule["SpecialFunctionRealDomain.wl"];
+loadModule["SpecialFunctionIdentities.wl"];
+loadModule["ParameterizedSpecialFunctions.wl"];
+loadModule["DirichletSpecialFunctions.wl"];
+loadModule["NativeSpecialFunctions.wl"];
+loadModule["NativeCompatibility.wl"];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsCalculus.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsCoreFunctions.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsCertificate.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsRefinement.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsInverseBranches.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsSpecialFunctions.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsInputAssumptions.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsNumerical.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsLists.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsFormatting.wl"]];
 
 End[];
 EndPackage[];
+
+(* EndPackage returns to the context the load started in; after a load
+   interrupted inside the package contexts that would be a private
+   context, so the recorded recovery state is installed instead. *)
+If[AsymptoticAnalysis`Private`$loaderRecovered,
+  $Context = AsymptoticAnalysis`Private`$loaderEntryContext;
+  $ContextPath = Prepend[DeleteCases[AsymptoticAnalysis`Private`$loaderEntryPath, "AsymptoticAnalysis`"],
+    "AsymptoticAnalysis`"]];
 
 (* Mathics EndPackage retains contexts inserted while the package loads. Keep
    the adapters private to already-parsed package definitions. *)

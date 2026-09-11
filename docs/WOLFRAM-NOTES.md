@@ -524,6 +524,15 @@ Mathics notes because the rewritten forms are the ones now in the code.
   the precision of the starting value (`N[expr, 60]`) first.
 - `Check[expr, $Failed]` around `Quiet[...]` is the wrong order: use
   `Quiet[Check[expr, $Failed]]` so that the messages still trigger `Check`.
+- `Get` does not restore `$Context` or `$ContextPath` when the file it is
+  reading aborts or throws: after `BeginPackage`/`Begin["`Private`"]` and
+  an `Abort[]`, the caller is left in the private context. A syntax error
+  in a file makes `Get` print `Syntax::sntx`, return `Null` (not `$Failed`)
+  and skip the rest of that file, so `Check[Get[file], $Failed]` is the
+  way to notice it. `Internal`WithLocalSettings[pre, body, post]` runs
+  `post` on normal completion, `Abort[]`, a `TimeConstrained` timeout and
+  any `Throw`, and lets the original outcome propagate; plain `CheckAbort`
+  does not see a `TimeConstrained` abort.
 
 ### Applied inverse functions and conditional branches (version 1.5.0)
 

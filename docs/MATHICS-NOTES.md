@@ -52,6 +52,17 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   left-hand side. The Mathics loader clears package-private definitions
   first. Similarly, late overrides retain existing downvalues as data,
   clear their dispatch symbol, then install the new rules.
+- As in Wolfram, `Get` does not restore `$Context` or `$ContextPath` when
+  the file aborts. `CheckAbort` around a nested `Get` inside a file that is
+  itself being read does intercept an `Abort[]` from the nested file, so a
+  loader can restore the caller's state and re-abort. A `TimeConstrained`
+  abort passes through `CheckAbort` uncaught, `Internal`WithLocalSettings`
+  does not exist, and `Catch[expr, _, f]` of an *untagged* `Throw` crashes
+  the evaluator with a Python `AttributeError` (a tagged `Throw` is caught
+  but the handler receives only one argument). `WriteString["file", ...]`
+  needs an `OpenWrite` stream first; `CopyFile`, `FileNames`,
+  `CreateDirectory` and `DeleteDirectory[dir, DeleteContents -> True]`
+  work.
 
 ## Streaming standalone source
 

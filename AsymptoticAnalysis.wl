@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 6310d9ef2e7a5ada858e7898460ff56e69e01b3ae13aa840b16a97b2eae03add *)
+   Source SHA256 (UTF-8/LF): 163187bb6438e3cfd1bb67b6e59c6a67de911660ec74d8262307d2f23a725b3d *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -25,6 +25,21 @@
    The official Wolfram kernel keeps its established loading behavior. *)
 If[StringQ[$Version] && StringContainsQ[$Version, "Mathics"],
   ClearAll["AsymptoticAnalysis`Private`*"]];
+
+(* Loading lifecycle (wave-4 W4-17). The caller's context state is recorded
+   before the package contexts are entered, so a module load that is
+   interrupted or fails can hand it back. A load that starts inside the
+   package's own contexts follows an earlier load that was interrupted in
+   the entry file itself, where no module boundary could restore the
+   caller; that load returns to Global` with the package contexts removed
+   from the search path. *)
+AsymptoticAnalysis`Private`$loaderRecovered =
+  StringLength[$Context] >= 19 && StringTake[$Context, 19] === "AsymptoticAnalysis`";
+AsymptoticAnalysis`Private`$loaderEntryContext =
+  If[AsymptoticAnalysis`Private`$loaderRecovered, "Global`", $Context];
+AsymptoticAnalysis`Private`$loaderEntryPath = If[AsymptoticAnalysis`Private`$loaderRecovered,
+  Select[$ContextPath, ! (StringLength[#] >= 19 && StringTake[#, 19] === "AsymptoticAnalysis`") &],
+  $ContextPath];
 
 BeginPackage["AsymptoticAnalysis`"];
 
@@ -131,6 +146,8 @@ SeriesDifferentiate::usage = "SeriesDifferentiate[s,n] differentiates n times wh
 Begin["`Private`"];
 
 (* Standalone: every companion is included below. *)
+
+(* Standalone: the guarded modular loader is not needed; every companion is inlined below. *)
 
 (* Bind evaluator adapters only when loading in Mathics. The official Wolfram
    kernel continues to resolve every existing definition to System` symbols. *)
@@ -9853,6 +9870,14 @@ If[StringContainsQ[$Version, "Mathics"], Scan[ToExpression, {
 
 End[];
 EndPackage[];
+
+(* EndPackage returns to the context the load started in; after a load
+   interrupted inside the package contexts that would be a private
+   context, so the recorded recovery state is installed instead. *)
+If[AsymptoticAnalysis`Private`$loaderRecovered,
+  $Context = AsymptoticAnalysis`Private`$loaderEntryContext;
+  $ContextPath = Prepend[DeleteCases[AsymptoticAnalysis`Private`$loaderEntryPath, "AsymptoticAnalysis`"],
+    "AsymptoticAnalysis`"]];
 
 (* Mathics EndPackage retains contexts inserted while the package loads. Keep
    the adapters private to already-parsed package definitions. *)

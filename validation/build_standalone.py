@@ -16,9 +16,13 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 KERNEL = ROOT / "src" / "Kernel"
 TARGET = ROOT / "AsymptoticAnalysis.wl"
-LOAD = re.compile(r'^Get\[FileNameJoin\[\{\$kernelDirectory, "([A-Za-z0-9_]+\.wl)"\}\]\];[ \t]*$', re.M)
-MATHICS_LOAD = re.compile(r'^If\[StringContainsQ\[\$Version, "Mathics"\], Get\[FileNameJoin\[\{\$kernelDirectory, "([A-Za-z0-9_]+\.wl)"\}\]\]\];[ \t]*$', re.M)
+LOAD = re.compile(r'^loadModule\["([A-Za-z0-9_]+\.wl)"\];[ \t]*$', re.M)
+MATHICS_LOAD = re.compile(r'^If\[StringContainsQ\[\$Version, "Mathics"\], loadModule\["([A-Za-z0-9_]+\.wl)"\]\];[ \t]*$', re.M)
 DIRECTORY = '$kernelDirectory = DirectoryName[$InputFileName];'
+# The guarded module loader (W4-17) reads companion files; the standalone
+# inlines every companion, so the block is replaced by a comment.
+LOADER = re.compile(r'^\(\* BEGIN MODULAR LOADER \*\)\n.*?^\(\* END MODULAR LOADER \*\)\n', re.M | re.S)
+LOADER_REPLACEMENT = "(* Standalone: the guarded modular loader is not needed; every companion is inlined below. *)\n"
 
 
 def executable_text(text: str) -> str:
@@ -129,18 +133,21 @@ def assemble() -> tuple[bytes, list[str]]:
             if text.count(DIRECTORY) != 1:
                 raise ValueError("Review the changed modular entry-point directory setup")
             text = text.replace(DIRECTORY, "(* Standalone: every companion is included below. *)")
+            if len(LOADER.findall(text)) != 1:
+                raise ValueError("Review the changed modular loader block")
+            text = LOADER.sub(LOADER_REPLACEMENT, text)
         code = executable_text(text)
         text = MATHICS_LOAD.sub(lambda match: mathics_bootstrap(inline(match[1]))
                                if code[match.start():match.start() + 2] == "If" else match[0], text)
         code = executable_text(text)
         text = LOAD.sub(lambda match: inline(match[1])
-                        if code[match.start():match.start() + 3] == "Get" else match[0], text)
+                        if code[match.start():match.start() + 10] == "loadModule" else match[0], text)
         code = executable_text(text)
         # A conservative token gate: any spelling of a loading or file
         # primitive - bracket call, prefix or postfix application, Apply, Map,
         # a qualified System` name, or the bare symbol passed as an argument -
         # is an unresolved dependency (W3-11). Strings and comments are masked.
-        dependency = re.search(r'(?<![\w$`])(?:System`)?(?:Get|Needs|Import|OpenRead|ReadList|Read|BinaryRead|URLRead|URLExecute|URLDownload)(?![\w$`])|\$(?:InputFileName|Input|kernelDirectory)\b', code)
+        dependency = re.search(r'(?<![\w$`])(?:System`)?(?:Get|Needs|Import|OpenRead|ReadList|Read|BinaryRead|URLRead|URLExecute|URLDownload|loadModule)(?![\w$`])|\$(?:InputFileName|Input|kernelDirectory)\b', code)
         if dependency:
             raise ValueError(f"Unresolved load or file-dependent code in {name}: {dependency[0]}")
         return (f"(* BEGIN SOURCE: src/Kernel/{name}\n"

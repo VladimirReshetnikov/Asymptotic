@@ -25,7 +25,13 @@ SPEC.loader.exec_module(builder)
 
 
 def load(name: str) -> str:
-    return f'Get[FileNameJoin[{{$kernelDirectory, "{name}"}}]];\n'
+    return f'loadModule["{name}"];\n'
+
+
+LOADER_BLOCK = ("(* BEGIN MODULAR LOADER *)\n"
+                "loadModuleChecked[path_] := Check[Get[path], $Failed];\n"
+                "loadModule[file_] := loadModuleChecked[FileNameJoin[{$kernelDirectory, file}]];\n"
+                "(* END MODULAR LOADER *)\n")
 
 
 class StandaloneBuilderTests(unittest.TestCase):
@@ -51,6 +57,7 @@ class StandaloneBuilderTests(unittest.TestCase):
             "AsymptoticAnalysis.wl",
             'BeginPackage["Fixture`"];\n'
             '$kernelDirectory = DirectoryName[$InputFileName];\n'
+            + LOADER_BLOCK
             + body
             + "EndPackage[];\n",
         )
@@ -78,6 +85,7 @@ class StandaloneBuilderTests(unittest.TestCase):
         statements = ["rootBefore = 1;", "early = 4;", "rootMiddle = 2;", "middleBefore = 5;", "nested = 7;", "middleAfter = 6;", "late = 8;", "rootAfter = 3;"]
         self.assertEqual([text.index(s) for s in statements], sorted(text.index(s) for s in statements))
         self.assertNotIn("Get[", builder.executable_text(text))
+        self.assertNotIn("loadModule", builder.executable_text(text))
         self.assertEqual(text.count('BeginPackage["Fixture`"];'), 1)
         self.assertEqual(text.count("EndPackage[];"), 1)
 
@@ -89,6 +97,10 @@ class StandaloneBuilderTests(unittest.TestCase):
             'System`Get["Other.wl"];',
             'Get[FileNameJoin[{$kernelDirectory, "../Other.wl"}]];',
             'Get[FileNameJoin[{$kernelDirectory, "nested/Other.wl"}]];',
+            'loadModule["../Other.wl"];',
+            'loadModule["nested/Other.wl"];',
+            'loadModule @ "Other.wl";',
+            'Scan[loadModule, {"Other.wl"}];',
             # W3-11: prefix, postfix, Apply, Map, qualified and bare spellings.
             'Get @ "Other.wl";',
             '"Other.wl" // Get;',
@@ -172,6 +184,26 @@ class StandaloneBuilderTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "directory setup"):
             builder.assemble()
 
+    def test_changed_or_duplicated_loader_block_requires_review(self) -> None:
+        # The loader block reads companion files with Get; the standalone must
+        # replace exactly one block, never inline a reading loader.
+        for entry in (
+            'BeginPackage["Fixture`"];\n$kernelDirectory = DirectoryName[$InputFileName];\nvalue = 1;\nEndPackage[];\n',
+            'BeginPackage["Fixture`"];\n$kernelDirectory = DirectoryName[$InputFileName];\n'
+            + LOADER_BLOCK + LOADER_BLOCK + 'EndPackage[];\n',
+        ):
+            with self.subTest(entry=entry):
+                self.write("AsymptoticAnalysis.wl", entry)
+                with self.assertRaisesRegex(ValueError, "loader block"):
+                    builder.assemble()
+        self.entry(load("Child.wl"))
+        self.write("Child.wl", "value = 2;\n")
+        data, _ = builder.assemble()
+        text = data.decode("utf-8")
+        self.assertNotIn("BEGIN MODULAR LOADER", text)
+        self.assertNotIn("Get[", builder.executable_text(text))
+        self.assertIn("guarded modular loader is not needed", text)
+
     def test_output_bytes_are_deterministic_utf8_lf_and_track_source_changes(self) -> None:
         self.entry(load("Child.wl"))
         self.write("Child.wl", 'label = "λ";\nvalue = 1;\n')
@@ -217,8 +249,7 @@ class StandaloneBuilderTests(unittest.TestCase):
 
 
     def test_mathics_bootstrap_defers_parsing_and_preserves_streaming_statements(self) -> None:
-        self.entry('If[StringContainsQ[$Version, "Mathics"], '
-                   'Get[FileNameJoin[{$kernelDirectory, "MathicsFixture.wl"}]]];\n')
+        self.entry('If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsFixture.wl"]];\n')
         self.write("MathicsFixture.wl", 'Begin["Fixture`Mathics`"];\n'
                    'f[x_] := Module[{}, Print["a;b"]; x]; (* ; nested (* ; *) *)\n'
                    'End[];\n')

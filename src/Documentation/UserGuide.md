@@ -66,6 +66,15 @@ PacletDirectoryLoad["src"];
 Needs["AsymptoticAnalysis`"];
 ```
 
+A load that does not complete leaves nothing half-installed in the caller's
+session: if a companion module is missing, has a syntax error or emits a
+message while loading, the load stops with `AsymptoticExpansion::loadfail`
+and `$Context` and `$ContextPath` are restored; an abort or time constraint
+that interrupts a module load restores them as well before it propagates.
+Loading again after such an interruption, or after one inside the entry file
+or the single-file package, returns to `` Global` `` with the package on the
+search path.
+
 <a id="mathics-compatibility"></a>
 ### Mathics3 Compatibility
 
