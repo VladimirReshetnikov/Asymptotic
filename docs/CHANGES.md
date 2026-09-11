@@ -15,6 +15,15 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Mathics adapters check their own installation
+
+On Mathics, a final module declares every late definition rewrite and
+wrapper target and verifies after loading that each was installed as
+intended; a violated postcondition abandons the load with
+`AsymptoticExpansion::adapter` instead of leaving a silently misinstalled
+adapter, and the record is available as
+``AsymptoticAnalysis`Mathics`$adapterPostconditions``.
+
 ### Interrupted or failed package loads restore the caller's context
 
 Every companion module is loaded through a guard. A module that cannot be

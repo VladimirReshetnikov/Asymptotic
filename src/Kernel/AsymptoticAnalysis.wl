@@ -1594,6 +1594,7 @@ If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsInputAssumptions.wl"
 If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsNumerical.wl"]];
 If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsLists.wl"]];
 If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsFormatting.wl"]];
+If[StringContainsQ[$Version, "Mathics"], loadModule["MathicsAdapterPostconditions.wl"]];
 
 End[];
 EndPackage[];

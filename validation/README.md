@@ -1134,6 +1134,22 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## Mathics adapter postconditions (W4-15)
+
+[MathicsAdapterPostconditions.wl](../src/Kernel/MathicsAdapterPostconditions.wl),
+loaded last on Mathics, names the late rewrite targets (the `ProductLog`
+and `TimeConstrained` sites of the core adapters, the two refinement
+association sites, the branch `FunctionDomain` site, the three branch
+wrappers and the package-wide `Map` sweep) and records whether each was
+installed as intended in ``AsymptoticAnalysis`Mathics`$adapterPostconditions``;
+a violated postcondition abandons the load with
+`AsymptoticExpansion::adapter`. The portable `loading` group gains
+`loading-adapter-postconditions` (the seven checks all hold on both layouts)
+and `primitive-adapter-postcondition-detects-residual-target` (the predicate
+rejects a miniature definition still using `System`Map` and an undefined
+symbol, and accepts the definition once rewritten); both report
+`MathicsOnly` in the official kernel, where no adapter is installed.
+
 ## Loading lifecycle: interrupted and failed loads (W4-17)
 
 The entry file records the caller's `$Context` and `$ContextPath` before
