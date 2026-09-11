@@ -3489,6 +3489,126 @@ the source-coordinate engine
    - QPochhammer[1/2, 1/2]/(y Log[2]),
  PowerLogRemainder[y^(-1), 2, 0]}</code></pre>
 </section>
+<section id="q-digamma-q-polygamma-and-q-beta" class="level3">
+<h3>q-Digamma, q-Polygamma and q-Beta</h3>
+<p><code>QPolyGamma[n, x, q]</code> is the <code>(n + 1)</code>-st
+argument derivative of <code>Log[QGamma[x, q]]</code>, so near
+<code>q = 1</code> its coefficients are the derivatives of the q-gamma
+coefficients; the expansion is locally uniform with uniform
+differentiated remainders (monograph, &quot;Global argument inverse and the
+exceptional reciprocal fold&quot;).</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QPolyGamma[x, Exp[-t]], {t, 0, 3}, Assumptions -&gt; x &gt; 0];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{PolyGamma[0, x] + t (3/4 - x/2) + t^2 (-5/144 - x/24 + x^2/24),
+ PowerLogRemainder[t, 4, 0]}</code></pre>
+<p>The linear coefficient <code>(3 - 2 x)/4</code> vanishes at
+<code>x = 3/2</code>, where <code>q = 1</code> is a one-sided quadratic
+endpoint of the base inverse:
+<code>Delta = psi_q(3/2) - psi(3/2) = -t^2/288 + O(t^4)</code>, and the
+inverse is a square-root fold,
+<code>t = Sqrt[-288 Delta] (1 + O(Delta))</code>. The engine returns the
+fold as a Puiseux series in the (negative) target increment:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticInverse[QPolyGamma[3/2, Exp[-t]] - PolyGamma[0, 3/2], {t, 0}, {d, 2}];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{12 Sqrt[2] Sqrt[-d] + 2034 Sqrt[2] (-d)^(3/2)/25, PowerLogRemainder[-d, 5/2, 0]}</code></pre>
+<p>At a fixed base <code>0 &lt; q &lt; 1</code> and
+<code>x -&gt; Infinity</code>,
+<code>QPolyGamma[n, x, q] = -Log[1 - q] KroneckerDelta[n, 0] + Log[q]^(n + 1) Sum[m^n q^(m x)/(1 - q^m), {m, 1, Infinity}]</code>
+is a Lambert series in the chart variable <code>w = q^x</code>; the
+forward expansion and the argument inverse go through the same chart as
+the q-gamma function:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QPolyGamma[x, 1/2], {x, Infinity, 3}];
+i = AsymptoticInverse[QPolyGamma[x, 1/2], {x, Infinity}, {y, 2}];
+{Normal[s], s[&quot;Remainder&quot;], Normal[i], i[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{Log[2] - 2^(2 - 2 x) Log[2]/3 - Log[4]/2^x, PowerLogRemainder[2^(-x), 3, 0],
+ Log[Log[4]]/Log[2] - Log[Log[2] - y]/Log[2] + (Log[2] - y)/(3 Log[2]^2),
+ PowerLogRemainder[Log[2] - y, 2, 0]}</code></pre>
+<p>The q-beta function
+<code>B_q(x, y) = QGamma[x, q] QGamma[y, q]/QGamma[x + y, q]</code> has
+no built-in symbol; enter it as that quotient. Near <code>q = 1</code>
+its logarithm is <code>Log[Beta[x, y]] + b1 t + b2 t^2 + O(t^4)</code>
+with <code>b1 = (x y - 1)/2</code> and
+<code>b2 = -(x^2 y + x y^2 - x y - 1)/24</code> (monograph, &quot;Coordinate
+monotonicity and base type change&quot;):</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[Log[QGamma[x, Exp[-t]] QGamma[y, Exp[-t]]/QGamma[x + y, Exp[-t]]],
+  {t, 0, 3}, Assumptions -&gt; x &gt; 0 &amp;&amp; y &gt; 0];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{Log[Gamma[x] Gamma[y]/Gamma[x + y]] + t (-1/2 + x y/2)
+   + t^2 (1/24 + x y/24 - x^2 y/24 - x y^2/24),
+ PowerLogRemainder[t, 4, 0]}</code></pre>
+<p>On the curve <code>x y = 1</code> the linear coefficient vanishes and
+the base inverse is again a square-root fold,
+<code>t = Sqrt[-24 x Delta/(x - 1)^2] (1 + O(Delta))</code> with
+<code>Delta = Log[B_q/B]</code>; the engine returns it with the exact
+<code>B = Gamma[x] Gamma[1/x]/Gamma[x + 1/x]</code> in place of the
+logarithm:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticInverse[QGamma[x, Exp[-t]] QGamma[1/x, Exp[-t]]/QGamma[x + 1/x, Exp[-t]],
+  {t, 0}, {y, 3/2}, Assumptions -&gt; x &gt; 1];
+Normal[s]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>Sqrt[(y - Gamma[1/x] Gamma[x]/Gamma[1/x + x])/(Gamma[1/x] Gamma[x]/(12 Gamma[1/x + x])
+  - Gamma[1/x] Gamma[x]/(24 x Gamma[1/x + x]) - x Gamma[1/x] Gamma[x]/(24 Gamma[1/x + x]))]</code></pre>
+<p>At a fixed base the q-beta function is a product of chart factors,
+<code>B_q(x, y) = (1 - q)^y QGamma[y, q] (q^y w; q)_∞/(w; q)_∞</code>
+with <code>w = q^x</code>, and expands and inverts in <code>x</code>
+through the exponential chart like the q-gamma function above.</p>
+</section>
+<section id="double-scaling-q--exp-taun" class="level3">
+<h3>Double Scaling <code>q = Exp[-tau/n]</code></h3>
+<p>When the base tends to <code>1</code> at the rate <code>1/n</code>
+while the product length grows like <code>n</code>, neither the
+<code>q -&gt; 1</code> models nor the fixed-base chart apply:
+<code>q^n = Exp[-tau]</code> is a constant. The Gaussian coefficient
+calculus (&quot;Uniform all-order logarithmic expansion&quot;) gives a Poincaré
+expansion in <code>1/n</code> by Euler–Maclaurin summation, uniform for
+<code>alpha = k/n</code> and <code>tau</code> in compact subsets of
+<code>(0, 1)</code> and <code>(0, Infinity)</code>:</p>
+<pre><code>Log[QBinomial[n, alpha n, Exp[-tau/n]]]
+  = n S - Log[2 Pi n alpha (1 - alpha)]/2 + (h[1] - h[alpha] - h[1 - alpha])/2
+    + Sum[C[2 r - 1] n^(1 - 2 r), {r, 1, Infinity}],
+S = (PolyLog[2, E^-tau] - PolyLog[2, E^(-tau alpha)] - PolyLog[2, E^(-tau (1 - alpha))] + Pi^2/6)/tau,
+h[y] = Log[(1 - E^(-tau y))/(tau y)]</code></pre>
+<p>with the odd coefficients <code>C[2 r - 1]</code> built from
+Bernoulli numbers and the derivatives <code>h^(2 r - 1)</code> at
+<code>1</code>, <code>alpha</code>, <code>1 - alpha</code> and
+<code>0</code> (polylogarithms of nonpositive order). The package
+recognizes a Gaussian binomial or q-factorial whose base is exactly
+<code>Exp[-tau/n]</code> and whose lengths are <code>n</code> and
+<code>alpha n</code>, and returns the factored expansion; the expansion
+is asymptotic along integers <code>n</code> with <code>alpha n</code>
+integral.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[Log[QBinomial[n, a n, Exp[-t/n]]], {n, Infinity, 2},
+  Assumptions -&gt; 0 &lt; a &lt; 1 &amp;&amp; t &gt; 0];
+s[&quot;Terms&quot;][[1]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{-1, Pi^2/(6 t) + PolyLog[2, E^(-t)]/t - PolyLog[2, E^((-1 + a) t)]/t - PolyLog[2, E^(-(a t))]/t}</code></pre>
+<p>The remaining terms are <code>-Log[n]/2</code> plus the constant and
+<code>C[1]/n</code>. The q-factorial
+<code>QFactorial[n, Exp[-tau/n]]</code> uses the same Euler–Maclaurin
+blocks with its Stirling part <code>LogGamma[n + 1]</code> and the exact
+correction <code>-h[1/n] n</code> from the <code>n</code> factors
+<code>1/(1 - q)</code>. The inverse in <code>n</code> goes through the
+logarithmic target coordinate:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticInverse[QBinomial[n, n/2, Exp[-2/n]], {n, Infinity}, {y, 1}];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{Log[y]/S + (Log[Log[y]/S] + 2 Log[E - 1] + Log[Pi/(E^2 - 1)])/(2 S),
+ PowerLogRemainder[Log[y]^(-1), 1, 1]}</code></pre>
+<p>where
+<code>S = Pi^2/12 + PolyLog[2, E^-2]/2 - PolyLog[2, E^-1]</code> is
+displayed expanded in the actual output.</p>
+</section>
 <section id="base-tending-to-zero-and-argument-inverses-at-a-fixed-base" class="level3">
 <h3>Base Tending to Zero and Argument Inverses at a Fixed Base</h3>
 <p>Near <code>q = 0</code> the q-functions with numeric arguments are
@@ -3509,10 +3629,45 @@ at <code>a -&gt; 1</code> and at the other zeros expand:</p>
 <p>This is the monograph&#39;s <code>1 - v + L_1(q) v^2</code> with
 <code>v = y/(q; q)_∞</code> and
 <code>L_1(q) = Sum[q^j/(1 - q^j), {j, 1, Infinity}]</code>.</p>
+<p>A symbolic product length is handled through the stable coefficients:
+near <code>q = 0</code> the coefficient of <code>q^r</code> in
+<code>(a; q)_n</code>, <code>QFactorial[n, q]</code>,
+<code>QBinomial[n, k, q]</code> or <code>QGamma[n, q]</code> (integer
+<code>n</code>) depends on the length only through the factors of index
+at most <code>r</code>, so it is a fixed polynomial once the length
+exceeds <code>r</code> (<code>n &gt;= r + 1</code> for the product,
+<code>n &gt;= r</code> for the factorial, <code>k, n - k &gt;= r</code>
+for the Gaussian binomial). The package proves the bound from the
+assumptions order by order and caps the remainder at the first unproved
+order:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QFactorial[n, q], {q, 0, 4},
+  Assumptions -&gt; Element[n, Integers] &amp;&amp; n &gt;= 5];
+i = AsymptoticInverse[QFactorial[n, q], {q, 0}, {y, 3},
+  Assumptions -&gt; Element[n, Integers] &amp;&amp; n &gt;= 5];
+{Normal[s], s[&quot;Remainder&quot;], Simplify[Normal[i]]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{1 + (-1 + n) q + (-1 - n/2 + n^2/2) q^2 + (-7 n/6 + n^3/6) q^3, PowerLogRemainder[q, 4, 0],
+ -((-1 + y) (-(n (-5 + y)) + n^2 (-3 + y) - 2 y))/(2 (-1 + n)^3)}</code></pre>
+<p>The inverse is the monograph&#39;s
+<code>u/(n - 1) - (n - 2)(n + 1) u^2/(2 (n - 1)^3)</code>,
+<code>u = y - 1</code>. With only <code>n &gt;= 2</code> in the
+assumptions the same request through <code>q^4</code> fails with
+<code>InsufficientOrder</code> (<code>&quot;Reached&quot; -&gt; 3</code>), because
+the <code>q^3</code> coefficient needs <code>n &gt;= 3</code>; without
+any bound it is refused with <code>UnsupportedQArgument</code>. For the
+finite q-Pochhammer symbol the automatic backend returns a native formal
+series in <code>q</code> and <code>q^n</code>; request
+<code>&quot;Backend&quot; -&gt; &quot;Package&quot;</code> (with
+<code>Element[a, Reals]</code>) for the stable-coefficient form.</p>
 <p>Not covered: <code>QGamma[x, q]</code> near <code>q = 0</code> for
-symbolic <code>x</code> (generalized exponents <code>m (x + r)</code>),
-symbolic product lengths near <code>q = 0</code>, roots of unity,
-complex sectors of the base, the q-digamma and q-beta functions, and the
+symbolic non-integer <code>x</code> (generalized exponents
+<code>m (x + r)</code>), roots of unity, complex sectors of the base,
+the q-exponentials <code>e_q</code>, <code>E_q</code> (their argument
+<code>(1 - q) x</code> varies with the base without being a power of
+it), the q-gamma fold at its minimum, the double scaling of the finite
+q-Pochhammer symbol and the endpoint regimes
+<code>alpha -&gt; 0, 1</code>, and the beta functions, and the
 double-scaling regime <code>q = Exp[-tau/n]</code>. The models and their
 sources are listed in <a href="../Kernel/QSpecialFunctions.wl">QSpecialFunctions.wl</a>; the test
 suite <a href="../Tests/QSpecialFunctions.wlt">QSpecialFunctions.wlt</a>

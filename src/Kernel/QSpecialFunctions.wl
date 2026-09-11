@@ -34,17 +34,27 @@
    the same expansion holds for every real a < 1, where each factor 1 - a q^j
    is positive and the logarithm is real.
 
+     QPolyGamma[n, x, q]         (x > 0, n >= 0)
+       = PolyGamma[n, x] + D[c_k(x), {x, n + 1}] t^k summed over k >= 1,
+         c_k the coefficients of Log[QGamma[x, q]] above (a value model,
+         not a logarithmic one; c_1'(x) = (3 - 2x)/4 vanishes at x = 3/2,
+         where the base inverse is a square-root fold)
+
    The expansion variable is the base itself (any real base expression that
    tends to 1 from below); t = -Log[base] is expanded first and the series
-   above is composed with that jet. A base that tends elsewhere is left to
-   the ordinary native expansion. A fixed base with a growing argument is
-   handled through the exponential chart w = q^x at the end of this file,
-   and the argument inverses at the zeros a = q^-m of the infinite product
-   split off the vanishing factors. *)
+   above is composed with that jet. A base that tends to 0 with a symbolic
+   product length uses the stable coefficients of the q-product (section
+   "Symbolic product lengths near base 0"); any other base is left to the
+   ordinary native expansion. A fixed base with a growing argument is
+   handled through the exponential chart w = q^x at the end of this file
+   (the q-polygamma being a Lambert series in that chart), the argument
+   inverses at the zeros a = q^-m of the infinite product split off the
+   vanishing factors, and the double scaling q = Exp[-tau/n] with lengths
+   proportional to n has its own Euler-Maclaurin models in 1/n. *)
 
-$qSpecialHeads = {QPochhammer, QGamma, QFactorial, QBinomial};
+$qSpecialHeads = {QPochhammer, QGamma, QFactorial, QBinomial, QPolyGamma};
 qSpecialHeadQ[h_] := MemberQ[$qSpecialHeads, h];
-qSpecialQ[e_] := MatchQ[e, QPochhammer[_, _] | QPochhammer[_, _, _] | QGamma[_, _] | QFactorial[_, _] | QBinomial[_, _, _]];
+qSpecialQ[e_] := MatchQ[e, QPochhammer[_, _] | QPochhammer[_, _, _] | QGamma[_, _] | QFactorial[_, _] | QBinomial[_, _, _] | QPolyGamma[_, _, _]];
 (* The base is the second argument of QPochhammer and the last one otherwise. *)
 qSpecialBase[e_QPochhammer] := e[[2]];
 qSpecialBase[e_] := Last[e];
@@ -52,10 +62,38 @@ qSpecialBase[e_] := Last[e];
 (* Dispatcher predicates; the defaults in the core file are False. A varying
    base is expanded through the logarithmic models below; a varying
    argument of the infinite product at a fixed base is checked for the
-   product's zeros first and otherwise expanded natively. *)
+   product's zeros first and otherwise expanded natively, and a varying
+   q-polygamma argument at a fixed base is a Lambert series in q^z. *)
 qSpecialForwardHookQ[e_, u_] := qSpecialQ[e] &&
-  (! FreeQ[qSpecialBase[e], u] || (MatchQ[e, QPochhammer[_, _]] && ! FreeQ[First[e], u]));
+  (! FreeQ[qSpecialBase[e], u] || (MatchQ[e, QPochhammer[_, _]] && ! FreeQ[First[e], u]) ||
+   (MatchQ[e, QPolyGamma[_, _, _]] && ! FreeQ[e[[2]], u]));
 qSpecialLogHookQ[e_, u_] := MatchQ[e, Log[_]] && qSpecialForwardHookQ[First[e], u];
+
+(* QPolyGamma[n, z, q] at a fixed base 0 < q < 1 is the Lambert series
+     QPolyGamma[n, z, q] = -Log[1 - q] KroneckerDelta[n, 0]
+                           + Log[q]^(n + 1) Sum[m^n q^(m z)/(1 - q^m), m >= 1],
+   convergent for Re z > 0 (differentiate DLMF 5.18.8 in z). In the chart
+   u = q^x the argument is z = c + lambda Log[u]/Log[q], so q^z = q^c u^lambda
+   is an exact power and the series is an ordinary power series in u. *)
+qSpecialLogLinearPower[z_, u_, q_] := Module[{l = Log[u], slope, c},
+  If[! PolynomialQ[z, l] || Exponent[z, l] =!= 1, Return[$Failed, Module]];
+  slope = Coefficient[z, l, 1]; c = Coefficient[z, l, 0];
+  If[! FreeQ[{slope, c}, u], Return[$Failed, Module]];
+  slope = Simplify[slope Log[q]];
+  If[! (exactRealQ[slope] && slope > 0), Return[$Failed, Module]];
+  {slope, q^c}];
+
+(* A q-polygamma whose argument is Log[x]/Log[q]-linear is already a chart
+   phase in x; the logarithmic source chart leaves it alone. *)
+qSpecialChartPhaseQ[f_, x_] := ! FreeQ[f, QPolyGamma[_, z_, q_] /; FreeQ[q, x] && exactRealQ[q] && 0 < q < 1 &&
+  qSpecialLogLinearPower[z, x, q] =!= $Failed];
+
+qSpecialPolyGammaJet[e : QPolyGamma[n_, z_, q_], u_, ell_, ass_, Kw_, limit_] := Module[{power, series},
+  power = If[IntegerQ[n] && n >= 0 && exactRealQ[q] && 0 < q < 1, qSpecialLogLinearPower[z, u, q], $Failed];
+  If[power === $Failed, Return[fwdSeries[e, u, ell, ass, Kw, limit], Module]];
+  If[Kw === Infinity, fail["InfiniteSeries", "A q-polygamma expansion at a fixed base is an infinite series; a finite working order is needed."]];
+  series = pUnitSeries[{{power[[1]], power[[2]]}}, Infinity, 0, With[{qq = q, nn = n}, Function[m, m^nn/(1 - qq^m)]], Kw, ell, ass, limit];
+  pAdd[pConst[If[n === 0, -Log[1 - q], 0], ell, ass], pScale[series, Log[q]^(n + 1), ell, ass], ell, ass]];
 
 (* (a; q)_inf at a fixed base 0 < q < 1 vanishes exactly at a = q^-m, m >= 0,
    where the native derivative formula (QPolyGamma) is singular. Split off
@@ -74,6 +112,7 @@ qSpecialArgumentZeroSplit[e : QPochhammer[a_, q_], u_, ell_, ass_, limit_] := Mo
   Product[1 - a q^j, {j, 0, m}] QPochhammer[a q^(m + 1), q]];
 
 qSpecialArgumentJet[e_, u_, ell_, ass_, Kw_, limit_] := Module[{split},
+  If[MatchQ[e, QPolyGamma[_, _, _]], Return[qSpecialPolyGammaJet[e, u, ell, ass, Kw, limit], Module]];
   split = If[MatchQ[e, QPochhammer[_, _]], qSpecialArgumentZeroSplit[e, u, ell, ass, limit], $Failed];
   If[split === $Failed, fwdSeries[e, u, ell, ass, Kw, limit], fwd[split, u, ell, ass, Kw, limit]]];
 
@@ -87,6 +126,74 @@ qSpecialBernoulliLog[m_Integer] := If[EvenQ[m], BernoulliB[m]/(m m!), 0];
 qSpecialProve[condition_, ass_] := TrueQ[Quiet[TimeConstrained[Simplify[condition, ass], 3, False]]];
 qSpecialIntegerQ[n_, ass_] := IntegerQ[n] || qSpecialProve[Element[n, Integers], ass];
 
+(* Coefficient of t^k in Log[QGamma[x, Exp[-t]]] as an expression in s. *)
+qSpecialGammaCoefficient[k_Integer, s_] := Which[k === 1, (s - 1) (2 - s)/4,
+  EvenQ[k], BernoulliB[k]/(k k!) (1 - s + BernoulliB[k + 1, s]/(k + 1)), True, 0];
+(* The q-polygamma coefficients are the (n + 1)-st argument derivatives of
+   the q-gamma coefficients; the expansion is locally uniform with uniform
+   differentiated remainders (monograph, q-digamma inversion). *)
+qSpecialPolyGammaCoefficient[k_Integer, n_Integer, x_] := Module[{s},
+  Together[D[qSpecialGammaCoefficient[k, s], {s, n + 1}] /. s -> x]];
+
+(* Double scaling q = Exp[-tau/n] with k = alpha n (Gaussian coefficient
+   calculus, "Uniform all-order logarithmic expansion"): with b = 1 - alpha,
+     Log[QBinomial[n, alpha n, Exp[-tau/n]]]
+       = n S + Log[u]/2 - Log[2 Pi alpha b]/2 + (h[1] - h[alpha] - h[b])/2
+         + Sum[C[2r - 1] n^(1 - 2r), r >= 1],   u = 1/n,
+     S = (PolyLog[2, E^-tau] - PolyLog[2, E^(-tau alpha)] - PolyLog[2, E^(-tau b)] + Pi^2/6)/tau,
+     h[y] = Log[(1 - E^(-tau y))/(tau y)],
+     h^(s)[y] = (-1)^(s - 1) (tau^s PolyLog[1 - s, E^(-tau y)] - (s - 1)!/y^s),
+     h'[0] = -tau/2, h^(2r + 1)[0] = 0,
+     C[2r - 1] = BernoulliB[2r]/(2r (2r - 1)) (1 - alpha^(1 - 2r) - b^(1 - 2r))
+               + BernoulliB[2r]/(2r)! (h^(2r-1)[1] - h^(2r-1)[alpha] - h^(2r-1)[b] + h^(2r-1)[0]).
+   The same Euler-Maclaurin blocks give the q-factorial, whose n factors
+   1/(1 - q) contribute -n h[1/n] = -h[u]/u exactly:
+     Log[QFactorial[n, Exp[-tau/n]]] = LogGamma[n + 1] + n I1 + h[1]/2 + tau/2
+         + Sum[(BernoulliB[2r]/(2r)! (h^(2r-1)[1] - h^(2r-1)[0])
+                - BernoulliB[2r] tau^(2r)/(2r (2r)!)) n^(1 - 2r), r >= 1],
+     I1 = (PolyLog[2, E^-tau] - Pi^2/6)/tau - Log[tau] + 1,
+   whose Stirling part is composed separately. Both are Poincare expansions
+   uniform for alpha and tau in compact subsets of (0, 1) and (0, Infinity),
+   along integers n with alpha n integral. *)
+qSpecialScalingH[tau_, y_] := Log[(1 - Exp[-tau y])/(tau y)];
+qSpecialScalingHDerivative[s_Integer, tau_, y_] := If[y === 0,
+  Which[s === 1, -tau/2, EvenQ[s], BernoulliB[s] tau^s/s, True, 0],
+  (-1)^(s - 1) (tau^s PolyLog[1 - s, Exp[-tau y]] - (s - 1)!/y^s)];
+qSpecialScalingIntegral[tau_, y_] := (PolyLog[2, Exp[-tau y]] - Pi^2/6)/tau - y Log[tau y] + y;
+
+(* The double-scaling data {tau, alpha} of a q-factorial or Gaussian binomial
+   in the local variable u = 1/n, or $Failed when the expression is not of
+   that form. The base must be exactly Exp[-tau u] with a fixed positive tau. *)
+qSpecialDoubleScalingData[e_, u_, ass_] := Module[{base = qSpecialBase[e], tau, n, k, alpha},
+  If[! MatchQ[e, QFactorial[_, _] | QBinomial[_, _, _]] || FreeQ[base, u], Return[$Failed, Module]];
+  tau = Quiet[TimeConstrained[Simplify[-Log[base]/u, ass && u > 0], 3, $Failed]];
+  If[tau === $Failed || ! FreeQ[tau, u] || ! qSpecialProve[tau > 0, ass], Return[$Failed, Module]];
+  n = e[[1]];
+  If[Simplify[n u] =!= 1, Return[$Failed, Module]];
+  If[Head[e] === QFactorial, Return[{tau, None}, Module]];
+  k = e[[2]]; alpha = Simplify[k u];
+  If[! FreeQ[alpha, u] || ! qSpecialProve[0 < alpha < 1, ass], Return[$Failed, Module]];
+  {tau, alpha}];
+
+qSpecialDoubleScalingModel[e_, {tau_, alpha_}, ass_] := Module[{b = 1 - alpha, cf, pole, constant, type, domain},
+  If[alpha === None,
+    type = "ScaledFactorial"; domain = tau > 0;
+    pole = qSpecialScalingIntegral[tau, 1];
+    constant = qSpecialScalingH[tau, 1]/2 + tau/2;
+    cf = With[{tt = tau}, Function[k, If[OddQ[k], With[{r = (k + 1)/2},
+      With[{c = BernoulliB[2 r]/(2 r)! (qSpecialScalingHDerivative[2 r - 1, tt, 1] - qSpecialScalingHDerivative[2 r - 1, tt, 0]) -
+        BernoulliB[2 r] tt^(2 r)/(2 r (2 r)!)}, c]], 0]]],
+    type = "ScaledGaussianBinomial"; domain = tau > 0 && 0 < alpha < 1;
+    pole = (PolyLog[2, Exp[-tau]] - PolyLog[2, Exp[-tau alpha]] - PolyLog[2, Exp[-tau b]] + Pi^2/6)/tau;
+    constant = -Log[2 Pi alpha b]/2 + (qSpecialScalingH[tau, 1] - qSpecialScalingH[tau, alpha] - qSpecialScalingH[tau, b])/2;
+    cf = With[{tt = tau, aa = alpha, bb = b}, Function[k, If[OddQ[k], With[{r = (k + 1)/2},
+      With[{c = BernoulliB[2 r]/(2 r (2 r - 1)) (1 - aa^(1 - 2 r) - bb^(1 - 2 r)) +
+        BernoulliB[2 r]/(2 r)! (qSpecialScalingHDerivative[2 r - 1, tt, 1] - qSpecialScalingHDerivative[2 r - 1, tt, aa] -
+          qSpecialScalingHDerivative[2 r - 1, tt, bb] + qSpecialScalingHDerivative[2 r - 1, tt, 0])}, c]], 0]]]];
+  <|"Type" -> type, "Pole" -> pole, "LogCoefficient" -> If[alpha === None, 0, 1/2], "Constant" -> constant,
+    "Coefficient" -> cf, "Domain" -> domain, "Convergent" -> False, "Composition" -> "Local",
+    "Stirling" -> If[alpha === None, LogGamma[e[[1]] + 1], 0]|>];
+
 (* The coalescing exponent x with a = base^x, or $Failed. *)
 qSpecialCoalescingExponent[a_, base_, u_, ass_] := Module[{x},
   If[a === base, Return[1, Module]];
@@ -99,8 +206,17 @@ qSpecialCoalescingExponent[a_, base_, u_, ass_] := Module[{x},
    and the Taylor coefficient function of t^k for k >= 1 (a zero coefficient
    is 0, never Null: Null ends a unit series). Every parameter condition is
    proved from the assumptions before the model is returned. *)
-qSpecialLogModel[e_, u_, ass_] := Module[{h = Head[e], base = qSpecialBase[e], a, n, k, x, m, r, cf, domain, type, constant, pole = 0, logCoefficient = 0},
+qSpecialLogModel[e_, u_, ass_] := Module[{h = Head[e], base = qSpecialBase[e], a, n, k, x, m, r, cf, domain, type, constant, pole = 0, logCoefficient = 0, scaling},
+  If[MatchQ[e, QFactorial[_, _] | QBinomial[_, _, _]] && ! FreeQ[Most[List @@ e], u],
+    scaling = qSpecialDoubleScalingData[e, u, ass];
+    If[scaling =!= $Failed, Return[qSpecialDoubleScalingModel[e, scaling, ass], Module]]];
   Switch[h,
+    QPolyGamma,
+      {n, x} = {e[[1]], e[[2]]};
+      If[! FreeQ[{n, x}, u] || ! (IntegerQ[n] && n >= 0) || ! qSpecialProve[x > 0, ass],
+        fail["UnsupportedQArgument", "A q-polygamma expansion near base 1 needs a fixed nonnegative integer order and a fixed provably positive argument; state x > 0 in Assumptions.", <|"Order" -> n, "Argument" -> x|>]];
+      type = "PolyGamma"; domain = x > 0; constant = PolyGamma[n, x];
+      cf = With[{xx = x, nn = n}, Function[k, With[{c = qSpecialPolyGammaCoefficient[k, nn, xx]}, c]]],
     QPochhammer,
       a = e[[1]];
       If[Length[e] === 3, n = e[[3]];
@@ -151,7 +267,69 @@ qSpecialLogModel[e_, u_, ass_] := Module[{h = Head[e], base = qSpecialBase[e], a
         EvenQ[k], With[{c = BernoulliB[k]/(k k!) (1 - xx + BernoulliB[k + 1, xx]/(k + 1))}, c], True, 0]]],
     _, fail["UnsupportedQArgument", "Unsupported q-function form.", <|"Expression" -> e|>]];
   <|"Type" -> type, "Pole" -> pole, "LogCoefficient" -> logCoefficient, "Constant" -> constant,
-    "Coefficient" -> cf, "Domain" -> domain, "Convergent" -> MemberQ[{"FixedArgumentFiniteProduct", "CoalescingFiniteProduct", "Factorial", "GaussianBinomial"}, type]|>];
+    "Coefficient" -> cf, "Domain" -> domain, "Convergent" -> MemberQ[{"FixedArgumentFiniteProduct", "CoalescingFiniteProduct", "Factorial", "GaussianBinomial"}, type],
+    "Composition" -> "Base", "Stirling" -> 0|>];
+
+(* ------------------------------------------------------------------ *)
+(* Symbolic product lengths near base 0                                 *)
+(* ------------------------------------------------------------------ *)
+
+(* Near q = 0 the coefficient of q^r in a finite q-product depends on the
+   length only through the factors of index at most r, so it is stable once
+   the length exceeds r:
+     Log[(a; q)_n / (1 - a)] = -Sum[q^r Sum[a^d/d, d | r], r >= 1]        (n >= r + 1)
+     Log[QFactorial[n, q]]   = Sum[(n - DivisorSigma[1, r]) q^r/r, r >= 1] (n >= r)
+     Log[QBinomial[n, k, q]] = Sum[DivisorSigma[1, r] q^r/r, r >= 1]      (k, n - k >= r)
+     QGamma[n, q]            = QFactorial[n - 1, q]                        (n integer)
+   (monograph, "Exact coefficient engine at q = 0" and "Zero-base factorial
+   inverse"; the Gaussian series is Euler's Log[1/(q; q)_inf]). Each
+   coefficient is used only through the order whose length bound is proved
+   from the assumptions; the remainder is capped at the first unproved order. *)
+qSpecialZeroBaseModel[e_, u_, ass_] := Module[{a, n, k, prefactor, cf, bound},
+  (* A numeric length is an exact finite product; the ordinary expansion
+     keeps every coefficient. *)
+  If[AnyTrue[Flatten[{Switch[e, QPochhammer[_, _, _], e[[3]], QBinomial[_, _, _], {e[[1]], e[[2]]}, _, e[[1]]]}], NumericQ], Return[$Failed, Module]];
+  Switch[e,
+    QPochhammer[_, _, _],
+      {a, n} = {e[[1]], e[[3]]};
+      If[! FreeQ[{a, n}, u] || ! qSpecialIntegerQ[n, ass], Return[$Failed, Module]];
+      prefactor = 1 - a;
+      cf = With[{aa = a}, Function[r, -Total[aa^#/# & /@ Divisors[r]]]];
+      bound = With[{nn = n}, Function[r, nn >= r + 1]],
+    QFactorial[_, _] | QGamma[_, _],
+      n = If[Head[e] === QGamma, e[[1]] - 1, e[[1]]];
+      If[! FreeQ[n, u] || ! qSpecialIntegerQ[n, ass], Return[$Failed, Module]];
+      prefactor = 1;
+      cf = With[{nn = n}, Function[r, (nn - DivisorSigma[1, r])/r]];
+      bound = With[{nn = n}, Function[r, nn >= r]],
+    QBinomial[_, _, _],
+      {n, k} = {e[[1]], e[[2]]};
+      If[! FreeQ[{n, k}, u] || ! qSpecialIntegerQ[n, ass] || ! qSpecialIntegerQ[k, ass], Return[$Failed, Module]];
+      prefactor = 1;
+      cf = Function[r, DivisorSigma[1, r]/r];
+      bound = With[{nn = n, kk = k}, Function[r, kk >= r && nn - kk >= r]],
+    _, Return[$Failed, Module]];
+  <|"Prefactor" -> prefactor, "Coefficient" -> cf, "Bound" -> bound|>];
+
+(* The largest order r <= max whose length bound is proved, or 0. *)
+qSpecialProvedOrder[model_, max_, ass_] := Module[{r = 0},
+  While[r < max && qSpecialProve[model["Bound"][r + 1], ass], r++];
+  r];
+
+qSpecialZeroBaseJet[e_, u_, ell_, ass_, Kw_, limit_] := Module[{model, jet, valuation, order, cut, series},
+  model = qSpecialZeroBaseModel[e, u, ass];
+  If[model === $Failed, Return[$Failed, Module]];
+  jet = Catch[fwd[qSpecialBase[e], u, ell, ass, Max[1, Kw], limit], $tag];
+  If[FailureQ[jet] || (jet[[1]] === {} && jet[[2]] === Infinity), Return[$Failed, Module]];
+  If[! (jet[[1]] === {} || less[0, jetValuation[jet[[1]]]]), Return[$Failed, Module]];
+  If[Kw === Infinity, fail["InfiniteSeries", "A q-product expansion near base 0 with a symbolic length is an infinite series; a finite working order is needed."]];
+  valuation = If[jet[[1]] === {}, jet[[2]], jetValuation[jet[[1]]]];
+  order = qSpecialProvedOrder[model, Ceiling[Kw/valuation], ass];
+  If[order === 0,
+    fail["UnsupportedQArgument", "A q-product expansion near base 0 with a symbolic length needs a proved lower bound on the length; state it in Assumptions (the coefficient of the r-th power is stable once the length exceeds r).", <|"Expression" -> e, "RequiredBound" -> model["Bound"][1]|>]];
+  cut = Min[Kw, (order + 1) valuation];
+  series = pUnitSeries[jet[[1]], jet[[2]], jet[[3]], model["Coefficient"], cut, ell, ass, limit];
+  pScale[fwdExp[series, u, ell, ass, cut, limit], model["Prefactor"], ell, ass]];
 
 (* The jet of t = -Log[base] when the base tends to 1 from below, else $Failed.
    Failures of the base expansion itself are not this module's business. *)
@@ -179,26 +357,49 @@ qSpecialComposeLog[model_, baseJet_, u_, ell_, ass_, Kw_, limit_] := Module[{T, 
   series = pUnitSeries[T, P, D, model["Coefficient"], Kw, ell, ass, limit];
   pAdd[res, series, ell, ass]];
 
-qSpecialLogJet[e_, u_, ell_, ass_, Kw_, limit_] := Module[{model, jet, nu},
+qSpecialLogJet[e_, u_, ell_, ass_, Kw_, limit_] := Module[{model, jet, nu, res},
   model = qSpecialLogModel[e, u, ass];
+  If[model["Composition"] === "Local",
+    (* Double scaling: the model is a series in the local variable itself,
+       and the q-factorial keeps its Stirling part in the ordinary calculus. *)
+    res = qSpecialComposeLog[model, pVar, u, ell, ass, Kw, limit];
+    If[model["Stirling"] =!= 0, res = pAdd[res, fwd[model["Stirling"], u, ell, ass, Kw, limit], ell, ass]];
+    Return[res, Module]];
   jet = qSpecialBaseJet[qSpecialBase[e], u, ell, ass, Max[1, Kw] + 2, limit];
   If[jet === $Failed, Return[$Failed, Module]];
   nu = jet[[1, 1, 1]];
   If[less[1, nu], jet = qSpecialBaseJet[qSpecialBase[e], u, ell, ass, Max[1, Kw] + 2 nu, limit]];
   qSpecialComposeLog[model, jet, u, ell, ass, Kw, limit]];
 
-(* Jets used by the ordinary dispatcher. A base that does not tend to 1
-   from below is expanded natively as before. *)
+(* The q-polygamma models are value models, not logarithmic ones. *)
+qSpecialValueModelQ[e_] := MatchQ[e, QPolyGamma[_, _, _]];
+
+(* The base tends to 1 from below, or the expression is in double scaling. *)
+qSpecialNearOneJetQ[e_, u_, ell_, ass_, limit_] :=
+  qSpecialBaseJet[qSpecialBase[e], u, ell, ass, 1, limit] =!= $Failed ||
+  (MatchQ[e, QFactorial[_, _] | QBinomial[_, _, _]] && qSpecialDoubleScalingData[e, u, ass] =!= $Failed);
+
+(* Jets used by the ordinary dispatcher. A base that tends to 0 with a
+   symbolic product length uses the stable-coefficient models; any other
+   base is expanded natively as before. *)
 qSpecialForwardJet[e_, u_, ell_, ass_, Kw_, limit_] := Module[{jet},
   If[FreeQ[qSpecialBase[e], u], Return[qSpecialArgumentJet[e, u, ell, ass, Kw, limit], Module]];
-  jet = If[qSpecialBaseJet[qSpecialBase[e], u, ell, ass, 1, limit] === $Failed, $Failed, qSpecialLogJet[e, u, ell, ass, Kw, limit]];
+  If[! qSpecialNearOneJetQ[e, u, ell, ass, limit],
+    jet = qSpecialZeroBaseJet[e, u, ell, ass, Kw, limit];
+    Return[If[jet === $Failed, fwdSeries[e, u, ell, ass, Kw, limit], jet], Module]];
+  jet = qSpecialLogJet[e, u, ell, ass, Kw, limit];
   If[jet === $Failed, Return[fwdSeries[e, u, ell, ass, Kw, limit], Module]];
-  fwdExp[jet, u, ell, ass, Kw, limit]];
+  If[qSpecialValueModelQ[e], jet, fwdExp[jet, u, ell, ass, Kw, limit]]];
 
 qSpecialLogForwardJet[e_, u_, ell_, ass_, Kw_, limit_] := Module[{jet},
   If[FreeQ[qSpecialBase[e], u], Return[fwdLog[qSpecialArgumentJet[e, u, ell, ass, Kw, limit], u, ell, ass, Kw, limit], Module]];
-  jet = If[qSpecialBaseJet[qSpecialBase[e], u, ell, ass, 1, limit] === $Failed, $Failed, qSpecialLogJet[e, u, ell, ass, Kw, limit]];
-  If[jet === $Failed, fwdLog[fwdSeries[e, u, ell, ass, Kw, limit], u, ell, ass, Kw, limit], jet]];
+  If[! qSpecialNearOneJetQ[e, u, ell, ass, limit],
+    jet = qSpecialZeroBaseJet[e, u, ell, ass, Kw, limit];
+    Return[fwdLog[If[jet === $Failed, fwdSeries[e, u, ell, ass, Kw, limit], jet], u, ell, ass, Kw, limit], Module]];
+  jet = qSpecialLogJet[e, u, ell, ass, Kw, limit];
+  Which[jet === $Failed, fwdLog[fwdSeries[e, u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
+    qSpecialValueModelQ[e], fwdLog[jet, u, ell, ass, Kw, limit],
+    True, jet]];
 
 (* The infinite products whose base varies with x. *)
 qSpecialInfiniteProducts[f_, x_] :=
@@ -209,11 +410,21 @@ qSpecialNearOneQ[f_, x_, coord_, ass_, limit_] := Module[{products, ell = Unique
   products =!= {} && AllTrue[products,
     qSpecialBaseJet[qSpecialBase[#] /. x -> coord["Substitution"], coord["u"], ell, ass, 1, limit] =!= $Failed &]];
 
+(* Double-scaling q-factorials and Gaussian binomials, which are
+   exponentially large like the infinite products. *)
+qSpecialDoubleScalingFunctions[f_, x_, coord_, ass_] := DeleteDuplicates[Cases[f,
+  e : (QFactorial[_, _] | QBinomial[_, _, _]) /; ! FreeQ[qSpecialBase[e], x] &&
+    qSpecialDoubleScalingData[e /. x -> coord["Substitution"], coord["u"], ass] =!= $Failed, {0, Infinity}]];
+
+qSpecialLogarithmicRouteQ[f_, x_, coord_, ass_, limit_] :=
+  qSpecialNearOneQ[f, x, coord, ass, limit] || qSpecialDoubleScalingFunctions[f, x, coord, ass] =!= {};
+
 (* A product of q-functions with real powers and ordinary factors, in the
    logarithmic domain. Each q-factor is positive on its proved parameter
-   domain; the ordinary factors keep their separately proved eventual sign. *)
+   domain; the ordinary factors keep their separately proved eventual sign.
+   A q-polygamma factor has no sign of its own and stays ordinary. *)
 qSpecialProductData[e_, x_] := Module[{parts, base, r},
-  If[FreeQ[e, _QPochhammer | _QGamma | _QFactorial | _QBinomial] || FreeQ[e, x], Return[{e, {}, {}}, Module]];
+  If[FreeQ[e, _QPochhammer | _QGamma | _QFactorial | _QBinomial] || FreeQ[e, x] || Head[e] === QPolyGamma, Return[{e, {}, {}}, Module]];
   Which[
     qSpecialQ[e], {1, {{e, 1}}, {}},
     Head[e] === Times,
@@ -242,21 +453,26 @@ qSpecialProductSource[f_, x_, ass_, coord_] := Module[
   <|"Factors" -> factors, "Models" -> models, "Sign" -> ordinary["Sign"], "Logarithm" -> logarithm, "Domain" -> domain,
     "Convergent" -> And @@ (#["Convergent"] & /@ models)|>];
 
-qSpecialMetadata[source_] := <|
-  "QSpecialFactors" -> MapThread[<|"Function" -> #1[[1]], "Power" -> #1[[2]], "Model" -> #2["Type"]|> &, {source["Factors"], source["Models"]}],
-  "Transformation" -> "Each q-function equals Exp of its explicit logarithmic expansion in t = -Log[base] (Bernoulli numbers, Bernoulli polynomials and polylogarithms of nonpositive order), composed with the expansion of t.",
+qSpecialMetadata[source_] := Module[{scaled = AnyTrue[source["Models"], StringStartsQ[#["Type"], "Scaled"] &]},
+  <|"QSpecialFactors" -> MapThread[<|"Function" -> #1[[1]], "Power" -> #1[[2]], "Model" -> #2["Type"]|> &, {source["Factors"], source["Models"]}],
+  "Transformation" -> If[scaled,
+    "Each double-scaling q-function (base Exp[-tau/n], length proportional to n) equals Exp of its Euler-Maclaurin logarithmic expansion in 1/n, whose coefficients are dilogarithms and polylogarithms of nonpositive order at Exp[-tau], Exp[-tau alpha] and Exp[-tau (1 - alpha)].",
+    "Each q-function equals Exp of its explicit logarithmic expansion in t = -Log[base] (Bernoulli numbers, Bernoulli polynomials and polylogarithms of nonpositive order), composed with the expansion of t."],
   "ExpansionNature" -> If[TrueQ[source["Convergent"]], "Convergent", "Poincare"],
-  "AsymptoticReference" -> "https://dlmf.nist.gov/17.2 (q-Pochhammer), https://dlmf.nist.gov/5.18 (q-gamma); Lambert-series/Mellin derivation as in the vendored q-Pochhammer monograph, chapters 2-5"|>;
+  "AsymptoticReference" -> If[scaled,
+    "Vendored Gaussian coefficient calculus, 'Uniform all-order logarithmic expansion' (double scaling q = Exp[-tau/n]); https://dlmf.nist.gov/2.10 (Euler-Maclaurin)",
+    "https://dlmf.nist.gov/17.2 (q-Pochhammer), https://dlmf.nist.gov/5.18 (q-gamma); Lambert-series/Mellin derivation as in the vendored q-Pochhammer monograph, chapters 2-5"]|>];
 
-(* Top-level forward route: an infinite product whose base tends to 1 is
-   exponentially large or small, so the ordinary power-log jet refuses it.
-   Products of q-functions and ordinary factors go through the logarithmic
-   forward expansion; bounded q-functions need no special route. *)
+(* Top-level forward route: an infinite product whose base tends to 1, or a
+   double-scaling q-factorial or Gaussian binomial, is exponentially large
+   or small, so the ordinary power-log jet refuses it. Products of
+   q-functions and ordinary factors go through the logarithmic forward
+   expansion; bounded q-functions need no special route. *)
 qSpecialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := Module[{source},
-  If[FreeQ[f, _QPochhammer | _QGamma | _QFactorial | _QBinomial], Return[$Failed, Module]];
+  If[FreeQ[f, _QPochhammer | _QGamma | _QFactorial | _QBinomial | _QPolyGamma], Return[$Failed, Module]];
   If[qSpecialFixedBaseFunctions[f, x] =!= {},
     Return[qSpecialArgumentForwardExpansion[f, x, x0, cutoff, ass, coord, goal, limit], Module]];
-  If[FreeQ[f, _QPochhammer] || ! qSpecialNearOneQ[f, x, coord, ass, limit], Return[$Failed, Module]];
+  If[FreeQ[f, _QPochhammer | _QFactorial | _QBinomial] || ! qSpecialLogarithmicRouteQ[f, x, coord, ass, limit], Return[$Failed, Module]];
   validateInput[f, limit];
   source = qSpecialProductSource[f, x, ass, coord];
   If[source === $Failed, Return[$Failed, Module]];
@@ -266,9 +482,9 @@ qSpecialForwardExpansion[f_, x_, x0_, cutoff_, ass_, coord_, goal_, limit_] := M
 (* Inverse route: the same logarithm is the phase of a logarithmic target
    coordinate, y = offset + Sign Exp[phase]. *)
 qSpecialExponentialPhase[f_, x_, x0_, dir_, ass_, limit_] := Module[{coord, parts, offset, dependent, source},
-  If[FreeQ[f, _QPochhammer], Return[$Failed, Module]];
+  If[FreeQ[f, _QPochhammer | _QFactorial | _QBinomial], Return[$Failed, Module]];
   coord = localCoordinate[x, x0, dir];
-  If[! qSpecialNearOneQ[f, x, coord, ass, limit], Return[$Failed, Module]];
+  If[! qSpecialLogarithmicRouteQ[f, x, coord, ass, limit], Return[$Failed, Module]];
   parts = If[Head[f] === Plus, List @@ f, {f}];
   offset = Total[Select[parts, FreeQ[#, x] &]];
   dependent = Select[parts, ! FreeQ[#, x] &];
@@ -333,6 +549,13 @@ qSpecialChartFactor[e_, x_, q_, w_, ass_] := Module[{z, n, k, a, domain, value},
         fail["UnsupportedQArgument", "The q-Pochhammer argument must be provably real and less than 1.", <|"Argument" -> a|>]];
       value = QPochhammer[a, q]/QPochhammer[a qSpecialChartPower[n, x, q, w, ass], q];
       domain = a < 1 && n >= 0,
+    QPolyGamma[_, _, q],
+      {n, z} = {e[[1]], e[[2]]};
+      If[! (IntegerQ[n] && n >= 0), fail["UnsupportedQArgument", "A q-polygamma expansion at a fixed base needs a fixed nonnegative integer order.", <|"Order" -> n|>]];
+      (* Validated here; the Lambert series is expanded by the jet hook once
+         the argument has become linear in Log[w]. *)
+      qSpecialChartPower[z, x, q, w, ass];
+      value = e; domain = z > 0,
     QPochhammer[_, q],
       a = e[[1]];
       If[! MatchQ[a, Power[q, _] | Times[c_ /; FreeQ[c, x], Power[q, _]]],

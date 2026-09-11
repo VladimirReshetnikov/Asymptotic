@@ -2141,11 +2141,17 @@ logarithmic expansion, literal Taylor coordinate and ordinary inverse, the
 base inverse, the exact coefficient engine and stable small-base jet at
 `q = 0`, the endpoint argument jets and zero-derivative germ at a fixed base,
 the fixed-base large-argument expansions of `QGamma` and Gaussian binomials
-with the chart inverse, the refusals, and the result operations. The
-nine-file [CheckQSpecialFunctions.wl](CheckQSpecialFunctions.wl) run passes
-**204/204** on Wolfram 15.0.1 for Windows
+with the chart inverse, the refusals, and the result operations; and, from
+the second q milestone, the q-digamma and q-polygamma models (differentiated
+q-gamma coefficients, the square-root fold at `x = 3/2`, the fixed-base
+Lambert series forward and inverse), the q-beta function (`b1`, `b2`, the
+fold on `x y = 1`, the fixed-base chart), symbolic product lengths near
+`q = 0` with their proved length bounds, and the double-scaling
+Euler–Maclaurin expansions of the Gaussian binomial and q-factorial with the
+inverse. The nine-file [CheckQSpecialFunctions.wl](CheckQSpecialFunctions.wl)
+run passes **213/213** on Wolfram 15.0.1 for Windows
 ([q-special-functions-tests.json](q-special-functions-tests.json)); the q
-cases Q1–Q22 of the [ProveIt probe](ProbeProveItExamples.wl) are recorded
+cases Q1–Q32 of the [ProveIt probe](ProbeProveItExamples.wl) are recorded
 in [proveit-examples-probe.json](proveit-examples-probe.json). Mathics has
 no q-special functions, so the suite is Wolfram-only.
 

@@ -15,6 +15,36 @@ milestones within that scope.
 
 ## September 11, 2026
 
+### q-digamma, q-beta, symbolic product lengths and the double-scaling regime
+
+`QPolyGamma[n, x, q]` joins the q-special-function module: near `q = 1`
+its coefficients are the `(n + 1)`-st argument derivatives of the q-gamma
+coefficients (monograph, "Global argument inverse and the exceptional
+reciprocal fold"), including the quadratic endpoint at `x = 3/2` whose
+base inverse is the square-root fold `t = Sqrt[-288 Delta]`; at a fixed
+base with a growing argument it is the Lambert series
+`Log[q]^(n + 1) Sum[m^n q^(m x)/(1 - q^m)]` in the chart `w = q^x`, forward
+and inverse. The q-beta function, entered as
+`QGamma[x, q] QGamma[y, q]/QGamma[x + y, q]`, expands near `q = 1` with the
+monograph's `b1`, `b2` and inverts through the square-root fold on
+`x y = 1`, and at a fixed base through the chart. Symbolic product lengths
+near `q = 0` use the stable coefficients (`(a; q)_n`, `QFactorial`,
+`QBinomial`, integer `QGamma`), with the length bound proved from the
+assumptions order by order. The double scaling `q = Exp[-tau/n]`,
+`k = alpha n` of the Gaussian coefficient calculus ("Uniform all-order
+logarithmic expansion") is a new logarithmic model in `1/n` for
+`QBinomial` and `QFactorial`, forward and inverse. Two prover repairs came
+with it: the realness check now discharges polylogarithms of real
+arguments below one, split logarithms of positive factors and quotients of
+exponentials with a provably nonvanishing denominator, and the nonzero
+leading-coefficient check of the reversion tries a bounded `FullSimplify`.
+The logarithmic source chart no longer re-enters a q-polygamma chart phase
+(which recursed six levels deep). [QSpecialFunctions.wlt](../src/Tests/QSpecialFunctions.wlt)
+grows to thirty-two tests and the nine-file
+[CheckQSpecialFunctions.wl](../validation/CheckQSpecialFunctions.wl) run
+passes **213/213** on a fresh kernel; the report's q cases Q23–Q32 record
+the checks.
+
 ### q-special functions in three regimes
 
 `QPochhammer`, `QGamma`, `QFactorial` and `QBinomial` expand and invert

@@ -9,8 +9,13 @@ $sourceCoordinateDepth = 0;
    records "Scale": the source is x = -Sign Log[w]/Scale. *)
 sourceQChart[___] := $Failed;
 
+(* A q-polygamma chart phase carries Log[w]/Log[q] inside its argument; the
+   logarithmic chart must not re-open that coordinate (QSpecialFunctions.wl
+   replaces this default predicate). *)
+qSpecialChartPhaseQ[___] := False;
+
 sourceLogChart[f_, x_, x0_, dir_, ass_, limit_] := Module[{coord, u, h, fu, phase},
-  If[FreeQ[f, Log], Return[$Failed, Module]];
+  If[FreeQ[f, Log] || qSpecialChartPhaseQ[f, x], Return[$Failed, Module]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"]; h = Unique["logSource$"];
   fu = Simplify[f /. x -> coord["Substitution"], ass && u > 0];
   phase = Simplify[fu /. u -> Exp[-h], ass && h > 0];

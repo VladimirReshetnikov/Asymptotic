@@ -314,7 +314,7 @@ polyCanonicalZeroQ[p_, ell_, ass_] :=
 polyZeroQ[q_, ell_, ass_] := polyCanonicalZeroQ[polyCanon[q, ell, ass], ell, ass];
 polyDegree[q_, ell_] := If[q === 0, 0, Exponent[q, ell]];
 
-realPolynomialCondition[p_, ell_, ass_] := Module[{coefficients = CoefficientList[p, ell], condition},
+realPolynomialCondition[p_, ell_, ass_] := Module[{coefficients = CoefficientList[p, ell], condition, split, facts},
   (* Exact numbers need no assumptions: this also keeps Simplify from
      evaluating the assumptions themselves for every numeric coefficient. *)
   If[And @@ (NumericQ[#] && exactQ[#] & /@ coefficients),
@@ -324,8 +324,43 @@ realPolynomialCondition[p_, ell_, ass_] := Module[{coefficients = CoefficientLis
     Return[If[condition === True || condition === False, condition,
       TimeConstrained[FullSimplify[condition], 1, condition]], Module]];
   condition = Simplify[And @@ (Element[#, Reals] & /@ coefficients), ass];
-  If[condition === True || condition === False, condition,
-    TimeConstrained[FullSimplify[condition, ass], 1, condition]]];
+  If[condition === True || condition === False, Return[condition, Module]];
+  (* Simplify does not know that a polylogarithm of a real argument below 1
+     is real (the q-function models carry PolyLog[2, E^(-tau alpha)] and
+     PolyLog[2, a]); discharge that clause before the general fallback. *)
+  If[! FreeQ[condition, _PolyLog],
+    condition = Simplify[condition /. {
+      HoldPattern[Element[PolyLog[s_, Power[E, w_]], Reals]] :> (Element[s, Reals] && Element[w, Reals] && w < 0),
+      HoldPattern[Element[PolyLog[s_, z_], Reals]] :> (Element[s, Reals] && Element[z, Reals] && z < 1)}, ass];
+    If[condition === True || condition === False, Return[condition, Module]]];
+  (* Canonicalization merges logarithms of positive factors into one
+     logarithm of a quotient that Simplify cannot sign. The split form is
+     decidable, and its realness implies realness of the original: the two
+     differ by 2 Pi I k with the imaginary part of the original in (-Pi, Pi]. *)
+  If[! FreeQ[condition, _Log],
+    split = Simplify[condition /. Log[z_] :> PowerExpand[Log[z]], ass];
+    If[split === True, Return[True, Module]]];
+  (* A quotient of real exponential expressions is real once its denominator
+     is known not to vanish; Simplify compares exponents but not the
+     exponentials themselves, so those facts are supplied. *)
+  If[! FreeQ[condition, Power[E, _]],
+    facts = exponentialDenominatorFacts[condition, ass];
+    If[facts =!= True,
+      split = Simplify[condition, ass && facts];
+      If[split === True, Return[True, Module]]]];
+  TimeConstrained[FullSimplify[condition, ass], 1, condition]];
+
+(* E^p != E^q for the exponential differences among the denominator factors
+   of the realness conditions, whenever the exponents are provably ordered
+   (which makes them real, so the exponential is injective on them). *)
+exponentialDenominatorFacts[condition_, ass_] := Module[{denominators, factors, facts = {}, ordered},
+  ordered[p_, q_] := TrueQ[Simplify[p > q, ass]] || TrueQ[Simplify[p < q, ass]];
+  denominators = DeleteDuplicates[Cases[condition, HoldPattern[Element[x_, Reals]] :> Denominator[Together[x]], {0, Infinity}]];
+  factors = DeleteDuplicates[Flatten[FactorList[#][[All, 1]] & /@ denominators]];
+  Do[Replace[factor, {
+     (c_. Power[E, p_] + d_. Power[E, q_]) /; FreeQ[{c, d}, E] && ordered[p, q] :> AppendTo[facts, Power[E, p] != Power[E, q]],
+     (c_. Power[E, p_] + d_) /; FreeQ[{c, d}, E] && NumericQ[d] && ordered[p, 0] :> AppendTo[facts, Power[E, p] != 1]}], {factor, factors}];
+  And @@ facts];
 realPolynomialQ[p_, ell_, ass_] := PolynomialQ[p, ell] &&
   TrueQ[realPolynomialCondition[p, ell, ass]];
 
@@ -998,7 +1033,11 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
   p = lead[[1]]; a = lead[[2]];
   If[! FreeQ[a, ell], fail["LogarithmicLeadingTerm",
     "The ordinary power-log engine requires a constant leading coefficient. This logarithmic leading block needs an admitted Lambert or logarithmic-coordinate reduction."]];
-  If[! TrueQ[Simplify[a != 0, ass]], fail["UnprovedNonzeroLeadingCoefficient", "The leading coefficient must be provably nonzero.", <|"Coefficient" -> a|>]];
+  (* Simplify leaves products of special-function values alone (a q-gamma
+     value times a difference of exponentials); FullSimplify is tried within
+     a bounded time before the refusal. *)
+  If[! (TrueQ[Simplify[a != 0, ass]] || TrueQ[Quiet[TimeConstrained[FullSimplify[a != 0, ass], 3, False]]]),
+    fail["UnprovedNonzeroLeadingCoefficient", "The leading coefficient must be provably nonzero.", <|"Coefficient" -> a|>]];
   If[! TrueQ[Simplify[Element[a, Reals], ass]], fail["UnprovedRealCoefficient", "The leading coefficient must be provably real.", <|"Coefficient" -> a|>]];
   rest = Rest[rows];
   deltas = If[symbolic, Simplify[#[[1]] - p, ass], canon[#[[1]] - p]] & /@ rest;

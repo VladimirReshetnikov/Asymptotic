@@ -248,3 +248,116 @@ VerificationTest[
      qTestTerms[simplified, {{0, 1}, {1, -a/(12 (1 - a))}, {2, a^2/(288 (1 - a)^2)}}, -1 < a < 1]}],
   {4, True, True, True},
   TestID -> "q-special-results-refine-and-simplify"]
+
+(* --- q-digamma and q-polygamma, q -> 1: monograph "Global argument inverse and the exceptional reciprocal fold" --- *)
+VerificationTest[
+  Module[{x, t, s0, s1},
+    s0 = AsymptoticExpansion[QPolyGamma[x, Exp[-t]], {t, 0, 4}, Assumptions -> x > 0];
+    s1 = AsymptoticExpansion[QPolyGamma[1, x, Exp[-t]], {t, 0, 3}, Assumptions -> x > 0];
+    (* psi_q = psi + (3 - 2x)/4 t + c2'(x) t^2 with c2 = (x - 2)(x - 1)(2x + 3)/144; no t^3 term *)
+    {s0["Kind"], qTestTerms[s0, {{0, PolyGamma[0, x]}, {1, (3 - 2 x)/4}, {2, (6 x^2 - 6 x - 5)/144}}, x > 0],
+     qTestTerms[s1, {{0, PolyGamma[1, x]}, {1, -1/2}, {2, (2 x - 1)/24}}, x > 0]}],
+  {"Forward", True, True},
+  TestID -> "q-special-q-polygamma-q-to-one-expansion-differentiates-the-q-gamma-coefficients"]
+
+VerificationTest[
+  Module[{t, d, s, inv, t0 = 1/100, d0},
+    s = AsymptoticExpansion[QPolyGamma[3/2, Exp[-t]], {t, 0, 4}];
+    inv = AsymptoticInverse[QPolyGamma[3/2, Exp[-t]] - PolyGamma[0, 3/2], {t, 0}, {d, 2}];
+    d0 = N[QPolyGamma[3/2, Exp[-t0]] - PolyGamma[0, 3/2], 40];
+    (* the fold: Delta = -t^2/288 + O(t^4), t = Sqrt[-288 Delta] (1 + O(Delta)) *)
+    {qTestTerms[s, {{0, PolyGamma[0, 3/2]}, {2, -1/288}}], inv["Terms"][[1, 1]], d0 < 0,
+     TrueQ[Abs[N[Normal[inv] /. d -> d0, 30] - t0] < 10^-7]}],
+  {True, 1/2, True, True},
+  TestID -> "q-special-q-digamma-quadratic-endpoint-at-three-halves-inverts-as-a-square-root-fold"]
+
+(* --- q-polygamma at a fixed base: the Lambert series in q^x --- *)
+VerificationTest[
+  Module[{x, y, s, s2, inv, check},
+    s = AsymptoticExpansion[QPolyGamma[x, 1/2], {x, Infinity, 3}];
+    s2 = AsymptoticExpansion[QPolyGamma[2, 2 x + y, 1/3], {x, Infinity, 5}, Assumptions -> y > 0];
+    inv = AsymptoticInverse[QPolyGamma[x, 1/2], {x, Infinity}, {y, 3}];
+    check = InverseNumericalCheck[inv, N[QPolyGamma[30, 1/2], 60]];
+    (* psi_q(x) = -Log[1 - q] + Log[q] Sum[q^(m x)/(1 - q^m)], psi_q''(z) = Log[q]^3 Sum[m^2 q^(m z)/(1 - q^m)] *)
+    {s["Scale"], qTestTerms[s, {{0, Log[2]}, {1, -2 Log[2]}, {2, -4 Log[2]/3}}], s["RemainderVariable"],
+     qTestTerms[s2, {{2, -3 Log[3]^3 3^-y/2}, {4, -9 Log[3]^3 3^(-2 y)/2}}, y > 0],
+     qTestEqual[Normal[inv], Log[Log[4]]/Log[2] - Log[Log[2] - y]/Log[2] + (Log[2] - y)/(3 Log[2]^2) - (Log[2] - y)^2/(42 Log[2]^3), y < Log[2]],
+     check["Ratio"] < 1, TrueQ[Abs[check["ExactInverse"] - 30] < 10^-20]}],
+  {"Transformed", True, 2^-x, True, True, True, True} /. x -> _Symbol, SameTest -> MatchQ,
+  TestID -> "q-special-q-polygamma-fixed-base-lambert-series-forward-and-inverse"]
+
+(* --- q-beta function B_q(x, y) = Gamma_q(x) Gamma_q(y)/Gamma_q(x + y): monograph "Coordinate monotonicity and base type change" --- *)
+VerificationTest[
+  Module[{x, y, t, s},
+    s = AsymptoticExpansion[Log[QGamma[x, Exp[-t]] QGamma[y, Exp[-t]]/QGamma[x + y, Exp[-t]]], {t, 0, 4}, Assumptions -> x > 0 && y > 0];
+    {qTestTerms[s, {{0, Log[Gamma[x] Gamma[y]/Gamma[x + y]]}, {1, (x y - 1)/2}, {2, -(x^2 y + x y^2 - x y - 1)/24}}, x > 0 && y > 0]}],
+  {True},
+  TestID -> "q-special-q-beta-q-to-one-logarithmic-expansion-b1-and-b2"]
+
+VerificationTest[
+  Module[{x, t, y, inv, x0 = 3, t0 = 1/100, y0},
+    inv = AsymptoticInverse[QGamma[x, Exp[-t]] QGamma[1/x, Exp[-t]]/QGamma[x + 1/x, Exp[-t]], {t, 0}, {y, 2}, Assumptions -> x > 1];
+    y0 = N[QGamma[x0, Exp[-t0]] QGamma[1/x0, Exp[-t0]]/QGamma[x0 + 1/x0, Exp[-t0]], 40];
+    (* on x y = 1 the linear coefficient vanishes: t = Sqrt[-24 x Delta/(x - 1)^2] (1 + O(Delta)) *)
+    {inv["Terms"][[1, 1]], TrueQ[Abs[N[Normal[inv] /. {x -> x0, y -> y0}, 30] - t0] < 10^-7]}],
+  {1/2, True},
+  TestID -> "q-special-q-beta-base-inverse-on-the-reciprocal-curve-is-a-square-root-fold"]
+
+VerificationTest[
+  Module[{x, y, z, s, inv, x0 = 30, y0 = 1/2, z0},
+    s = AsymptoticExpansion[QGamma[x, 1/3] QGamma[y, 1/3]/QGamma[x + y, 1/3], {x, Infinity, 2}, Assumptions -> y > 0];
+    inv = AsymptoticInverse[QGamma[x, 1/3] QGamma[y, 1/3]/QGamma[x + y, 1/3], {x, Infinity}, {z, 2}, Assumptions -> y > 0];
+    z0 = N[QGamma[x0, 1/3] QGamma[y0, 1/3]/QGamma[x0 + y0, 1/3], 40];
+    (* B_q(x, y) = (1 - q)^y Gamma_q(y) (q^y w; q)_inf/(w; q)_inf, w = q^x *)
+    {s["Scale"], qTestTerms[s, {{0, (2/3)^y QGamma[y, 1/3]}, {1, (2/3)^(y - 1) (1 - 3^-y) QGamma[y, 1/3]}}, y > 0],
+     inv["CoordinateKind"], TrueQ[Abs[N[Normal[inv] /. {y -> y0, z -> z0}, 30] - x0] < 10^-6]}],
+  {"Transformed", True, "SourceLog", True},
+  TestID -> "q-special-q-beta-fixed-base-argument-expansion-and-inverse-through-the-chart"]
+
+(* --- symbolic product lengths near q = 0: monograph "Exact coefficient engine at q = 0", "Zero-base factorial inverse" --- *)
+VerificationTest[
+  Module[{n, k, a, q, y, sf, sp, sb, sg, inv},
+    sf = AsymptoticExpansion[QFactorial[n, q], {q, 0, 4}, Assumptions -> Element[n, Integers] && n >= 5];
+    sp = AsymptoticExpansion[QPochhammer[a, q, n], {q, 0, 5}, Assumptions -> Element[n, Integers] && n >= 6 && Element[a, Reals], "Backend" -> "Package"];
+    sb = AsymptoticExpansion[QBinomial[n, k, q], {q, 0, 5}, Assumptions -> Element[n, Integers] && Element[k, Integers] && k >= 5 && n - k >= 5];
+    sg = AsymptoticExpansion[QGamma[n, q], {q, 0, 3}, Assumptions -> Element[n, Integers] && n >= 5];
+    inv = AsymptoticInverse[QFactorial[n, q], {q, 0}, {y, 3}, Assumptions -> Element[n, Integers] && n >= 5];
+    {qTestEqual[Normal[sf], 1 + (n - 1) q + (n - 2) (n + 1)/2 q^2 + n (n^2 - 7)/6 q^3],
+     Expand[Normal[sp] - Normal[Series[QPochhammer[a, q, 9], {q, 0, 4}]]],
+     Normal[sb], Expand[(Normal[sg] /. n -> 6) - Normal[Series[QGamma[6, q], {q, 0, 2}]]],
+     qTestEqual[Normal[inv], (y - 1)/(n - 1) - (n - 2) (n + 1) (y - 1)^2/(2 (n - 1)^3), Element[n, Integers] && n >= 5]}],
+  {True, 0, 1 + q + 2 q^2 + 3 q^3 + 5 q^4, 0, True} /. q -> _Symbol, SameTest -> MatchQ,
+  TestID -> "q-special-symbolic-product-lengths-near-base-zero-use-the-stable-coefficients"]
+
+VerificationTest[
+  Module[{n, q, capped, bounded, unbounded},
+    unbounded = AsymptoticExpansion[QFactorial[n, q], {q, 0, 3}, Assumptions -> Element[n, Integers]];
+    capped = AsymptoticExpansion[QFactorial[n, q], {q, 0, 4}, Assumptions -> Element[n, Integers] && n >= 2];
+    bounded = AsymptoticExpansion[QFactorial[n, q], {q, 0, 2}, Assumptions -> Element[n, Integers] && n >= 2];
+    (* the coefficient of q^r is stable once n >= r: n >= 2 proves two orders and no more *)
+    {unbounded[[1]], capped[[1]], capped[[2]]["Reached"], bounded["Terms"]}],
+  {"UnsupportedQArgument", "InsufficientOrder", 3, {{0, 1}, {1, -1 + n}}} /. n -> _Symbol, SameTest -> MatchQ,
+  TestID -> "q-special-symbolic-length-orders-are-limited-by-the-proved-length-bound"]
+
+(* --- double scaling q = Exp[-tau/n], k = alpha n: Gaussian coefficient calculus "Uniform all-order logarithmic expansion" --- *)
+VerificationTest[
+  Module[{n, a, t, y, s, sl, sf, inv, h, hd, S, C1, nn = 400, y0},
+    h[tau_, x_] := Log[(1 - Exp[-tau x])/(tau x)];
+    hd[tau_, x_] := tau Exp[-tau x]/(1 - Exp[-tau x]) - 1/x;
+    S[tau_, al_] := (PolyLog[2, Exp[-tau]] - PolyLog[2, Exp[-tau al]] - PolyLog[2, Exp[-tau (1 - al)]] + Pi^2/6)/tau;
+    C1 = BernoulliB[2]/2 (1 - 2 - 2) + BernoulliB[2]/2 (hd[2, 1] - 2 hd[2, 1/2] - 1);
+    s = AsymptoticExpansion[QBinomial[n, n/2, Exp[-2/n]], {n, Infinity, 3}];
+    sl = AsymptoticExpansion[Log[QBinomial[n, a n, Exp[-t/n]]], {n, Infinity, 4}, Assumptions -> 0 < a < 1 && t > 0];
+    sf = AsymptoticExpansion[QFactorial[n, Exp[-2/n]], {n, Infinity, 2}];
+    inv = AsymptoticInverse[QBinomial[n, n/2, Exp[-2/n]], {n, Infinity}, {y, 2}];
+    y0 = N[QBinomial[nn, nn/2, Exp[-2/nn]], 60];
+    {s["Scale"], s["ExpansionNature"],
+     qTestEqual[s["Prefactor"], Exp[n S[2, 1/2]] Sqrt[2 (1 - Exp[-2])/(2 Pi n (1 - Exp[-1])^2)], n > 0],
+     qTestTerms[s, {{0, 1}, {1, C1}, {2, C1^2/2}}],
+     TrueQ[Abs[N[(Normal[s] /. n -> nn)/QBinomial[nn, nn/2, Exp[-2/nn]] - 1, 30]] < 10^-8],
+     sl["Kind"], qTestEqual[sl["Terms"][[1, 2]], S[t, a], 0 < a < 1 && t > 0], sl["Terms"][[1, 1]],
+     TrueQ[Abs[N[(Normal[sl] /. {n -> nn, a -> 1/4, t -> 3}) - Log[QBinomial[nn, nn/4, Exp[-3/nn]]], 30]] < 10^-10],
+     TrueQ[Abs[N[(Normal[sf] /. n -> nn)/QFactorial[nn, Exp[-2/nn]] - 1, 30]] < 10^-7],
+     inv["CoordinateKind"], TrueQ[Abs[N[Normal[inv] /. y -> y0, 30] - nn] < 10^-3]}],
+  {"Factored", "Poincare", True, True, True, "Forward", True, -1, True, True, "TargetLog", True},
+  TestID -> "q-special-double-scaling-gaussian-binomial-and-q-factorial-euler-maclaurin-expansions-and-inverse"]
