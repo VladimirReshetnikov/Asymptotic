@@ -1260,11 +1260,12 @@ deleted module, a module with a syntax error), a time-constrained load, a
 load from a stale private context, and an ordinary reload.
 [CheckLoadingLifecycle.wl](CheckLoadingLifecycle.wl) runs them with the
 package-identity, native, object, formatting, request-resolution and
-proof-context suites (eight files, 103 cases); the receipt is recorded in
-[loading-lifecycle-tests.json](loading-lifecycle-tests.json) once a batch
-seat is free. In the Wolfram MCP evaluator, whose caller context is a
-session context rather than `` Global` ``, the six lifecycle cases pass and
-only the pre-existing package-identity case that pins `` Global` `` differs.
+proof-context suites (eight files) and passes **103/103** on Wolfram 15.0.1
+for Windows with unchanged sources
+([loading-lifecycle-tests.json](loading-lifecycle-tests.json)). In the
+Wolfram MCP evaluator, whose caller context is a session context rather
+than `` Global` ``, the six lifecycle cases also pass and only the
+pre-existing package-identity case that pins `` Global` `` differs.
 On Mathics, the portable cases `loading-interrupted-module-restores-caller-state`
 (an `Abort[]` in a companion module of a damaged copy of the modular tree
 restores the caller's state, and the real package reloads; the standalone
