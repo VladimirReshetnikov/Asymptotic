@@ -379,6 +379,7 @@ semantics and current coverage gaps.
 | `"RemainderContract"` | `"NativeFormalOrder"` for Series, `"NativeAsymptotic"` for Asymptotic. |
 | `"NativeEvaluationStatus"` | Structural classification of the result outside `Hold`-family wrappers, in priority order: `"Aborted"` if `$Aborted` occurs; `"Failed"` if `$Failed` or a `Failure` occurs; `"Unresolved"` if a native Series/Asymptotic call with a specification remains; `"Nonfinite"` if the value, a term, factor, series coefficient or list entry is an infinity or `Indeterminate`; otherwise `"Computed"`. This is not a theorem that the requested expansion is complete or correct. |
 | `"NativeRequest"`, `"OriginalArguments"` | Held delegated call and held original argument record. They preserve provenance; they are not instructions to evaluate the request again during inspection. |
+| `"SourceCondition"` | For a native result whose source was one top-level `ConditionalExpression`, the condition that was added to the native assumptions; `None` otherwise. |
 | `"ExpansionSpecifications"` | Recognized specifications retained in held form. |
 | `"Variable"` | The unique recognized expansion variable, or `Missing["MultipleOrUnresolvedVariables"]`. In the latter case numerical application returns `Failure["NativeVariables", ...]`; substitute explicitly into `Normal[s]` or `"NativeResult"`. |
 | `"AmbientAssumptions"` | Captured ambient assumption context used for delegation. It is separate from the missing package analytic `"Assumptions"` contract. |

@@ -21,90 +21,90 @@
 	"SuiteResults":[
 		{
 			"Suite":"ReviewRequestResolution.wlt",
-			"Succeeded":5,
+			"Succeeded":6,
 			"Failed":0,
-			"Seconds":0.3185228
+			"Seconds":0.429933
 		},
 		{
 			"Suite":"NativeAutomatic.wlt",
 			"Succeeded":35,
 			"Failed":0,
-			"Seconds":1.2105548
+			"Seconds":1.2571506
 		},
 		{
 			"Suite":"NativeRuleGoals.wlt",
 			"Succeeded":15,
 			"Failed":0,
-			"Seconds":0.2178856
+			"Seconds":0.2225717
 		},
 		{
 			"Suite":"NativeContracts.wlt",
 			"Succeeded":15,
 			"Failed":0,
-			"Seconds":0.2448096
+			"Seconds":0.1566936
 		},
 		{
 			"Suite":"NativeSearch.wlt",
 			"Succeeded":16,
 			"Failed":0,
-			"Seconds":0.1659131
+			"Seconds":0.1521719
 		},
 		{
 			"Suite":"NativeCompatibility.wlt",
 			"Succeeded":33,
 			"Failed":0,
-			"Seconds":0.3739579
+			"Seconds":0.3942724
 		},
 		{
 			"Suite":"NativeSpecialIngress.wlt",
 			"Succeeded":9,
 			"Failed":0,
-			"Seconds":1.35539658e1
+			"Seconds":1.70295757e1
 		},
 		{
 			"Suite":"NativePresentation.wlt",
 			"Succeeded":7,
 			"Failed":0,
-			"Seconds":9.44724e-2
+			"Seconds":0.1023512
 		},
 		{
 			"Suite":"ReviewObservableIngress.wlt",
 			"Succeeded":29,
 			"Failed":0,
-			"Seconds":2.4756247
+			"Seconds":1.94546
 		},
 		{
 			"Suite":"ReviewAssumptions.wlt",
 			"Succeeded":17,
 			"Failed":0,
-			"Seconds":1.8675619
+			"Seconds":1.4538777
 		},
 		{
 			"Suite":"RefinementRegressions.wlt",
 			"Succeeded":21,
 			"Failed":0,
-			"Seconds":4.9333313
+			"Seconds":4.0731432
 		},
 		{
 			"Suite":"SeriesOperations.wlt",
 			"Succeeded":29,
 			"Failed":0,
-			"Seconds":1.162794
+			"Seconds":1.235068
 		},
 		{
 			"Suite":"ReviewCompositionScope.wlt",
 			"Succeeded":20,
 			"Failed":0,
-			"Seconds":1.6378832
+			"Seconds":1.4812548
 		},
 		{
 			"Suite":"InverseFunctionExpressions.wlt",
 			"Succeeded":27,
 			"Failed":0,
-			"Seconds":1.61922135e1
+			"Seconds":2.62232422e1
 		}
 	],
-	"Succeeded":278,
+	"Succeeded":279,
 	"Failed":0,
 	"Results":[
 		{
@@ -130,6 +130,11 @@
 		{
 			"Suite":"ReviewRequestResolution.wlt",
 			"TestID":"native-evaluation-status-ignores-held-data-and-labels-nonfinite-values",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewRequestResolution.wlt",
+			"TestID":"a-top-level-conditioned-source-delegates-natively-with-its-condition-recorded",
 			"Outcome":"Success"
 		},
 		{
@@ -1542,7 +1547,7 @@
 		"src\/Kernel\/MathicsSpecialFunctions.wl":"78ab28f9dcf8f87f2a22413ebc263788552333a91f485c2edc2e126a1030383b",
 		"src\/Kernel\/MathicsTaylor.wl":"209b6d3af70b867780e9d214b3cf2adf5ecda8b5090933cce2f1d7a7e3abd49d",
 		"src\/Kernel\/MathicsTimeBudget.wl":"779416eb1646b55fb77ac7210de37b177916bcdcdf1f74c666ba02cd40c4a98f",
-		"src\/Kernel\/NativeCompatibility.wl":"6f8a276cf4ad21e62866d2360cf4b7db297ae14b92c16ab054995e434941a9f5",
+		"src\/Kernel\/NativeCompatibility.wl":"df262db2fe1de332fa96845e5cda5be302fc0d8efcde50810fb221b155f43e93",
 		"src\/Kernel\/NativeSpecialFunctions.wl":"7292639d9b1c6a37482deee38d054ddd40c7a7b1d39474a3410ea2c96fefb012",
 		"src\/Kernel\/NumericalInverseChecks.wl":"c04427b0d30cab4e988e755dbe4a2a3a773f898acb2283f85e19c308326a1d38",
 		"src\/Kernel\/ParameterizedSpecialFunctions.wl":"19370b301debf8107b96e356b00bc06a6c4bf04ee7aa9bab3060fff822afa204",
@@ -1556,7 +1561,7 @@
 		"src\/Kernel\/SpecialFunctionAdapters.wl":"41e95ad2af0f2d0a68fed8edaec65f42c4262efc0a68481cff760e8ce28192cf",
 		"src\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
 		"src\/Kernel\/SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c",
-		"src\/Tests\/ReviewRequestResolution.wlt":"44aed556341c138fc7e050f674781fe86ecb934f02411c501df8e7fa92db1917",
+		"src\/Tests\/ReviewRequestResolution.wlt":"8a72ce82e55dd042fcc9e911d09f40355415ea522eb82e2a37cf4448adb510ec",
 		"src\/Tests\/NativeAutomatic.wlt":"e331bd48d4b5091d72b40ec2a92b48b466a00b93a4aadf00e28c30a01619e0fe",
 		"src\/Tests\/NativeRuleGoals.wlt":"70ac923e9f4db04a7dec8adc1a23a3e91771f6cdbd19d2bca9bd993cf4ffdccf",
 		"src\/Tests\/NativeContracts.wlt":"fa94d4149bebb9fc5bb4cac4befb46ca2ef2dd5f60cb2c79148d7c3da0888c5c",

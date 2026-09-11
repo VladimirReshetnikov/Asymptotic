@@ -90,3 +90,24 @@ VerificationTest[
    infiniteSum["NativeEvaluationStatus"], ! FreeQ[infiniteSum["NativeResult"], Infinity]}],
  {"Computed", True, "Nonfinite", -Infinity, "Unresolved", "Computed", "Computed", True},
  TestID -> "native-evaluation-status-ignores-held-data-and-labels-nonfinite-values"]
+
+(* W3-09: a source that is one top-level ConditionalExpression may be
+   delegated natively with its condition added to the native assumptions and
+   recorded as "SourceCondition"; the package path keeps its own conditioned
+   contract, and a condition nested inside the source stays protected. *)
+VerificationTest[
+ Module[{x, a, automatic, package, explicit, parameter, nested},
+  automatic = AsymptoticExpansion[ConditionalExpression[Exp[I x], x > 0], {x, 0, 3}];
+  package = AsymptoticExpansion[ConditionalExpression[Log[1 + x], -1 < x < 1], {x, 0, 3}];
+  explicit = AsymptoticExpansion[ConditionalExpression[Exp[I x], x > 0], {x, 0, 3}, "Backend" -> "Series"];
+  parameter = AsymptoticExpansion[ConditionalExpression[Sqrt[a^2] Exp[I x], a > 0], {x, 0, 2}];
+  nested = AsymptoticExpansion[Exp[I x] + ConditionalExpression[1, x > 0], {x, 0, 3}];
+  {automatic["Kind"], automatic["SourceCondition"] === (x > 0), automatic["BackendSelectionReason"],
+   Simplify[Normal[automatic] - (1 + I x - x^2/2 - (I/6) x^3)] === 0,
+   package["Kind"], package["TargetDomain"] === (-1 < x < 1 && x > 0), KeyExistsQ[package[[1]], "SourceCondition"],
+   explicit["Kind"], explicit["SourceCondition"] === (x > 0), Simplify[Normal[explicit] - (1 + I x - x^2/2 - (I/6) x^3)] === 0,
+   parameter["Kind"], parameter["SourceCondition"] === (a > 0), Simplify[Normal[parameter] - a (1 + I x - x^2/2)] === 0,
+   Head[nested], nested[[1]]}],
+ {"Native", True, "PackageRepresentation", True, "Forward", True, False,
+  "Native", True, True, "Native", True, True, Failure, "InexactInput"},
+ TestID -> "a-top-level-conditioned-source-delegates-natively-with-its-condition-recorded"]

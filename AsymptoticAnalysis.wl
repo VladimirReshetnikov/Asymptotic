@@ -9333,7 +9333,7 @@ specialFunctionForwardExpansion[f_, x_, x0_, cut_, ass_, coord_, goal_, limit_] 
 (* END SOURCE: src/Kernel/NativeSpecialFunctions.wl *)
 
 (* BEGIN SOURCE: src/Kernel/NativeCompatibility.wl
-   Source SHA256 (UTF-8/LF): 6f8a276cf4ad21e62866d2360cf4b7db297ae14b92c16ab054995e434941a9f5 *)
+   Source SHA256 (UTF-8/LF): df262db2fe1de332fa96845e5cda5be302fc0d8efcde50810fb221b155f43e93 *)
 (* Native delegation is a distinct result contract. Keep the complete native
    call held until it is released to the selected built-in. In particular,
    do not resolve native delayed options for a second metadata lookup. *)
@@ -9524,11 +9524,21 @@ packagePreparedExpansion[request_HoldComplete] := Module[{extra = nativeExclusiv
    evaluate, and must not block the native fallback (W3-03). Inverse,
    conditional and retained-object contracts are protected wherever they
    occur. *)
+(* A source that is one top-level ConditionalExpression is an ordinary
+   conditioned expression: its value may be delegated natively with the
+   condition added to the native assumptions and recorded as
+   "SourceCondition", so the complete condition survives the fallback
+   (W3-09). A condition nested inside the source, or inside an inverse or
+   callable contract, keeps the package path. *)
+nativeConditionedRequest[HoldComplete[ConditionalExpression[value_, condition_], rest___]] :=
+  {HoldComplete[value, rest], condition};
+nativeConditionedRequest[request_HoldComplete] := {request, None};
+nativeUnconditionedSource[held_HoldComplete] := First[nativeHeldArguments[First[nativeConditionedRequest[held]]]];
 automaticProtectedQ[request_HoldComplete, original_HoldComplete] :=
   MatchQ[First[nativeHeldArguments[original]], HoldComplete[_Function]] ||
   MatchQ[First[nativeHeldArguments[request]], HoldComplete[_Function | _forwardCallable]] ||
-  ! FreeQ[First[nativeHeldArguments[original]], _InverseFunction | _ConditionalExpression | _GeneralizedSeries | _PowerLogRemainder] ||
-  ! FreeQ[First[nativeHeldArguments[request]], _InverseFunction | _ConditionalExpression | _forwardCallable | _GeneralizedSeries | _PowerLogRemainder] ||
+  ! FreeQ[nativeUnconditionedSource[original], _InverseFunction | _ConditionalExpression | _GeneralizedSeries | _PowerLogRemainder] ||
+  ! FreeQ[nativeUnconditionedSource[request], _InverseFunction | _ConditionalExpression | _forwardCallable | _GeneralizedSeries | _PowerLogRemainder] ||
   Intersection[nativeRequestOptionKeys[request],
     {HoldComplete[Direction], HoldComplete["MaxTerms"], HoldComplete["InverseFunctionBranches"]}] =!= {};
 
@@ -9698,8 +9708,9 @@ automaticPreparedExpansion[request_HoldComplete, original_HoldComplete] := Modul
     If[MemberQ[keys, HoldComplete[SeriesTermGoal]], With[{g = goal}, {HoldComplete[SeriesTermGoal -> g]}], {}]]];
   automaticNativeResult[replay, original, "PackageRepresentation", result]];
 
-nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module[
-  {call, result, normal, parts, specifications, variables, variable, conflicts, ambient},
+nativeExpansion[request0_HoldComplete, backend_, original_HoldComplete] := Module[
+  {request, condition, call, result, normal, parts, specifications, variables, variable, conflicts, ambient},
+  {request, condition} = nativeConditionedRequest[request0];
   parts = nativeTailArguments[request];
   conflicts = Flatten[nativePackageOption /@ parts];
   If[conflicts =!= {}, Return[Failure["NativeOptionConflict", <|
@@ -9709,6 +9720,7 @@ nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module
     Replace[request, HoldComplete[args___] :> HoldComplete[System`Series[args]]],
     Replace[request, HoldComplete[args___] :> HoldComplete[System`Asymptotic[args]]]];
   ambient = If[TrueQ[$assumptionScopeActive], $entryAssumptions, $Assumptions];
+  If[condition =!= None, ambient = ambient && condition];
   result = Block[{$Assumptions = ambient}, ReleaseHold[call]];
   normal = Normal[result];
   specifications = Select[parts, nativeSpecificationQ];
@@ -9719,6 +9731,7 @@ nativeExpansion[request_HoldComplete, backend_, original_HoldComplete] := Module
     "Remainder" -> Missing["NativeContract"], "Exact" -> Missing["NotEstablished"],
     "RemainderContract" -> If[backend === "Series", "NativeFormalOrder", "NativeAsymptotic"],
     "NativeEvaluationStatus" -> nativeEvaluationStatus[result],
+    "SourceCondition" -> condition,
     "NativeRequest" -> call, "OriginalArguments" -> original,
     "ExpansionSpecifications" -> specifications, "Variable" -> variable,
     "AmbientAssumptions" -> ambient, "Assumptions" -> Missing["NativeContract"],

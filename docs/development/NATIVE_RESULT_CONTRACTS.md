@@ -61,6 +61,7 @@ as an established continuous-domain result.
 | `Assumptions` | `Missing["NativeContract"]`. |
 | `NativeEvaluationStatus` | `"Computed"`, `"Nonfinite"`, `"Unresolved"`, `"Failed"`, or `"Aborted"`, determined syntactically from the native output outside `Hold`-family wrappers; `"Unresolved"` requires a native call that still carries a specification, and `"Nonfinite"` marks an infinite or indeterminate value without treating it as a failure (W3-05). |
 | `NativeBackend`, `NativeKernelVersion`, `NativeSystemID` | Selected backend and producing runtime. |
+| `SourceCondition` | The condition of a source that was one top-level `ConditionalExpression`, added to the native assumptions and retained here; `None` otherwise (W3-09). |
 | `BackendSelection`, `BackendSelectionReason`, `OrderConvention` | Automatic native results record `Automatic`, their routing reason, and `"Native"` order semantics. |
 | `PackageFailure` | The representation failure leading to automatic fallback, or `None` for direct native routing. |
 | `NativeAttempts` | Automatic-only ordered records of each attempted backend, evaluation status, and actual held request. |
@@ -147,8 +148,10 @@ series/remainders, and explicit direction, branch and resource options on the
 package path. A `Function` is a callable-source contract only when it is the
 source itself; a function consumed inside the source (an applied identity,
 the defining function of a `Root` object) no longer blocks the native
-fallback (W3-03). Conditional-source protection excludes some otherwise
-native-supported complex requests (W3-09). These are known coverage obstacles,
+fallback (W3-03). A source that is one top-level `ConditionalExpression`
+delegates its value natively with the condition retained in
+`SourceCondition`; only nested conditions still keep the package path
+(W3-09). These are known coverage obstacles,
 not exceptions to the full-subsumption requirement. Its narrow failure
 classifier excludes malformed requests,
 domain/branch failures and resource exhaustion. Compatible second-backend

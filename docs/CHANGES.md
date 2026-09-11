@@ -31,7 +31,11 @@ an applied identity, no longer blocks the native fallback; only a source that
 is itself a pure function is a callable contract (W3-03). The native
 evaluation status ignores held data in the source, calls `"Unresolved"` only
 a native call that still carries a specification, and reports an infinite or
-indeterminate value as `"Nonfinite"` instead of `"Computed"` (W3-05).
+indeterminate value as `"Nonfinite"` instead of `"Computed"` (W3-05). A
+source that is one top-level `ConditionalExpression` is delegated natively
+with its condition added to the native assumptions and recorded as
+`"SourceCondition"` when the package refuses the representation, instead of
+being refused outright (W3-09).
 
 ### Coherent source snapshots in the portable runner
 

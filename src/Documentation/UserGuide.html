@@ -569,8 +569,12 @@ existing series/remainder objects, or an explicit direction, branch, or
 resource option keeps Automatic on the package path. A
 <code>Function</code> consumed inside the source, such as an applied
 identity or the defining function of a <code>Root</code> object, is
-ordinary data and does not block the native fallback. Conditioned
-complex native requests remain excluded.</td>
+ordinary data and does not block the native fallback. A source that is
+one top-level <code>ConditionalExpression</code> is an ordinary
+conditioned expression: the package path keeps its conditioned contract,
+and if the package refuses the representation the value is delegated
+natively with the condition added to the native assumptions and recorded
+as <code>&quot;SourceCondition&quot;</code>.</td>
 </tr>
 <tr>
 <td>Order and term goals</td>
@@ -853,6 +857,14 @@ remainder is asserted.</td>
 <td><code>&quot;NativeRequest&quot;</code></td>
 <td>Held call to the selected built-in function, with the wrapper&#39;s
 backend selector removed.</td>
+</tr>
+<tr>
+<td><code>&quot;SourceCondition&quot;</code></td>
+<td>The condition of a source that is one top-level
+<code>ConditionalExpression</code>, or <code>None</code>. The value
+alone is delegated; the condition is added to the native assumptions and
+kept here, so nothing of the request is discarded. It is not an
+approach-side proof.</td>
 </tr>
 <tr>
 <td><code>&quot;OriginalArguments&quot;</code></td>
