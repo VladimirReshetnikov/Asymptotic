@@ -10,9 +10,12 @@ VerificationTest[
   t = SeriesMultiply[SeriesAdd[s, -1], x^-4];
   vanishing = SeriesMultiply[SeriesAdd[s, -1], x^2];
   sine = Sin[t]; cosine = Cos[t]; modulus = Abs[t];
-  {t["Remainder"] === PowerLogRemainder[x, -2, 0], sine[[1]], sine[[2]]["EnvelopeLimit"], cosine[[1]],
-   MatchQ[modulus, _GeneralizedSeries], modulus["Remainder"] === PowerLogRemainder[x, -2, 0],
-   MatchQ[Sin[vanishing], _GeneralizedSeries], Sin[vanishing]["Remainder"] === PowerLogRemainder[x, 4, 0],
+  (* Trimmed integer powers (P01) make x^3 at working cutoff 2 a pure O(x^3)
+     remainder, so s - 1 = O(x^3): t is O(x^-1) and the vanishing product O(x^5),
+     one power sharper than the O(x^2) the untrimmed engine reported. *)
+  {t["Remainder"] === PowerLogRemainder[x, -1, 0], sine[[1]], sine[[2]]["EnvelopeLimit"], cosine[[1]],
+   MatchQ[modulus, _GeneralizedSeries], modulus["Remainder"] === PowerLogRemainder[x, -1, 0],
+   MatchQ[Sin[vanishing], _GeneralizedSeries], Sin[vanishing]["Remainder"] === PowerLogRemainder[x, 5, 0],
    MatchQ[Sin[AsymptoticExpansion[x, {x, 0, 3}, "Backend" -> "Package"]], _GeneralizedSeries]}],
  {True, "UnprovedRealRemainder", Infinity, "UnprovedRealRemainder", True, True, True, True, True},
  TestID -> "composite-sine-and-cosine-require-a-vanishing-envelope-when-the-omitted-tail-may-be-complex"]
@@ -122,3 +125,21 @@ VerificationTest[
      "EnclosureOrder" -> 2, "MaxRefinements" -> 0], -d]}],
  {{True, True, True, 2, 0}, {True, True, True, 2, 0}, {True, True, True, 2, 0}},
  TestID -> "certificate-logarithmic-witnesses-certify-at-the-lowest-order-without-refinement"]
+
+(* Report 64 N01 restates the component-validation defect of 59 N01 / 60 N01
+   with an all-depth witness whose sum is exactly 1/x while the marker
+   approximations alternate, and a family with a vanishing perturbation
+   ratio; both are refused, the fixed-data controls are retained and an
+   inexact operand keeps its own refusal. *)
+VerificationTest[
+ Module[{x, y, moving, small, positive, negative, zero, inexact},
+  moving = Table[AsymptoticCoreInverse[1/x + Abs[y]/2, -Abs[y]/2, {x, 0}, {y, n}], {n, 0, 3}];
+  small = AsymptoticCoreInverse[1/x + Sqrt[Abs[y]], -Sqrt[Abs[y]], {x, 0}, {y, 2}];
+  positive = AsymptoticCoreInverse[1/x + 2, -2, {x, 0}, {y, 2}];
+  negative = AsymptoticCoreInverse[1/x - 2, 2, {x, 0}, {y, 2}];
+  zero = AsymptoticCoreInverse[1/x, 0, {x, 0}, {y, 2}];
+  inexact = AsymptoticCoreInverse[1/x + 0.5, -0.5, {x, 0}, {y, 2}];
+  {Union[First /@ moving], small[[1]], Head[positive], Simplify[Normal[positive] - (1/(y - 2) - 2/(y - 2)^2 + 4/(y - 2)^3)] === 0,
+   Head[negative], Normal[zero] === 1/y, zero["Remainder"], inexact[[1]]}],
+ {{"InvalidVariables"}, "InvalidVariables", GeneralizedSeries, True, GeneralizedSeries, True, 0, "InexactInput"},
+ TestID -> "core-inverse-refuses-cancelling-target-dependent-operands-at-every-depth"]

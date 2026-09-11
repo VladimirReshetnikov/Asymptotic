@@ -1157,9 +1157,15 @@ platform-conditional statement that the Windows host cannot exercise.
 ## Wave-7 contract repairs
 
 The [twelve-file run](wave7-contract-tests.json) from
-[CheckWave7Contracts.wl](CheckWave7Contracts.wl) passes **245/245** on
+[CheckWave7Contracts.wl](CheckWave7Contracts.wl) passes **246/246** on
 Wolfram 15.0.1 for Windows with unchanged sources; the two certificate suites
-joined the runner with report 63. Its eight new cases in
+joined the runner with report 63, and report 64's all-depth `1/x + Abs[y]/2`
+witness, vanishing-ratio family, fixed-data controls and inexact-operand
+refusal are pinned in the ninth case. The rerun after the trimmed integer
+powers (P01) pins one power sharper remainders in the sine/cosine envelope
+case: `1/(1 - a x^3)` at cutoff 1 now carries `O(x^3)` instead of the
+untrimmed engine's conservative `O(x^2)`, so the reflected operand is
+`O(x^-1)` and the vanishing product `O(x^5)`. Its nine new cases in
 [ReviewWave7Contracts.wlt](../src/Tests/ReviewWave7Contracts.wlt) pin report
 63's certificate logarithm (the point logarithm of `1 - 2^-200` at order 2
 and 48 bits is negative with relative width below `2^-44`, the exact affine

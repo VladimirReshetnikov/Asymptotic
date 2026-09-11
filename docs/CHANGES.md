@@ -115,7 +115,7 @@ rounded interval, so `Log[1 - 2^-200]` and `Log[1 + 2^-200]` certificates at
 enclosure order 2 succeed instead of failing with
 `ResidualBracketOutsideInterval`. See
 the [implementation register](development/CODE_REVIEW_STATUS.md) (wave-7
-reports 56–63, C22, wave-5 reports 39 N02 and 42 N02).
+reports 56–64, C22, wave-5 reports 39 N02 and 42 N02).
 
 ### Modulus of nonreal expansions
 

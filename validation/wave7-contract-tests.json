@@ -19,78 +19,78 @@
 	"SuiteResults":[
 		{
 			"Suite":"ReviewWave7Contracts.wlt",
-			"Succeeded":8,
+			"Succeeded":9,
 			"Failed":0,
-			"Seconds":1.5509419
+			"Seconds":0.6811441
 		},
 		{
 			"Suite":"SeriesEnvelopeArithmetic.wlt",
 			"Succeeded":17,
 			"Failed":0,
-			"Seconds":3.1705368
+			"Seconds":0.3931187
 		},
 		{
 			"Suite":"SeriesEnvelopeFunctions.wlt",
 			"Succeeded":11,
 			"Failed":0,
-			"Seconds":2.6398283
+			"Seconds":0.5760373
 		},
 		{
 			"Suite":"EnvelopeRefactoring.wlt",
 			"Succeeded":5,
 			"Failed":0,
-			"Seconds":5.87252e-2
+			"Seconds":5.2459e-2
 		},
 		{
 			"Suite":"CorePerturbation.wlt",
 			"Succeeded":39,
 			"Failed":0,
-			"Seconds":0.6858705
+			"Seconds":0.4248486
 		},
 		{
 			"Suite":"CoreRefactoring.wlt",
 			"Succeeded":6,
 			"Failed":0,
-			"Seconds":0.4578279
+			"Seconds":0.265052
 		},
 		{
 			"Suite":"SpecialFunctionRegressions.wlt",
 			"Succeeded":23,
 			"Failed":0,
-			"Seconds":9.1968459
+			"Seconds":3.7899703
 		},
 		{
 			"Suite":"InverseFunctionExpressions.wlt",
 			"Succeeded":27,
 			"Failed":0,
-			"Seconds":2.75375553e1
+			"Seconds":1.46601e1
 		},
 		{
 			"Suite":"ReviewObservableIngress.wlt",
 			"Succeeded":29,
 			"Failed":0,
-			"Seconds":3.1965827
+			"Seconds":1.3380427
 		},
 		{
 			"Suite":"SeriesOperations.wlt",
 			"Succeeded":29,
 			"Failed":0,
-			"Seconds":1.7643018
+			"Seconds":0.8587865
 		},
 		{
 			"Suite":"CertificateRegressions.wlt",
 			"Succeeded":42,
 			"Failed":0,
-			"Seconds":2.1664652
+			"Seconds":1.005385
 		},
 		{
 			"Suite":"AcceptanceCertificates.wlt",
 			"Succeeded":9,
 			"Failed":0,
-			"Seconds":9.92488152e1
+			"Seconds":3.82699268e1
 		}
 	],
-	"Succeeded":245,
+	"Succeeded":246,
 	"Failed":0,
 	"Results":[
 		{
@@ -131,6 +131,11 @@
 		{
 			"Suite":"ReviewWave7Contracts.wlt",
 			"TestID":"certificate-logarithmic-witnesses-certify-at-the-lowest-order-without-refinement",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"ReviewWave7Contracts.wlt",
+			"TestID":"core-inverse-refuses-cancelling-target-dependent-operands-at-every-depth",
 			"Outcome":"Success"
 		},
 		{
@@ -1321,7 +1326,7 @@
 	],
 	"SourcesUnchangedDuringRun":true,
 	"TestedSourceSHA256":{
-		"src\/Kernel\/AsymptoticAnalysis.wl":"c4101675a4d7626fd25eea21edafb87fda251dada10030847ad7c6fc9171d788",
+		"src\/Kernel\/AsymptoticAnalysis.wl":"ad350baae6a0be7421dab866f6eb2e79deb0056c8f567f5e5f3581db7e8716ba",
 		"src\/Kernel\/BarnesForward.wl":"036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479",
 		"src\/Kernel\/BarnesInverseChecks.wl":"70de0268030051fefa1c9c323036488936a84fd309689c22abea51f179b0f6f0",
 		"src\/Kernel\/BarnesInverse.wl":"56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
@@ -1355,13 +1360,13 @@
 		"src\/Kernel\/MathicsCoreFunctions.wl":"7d1a26186c367ba43146b4af0504ead6eb7d8a3a8f6bc05c0fd5c59c170d3337",
 		"src\/Kernel\/MathicsFormatting.wl":"c0fe6dc19f67df7c3cae5f2f4f972acb0392472423b4103af0b3ec422a95df2c",
 		"src\/Kernel\/MathicsInputAssumptions.wl":"77facd132248995eaa63ea48956d2b3a288db38c43651b18009379a5e3111aad",
-		"src\/Kernel\/MathicsInverseBranches.wl":"79ecef295c917a8a53c809b49e181f718811c9fe481693b440f3ca942d4ce022",
+		"src\/Kernel\/MathicsInverseBranches.wl":"117bbe908b1381177e96f7d39427d78493888e812d635fc16dc4f05856133fc8",
 		"src\/Kernel\/MathicsLists.wl":"523f9e8af7cdc30bd9897d69e379ddbe0b4d01a91193e78d5a76304d16cd7da0",
 		"src\/Kernel\/MathicsNumerical.wl":"fbe5ebfb58863ca9d9e83229c4f05349a76aac299297246f48fd2b42a38bff34",
 		"src\/Kernel\/MathicsRefinement.wl":"1f02dff6cad0e3c3d78d747daaac3fd950b82cb7a19f310c3bbf7dd3ca2b5551",
 		"src\/Kernel\/MathicsSimplification.wl":"181a2b74e661717c11161307736fae98b28bed04150ba9cd91a408a404cd704f",
 		"src\/Kernel\/MathicsSpecialFunctions.wl":"78ab28f9dcf8f87f2a22413ebc263788552333a91f485c2edc2e126a1030383b",
-		"src\/Kernel\/MathicsTaylor.wl":"e6324cb1e8cf5718e2bf160d26f6a6cae5b06ef16a4a5bc88aae97bc08068631",
+		"src\/Kernel\/MathicsTaylor.wl":"209b6d3af70b867780e9d214b3cf2adf5ecda8b5090933cce2f1d7a7e3abd49d",
 		"src\/Kernel\/MathicsTimeBudget.wl":"779416eb1646b55fb77ac7210de37b177916bcdcdf1f74c666ba02cd40c4a98f",
 		"src\/Kernel\/NativeCompatibility.wl":"b4d385be5f39b86e174f58a59d53133f63dd90651f9b34fcd5e14f5058e6a3e9",
 		"src\/Kernel\/NativeSpecialFunctions.wl":"7292639d9b1c6a37482deee38d054ddd40c7a7b1d39474a3410ea2c96fefb012",
@@ -1370,14 +1375,14 @@
 		"src\/Kernel\/ReciprocalLogOperations.wl":"68a6c6a1aee21c0ababaadd221de24e16e87cb15be17a91ffb0b527cfa8a1af3",
 		"src\/Kernel\/RefinementRequests.wl":"d07fd2048c224b6a147f0b3e9a8b913527b337174c52363018b83fd11bd9b41c",
 		"src\/Kernel\/RefinementState.wl":"57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
-		"src\/Kernel\/SeriesArithmetic.wl":"642401b840307a543801b5d121b26dac9c22e5daf1f756c74c840103625b73ef",
+		"src\/Kernel\/SeriesArithmetic.wl":"9fe5a8f9ce9188c81135a6a418db4ca338a0b762d56a1f1e047d0eba0b69a8bb",
 		"src\/Kernel\/SeriesEnvelopeArithmetic.wl":"c0b233dd0e3502aed2bd4243299c5cd5a73fb256a62ffd83b08e1af3fd74edc8",
-		"src\/Kernel\/SeriesOperations.wl":"d31b798796b87a6f06921dec392d9fbf6812b61544b29bb57fafe27af1bc56ca",
+		"src\/Kernel\/SeriesOperations.wl":"4b5b30c57328a2747d36cf0a7bdcb3bfa6877486ae71922ff7ea1c691eb4c05b",
 		"src\/Kernel\/SourceCoordinates.wl":"92758cbbc06e63a99035735ee029074bda86e62414bf9c85a92ed6398e4478f0",
 		"src\/Kernel\/SpecialFunctionAdapters.wl":"41e95ad2af0f2d0a68fed8edaec65f42c4262efc0a68481cff760e8ce28192cf",
 		"src\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
 		"src\/Kernel\/SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c",
-		"src\/Tests\/ReviewWave7Contracts.wlt":"90e5c3060f2010ead69eff2275c217813be38d4f42cb2187d7f4e2827e77764e",
+		"src\/Tests\/ReviewWave7Contracts.wlt":"0ade2de1497606280a6f4ee48df458cb091fe63380e3925e00607eaf1d7cc59e",
 		"src\/Tests\/SeriesEnvelopeArithmetic.wlt":"6f493a36c688a167ec0d3ec1bf3b2584ccef3735a075017985e64842c3062ed6",
 		"src\/Tests\/SeriesEnvelopeFunctions.wlt":"c9b9e0ebc46ae6b1d19fd3f70c31403223b4cfdb38d93bce9a312f6413ab57cd",
 		"src\/Tests\/EnvelopeRefactoring.wlt":"c348f976fc2feb14e39ea1a0f812653830c43a87f0fb7104eb53f187b29eb9b4",
