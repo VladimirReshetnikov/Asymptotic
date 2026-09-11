@@ -1049,6 +1049,30 @@ special-ingress, presentation, observable, assumption, refinement,
 operation, composition-scope and inverse-function suites that share the
 held entry. No full package suite was run.
 
+The Mathics `primitive`, `operations` and `callable` groups were rerun after
+the request-resolution change on both layouts:
+[modular](mathics-modular-wave7-resolution-tests.json) and
+[standalone](mathics-standalone-wave7-resolution-tests.json) each record
+**43/44** with unchanged executed sources (kernel edits made during the runs
+are reported as `LiveSourcesChangedDuringRun` and did not reach the frozen
+copies). The one non-success in each is
+`operations-newton-inverse-and-retained-refinement`, which reached the
+900-second deadline while the machine also ran the other layout, a Wolfram
+batch and this session's profiling kernels. It is not a regression: a
+controlled comparison ran the case on the kernel of commit `b1b9854`, before
+this session's refinement, proof-context and request-resolution changes, and
+on the current kernel at the same time under the same load, and the last
+refinement took 793 s on the old kernel against 803 s on the new one (the
+inverse, first refinement and residual differed by under three percent as
+well); alone, the current kernel completes the whole case in about 880 s.
+Rerun on its own with an 1800-second deadline, the case passes on both
+layouts: [modular](mathics-modular-wave7-newton-refinement-tests.json) in
+1158 s and [standalone](mathics-standalone-wave7-newton-refinement-tests.json)
+in 1113 s. The earlier operations receipts recorded 520 s for the same case
+on a quieter machine; under Mathics its cost is the Newton coefficient work
+itself, and the deadline for a full `operations` run on a shared machine
+should be 1800 s.
+
 ## Coherent source snapshots in the portable runner
 
 [run_mathics_tests.py](run_mathics_tests.py) freezes the package closure as
@@ -1149,7 +1173,10 @@ expansion with remainder power `11/3`, where both were refused as
 `UnprovedInverseRealDomain` before; `b t + t^3` without assumptions is still
 refused. The portable cases `callable-parametric-polynomial-inverse-domain`
 (both kernels) and `primitive-polynomial-domain-proof-with-assumptions`
-(Mathics only) pin the public path and the predicate.
+(Mathics only) pin the public path and the predicate; both pass in the
+[modular](mathics-modular-wave7-loading-tests.json) and
+[standalone](mathics-standalone-wave7-loading-tests.json) loading receipts
+(**11/11** each on Mathics 10.0.1 with unchanged sources).
 
 ## Mathics adapter postconditions (W4-15)
 
@@ -1161,11 +1188,13 @@ wrappers and the package-wide `Map` sweep) and records whether each was
 installed as intended in ``AsymptoticAnalysis`Mathics`$adapterPostconditions``;
 a violated postcondition abandons the load with
 `AsymptoticExpansion::adapter`. The portable `loading` group gains
-`loading-adapter-postconditions` (the seven checks all hold on both layouts)
+`loading-adapter-postconditions` (the six checks all hold on both layouts)
 and `primitive-adapter-postcondition-detects-residual-target` (the predicate
 rejects a miniature definition still using `System`Map` and an undefined
 symbol, and accepts the definition once rewritten); both report
-`MathicsOnly` in the official kernel, where no adapter is installed.
+`MathicsOnly` in the official kernel, where no adapter is installed. Both
+pass in the [modular](mathics-modular-wave7-loading-tests.json) and
+[standalone](mathics-standalone-wave7-loading-tests.json) loading receipts.
 
 ## Loading lifecycle: interrupted and failed loads (W4-17)
 
@@ -1191,6 +1220,16 @@ proof-context suites (eight files, 103 cases); the receipt is recorded in
 seat is free. In the Wolfram MCP evaluator, whose caller context is a
 session context rather than `` Global` ``, the six lifecycle cases pass and
 only the pre-existing package-identity case that pins `` Global` `` differs.
+On Mathics, the portable cases `loading-interrupted-module-restores-caller-state`
+(an `Abort[]` in a companion module of a damaged copy of the modular tree
+restores the caller's state, and the real package reloads; the standalone
+reports `NoModuleBoundary`) and `loading-stale-context-recovery` (a load
+started in ``AsymptoticAnalysis`Private` `` returns to `` Global` `` with
+the package first on the search path) pass in the
+[modular](mathics-modular-wave7-loading-tests.json) and
+[standalone](mathics-standalone-wave7-loading-tests.json) loading receipts
+(**11/11** each: the five earlier loading cases, these two, the two W4-15
+cases and the two W4-03 cases).
 
 ## Bounded kernel output in the portable runner (W4-13)
 

@@ -1,0 +1,172 @@
+{
+  "Runtime": "Mathics",
+  "Command": [
+    "C:\\Asymptotic\\.venv\\mathics\\Scripts\\python.exe",
+    "-m",
+    "mathics",
+    "--quiet",
+    "--no-readline",
+    "--file",
+    "C:\\Asymptotic\\.claude\\worktrees\\code-review-fixes-c7a47c\\validation\\MathicsTests.wl"
+  ],
+  "UTC": "2026-09-11T04:27:12.847742+00:00",
+  "Source": "C:\\Asymptotic\\.claude\\worktrees\\code-review-fixes-c7a47c\\AsymptoticAnalysis.wl",
+  "PerCaseTimeoutSeconds": 900.0,
+  "MaxOutputBytesPerCase": 4000000,
+  "FreshKernelPerCase": true,
+  "MathicsIterationLimitConfiguredBySuite": 1000000,
+  "FullPackageSuiteRun": false,
+  "RunComplete": true,
+  "Selected": 11,
+  "TestSuiteSnapshotSHA256": "09a41339c22d6b3417d3335f784cf9fa873c4b46525488c8f1981d59ab9ea04f",
+  "Executed": 11,
+  "Succeeded": 11,
+  "Failed": 0,
+  "NotRun": 0,
+  "SourcesUnchangedDuringRun": true,
+  "TestedSourcesSHA256": {
+    "AsymptoticAnalysis.wl": "b5eadbfe320beb1d796ab3a1e684171d215d2c550ef23ae3bb3796bb1ec0092c",
+    "validation/MathicsTests.wl": "09a41339c22d6b3417d3335f784cf9fa873c4b46525488c8f1981d59ab9ea04f",
+    "validation/run_mathics_tests.py": "8a7cfccfe69e989b47fc040d51e465172dc5ff4fcafab932d045db5eabe0094d"
+  },
+  "SourceSnapshot": true,
+  "ExecutedSource": "C:\\Users\\vresh\\AppData\\Local\\Temp\\asymptotic-portable-ucm4voog\\source\\AsymptoticAnalysis.wl",
+  "ExecutedSourcesSHA256": {
+    "AsymptoticAnalysis.wl": "b5eadbfe320beb1d796ab3a1e684171d215d2c550ef23ae3bb3796bb1ec0092c"
+  },
+  "LiveSourcesChangedDuringRun": false,
+  "Results": [
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "True",
+      "ExpectedOutput": "True",
+      "ExitCode": 0,
+      "TestID": "loading-no-messages",
+      "Group": "loading",
+      "ElapsedSeconds": 51.938,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\nTrue\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tloading-no-messages\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{\"Global`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, True, {}}",
+      "ExpectedOutput": "{\"Global`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, True, {}}",
+      "ExitCode": 0,
+      "TestID": "loading-public-context",
+      "Group": "loading",
+      "ElapsedSeconds": 55.344,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{\"Global`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, True, {}}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{\"Global`\", \"AsymptoticAnalysis`\", \"AsymptoticAnalysis`\", True, True, {}}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tloading-public-context\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{\"AsymptoticCoreInverse\", \"AsymptoticExpand\", \"AsymptoticExpansion\", \"AsymptoticExponentialCoreInverse\", \"AsymptoticFlatInverse\", \"AsymptoticFourierInverse\", \"AsymptoticInverse\", \"AsymptoticLogarithmicInverse\", \"AsymptoticSpecialInverse\", \"FlatSeriesDifferentiate\", \"FlatSeriesMultiply\", \"FlatSeriesObservable\", \"FlatSeriesTruncate\", \"FourierInverseCoefficient\", \"FourierInverseResidual\", \"GeneralizedSeries\", \"InverseCertificate\", \"InverseExpansionCoefficient\", \"InverseNumericalCheck\", \"InverseResidual\", \"LogarithmicInverseResidual\", \"PerturbativeInverse\", \"PowerLogModel\", \"PowerLogRemainder\", \"ReciprocalLogCompose\", \"ReciprocalLogDifferentiate\", \"SeriesAdd\", \"SeriesCompose\", \"SeriesDifferentiate\", \"SeriesExp\", \"SeriesLog\", \"SeriesMultiply\", \"SeriesNormalize\", \"SeriesObservable\", \"SeriesPower\", \"SeriesRefine\", \"SeriesTruncate\", \"SpecialInverseNumericalCheck\"}",
+      "ExpectedOutput": "{\"AsymptoticCoreInverse\", \"AsymptoticExpand\", \"AsymptoticExpansion\", \"AsymptoticExponentialCoreInverse\", \"AsymptoticFlatInverse\", \"AsymptoticFourierInverse\", \"AsymptoticInverse\", \"AsymptoticLogarithmicInverse\", \"AsymptoticSpecialInverse\", \"FlatSeriesDifferentiate\", \"FlatSeriesMultiply\", \"FlatSeriesObservable\", \"FlatSeriesTruncate\", \"FourierInverseCoefficient\", \"FourierInverseResidual\", \"GeneralizedSeries\", \"InverseCertificate\", \"InverseExpansionCoefficient\", \"InverseNumericalCheck\", \"InverseResidual\", \"LogarithmicInverseResidual\", \"PerturbativeInverse\", \"PowerLogModel\", \"PowerLogRemainder\", \"ReciprocalLogCompose\", \"ReciprocalLogDifferentiate\", \"SeriesAdd\", \"SeriesCompose\", \"SeriesDifferentiate\", \"SeriesExp\", \"SeriesLog\", \"SeriesMultiply\", \"SeriesNormalize\", \"SeriesObservable\", \"SeriesPower\", \"SeriesRefine\", \"SeriesTruncate\", \"SpecialInverseNumericalCheck\"}",
+      "ExitCode": 0,
+      "TestID": "loading-public-symbols",
+      "Group": "loading",
+      "ElapsedSeconds": 55.579,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{\"AsymptoticCoreInverse\", \"AsymptoticExpand\", \"AsymptoticExpansion\", \"AsymptoticExponentialCoreInverse\", \"AsymptoticFlatInverse\", \"AsymptoticFourierInverse\", \"AsymptoticInverse\", \"AsymptoticLogarithmicInverse\", \"AsymptoticSpecialInverse\", \"FlatSeriesDifferentiate\", \"FlatSeriesMultiply\", \"FlatSeriesObservable\", \"FlatSeriesTruncate\", \"FourierInverseCoefficient\", \"FourierInverseResidual\", \"GeneralizedSeries\", \"InverseCertificate\", \"InverseExpansionCoefficient\", \"InverseNumericalCheck\", \"InverseResidual\", \"LogarithmicInverseResidual\", \"PerturbativeInverse\", \"PowerLogModel\", \"PowerLogRemainder\", \"ReciprocalLogCompose\", \"ReciprocalLogDifferentiate\", \"SeriesAdd\", \"SeriesCompose\", \"SeriesDifferentiate\", \"SeriesExp\", \"SeriesLog\", \"SeriesMultiply\", \"SeriesNormalize\", \"SeriesObservable\", \"SeriesPower\", \"SeriesRefine\", \"SeriesTruncate\", \"SpecialInverseNumericalCheck\"}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{\"AsymptoticCoreInverse\", \"AsymptoticExpand\", \"AsymptoticExpansion\", \"AsymptoticExponentialCoreInverse\", \"AsymptoticFlatInverse\", \"AsymptoticFourierInverse\", \"AsymptoticInverse\", \"AsymptoticLogarithmicInverse\", \"AsymptoticSpecialInverse\", \"FlatSeriesDifferentiate\", \"FlatSeriesMultiply\", \"FlatSeriesObservable\", \"FlatSeriesTruncate\", \"FourierInverseCoefficient\", \"FourierInverseResidual\", \"GeneralizedSeries\", \"InverseCertificate\", \"InverseExpansionCoefficient\", \"InverseNumericalCheck\", \"InverseResidual\", \"LogarithmicInverseResidual\", \"PerturbativeInverse\", \"PowerLogModel\", \"PowerLogRemainder\", \"ReciprocalLogCompose\", \"ReciprocalLogDifferentiate\", \"SeriesAdd\", \"SeriesCompose\", \"SeriesDifferentiate\", \"SeriesExp\", \"SeriesLog\", \"SeriesMultiply\", \"SeriesNormalize\", \"SeriesObservable\", \"SeriesPower\", \"SeriesRefine\", \"SeriesTruncate\", \"SpecialInverseNumericalCheck\"}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tloading-public-symbols\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{True, \"Global`\", {}, {}}",
+      "ExpectedOutput": "{True, \"Global`\", {}, {}}",
+      "ExitCode": 0,
+      "TestID": "loading-reload",
+      "Group": "loading",
+      "ElapsedSeconds": 90.094,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{True, \"Global`\", {}, {}}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{True, \"Global`\", {}, {}}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tloading-reload\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{False, \"System`\", \"System`\", \"System`\", \"System`\"}",
+      "ExpectedOutput": "{False, \"System`\", \"System`\", \"System`\", \"System`\"}",
+      "ExitCode": 0,
+      "TestID": "loading-no-compatibility-context-leak",
+      "Group": "loading",
+      "ElapsedSeconds": 47.344,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{False, \"System`\", \"System`\", \"System`\", \"System`\"}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{False, \"System`\", \"System`\", \"System`\", \"System`\"}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tloading-no-compatibility-context-leak\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "\"NoModuleBoundary\"",
+      "ExpectedOutput": "\"NoModuleBoundary\"",
+      "ExitCode": 0,
+      "TestID": "loading-interrupted-module-restores-caller-state",
+      "Group": "loading",
+      "ElapsedSeconds": 48.719,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n\"NoModuleBoundary\"\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n\"NoModuleBoundary\"\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tloading-interrupted-module-restores-caller-state\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{\"Global`\", {\"AsymptoticAnalysis`\", \"System`\", \"Global`\"}, True}",
+      "ExpectedOutput": "{\"Global`\", {\"AsymptoticAnalysis`\", \"System`\", \"Global`\"}, True}",
+      "ExitCode": 0,
+      "TestID": "loading-stale-context-recovery",
+      "Group": "loading",
+      "ElapsedSeconds": 138.891,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{\"Global`\", {\"AsymptoticAnalysis`\", \"System`\", \"Global`\"}, True}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{\"Global`\", {\"AsymptoticAnalysis`\", \"System`\", \"Global`\"}, True}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tloading-stale-context-recovery\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{{\"BranchFunctionDomain\", \"BranchWrappers\", \"CoreProductLog\", \"CoreTimeConstrained\", \"ListMap\", \"RefinementAssociation\"}, {True, True, True, True, True, True}}",
+      "ExpectedOutput": "{{\"BranchFunctionDomain\", \"BranchWrappers\", \"CoreProductLog\", \"CoreTimeConstrained\", \"ListMap\", \"RefinementAssociation\"}, {True, True, True, True, True, True}}",
+      "ExitCode": 0,
+      "TestID": "loading-adapter-postconditions",
+      "Group": "loading",
+      "ElapsedSeconds": 50.75,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{{\"BranchFunctionDomain\", \"BranchWrappers\", \"CoreProductLog\", \"CoreTimeConstrained\", \"ListMap\", \"RefinementAssociation\"}, {True, True, True, True, True, True}}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{{\"BranchFunctionDomain\", \"BranchWrappers\", \"CoreProductLog\", \"CoreTimeConstrained\", \"ListMap\", \"RefinementAssociation\"}, {True, True, True, True, True, True}}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tloading-adapter-postconditions\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{False, True, False}",
+      "ExpectedOutput": "{False, True, False}",
+      "ExitCode": 0,
+      "TestID": "primitive-adapter-postcondition-detects-residual-target",
+      "Group": "primitive",
+      "ElapsedSeconds": 50.734,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{False, True, False}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{False, True, False}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tprimitive-adapter-postcondition-detects-residual-target\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{True, True, True}",
+      "ExpectedOutput": "{True, True, True}",
+      "ExitCode": 0,
+      "TestID": "callable-parametric-polynomial-inverse-domain",
+      "Group": "callable",
+      "ElapsedSeconds": 276.594,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{True, True, True}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{True, True, True}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tcallable-parametric-polynomial-inverse-domain\tSuccess\r\n"
+    },
+    {
+      "Kernel": "Mathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed",
+      "KernelIterationLimit": 1000000,
+      "Outcome": "Success",
+      "ActualOutput": "{True, True, True, False, False, False, True}",
+      "ExpectedOutput": "{True, True, True, False, False, False, True}",
+      "ExitCode": 0,
+      "TestID": "primitive-polynomial-domain-proof-with-assumptions",
+      "Group": "primitive",
+      "ElapsedSeconds": 60.953,
+      "KernelOutput": "ASYMPTOTIC_PORTABLE_KERNEL\tMathics3 10.0.1 Running on win32 CPython 3.11.15 (main, Apr  7 2026, 20:47:24) [MSC v.1944 64 bit (AMD64)] using SymPy 1.14.0, mpmath 1.3.0, numpy 2.4.6, cython Not installed, scipy 1.17.1, skimage Not installed\r\nASYMPTOTIC_PORTABLE_ITERATION_LIMIT\t1000000\r\nASYMPTOTIC_PORTABLE_ACTUAL_BEGIN\r\n{True, True, True, False, False, False, True}\r\nASYMPTOTIC_PORTABLE_ACTUAL_END\r\nASYMPTOTIC_PORTABLE_EXPECTED_BEGIN\r\n{True, True, True, False, False, False, True}\r\nASYMPTOTIC_PORTABLE_EXPECTED_END\r\nASYMPTOTIC_PORTABLE_RESULT\tprimitive-polynomial-domain-proof-with-assumptions\tSuccess\r\n"
+    }
+  ]
+}

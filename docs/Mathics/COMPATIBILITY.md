@@ -208,7 +208,14 @@ expected and actual values, interpreter diagnostics, and source hashes.
 An interrupted run or one that overlaps source edits is not an acceptance
 record. The portable suite supplements the existing Wolfram MUnit suite.
 
-The suite now contains **133 cases**. The newest cases check the W4-08
+The suite now contains **138 cases**. The newest cases check the W4-17
+loading lifecycle (an abort inside a companion module restores the caller's
+context, and a load from a stale package context returns to `` Global` ``),
+the W4-15 adapter postconditions (all six checks hold, and the predicate
+rejects an unrewritten or undefined miniature target), the W4-03 parametric
+polynomial inverse domain (`a t + t^3` under `a > 0` at zero and at
+infinity, with the domain predicate's admitted and refused coefficients),
+the W4-08
 hypergeometric defining series with exact rational coefficients and its
 parameter admission, the W4-03
 tiny-neighbourhood approach condition and eventual-sign certificate

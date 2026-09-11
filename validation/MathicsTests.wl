@@ -93,6 +93,67 @@ portableTest["loading-no-compatibility-context-leak", "loading",
     Context[Lookup], Context[FirstPosition]},
   {False, "System`", "System`", "System`", "System`"}];
 
+(* W4-17: an abort inside a companion module hands the caller's context state
+   back before it propagates, and the real package reloads afterwards. The
+   single-file standalone has no module boundary, so the case reports that
+   instead of pretending. *)
+portableTest["loading-interrupted-module-restores-caller-state", "loading",
+  Module[{kernel = DirectoryName[portableSource], dir, stream, before, result, restored, x},
+    If[! FileExistsQ[FileNameJoin[{kernel, "SeriesOperations.wl"}]], "NoModuleBoundary",
+      dir = CreateDirectory[FileNameJoin[{$TemporaryDirectory, "asymptotic-loading-" <> ToString[$ProcessID]}]];
+      Scan[CopyFile[#, FileNameJoin[{dir, FileNameTake[#]}]] &, FileNames["*.wl", kernel]];
+      DeleteFile[FileNameJoin[{dir, "SeriesOperations.wl"}]];
+      stream = OpenWrite[FileNameJoin[{dir, "SeriesOperations.wl"}]];
+      WriteString[stream, "Abort[];\n"]; Close[stream];
+      before = {$Context, $ContextPath};
+      result = CheckAbort[Get[FileNameJoin[{dir, "AsymptoticAnalysis.wl"}]], "aborted"];
+      restored = {$Context, $ContextPath} === before;
+      DeleteDirectory[dir, DeleteContents -> True];
+      Get[portableSource];
+      {result, restored, $Context, First[$ContextPath],
+        Normal[AsymptoticExpansion[Exp[x], {x, 0, 3}]] === 1 + x + x^2/2}]],
+  If[FileExistsQ[FileNameJoin[{DirectoryName[portableSource], "SeriesOperations.wl"}]],
+    {"aborted", True, "Global`", "AsymptoticAnalysis`", True}, "NoModuleBoundary"]];
+
+(* W4-17: a load that starts inside the package's own contexts, as left by an
+   interruption in the entry file or the standalone, returns to Global`. *)
+portableTest["loading-stale-context-recovery", "loading",
+  Module[{before = {$Context, $ContextPath}, after, x},
+    $Context = "AsymptoticAnalysis`Private`";
+    $ContextPath = {"AsymptoticAnalysis`", "AsymptoticAnalysis`Mathics`", "System`", "Global`"};
+    Get[portableSource];
+    after = {$Context, $ContextPath, Normal[AsymptoticExpansion[Exp[x], {x, 0, 3}]] === 1 + x + x^2/2};
+    $Context = before[[1]]; $ContextPath = before[[2]];
+    after],
+  {"Global`", {"AsymptoticAnalysis`", "System`", "Global`"}, True}];
+
+(* W4-15: the late adapters' declared targets were installed as intended on
+   this layout; the official kernel installs no adapter. *)
+portableTest["loading-adapter-postconditions", "loading",
+  If[StringContainsQ[$Version, "Mathics"],
+    {Sort[Keys[AsymptoticAnalysis`Mathics`$adapterPostconditions]],
+      Values[AsymptoticAnalysis`Mathics`$adapterPostconditions]},
+    "MathicsOnly"],
+  If[StringContainsQ[$Version, "Mathics"],
+    {{"BranchFunctionDomain", "BranchWrappers", "CoreProductLog", "CoreTimeConstrained",
+      "ListMap", "RefinementAssociation"}, {True, True, True, True, True, True}},
+    "MathicsOnly"]];
+
+(* W4-15: the rewrite predicate rejects a miniature target that still uses
+   the replaced spelling and an undefined target, and accepts the target
+   once its definition was rewritten. *)
+portableTest["primitive-adapter-postcondition-detects-residual-target", "primitive",
+  If[StringContainsQ[$Version, "Mathics"],
+    Module[{probeMapUser, probeUndefined, before, after, undefined},
+      probeMapUser[l_] := Map[f, l];
+      before = AsymptoticAnalysis`Private`mathicsRewrittenQ[probeMapUser, System`Map, AsymptoticAnalysis`Private`mathicsMap];
+      DownValues[probeMapUser] = DownValues[probeMapUser] /. System`Map -> AsymptoticAnalysis`Private`mathicsMap;
+      after = AsymptoticAnalysis`Private`mathicsRewrittenQ[probeMapUser, System`Map, AsymptoticAnalysis`Private`mathicsMap];
+      undefined = AsymptoticAnalysis`Private`mathicsRewrittenQ[probeUndefined, System`Map, AsymptoticAnalysis`Private`mathicsMap];
+      {before, after, undefined}],
+    "MathicsOnly"],
+  If[StringContainsQ[$Version, "Mathics"], {False, True, False}, "MathicsOnly"]];
+
 portableTest["primitive-module-return-through-loop", "primitive",
   portablePrimitive[HoldComplete[Module[{},
     Do[If[k === 2, Return[17, Module]], {k, 1, 3}]; 99]]],
@@ -565,6 +626,29 @@ portableTest["callable-eventual-sign-certificate-primitives", "callable",
     {prove[u < 10^-100, True], prove[u^2 - u > 0, True], prove[a u + 1 > 0, Element[a, Reals]],
      prove[u < a, a > 0], prove[u - u^3 < 0, True], prove[Inequality[0, Less, u, Less, 10^-40], True]}],
   {True, False, True, True, False, True}];
+
+(* W4-03: the polynomial real-domain proof threads the retained parameter
+   assumptions, so a parametric polynomial inverse expands on Mathics as in
+   the official kernel; an unknown coefficient keeps the conservative
+   refusal on Mathics (the official kernel refuses it on its own grounds). *)
+portableTest["callable-parametric-polynomial-inverse-domain", "callable",
+  Module[{x, t, a, b, s, u, show},
+    show[e_] := If[MatchQ[e, _GeneralizedSeries], {Expand[Normal[e]], e["RemainderPower"]}, e[[1]]];
+    s = show[AsymptoticExpansion[InverseFunction[Function[t, a t + t^3]][x], {x, 0, 4}, Assumptions -> a > 0]];
+    u = show[AsymptoticExpansion[InverseFunction[Function[t, t^3 + a t]][x], {x, Infinity, 3}, Assumptions -> a > 0]];
+    {s === {x/a - x^3/a^4, 5},
+     u === {Expand[a^4/(243 x^(7/3)) + a^3/(81 x^(5/3)) - a/(3 x^(1/3)) + x^(1/3)], 11/3},
+     MatchQ[AsymptoticExpansion[InverseFunction[Function[t, b t + t^3]][x], {x, 0, 4}], _Failure]}],
+  {True, True, True}];
+
+portableTest["primitive-polynomial-domain-proof-with-assumptions", "primitive",
+  If[StringContainsQ[$Version, "Mathics"],
+    Module[{x, a, b, d = AsymptoticAnalysis`Private`mathicsPolynomialFunctionDomain},
+      {d[a x + x^3, x, Reals, a > 0], d[x^2 + a, x, Reals, Element[a, Reals]], d[Sqrt[a] x, x, Reals, a > 0],
+       d[b x + x^3, x, Reals, True] === True, d[(1 + I) x^2, x, Reals, True] === True,
+       d[a x, x, Reals, a > x] === True, d[x^2 + 1/2, x, Reals] === True}],
+    "MathicsOnly"],
+  If[StringContainsQ[$Version, "Mathics"], {True, True, True, False, False, False, True}, "MathicsOnly"]];
 
 (* W4-08: the Mathics defining-series provider admits an exact negative
    noninteger lower parameter of a nonterminating sum and still refuses a
