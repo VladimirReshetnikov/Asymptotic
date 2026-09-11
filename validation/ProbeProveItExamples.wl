@@ -1,0 +1,189 @@
+(* Probe the series and inverse-series examples of the vendored ProveIt
+   articles against the package and write a JSON receipt. Each case records
+   the source location, the request, the outcome kind, the finite part and
+   the remainder as strings; an article expectation is recorded where the
+   source displays one, and the receipt notes whether the package output was
+   checked against it (symbolically through the displayed order, or
+   numerically at a large argument). The report in
+   docs/development/PROVEIT_EXAMPLES.md reads this receipt. *)
+Get[FileNameJoin[{DirectoryName[$InputFileName], "..", "src", "Kernel", "AsymptoticAnalysis.wl"}]];
+$proveItOutput = FileNameJoin[{DirectoryName[$InputFileName], "proveit-examples-probe.json"}];
+
+probeShow[s_GeneralizedSeries] := <|"Outcome" -> "Series", "Kind" -> s["Kind"],
+  "Normal" -> ToString[Expand[Normal[s]], InputForm], "Remainder" -> ToString[s["Remainder"], InputForm],
+  "RemainderPower" -> ToString[s["RemainderPower"], InputForm]|>;
+probeShow[f_Failure] := <|"Outcome" -> "Failure", "Tag" -> f[[1]], "Message" -> StringTake[Lookup[f[[2]], "MessageTemplate", ""], UpTo[160]]|>;
+probeShow["timeout"] := <|"Outcome" -> "Timeout"|>;
+probeShow[other_] := <|"Outcome" -> "Other", "Value" -> ToString[other, InputForm]|>;
+
+SetAttributes[probeCase, HoldAll];
+probeCase[id_String, source_String, request_, check_: None] := Module[{result, record},
+  result = Quiet[TimeConstrained[request, 300, "timeout"]];
+  record = Join[<|"Case" -> id, "Source" -> source, "Request" -> ToString[HoldForm[request], InputForm]|>, probeShow[result]];
+  If[check =!= None && MatchQ[result, _GeneralizedSeries],
+    record = Join[record, <|"Check" -> ToString[Quiet[TimeConstrained[check[result], 300, "timeout"]], InputForm]|>]];
+  Print[id, "\t", record["Outcome"], "\t", Lookup[record, "Kind", Lookup[record, "Tag", ""]], "\t", Lookup[record, "Check", ""]];
+  record];
+
+(* Symbolic agreement through the displayed order: the difference expanded
+   in u = 1/y must vanish through the last displayed power. *)
+agreesThrough[expected_, y_, order_][s_] := Module[{u},
+  Simplify[Normal[Series[(Normal[s] - expected) /. y -> 1/u, {u, 0, order}]]] === 0];
+relativeErrorAt[f_, x_, y_, value_, start_][s_] := Module[{root},
+  root = x /. FindRoot[f == value, {x, start}, WorkingPrecision -> 60, MaxIterations -> 300];
+  N[Abs[(Normal[s] /. y -> value)/root - 1], 6]];
+(* Rapidly growing sources are solved on the logarithmic scale, where the
+   root finder is accurate for huge targets. *)
+relativeErrorLogAt[logf_, x_, y_, value_, start_][s_] := Module[{root},
+  root = x /. FindRoot[logf == Log[value], {x, start}, WorkingPrecision -> 60, MaxIterations -> 300];
+  N[Abs[(Normal[s] /. y -> value)/root - 1], 6]];
+
+$proveItCases = Block[{x, y, h, n, q, t, u, a, b, c, al, ga},
+  With[{L = Log[y]}, {
+  probeCase["T1", "Transseries Ex.40 (inverse of X+log X, Lambert polynomials through block 4)",
+    AsymptoticInverse[x + Log[x], {x, Infinity}, {y, 5}],
+    agreesThrough[y - L + L/y + (L^2/2 - L)/y^2 + (L^3/3 - 3 L^2/2 + L)/y^3 + (L^4/4 - 11 L^3/6 + 3 L^2 - L)/y^4, y, 4]],
+  probeCase["T2", "Transseries Ex.41 (X + a log X + b/X, blocks b0..b4)",
+    AsymptoticInverse[x + a Log[x] + b/x, {x, Infinity}, {y, 5}, Assumptions -> a > 0 && Element[b, Reals]],
+    agreesThrough[y - a L + (a^2 L - b)/y + (a^3 (L^2/2 - L) + a b (1 - L))/y^2 + (a^4 (L^3/3 - 3 L^2/2 + L) + a^2 b (-L^2 + 3 L - 1) - b^2)/y^3 +
+      (a^5 (L^4/4 - 11 L^3/6 + 3 L^2 - L) + a^3 b (-L^3 + 11 L^2/2 - 6 L + 1) + a b^2 (5/2 - 3 L))/y^4, y, 4]],
+  probeCase["T3", "Transseries Ex.42/46 (Catalan inverse of X + c/X)",
+    AsymptoticInverse[x + c/x, {x, Infinity}, {y, 8}, Assumptions -> c > 0],
+    agreesThrough[y - c/y - c^2/y^3 - 2 c^3/y^5 - 5 c^4/y^7, y, 7]],
+  probeCase["T4", "Transseries Ex.44 (fully mixed perturbation through t^3)",
+    AsymptoticInverse[x + 2 Log[x] + 1 + (3 Log[x] - 1)/x + (Log[x]^2 + 2)/x^2, {x, Infinity}, {y, 4}],
+    agreesThrough[y - 2 L - 1 + (L + 3)/y + (-3 L^2 + 7 L - 3)/y^2 + (-32 L^3/3 + 25 L^2 - 6 L - 59/6)/y^3, y, 3]],
+  probeCase["T5", "Transseries Ex.48 (X + a log X + b through t^3)",
+    AsymptoticInverse[x + a Log[x] + b, {x, Infinity}, {y, 4}, Assumptions -> a > 0 && Element[b, Reals]],
+    agreesThrough[y - a L - b + a (a L + b)/y + a (a L + b) (a L + b - 2 a)/(2 y^2) + a (a L + b) (2 a^2 L^2 - 9 a^2 L + 4 a b L + 6 a^2 - 9 a b + 2 b^2)/(6 y^3), y, 3]],
+  probeCase["T6", "Transseries Ex.49 (X^2 + X, Puiseux inverse)",
+    AsymptoticInverse[x^2 + x, {x, Infinity}, {y, 2}],
+    Function[s, Simplify[Normal[Series[(Normal[s] - (Sqrt[y] - 1/2 + 1/(8 Sqrt[y]) - 1/(128 y^(3/2)))) /. y -> 1/u^2, {u, 0, 3}], u > 0]] === 0]],
+  probeCase["T7", "Transseries Ex.50 (X log X, nested logarithm inverse)",
+    AsymptoticInverse[x Log[x], {x, Infinity}, {y, 3}],
+    Function[s, With[{S = Log[y], Lam = Log[Log[y]]}, Simplify[Normal[s] - y/S (1 + Lam/S + (Lam^2 - Lam)/S^2), y > E] === 0]]],
+  probeCase["T8", "Transseries Ex.54 (X^2 log X, Puiseux-logarithmic inverse; numeric at 10^20)",
+    AsymptoticInverse[x^2 Log[x], {x, Infinity}, {y, 3}],
+    relativeErrorAt[x^2 Log[x], x, y, 10^20, 10^10]],
+  probeCase["T9", "Transseries Ex.55 (X + al log X + ga log log X, depth-two reversion through t^2)",
+    AsymptoticInverse[x + al Log[x] + ga Log[Log[x]], {x, Infinity}, {y, 3}, Assumptions -> al > 0 && ga > 0],
+    Function[s, With[{A = al L + ga Log[L], w = al + ga/L}, Simplify[Normal[Series[Simplify[Normal[s] - (y - A + A w/y + (-A w^2 + A^2/2 (al + ga/L + ga/L^2))/y^2), y > E] /. y -> 1/u, {u, 0, 2}], 0 < u < 1/E && al > 0 && ga > 0]] === 0]]],
+  probeCase["T10", "Transseries Ex.56 (X + X/log X, logarithmic-chart inverse through lambda^-3)",
+    AsymptoticInverse[x + x/Log[x], {x, Infinity}, {y, 4}],
+    Function[s, Simplify[Normal[s] - y (1 - 1/L + 1/L^2 - 2/L^3), y > E] === 0]],
+  probeCase["T11", "Transseries Ex.51 (c X^rho (log X)^sigma with c=2, rho=3, sigma=2; numeric at 10^30)",
+    AsymptoticInverse[2 x^3 Log[x]^2, {x, Infinity}, {y, 2}],
+    relativeErrorAt[2 x^3 Log[x]^2, x, y, 10^30, 10^9]],
+  probeCase["F1", "Transseries Ex.27/38 (scale-changing composition F(3X^2/L) with F = Y + log Y + 1/Y)",
+    AsymptoticExpansion[3 x^2/Log[x] + Log[3 x^2/Log[x]] + Log[x]/(3 x^2), {x, Infinity, 3}]],
+  probeCase["F2", "Transseries Ex.23 (log of L^2 t^-3 (1 + (L+1) t): forced nested logarithm)",
+    AsymptoticExpansion[Log[Log[x]^2 x^3 (1 + (Log[x] + 1)/x)], {x, Infinity, 3}]],
+  probeCase["F3", "Transseries Ex.17 (reciprocal through blocks)",
+    AsymptoticExpansion[1/(1 + (Log[x] + 1)/x + Log[x]^2/x^2 + (Log[x] - 2)/x^3), {x, Infinity, 4}]],
+  probeCase["F4", "Transseries Ex.14 (square root through four blocks)",
+    AsymptoticExpansion[Sqrt[1 + 2 Log[x]/x + (Log[x]^2 + 2)/x^2 + 4 Log[x]/x^3], {x, Infinity, 4}],
+    Function[s, Expand[Normal[s] - (1 + Log[x]/x + 1/x^2 + Log[x]/x^3)] === 0]],
+  probeCase["F5", "Transseries Ex.21 (finite logarithm)",
+    AsymptoticExpansion[Log[1 + (Log[x] + 1)/x + Log[x]^2/x^2], {x, Infinity, 4}]],
+  probeCase["F6", "Transseries Ex.44 forward source (exact finite power-log sum)",
+    AsymptoticExpansion[x + 2 Log[x] + 1 + (3 Log[x] - 1)/x + (Log[x]^2 + 2)/x^2, {x, Infinity, 4}]],
+  probeCase["L1", "Lambert W guide Thm 'Unified complete real asymptotic expansion' (W_0 at +infinity)",
+    AsymptoticExpansion[ProductLog[x], {x, Infinity, 3}],
+    Function[s, With[{L1 = Log[x], L2 = Log[Log[x]]}, Simplify[Normal[s] - (L1 - L2 + L2/L1), x > 1] === 0]]],
+  probeCase["L2", "Lambert W guide (W_-1(-x), x -> 0+; same theorem, second row); numeric at 10^-6",
+    AsymptoticExpansion[ProductLog[-1, -x], {x, 0, 2}],
+    Function[s, N[{Normal[s] /. x -> 10^-6, ProductLog[-1, -10^-6]}, 10]]],
+  probeCase["L3", "Transseries chapter 'Reversing x + W(x)' Thm 'All-orders expansion'",
+    AsymptoticInverse[x + ProductLog[x], {x, Infinity}, {y, 3}]],
+  probeCase["L4", "Lambert W guide Thm 'Unified Puiseux expansion' (branch point -1/e)",
+    AsymptoticExpansion[ProductLog[-1/E + h], {h, 0, 2}],
+    Function[s, Simplify[Normal[s] - (-1 + Sqrt[2 E h] - 2 E h/3 + 11 (2 E h)^(3/2)/72), h > 0] === 0]],
+  probeCase["L5", "Lambert W guide Ex.3 (Taylor expansion of W_0 at 1)",
+    AsymptoticExpansion[ProductLog[1 + h], {h, 0, 3}],
+    Function[s, With[{om = ProductLog[1]}, Simplify[Normal[s] - (om + Exp[-om]/(1 + om) h - Exp[-2 om] (om + 2)/(2 (1 + om)^3) h^2), om == Exp[-om]] === 0]]],
+  probeCase["L6", "Transseries p0 'The Lambert core' (inverse of x e^x at infinity)",
+    AsymptoticInverse[x Exp[x], {x, Infinity}, {y, 3}]],
+  probeCase["L7", "Lambert W guide Thm 'All positive solutions of x^x = A'",
+    AsymptoticInverse[x^x, {x, Infinity}, {y, 2}]],
+  probeCase["L8", "Lambert W guide 'Inverting the prime-number scale' (inverse of x/log x)",
+    AsymptoticInverse[x/Log[x], {x, Infinity}, {y, 3}]],
+  probeCase["L9", "Lambert W guide 'A power times an exponential' (inverse of x^2 e^x)",
+    AsymptoticInverse[x^2 Exp[x], {x, Infinity}, {y, 2}]],
+  probeCase["L10", "Lambert W guide 'A linear term plus a logarithm' (inverse of x - log x, large branch)",
+    AsymptoticInverse[x - Log[x], {x, Infinity}, {y, 3}]],
+  probeCase["C1", "Transseries chapter 'Gamma and Barnes G' Thm 'All-orders expansion of Gamma_+^-1'; numeric at 10^500",
+    AsymptoticInverse[Gamma[x], {x, Infinity}, {y, 2}],
+    relativeErrorLogAt[LogGamma[x], x, y, 10^500, 250]],
+  probeCase["C2", "Transseries chapter 'Gamma and Barnes G' Thm 'All-orders expansion of the Barnes inverse'; numeric at 10^500",
+    AsymptoticInverse[BarnesG[x], {x, Infinity}, {y, 2}],
+    relativeErrorLogAt[LogBarnesG[x], x, y, 10^500, 40]],
+  probeCase["C3", "Transseries chapter 'The hyperfactorial K-function' Thm 'Canonical inverse transseries'",
+    AsymptoticInverse[Hyperfactorial[x], {x, Infinity}, {y, 2}]],
+  probeCase["C3b", "Hyperfactorial carrier x^(x^2/2 + x/2 + 1/12) e^(-x^2/4) (same chapter, leading core)",
+    AsymptoticInverse[x^(x^2/2 + x/2 + 1/12) Exp[-x^2/4], {x, Infinity}, {y, 1}]],
+  probeCase["C4", "Transseries chapter 'The double factorial' (branchwise inverse; Wolfram interpolation Factorial2)",
+    AsymptoticInverse[Factorial2[x], {x, Infinity}, {y, 2}]],
+  probeCase["C4b", "Double factorial even branch 2^(x/2) Gamma[x/2 + 1]",
+    AsymptoticInverse[2^(x/2) Gamma[x/2 + 1], {x, Infinity}, {y, 2}]],
+  probeCase["C5", "Transseries chapter 'The subfactorial' (Wolfram interpolation Subfactorial)",
+    AsymptoticInverse[Subfactorial[x], {x, Infinity}, {y, 2}]],
+  probeCase["C5b", "Subfactorial carrier Gamma[x+1]/e (same chapter, 'The carrier is Chapter 5's inverse'); numeric at 10^50",
+    AsymptoticInverse[Gamma[x + 1]/E, {x, Infinity}, {y, 2}],
+    relativeErrorLogAt[LogGamma[x + 1] - 1, x, y, 10^50, 41]],
+  probeCase["C6", "Transseries chapter 'A real-argument Fibonacci function' (Binet interpolation with cosine)",
+    AsymptoticInverse[(GoldenRatio^x - Cos[Pi x] GoldenRatio^(-x))/Sqrt[5], {x, Infinity}, {y, 2}]],
+  probeCase["C6b", "Fibonacci dominant exponential phi^x/Sqrt[5] (same chapter, outer branch)",
+    AsymptoticInverse[GoldenRatio^x/Sqrt[5], {x, Infinity}, {y, 2}]],
+  probeCase["C7", "Transseries chapter 'The Bell numbers: a Lambert saddle' Thm 'All-orders saddle expansion'",
+    AsymptoticExpansion[BellB[n], {n, Infinity, 2}]],
+  probeCase["C8", "Transseries chapter 'The Fubini numbers' Cor. 'Elementary-scale form' (Fubini = PolyLog[-n, 1/2]/2)",
+    AsymptoticExpansion[PolyLog[-n, 1/2]/2, {n, Infinity, 2}]],
+  probeCase["C8b", "Fubini numbers in Lerch form LerchPhi[1/2, -n, 1]/4 (same chapter)",
+    AsymptoticExpansion[LerchPhi[1/2, -n, 1]/4, {n, Infinity, 2}]],
+  probeCase["C8c", "Fubini inverse (index from the value) in PolyLog form",
+    AsymptoticInverse[PolyLog[-n, 1/2]/2, {n, Infinity}, {y, 1}]],
+  probeCase["C10", "Transseries chapter 'The partition numbers' (Rademacher sectors)",
+    AsymptoticExpansion[PartitionsP[n], {n, Infinity, 1}]],
+  probeCase["C11", "Combinatorial inverses ch. 'Gamma-quotient engine' (Catalan inverse, Wolfram CatalanNumber)",
+    AsymptoticInverse[CatalanNumber[x], {x, Infinity}, {y, 2}]],
+  probeCase["C11b", "Catalan as Gamma quotient Gamma[2x+1]/(Gamma[x+1] Gamma[x+2])",
+    AsymptoticInverse[Gamma[2 x + 1]/(Gamma[x + 1] Gamma[x + 2]), {x, Infinity}, {y, 2}]],
+  probeCase["C11c", "Catalan exponential-power carrier 4^x x^(-3/2)/Sqrt[Pi]",
+    AsymptoticInverse[4^x x^(-3/2)/Sqrt[Pi], {x, Infinity}, {y, 2}]],
+  probeCase["C12", "Combinatorial inverses ch. 'Harmonic functions: exponential and endpoint-Puiseux inversion' (inverse of H_x)",
+    AsymptoticInverse[HarmonicNumber[x], {x, Infinity}, {y, 3}]],
+  probeCase["C12b", "Harmonic inverse from the explicit source Log[x] + EulerGamma + 1/(2x) - 1/(12x^2)",
+    AsymptoticInverse[Log[x] + EulerGamma + 1/(2 x) - 1/(12 x^2), {x, Infinity}, {y, 2}]],
+  probeCase["C13", "Combinatorial inverses ch. 'Gamma-quotient engine' (central binomial inverse)",
+    AsymptoticInverse[Binomial[2 x, x], {x, Infinity}, {y, 2}]],
+  probeCase["C14", "Transseries Ex.71/72 (Gamma forward Stirling expansion)",
+    AsymptoticExpansion[Gamma[x], {x, Infinity, 3}]],
+  probeCase["Q1", "q-series monograph reading item 3 (fixed-argument q -> 1 product (1/2; e^-t)_inf)",
+    AsymptoticExpansion[QPochhammer[1/2, Exp[-t]], {t, 0, 2}]],
+  probeCase["Q2", "q-series monograph reading item 2 ((q; q)_inf near q = 0, Euler pentagonal)",
+    AsymptoticExpansion[QPochhammer[q, q], {q, 0, 5}],
+    Function[s, Normal[s] === 1 - q - q^2]],
+  probeCase["Q3", "q-series monograph reading item 5 (q-Gamma at fixed q, large argument)",
+    AsymptoticExpansion[QGamma[x, 1/2], {x, Infinity, 2}]],
+  probeCase["Q4", "q-series monograph reading item 5 (q-Gamma inverse)",
+    AsymptoticInverse[QGamma[x, 1/2], {x, Infinity}, {y, 1}]],
+  probeCase["Q5", "Gaussian coefficient calculus (fixed-base large-index Gaussian binomial)",
+    AsymptoticExpansion[QBinomial[2 n, n, 1/2], {n, Infinity, 1}]],
+  probeCase["Q6", "q-series monograph reading item 2 ((a; q)_inf near q = 0)",
+    AsymptoticExpansion[QPochhammer[a, q], {q, 0, 3}, Assumptions -> 0 < a < 1]],
+  probeCase["Q7", "q-series monograph reading item 3 ((1/2; q)_inf as q -> 1, u = 1 - q)",
+    AsymptoticExpansion[QPochhammer[1/2, 1 - u], {u, 0, 1}]],
+  probeCase["N1", "Transseries Ex.23/50 (nested logarithm on the forward side)",
+    AsymptoticExpansion[Log[Log[x]], {x, Infinity, 2}]],
+  probeCase["N2", "Transseries Ex.15/56 (reciprocal logarithm in a coefficient, the iterated field)",
+    AsymptoticExpansion[x/Log[x] + Log[x], {x, Infinity, 2}]],
+  probeCase["W1", "Transseries chapter 'Reversing x + W(x)' (forward source x + W(x))",
+    AsymptoticExpansion[x + ProductLog[x], {x, Infinity, 3}]]
+  }]];
+
+$proveItReceipt = <|"Kernel" -> $Version, "Package" -> "AsymptoticAnalysis (modular)",
+  "Scope" -> "Series and inverse-series examples of the vendored ProveIt articles; see docs/development/PROVEIT_EXAMPLES.md.",
+  "Cases" -> $proveItCases,
+  "Summary" -> Counts[Lookup[$proveItCases, "Outcome"]]|>;
+Export[$proveItOutput, $proveItReceipt, "JSON"];
+Print["Wrote ", $proveItOutput, " ", $proveItReceipt["Summary"]];

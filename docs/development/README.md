@@ -105,6 +105,11 @@ achieving the requested accuracy.
 The [assumption-context notes](ASSUMPTION_CONTEXT.md) explain how constructor
 hypotheses survive coefficient queries, arithmetic and refinement, including
 delayed options, nested representations and Wolfram evaluation subtleties.
+The [ProveIt examples report](PROVEIT_EXAMPLES.md) runs the series and
+inverse-series examples of the vendored articles against the package,
+records which reproduce, and proposes the features that would close the
+gaps.
+
 The [source admission note](SOURCE_ADMISSION.md) states which function heads
 may receive the package's analytic remainder and why an opaque head is
 refused on the package path (C16).

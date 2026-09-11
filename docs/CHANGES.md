@@ -15,6 +15,17 @@ milestones within that scope.
 
 ## September 11, 2026
 
+### ProveIt article examples tested
+
+[PROVEIT_EXAMPLES.md](development/PROVEIT_EXAMPLES.md) runs 59 series and
+inverse-series examples of the vendored ProveIt articles through the
+package ([probe script](../validation/ProbeProveItExamples.wl),
+[receipt](../validation/proveit-examples-probe.json)): 19 reproduce the
+articles and were checked, 13 return the expected expansion, 8 return only
+a formal native object, 19 are refused; the report lists seven features,
+starting with Fubini and Bell asymptotics from `PolyLog`/`LerchPhi` forms
+and the exponential-power inverse model for Gamma quotients.
+
 ### Simplify and FullSimplify reach the coefficients
 
 `Simplify[s]`, `FullSimplify[s]` and their forms with assumptions now

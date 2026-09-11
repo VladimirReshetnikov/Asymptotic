@@ -18,6 +18,15 @@ source notices, and provenance records remain unchanged.
 
 ## Status and evidence boundary
 
+The [ProveIt examples report](PROVEIT_EXAMPLES.md) (September 11, 2026)
+executed 59 concrete series and inverse-series examples from the corpus
+against the package: the near-identity reversion calculus, the Lambert,
+Gamma and Barnes inverses reproduce the articles; Gamma-quotient and
+oscillatory sequence inverses, nested-logarithm forward scales,
+order-variable sequence asymptotics (Fubini, Bell, partitions) and
+`q -> 1` products do not. Its feature list is the concrete work order for
+the rows below.
+
 This is an initial **source and catalog audit**, using Asymptotic commit
 `a4e1a3e3b09324f45b181843645eabbfa84abcdd`. It is not a fresh mathematical
 verification of the articles or a native/Mathics acceptance run. No complete

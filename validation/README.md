@@ -1188,6 +1188,16 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## ProveIt article examples
+
+[ProbeProveItExamples.wl](ProbeProveItExamples.wl) runs 59 series and
+inverse-series examples of the vendored ProveIt articles and writes
+[proveit-examples-probe.json](proveit-examples-probe.json) (Wolfram 15.0.1,
+MCP evaluator, `Exit`-free copy): 40 result objects and 19 refusals, with
+the article's expansion checked symbolically or numerically where it
+displays one. It asserts nothing and is not an acceptance run; the
+[report](../docs/development/PROVEIT_EXAMPLES.md) reads it.
+
 ## Simplify and FullSimplify on result objects
 
 An `Association` is atomic to `Simplify` and `FullSimplify`, so a

@@ -1,0 +1,583 @@
+{
+	"Kernel":"15.0.1 for Microsoft Windows (64-bit) (July 2, 2026)",
+	"Package":"AsymptoticAnalysis (modular)",
+	"Scope":"Series and inverse-series examples of the vendored ProveIt articles; see docs\/development\/PROVEIT_EXAMPLES.md.",
+	"Cases":[
+		{
+			"Case":"T1",
+			"Source":"Transseries Ex.40 (inverse of X+log X, Lambert polynomials through block 4)",
+			"Request":"HoldForm[AsymptoticInverse[x + Log[x], {x, Infinity}, {y, 5}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"y - Log[y] - Log[y]\/y^4 + Log[y]\/y^3 - Log[y]\/y^2 + Log[y]\/y + (3*Log[y]^2)\/y^4 - (3*Log[y]^2)\/(2*y^3) + Log[y]^2\/(2*y^2) - (11*Log[y]^3)\/(6*y^4) + Log[y]^3\/(3*y^3) + Log[y]^4\/(4*y^4)",
+			"Remainder":"PowerLogRemainder[y^(-1), 5, 5]",
+			"RemainderPower":"5",
+			"Check":"True"
+		},
+		{
+			"Case":"T2",
+			"Source":"Transseries Ex.41 (X + a log X + b\/X, blocks b0..b4)",
+			"Request":"HoldForm[AsymptoticInverse[x + a*Log[x] + b\/x, {x, Infinity}, {y, 5}, Assumptions -> a > 0 && Element[b, Reals]]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"(a^3*b)\/y^4 + (5*a*b^2)\/(2*y^4) - (a^2*b)\/y^3 - b^2\/y^3 + (a*b)\/y^2 - b\/y + y - a*Log[y] - (a^5*Log[y])\/y^4 - (6*a^3*b*Log[y])\/y^4 - (3*a*b^2*Log[y])\/y^4 + (a^4*Log[y])\/y^3 + (3*a^2*b*Log[y])\/y^3 - (a^3*Log[y])\/y^2 - (a*b*Log[y])\/y^2 + (a^2*Log[y])\/y + (3*a^5*Log[y]^2)\/y^4 + (11*a^3*b*Log[y]^2)\/(2*y^4) - (3*a^4*Log[y]^2)\/(2*y^3) - (a^2*b*Log[y]^2)\/y^3 + (a^3*Log[y]^2)\/(2*y^2) - (11*a^5*Log[y]^3)\/(6*y^4) - (a^3*b*Log[y]^3)\/y^4 + (a^4*Log[y]^3)\/(3*y^3) + (a^5*Log[y]^4)\/(4*y^4)",
+			"Remainder":"PowerLogRemainder[y^(-1), 5, 5]",
+			"RemainderPower":"5",
+			"Check":"True"
+		},
+		{
+			"Case":"T3",
+			"Source":"Transseries Ex.42\/46 (Catalan inverse of X + c\/X)",
+			"Request":"HoldForm[AsymptoticInverse[x + c\/x, {x, Infinity}, {y, 8}, Assumptions -> c > 0]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"(-5*c^4)\/y^7 - (2*c^3)\/y^5 - c^2\/y^3 - c\/y + y",
+			"Remainder":"PowerLogRemainder[y^(-1), 9, 0]",
+			"RemainderPower":"9",
+			"Check":"True"
+		},
+		{
+			"Case":"T4",
+			"Source":"Transseries Ex.44 (fully mixed perturbation through t^3)",
+			"Request":"HoldForm[AsymptoticInverse[x + 2*Log[x] + 1 + (3*Log[x] - 1)\/x + (Log[x]^2 + 2)\/x^2, {x, Infinity}, {y, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-1 - 59\/(6*y^3) - 3\/y^2 + 3\/y + y - 2*Log[y] - (6*Log[y])\/y^3 + (7*Log[y])\/y^2 + Log[y]\/y + (25*Log[y]^2)\/y^3 - (3*Log[y]^2)\/y^2 - (32*Log[y]^3)\/(3*y^3)",
+			"Remainder":"PowerLogRemainder[y^(-1), 4, 4]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"T5",
+			"Source":"Transseries Ex.48 (X + a log X + b through t^3)",
+			"Request":"HoldForm[AsymptoticInverse[x + a*Log[x] + b, {x, Infinity}, {y, 4}, Assumptions -> a > 0 && Element[b, Reals]]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-b + (a^3*b)\/y^3 - (3*a^2*b^2)\/(2*y^3) + (a*b^3)\/(3*y^3) - (a^2*b)\/y^2 + (a*b^2)\/(2*y^2) + (a*b)\/y + y - a*Log[y] + (a^4*Log[y])\/y^3 - (3*a^3*b*Log[y])\/y^3 + (a^2*b^2*Log[y])\/y^3 - (a^3*Log[y])\/y^2 + (a^2*b*Log[y])\/y^2 + (a^2*Log[y])\/y - (3*a^4*Log[y]^2)\/(2*y^3) + (a^3*b*Log[y]^2)\/y^3 + (a^3*Log[y]^2)\/(2*y^2) + (a^4*Log[y]^3)\/(3*y^3)",
+			"Remainder":"PowerLogRemainder[y^(-1), 4, 4]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"T6",
+			"Source":"Transseries Ex.49 (X^2 + X, Puiseux inverse)",
+			"Request":"HoldForm[AsymptoticInverse[x^2 + x, {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-1\/2 - 1\/(128*y^(3\/2)) + 1\/(8*Sqrt[y]) + Sqrt[y]",
+			"Remainder":"PowerLogRemainder[y^(-1), 5\/2, 0]",
+			"RemainderPower":"5\/2",
+			"Check":"True"
+		},
+		{
+			"Case":"T7",
+			"Source":"Transseries Ex.50 (X log X, nested logarithm inverse)",
+			"Request":"HoldForm[AsymptoticInverse[x*Log[x], {x, Infinity}, {y, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"y\/Log[y] + (y*Log[Log[y]^(-1)])\/Log[y]^3 - (y*Log[Log[y]^(-1)])\/Log[y]^2 + (y*Log[Log[y]^(-1)]^2)\/Log[y]^3",
+			"Remainder":"Abs[y\/Log[y]]*PowerLogRemainder[Log[y]^(-1), 3, 3]",
+			"RemainderPower":"3",
+			"Check":"True"
+		},
+		{
+			"Case":"T8",
+			"Source":"Transseries Ex.54 (X^2 log X, Puiseux-logarithmic inverse; numeric at 10^20)",
+			"Request":"HoldForm[AsymptoticInverse[x^2*Log[x], {x, Infinity}, {y, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"(Sqrt[2]*Sqrt[y])\/Sqrt[Log[2] + Log[y]] + (Sqrt[y]*Log[(Log[2] + Log[y])^(-1)])\/(Sqrt[2]*(Log[2] + Log[y])^(5\/2)) - (Sqrt[y]*Log[(Log[2] + Log[y])^(-1)])\/(Sqrt[2]*(Log[2] + Log[y])^(3\/2)) + (3*Sqrt[y]*Log[(Log[2] + Log[y])^(-1)]^2)\/(4*Sqrt[2]*(Log[2] + Log[y])^(5\/2))",
+			"Remainder":"Sqrt[2]*Abs[Sqrt[y]\/Sqrt[Log[2] + Log[y]]]*PowerLogRemainder[(Log[2] + Log[y])^(-1), 3, 3]",
+			"RemainderPower":"3",
+			"Check":"0.00004623337279689952730156943192850155`6."
+		},
+		{
+			"Case":"T9",
+			"Source":"Transseries Ex.55 (X + al log X + ga log log X, depth-two reversion through t^2)",
+			"Request":"HoldForm[AsymptoticInverse[x + al*Log[x] + ga*Log[Log[x]], {x, Infinity}, {y, 3}, Assumptions -> al > 0 && ga > 0]]",
+			"Outcome":"Series",
+			"Kind":"LogarithmicInverse",
+			"Normal":"(-3*al^2*ga)\/(2*y^2) + (al*ga)\/y + y + (al*ga^2)\/(y^2*Log[y^(-1)]) + al*Log[y^(-1)] + (al^3*Log[y^(-1)])\/y^2 - (al^2*ga*Log[y^(-1)])\/(2*y^2) - (al^2*Log[y^(-1)])\/y + (al^3*Log[y^(-1)]^2)\/(2*y^2) - ga*Log[-Log[y^(-1)]] - (al^2*ga*Log[-Log[y^(-1)]])\/y^2 + (al*ga^2*Log[-Log[y^(-1)]])\/y^2 + (al*ga*Log[-Log[y^(-1)]])\/y - (ga^3*Log[-Log[y^(-1)]])\/(y^2*Log[y^(-1)]^2) + (al*ga^2*Log[-Log[y^(-1)]])\/(y^2*Log[y^(-1)]) - (ga^2*Log[-Log[y^(-1)]])\/(y*Log[y^(-1)]) - (al^2*ga*Log[y^(-1)]*Log[-Log[y^(-1)]])\/y^2 + (al*ga^2*Log[-Log[y^(-1)]]^2)\/(2*y^2) + (ga^3*Log[-Log[y^(-1)]]^2)\/(2*y^2*Log[y^(-1)]^2) - (ga^3*Log[-Log[y^(-1)]]^2)\/(2*y^2*Log[y^(-1)])",
+			"Remainder":"PowerLogRemainder[y^(-1), 3, 4]",
+			"RemainderPower":"3",
+			"Check":"True"
+		},
+		{
+			"Case":"T10",
+			"Source":"Transseries Ex.56 (X + X\/log X, logarithmic-chart inverse through lambda^-3)",
+			"Request":"HoldForm[AsymptoticInverse[x + x\/Log[x], {x, Infinity}, {y, 4}]]",
+			"Outcome":"Series",
+			"Kind":"LogarithmicInverse",
+			"Normal":"y + (2*y)\/Log[y^(-1)]^3 + y\/Log[y^(-1)]^2 + y\/Log[y^(-1)]",
+			"Remainder":"Abs[y]*PowerLogRemainder[-Log[y^(-1)]^(-1), 4, 0]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"T11",
+			"Source":"Transseries Ex.51 (c X^rho (log X)^sigma with c=2, rho=3, sigma=2; numeric at 10^30)",
+			"Request":"HoldForm[AsymptoticInverse[2*x^3*Log[x]^2, {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"(3^(2\/3)*y^(1\/3))\/(2*(Log[3\/2] + Log[y\/2]\/2)^(2\/3)) - (y^(1\/3)*Log[(Log[3\/2] + Log[y\/2]\/2)^(-1)])\/(3^(1\/3)*(Log[3\/2] + Log[y\/2]\/2)^(5\/3))",
+			"Remainder":"(3^(2\/3)*Abs[y^(1\/3)\/(Log[3\/2] + Log[y\/2]\/2)^(2\/3)]*PowerLogRemainder[(Log[3\/2] + Log[y\/2]\/2)^(-1), 2, 2])\/2",
+			"RemainderPower":"2",
+			"Check":"0.0037356284403506735`6."
+		},
+		{
+			"Case":"F1",
+			"Source":"Transseries Ex.27\/38 (scale-changing composition F(3X^2\/L) with F = Y + log Y + 1\/Y)",
+			"Request":"HoldForm[AsymptoticExpansion[3*(x^2\/Log[x]) + Log[3*(x^2\/Log[x])] + Log[x]\/(3*x^2), {x, Infinity, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Native",
+			"Normal":"(3*x^2)\/Log[x] + Log[x]\/(3*x^2) + Log[(3*x^2)\/Log[x]]",
+			"Remainder":"Missing[\"NativeContract\"]",
+			"RemainderPower":"Missing[\"KeyAbsent\", \"RemainderPower\"]"
+		},
+		{
+			"Case":"F2",
+			"Source":"Transseries Ex.23 (log of L^2 t^-3 (1 + (L+1) t): forced nested logarithm)",
+			"Request":"HoldForm[AsymptoticExpansion[Log[Log[x]^2*x^3*(1 + (Log[x] + 1)\/x)], {x, Infinity, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Native",
+			"Normal":"1\/(3*x^3) - 1\/(2*x^2) + x^(-1) + Log[x]\/x^3 - Log[x]\/x^2 + Log[x]\/x + Log[x]^2\/x^3 - Log[x]^2\/(2*x^2) + Log[x]^3\/(3*x^3) + Log[x^3*Log[x]^2]",
+			"Remainder":"Missing[\"NativeContract\"]",
+			"RemainderPower":"Missing[\"KeyAbsent\", \"RemainderPower\"]"
+		},
+		{
+			"Case":"F3",
+			"Source":"Transseries Ex.17 (reciprocal through blocks)",
+			"Request":"HoldForm[AsymptoticExpansion[1\/(1 + (Log[x] + 1)\/x + Log[x]^2\/x^2 + (Log[x] - 2)\/x^3), {x, Infinity, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"1 + x^(-3) + x^(-2) - x^(-1) - (4*Log[x])\/x^3 + (2*Log[x])\/x^2 - Log[x]\/x - Log[x]^2\/x^3 + Log[x]^3\/x^3",
+			"Remainder":"PowerLogRemainder[x^(-1), 4, 4]",
+			"RemainderPower":"4"
+		},
+		{
+			"Case":"F4",
+			"Source":"Transseries Ex.14 (square root through four blocks)",
+			"Request":"HoldForm[AsymptoticExpansion[Sqrt[1 + 2*(Log[x]\/x) + (Log[x]^2 + 2)\/x^2 + 4*(Log[x]\/x^3)], {x, Infinity, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"1 + x^(-2) + Log[x]\/x^3 + Log[x]\/x",
+			"Remainder":"PowerLogRemainder[x^(-1), 4, 2]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"F5",
+			"Source":"Transseries Ex.21 (finite logarithm)",
+			"Request":"HoldForm[AsymptoticExpansion[Log[1 + (Log[x] + 1)\/x + Log[x]^2\/x^2], {x, Infinity, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"1\/(3*x^3) - 1\/(2*x^2) + x^(-1) + Log[x]\/x^3 - Log[x]\/x^2 + Log[x]\/x + Log[x]^2\/(2*x^2) - (2*Log[x]^3)\/(3*x^3)",
+			"Remainder":"PowerLogRemainder[x^(-1), 4, 4]",
+			"RemainderPower":"4"
+		},
+		{
+			"Case":"F6",
+			"Source":"Transseries Ex.44 forward source (exact finite power-log sum)",
+			"Request":"HoldForm[AsymptoticExpansion[x + 2*Log[x] + 1 + (3*Log[x] - 1)\/x + (Log[x]^2 + 2)\/x^2, {x, Infinity, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"1 + 2\/x^2 - x^(-1) + x + 2*Log[x] + (3*Log[x])\/x + Log[x]^2\/x^2",
+			"Remainder":"0",
+			"RemainderPower":"Infinity"
+		},
+		{
+			"Case":"L1",
+			"Source":"Lambert W guide Thm 'Unified complete real asymptotic expansion' (W_0 at +infinity)",
+			"Request":"HoldForm[AsymptoticExpansion[ProductLog[x], {x, Infinity, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"Log[x] + Log[Log[x]^(-1)] - Log[Log[x]^(-1)]\/Log[x]",
+			"Remainder":"Abs[Log[x]]*PowerLogRemainder[Log[x]^(-1), 3, 2]",
+			"RemainderPower":"3",
+			"Check":"True"
+		},
+		{
+			"Case":"L2",
+			"Source":"Lambert W guide (W_-1(-x), x -> 0+; same theorem, second row); numeric at 10^-6",
+			"Request":"HoldForm[AsymptoticExpansion[ProductLog[-1, -x], {x, 0, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Native",
+			"Normal":"(-I)*Pi + (2*I)*Pi*Floor[-1\/2*Arg[x]\/Pi] + Log[x] - Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])] - Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])]\/(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^4 + (I*Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])])\/(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^3 + Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])]\/(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^2 - (I*Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])])\/(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x]) + (3*Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])]^2)\/(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^4 - (((3*I)\/2)*Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])]^2)\/(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^3 - Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])]^2\/(2*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^2) - (11*Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])]^3)\/(6*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^4) + ((I\/3)*Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])]^3)\/(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^3 + Log[I*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])]^4\/(4*(-Pi + 2*Pi*Floor[-1\/2*Arg[x]\/Pi] - I*Log[x])^4)",
+			"Remainder":"Missing[\"NativeContract\"]",
+			"RemainderPower":"Missing[\"KeyAbsent\", \"RemainderPower\"]",
+			"Check":"{-16.6264716704058684746`10.150514997785084 - 0.0002443673247230965`5.317758035399213*I, -16.6265089013724733877`10.}"
+		},
+		{
+			"Case":"L3",
+			"Source":"Transseries chapter 'Reversing x + W(x)' Thm 'All-orders expansion'",
+			"Request":"HoldForm[AsymptoticInverse[x + ProductLog[x], {x, Infinity}, {y, 3}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native result is not a resolved power-log series."
+		},
+		{
+			"Case":"L4",
+			"Source":"Lambert W guide Thm 'Unified Puiseux expansion' (branch point -1\/e)",
+			"Request":"HoldForm[AsymptoticExpansion[ProductLog[-E^(-1) + h], {h, 0, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"-1 + Sqrt[2*E]*Sqrt[h] - (2*E*h)\/3 + (11*E^(3\/2)*h^(3\/2))\/(18*Sqrt[2])",
+			"Remainder":"PowerLogRemainder[h, 2, 0]",
+			"RemainderPower":"2",
+			"Check":"True"
+		},
+		{
+			"Case":"L5",
+			"Source":"Lambert W guide Ex.3 (Taylor expansion of W_0 at 1)",
+			"Request":"HoldForm[AsymptoticExpansion[ProductLog[1 + h], {h, 0, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"ProductLog[1] - (h^2*ProductLog[1]^2)\/(1 + ProductLog[1])^3 - (h^2*ProductLog[1]^3)\/(2*(1 + ProductLog[1])^3) + (h*ProductLog[1])\/(1 + ProductLog[1])",
+			"Remainder":"PowerLogRemainder[h, 3, 0]",
+			"RemainderPower":"3",
+			"Check":"True"
+		},
+		{
+			"Case":"L6",
+			"Source":"Transseries p0 'The Lambert core' (inverse of x e^x at infinity)",
+			"Request":"HoldForm[AsymptoticInverse[x*Exp[x], {x, Infinity}, {y, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"Log[y] + Log[Log[y]^(-1)] - Log[Log[y]^(-1)]\/Log[y]",
+			"Remainder":"Abs[Log[y]]*PowerLogRemainder[Log[y]^(-1), 3, 2]",
+			"RemainderPower":"3"
+		},
+		{
+			"Case":"L7",
+			"Source":"Lambert W guide Thm 'All positive solutions of x^x = A'",
+			"Request":"HoldForm[AsymptoticInverse[x^x, {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"Log[y]\/Log[Log[y]] - (Log[y]*Log[Log[Log[y]]^(-1)])\/Log[Log[y]]^2",
+			"Remainder":"Abs[Log[y]\/Log[Log[y]]]*PowerLogRemainder[Log[Log[y]]^(-1), 2, 2]",
+			"RemainderPower":"2"
+		},
+		{
+			"Case":"L8",
+			"Source":"Lambert W guide 'Inverting the prime-number scale' (inverse of x\/log x)",
+			"Request":"HoldForm[AsymptoticInverse[x\/Log[x], {x, Infinity}, {y, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"y*Log[y] - y*Log[Log[y]^(-1)] - (y*Log[Log[y]^(-1)])\/Log[y]",
+			"Remainder":"Abs[y*Log[y]]*PowerLogRemainder[Log[y]^(-1), 3, 2]",
+			"RemainderPower":"3"
+		},
+		{
+			"Case":"L9",
+			"Source":"Lambert W guide 'A power times an exponential' (inverse of x^2 e^x)",
+			"Request":"HoldForm[AsymptoticInverse[x^2*Exp[x], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-2*Log[2] + Log[y] - (2*Log[2]*Log[(-Log[2] + Log[y]\/2)^(-1)])\/(-Log[2] + Log[y]\/2) + (Log[y]*Log[(-Log[2] + Log[y]\/2)^(-1)])\/(-Log[2] + Log[y]\/2)",
+			"Remainder":"2*Abs[-Log[2] + Log[y]\/2]*PowerLogRemainder[(-Log[2] + Log[y]\/2)^(-1), 2, 1]",
+			"RemainderPower":"2"
+		},
+		{
+			"Case":"L10",
+			"Source":"Lambert W guide 'A linear term plus a logarithm' (inverse of x - log x, large branch)",
+			"Request":"HoldForm[AsymptoticInverse[x - Log[x], {x, Infinity}, {y, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"y + Log[y] + Log[y]\/y^2 + Log[y]\/y - Log[y]^2\/(2*y^2)",
+			"Remainder":"PowerLogRemainder[y^(-1), 3, 3]",
+			"RemainderPower":"3"
+		},
+		{
+			"Case":"C1",
+			"Source":"Transseries chapter 'Gamma and Barnes G' Thm 'All-orders expansion of Gamma_+^-1'; numeric at 10^500",
+			"Request":"HoldForm[AsymptoticInverse[Gamma[x], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"GammaInverse",
+			"Normal":"1\/2 - Log[2*Pi]\/(2*Log[Log[y]\/ProductLog[Log[y]\/E]]) + Log[y]\/ProductLog[Log[y]\/E] - (Log[2*Pi]^2*ProductLog[Log[y]\/E])\/(8*Log[y]*Log[Log[y]\/ProductLog[Log[y]\/E]]^3) + ProductLog[Log[y]\/E]\/(24*Log[y]*Log[Log[y]\/ProductLog[Log[y]\/E]])",
+			"Remainder":"PowerLogRemainder[ProductLog[Log[y]\/E]\/Log[y], 2, 0]\/Log[Log[y]\/ProductLog[Log[y]\/E]]^2",
+			"RemainderPower":"2",
+			"Check":"7.708122526665879021161545791`6.*^-11"
+		},
+		{
+			"Case":"C2",
+			"Source":"Transseries chapter 'Gamma and Barnes G' Thm 'All-orders expansion of the Barnes inverse'; numeric at 10^500",
+			"Request":"HoldForm[AsymptoticInverse[BarnesG[x], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"BarnesGInverse",
+			"Normal":"1 - Log[2*Pi]\/(2*(-1 + Log[2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]])) + 2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]] + (Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]*ProductLog[(4*Log[y])\/E^3])\/(24*Log[y]) - (Log[2*Pi]^2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]*ProductLog[(4*Log[y])\/E^3])\/(16*Log[y]*(-1 + Log[2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]])^3) + (Log[2*Pi]^2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]*ProductLog[(4*Log[y])\/E^3])\/(16*Log[y]*(-1 + Log[2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]])^2) + (Log[Glaisher]*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]*ProductLog[(4*Log[y])\/E^3])\/(2*Log[y]*(-1 + Log[2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]]))",
+			"Remainder":"PowerLogRemainder[1\/(2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]), 2, 0]\/(-1 + Log[2*Sqrt[Log[y]\/ProductLog[(4*Log[y])\/E^3]]])^3",
+			"RemainderPower":"2",
+			"Check":"5.7149565794066451574017830862087`6.*^-7"
+		},
+		{
+			"Case":"C3",
+			"Source":"Transseries chapter 'The hyperfactorial K-function' Thm 'Canonical inverse transseries'",
+			"Request":"HoldForm[AsymptoticInverse[Hyperfactorial[x], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native result is not a resolved power-log series."
+		},
+		{
+			"Case":"C3b",
+			"Source":"Hyperfactorial carrier x^(x^2\/2 + x\/2 + 1\/12) e^(-x^2\/4) (same chapter, leading core)",
+			"Request":"HoldForm[AsymptoticInverse[x^(x^2\/2 + x\/2 + 1\/12)*Exp[-x^2\/4], {x, Infinity}, {y, 1}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"(2*Sqrt[Log[y]])\/Sqrt[-1 + Log[2] + Log[2*Log[y]]]",
+			"Remainder":"2*Abs[Sqrt[Log[y]]\/Sqrt[-1 + Log[2] + Log[2*Log[y]]]]*PowerLogRemainder[(-1 + Log[2] + Log[2*Log[y]])^(-1), 1, 1]",
+			"RemainderPower":"1"
+		},
+		{
+			"Case":"C4",
+			"Source":"Transseries chapter 'The double factorial' (branchwise inverse; Wolfram interpolation Factorial2)",
+			"Request":"HoldForm[AsymptoticInverse[x!!, {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native series must use the recorded positive local variable at zero and a supported power-log form."
+		},
+		{
+			"Case":"C4b",
+			"Source":"Double factorial even branch 2^(x\/2) Gamma[x\/2 + 1]",
+			"Request":"HoldForm[AsymptoticInverse[2^(x\/2)*Gamma[x\/2 + 1], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native series must use the recorded positive local variable at zero and a supported power-log form."
+		},
+		{
+			"Case":"C5",
+			"Source":"Transseries chapter 'The subfactorial' (Wolfram interpolation Subfactorial)",
+			"Request":"HoldForm[AsymptoticInverse[Subfactorial[x], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native series must use the recorded positive local variable at zero and a supported power-log form."
+		},
+		{
+			"Case":"C5b",
+			"Source":"Subfactorial carrier Gamma[x+1]\/e (same chapter, 'The carrier is Chapter 5's inverse'); numeric at 10^50",
+			"Request":"HoldForm[AsymptoticInverse[Gamma[x + 1]\/E, {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"GammaInverse",
+			"Normal":"-1\/2 - Log[2*Pi]\/(2*Log[Log[E*y]\/ProductLog[Log[E*y]\/E]]) + Log[E*y]\/ProductLog[Log[E*y]\/E] - (Log[2*Pi]^2*ProductLog[Log[E*y]\/E])\/(8*Log[E*y]*Log[Log[E*y]\/ProductLog[Log[E*y]\/E]]^3) + ProductLog[Log[E*y]\/E]\/(24*Log[E*y]*Log[Log[E*y]\/ProductLog[Log[E*y]\/E]])",
+			"Remainder":"PowerLogRemainder[ProductLog[Log[E*y]\/E]\/Log[E*y], 2, 0]\/Log[Log[E*y]\/ProductLog[Log[E*y]\/E]]^2",
+			"RemainderPower":"2",
+			"Check":"3.060321547545351656674433949682`6.*^-8"
+		},
+		{
+			"Case":"C6",
+			"Source":"Transseries chapter 'A real-argument Fibonacci function' (Binet interpolation with cosine)",
+			"Request":"HoldForm[AsymptoticInverse[(GoldenRatio^x - Cos[Pi*x]\/GoldenRatio^x)\/Sqrt[5], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"ExponentialScale",
+			"Message":"Exp of a quantity that is unbounded at the expansion point produces exponential growth or decay, which is outside the power-log class."
+		},
+		{
+			"Case":"C6b",
+			"Source":"Fibonacci dominant exponential phi^x\/Sqrt[5] (same chapter, outer branch)",
+			"Request":"HoldForm[AsymptoticInverse[GoldenRatio^x\/Sqrt[5], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"Log[Sqrt[5]*y]\/Log[GoldenRatio]",
+			"Remainder":"0",
+			"RemainderPower":"Infinity"
+		},
+		{
+			"Case":"C7",
+			"Source":"Transseries chapter 'The Bell numbers: a Lambert saddle' Thm 'All-orders saddle expansion'",
+			"Request":"HoldForm[AsymptoticExpansion[BellB[n], {n, Infinity, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Native",
+			"Normal":"BellB[n]",
+			"Remainder":"Missing[\"NativeContract\"]",
+			"RemainderPower":"Missing[\"KeyAbsent\", \"RemainderPower\"]"
+		},
+		{
+			"Case":"C8",
+			"Source":"Transseries chapter 'The Fubini numbers' Cor. 'Elementary-scale form' (Fubini = PolyLog[-n, 1\/2]\/2)",
+			"Request":"HoldForm[AsymptoticExpansion[PolyLog[-n, 1\/2]\/2, {n, Infinity, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedNativeCoefficient",
+			"Message":"A native amplitude must have polynomial logarithmic coefficients and bounded real sine\/cosine modes."
+		},
+		{
+			"Case":"C8b",
+			"Source":"Fubini numbers in Lerch form LerchPhi[1\/2, -n, 1]\/4 (same chapter)",
+			"Request":"HoldForm[AsymptoticExpansion[LerchPhi[1\/2, -n, 1]\/4, {n, Infinity, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedNativeCoefficient",
+			"Message":"A native amplitude must have polynomial logarithmic coefficients and bounded real sine\/cosine modes."
+		},
+		{
+			"Case":"C8c",
+			"Source":"Fubini inverse (index from the value) in PolyLog form",
+			"Request":"HoldForm[AsymptoticInverse[PolyLog[-n, 1\/2]\/2, {n, Infinity}, {y, 1}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native result is not a resolved power-log series."
+		},
+		{
+			"Case":"C10",
+			"Source":"Transseries chapter 'The partition numbers' (Rademacher sectors)",
+			"Request":"HoldForm[AsymptoticExpansion[PartitionsP[n], {n, Infinity, 1}]]",
+			"Outcome":"Series",
+			"Kind":"Native",
+			"Normal":"PartitionsP[n]",
+			"Remainder":"Missing[\"NativeContract\"]",
+			"RemainderPower":"Missing[\"KeyAbsent\", \"RemainderPower\"]"
+		},
+		{
+			"Case":"C11",
+			"Source":"Combinatorial inverses ch. 'Gamma-quotient engine' (Catalan inverse, Wolfram CatalanNumber)",
+			"Request":"HoldForm[AsymptoticInverse[CatalanNumber[x], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native series must use the recorded positive local variable at zero and a supported power-log form."
+		},
+		{
+			"Case":"C11b",
+			"Source":"Catalan as Gamma quotient Gamma[2x+1]\/(Gamma[x+1] Gamma[x+2])",
+			"Request":"HoldForm[AsymptoticInverse[Gamma[2*x + 1]\/(Gamma[x + 1]*Gamma[x + 2]), {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native series must use the recorded positive local variable at zero and a supported power-log form."
+		},
+		{
+			"Case":"C11c",
+			"Source":"Catalan exponential-power carrier 4^x x^(-3\/2)\/Sqrt[Pi]",
+			"Request":"HoldForm[AsymptoticInverse[4^x*(1\/(x^(3\/2)*Sqrt[Pi])), {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"Log[Sqrt[Pi]*y]\/Log[4] + (3*Log[Log[Sqrt[Pi]*y]\/Log[4]])\/Log[16] + (9*Log[4]*Log[Log[Sqrt[Pi]*y]\/Log[4]])\/(16*Log[2]^2*Log[Sqrt[Pi]*y])",
+			"Remainder":"PowerLogRemainder[Log[Sqrt[Pi]*y]^(-1), 2, 2]",
+			"RemainderPower":"2"
+		},
+		{
+			"Case":"C12",
+			"Source":"Combinatorial inverses ch. 'Harmonic functions: exponential and endpoint-Puiseux inversion' (inverse of H_x)",
+			"Request":"HoldForm[AsymptoticInverse[HarmonicNumber[x], {x, Infinity}, {y, 3}]]",
+			"Outcome":"Failure",
+			"Tag":"InsufficientForwardOrder",
+			"Message":"No nonconstant leading block was found within the working-order budget."
+		},
+		{
+			"Case":"C12b",
+			"Source":"Harmonic inverse from the explicit source Log[x] + EulerGamma + 1\/(2x) - 1\/(12x^2)",
+			"Request":"HoldForm[AsymptoticInverse[Log[x] + EulerGamma + 1\/(2*x) - 1\/(12*x^2), {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"LogarithmicLimit",
+			"Message":"The function has a logarithmic singularity at the expansion point (leading block Log[u]^k); this is outside the supported class."
+		},
+		{
+			"Case":"C13",
+			"Source":"Combinatorial inverses ch. 'Gamma-quotient engine' (central binomial inverse)",
+			"Request":"HoldForm[AsymptoticInverse[Binomial[2*x, x], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native series must use the recorded positive local variable at zero and a supported power-log form."
+		},
+		{
+			"Case":"C14",
+			"Source":"Transseries Ex.71\/72 (Gamma forward Stirling expansion)",
+			"Request":"HoldForm[AsymptoticExpansion[Gamma[x], {x, Infinity, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"(E^(x*(-1 + Log[x]))*Sqrt[Pi\/2])\/(144*x^(5\/2)) + (E^(x*(-1 + Log[x]))*Sqrt[Pi\/2])\/(6*x^(3\/2)) + (E^(x*(-1 + Log[x]))*Sqrt[2*Pi])\/Sqrt[x]",
+			"Remainder":"(E^(x*(-1 + Log[x]))*Sqrt[2*Pi]*PowerLogRemainder[x^(-1), 3, 0])\/Sqrt[x]",
+			"RemainderPower":"3"
+		},
+		{
+			"Case":"Q1",
+			"Source":"q-series monograph reading item 3 (fixed-argument q -> 1 product (1\/2; e^-t)_inf)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[1\/2, Exp[-t]], {t, 0, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnresolvedNativeSeries",
+			"Message":"The native expansion contains an unresolved function or nonfinite coefficient."
+		},
+		{
+			"Case":"Q2",
+			"Source":"q-series monograph reading item 2 ((q; q)_inf near q = 0, Euler pentagonal)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[q, q], {q, 0, 5}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"1 - q - q^2",
+			"Remainder":"PowerLogRemainder[q, 5, 0]",
+			"RemainderPower":"5",
+			"Check":"True"
+		},
+		{
+			"Case":"Q3",
+			"Source":"q-series monograph reading item 5 (q-Gamma at fixed q, large argument)",
+			"Request":"HoldForm[AsymptoticExpansion[QGamma[x, 1\/2], {x, Infinity, 2}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedNativeCoefficient",
+			"Message":"A native amplitude must have polynomial logarithmic coefficients and bounded real sine\/cosine modes."
+		},
+		{
+			"Case":"Q4",
+			"Source":"q-series monograph reading item 5 (q-Gamma inverse)",
+			"Request":"HoldForm[AsymptoticInverse[QGamma[x, 1\/2], {x, Infinity}, {y, 1}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedInput",
+			"Message":"The native result is not a resolved power-log series."
+		},
+		{
+			"Case":"Q5",
+			"Source":"Gaussian coefficient calculus (fixed-base large-index Gaussian binomial)",
+			"Request":"HoldForm[AsymptoticExpansion[QBinomial[2*n, n, 1\/2], {n, Infinity, 1}]]",
+			"Outcome":"Failure",
+			"Tag":"UnsupportedNativeCoefficient",
+			"Message":"A native amplitude must have polynomial logarithmic coefficients and bounded real sine\/cosine modes."
+		},
+		{
+			"Case":"Q6",
+			"Source":"q-series monograph reading item 2 ((a; q)_inf near q = 0)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[a, q], {q, 0, 3}, Assumptions -> 0 < a < 1]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"1 - a - a*q + a^2*q - a*q^2 + a^2*q^2",
+			"Remainder":"PowerLogRemainder[q, 3, 0]",
+			"RemainderPower":"3"
+		},
+		{
+			"Case":"Q7",
+			"Source":"q-series monograph reading item 3 ((1\/2; q)_inf as q -> 1, u = 1 - q)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[1\/2, 1 - u], {u, 0, 1}]]",
+			"Outcome":"Failure",
+			"Tag":"UnresolvedNativeSeries",
+			"Message":"The native expansion contains an unresolved function or nonfinite coefficient."
+		},
+		{
+			"Case":"N1",
+			"Source":"Transseries Ex.23\/50 (nested logarithm on the forward side)",
+			"Request":"HoldForm[AsymptoticExpansion[Log[Log[x]], {x, Infinity, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Native",
+			"Normal":"Log[Log[x]]",
+			"Remainder":"Missing[\"NativeContract\"]",
+			"RemainderPower":"Missing[\"KeyAbsent\", \"RemainderPower\"]"
+		},
+		{
+			"Case":"N2",
+			"Source":"Transseries Ex.15\/56 (reciprocal logarithm in a coefficient, the iterated field)",
+			"Request":"HoldForm[AsymptoticExpansion[x\/Log[x] + Log[x], {x, Infinity, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Native",
+			"Normal":"x\/Log[x] + Log[x]",
+			"Remainder":"Missing[\"NativeContract\"]",
+			"RemainderPower":"Missing[\"KeyAbsent\", \"RemainderPower\"]"
+		},
+		{
+			"Case":"W1",
+			"Source":"Transseries chapter 'Reversing x + W(x)' (forward source x + W(x))",
+			"Request":"HoldForm[AsymptoticExpansion[x + ProductLog[x], {x, Infinity, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Native",
+			"Normal":"x + Log[x] - Log[Log[x]] - Log[Log[x]]\/Log[x]^2 + Log[Log[x]]\/Log[x] + Log[Log[x]]^2\/(2*Log[x]^2)",
+			"Remainder":"Missing[\"NativeContract\"]",
+			"RemainderPower":"Missing[\"KeyAbsent\", \"RemainderPower\"]"
+		}
+	],
+	"Summary":{
+		"Series":40,
+		"Failure":19
+	}
+}
