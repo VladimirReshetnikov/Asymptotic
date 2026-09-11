@@ -6,7 +6,7 @@
    SPDX-License-Identifier: MIT-0 *)
 
 (* BEGIN SOURCE: src/Kernel/AsymptoticAnalysis.wl
-   Source SHA256 (UTF-8/LF): 5f780d71b66ee6d56d659bac2d3b0f13fc43db8c80b0f94d2e34d5c67e32705a *)
+   Source SHA256 (UTF-8/LF): 0bfdd1daf5e481ed8a345c453cdb2a2bdeb1da7710882afada4ff6f932ee9e52 *)
 (* ::Package:: *)
 (* AsymptoticAnalysis -- power-log asymptotic expansions of functions and of their
    inverse functions on a real branch (finite endpoints and infinity, real
@@ -1485,6 +1485,80 @@ makeInverseSeriesData[terms_, y_, y0_, a_, coord_, remData_, r_, x0_] :=
 (* ------------------------------------------------------------------ *)
 
 GeneralizedSeries /: Normal[GeneralizedSeries[a_Association]] := a["Expression"];
+
+(* Simplify and FullSimplify of a result object. An Association is atomic to
+   the simplifiers, so a GeneralizedSeries was inert to them: Simplify[s]
+   returned s unchanged. These UpValues apply the requested simplifier to
+   every coefficient-bearing field under the object's recorded assumptions
+   together with any assumptions supplied in the call, and record the
+   strengthened assumptions on the result, since the simplified
+   coefficients are equal to the originals only under them. The remainder,
+   the provenance, the retained computation state and the replay recipe are
+   not touched: they describe the same function, and replay recomputes from
+   the recipe. Blocks keep their polynomial form in the logarithmic
+   variable; a simplification that leaves that form is discarded for that
+   block. Only a top-level object is reached: inside a larger expression the
+   simplifiers still treat the object as an atom. *)
+GeneralizedSeries /: System`Simplify[s_GeneralizedSeries, rest___] := seriesSimplify[System`Simplify, s, {rest}];
+GeneralizedSeries /: System`FullSimplify[s_GeneralizedSeries, rest___] := seriesSimplify[System`FullSimplify, s, {rest}];
+seriesSimplifyOptionQ[e_] := MatchQ[e, _Rule | _RuleDelayed | {(_Rule | _RuleDelayed) ...}];
+(* On Mathics the interpreter's own simplifiers leave Abs[a] under a > 0 and
+   Log[1/(1 + Log[y])] as they are; the package's assumption-aware adapters,
+   which every internal proof already uses, do the work there. *)
+seriesSimplifier[f_] := f;
+If[StringQ[$Version] && StringContainsQ[$Version, "Mathics"],
+  seriesSimplifier[System`Simplify] := AsymptoticAnalysis`Mathics`Simplify;
+  seriesSimplifier[System`FullSimplify] := AsymptoticAnalysis`Mathics`FullSimplify];
+seriesSimplify[f_, GeneralizedSeries[a_Association], rest_List] := Module[
+  {positional, options, supplied, ass, simp, ell, simplifyRows, simplifyExpression, updates = {}},
+  positional = Select[rest, ! seriesSimplifyOptionQ[#] &];
+  options = Flatten[Select[rest, seriesSimplifyOptionQ]];
+  supplied = And @@ Join[positional, Cases[options, (Rule | RuleDelayed)[Assumptions, v_] :> v]];
+  options = DeleteCases[options, (Rule | RuleDelayed)[Assumptions, _]];
+  ass = seriesSimplifyAssumptions[Lookup[a, "Assumptions", True], supplied];
+  (* The coefficients are asserted on the approach side only, so the
+     simplifier may use it (Log[Log[y]] for y -> Infinity); the simplifier's
+     own messages about branches it explores are not results. *)
+  simp[e_] := Replace[Quiet[seriesSimplifier[f][e, ass && seriesApproachAssumption[a], Sequence @@ options]], v_ /; v === $Aborted :> e];
+  ell = Lookup[a, "LogVariable", None];
+  simplifyRows[rows_List] := (Replace[#, {beta_, c_} :> {beta,
+    With[{v = simp[c]}, If[ell === None || PolynomialQ[v, ell], v, c]]}] & /@ rows);
+  (* Keep the finite expression's shape: simplify the terms of a sum and the
+     factors of a product separately, so a prefactor times a bracket stays a
+     prefactor times a bracket. *)
+  simplifyExpression[e_Plus] := Total[simplifyExpression /@ List @@ e];
+  simplifyExpression[e_Times] := Times @@ (simplifyExpression /@ List @@ e);
+  simplifyExpression[e_] := simp[e];
+  (* Mathics refuses part assignment into an Association; the updated fields
+     are collected and joined. *)
+  If[KeyExistsQ[a, "Expression"] && ! MatchQ[a["Expression"], _Missing],
+    AppendTo[updates, "Expression" -> simplifyExpression[a["Expression"]]]];
+  Scan[If[KeyExistsQ[a, #] && ListQ[a[#]], AppendTo[updates, # -> simplifyRows[a[#]]]] &, {"Terms", "Blocks"}];
+  If[KeyExistsQ[a, "FrontierTerm"] && ! MatchQ[a["FrontierTerm"], None | _Missing],
+    AppendTo[updates, "FrontierTerm" -> simp[a["FrontierTerm"]]]];
+  Scan[If[KeyExistsQ[a, #] && Head[a[#]] === SeriesData,
+    AppendTo[updates, # -> ReplacePart[a[#], 3 -> (simp /@ a[#][[3]])]]] &, {"SeriesData", "NativeResult"}];
+  If[KeyExistsQ[a, "ForwardExpansion"] && MatchQ[a["ForwardExpansion"], _GeneralizedSeries],
+    AppendTo[updates, "ForwardExpansion" -> seriesSimplify[f, a["ForwardExpansion"], rest]]];
+  If[supplied =!= True, AppendTo[updates, "Assumptions" -> ass]];
+  GeneralizedSeries[Join[a, Association @@ updates]]];
+(* The approach side of the variable, and the positivity of the remainder's
+   scale (1 + Log[y] > 0 for a scale (1 + Log[y])^(-1)): the coefficients
+   are asserted only where the scale is positive and small, which is what
+   lets -Log[(1 + Log[y])^(-1)] become Log[1 + Log[y]]. *)
+seriesApproachAssumption[a_Association] := Module[
+  {v = Lookup[a, "Variable", None], p = Lookup[a, "ExpansionPoint", None], d = Lookup[a, "Direction", Automatic], side, scales},
+  side = Which[! MatchQ[v, _Symbol], True,
+    p === Infinity, v > 0, p === -Infinity, v < 0,
+    ! exactRealQ[p], True,
+    MemberQ[{"FromAbove", -1}, d], v > p, MemberQ[{"FromBelow", 1}, d], v < p,
+    True, True];
+  scales = Cases[{Lookup[a, "Remainder", None]}, PowerLogRemainder[w_, _, _] :> If[MatchQ[w, Power[_, -1]], w[[1]] > 0, w > 0], {0, Infinity}];
+  side && And @@ DeleteDuplicates[scales]];
+seriesSimplifyAssumptions[recorded_, supplied_] := Module[{clauses},
+  clauses = DeleteDuplicates[DeleteCases[Flatten[{If[Head[recorded] === And, List @@ recorded, recorded],
+    If[Head[supplied] === And, List @@ supplied, supplied]}], True]];
+  If[clauses === {}, True, And @@ clauses]];
 GeneralizedSeries[a_Association]["Properties"] := Keys[a];
 GeneralizedSeries[a_Association][key_String] := Lookup[a, key, Missing["KeyAbsent", key]];
 GeneralizedSeries[a_Association][val_?NumericQ] :=

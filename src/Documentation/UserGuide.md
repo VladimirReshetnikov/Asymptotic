@@ -678,7 +678,38 @@ head. Explicit patterns and saved input using the former name must be updated.
 | `Normal[s]` | The stored `"Expression"` without the package wrapper; a native result stores its construction-time normalization, which need not be finite. |
 | `s["property"]` | A stored property, or `Missing["KeyAbsent", "property"]` when absent. |
 | `s["Properties"]` | The keys stored in this particular result, rather than a universal list of supported fields. |
+| `Simplify[s]`, `FullSimplify[s]`, `Simplify[s, assum]`, `FullSimplify[s, assum]` | The same result with every coefficient simplified under the result's recorded assumptions together with `assum`; see [Simplifying Coefficients](#simplifying-coefficients). |
 | `s[value]` | Evaluation of the approximation at a numerical value when a single expansion variable is identified; native multivariable results require explicit substitution. |
+
+### Simplifying Coefficients
+
+An `Association` is atomic to `Simplify` and `FullSimplify`, so a result object used to pass through them unchanged. Both now simplify the coefficients of a result: the finite expression (term by term and factor by factor, so its shape is kept), the `"Terms"` and `"Blocks"` rows, the `"FrontierTerm"`, a stored `"SeriesData"` or native result, and a retained forward expansion. The simplifier receives the result's recorded `"Assumptions"` together with any assumptions supplied in the call, as a second argument or as `Assumptions -> ...`, and the approach side of the expansion variable; the result records the strengthened assumptions, since the simplified coefficients equal the originals only under them. The remainder, the provenance and the replay data are not changed, so `SeriesRefine` and the series operations accept the simplified object as before. Only a top-level result is reached; a result inside another expression stays atomic to the simplifiers. On Mathics the package's own assumption-aware simplifiers do the work, since the interpreter's `Simplify` leaves `Abs[a]` under `a > 0` unchanged.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Exp[x] + Abs[a] x^2, {x, 0, 3}, "Backend" -> "Package", Assumptions -> Element[a, Reals]];
+{Normal[s], Normal[FullSimplify[s, a > 0]], FullSimplify[s, a > 0]["Assumptions"]}
+```
+
+**Output**
+
+```wolfram
+{1 + x + x^2 (1/2 + Abs[a]), 1 + x + (1/2 + a) x^2, Element[a, Reals] && a > 0}
+```
+
+**Input**
+
+```wolfram
+l = AsymptoticInverse[x + x Log[x], {x, Infinity}, {y, 3}];
+{l["Terms"][[2]], FullSimplify[l]["Terms"][[2]]}
+```
+
+**Output**
+
+```wolfram
+{{1, -Log[(1 + Log[y])^(-1)]}, {1, Log[1 + Log[y]]}}
+```
 
 ### Display and Evaluation
 

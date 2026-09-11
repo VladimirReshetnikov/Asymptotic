@@ -694,6 +694,21 @@ portableTest["primitive-equivalent-requests-catalog", "primitive",
     {renamed === direct, listForm === ruleForm, scaled === ({Expand[3 #[[1]]], #[[2]]} & /@ direct)}],
   {True, True, True}];
 
+(* Simplify and FullSimplify reach a result's coefficients on both kernels:
+   Abs[a] becomes a under a supplied a > 0, the strengthened assumptions are
+   recorded, the remainder is unchanged, and an object with nothing to
+   simplify is returned as it is. *)
+portableTest["primitive-series-simplification-reaches-coefficients", "primitive",
+  Module[{x, a, s, fs, ss},
+    s = AsymptoticExpansion[Exp[x] + Abs[a] x^2, {x, 0, 3}, "Backend" -> "Package", Assumptions -> Element[a, Reals]];
+    fs = FullSimplify[s, a > 0]; ss = Simplify[s, Assumptions -> a > 0];
+    (* The expected list is evaluated outside the Module, so the symbols are
+       compared inside it. *)
+    {MatchQ[fs, _GeneralizedSeries], Expand[Normal[fs] - (1 + x + (1/2 + a) x^2)], fs["Terms"] === {{0, 1}, {1, 1}, {2, 1/2 + a}},
+     fs["Blocks"] === fs["Terms"], fs["Remainder"] === s["Remainder"], ! FreeQ[fs["Assumptions"], HoldPattern[a > 0]],
+     Expand[Normal[ss] - Normal[fs]], Simplify[s] === s, MatchQ[SeriesRefine[fs, 4], _GeneralizedSeries]}],
+  {True, 0, True, True, True, True, 0, True, True}];
+
 (* W4-08: the Mathics defining-series provider admits an exact negative
    noninteger lower parameter of a nonterminating sum and still refuses a
    divergent rank and a lower parameter at a pole. Mathics itself evaluates

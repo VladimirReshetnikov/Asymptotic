@@ -1581,6 +1581,13 @@ when absent.</td>
 list of supported fields.</td>
 </tr>
 <tr>
+<td><code>Simplify[s]</code>, <code>FullSimplify[s]</code>,
+<code>Simplify[s, assum]</code>,
+<code>FullSimplify[s, assum]</code></td>
+<td>The same result with every coefficient simplified under the result&#39;s
+recorded assumptions together with <code>assum</code>; see <a href="#simplifying-coefficients">Simplifying Coefficients</a>.</td>
+</tr>
+<tr>
 <td><code>s[value]</code></td>
 <td>Evaluation of the approximation at a numerical value when a single
 expansion variable is identified; native multivariable results require
@@ -1588,6 +1595,38 @@ explicit substitution.</td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="simplifying-coefficients" class="level3">
+<h3>Simplifying Coefficients</h3>
+<p>An <code>Association</code> is atomic to <code>Simplify</code> and
+<code>FullSimplify</code>, so a result object used to pass through them
+unchanged. Both now simplify the coefficients of a result: the finite
+expression (term by term and factor by factor, so its shape is kept),
+the <code>&quot;Terms&quot;</code> and <code>&quot;Blocks&quot;</code> rows, the
+<code>&quot;FrontierTerm&quot;</code>, a stored <code>&quot;SeriesData&quot;</code> or
+native result, and a retained forward expansion. The simplifier receives
+the result&#39;s recorded <code>&quot;Assumptions&quot;</code> together with any
+assumptions supplied in the call, as a second argument or as
+<code>Assumptions -&gt; ...</code>, and the approach side of the
+expansion variable; the result records the strengthened assumptions,
+since the simplified coefficients equal the originals only under them.
+The remainder, the provenance and the replay data are not changed, so
+<code>SeriesRefine</code> and the series operations accept the
+simplified object as before. Only a top-level result is reached; a
+result inside another expression stays atomic to the simplifiers. On
+Mathics the package&#39;s own assumption-aware simplifiers do the work,
+since the interpreter&#39;s <code>Simplify</code> leaves <code>Abs[a]</code>
+under <code>a &gt; 0</code> unchanged.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[Exp[x] + Abs[a] x^2, {x, 0, 3}, &quot;Backend&quot; -&gt; &quot;Package&quot;, Assumptions -&gt; Element[a, Reals]];
+{Normal[s], Normal[FullSimplify[s, a &gt; 0]], FullSimplify[s, a &gt; 0][&quot;Assumptions&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{1 + x + x^2 (1/2 + Abs[a]), 1 + x + (1/2 + a) x^2, Element[a, Reals] &amp;&amp; a &gt; 0}</code></pre>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>l = AsymptoticInverse[x + x Log[x], {x, Infinity}, {y, 3}];
+{l[&quot;Terms&quot;][[2]], FullSimplify[l][&quot;Terms&quot;][[2]]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{{1, -Log[(1 + Log[y])^(-1)]}, {1, Log[1 + Log[y]]}}</code></pre>
 </section>
 <section id="display-and-evaluation" class="level3">
 <h3>Display and Evaluation</h3>

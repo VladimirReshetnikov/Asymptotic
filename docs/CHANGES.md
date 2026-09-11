@@ -15,6 +15,17 @@ milestones within that scope.
 
 ## September 11, 2026
 
+### Simplify and FullSimplify reach the coefficients
+
+`Simplify[s]`, `FullSimplify[s]` and their forms with assumptions now
+simplify the coefficients of a result object (finite expression, term rows,
+frontier term, stored series data, retained forward expansion) under the
+recorded and the supplied assumptions and the approach side, recording the
+strengthened assumptions; the remainder and the replay data are unchanged.
+An `Association` is atomic to the simplifiers, so the object used to pass
+through them untouched. On Mathics the package's assumption-aware
+simplifiers are used.
+
 ### Source admission, polynomial monotonicity certificate, equivalent requests
 
 A source applying a function head outside the built-in contexts (an

@@ -1188,6 +1188,29 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## Simplify and FullSimplify on result objects
+
+An `Association` is atomic to `Simplify` and `FullSimplify`, so a
+`GeneralizedSeries` passed through them unchanged (`Simplify[s] === s`).
+UpValues now simplify the coefficient-bearing fields under the recorded and
+supplied assumptions and the approach side, keep the finite expression's
+shape (terms and factors separately), record the strengthened assumptions,
+and leave the remainder and replay data alone; on Mathics the package's
+assumption-aware adapters are used because the interpreter's simplifiers
+leave `Abs[a]` under `a > 0` unchanged.
+[ReviewSeriesSimplification.wlt](../src/Tests/ReviewSeriesSimplification.wlt)
+pins `Abs[b]` to `b` under a positional and an option assumption with the
+recorded assumptions strengthened, `-Log[(1 + Log[y])^(-1)]` to
+`Log[1 + Log[y]]` in a logarithmic inverse with an unchanged remainder and a
+working refinement, a `ProductLog` core inverse whose simplified form agrees
+to thirty digits, a native object's coefficients, and operations on the
+simplified objects. The eight-file
+[CheckSeriesSimplification.wl](CheckSeriesSimplification.wl) run passes
+**153/153** on Wolfram 15.0.1 for Windows with unchanged sources
+([series-simplification-tests.json](series-simplification-tests.json)),
+and the portable case `primitive-series-simplification-reaches-coefficients`
+passes on both Mathics layouts.
+
 ## Remaining register items: source admission, monotonicity certificate, equivalent requests
 
 Three suites close the last open register items.
