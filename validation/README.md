@@ -1019,6 +1019,25 @@ pending work, **not a passing acceptance suite**. The
 report's four findings and records the supplied certificate candidates' limits.
 The full package suite remains skipped.
 
+## Coherent source snapshots in the portable runner
+
+[run_mathics_tests.py](run_mathics_tests.py) freezes the package closure as
+well as the suite (W4-12): the entry file, or the modular `Kernel`
+directory's `*.wl` files and `init.m`, are copied into the run's private
+directory after fingerprinting, the copy must reproduce
+`TestedSourcesSHA256` or no kernel is launched, and every kernel reads the
+copy. Receipts gain `SourceSnapshot`, `ExecutedSource` and
+`ExecutedSourcesSHA256`; `SourcesUnchangedDuringRun` now certifies the
+executed copy, a live edit during the run is reported by
+`LiveSourcesChangedDuringRun` and `LiveSourcesSHA256AfterRun` without
+invalidating the evidence, and an incomplete report names the running case
+in `InProgressCase` (W4-13). The [runner tests](test_mathics_runner.py)
+pass **34/34** and the Mathics tooling tests **66/66**; a real one-case
+Mathics run from the frozen modular copy succeeded. Receipts written before
+this change lack the snapshot fields and certified the live tree instead;
+the [portable validation contract](../docs/Mathics/PORTABLE-VALIDATION.md)
+describes both generations.
+
 ## Hypergeometric defining series on Mathics
 
 The Mathics defining-series provider builds rising factorials as explicit

@@ -110,10 +110,13 @@ unadapted interpreter. Package-owned workarounds do not redefine its
   calculation running. The runner terminates its owned process tree;
   POSIX runs use an owned process group. Never kill all Python or Wolfram
   processes when other worktrees are active.
-- Freeze the suite before a multi-case run and fingerprint the package
-  sources. Editing the suite while successive kernels read it can produce
-  misleading syntax errors or mix different tests in one report. Partial,
-  interrupted, and changed-source runs are explicitly incomplete.
+- Freeze the suite and the package closure before a multi-case run and
+  fingerprint both. Editing the suite while successive kernels read it can
+  produce misleading syntax errors or mix different tests in one report, and
+  editing the package tree used to mix two source states into one receipt;
+  the runner now executes every kernel from a private copy of the closure,
+  reports a live edit separately, and still refuses a tampered copy.
+  Partial and interrupted runs are explicitly incomplete.
 - Require successful package loading before selecting any assertion. A test
   such as `Check[1 + 1, $Failed]` can pass even after an empty or failed load.
   The suite checks the load result, registered package, context path, and

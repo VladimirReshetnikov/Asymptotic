@@ -80,22 +80,34 @@ with the same directory convention. It is not a general dependency closure:
 directory names are not automatically included.
 
 The suite's bytes are copied once to a temporary file and every case executes
-that copy. `TestSuiteSnapshotSHA256` identifies those copied bytes. Package
-sources are **not** copied: each fresh kernel receives the original live entry
-path through `ASYMPTOTIC_PORTABLE_SOURCE`. The receipt's `Command` names the
-original suite path; the executed command substitutes the temporary suite copy.
-The temporary copy is not made read-only or rehashed between launches: its
-recorded hash identifies the byte buffer used to create it, not continuous
-integrity of the executed file.
+that copy. `TestSuiteSnapshotSHA256` identifies those copied bytes. The package
+closure is copied as well (wave-4 W4-12): the entry file, or for the modular
+layout the `Kernel` directory's `*.wl` files and `init.m` under a private
+`source/src/Kernel` directory that keeps relative sibling loads unchanged.
+Each fresh kernel receives that frozen entry through
+`ASYMPTOTIC_PORTABLE_SOURCE`; `ExecutedSource` names it, `SourceSnapshot` is
+`true`, and `ExecutedSourcesSHA256` records the frozen files by name. The
+copy is made after `TestedSourcesSHA256` is taken and must reproduce those
+digests exactly, otherwise the run stops before any kernel is launched. The
+receipt's `Command` names the original suite path; the executed command
+substitutes the temporary suite copy. The temporary copies are not made
+read-only, but the frozen closure is rehashed at every reporting checkpoint.
 
-`TestedSourcesSHA256` records the initial fingerprints.
-`SourcesUnchangedDuringRun` remains `true` only while every reporting checkpoint
-matches them. Since `45ea65f`, the first observed difference is retained in
-`FirstObservedSourceDriftSHA256`, the flag stays `false`, and the normal final
-exit is nonzero even if every case passes and the original bytes are restored.
-For such a run, `SourcesSHA256AfterRun` records the latest fingerprints and can
-equal the initial fingerprints; the first-drift field explains the failed
-integrity result.
+`TestedSourcesSHA256` records the initial fingerprints of the live inputs,
+which the frozen closure reproduced. `SourcesUnchangedDuringRun` remains
+`true` only while every checkpoint's rehash of the **executed** copy matches
+them: the first observed difference is retained in
+`FirstObservedSourceDriftSHA256`, the flag stays `false`, and the final exit is
+nonzero even if every case passes and the bytes are restored; for such a run
+`SourcesSHA256AfterRun` records the latest executed fingerprints. The live
+tree is only observed: an edit of the original sources during the run cannot
+reach a later kernel, so it is reported by `LiveSourcesChangedDuringRun`,
+`LiveSourcesSHA256AfterRun` and `FirstObservedLiveSourceDriftSHA256` without
+invalidating the evidence, which certifies exactly the executed digests.
+Consumers decide whether a receipt is current by comparing
+`TestedSourcesSHA256` with the tree they hold. While a case's kernel is
+running, the incomplete report names it in `InProgressCase`, so an
+interrupted or killed run records the case it was executing (W4-13).
 
 This fixes the earlier behavior at `38aa253`, where a matching later comparison
 could erase a previously observed difference from the final receipt. The

@@ -15,6 +15,15 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Coherent source snapshots in the portable runner
+
+`run_mathics_tests.py` now copies the package closure into its private
+directory and runs every kernel from that copy, so editing the live tree
+during a run no longer mixes two source states into one receipt or
+invalidates it; the receipt records the executed digests, reports live
+edits separately, refuses a tampered copy, and names the case in progress
+(wave-4 W4-12, W4-13).
+
 ### Hypergeometric defining series on Mathics
 
 On Mathics, expansions of `Hypergeometric0F1`, `Hypergeometric1F1`,

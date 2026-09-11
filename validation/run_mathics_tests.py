@@ -25,6 +25,7 @@ import math
 import os
 from pathlib import Path
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -53,6 +54,38 @@ def fingerprinted_inputs(source: Path) -> set[Path]:
         # Wolfram baseline. Its sibling modules are part of the tested input.
         files.update(source.parent.glob("*.wl"))
     return files
+
+
+def source_closure(source: Path) -> set[Path]:
+    """The package files a kernel reads for this entry: the entry itself, or
+    the entry with its sibling modules for a modular tree."""
+    return (fingerprinted_inputs(source) - {SUITE, Path(__file__).resolve()}) | {source}
+
+
+def snapshot_source(source: Path, temporary: Path) -> Path:
+    """Copy the package closure into a private directory and return the
+    frozen entry. Every kernel of the run loads this coherent copy, so an
+    edit of the live tree during the run can neither reach a later kernel
+    nor mix two source states inside one report (wave-4 W4-12). The
+    modular layout keeps its Kernel directory name and init.m so relative
+    sibling loads resolve unchanged."""
+    if source.name == "AsymptoticAnalysis.wl" and source.parent.name == "Kernel":
+        target = temporary / "source" / "src" / "Kernel"
+        target.mkdir(parents=True)
+        for path in sorted(source_closure(source)):
+            shutil.copyfile(path, target / path.name)
+        init = source.parent / "init.m"
+        if init.is_file():
+            shutil.copyfile(init, target / init.name)
+        return target / source.name
+    target = temporary / "source"
+    target.mkdir(parents=True)
+    shutil.copyfile(source, target / source.name)
+    return target / source.name
+
+
+def digests(paths: set[Path]) -> dict[str, str]:
+    return {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
 
 
 def fingerprints(source: Path) -> dict[str, str]:
@@ -250,16 +283,31 @@ def main() -> int:
     suite_snapshot = SUITE.read_bytes()
     results = []
     first_source_drift = None
+    first_live_drift = None
+    executed_source = None
+    executed_before = None
+    in_progress = None
+
+    def executed_digests() -> dict[str, str] | None:
+        # The executed snapshot, keyed by the original paths whose bytes it
+        # froze; a tampered copy is a mixed-source run and stays latched.
+        if executed_source is None:
+            return None
+        frozen = digests(source_closure(executed_source))
+        return {path: frozen.get(Path(path).name, digest) for path, digest in before.items()}
 
     def write_report(complete: bool) -> dict:
-        nonlocal first_source_drift
-        after = fingerprints(source)
-        # The package tree remains live. Latch every observed mismatch; later
-        # restoration cannot turn a mixed-source run into passing evidence.
-        # Changes wholly between observations still require a frozen tree to
-        # detect or prevent and are not certified by these comparisons.
+        nonlocal first_source_drift, first_live_drift
+        live_after = fingerprints(source)
+        after = executed_digests() or before
         if after != before and first_source_drift is None:
             first_source_drift = after
+        # The live tree is only observed: the kernels read the frozen copy,
+        # so a live edit during the run is reported, not mixed into the
+        # evidence. Consumers compare TestedSourcesSHA256 with the tree
+        # they hold to decide whether the receipt is current.
+        if live_after != before and first_live_drift is None:
+            first_live_drift = live_after
         succeeded = sum(result["Outcome"] == "Success" for result in results)
         report = {
             "Runtime": runtime_name, "Command": command,
@@ -270,11 +318,20 @@ def main() -> int:
             "TestSuiteSnapshotSHA256": hashlib.sha256(suite_snapshot).hexdigest(),
             "Executed": len(results), "Succeeded": succeeded, "Failed": len(results) - succeeded,
             "NotRun": len(cases) - len(results), "SourcesUnchangedDuringRun": first_source_drift is None,
-            "TestedSourcesSHA256": before, "Results": results,
+            "TestedSourcesSHA256": before, "SourceSnapshot": executed_source is not None,
+            "ExecutedSource": None if executed_source is None else str(executed_source),
+            "ExecutedSourcesSHA256": None if executed_source is None else digests(source_closure(executed_source)),
+            "LiveSourcesChangedDuringRun": first_live_drift is not None,
+            "Results": results,
         }
+        if in_progress is not None and not complete:
+            report["InProgressCase"] = in_progress
         if first_source_drift is not None:
             report["SourcesSHA256AfterRun"] = after
             report["FirstObservedSourceDriftSHA256"] = first_source_drift
+        if first_live_drift is not None:
+            report["LiveSourcesSHA256AfterRun"] = live_after
+            report["FirstObservedLiveSourceDriftSHA256"] = first_live_drift
         # Recheck aliases before every write, including inputs added during a
         # run. This is an observed-path guard, not a hostile-filesystem lock.
         try:
@@ -296,16 +353,29 @@ def main() -> int:
         # failures. Use a private suite copy for this invocation, while the
         # original-source fingerprints still invalidate a changed-source run.
         frozen_command = command[:-1] + [str(frozen_suite)]
+        executed_source = snapshot_source(source, Path(temporary))
+        executed_before = digests(source_closure(executed_source))
+        if executed_before != digests(source_closure(source)):
+            # The tree changed between fingerprinting and copying; neither
+            # state is the tested one, so no kernel is launched.
+            parser.error("Package sources changed while the run was being prepared; retry")
         for test_id, group in cases:
             print(f"Running {test_id} ...", flush=True)
-            result = run_case(frozen_command, source, test_id, group, args.timeout, Path(temporary))
+            # Record the attempted case before launching its kernel, so an
+            # interrupted or killed run names the case it was executing.
+            in_progress = test_id
+            write_report(False)
+            result = run_case(frozen_command, executed_source, test_id, group, args.timeout, Path(temporary))
+            in_progress = None
             results.append(result)
             write_report(False)
             print(f"  {result['Outcome']} ({result['ElapsedSeconds']:.3f}s)", flush=True)
             if result["Outcome"] == "LaunchError":
                 # Repeating an absent executable cannot provide additional evidence.
                 break
-    report = write_report(True)
+        # The final integrity comparison reads the frozen copy, so it must
+        # happen before the private directory is removed.
+        report = write_report(True)
     succeeded = report["Succeeded"]
     print(f"Succeeded: {succeeded}; failed: {report['Failed']}; not run: {report['NotRun']}", flush=True)
     print(f"Report: {args.output.resolve()}", flush=True)

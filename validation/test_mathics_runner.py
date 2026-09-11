@@ -378,10 +378,14 @@ class PortableReportTests(unittest.TestCase):
             with patch.object(sys, "argv", args), patch.object(runner, "SUITE", suite), \
                     patch.object(runner, "available_cases", return_value=[("first", "fixture"), ("second", "fixture")]), \
                     patch.object(runner, "run_case", side_effect=execute), redirect_stdout(io.StringIO()):
-                self.assertEqual(runner.main(), 1)
+                self.assertEqual(runner.main(), 0)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(report["Succeeded"], 2)
-            self.assertFalse(report["SourcesUnchangedDuringRun"])
+            # The kernels read the frozen suite and the frozen source copy, so
+            # the live edit is reported but does not contaminate the evidence.
+            self.assertTrue(report["SourcesUnchangedDuringRun"])
+            self.assertTrue(report["LiveSourcesChangedDuringRun"])
+            self.assertTrue(report["SourceSnapshot"])
 
     def test_interrupted_run_preserves_completed_case_evidence(self) -> None:
         with tempfile.TemporaryDirectory(prefix="mathics-report-test-") as temporary:
@@ -427,22 +431,70 @@ class PortableReportTests(unittest.TestCase):
             self.assertEqual(report["Executed"], 3)
             self.assertEqual(report["NotRun"], 0)
 
-    def test_changed_sources_force_failure_despite_successful_cases(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="mathics-report-test-") as temporary:
+    def test_live_source_change_is_reported_without_mixing_the_executed_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mathics-live-drift-test-") as temporary:
+            source = Path(temporary) / "source.wl"
+            source.write_text("original", encoding="utf-8")
             output = Path(temporary) / "report.json"
-            args = ["run_mathics_tests.py", "--source", str(runner.SUITE), "--output", str(output)]
-            result = {"Outcome": "Success", "TestID": "fixture", "ElapsedSeconds": 0.1}
+            args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
+            seen = []
+
+            def execute(command, selected_source, test_id, group, timeout, work):
+                seen.append((selected_source, selected_source.read_text(encoding="utf-8")))
+                source.write_text("edited during the run", encoding="utf-8")
+                return {"Outcome": "Success", "TestID": test_id, "ElapsedSeconds": 0.1}
+
             with patch.object(sys, "argv", args), \
-                    patch.object(runner, "available_cases", return_value=[("fixture", "fixture")]), \
-                    patch.object(runner, "run_case", return_value=result), \
-                    patch.object(runner, "fingerprints", side_effect=[{"source": "before"},
-                                 {"source": "before"}, {"source": "after"}, {"source": "after"}]), \
-                    redirect_stdout(io.StringIO()):
-                self.assertEqual(runner.main(), 1)
+                    patch.object(runner, "available_cases", return_value=[("first", "fixture"), ("second", "fixture")]), \
+                    patch.object(runner, "run_case", side_effect=execute), redirect_stdout(io.StringIO()):
+                self.assertEqual(runner.main(), 0)
             report = json.loads(output.read_text(encoding="utf-8"))
             self.assertTrue(report["RunComplete"])
-            self.assertFalse(report["SourcesUnchangedDuringRun"])
-            self.assertEqual(report["Succeeded"], 1)
+            self.assertEqual(report["Succeeded"], 2)
+            self.assertTrue(report["SourcesUnchangedDuringRun"])
+            self.assertTrue(report["LiveSourcesChangedDuringRun"])
+            self.assertEqual(report["LiveSourcesSHA256AfterRun"][str(source)],
+                             runner.hashlib.sha256(b"edited during the run").hexdigest())
+            self.assertEqual(report["FirstObservedLiveSourceDriftSHA256"], report["LiveSourcesSHA256AfterRun"])
+            self.assertNotIn("SourcesSHA256AfterRun", report)
+            # Every kernel received the same frozen copy of the original bytes.
+            self.assertEqual({path for path, _ in seen}, {Path(report["ExecutedSource"])})
+            self.assertEqual({text for _, text in seen}, {"original"})
+            self.assertEqual(report["ExecutedSourcesSHA256"], {"source.wl": runner.hashlib.sha256(b"original").hexdigest()})
+            self.assertEqual(report["TestedSourcesSHA256"][str(source)], runner.hashlib.sha256(b"original").hexdigest())
+
+    def test_modular_snapshot_copies_siblings_and_records_the_attempted_case(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="mathics-modular-snapshot-test-") as temporary:
+            kernel = Path(temporary) / "src/Kernel"
+            kernel.mkdir(parents=True)
+            source = kernel / "AsymptoticAnalysis.wl"
+            source.write_text("entry", encoding="utf-8")
+            (kernel / "RefinementState.wl").write_text("sibling", encoding="utf-8")
+            (kernel / "init.m").write_text("init", encoding="utf-8")
+            output = Path(temporary) / "report.json"
+            args = ["run_mathics_tests.py", "--source", str(source), "--output", str(output)]
+            observed = {}
+
+            def execute(command, selected_source, test_id, group, timeout, work):
+                observed["entry"] = selected_source
+                observed["files"] = sorted(path.name for path in selected_source.parent.iterdir())
+                observed["in_progress"] = json.loads(output.read_text(encoding="utf-8")).get("InProgressCase")
+                raise KeyboardInterrupt()
+
+            with patch.object(sys, "argv", args), \
+                    patch.object(runner, "available_cases", return_value=[("only", "fixture")]), \
+                    patch.object(runner, "run_case", side_effect=execute), redirect_stdout(io.StringIO()):
+                with self.assertRaises(KeyboardInterrupt):
+                    runner.main()
+            self.assertNotEqual(observed["entry"], source)
+            self.assertEqual(observed["entry"].parent.name, "Kernel")
+            self.assertEqual(observed["files"], ["AsymptoticAnalysis.wl", "RefinementState.wl", "init.m"])
+            self.assertEqual(observed["in_progress"], "only")
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertFalse(report["RunComplete"])
+            self.assertEqual(report["ExecutedSourcesSHA256"], {
+                "AsymptoticAnalysis.wl": runner.hashlib.sha256(b"entry").hexdigest(),
+                "RefinementState.wl": runner.hashlib.sha256(b"sibling").hexdigest()})
 
 if __name__ == "__main__":
     unittest.main()
