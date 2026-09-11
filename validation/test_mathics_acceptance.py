@@ -103,6 +103,15 @@ class AcceptanceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "within a shard"):
             self.verify()
 
+    def test_unrecognized_declaration_in_reference_suite_is_rejected(self):
+        blobs = sample_blobs()
+        blobs[acceptance.SUITE] += b'portableTest["Sample-C", "loading", True, True];\n'
+        with self.assertRaisesRegex(Exception, "unrecognized portableTest declarations at lines \\[4\\]"):
+            acceptance.reference_from_blobs(blobs, "rev")
+        blobs = sample_blobs()
+        blobs[acceptance.SUITE] += b'portableTest[id_String, group_String, actual_, expected_] := Null;\n'
+        self.assertEqual(sorted(acceptance.reference_from_blobs(blobs, "rev")["Cases"]), ["sample-a", "sample-b"])
+
     def test_unknown_id_or_group_is_rejected(self):
         for key, value in (("TestID", "unknown-case"), ("Group", "unknown")):
             with self.subTest(key=key):

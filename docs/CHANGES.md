@@ -15,6 +15,13 @@ milestones within that scope.
 
 ## September 10, 2026
 
+### Portable suite inventory is checked, not assumed
+
+`run_mathics_tests.py` and `check_mathics_acceptance.py` reject a
+`portableTest[` declaration their strict pattern does not admit instead of
+silently omitting it, and a runner test requires the CI shard partition to
+run every suite group exactly once (W4-14).
+
 ### Mathics proof memo installed without re-entry
 
 The Mathics assumption walker installs its request-local proof memo before

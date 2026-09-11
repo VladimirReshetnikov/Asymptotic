@@ -14,6 +14,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -392,6 +393,37 @@ class PortableOutputProtectionTests(unittest.TestCase):
         self.assertEqual(execute.call_args.args[-1], 12345)
         self.assertEqual(report["MaxOutputBytesPerCase"], 12345)
         self.assertEqual(self.source.read_text(encoding="utf-8"), "original input")
+
+
+class PortableInventoryTests(unittest.TestCase):
+    def test_unrecognized_declarations_are_rejected_not_omitted(self) -> None:
+        definition = 'portableTest[id_String, group_String, actual_, expected_] := Null;\n'
+        good = 'portableTest["good-case", "loading", True, True];\n'
+        self.assertEqual(runner.suite_inventory(definition + good), [("good-case", "loading")])
+        for bad in ('portableTest["Bad-Case", "loading", True, True];\n',
+                    'portableTest[ "spaced-case", "loading", True, True];\n',
+                    'portableTest["multi-line",\n  "loading", True, True];\n',
+                    'portableTest["numeric-group", "group2", True, True];\n'):
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, "Unrecognized portableTest declarations at lines \\[3\\]"):
+                runner.suite_inventory(definition + good + bad)
+        with self.assertRaisesRegex(ValueError, "unique test IDs"):
+            runner.suite_inventory(definition + good + good)
+        # A commented declaration is neither a case nor an error: it does not
+        # start its line.
+        self.assertEqual(runner.suite_inventory(definition + good + '(* portableTest["x", "y", 1, 1]; *)\n'),
+                         [("good-case", "loading")])
+
+    def test_workflow_shards_partition_the_suite_groups_exactly(self) -> None:
+        # The CI matrix must run every group of the maintained suite exactly
+        # once per layout: no group may be omitted, duplicated, or unknown.
+        workflow = (runner.ROOT / ".github" / "workflows" / "mathics.yml").read_text(encoding="utf-8")
+        shards = re.findall(r"^\s+([a-z]+)\) groups=\(([^)]*)\) ;;", workflow, re.MULTILINE)
+        matrix = re.search(r"^\s+suite: \[([^\]]*)\]", workflow, re.MULTILINE)
+        self.assertIsNotNone(matrix)
+        self.assertEqual([name for name, _ in shards], [s.strip() for s in matrix.group(1).split(",")])
+        assigned = [group for _, groups in shards for group in groups.split()]
+        self.assertEqual(len(assigned), len(set(assigned)), f"A group is run twice: {assigned}")
+        self.assertEqual(set(assigned), {group for _, group in runner.available_cases()})
 
 
 class PortableReportTests(unittest.TestCase):

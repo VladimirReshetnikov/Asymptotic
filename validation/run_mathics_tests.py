@@ -40,13 +40,27 @@ PREFIX = "ASYMPTOTIC_PORTABLE_"
 DEFAULT_MAX_OUTPUT_BYTES = 4_000_000
 MAX_CASE_TIMEOUT_SECONDS = 86400.0
 CASE_PATTERN = re.compile(r'^portableTest\["([a-z0-9-]+)", "([a-z]+)",', re.MULTILINE)
+# Every declaration must be one the strict pattern admits; the definition of
+# portableTest itself is the only other line that may start this way (W4-14).
+DECLARATION_PATTERN = re.compile(r'^portableTest\[(?![a-z]+_String)', re.MULTILINE)
 
 
-def available_cases() -> list[tuple[str, str]]:
-    cases = CASE_PATTERN.findall(SUITE.read_text(encoding="utf-8"))
+def suite_inventory(text: str) -> list[tuple[str, str]]:
+    """Every (id, group) declared by the suite. A declaration the strict
+    pattern does not admit is an error, not a silently omitted case."""
+    cases = CASE_PATTERN.findall(text)
+    unrecognized = [line_number for line_number, line in enumerate(text.splitlines(), 1)
+                    if DECLARATION_PATTERN.match(line) and not CASE_PATTERN.match(line)]
+    if unrecognized:
+        raise ValueError(f"Unrecognized portableTest declarations at lines {unrecognized}: "
+                         "use portableTest[\"lower-case-id\", \"group\", ...] on one line")
     if not cases or len({name for name, _ in cases}) != len(cases):
         raise ValueError("The portable suite must declare unique test IDs")
     return cases
+
+
+def available_cases() -> list[tuple[str, str]]:
+    return suite_inventory(SUITE.read_text(encoding="utf-8"))
 
 
 def fingerprinted_inputs(source: Path) -> set[Path]:

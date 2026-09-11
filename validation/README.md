@@ -1184,6 +1184,21 @@ Wolfram MCP kernel through an `Exit`-free copy of the runner because another
 session held the batch license seat; the receipt records the same source
 hashes. No full package suite was run.
 
+## One inventory for the portable suite and the CI matrix (W4-14)
+
+[run_mathics_tests.py](run_mathics_tests.py) and
+[check_mathics_acceptance.py](check_mathics_acceptance.py) now reject a line
+starting with `portableTest[` that their strict one-line pattern does not
+admit, naming the line, instead of silently omitting the case; only the
+definition of `portableTest` is exempt. The runner tests exercise an
+upper-case ID, a leading space, a two-line declaration, a group with a
+digit, a duplicate ID and a commented declaration, and
+`test_workflow_shards_partition_the_suite_groups_exactly` reads the CI
+workflow's shard partition and requires every group of the maintained suite
+to be assigned exactly once. The runner tests pass **40/40** and the
+acceptance tests **18/18**; the 138 declarations of the current suite are
+all admitted and the five shards partition its 16 groups.
+
 ## Assumption-aware polynomial domain proofs on Mathics (W4-03)
 
 The late rewrite in

@@ -30,6 +30,7 @@ ENTRY = "AsymptoticAnalysis.wl"
 MODULAR_ENTRY = "src/Kernel/" + ENTRY
 PREFIX = "ASYMPTOTIC_PORTABLE_"
 CASE_PATTERN = re.compile(r'^portableTest\["([a-z0-9-]+)", "([a-z]+)",', re.MULTILINE)
+DECLARATION_PATTERN = re.compile(r'^portableTest\[(?![a-z]+_String)', re.MULTILINE)
 
 
 def require(condition: bool, message: str) -> None:
@@ -46,6 +47,9 @@ def reference_from_blobs(blobs: dict[str, bytes], revision: str) -> dict:
     require(required <= blobs.keys(), f"Reference lacks required files: {sorted(required - blobs.keys())}")
     suite = blobs[SUITE].decode("utf-8")
     pairs = CASE_PATTERN.findall(suite)
+    unrecognized = [number for number, line in enumerate(suite.splitlines(), 1)
+                    if DECLARATION_PATTERN.match(line) and not CASE_PATTERN.match(line)]
+    require(not unrecognized, f"Reference suite has unrecognized portableTest declarations at lines {unrecognized}")
     require(bool(pairs) and len(pairs) == len(dict(pairs)), "Reference suite has absent or duplicate test IDs")
     budgets = re.findall(r"\$IterationLimit\s*=\s*([0-9]+)", suite)
     require(len(set(budgets)) == 1, "Reference suite needs one unambiguous explicit iteration budget")
