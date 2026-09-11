@@ -4,6 +4,11 @@
 
 $sourceCoordinateDepth = 0;
 
+(* q-special functions at a fixed base supply the chart w = q^x with the
+   scale -Log[q] (QSpecialFunctions.wl replaces this default). Every chart
+   records "Scale": the source is x = -Sign Log[w]/Scale. *)
+sourceQChart[___] := $Failed;
+
 sourceLogChart[f_, x_, x0_, dir_, ass_, limit_] := Module[{coord, u, h, fu, phase},
   If[FreeQ[f, Log], Return[$Failed, Module]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"]; h = Unique["logSource$"];
@@ -71,7 +76,7 @@ sourceReconstruct[base_, chart_, r_, cutoff_, ass_, limit_] := Module[
     If[offset =!= 0, d = seriesData[answer, limit];
       answer = seriesMake[Join[d, <|"Offset" -> d["Offset"] + offset|>], {"SourceOffset", {answer}, offset}]],
     answer = catch[seriesLog[base, cutoff, limit]]; If[FailureQ[answer], Return[answer, Module]];
-    answer = seriesBinary["Multiply", answer, seriesConstant[-side, answer, limit], Automatic, limit];
+    answer = seriesBinary["Multiply", answer, seriesConstant[-side/Lookup[chart, "Scale", 1], answer, limit], Automatic, limit];
     If[r =!= 1,
       powerResult = catch[seriesPower[answer, r, cutoff, limit]];
       If[FailureQ[powerResult] && MemberQ[{"LogarithmicLeadingPower", "UnsupportedScale"}, powerResult[[1]]],
@@ -96,7 +101,8 @@ sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymp
    chart, coord, q = cutoff0, working, base, result, underlyingOptions, originalOptions, tries = 0,
    a, d, obs = Unique["observable$"], restore, positive, offset, coefficient, domain, exact, count, finalCut},
   If[$sourceCoordinateDepth >= 6, Return[$Failed, Module]];
-  chart = sourceLogChart[f, x, x0, dir, ass, limit];
+  chart = sourceQChart[f, x, x0, dir, ass, limit];
+  If[chart === $Failed, chart = sourceLogChart[f, x, x0, dir, ass, limit]];
   If[chart === $Failed, chart = sourceExponentialChart[f, x, x0, dir, ass, limit]];
   If[chart === $Failed, Return[$Failed, Module]];
   validateInput[f, limit];
@@ -136,7 +142,7 @@ sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymp
   a = result[[1]]; offset = If[! coord["Infinite"] && r === 1, x0, 0];
   coefficient = If[coord["Infinite"], r, -r];
   restore = If[chart["Kind"] === "SourceExp", Log[(obs - offset)/coord["Sign"]^r]/coefficient,
-    If[r === 1, Exp[-coord["Sign"] obs], Exp[-(obs/coord["Sign"]^r)^(1/r)]]];
+    If[r === 1, Exp[-coord["Sign"] Lookup[chart, "Scale", 1] obs], Exp[-Lookup[chart, "Scale", 1] (obs/coord["Sign"]^r)^(1/r)]]];
   domain = ass && sourceBaseDomain[base];
   positive = If[chart["ChartEndpoint"] === 0, Normal[base] > 0, True];
   exact = If[a["Remainder"] === 0 && r === 1, a["Expression"], Missing["NonexactSourceReconstruction"]];
@@ -151,7 +157,7 @@ sourceCoordinateConstruct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[Asymp
     "Direction" -> coord["Direction"], "Limit" -> base["Limit"], "Power" -> r,
     "Assumptions" -> ass, "Cutoff" -> finalCut,
     "Method" -> "SourceCoordinates", "RequestedMethod" -> method, "Truncation" -> "Exponent", "InputRemainder" -> inputRem,
-    "TargetDomain" -> domain && positive, "SourceDomain" -> coord["LocalVariable"] > 0,
+    "TargetDomain" -> domain && positive, "SourceDomain" -> coord["LocalVariable"] > 0 && Lookup[chart, "Domain", True],
     "LeadingCoefficient" -> base["LeadingCoefficient"], "LeadingPower" -> base["LeadingPower"],
     "ExactModel" -> Lookup[base[[1]], "ExactModel", False], "Model" -> Missing["SourceCoordinate"],
     "ExactInverseExpression" -> exact, "ExactObservableExpression" -> If[a["Remainder"] === 0, a["Expression"], Missing["NonexactObservable"]],
@@ -181,7 +187,7 @@ sourceResidualJet[a_, cutoff_, limit_] := Module[
     chartSeries = seriesBinary["Multiply", chartSeries, seriesConstant[1/coefficient, chartSeries, limit], Automatic, limit],
     If[r =!= 1, fail["UnsupportedObservableResidual", "The exact source residual is available, but its fractional reconstruction requires logarithmic coefficient arithmetic for a jet-order check."]];
     exact = seriesMake[d, {"ResidualFinitePart", {s}}];
-    chartSeries = seriesExp[seriesBinary["Multiply", exact, seriesConstant[-side, exact, limit], Automatic, limit], work, limit]];
+    chartSeries = seriesExp[seriesBinary["Multiply", exact, seriesConstant[-side Lookup[a, "SourceScale", 1], exact, limit], Automatic, limit], work, limit]];
   phaseSeries = AsymptoticAnalysis`SeriesObservable[chartSeries, a["TransformedFunction"], a["SourceCoordinateVariable"],
     "Cutoff" -> work, "MaxTerms" -> limit];
   If[FailureQ[phaseSeries], Throw[phaseSeries, $tag]];

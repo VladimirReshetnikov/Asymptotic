@@ -36,8 +36,10 @@ specialNativeCandidateQ[f_, x_] := ! FreeQ[f, node_ /;
     (MemberQ[$specialNativeHeads, Head[node]] ||
       specialNativeBuiltinHeadQ[Head[node]] ||
       MatchQ[node, Gamma[_, _] | Gamma[_, _, _] | Beta[_, _, _] | Beta[_, _, _, _]])];
+(* q-special functions have their own logarithmic models (QSpecialFunctions.wl);
+   the native importer would only see unresolved derivative coefficients. *)
 specialNativeBuiltinHeadQ[h_Symbol] := Context[h] === "System`" &&
-  ! MemberQ[$specialNativeCoreHeads, h] && MemberQ[Attributes[h], NumericFunction];
+  ! MemberQ[$specialNativeCoreHeads, h] && ! qSpecialHeadQ[h] && MemberQ[Attributes[h], NumericFunction];
 specialNativeBuiltinHeadQ[_] := False;
 
 specialNativeBound[r_] := r /. rr_PowerLogRemainder :> remainderScale[rr];

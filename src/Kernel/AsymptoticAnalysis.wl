@@ -522,6 +522,11 @@ splitJet[T_List] := {Select[T, less[#[[1]], 0] &], Total[Select[T, #[[1]] === 0 
 provablyPositive[c_, ass_] := TrueQ[Simplify[c > 0, ass]];
 provablyNegative[c_, ass_] := TrueQ[Simplify[c < 0, ass]];
 
+(* q-special functions whose base varies with the expansion variable are
+   expanded by QSpecialFunctions.wl, which replaces these default predicates. *)
+qSpecialForwardHookQ[___] := False;
+qSpecialLogHookQ[___] := False;
+
 fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e], parameterized},
   If[Length[e] > 1 && ! MemberQ[{Plus, Times, Power}, h] && ! FreeQ[e, u],
     parameterized = specialParameterizedForwardJet[e, u, ell, ass, Kw, limit];
@@ -540,6 +545,8 @@ fwd[e_, u_, ell_, ass_, Kw_, limit_] := Module[{h = Head[e], parameterized},
    h === Power && e[[1]] === E, fwdExp[fwd[e[[2]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
    h === Power && FreeQ[e[[2]], u], fwdPower[fwd[e[[1]], u, ell, ass, Kw, limit], e[[2]], u, ell, ass, Kw, limit],
    h === Power, fwdExp[pMul[fwd[e[[2]], u, ell, ass, Kw, limit], fwdLog[fwd[e[[1]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit], ell, ass, limit], u, ell, ass, Kw, limit],
+   qSpecialLogHookQ[e, u], qSpecialLogForwardJet[e[[1]], u, ell, ass, Kw, limit],
+   qSpecialForwardHookQ[e, u], qSpecialForwardJet[e, u, ell, ass, Kw, limit],
    h === Log && Length[e] == 1, fwdLog[fwd[e[[1]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
    h === Log && Length[e] == 2, fwd[Log[e[[2]]]/Log[e[[1]]], u, ell, ass, Kw, limit],
    h === Exp, fwdExp[fwd[e[[1]], u, ell, ass, Kw, limit], u, ell, ass, Kw, limit],
@@ -1679,6 +1686,7 @@ loadModule["GammaInverseChecks.wl"];
 loadModule["BarnesInverseChecks.wl"];
 loadModule["GammaInverseOperations.wl"];
 loadModule["ExponentialForward.wl"];
+loadModule["QSpecialFunctions.wl"];
 loadModule["SeriesEnvelopeArithmetic.wl"];
 loadModule["SeriesArithmetic.wl"];
 loadModule["SpecialFunctionRealDomain.wl"];

@@ -87,6 +87,7 @@ Domains</a></li>
 <li><a href="#inverse-gamma-and-loggamma-functions" id="toc-inverse-gamma-and-loggamma-functions">Inverse Gamma and LogGamma
 Functions</a></li>
 <li><a href="#inverse-barnes-g-functions" id="toc-inverse-barnes-g-functions">Inverse Barnes G Functions</a></li>
+<li><a href="#q-special-functions" id="toc-q-special-functions">q-Special Functions</a></li>
 <li><a href="#series-arithmetic-and-normalization" id="toc-series-arithmetic-and-normalization">Series Arithmetic and
 Normalization</a></li>
 <li><a href="#applications" id="toc-applications">Applications</a></li>
@@ -306,6 +307,11 @@ Functions</a></td>
 <td>Expand the increasing Barnes G inverse</td>
 <td><a href="#barnes-inverse-expansions">Inverse Barnes G
 Functions</a></td>
+</tr>
+<tr>
+<td>Expand q-Pochhammer, q-gamma, q-factorial and Gaussian binomial
+functions and their inverses</td>
+<td><a href="#q-special-functions">q-Special Functions</a></td>
 </tr>
 <tr>
 <td>Inspect results and models</td>
@@ -3364,6 +3370,153 @@ by retaining their operands. Interval certification and
 certificate-based tolerance refinement are also unsupported. Arithmetic
 on <code>Normal[s]</code> drops the remainder.</p>
 <p><a id="series-operations"></a></p>
+</section>
+</section>
+<section id="q-special-functions" class="level2">
+<h2>q-Special Functions</h2>
+<p><code>QPochhammer</code>, <code>QGamma</code>,
+<code>QFactorial</code> and <code>QBinomial</code> are expanded in the
+three regimes the q-analog literature separates: the base tending to
+<code>1</code>, a fixed base with a growing argument, and the base
+tending to <code>0</code>. The expansion variable may appear in the base
+(as <code>Exp[-t]</code>, <code>1 - u</code>, or <code>q</code> itself
+approaching <code>1</code> from below) or in an argument. A base that
+tends to <code>1</code> must do so from below through real values, and a
+fixed base must be an exact real number in <code>(0, 1)</code>. Mathics
+has no q-special functions, so these expansions are Wolfram-only.</p>
+<section id="base-tending-to-one" class="level3">
+<h3>Base Tending to One</h3>
+<p>With <code>q = Exp[-t]</code> and <code>t -&gt; 0+</code>, the
+logarithm of each q-function is an explicit series in <code>t</code>
+whose coefficients are Bernoulli numbers, Bernoulli polynomials and
+polylogarithms of nonpositive order. The infinite product
+<code>(a; q)_∞</code> at a fixed real argument <code>a &lt; 1</code> is
+exponentially small or large, <code>Exp[-PolyLog[2, a]/t]</code> times a
+power series; the coalescing product <code>(q^x; q)_∞</code> carries
+<code>Exp[-Pi^2/(6 t)] t^(1/2 - x)</code>; <code>QGamma[x, q]</code>,
+<code>QFactorial[n, q]</code>, <code>QBinomial[n, k, q]</code> and the
+finite products <code>(a; q)_n</code> are bounded and expand as ordinary
+power series. Parameters may stay symbolic when the assumptions prove
+the conditions the models need (<code>a &lt; 1</code>,
+<code>x &gt; 0</code>, nonnegative integers <code>n</code>, integers
+<code>0 &lt;= k &lt;= n</code>); otherwise the request is refused with
+<code>Failure[&quot;UnsupportedQArgument&quot;, ...]</code>.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QPochhammer[1/2, Exp[-t]], {t, 0, 3}];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{(1 - t/12 + t^2/288)/(Sqrt[2] E^((Pi^2 - 6 Log[2]^2)/(12 t))),
+ PowerLogRemainder[t, 3, 0]/(Sqrt[2] E^((Pi^2 - 6 Log[2]^2)/(12 t)))}</code></pre>
+<p>The prefactor is <code>Exp[-PolyLog[2, 1/2]/t]/Sqrt[2]</code>. The
+result is a <code>&quot;Factored&quot;</code> forward object with
+<code>&quot;ExpansionNature&quot; -&gt; &quot;Poincare&quot;</code>: the omitted remainder
+is exponentially small in the sense of the monograph&#39;s uniform
+expansion. <code>&quot;QSpecialFactors&quot;</code> records the model used for
+each factor. The finite products, <code>QFactorial</code> and
+<code>QBinomial</code> have convergent series
+(<code>&quot;ExpansionNature&quot; -&gt; &quot;Convergent&quot;</code> in the factored
+route).</p>
+<p>The coalescing product and the q-gamma function:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>Normal[AsymptoticExpansion[QPochhammer[Exp[-x t], Exp[-t]], {t, 0, 2},
+  Assumptions -&gt; x &gt; 0]]
+Normal[AsymptoticExpansion[Log[QGamma[x, Exp[-t]]], {t, 0, 3},
+  Assumptions -&gt; x &gt; 0]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>Sqrt[2 Pi] t^(1/2 - x) (1 + t (1/24 - x/4 + x^2/4))/(E^(Pi^2/(6 t)) Gamma[x])
+Log[Gamma[x]] + t (-1/2 + 3 x/4 - x^2/4) + t^2 (1/24 - 5 x/144 - x^2/48 + x^3/72)</code></pre>
+<p>The Gaussian binomial near <code>q = 1</code> in the coordinate
+<code>u = 1 - q</code>, for symbolic integers
+<code>0 &lt;= k &lt;= n</code>:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QBinomial[n, k, 1 - u], {u, 0, 3},
+  Assumptions -&gt; Element[n, Integers] &amp;&amp; Element[k, Integers] &amp;&amp; 0 &lt;= k &lt;= n];
+Simplify[Normal[s]/Binomial[n, k]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>(24 + 3 k^4 u^2 - 6 k^3 n u^2 + k n u (-12 + (-5 + n) u) + k^2 u (12 + (5 - n + 3 n^2) u))/24</code></pre>
+<p>This is <code>1 - d u/2 + d (3 d + n - 5) u^2/24</code> with
+<code>d = k (n - k)</code>.</p>
+<p>Inverses in the base follow from the same models. The infinite
+product is inverted through its logarithmic target coordinate, a
+<code>&quot;Transformed&quot;</code> result with
+<code>&quot;CoordinateKind&quot; -&gt; &quot;TargetLog&quot;</code>; the bounded functions
+are inverted by ordinary reversion.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticInverse[QPochhammer[1/2, Exp[-t]], {t, 0}, {y, 3}];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{(-Pi^2/12 + Log[2]^2/2)/Log[y]
+   + (-Pi^2/12 + Log[2]^2/2)^2 Log[64]/((Pi^2 - 6 Log[2]^2) Log[y]^2),
+ PowerLogRemainder[-Log[y]^(-1), 3, 0]}</code></pre>
+<p>With <code>A = PolyLog[2, 1/2]</code> and
+<code>X = -Log[y] + Log[1/2]/2</code> this is the monograph&#39;s
+<code>t = A/X + A^2/(12 X^3) + ...</code> re-expanded in
+<code>1/Log[y]</code>. <code>InverseNumericalCheck</code> compares the
+result with the exact product.</p>
+</section>
+<section id="fixed-base-growing-argument" class="level3">
+<h3>Fixed Base, Growing Argument</h3>
+<p>For a fixed exact base <code>0 &lt; q &lt; 1</code> and
+<code>x -&gt; Infinity</code>, each q-function is rewritten through
+infinite q-Pochhammer symbols in the exponential chart
+<code>w = q^x</code>, for example
+<code>QGamma[x, q] = (1 - q)^(1 - x) (q; q)_∞/(q^x; q)_∞</code>, with
+the corresponding forms for <code>QFactorial</code>,
+<code>QBinomial</code> and the finite products; the arguments must be
+linear in <code>x</code>. The chart phase is an ordinary power-log
+expression at <code>w -&gt; 0+</code>. The forward result is a
+<code>&quot;Transformed&quot;</code> object whose terms are powers of
+<code>q^x</code> and whose remainder is
+<code>PowerLogRemainder[q^x, p, 0]</code>; the cutoff is an exponent of
+<code>q^x</code>.</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QGamma[x, 1/2], {x, Infinity, 2}];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{QPochhammer[1/2, 1/2] + 2^(2 - x) QPochhammer[1/2, 1/2]/3 + 2^(x - 1) QPochhammer[1/2, 1/2],
+ PowerLogRemainder[2^(-x), 2, 0]}</code></pre>
+<p>The retained exponents of <code>2^(-x)</code> are
+<code>-1, 0, 1</code>. The argument inverse uses the same chart through
+the source-coordinate engine
+(<code>&quot;CoordinateKind&quot; -&gt; &quot;SourceLog&quot;</code>,
+<code>&quot;SourceCoordinateExpression&quot; -&gt; q^x</code>) and reconstructs
+<code>x = Log[w]/Log[q]</code>:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticInverse[QGamma[x, 1/2], {x, Infinity}, {y, 2}];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{-Log[y^(-1)]/Log[2] + Log[2/QPochhammer[1/2, 1/2]]/Log[2]
+   - QPochhammer[1/2, 1/2]/(y Log[2]),
+ PowerLogRemainder[y^(-1), 2, 0]}</code></pre>
+</section>
+<section id="base-tending-to-zero-and-argument-inverses-at-a-fixed-base" class="level3">
+<h3>Base Tending to Zero and Argument Inverses at a Fixed Base</h3>
+<p>Near <code>q = 0</code> the q-functions with numeric arguments are
+analytic in <code>q</code> and expand through the built-in series; their
+base inverses are ordinary reversions (the monograph&#39;s exact coefficient
+engine and stable small-base jet). For a fixed base and a varying
+argument, <code>(a; q)_∞</code> vanishes exactly at
+<code>a = q^-m</code>, <code>m &gt;= 0</code>, where the built-in
+derivative formula is singular; the package splits off the
+<code>m + 1</code> factors that carry the zero, so the argument inverses
+at <code>a -&gt; 1</code> and at the other zeros expand:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>Normal[AsymptoticInverse[QPochhammer[a, 1/2], {a, 1}, {y, 3},
+  Direction -&gt; &quot;FromBelow&quot;]]</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>1 - y/QPochhammer[1/2, 1/2]
+  - y^2 (-1 + QPolyGamma[0, 1, 1/2]/Log[2])/QPochhammer[1/2, 1/2]^2</code></pre>
+<p>This is the monograph&#39;s <code>1 - v + L_1(q) v^2</code> with
+<code>v = y/(q; q)_∞</code> and
+<code>L_1(q) = Sum[q^j/(1 - q^j), {j, 1, Infinity}]</code>.</p>
+<p>Not covered: <code>QGamma[x, q]</code> near <code>q = 0</code> for
+symbolic <code>x</code> (generalized exponents <code>m (x + r)</code>),
+symbolic product lengths near <code>q = 0</code>, roots of unity,
+complex sectors of the base, the q-digamma and q-beta functions, and the
+double-scaling regime <code>q = Exp[-tau/n]</code>. The models and their
+sources are listed in <a href="../Kernel/QSpecialFunctions.wl">QSpecialFunctions.wl</a>; the test
+suite <a href="../Tests/QSpecialFunctions.wlt">QSpecialFunctions.wlt</a>
+pins the article formulas.</p>
 </section>
 </section>
 <section id="series-arithmetic-and-normalization" class="level2">

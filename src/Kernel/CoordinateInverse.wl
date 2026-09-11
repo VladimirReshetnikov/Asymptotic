@@ -1,9 +1,15 @@
 (* Exact changes of coordinates around the existing inverse engines.
    Loaded inside AsymptoticAnalysis`Private`. *)
 
+(* q-special products whose base tends to 1 supply their own phase
+   (QSpecialFunctions.wl replaces this default). *)
+qSpecialExponentialPhase[___] := $Failed;
+
 coordinateExponentialPhase[f_, x_, x0_, dir_, ass_, limit_] := Module[
   {coord, u, ell = Unique["ell$"], parts, offset, dependent, factors, exponentials,
-   exponent, amplitude, jet, coefficient, degree, sign, phase, argumentJet, scale},
+   exponent, amplitude, jet, coefficient, degree, sign, phase, argumentJet, scale, qPhase},
+  qPhase = qSpecialExponentialPhase[f, x, x0, dir, ass, limit];
+  If[qPhase =!= $Failed, Return[qPhase, Module]];
   If[FreeQ[f, Power[_, e_] /; ! FreeQ[e, x]], Return[$Failed, Module]];
   coord = localCoordinate[x, x0, dir]; u = coord["u"];
   parts = If[Head[f] === Plus, List @@ f, {f}];

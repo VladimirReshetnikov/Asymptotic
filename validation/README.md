@@ -2126,6 +2126,29 @@ warnings remain in the logs. This validates artifact provenance and compilation,
 not all mathematical claims or every rendered page. No Lean build or full
 Wolfram package suite was run for the document work.
 
+## q-special functions
+
+[QSpecialFunctions.wlt](../src/Tests/QSpecialFunctions.wlt) pins the
+q-analog formulas of the vendored q-series monograph and the Gaussian
+coefficient calculus against
+[QSpecialFunctions.wl](../src/Kernel/QSpecialFunctions.wl): the
+fixed-argument `q -> 1` product with its dilogarithmic scale and
+Bernoulli/polylogarithm terms, the rigorous large-log base inverse through
+`X^-5`, Euler's product and the coalescing product `(q^x; q)_∞`, the
+`q -> 1` expansion of `QGamma` and its reversion, the complete Gaussian
+logarithmic expansion, literal Taylor coordinate and ordinary inverse, the
+`q -> 1` q-factorial and the zero-base factorial inverse, the finite-product
+base inverse, the exact coefficient engine and stable small-base jet at
+`q = 0`, the endpoint argument jets and zero-derivative germ at a fixed base,
+the fixed-base large-argument expansions of `QGamma` and Gaussian binomials
+with the chart inverse, the refusals, and the result operations. The
+nine-file [CheckQSpecialFunctions.wl](CheckQSpecialFunctions.wl) run passes
+**204/204** on Wolfram 15.0.1 for Windows
+([q-special-functions-tests.json](q-special-functions-tests.json)); the q
+cases Q1–Q22 of the [ProveIt probe](ProbeProveItExamples.wl) are recorded
+in [proveit-examples-probe.json](proveit-examples-probe.json). Mathics has
+no q-special functions, so the suite is Wolfram-only.
+
 ## Parameterized composition probes
 
 Parameterized special-function composition now examines the argument jet

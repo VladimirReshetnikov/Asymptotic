@@ -15,6 +15,26 @@ milestones within that scope.
 
 ## September 11, 2026
 
+### q-special functions in three regimes
+
+`QPochhammer`, `QGamma`, `QFactorial` and `QBinomial` expand and invert
+with the base tending to `1` (the `Exp[-PolyLog[2, a]/t]` scale with the
+Bernoulli/polylogarithm corrections of the vendored q-series monograph, the
+coalescing product `(q^x; q)_∞`, ordinary series for the bounded functions
+with symbolic parameters under assumptions), at a fixed base with a growing
+argument (the exponential chart `w = q^x`, forward and inverse), and at the
+zeros `a = q^-m` of the infinite product (argument inverses). The new
+module is [QSpecialFunctions.wl](../src/Kernel/QSpecialFunctions.wl); the
+guide section is
+[q-Special Functions](../src/Documentation/UserGuide.md#q-special-functions).
+[QSpecialFunctions.wlt](../src/Tests/QSpecialFunctions.wlt) pins
+twenty-three article formulas, and the nine-file
+[CheckQSpecialFunctions.wl](../validation/CheckQSpecialFunctions.wl) run
+passes **204/204** (receipt
+[q-special-functions-tests.json](../validation/q-special-functions-tests.json)).
+The report's q cases Q1, Q3, Q4, Q5 and Q7 now reproduce the articles, and
+fifteen further q cases were added to the probe.
+
 ### ProveIt article examples tested
 
 [PROVEIT_EXAMPLES.md](development/PROVEIT_EXAMPLES.md) runs 59 series and

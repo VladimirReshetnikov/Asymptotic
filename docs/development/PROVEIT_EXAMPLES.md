@@ -10,8 +10,9 @@ examples.
 
 **Evidence.** Every case below was run by
 [ProbeProveItExamples.wl](../../validation/ProbeProveItExamples.wl) on Wolfram
-15.0.1 for Windows (through the Wolfram MCP evaluator with an `Exit`-free
-copy); the receipt is
+15.0.1 for Windows (the original 59 cases through the Wolfram MCP evaluator
+with an `Exit`-free copy; the September 11 rerun with the fifteen added q
+cases with `wolfram -script` on a fresh kernel); the receipt is
 [proveit-examples-probe.json](../../validation/proveit-examples-probe.json).
 Where the article displays an expansion, the package output was checked
 against it symbolically through the displayed order (`Check -> True`), or
@@ -21,18 +22,22 @@ formal native object without the package's analytic remainder, which for this
 report counts as *not reproduced* unless the finite part is the article's
 expansion. Mathics was not run for this report.
 
-**Result in one line.** Of 59 cases, 40 return a result object and 19 are
-refused. Of the 40, 19 reproduce the article's expansion and were checked
-against it, 13 return the expected expansion where the article displays no
-formula to check against, and 8 return a formal native object that is not the
-package's own expansion (one of them, L2, is numerically wrong). The
-reproduced set is the near-identity polynomial-logarithmic reversion calculus
-and the Lambert, Gamma and Barnes inverses; the refused set is dominated by
-three missing capabilities: inverses of Gamma-quotient and exponential-times-
-oscillation sources, forward expansions on nested-logarithm and
-reciprocal-logarithm scales, and sequence asymptotics whose large variable is
-the order of a special function (Fubini, Bell, partitions) or the base of a
-q-product near 1.
+**Result in one line.** Of 74 cases (59 in the original report, 15 q cases
+added on September 11 with the q-special-function module), 60 return a
+result object and 14 are refused. Of the 60, 39 reproduce the article's
+expansion and were checked against it, 13 return the expected expansion
+where the article displays no formula to check against, and 8 return a
+formal native object that is not the package's own expansion (one of them,
+L2, is numerically wrong). The reproduced set is the near-identity
+polynomial-logarithmic reversion calculus, the Lambert, Gamma and Barnes
+inverses, and the q-analogs in their three regimes; the refused set is
+dominated by three missing capabilities: inverses of Gamma-quotient and
+exponential-times-oscillation sources, forward expansions on
+nested-logarithm and reciprocal-logarithm scales, and sequence asymptotics
+whose large variable is the order of a special function (Fubini, Bell,
+partitions). Before the q module, the five q cases Q1, Q3, Q4, Q5 and Q7
+were refused, so the original count was 40 returned (19 checked) and 19
+refused.
 
 ## Sources examined
 
@@ -161,11 +166,31 @@ generating function, which is outside every current entry point.
 | --- | --- | --- | --- | --- |
 | Q2 | `(q; q)_∞` near `q = 0` (Euler pentagonal) | `AsymptoticExpansion[QPochhammer[q, q], {q, 0, 5}]` | Yes | True (`1 - q - q^2 + O(q^5)`) |
 | Q6 | `(a; q)_∞` near `q = 0`, fixed `a` | `AsymptoticExpansion[QPochhammer[a, q], {q, 0, 3}]` | Yes (unchecked) | |
-| Q1 | fixed-argument `q → 1` product `(1/2; e^-t)_∞` | `AsymptoticExpansion[QPochhammer[1/2, Exp[-t]], {t, 0, 2}]` | No | `UnresolvedNativeSeries` |
-| Q7 | same with `u = 1 - q` | `AsymptoticExpansion[QPochhammer[1/2, 1 - u], {u, 0, 1}]` | No | `UnresolvedNativeSeries` |
-| Q3 | q-Gamma at fixed `q`, large argument | `AsymptoticExpansion[QGamma[x, 1/2], {x, Infinity, 2}]` | No | `UnsupportedNativeCoefficient` |
-| Q4 | q-Gamma inverse | `AsymptoticInverse[QGamma[x, 1/2], ...]` | No | `UnsupportedInput` |
-| Q5 | fixed-base large-index Gaussian binomial | `AsymptoticExpansion[QBinomial[2 n, n, 1/2], {n, Infinity, 1}]` | No | `UnsupportedNativeCoefficient` |
+| Q1 | fixed-argument `q → 1` product `(1/2; e^-t)_∞` | `AsymptoticExpansion[QPochhammer[1/2, Exp[-t]], {t, 0, 2}]` | Yes | True (`Exp[-PolyLog[2, 1/2]/t] (1 - t/12)/Sqrt[2]`) |
+| Q7 | same with `u = 1 - q` | `AsymptoticExpansion[QPochhammer[1/2, 1 - u], {u, 0, 2}]` | Yes | relative error at `u = 1/500` |
+| Q3 | q-Gamma at fixed `q`, large argument | `AsymptoticExpansion[QGamma[x, 1/2], {x, Infinity, 2}]` | Yes | True (`(q; q)_∞ (2^(x-1) + 1 + (4/3) 2^-x)`) |
+| Q4 | q-Gamma inverse | `AsymptoticInverse[QGamma[x, 1/2], {x, Infinity}, {y, 2}]` | Yes | relative error at `y = QGamma[60, 1/2]` |
+| Q5 | fixed-base large-index Gaussian binomial | `AsymptoticExpansion[QBinomial[2 n, n, 1/2], {n, Infinity, 2}]` | Yes | True (`(1 - 2^(1-n))/(q; q)_∞`) |
+| Q8 | coalescing product `(q^x; q)_∞`, `q = e^-t` | `AsymptoticExpansion[QPochhammer[Exp[-x t], Exp[-t]], {t, 0, 2}]` | Yes | True (monograph "All-order coalescing expansion") |
+| Q9 | Euler's product near `q = 1` | `AsymptoticExpansion[QPochhammer[Exp[-t], Exp[-t]], {t, 0, 3}]` | Yes | True (`Sqrt[2 Pi/t] e^{-π²/(6t)} (1 + t/24 + t²/1152)`) |
+| Q10 | `log Γ_q(x)` as `q → 1` | `AsymptoticExpansion[Log[QGamma[x, Exp[-t]]], {t, 0, 3}]` | Yes | True (`c_1`, `c_2` of "All-order q→1 expansion of Γ_q") |
+| Q11 | base inverse of `Γ_q(7/2)` | `AsymptoticInverse[Log[QGamma[7/2, Exp[-t]]/Gamma[7/2]], {t, 0}, {v, 4}]` | Yes | True (ordinary reversion `v/c_1 - c_2 v²/c_1³ + 2 c_2² v³/c_1⁵`) |
+| Q12 | Gaussian binomial, literal Taylor coordinate | `AsymptoticExpansion[QBinomial[n, k, 1 - u], {u, 0, 4}]` | Yes | True (corollary through `u³`) |
+| Q13 | ordinary Gaussian inverse at `q = 1` | `AsymptoticInverse[Log[QBinomial[9, 4, Exp[-t]]/126], {t, 0}, {v, 4}]` | Yes | True (`-2v/d + Δ₂ v²/(3d³) - Δ₂² v³/(9d⁵)`) |
+| Q14 | zero-base factorial inverse | `AsymptoticInverse[QFactorial[5, q], {q, 0}, {y, 3}]` | Yes | True (`u/(n-1) - (n-2)(n+1) u²/(2(n-1)³)`) |
+| Q15 | finite product, regular base inverse at `q = 1` | `AsymptoticInverse[Log[QPochhammer[1/3, Exp[-t], 5]/(2/3)^5], {t, 0}, {u, 4}]` | Yes | True (`c_m = (-1)^{m+1} Li_{1-m}(a) S_m(n)/m!`) |
+| Q16 | exact coefficient engine at `q = 0` (`n = 6`) | `AsymptoticInverse[QPochhammer[1/3, q, 6], {q, 0}, {y, 6}]` | Yes | True (through `η⁵`) |
+| Q17 | stable small-base jet of `(a; q)_∞` | `AsymptoticInverse[QPochhammer[1/3, q], {q, 0}, {y, 7}]` | Yes | True (through `η⁶`) |
+| Q18 | endpoint argument jet at `a = 0` | `AsymptoticInverse[QPochhammer[a, 1/2], {a, 0}, {y, 4}]` | Yes | True (three displayed terms) |
+| Q19 | argument inverse at the zero `a = 1` | `AsymptoticInverse[QPochhammer[a, 1/2], {a, 1}, {y, 3}, Direction -> "FromBelow"]` | Yes | `L_1(q)` coefficient to 25 digits |
+| Q20 | rigorous large-log base inverse | `AsymptoticInverse[QPochhammer[1/2, Exp[-t]], {t, 0}, {y, 6}]` | Yes | True (odd powers of `1/X` through `X⁻⁵`) |
+| Q21 | fixed-column Gaussian binomial, fixed base | `AsymptoticExpansion[QBinomial[n, 3, 1/2], {n, Infinity, 2}]` | Yes | first correction `-q^{n-k+1} [k]_q/(q; q)_k` to 25 digits |
+| Q22 | q-factorial argument inverse at fixed base | `AsymptoticInverse[QFactorial[n, 1/3], {n, Infinity}, {y, 2}]` | Yes | relative error at `y = QFactorial[40, 1/3]` |
+
+The q rows were re-run on September 11 after the q-special-function module
+([QSpecialFunctions.wl](../../src/Kernel/QSpecialFunctions.wl)) was added;
+before it, Q1, Q7, Q3, Q4 and Q5 were refused (`UnresolvedNativeSeries`,
+`UnsupportedNativeCoefficient`, `UnsupportedInput`).
 
 ## What the failures have in common
 
@@ -192,9 +217,10 @@ generating function, which is outside every current entry point.
 4. **Sequence asymptotics in the order or the base.** Fubini
    (`PolyLog[-n, 1/2]`, `LerchPhi[1/2, -n, 1]`), Bell and partitions have
    their large variable in the order of a special function or under a
-   saddle; the q-products near `q = 1` have it in the base. None of these is
+   saddle; the q-products near `q = 1` had it in the base. None of these is
    a power-log expansion of a built-in in its argument, which is the only
-   regime the special-function adapters implement.
+   regime the special-function adapters implement. The q-products are now
+   handled by their own logarithmic models (feature 6 below, implemented).
 5. **Nonprincipal Lambert branches near zero.** L2 is the single wrong
    output: the native route's complex logarithm leaks into a real
    expansion.
@@ -262,14 +288,17 @@ the algorithm, and what already exists in the package to build on.
    composition `F(3X^2/L)` and `x + W(x)` as analytic objects instead of
    formal native ones, and would let L3 (the inverse of `x + W(x)`) go
    through the existing logarithmic-inverse route.
-6. **q-products and q-special functions (Q1, Q3, Q5, Q7).** The q-series
-   monograph's fixed-argument `q → 1` theorem (`(a; e^{-t})_∞ ~ exp(-Li_2(a)/t)`
-   times a Bernoulli/polylogarithm series with a uniform remainder) and the
-   fixed-`q` large-argument theorems are self-contained coefficient
-   generators; the package has none of them. The coverage matrix lists the
-   regimes; the first to implement is the fixed-argument `q → 1` product,
-   which is a single dilogarithmic leading scale plus a power series in
-   `t`.
+6. **q-products and q-special functions (Q1, Q3, Q5, Q7). Implemented on
+   September 11** in [QSpecialFunctions.wl](../../src/Kernel/QSpecialFunctions.wl):
+   the fixed-argument `q → 1` theorem (`(a; e^{-t})_∞ ~ exp(-Li_2(a)/t)`
+   times a Bernoulli/polylogarithm series), the coalescing product, the
+   `q → 1` models of `QGamma`, `QFactorial`, `QBinomial` and the finite
+   products, their base inverses, the fixed-base large-argument regimes
+   through the exponential chart `w = q^x` (forward and inverse), and the
+   argument inverses at the zeros of `(a; q)_∞`. Cases Q1–Q22 above record
+   the checks; the [coverage matrix](VENDORED_ASYMPTOTICS.md#q-analogs-and-inverse-q-functions)
+   lists what remains (q → 0 with symbolic exponents, roots of unity,
+   complex sectors, q-digamma and q-beta, the double-scaling regime).
 7. **Real nonprincipal Lambert branches near zero (L2).** Route
    `ProductLog[-1, -x]` for `x → 0+` through the same logarithmic
    expansion as `ProductLog[x]` at infinity with `L_1 = log x`,
@@ -280,7 +309,7 @@ the algorithm, and what already exists in the package to build on.
 
 Items 1–3 are the ones that turn article theorems with explicit
 coefficient generators into public computations with the least new theory;
-items 4–6 need new scale machinery; item 7 is a repair.
+items 4 and 5 need new scale machinery; item 6 is done; item 7 is a repair.
 
 ## Reproducing the probe
 

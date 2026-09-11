@@ -130,6 +130,7 @@ Outputs below are written in algebraically equivalent factored forms where this 
 | Expand a selected inverse | [AsymptoticInverse](#AsymptoticInverse) |
 | Expand the increasing Gamma or LogGamma inverse | [Inverse Gamma and LogGamma Functions](#inverse-gamma-and-loggamma) |
 | Expand the increasing Barnes G inverse | [Inverse Barnes G Functions](#barnes-inverse-expansions) |
+| Expand q-Pochhammer, q-gamma, q-factorial and Gaussian binomial functions and their inverses | [q-Special Functions](#q-special-functions) |
 | Inspect results and models | [GeneralizedSeries](#GeneralizedSeries), [PowerLogRemainder](#PowerLogRemainder), [PowerLogModel](#PowerLogModel), [InverseExpansionCoefficient](#InverseExpansionCoefficient) |
 | Perform series arithmetic | [Ordinary Arithmetic](#ordinary-series-arithmetic), [SeriesNormalize](#SeriesNormalize), [SeriesAdd](#SeriesAdd), [SeriesMultiply](#SeriesMultiply), [SeriesPower](#SeriesPower), [SeriesLog](#SeriesLog), [SeriesExp](#SeriesExp) |
 | Compose or apply a function | [SeriesCompose](#SeriesCompose), [SeriesObservable](#SeriesObservable) |
@@ -2186,6 +2187,142 @@ Addition and multiplication of compatible results are supported through ordinary
 `Log`, `Exp`, `Abs`, `Sin`, and `Cos` can return composite bounds under their real-branch and error conditions; `SeriesLog` and `SeriesExp` use the same fallback. See [Composite Results](#composite-series-results). Generic composition, arbitrary observables, and differentiation remain unsupported for this inverse coefficient scale. Composite results do not acquire inverse residual, numerical-check, or refinement support merely by retaining their operands. Interval certification and certificate-based tolerance refinement are also unsupported. Arithmetic on `Normal[s]` drops the remainder.
 
 <a id="series-operations"></a>
+## q-Special Functions
+
+`QPochhammer`, `QGamma`, `QFactorial` and `QBinomial` are expanded in the three regimes the q-analog literature separates: the base tending to `1`, a fixed base with a growing argument, and the base tending to `0`. The expansion variable may appear in the base (as `Exp[-t]`, `1 - u`, or `q` itself approaching `1` from below) or in an argument. A base that tends to `1` must do so from below through real values, and a fixed base must be an exact real number in `(0, 1)`. Mathics has no q-special functions, so these expansions are Wolfram-only.
+
+### Base Tending to One
+
+With `q = Exp[-t]` and `t -> 0+`, the logarithm of each q-function is an explicit series in `t` whose coefficients are Bernoulli numbers, Bernoulli polynomials and polylogarithms of nonpositive order. The infinite product `(a; q)_∞` at a fixed real argument `a < 1` is exponentially small or large, `Exp[-PolyLog[2, a]/t]` times a power series; the coalescing product `(q^x; q)_∞` carries `Exp[-Pi^2/(6 t)] t^(1/2 - x)`; `QGamma[x, q]`, `QFactorial[n, q]`, `QBinomial[n, k, q]` and the finite products `(a; q)_n` are bounded and expand as ordinary power series. Parameters may stay symbolic when the assumptions prove the conditions the models need (`a < 1`, `x > 0`, nonnegative integers `n`, integers `0 <= k <= n`); otherwise the request is refused with `Failure["UnsupportedQArgument", ...]`.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[QPochhammer[1/2, Exp[-t]], {t, 0, 3}];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{(1 - t/12 + t^2/288)/(Sqrt[2] E^((Pi^2 - 6 Log[2]^2)/(12 t))),
+ PowerLogRemainder[t, 3, 0]/(Sqrt[2] E^((Pi^2 - 6 Log[2]^2)/(12 t)))}
+```
+
+The prefactor is `Exp[-PolyLog[2, 1/2]/t]/Sqrt[2]`. The result is a `"Factored"` forward object with `"ExpansionNature" -> "Poincare"`: the omitted remainder is exponentially small in the sense of the monograph's uniform expansion. `"QSpecialFactors"` records the model used for each factor. The finite products, `QFactorial` and `QBinomial` have convergent series (`"ExpansionNature" -> "Convergent"` in the factored route).
+
+The coalescing product and the q-gamma function:
+
+**Input**
+
+```wolfram
+Normal[AsymptoticExpansion[QPochhammer[Exp[-x t], Exp[-t]], {t, 0, 2},
+  Assumptions -> x > 0]]
+Normal[AsymptoticExpansion[Log[QGamma[x, Exp[-t]]], {t, 0, 3},
+  Assumptions -> x > 0]]
+```
+
+**Output**
+
+```wolfram
+Sqrt[2 Pi] t^(1/2 - x) (1 + t (1/24 - x/4 + x^2/4))/(E^(Pi^2/(6 t)) Gamma[x])
+Log[Gamma[x]] + t (-1/2 + 3 x/4 - x^2/4) + t^2 (1/24 - 5 x/144 - x^2/48 + x^3/72)
+```
+
+The Gaussian binomial near `q = 1` in the coordinate `u = 1 - q`, for symbolic integers `0 <= k <= n`:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[QBinomial[n, k, 1 - u], {u, 0, 3},
+  Assumptions -> Element[n, Integers] && Element[k, Integers] && 0 <= k <= n];
+Simplify[Normal[s]/Binomial[n, k]]
+```
+
+**Output**
+
+```wolfram
+(24 + 3 k^4 u^2 - 6 k^3 n u^2 + k n u (-12 + (-5 + n) u) + k^2 u (12 + (5 - n + 3 n^2) u))/24
+```
+
+This is `1 - d u/2 + d (3 d + n - 5) u^2/24` with `d = k (n - k)`.
+
+Inverses in the base follow from the same models. The infinite product is inverted through its logarithmic target coordinate, a `"Transformed"` result with `"CoordinateKind" -> "TargetLog"`; the bounded functions are inverted by ordinary reversion.
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[QPochhammer[1/2, Exp[-t]], {t, 0}, {y, 3}];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{(-Pi^2/12 + Log[2]^2/2)/Log[y]
+   + (-Pi^2/12 + Log[2]^2/2)^2 Log[64]/((Pi^2 - 6 Log[2]^2) Log[y]^2),
+ PowerLogRemainder[-Log[y]^(-1), 3, 0]}
+```
+
+With `A = PolyLog[2, 1/2]` and `X = -Log[y] + Log[1/2]/2` this is the monograph's `t = A/X + A^2/(12 X^3) + ...` re-expanded in `1/Log[y]`. `InverseNumericalCheck` compares the result with the exact product.
+
+### Fixed Base, Growing Argument
+
+For a fixed exact base `0 < q < 1` and `x -> Infinity`, each q-function is rewritten through infinite q-Pochhammer symbols in the exponential chart `w = q^x`, for example `QGamma[x, q] = (1 - q)^(1 - x) (q; q)_∞/(q^x; q)_∞`, with the corresponding forms for `QFactorial`, `QBinomial` and the finite products; the arguments must be linear in `x`. The chart phase is an ordinary power-log expression at `w -> 0+`. The forward result is a `"Transformed"` object whose terms are powers of `q^x` and whose remainder is `PowerLogRemainder[q^x, p, 0]`; the cutoff is an exponent of `q^x`.
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[QGamma[x, 1/2], {x, Infinity, 2}];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{QPochhammer[1/2, 1/2] + 2^(2 - x) QPochhammer[1/2, 1/2]/3 + 2^(x - 1) QPochhammer[1/2, 1/2],
+ PowerLogRemainder[2^(-x), 2, 0]}
+```
+
+The retained exponents of `2^(-x)` are `-1, 0, 1`. The argument inverse uses the same chart through the source-coordinate engine (`"CoordinateKind" -> "SourceLog"`, `"SourceCoordinateExpression" -> q^x`) and reconstructs `x = Log[w]/Log[q]`:
+
+**Input**
+
+```wolfram
+s = AsymptoticInverse[QGamma[x, 1/2], {x, Infinity}, {y, 2}];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{-Log[y^(-1)]/Log[2] + Log[2/QPochhammer[1/2, 1/2]]/Log[2]
+   - QPochhammer[1/2, 1/2]/(y Log[2]),
+ PowerLogRemainder[y^(-1), 2, 0]}
+```
+
+### Base Tending to Zero and Argument Inverses at a Fixed Base
+
+Near `q = 0` the q-functions with numeric arguments are analytic in `q` and expand through the built-in series; their base inverses are ordinary reversions (the monograph's exact coefficient engine and stable small-base jet). For a fixed base and a varying argument, `(a; q)_∞` vanishes exactly at `a = q^-m`, `m >= 0`, where the built-in derivative formula is singular; the package splits off the `m + 1` factors that carry the zero, so the argument inverses at `a -> 1` and at the other zeros expand:
+
+**Input**
+
+```wolfram
+Normal[AsymptoticInverse[QPochhammer[a, 1/2], {a, 1}, {y, 3},
+  Direction -> "FromBelow"]]
+```
+
+**Output**
+
+```wolfram
+1 - y/QPochhammer[1/2, 1/2]
+  - y^2 (-1 + QPolyGamma[0, 1, 1/2]/Log[2])/QPochhammer[1/2, 1/2]^2
+```
+
+This is the monograph's `1 - v + L_1(q) v^2` with `v = y/(q; q)_∞` and `L_1(q) = Sum[q^j/(1 - q^j), {j, 1, Infinity}]`.
+
+Not covered: `QGamma[x, q]` near `q = 0` for symbolic `x` (generalized exponents `m (x + r)`), symbolic product lengths near `q = 0`, roots of unity, complex sectors of the base, the q-digamma and q-beta functions, and the double-scaling regime `q = Exp[-tau/n]`. The models and their sources are listed in [QSpecialFunctions.wl](../Kernel/QSpecialFunctions.wl); the test suite [QSpecialFunctions.wlt](../Tests/QSpecialFunctions.wlt) pins the article formulas.
+
 ## Series Arithmetic and Normalization
 
 Arithmetic on a `GeneralizedSeries` transports its remainder together with its finite expression. Operands must have compatible variables, endpoints, approach sides, and real branch conditions. Requested precision is limited by the available operand precision.

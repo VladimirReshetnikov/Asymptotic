@@ -101,12 +101,15 @@ VerificationTest[Module[{x, s},
   {True, {{0, 1}, {1, 1}, {2, 1/2}, {3, 1/6}, {4, 1/24}}, True, 5, False},
   TestID -> "exponential-forward-finite-source-keeps-ordinary-taylor-semantics"]
 
+(* The package path is selected explicitly: under the Automatic backend a
+   nonpositive rule-form goal, inexact data and an unproved parameter are
+   delegated to a native representation instead of failing. *)
 VerificationTest[Module[{x, r}, Quiet[{
-    FailureQ[AsymptoticExpansion[Exp[x + 1/x], x -> Infinity, SeriesTermGoal -> 0]],
+    FailureQ[AsymptoticExpansion[Exp[x + 1/x], x -> Infinity, SeriesTermGoal -> 0, "Backend" -> "Package"]],
     FailureQ[AsymptoticExpansion[Exp[x + 1/x], x -> Infinity, SeriesTermGoal -> 5, "MaxTerms" -> 1]],
     FailureQ[AsymptoticExpansion[Exp[x + 1/x], {x, Infinity, 3.5}]],
-    FailureQ[AsymptoticExpansion[Exp[2.0 x + 1/x], x -> Infinity, SeriesTermGoal -> 5]],
-    FailureQ[AsymptoticExpansion[Exp[r x], x -> Infinity, SeriesTermGoal -> 5]]}]],
+    FailureQ[AsymptoticExpansion[Exp[2.0 x + 1/x], x -> Infinity, SeriesTermGoal -> 5, "Backend" -> "Package"]],
+    FailureQ[AsymptoticExpansion[Exp[r x], x -> Infinity, SeriesTermGoal -> 5, "Backend" -> "Package"]]}]],
   {True, True, True, True, True},
   TestID -> "exponential-forward-invalid-goals-budgets-inexact-data-and-unproved-parameters-fail"]
 

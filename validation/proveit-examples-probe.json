@@ -455,8 +455,8 @@
 			"Source":"Combinatorial inverses ch. 'Harmonic functions: exponential and endpoint-Puiseux inversion' (inverse of H_x)",
 			"Request":"HoldForm[AsymptoticInverse[HarmonicNumber[x], {x, Infinity}, {y, 3}]]",
 			"Outcome":"Failure",
-			"Tag":"InsufficientForwardOrder",
-			"Message":"No nonconstant leading block was found within the working-order budget."
+			"Tag":"UnsupportedInput",
+			"Message":"The native series must use the recorded positive local variable at zero and a supported power-log form."
 		},
 		{
 			"Case":"C12b",
@@ -486,11 +486,14 @@
 		},
 		{
 			"Case":"Q1",
-			"Source":"q-series monograph reading item 3 (fixed-argument q -> 1 product (1\/2; e^-t)_inf)",
+			"Source":"q-series monograph ch. 3 'Uniform all-order fixed-argument expansion' ((1\/2; e^-t)_inf, q -> 1)",
 			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[1\/2, Exp[-t]], {t, 0, 2}]]",
-			"Outcome":"Failure",
-			"Tag":"UnresolvedNativeSeries",
-			"Message":"The native expansion contains an unresolved function or nonfinite coefficient."
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"E^(-1\/12*Pi^2\/t + Log[2]^2\/(2*t))\/Sqrt[2] - (E^(-1\/12*Pi^2\/t + Log[2]^2\/(2*t))*t)\/(12*Sqrt[2])",
+			"Remainder":"PowerLogRemainder[t, 2, 0]\/(Sqrt[2]*E^((Pi^2 - 6*Log[2]^2)\/(12*t)))",
+			"RemainderPower":"2",
+			"Check":"True"
 		},
 		{
 			"Case":"Q2",
@@ -505,27 +508,36 @@
 		},
 		{
 			"Case":"Q3",
-			"Source":"q-series monograph reading item 5 (q-Gamma at fixed q, large argument)",
+			"Source":"Gaussian coefficient calculus \/ monograph ch. 5 (q-Gamma at fixed q, large argument)",
 			"Request":"HoldForm[AsymptoticExpansion[QGamma[x, 1\/2], {x, Infinity, 2}]]",
-			"Outcome":"Failure",
-			"Tag":"UnsupportedNativeCoefficient",
-			"Message":"A native amplitude must have polynomial logarithmic coefficients and bounded real sine\/cosine modes."
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"QPochhammer[1\/2, 1\/2] + (2^(2 - x)*QPochhammer[1\/2, 1\/2])\/3 + 2^(-1 + x)*QPochhammer[1\/2, 1\/2]",
+			"Remainder":"PowerLogRemainder[2^(-x), 2, 0]",
+			"RemainderPower":"2",
+			"Check":"True"
 		},
 		{
 			"Case":"Q4",
-			"Source":"q-series monograph reading item 5 (q-Gamma inverse)",
-			"Request":"HoldForm[AsymptoticInverse[QGamma[x, 1\/2], {x, Infinity}, {y, 1}]]",
-			"Outcome":"Failure",
-			"Tag":"UnsupportedInput",
-			"Message":"The native result is not a resolved power-log series."
+			"Source":"monograph ch. 5 (q-Gamma argument inverse at fixed q)",
+			"Request":"HoldForm[AsymptoticInverse[QGamma[x, 1\/2], {x, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-(Log[y^(-1)]\/Log[2]) + Log[2\/QPochhammer[1\/2, 1\/2]]\/Log[2] - QPochhammer[1\/2, 1\/2]\/(y*Log[2])",
+			"Remainder":"PowerLogRemainder[y^(-1), 2, 0]",
+			"RemainderPower":"2",
+			"Check":"8.44171313327654329134`6.*^-38"
 		},
 		{
 			"Case":"Q5",
-			"Source":"Gaussian coefficient calculus (fixed-base large-index Gaussian binomial)",
-			"Request":"HoldForm[AsymptoticExpansion[QBinomial[2*n, n, 1\/2], {n, Infinity, 1}]]",
-			"Outcome":"Failure",
-			"Tag":"UnsupportedNativeCoefficient",
-			"Message":"A native amplitude must have polynomial logarithmic coefficients and bounded real sine\/cosine modes."
+			"Source":"Gaussian coefficient calculus 'Both sides large and fixed base' (central Gaussian binomial)",
+			"Request":"HoldForm[AsymptoticExpansion[QBinomial[2*n, n, 1\/2], {n, Infinity, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"QPochhammer[1\/2, 1\/2]^(-1) - 2^(1 - n)\/QPochhammer[1\/2, 1\/2]",
+			"Remainder":"PowerLogRemainder[2^(-n), 2, 0]",
+			"RemainderPower":"2",
+			"Check":"True"
 		},
 		{
 			"Case":"Q6",
@@ -539,11 +551,179 @@
 		},
 		{
 			"Case":"Q7",
-			"Source":"q-series monograph reading item 3 ((1\/2; q)_inf as q -> 1, u = 1 - q)",
-			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[1\/2, 1 - u], {u, 0, 1}]]",
-			"Outcome":"Failure",
-			"Tag":"UnresolvedNativeSeries",
-			"Message":"The native expansion contains an unresolved function or nonfinite coefficient."
+			"Source":"q-series monograph ch. 3 ((1\/2; q)_inf as q -> 1, u = 1 - q)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[1\/2, 1 - u], {u, 0, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"E^(((-2 + u)*(Pi^2 - 6*Log[2]^2))\/(24*u))\/Sqrt[2] - (E^(((-2 + u)*(Pi^2 - 6*Log[2]^2))\/(24*u))*u)\/(12*Sqrt[2]) + (E^(((-2 + u)*(Pi^2 - 6*Log[2]^2))\/(24*u))*Pi^2*u)\/(144*Sqrt[2]) - (E^(((-2 + u)*(Pi^2 - 6*Log[2]^2))\/(24*u))*u*Log[2]^2)\/(24*Sqrt[2])",
+			"Remainder":"(E^(((-2 + u)*(Pi^2 - 6*Log[2]^2))\/(24*u))*PowerLogRemainder[u, 2, 0])\/Sqrt[2]",
+			"RemainderPower":"2",
+			"Check":"6.730258558814549062929371371186`6.*^-8"
+		},
+		{
+			"Case":"Q8",
+			"Source":"q-series monograph ch. 3 'All-order coalescing expansion' ((q^x; q)_inf, q = e^-t)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[Exp[(-x)*t], Exp[-t]], {t, 0, 2}, Assumptions -> x > 0]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"(Sqrt[2*Pi]*t^(1\/2 - x))\/(E^(Pi^2\/(6*t))*Gamma[x]) + (Sqrt[Pi\/2]*t^(3\/2 - x))\/(12*E^(Pi^2\/(6*t))*Gamma[x]) - (Sqrt[Pi\/2]*t^(3\/2 - x)*x)\/(2*E^(Pi^2\/(6*t))*Gamma[x]) + (Sqrt[Pi\/2]*t^(3\/2 - x)*x^2)\/(2*E^(Pi^2\/(6*t))*Gamma[x])",
+			"Remainder":"(Sqrt[2*Pi]*t^(1\/2 - x)*PowerLogRemainder[t, 2, 0])\/(E^(Pi^2\/(6*t))*Gamma[x])",
+			"RemainderPower":"2",
+			"Check":"True"
+		},
+		{
+			"Case":"Q9",
+			"Source":"q-series monograph ch. 3 'Exact eta completions' (Euler's product near q = 1)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[Exp[-t], Exp[-t]], {t, 0, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"Sqrt[2*Pi]\/(E^(Pi^2\/(6*t))*Sqrt[t]) + (Sqrt[Pi\/2]*Sqrt[t])\/(12*E^(Pi^2\/(6*t))) + (Sqrt[Pi\/2]*t^(3\/2))\/(576*E^(Pi^2\/(6*t)))",
+			"Remainder":"(Sqrt[2*Pi]*PowerLogRemainder[t, 3, 0])\/(E^(Pi^2\/(6*t))*Sqrt[t])",
+			"RemainderPower":"3",
+			"Check":"True"
+		},
+		{
+			"Case":"Q10",
+			"Source":"q-series monograph ch. 5 'All-order q -> 1 expansion of Gamma_q' (c1, c2)",
+			"Request":"HoldForm[AsymptoticExpansion[Log[QGamma[x, Exp[-t]]], {t, 0, 3}, Assumptions -> x > 0]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"-1\/2*t + t^2\/24 + (3*t*x)\/4 - (5*t^2*x)\/144 - (t*x^2)\/4 - (t^2*x^2)\/48 + (t^2*x^3)\/72 + Log[Gamma[x]]",
+			"Remainder":"PowerLogRemainder[t, 4, 0]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"Q11",
+			"Source":"q-series monograph ch. 5 (ordinary reversion of Gamma_q at x = 7\/2)",
+			"Request":"HoldForm[AsymptoticInverse[Log[QGamma[7\/2, Exp[-t]]\/Gamma[7\/2]], {t, 0}, {v, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"(-16*v)\/15 + (128*v^2)\/405 - (2048*v^3)\/10935",
+			"Remainder":"PowerLogRemainder[-v, 4, 0]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"Q12",
+			"Source":"q-series monograph ch. 4 'Literal Taylor coordinate h = q - 1' (Gaussian binomial, symbolic n, k)",
+			"Request":"HoldForm[AsymptoticExpansion[QBinomial[n, k, 1 - u], {u, 0, 4}, Assumptions -> Element[n, Integers] && Element[k, Integers] && 0 <= k <= n]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"Binomial[n, k] + (k^2*u*Binomial[n, k])\/2 - (k*n*u*Binomial[n, k])\/2 + (5*k^2*u^2*Binomial[n, k])\/24 + (k^4*u^2*Binomial[n, k])\/8 - (5*k*n*u^2*Binomial[n, k])\/24 - (k^2*n*u^2*Binomial[n, k])\/24 - (k^3*n*u^2*Binomial[n, k])\/4 + (k*n^2*u^2*Binomial[n, k])\/24 + (k^2*n^2*u^2*Binomial[n, k])\/8 + (k^2*u^3*Binomial[n, k])\/8 + (5*k^4*u^3*Binomial[n, k])\/48 + (k^6*u^3*Binomial[n, k])\/48 - (k*n*u^3*Binomial[n, k])\/8 - (k^2*n*u^3*Binomial[n, k])\/24 - (5*k^3*n*u^3*Binomial[n, k])\/24 - (k^4*n*u^3*Binomial[n, k])\/48 - (k^5*n*u^3*Binomial[n, k])\/16 + (k*n^2*u^3*Binomial[n, k])\/24 + (5*k^2*n^2*u^3*Binomial[n, k])\/48 + (k^3*n^2*u^3*Binomial[n, k])\/24 + (k^4*n^2*u^3*Binomial[n, k])\/16 - (k^2*n^3*u^3*Binomial[n, k])\/48 - (k^3*n^3*u^3*Binomial[n, k])\/48",
+			"Remainder":"PowerLogRemainder[u, 4, 0]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"Q13",
+			"Source":"q-series monograph ch. 4 'Ordinary Gaussian inverse at q = 1' (n = 9, k = 4)",
+			"Request":"HoldForm[AsymptoticInverse[Log[QBinomial[9, 4, Exp[-t]]\/126], {t, 0}, {v, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-1\/10*v + v^2\/120 - v^3\/720",
+			"Remainder":"PowerLogRemainder[-v, 4, 0]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"Q14",
+			"Source":"q-series monograph ch. 5 'Zero-base factorial inverse' (n = 5)",
+			"Request":"HoldForm[AsymptoticInverse[QFactorial[5, q], {q, 0}, {y, 3}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-25\/64 + (17*y)\/32 - (9*y^2)\/64",
+			"Remainder":"PowerLogRemainder[-1 + y, 3, 0]",
+			"RemainderPower":"3",
+			"Check":"True"
+		},
+		{
+			"Case":"Q15",
+			"Source":"q-series monograph ch. 2 'All-order regular base inverse at q = 1' (a = 1\/3, n = 5)",
+			"Request":"HoldForm[AsymptoticInverse[Log[QPochhammer[1\/3, Exp[-t], 5]\/(2\/3)^5], {t, 0}, {u, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"u\/5 + (9*u^2)\/100 + (41*u^3)\/1000",
+			"Remainder":"PowerLogRemainder[u, 4, 0]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"Q16",
+			"Source":"q-series monograph ch. 2 'Exact coefficient engine at q = 0' (a = 1\/3, n = 6)",
+			"Request":"HoldForm[AsymptoticInverse[QPochhammer[1\/3, q, 6], {q, 0}, {y, 6}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"1056 - 8118*y + (100035*y^2)\/4 - (154305*y^3)\/4 + (238383*y^4)\/8 - (295245*y^5)\/32",
+			"Remainder":"PowerLogRemainder[2\/3 - y, 6, 0]",
+			"RemainderPower":"6",
+			"Check":"True"
+		},
+		{
+			"Case":"Q17",
+			"Source":"q-series monograph ch. 3 'Real base atlas and the stable small-base jet' (a = 1\/3)",
+			"Request":"HoldForm[AsymptoticInverse[QPochhammer[1\/3, q], {q, 0}, {y, 7}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-7773 + 71343*y - 272970*y^2 + (2229525*y^3)\/4 - (10250469*y^4)\/16 + (12577437*y^5)\/32 - (6436341*y^6)\/64",
+			"Remainder":"PowerLogRemainder[2\/3 - y, 7, 0]",
+			"RemainderPower":"7",
+			"Check":"True"
+		},
+		{
+			"Case":"Q18",
+			"Source":"q-series monograph ch. 3 'Endpoint and central inverse jets' (argument inverse at a = 0, q = 1\/2)",
+			"Request":"HoldForm[AsymptoticInverse[QPochhammer[a, 1\/2], {a, 0}, {y, 4}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"95\/126 - (23*y)\/21 + (3*y^2)\/7 - (11*y^3)\/126",
+			"Remainder":"PowerLogRemainder[1 - y, 4, 0]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
+			"Case":"Q19",
+			"Source":"q-series monograph ch. 3 (argument inverse at the zero a = 1: 1 - v + L1 v^2, v = y\/(q; q)_inf)",
+			"Request":"HoldForm[AsymptoticInverse[QPochhammer[a, 1\/2], {a, 1}, {y, 3}, Direction -> \"FromBelow\"]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"1 + y^2\/QPochhammer[1\/2, 1\/2]^2 - y\/QPochhammer[1\/2, 1\/2] - (y^2*QPolyGamma[0, 1, 1\/2])\/(Log[2]*QPochhammer[1\/2, 1\/2]^2)",
+			"Remainder":"PowerLogRemainder[y, 3, 0]",
+			"RemainderPower":"3",
+			"Check":"0``28.41419509304949"
+		},
+		{
+			"Case":"Q20",
+			"Source":"q-series monograph ch. 3 'Rigorous large-log base inverse' (a = 1\/2, odd powers of 1\/X)",
+			"Request":"HoldForm[AsymptoticInverse[QPochhammer[1\/2, Exp[-t]], {t, 0}, {y, 6}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-1\/124416*Pi^14\/((Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + Pi^16\/(2488320*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) - (11*Pi^12*Log[2]^2)\/(20736*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) - (Pi^14*Log[2]^2)\/(51840*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (23*Pi^10*Log[2]^4)\/(1152*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (7*Pi^12*Log[2]^4)\/(17280*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) - (145*Pi^8*Log[2]^6)\/(576*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) - (7*Pi^10*Log[2]^6)\/(1440*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (145*Pi^6*Log[2]^8)\/(96*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (7*Pi^8*Log[2]^8)\/(192*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) - (69*Pi^4*Log[2]^10)\/(16*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) - (7*Pi^6*Log[2]^10)\/(40*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (33*Pi^2*Log[2]^12)\/(8*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (21*Pi^4*Log[2]^12)\/(40*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (9*Log[2]^14)\/(4*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) - (9*Pi^2*Log[2]^14)\/(10*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (27*Log[2]^16)\/(40*(Pi^2 - 6*Log[2]^2)^4*Log[y]^5) + (Pi^10*Log[2])\/(1152*(Pi^2 - 6*Log[2]^2)^3*Log[y]^4) - (Pi^8*Log[2]^3)\/(64*(Pi^2 - 6*Log[2]^2)^3*Log[y]^4) + (Pi^6*Log[2]^5)\/(16*(Pi^2 - 6*Log[2]^2)^3*Log[y]^4) + (3*Pi^4*Log[2]^7)\/(8*(Pi^2 - 6*Log[2]^2)^3*Log[y]^4) - (27*Pi^2*Log[2]^9)\/(8*(Pi^2 - 6*Log[2]^2)^3*Log[y]^4) + (27*Log[2]^11)\/(4*(Pi^2 - 6*Log[2]^2)^3*Log[y]^4) - Pi^8\/(1728*(Pi^2 - 6*Log[2]^2)^2*Log[y]^3) - (Pi^6*Log[2]^2)\/(144*(Pi^2 - 6*Log[2]^2)^2*Log[y]^3) + (Pi^4*Log[2]^4)\/(4*(Pi^2 - 6*Log[2]^2)^2*Log[y]^3) - (7*Pi^2*Log[2]^6)\/(4*(Pi^2 - 6*Log[2]^2)^2*Log[y]^3) + (15*Log[2]^8)\/(4*(Pi^2 - 6*Log[2]^2)^2*Log[y]^3) + (Pi^4*Log[64])\/(144*(Pi^2 - 6*Log[2]^2)*Log[y]^2) - (Pi^2*Log[2]^2*Log[64])\/(12*(Pi^2 - 6*Log[2]^2)*Log[y]^2) + (Log[2]^4*Log[64])\/(4*(Pi^2 - 6*Log[2]^2)*Log[y]^2) - Pi^2\/(12*Log[y]) + Log[2]^2\/(2*Log[y])",
+			"Remainder":"PowerLogRemainder[-Log[y]^(-1), 6, 0]",
+			"RemainderPower":"6",
+			"Check":"True"
+		},
+		{
+			"Case":"Q21",
+			"Source":"Gaussian coefficient calculus 'Fixed lower index and fixed base' (k = 3, q = 1\/2)",
+			"Request":"HoldForm[AsymptoticExpansion[QBinomial[n, 3, 1\/2], {n, Infinity, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"QPochhammer[1\/16, 1\/2]\/QPochhammer[1\/2, 1\/2] - (7*QPochhammer[1\/16, 1\/2])\/(2^n*QPochhammer[1\/2, 1\/2])",
+			"Remainder":"PowerLogRemainder[2^(-n), 2, 0]",
+			"RemainderPower":"2",
+			"Check":"{0``29.215009325086047, 0``28.369911285071797}"
+		},
+		{
+			"Case":"Q22",
+			"Source":"q-series monograph ch. 5 (q-factorial argument inverse at a fixed base)",
+			"Request":"HoldForm[AsymptoticInverse[QFactorial[n, 1\/3], {n, Infinity}, {y, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-(Log[y^(-1)]\/Log[3\/2]) - Log[QPochhammer[1\/3, 1\/3]]\/(2*ArcCoth[5])",
+			"Remainder":"PowerLogRemainder[y^(-1), -(Log[3]\/Log[3\/2]) + Log[9]\/Log[3\/2], 0]",
+			"RemainderPower":"-(Log[3]\/Log[3\/2]) + Log[9]\/Log[3\/2]",
+			"Check":"2.53574943179073035`6.*^-21"
 		},
 		{
 			"Case":"N1",
@@ -577,7 +757,7 @@
 		}
 	],
 	"Summary":{
-		"Series":40,
-		"Failure":19
+		"Series":60,
+		"Failure":14
 	}
 }

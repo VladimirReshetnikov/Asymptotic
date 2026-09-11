@@ -20,12 +20,15 @@ source notices, and provenance records remain unchanged.
 
 The [ProveIt examples report](PROVEIT_EXAMPLES.md) (September 11, 2026)
 executed 59 concrete series and inverse-series examples from the corpus
+(74 after the fifteen q cases added with the q-special-function module)
 against the package: the near-identity reversion calculus, the Lambert,
 Gamma and Barnes inverses reproduce the articles; Gamma-quotient and
 oscillatory sequence inverses, nested-logarithm forward scales,
-order-variable sequence asymptotics (Fubini, Bell, partitions) and
-`q -> 1` products do not. Its feature list is the concrete work order for
-the rows below.
+order-variable sequence asymptotics (Fubini, Bell, partitions) do not;
+the `q -> 1` products and the fixed-base q-gamma and Gaussian regimes
+reproduce since the q-special-function module of the same day
+([QSpecialFunctions.wl](../../src/Kernel/QSpecialFunctions.wl)). Its
+feature list is the concrete work order for the rows below.
 
 This is an initial **source and catalog audit**, using Asymptotic commit
 `a4e1a3e3b09324f45b181843645eabbfa84abcdd`. It is not a fresh mathematical
@@ -67,12 +70,12 @@ generic q-to-one expansion.
 
 | Required family and regime | Source route | Existing starting point and outstanding work |
 | --- | --- | --- |
-| Finite and infinite q-Pochhammer near q=0, finite inverse anchors, and reciprocal-base limits | [q-series monograph][a8] | Power-log and Puiseux machinery may serve expanded finite products. Add explicit argument-versus-base inversion, rank/parameter admission, infinite-product tails, and public regression cases. |
-| Fixed-argument q→1 infinite products | [q-series monograph][a8] | Implement the dilogarithmic leading scale and Bernoulli/polylogarithm coefficient generator with its stated uniform remainder and sector restrictions. Generic Gamma support does not provide this q-product model. |
-| Coalescing argument a=q^x and fixed-target q→1 inversion | [q-series monograph][a8] | Add Gamma-normalized coalescing models and the separate fixed-target inverse recurrence. Do not substitute a→1 into a theorem proved only uniformly away from that boundary. |
-| q-Gamma, q-digamma, q-beta, and q-exponential inverses | [q-series monograph][a8] | Ordered exponent collection and inverse calculus are useful. Add the q→0 rational/irrational exponent regimes, q→1 models, exceptional parameter values, and correct argument/base inverse selection. |
-| Gaussian binomial and multinomial parameter inverses | [Gaussian calculus][a6], [q-series monograph][a8] | Implement q=0 and q=1 jets, palindromic ramification, cyclotomic anchors, and reciprocal/large-target branches. Exact finite-polynomial reductions need their own verified public examples. |
-| Fixed-base large-index and q=exp(-tau/n) Gaussian regimes | [Gaussian calculus][a6] | Add separate fixed-lower-index, both-large, and double-scaling algorithms with uniform parameter sets. A finite-rank formula does not establish these limits. |
+| Finite and infinite q-Pochhammer near q=0, finite inverse anchors, and reciprocal-base limits | [q-series monograph][a8] | Numeric-argument products expand through the built-in series and invert by ordinary reversion (exact coefficient engine, stable small-base jet, endpoint argument jets: [QSpecialFunctions.wlt](../../src/Tests/QSpecialFunctions.wlt)); the argument inverses at the zeros a = q^-m split off the vanishing factors. Outstanding: symbolic product lengths near q=0, rank/parameter admission beyond real arguments, and the reciprocal-base limits. |
+| Fixed-argument q→1 infinite products | [q-series monograph][a8] | Implemented in [QSpecialFunctions.wl](../../src/Kernel/QSpecialFunctions.wl) for the real approach q→1 from below and every real a < 1 (the monograph proves \|a\| < 1; the Euler–Maclaurin form of the same expansion extends to a < 1): the dilogarithmic scale, the Bernoulli/polylogarithm coefficients, a Poincaré remainder, and the rigorous large-log base inverse. Outstanding: complex sectors of the base and complex a. |
+| Coalescing argument a=q^x and fixed-target q→1 inversion | [q-series monograph][a8] | The Gamma-normalized coalescing models (q^x; q)_∞ and (q^x; q)_n are implemented for real x > 0, with their base inverses. Outstanding: the fixed-target inverse recurrence a(t) at fixed y. The a→1 boundary is not substituted into the fixed-argument theorem: a varying argument must be a power of the base. |
+| q-Gamma, q-digamma, q-beta, and q-exponential inverses | [q-series monograph][a8] | q-Gamma: the q→1 model, its base inverse and the fixed-base argument inverse through the chart w = q^x are implemented; the exceptional values x = 1, 2 are refused by the reversion's sign proof. Outstanding: the q→0 rational/irrational exponent regimes, q-digamma, q-beta, and q-exponential. |
+| Gaussian binomial and multinomial parameter inverses | [Gaussian calculus][a6], [q-series monograph][a8] | The q=1 jets are implemented for symbolic integers 0 ≤ k ≤ n (complete logarithmic expansion, literal Taylor coordinate, ordinary inverse), the q=0 jets for numeric n, k through the built-in polynomial. Outstanding: palindromic ramification, cyclotomic anchors, reciprocal/large-target branches, and multinomials. |
+| Fixed-base large-index and q=exp(-tau/n) Gaussian regimes | [Gaussian calculus][a6] | The fixed-lower-index and both-large regimes are implemented through the exponential chart w = q^n (forward and inverse, arguments linear in n). Outstanding: the double-scaling regime q = exp(-tau/n) with its uniform parameter sets. |
 | Fixed-q large-argument products and theta/log-periodic inverses | [q-series monograph][a8] | Finite Fourier coefficients are a possible component. Supply the theta/periodic phase, large-target inverse correction, and controlled treatment of the infinite mode content. |
 | Root-of-unity radial and cyclotomic blow-up limits | [q-series monograph][a8], [geometric q-Fabius][a7] | Add complex radial charts, branch normalization, coefficient generators, and formal/analytic result distinctions. The catalog's finite radial formula must not be relabeled all-order; the separate blow-up expansion has different hypotheses. |
 | Modular exponentially small corrections | [q-series monograph][a8], [geometric q-Fabius][a7] | Implement dual-nome identities and retained exponentially small sectors. Existing finite commensurate flat sectors do not establish modular or resurgence coverage. |
