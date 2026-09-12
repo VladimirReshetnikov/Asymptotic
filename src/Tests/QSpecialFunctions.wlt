@@ -361,3 +361,60 @@ VerificationTest[
      inv["CoordinateKind"], TrueQ[Abs[N[Normal[inv] /. y -> y0, 30] - nn] < 10^-3]}],
   {"Factored", "Poincare", True, True, True, "Forward", True, -1, True, True, "TargetLog", True},
   TestID -> "q-special-double-scaling-gaussian-binomial-and-q-factorial-euler-maclaurin-expansions-and-inverse"]
+
+(* --- varying arguments: the Euler q-exponentials (monograph "Exact inverse reduction and q -> 1 generator") --- *)
+VerificationTest[
+  Module[{h, x, y, e, ee, inv},
+    e = AsymptoticExpansion[Log[1/QPochhammer[h x, 1 - h]], {h, 0, 3}, Assumptions -> x > 0];
+    ee = AsymptoticExpansion[Log[QPochhammer[-h x, 1 - h]], {h, 0, 3}, Assumptions -> x > 0];
+    inv = AsymptoticInverse[1/QPochhammer[h x, 1 - h], {h, 0}, {y, 2}, Assumptions -> x > 0];
+    (* log e_q(x) = x + x^2 h/4 + (x^2/8 + x^3/9) h^2, log E_q(x) = x - x^2 h/4 + (-x^2/8 + x^3/9) h^2 *)
+    {qTestTerms[e, {{0, x}, {1, x^2/4}, {2, x^2/8 + x^3/9}}, x > 0], qTestTerms[ee, {{0, x}, {1, -x^2/4}, {2, -x^2/8 + x^3/9}}, x > 0],
+     qTestEqual[Normal[inv], 4 (Log[y] - x)/x^2, x > 0]}],
+  {True, True, True},
+  TestID -> "q-special-q-exponentials-expand-through-the-varying-argument-product-model"]
+
+(* --- the real radial approach to q = -1 (monograph "Exact eta completions", negative radial path) --- *)
+VerificationTest[
+  Module[{a, q, s, q0 = -999/1000},
+    s = AsymptoticExpansion[QPochhammer[a, q], {q, -1, 3}, Assumptions -> -1 < a < 1, Direction -> "FromAbove"];
+    (* (a; q)_inf = (a; q^2)_inf (a q; q^2)_inf with both bases tending to 1 from below *)
+    {s["Scale"], qTestEqual[s["QSpecialFactors"][[All, "Function"]], {QPochhammer[a, q^2], QPochhammer[a q, q^2]}],
+     TrueQ[Abs[N[(Normal[s] /. {a -> 1/3, q -> q0})/QPochhammer[1/3, q0] - 1, 30]] < 10^-7]}],
+  {"Factored", True, True},
+  TestID -> "q-special-infinite-product-near-base-minus-one-separates-even-and-odd-factors"]
+
+(* --- varying lengths: finite products, q-gamma and Gaussian binomials rewritten through infinite products --- *)
+VerificationTest[
+  Module[{n, u, x, y, nn = 400, sp, sc, sb, sg, sv, pv, inv, err, relative},
+    err[s_, f_] := Abs[N[(Normal[s] /. n -> nn) - (f /. n -> nn), 30]];
+    relative[s_, f_] := Abs[N[(Normal[s] /. n -> nn)/(f /. n -> nn) - 1, 30]];
+    sp = AsymptoticExpansion[QPochhammer[1/3, Exp[-2/n], n], {n, Infinity, 2}];
+    sc = AsymptoticExpansion[Log[QPochhammer[Exp[-3/n], Exp[-2/n], n]], {n, Infinity, 2}];
+    sb = AsymptoticExpansion[QBinomial[n, n/2, Exp[-2/n - 1/n^2]], {n, Infinity, 2}];
+    sg = AsymptoticExpansion[Log[QGamma[n, Exp[-2/n]]], {n, Infinity, 2}];
+    sv = AsymptoticExpansion[QGamma[2 + u, 1 - u], {u, 0, 3}];
+    pv = AsymptoticExpansion[QPolyGamma[2 + u, 1 - u], {u, 0, 2}];
+    inv = AsymptoticInverse[QPochhammer[1/3, Exp[-2/n], n], {n, Infinity}, {y, 1}];
+    {sp["QSpecialFactors"][[1, "Model"]], relative[sp, QPochhammer[1/3, Exp[-2/n], n]] < 10^-7,
+     err[sc, Log[QPochhammer[Exp[-3/n], Exp[-2/n], n]]] < 10^-5, sb["QSpecialFactors"][[1, "Model"]],
+     relative[sb, QBinomial[n, n/2, Exp[-2/n - 1/n^2]]] < 10^-6, err[sg, Log[QGamma[n, Exp[-2/n]]]] < 10^-5,
+     sv["Kind"], TrueQ[Abs[N[(Normal[sv] /. u -> 1/100) - QGamma[2 + 1/100, 1 - 1/100], 30]] < 10^-5],
+     TrueQ[Abs[N[(Normal[pv] /. u -> 1/100) - QPolyGamma[2 + 1/100, 1 - 1/100], 30]] < 10^-3],
+     inv["CoordinateKind"], TrueQ[Abs[N[Normal[inv] /. y -> N[QPochhammer[1/3, Exp[-2/nn], nn], 60], 30] - nn] < 10^-2]}],
+  {"FiniteProductRewrite", True, True, "GaussianBinomialRewrite", True, True, "Forward", True, True, "TargetLog", True},
+  TestID -> "q-special-varying-lengths-and-arguments-rewrite-through-infinite-products"]
+
+(* --- symbolic exponents near q = 0 (monograph "Exact generalized expansion at q = 0") --- *)
+VerificationTest[
+  Module[{x, q, u, a, s, short, p, e},
+    s = AsymptoticExpansion[QGamma[x, q], {q, 0, 4}, Assumptions -> x >= 4];
+    short = AsymptoticExpansion[QGamma[x, q], {q, 0, 4}, Assumptions -> x >= 2];
+    p = AsymptoticExpansion[QPochhammer[q^x, q], {q, 0, 3}, Assumptions -> x >= 3];
+    e = AsymptoticExpansion[(1 + u)^a, {u, 0, 3}, Assumptions -> a > 0];
+    (* the generalized exponents m (x + r) lie at or beyond q^x: through q^3 the expansion is that of (1 - q)^(1 - x) (q; q)_inf *)
+    {qTestTerms[s, {{0, 1}, {1, x - 2}, {2, x (x - 3)/2}, {3, (x^3 - 3 x^2 - 4 x + 6)/6}}],
+     Expand[(Normal[s] /. x -> 9/2) - Normal[Series[QGamma[9/2, q], {q, 0, 3}]]], short[[1]], short[[2]]["Reached"],
+     p["Terms"], p["RemainderPower"], qTestTerms[e, {{0, 1}, {1, a}, {2, a (a - 1)/2}}, a > 0]}],
+  {True, 0, "InsufficientOrder", 2, {{0, 1}}, 3, True},
+  TestID -> "q-special-symbolic-exponents-near-base-zero-expand-through-the-proved-bound"]

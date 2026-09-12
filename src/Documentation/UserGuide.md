@@ -2401,7 +2401,7 @@ S = (PolyLog[2, E^-tau] - PolyLog[2, E^(-tau alpha)] - PolyLog[2, E^(-tau (1 - a
 h[y] = Log[(1 - E^(-tau y))/(tau y)]
 ```
 
-with the odd coefficients `C[2 r - 1]` built from Bernoulli numbers and the derivatives `h^(2 r - 1)` at `1`, `alpha`, `1 - alpha` and `0` (polylogarithms of nonpositive order). The package recognizes a Gaussian binomial or q-factorial whose base is exactly `Exp[-tau/n]` and whose lengths are `n` and `alpha n`, and returns the factored expansion; the expansion is asymptotic along integers `n` with `alpha n` integral.
+with the odd coefficients `C[2 r - 1]` built from Bernoulli numbers and the derivatives `h^(2 r - 1)` at `1`, `alpha`, `1 - alpha` and `0` (polylogarithms of nonpositive order). The package recognizes a Gaussian binomial or q-factorial whose base is exactly `Exp[-tau/n]` and whose lengths are `n` and `alpha n`, and returns the factored expansion; the expansion is asymptotic along integers `n` with `alpha n` integral. Any other base tending to `1` with unbounded lengths, and the finite products, go through the rewrite of the next section.
 
 **Input**
 
@@ -2434,6 +2434,63 @@ s = AsymptoticInverse[QBinomial[n, n/2, Exp[-2/n]], {n, Infinity}, {y, 1}];
 ```
 
 where `S = Pi^2/12 + PolyLog[2, E^-2]/2 - PolyLog[2, E^-1]` is displayed expanded in the actual output.
+
+### Varying Arguments and Lengths, and the Radial Approach to `q = -1`
+
+The theorems behind the `q -> 1` models are locally uniform in their parameters, so an argument or coalescing exponent that varies with the base can be composed into the coefficients. An argument `a(q)` of the infinite product that tends to a limit strictly between `-1` and `1` uses the fixed-argument theorem with `a(q)` in place of `a`; this covers the Euler q-exponentials `e_q(x) = 1/((1 - q) x; q)_∞` and `E_q(x) = (-(1 - q) x; q)_∞`, whose argument tends to `0` (monograph, "Exact inverse reduction and q -> 1 generator"):
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[Log[1/QPochhammer[h x, 1 - h]], {h, 0, 3}, Assumptions -> x > 0];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{x + h x^2/4 + h^2 (x^2/8 + x^3/9), PowerLogRemainder[h, 3, 0]}
+```
+
+A coalescing exponent `x(q)` tending to a positive limit, a q-gamma or q-polygamma argument tending to a positive limit, and a q-polygamma with such an argument are composed the same way (`QGamma[2 + u, 1 - u]`, `QPolyGamma[2 + u, 1 - u]`). A finite product, q-factorial, Gaussian binomial or q-gamma function whose length is unbounded (or whose argument is not a fixed power of the base) is first written through infinite products, `(a; q)_n = (a; q)_∞/(a q^n; q)_∞`, `QFactorial[n, q] = (q; q)_∞/((q^(n + 1); q)_∞ (1 - q)^n)`, and the factors then use the fixed, coalescing or varying-argument models. This is what handles a double scaling whose base is only asymptotically `Exp[-tau/n]`, the finite products in double scaling, and `QGamma[n, Exp[-tau/n]]`:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[QPochhammer[1/3, Exp[-2/n], n], {n, Infinity, 2}];
+i = AsymptoticInverse[QPochhammer[1/3, Exp[-2/n], n], {n, Infinity}, {y, 1}];
+{Normal[s], s["QSpecialFactors"][[1, "Model"]], Normal[i]}
+```
+
+**Output**
+
+```wolfram
+{E^(1 + n (-PolyLog[2, 1/3] + PolyLog[2, 1/(3 E^2)])/2) Sqrt[2/(-1 + 3 E^2)]
+   (1 + ((-4 + 12 E^2)^(-1) - E^2/(-4 + 12 E^2))/n),
+ "FiniteProductRewrite",
+ 2/(PolyLog[2, 1/3] - PolyLog[2, 1/(3 E^2)]) + Log[2/(-1 + 3 E^2)]/(PolyLog[2, 1/3] - PolyLog[2, 1/(3 E^2)])
+   + Log[y]/(-PolyLog[2, 1/3]/2 + PolyLog[2, 1/(3 E^2)]/2)}
+```
+
+The rate `n (PolyLog[2, E^-2/3] - PolyLog[2, 1/3])/2` is the Euler–Maclaurin integral `n Integrate[Log[1 - a Exp[-tau y]], {y, 0, 1}]` with `a = 1/3`, `tau = 2`.
+
+The real radial approach to `q = -1` from above separates the even and odd factors, `(a; q)_∞ = (a; q^2)_∞ (a q; q^2)_∞`, and both bases `q^2` tend to `1` from below (monograph, "Exact eta completions at q = 1 and q = -1", the negative radial path); the second argument tends to `-a`, so `-1 < a < 1` is required:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[QPochhammer[a, q], {q, -1, 2}, Assumptions -> -1 < a < 1, Direction -> "FromAbove"];
+{s["Prefactor"], s["QSpecialFactors"][[All, "Model"]]}
+```
+
+**Output**
+
+```wolfram
+{Sqrt[1 - a] E^((-1 + q) PolyLog[2, a^2]/(8 (1 + q))),
+ {"FixedArgumentInfiniteProduct", "VaryingArgumentInfiniteProduct"}}
+```
+
+The rate `-PolyLog[2, a^2]/(8 (1 + q))` is `-(PolyLog[2, a] + PolyLog[2, -a])/t` with `t = -Log[q^2] ~ 2 (1 + q)`. The base inverse near `q = -1` goes through the same logarithmic target coordinate.
 
 ### Base Tending to Zero and Argument Inverses at a Fixed Base
 
@@ -2476,7 +2533,24 @@ i = AsymptoticInverse[QFactorial[n, q], {q, 0}, {y, 3},
 
 The inverse is the monograph's `u/(n - 1) - (n - 2)(n + 1) u^2/(2 (n - 1)^3)`, `u = y - 1`. With only `n >= 2` in the assumptions the same request through `q^4` fails with `InsufficientOrder` (`"Reached" -> 3`), because the `q^3` coefficient needs `n >= 3`; without any bound it is refused with `UnsupportedQArgument`. For the finite q-Pochhammer symbol the automatic backend returns a native formal series in `q` and `q^n`; request `"Backend" -> "Package"` (with `Element[a, Reals]`) for the stable-coefficient form.
 
-Not covered: `QGamma[x, q]` near `q = 0` for symbolic non-integer `x` (generalized exponents `m (x + r)`), roots of unity, complex sectors of the base, the q-exponentials `e_q`, `E_q` (their argument `(1 - q) x` varies with the base without being a power of it), the q-gamma fold at its minimum, the double scaling of the finite q-Pochhammer symbol and the endpoint regimes `alpha -> 0, 1`, and the beta functions, and the double-scaling regime `q = Exp[-tau/n]`. The models and their sources are listed in [QSpecialFunctions.wl](../Kernel/QSpecialFunctions.wl); the test suite [QSpecialFunctions.wlt](../Tests/QSpecialFunctions.wlt) pins the article formulas.
+A symbolic non-integer q-gamma argument is handled through the same bound: `Gamma_q(x) = (1 - q)^(1 - x) (q; q)_∞/(q^x; q)_∞` has the generalized exponents `m (x + r)` of the monograph's "Exact generalized expansion at q = 0", all at or beyond `q^x`, so through every order `r <= x` the expansion is that of the prefactor (whose symbolic power `(1 - q)^(1 - x)` the jet calculus now admits), and likewise `(q^x; q)_∞ = 1 + O(q^x)`:
+
+**Input**
+
+```wolfram
+s = AsymptoticExpansion[QGamma[x, q], {q, 0, 4}, Assumptions -> x >= 4];
+{Normal[s], s["Remainder"]}
+```
+
+**Output**
+
+```wolfram
+{1 + q (-2 + x) + q^2 (-3 x/2 + x^2/2) + q^3 (1 - 2 x/3 - x^2/2 + x^3/6), PowerLogRemainder[q, 4, 0]}
+```
+
+The coefficient `-(2 - x)` at exponent one is the monograph's bookkeeping contribution; with `x >= 2` only the same request reaches `q^2` (`InsufficientOrder`, `"Reached" -> 2`). A rational numeric exponent expands natively as a Puiseux series.
+
+Not covered: the full generalized-exponent expansion of `Gamma_q(x)` near `q = 0` beyond the order `x` (the exponents `m (x + r)` would need symbolic-exponent forward objects), roots of unity other than the real approach to `q = -1`, complex sectors of the base, the q-gamma fold at its minimum (the expansion point `x_q` is a transcendental root), the endpoint regimes `alpha -> 0, 1` of the double scaling, and the beta functions, and the double-scaling regime `q = Exp[-tau/n]`. The models and their sources are listed in [QSpecialFunctions.wl](../Kernel/QSpecialFunctions.wl); the test suite [QSpecialFunctions.wlt](../Tests/QSpecialFunctions.wlt) pins the article formulas.
 
 ## Series Arithmetic and Normalization
 

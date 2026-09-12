@@ -836,6 +836,94 @@
 			"Check":"2.9040696765938552783851628607618`6.*^-7"
 		},
 		{
+			"Case":"Q33",
+			"Source":"q-series monograph ch. 5 'Exact inverse reduction and q -> 1 generator' (log e_q(x), h = 1 - q)",
+			"Request":"HoldForm[AsymptoticExpansion[Log[1\/QPochhammer[h*x, 1 - h]], {h, 0, 3}, Assumptions -> x > 0]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"x + (h*x^2)\/4 + (h^2*x^2)\/8 + (h^2*x^3)\/9",
+			"Remainder":"PowerLogRemainder[h, 3, 0]",
+			"RemainderPower":"3",
+			"Check":"True"
+		},
+		{
+			"Case":"Q34",
+			"Source":"q-series monograph ch. 5 (log E_q(x), h = 1 - q)",
+			"Request":"HoldForm[AsymptoticExpansion[Log[QPochhammer[(-h)*x, 1 - h]], {h, 0, 3}, Assumptions -> x > 0]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"x - (h*x^2)\/4 - (h^2*x^2)\/8 + (h^2*x^3)\/9",
+			"Remainder":"PowerLogRemainder[h, 3, 0]",
+			"RemainderPower":"3",
+			"Check":"True"
+		},
+		{
+			"Case":"Q35",
+			"Source":"q-series monograph ch. 3 'Exact eta completions' (negative radial path: (a; q)_inf as q -> -1 from above)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[1\/3, q], {q, -1, 3}, Direction -> \"FromAbove\"]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"(3913*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q))))\/(2304*Sqrt[6]) - (455*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q)\/(1152*Sqrt[6]) - (215*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q^2)\/(2304*Sqrt[6]) + (67*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*PolyLog[2, -1\/3])\/(576*Sqrt[6]) + (43*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q*PolyLog[2, -1\/3])\/(288*Sqrt[6]) + (19*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q^2*PolyLog[2, -1\/3])\/(576*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*PolyLog[2, -1\/3]^2)\/(576*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q*PolyLog[2, -1\/3]^2)\/(288*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q^2*PolyLog[2, -1\/3]^2)\/(576*Sqrt[6]) + (67*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*PolyLog[2, 1\/3])\/(576*Sqrt[6]) + (43*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q*PolyLog[2, 1\/3])\/(288*Sqrt[6]) + (19*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q^2*PolyLog[2, 1\/3])\/(576*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*PolyLog[2, -1\/3]*PolyLog[2, 1\/3])\/(288*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q*PolyLog[2, -1\/3]*PolyLog[2, 1\/3])\/(144*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q^2*PolyLog[2, -1\/3]*PolyLog[2, 1\/3])\/(288*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*PolyLog[2, 1\/3]^2)\/(576*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q*PolyLog[2, 1\/3]^2)\/(288*Sqrt[6]) + (E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*q^2*PolyLog[2, 1\/3]^2)\/(576*Sqrt[6])",
+			"Remainder":"Sqrt[2\/3]*E^(((-1 + q)*PolyLog[2, 1\/9])\/(8*(1 + q)))*PowerLogRemainder[1 + q, 3, 0]",
+			"RemainderPower":"3",
+			"Check":"4.30546997718199057828489825`6.*^-12"
+		},
+		{
+			"Case":"Q36",
+			"Source":"q-series monograph ch. 3 (base inverse of (a; q)_inf near q = -1)",
+			"Request":"HoldForm[AsymptoticInverse[QPochhammer[a, q], {q, -1}, {y, 2}, Assumptions -> 0 < a < 1, Direction -> \"FromAbove\"]]",
+			"Outcome":"Series",
+			"Kind":"Inverse",
+			"Normal":"-1 - PolyLog[2, -a]\/(2*Log[y]) - PolyLog[2, a]\/(2*Log[y])",
+			"Remainder":"PowerLogRemainder[-Log[y]^(-1), 2, 0]",
+			"RemainderPower":"2",
+			"Check":"6.55793366050704628904183966070262`6.*^-6"
+		},
+		{
+			"Case":"Q37",
+			"Source":"Gaussian coefficient calculus \/ monograph ch. 2 (finite product in double scaling, fixed argument: (1\/3; e^(-2\/n))_n)",
+			"Request":"HoldForm[AsymptoticExpansion[QPochhammer[1\/3, Exp[-2\/n], n], {n, Infinity, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"E^(1 + (n*(-PolyLog[2, 1\/3] + PolyLog[2, 1\/(3*E^2)]))\/2)*Sqrt[2\/(-1 + 3*E^2)] + (E^(1 + (n*(-PolyLog[2, 1\/3] + PolyLog[2, 1\/(3*E^2)]))\/2)*Sqrt[2\/(-1 + 3*E^2)])\/((-4 + 12*E^2)*n) - (E^(3 + (n*(-PolyLog[2, 1\/3] + PolyLog[2, 1\/(3*E^2)]))\/2)*Sqrt[2\/(-1 + 3*E^2)])\/((-4 + 12*E^2)*n)",
+			"Remainder":"E^(1 + (n*(-PolyLog[2, 1\/3] + PolyLog[2, 1\/(3*E^2)]))\/2)*Sqrt[2\/(-1 + 3*E^2)]*PowerLogRemainder[n^(-1), 2, 0]",
+			"RemainderPower":"2",
+			"Check":"1.804742962805333103179445179102`6.*^-8"
+		},
+		{
+			"Case":"Q38",
+			"Source":"monograph ch. 2\/3 (finite coalescing product in double scaling: (q^(3\/2); q)_n, q = e^(-2\/n))",
+			"Request":"HoldForm[AsymptoticExpansion[Log[QPochhammer[Exp[-3\/n], Exp[-2\/n], n]], {n, Infinity, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"-2 + 11\/(24*(-1 + E^2)*n) + (11*E^2)\/(24*(-1 + E^2)*n) - (n*Pi^2)\/12 + Log[2]\/2 + Log[-1 + E^2] + Log[n] + (n*PolyLog[2, E^(-2)])\/2",
+			"Remainder":"PowerLogRemainder[n^(-1), 2, 0]",
+			"RemainderPower":"2",
+			"Check":"8.254353765940659194503888657745`6.*^-7"
+		},
+		{
+			"Case":"Q39",
+			"Source":"Gaussian coefficient calculus (base only asymptotically e^(-tau\/n): QBinomial[n, n\/2, e^(-2\/n - 1\/n^2)])",
+			"Request":"HoldForm[AsymptoticExpansion[QBinomial[n, n\/2, Exp[-2\/n - 1\/n^2]], {n, Infinity, 2}]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"-1\/48*(E^(-1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Pi^(3\/2))\/(Sqrt[-1 + E]*(-1 + E^2)*n^(3\/2)) - (E^(1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Pi^(3\/2))\/(48*Sqrt[-1 + E]*(-1 + E^2)*n^(3\/2)) + (E^(3\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Pi^(3\/2))\/(48*Sqrt[-1 + E]*(-1 + E^2)*n^(3\/2)) + (E^(5\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Pi^(3\/2))\/(48*Sqrt[-1 + E]*(-1 + E^2)*n^(3\/2)) - (11*E^(-1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2))\/(24*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (17*E^(1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2))\/(12*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (13*E^(3\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2))\/(24*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (5*E^(5\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2))\/(12*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + E^(-1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)\/(Sqrt[n]*Sqrt[(-1 + E)*Pi]) + E^(1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)\/(Sqrt[n]*Sqrt[(-1 + E)*Pi]) - (E^(-1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Log[-1 + E])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (E^(1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Log[-1 + E])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (E^(3\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Log[-1 + E])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (E^(5\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Log[-1 + E])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (E^(-1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Log[-1 + E^2])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (E^(1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Log[-1 + E^2])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (E^(3\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Log[-1 + E^2])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (E^(5\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*Log[-1 + E^2])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (E^(-1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*PolyLog[2, E^(-2)])\/(8*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (E^(1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*PolyLog[2, E^(-2)])\/(8*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (E^(3\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*PolyLog[2, E^(-2)])\/(8*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (E^(5\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*PolyLog[2, E^(-2)])\/(8*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (E^(-1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*PolyLog[2, E^(-1)])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) + (E^(1\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*PolyLog[2, E^(-1)])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (E^(3\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*PolyLog[2, E^(-1)])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi]) - (E^(5\/2 + ((-1 + 2*n)*Pi^2)\/24 + ((-1 + 2*n)*PolyLog[2, -E^(-1)])\/2)*PolyLog[2, E^(-1)])\/(4*(-1 + E^2)*n^(3\/2)*Sqrt[(-1 + E)*Pi])",
+			"Remainder":"(E^((-12 + (-1 + 2*n)*Pi^2 + 12*(-1 + 2*n)*PolyLog[2, -E^(-1)])\/24)*(1 + E)*PowerLogRemainder[n^(-1), 2, 0])\/(Sqrt[n]*Sqrt[(-1 + E)*Pi])",
+			"RemainderPower":"2",
+			"Check":"1.6049423743926081829867077919734`6.*^-7"
+		},
+		{
+			"Case":"Q40",
+			"Source":"q-series monograph ch. 5 'Exact generalized expansion at q = 0' (Gamma_q(x), symbolic x >= 4, through q^3)",
+			"Request":"HoldForm[AsymptoticExpansion[QGamma[x, q], {q, 0, 4}, Assumptions -> x >= 4]]",
+			"Outcome":"Series",
+			"Kind":"Forward",
+			"Normal":"1 - 2*q + q^3 + q*x - (3*q^2*x)\/2 - (2*q^3*x)\/3 + (q^2*x^2)\/2 - (q^3*x^2)\/2 + (q^3*x^3)\/6",
+			"Remainder":"PowerLogRemainder[q, 4, 0]",
+			"RemainderPower":"4",
+			"Check":"True"
+		},
+		{
 			"Case":"N1",
 			"Source":"Transseries Ex.23\/50 (nested logarithm on the forward side)",
 			"Request":"HoldForm[AsymptoticExpansion[Log[Log[x]], {x, Infinity, 2}]]",
@@ -867,7 +955,7 @@
 		}
 	],
 	"Summary":{
-		"Series":70,
+		"Series":78,
 		"Failure":14
 	}
 }

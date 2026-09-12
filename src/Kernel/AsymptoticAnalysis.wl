@@ -556,6 +556,9 @@ splitJet[T_List] := {Select[T, less[#[[1]], 0] &], Total[Select[T, #[[1]] === 0 
 
 provablyPositive[c_, ass_] := TrueQ[Simplify[c > 0, ass]];
 provablyNegative[c_, ass_] := TrueQ[Simplify[c < 0, ass]];
+(* Simplify proves the sign of PolyLog[2, a^2] under 0 < a < 1 but not its
+   nonvanishing; either proved sign implies nonzero. *)
+provablySigned[c_, ass_] := provablyPositive[c, ass] || provablyNegative[c, ass];
 
 (* q-special functions whose base varies with the expansion variable are
    expanded by QSpecialFunctions.wl, which replaces these default predicates. *)
@@ -632,10 +635,16 @@ coefficientConjugateCanon[p_, ell_, ass_] := Module[{k},
   Sum[TimeConstrained[FullSimplify[Coefficient[p, ell, k], ass], 2, Coefficient[p, ell, k]] ell^k,
     {k, 0, polyDegree[p, ell]}]];
 
-fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, U, PU, DU, cutRel, res, rr},
-  If[! (NumericQ[r] && exactQ[r]), fail["SymbolicExponent", "Exponents must be exact numbers.", <|"Exponent" -> r|>]];
-  If[! TrueQ[Simplify[Element[r, Reals]]], fail["ComplexExponent", "Only real exponents are supported.", <|"Exponent" -> r|>]];
-  rr = If[algebraicRealQ[r], RootReduce[r], r];
+fwdPower[{T_, P_, D_}, r_, u_, ell_, ass_, Kw_, limit_] := Module[{alpha, Q, c, U, PU, DU, cutRel, res, rr, symbolic = False},
+  (* A symbolic real exponent is admitted on a jet with a nonzero constant
+     leading term: the weights stay exact and only the binomial coefficients
+     carry the parameter (a q-gamma prefactor (1 - q)^(1 - x) near q = 0). *)
+  If[! (NumericQ[r] && exactQ[r]),
+    If[T === {} || T[[1, 1]] =!= 0 || ! FreeQ[r, u] || ! TrueQ[Simplify[Element[r, Reals], ass]],
+      fail["SymbolicExponent", "Exponents must be exact numbers, except a provably real symbolic exponent of a quantity with a nonzero constant leading term.", <|"Exponent" -> r|>]];
+    symbolic = True];
+  If[! symbolic && ! TrueQ[Simplify[Element[r, Reals]]], fail["ComplexExponent", "Only real exponents are supported.", <|"Exponent" -> r|>]];
+  rr = If[! symbolic && algebraicRealQ[r], RootReduce[r], r];
   (* F^0 = 1 only where F is nonzero. A pure remainder gives no such proof,
      and a symbolic leading coefficient must be proved nonzero on the
      parameter domain: a x with only a real vanishes identically at a = 0
@@ -1036,7 +1045,8 @@ rowsToModel[rows0_List, u_, ell_, ass_, symbolic_] := Module[{rows, lead, p, a, 
   (* Simplify leaves products of special-function values alone (a q-gamma
      value times a difference of exponentials); FullSimplify is tried within
      a bounded time before the refusal. *)
-  If[! (TrueQ[Simplify[a != 0, ass]] || TrueQ[Quiet[TimeConstrained[FullSimplify[a != 0, ass], 3, False]]]),
+  If[! (TrueQ[Simplify[a != 0, ass]] || TrueQ[Quiet[TimeConstrained[FullSimplify[a != 0, ass], 3, False]]] ||
+      provablySigned[Quiet[TimeConstrained[FullSimplify[a, ass], 3, a]], ass]),
     fail["UnprovedNonzeroLeadingCoefficient", "The leading coefficient must be provably nonzero.", <|"Coefficient" -> a|>]];
   If[! TrueQ[Simplify[Element[a, Reals], ass]], fail["UnprovedRealCoefficient", "The leading coefficient must be provably real.", <|"Coefficient" -> a|>]];
   rest = Rest[rows];
@@ -1340,7 +1350,7 @@ construct[f_, x_, x0_, y_, cutoff0_, opts : OptionsPattern[AsymptoticInverse]] :
       equal[inputCap, remData[[1]]], {remData[[1]], Max[remData[[2]], forwardRem[[2]]]},
       True, remData]]];
   (* ---------------- assemble the expression in y ---------------- *)
-  If[! (provablyPositive[a, ass] || provablyNegative[a, ass]), fail["UnprovedSign", "The sign of the leading coefficient must be provable.", <|"Coefficient" -> a|>]];
+  If[! (provablySigned[a, ass] || provablySigned[Quiet[TimeConstrained[FullSimplify[a, ass], 3, a]], ass]), fail["UnprovedSign", "The sign of the leading coefficient must be provable.", <|"Coefficient" -> a|>]];
   If[! symbolic && less[p, 0], y0 = If[provablyPositive[a, ass], Infinity, -Infinity]];
   If[symbolic && TrueQ[Simplify[p < 0, ass]], y0 = If[provablyPositive[a, ass], Infinity, -Infinity]];
   v = If[y0 === Infinity || y0 === -Infinity, y, y - y0];

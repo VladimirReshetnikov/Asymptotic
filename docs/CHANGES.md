@@ -15,6 +15,40 @@ milestones within that scope.
 
 ## September 11, 2026
 
+### Varying q-arguments, unbounded lengths, the radial approach to `q = -1`, and symbolic exponents near `q = 0`
+
+The remaining q cases of the coverage matrix that live on the real line are
+now handled. An infinite-product argument that varies with the base and
+tends to a limit in `(-1, 1)` is composed into the fixed-argument theorem
+(locally uniform in the argument), which covers the Euler q-exponentials
+`e_q`, `E_q` of the monograph ("Exact inverse reduction and q -> 1
+generator"); a coalescing exponent, a q-gamma or a q-polygamma argument
+tending to a positive limit is composed the same way. A finite product,
+q-factorial, Gaussian binomial or q-gamma function with an unbounded length
+is rewritten through infinite products (`(a; q)_n = (a; q)_∞/(a q^n; q)_∞`
+and DLMF 5.18.4, 17.2.6), which handles the finite products in double
+scaling, a base that is only asymptotically `Exp[-tau/n]`, and
+`QGamma[n, Exp[-tau/n]]`, forward and inverse. The real radial approach to
+`q = -1` from above separates even and odd factors,
+`(a; q)_∞ = (a; q^2)_∞ (a q; q^2)_∞` (monograph, "Exact eta completions",
+negative radial path), forward and inverse. Near `q = 0` a symbolic
+non-integer q-gamma argument expands through the proved order
+`r <= x` (the generalized exponents `m (x + r)` lie at or beyond `q^x`),
+and `(q^x; q)_∞ = 1 + O(q^x)`; for this the jet calculus admits a provably
+real symbolic exponent on a quantity with a nonzero constant leading term
+(`(1 + u)^a`). Two more prover repairs: the reversion's nonzero and sign
+checks accept a proved sign after a bounded `FullSimplify` (the dilogarithm
+sum `PolyLog[2, a] + PolyLog[2, -a] = PolyLog[2, a^2]/2`). The guide
+section [Varying Arguments and Lengths](../src/Documentation/UserGuide.md#varying-arguments-and-lengths-and-the-radial-approach-to-q---1)
+shows the forms; [QSpecialFunctions.wlt](../src/Tests/QSpecialFunctions.wlt)
+grows to thirty-six tests, the nine-file
+[CheckQSpecialFunctions.wl](../validation/CheckQSpecialFunctions.wl) run
+passes **217/217** on a fresh kernel, and the report's q cases Q33–Q40
+record the checks. Still outside the real-line scope: complex sectors, roots of unity
+other than `-1`, the q-gamma fold at its transcendental minimum, the
+endpoint regimes `alpha -> 0, 1`, and the full generalized-exponent
+expansion of `Gamma_q(x)` beyond the order `x`.
+
 ### q-digamma, q-beta, symbolic product lengths and the double-scaling regime
 
 `QPolyGamma[n, x, q]` joins the q-special-function module: near `q = 1`

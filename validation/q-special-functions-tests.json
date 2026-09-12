@@ -16,60 +16,60 @@
 	"SuiteResults":[
 		{
 			"Suite":"QSpecialFunctions.wlt",
-			"Succeeded":32,
+			"Succeeded":36,
 			"Failed":0,
-			"Seconds":2.864108548e2
+			"Seconds":4.735816842e2
 		},
 		{
 			"Suite":"GammaForward.wlt",
 			"Succeeded":18,
 			"Failed":0,
-			"Seconds":2.84977072e1
+			"Seconds":3.81912402e1
 		},
 		{
 			"Suite":"ExponentialForward.wlt",
 			"Succeeded":17,
 			"Failed":0,
-			"Seconds":5.7181454
+			"Seconds":6.8499185
 		},
 		{
 			"Suite":"SourceCoordinateRegressions.wlt",
 			"Succeeded":26,
 			"Failed":0,
-			"Seconds":2.864203
+			"Seconds":3.7807181
 		},
 		{
 			"Suite":"CoordinateRegressions.wlt",
 			"Succeeded":16,
 			"Failed":0,
-			"Seconds":1.2593918
+			"Seconds":1.8250353
 		},
 		{
 			"Suite":"NativeCompatibility.wlt",
 			"Succeeded":33,
 			"Failed":0,
-			"Seconds":0.5882217
+			"Seconds":0.454001
 		},
 		{
 			"Suite":"NativeSpecialIngress.wlt",
 			"Succeeded":9,
 			"Failed":0,
-			"Seconds":1.04394452e1
+			"Seconds":1.16581974e1
 		},
 		{
 			"Suite":"InverseFunctionExpressions.wlt",
 			"Succeeded":27,
 			"Failed":0,
-			"Seconds":1.23621021e1
+			"Seconds":1.28133518e1
 		},
 		{
 			"Suite":"SpecialFunctionForward.wlt",
 			"Succeeded":35,
 			"Failed":0,
-			"Seconds":7.73754935e1
+			"Seconds":8.87903033e1
 		}
 	],
-	"Succeeded":213,
+	"Succeeded":217,
 	"Failed":0,
 	"Results":[
 		{
@@ -230,6 +230,26 @@
 		{
 			"Suite":"QSpecialFunctions.wlt",
 			"TestID":"q-special-double-scaling-gaussian-binomial-and-q-factorial-euler-maclaurin-expansions-and-inverse",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"QSpecialFunctions.wlt",
+			"TestID":"q-special-q-exponentials-expand-through-the-varying-argument-product-model",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"QSpecialFunctions.wlt",
+			"TestID":"q-special-infinite-product-near-base-minus-one-separates-even-and-odd-factors",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"QSpecialFunctions.wlt",
+			"TestID":"q-special-varying-lengths-and-arguments-rewrite-through-infinite-products",
+			"Outcome":"Success"
+		},
+		{
+			"Suite":"QSpecialFunctions.wlt",
+			"TestID":"q-special-symbolic-exponents-near-base-zero-expand-through-the-proved-bound",
 			"Outcome":"Success"
 		},
 		{
@@ -1140,7 +1160,7 @@
 	],
 	"SourcesUnchangedDuringRun":true,
 	"TestedSourceSHA256":{
-		"src\/Kernel\/AsymptoticAnalysis.wl":"2ee7c646170859eabda826d3acedcd89ad97bd66bfcab3ff1336f4b71520413d",
+		"src\/Kernel\/AsymptoticAnalysis.wl":"960550455da1dbe788cc3a30d85f65b472efecabfe6107dc81a4fba7549508fd",
 		"src\/Kernel\/BarnesForward.wl":"036ec4a1255e77b866e52d07994535f1a8d7283a4ad3a5e024f6d9e6301aa479",
 		"src\/Kernel\/BarnesInverseChecks.wl":"70de0268030051fefa1c9c323036488936a84fd309689c22abea51f179b0f6f0",
 		"src\/Kernel\/BarnesInverse.wl":"56b824260f4c7165576a305082c5682d5347445256c0eb73d080993bb9059500",
@@ -1187,7 +1207,7 @@
 		"src\/Kernel\/NativeSpecialFunctions.wl":"98d67ead268a73c28d5f0cae0a5d03f87e5b99f126ed9c96b4515c002357aad8",
 		"src\/Kernel\/NumericalInverseChecks.wl":"c04427b0d30cab4e988e755dbe4a2a3a773f898acb2283f85e19c308326a1d38",
 		"src\/Kernel\/ParameterizedSpecialFunctions.wl":"19370b301debf8107b96e356b00bc06a6c4bf04ee7aa9bab3060fff822afa204",
-		"src\/Kernel\/QSpecialFunctions.wl":"a2ed1beb08e8fb03b3e040643ce13e5c219b0647cd1bd08901e272a93410c88c",
+		"src\/Kernel\/QSpecialFunctions.wl":"437eb6bece418651ee82acefb308441a9fe51aba29dd550b373e57046f6550f3",
 		"src\/Kernel\/ReciprocalLogOperations.wl":"68a6c6a1aee21c0ababaadd221de24e16e87cb15be17a91ffb0b527cfa8a1af3",
 		"src\/Kernel\/RefinementRequests.wl":"d07fd2048c224b6a147f0b3e9a8b913527b337174c52363018b83fd11bd9b41c",
 		"src\/Kernel\/RefinementState.wl":"57a3cb48f34cd09a9aef5d2411221c323f78fe3e3c9745a50fcd29c26435693c",
@@ -1198,7 +1218,7 @@
 		"src\/Kernel\/SpecialFunctionAdapters.wl":"41e95ad2af0f2d0a68fed8edaec65f42c4262efc0a68481cff760e8ce28192cf",
 		"src\/Kernel\/SpecialFunctionIdentities.wl":"58fb678b206eac2ae77d107456b375908f2c75e7fdf1d7b867d4bf02b7051da4",
 		"src\/Kernel\/SpecialFunctionRealDomain.wl":"6e04dd0b41b1ef182afe45bb76d798500bbb4bccd6133b5cc34d95b9b115096c",
-		"src\/Tests\/QSpecialFunctions.wlt":"fc77e297858da1169ab0bc748f3c9750b8355c4417ea8c118d53a1e0dcfd841a",
+		"src\/Tests\/QSpecialFunctions.wlt":"3d5c5470efd86aff8880eb93573adf2f3cb42c8e35d37267e36d0ec2f2bd7274",
 		"src\/Tests\/GammaForward.wlt":"7e17472c66a839e0e551db2874b8ed84ef2b87e3a915407e38331e008b13a75b",
 		"src\/Tests\/ExponentialForward.wlt":"260f7020d00e71db6eebf69b90ee7c9cfc17216a638ac7a96a46ff9c4e092662",
 		"src\/Tests\/SourceCoordinateRegressions.wlt":"d0a433b7a1863706e574ff27036d14914a18e2f58f82ce9e219e38b00e4a3600",

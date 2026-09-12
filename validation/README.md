@@ -2148,10 +2148,15 @@ Lambert series forward and inverse), the q-beta function (`b1`, `b2`, the
 fold on `x y = 1`, the fixed-base chart), symbolic product lengths near
 `q = 0` with their proved length bounds, and the double-scaling
 Euler–Maclaurin expansions of the Gaussian binomial and q-factorial with the
-inverse. The nine-file [CheckQSpecialFunctions.wl](CheckQSpecialFunctions.wl)
-run passes **213/213** on Wolfram 15.0.1 for Windows
+inverse; and, from the third q milestone, the varying-argument product model
+(the Euler q-exponentials), the varying-length rewrites through infinite
+products (finite products in double scaling, asymptotic bases, unbounded
+q-gamma arguments), the real radial approach to `q = -1`, and the symbolic
+exponents near `q = 0` with the symbolic-power jet. The nine-file
+[CheckQSpecialFunctions.wl](CheckQSpecialFunctions.wl)
+run passes **217/217** on Wolfram 15.0.1 for Windows
 ([q-special-functions-tests.json](q-special-functions-tests.json)); the q
-cases Q1–Q32 of the [ProveIt probe](ProbeProveItExamples.wl) are recorded
+cases Q1–Q40 of the [ProveIt probe](ProbeProveItExamples.wl) are recorded
 in [proveit-examples-probe.json](proveit-examples-probe.json). Mathics has
 no q-special functions, so the suite is Wolfram-only.
 

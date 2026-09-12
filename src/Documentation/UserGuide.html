@@ -3585,7 +3585,9 @@ recognizes a Gaussian binomial or q-factorial whose base is exactly
 <code>Exp[-tau/n]</code> and whose lengths are <code>n</code> and
 <code>alpha n</code>, and returns the factored expansion; the expansion
 is asymptotic along integers <code>n</code> with <code>alpha n</code>
-integral.</p>
+integral. Any other base tending to <code>1</code> with unbounded
+lengths, and the finite products, go through the rewrite of the next
+section.</p>
 <p><strong>Input</strong></p>
 <pre class="wolfram"><code>s = AsymptoticExpansion[Log[QBinomial[n, a n, Exp[-t/n]]], {n, Infinity, 2},
   Assumptions -&gt; 0 &lt; a &lt; 1 &amp;&amp; t &gt; 0];
@@ -3608,6 +3610,71 @@ logarithmic target coordinate:</p>
 <p>where
 <code>S = Pi^2/12 + PolyLog[2, E^-2]/2 - PolyLog[2, E^-1]</code> is
 displayed expanded in the actual output.</p>
+</section>
+<section id="varying-arguments-and-lengths-and-the-radial-approach-to-q---1" class="level3">
+<h3>Varying Arguments and Lengths, and the Radial Approach to
+<code>q = -1</code></h3>
+<p>The theorems behind the <code>q -&gt; 1</code> models are locally
+uniform in their parameters, so an argument or coalescing exponent that
+varies with the base can be composed into the coefficients. An argument
+<code>a(q)</code> of the infinite product that tends to a limit strictly
+between <code>-1</code> and <code>1</code> uses the fixed-argument
+theorem with <code>a(q)</code> in place of <code>a</code>; this covers
+the Euler q-exponentials <code>e_q(x) = 1/((1 - q) x; q)_∞</code> and
+<code>E_q(x) = (-(1 - q) x; q)_∞</code>, whose argument tends to
+<code>0</code> (monograph, &quot;Exact inverse reduction and q -&gt; 1
+generator&quot;):</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[Log[1/QPochhammer[h x, 1 - h]], {h, 0, 3}, Assumptions -&gt; x &gt; 0];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{x + h x^2/4 + h^2 (x^2/8 + x^3/9), PowerLogRemainder[h, 3, 0]}</code></pre>
+<p>A coalescing exponent <code>x(q)</code> tending to a positive limit,
+a q-gamma or q-polygamma argument tending to a positive limit, and a
+q-polygamma with such an argument are composed the same way
+(<code>QGamma[2 + u, 1 - u]</code>,
+<code>QPolyGamma[2 + u, 1 - u]</code>). A finite product, q-factorial,
+Gaussian binomial or q-gamma function whose length is unbounded (or
+whose argument is not a fixed power of the base) is first written
+through infinite products,
+<code>(a; q)_n = (a; q)_∞/(a q^n; q)_∞</code>,
+<code>QFactorial[n, q] = (q; q)_∞/((q^(n + 1); q)_∞ (1 - q)^n)</code>,
+and the factors then use the fixed, coalescing or varying-argument
+models. This is what handles a double scaling whose base is only
+asymptotically <code>Exp[-tau/n]</code>, the finite products in double
+scaling, and <code>QGamma[n, Exp[-tau/n]]</code>:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QPochhammer[1/3, Exp[-2/n], n], {n, Infinity, 2}];
+i = AsymptoticInverse[QPochhammer[1/3, Exp[-2/n], n], {n, Infinity}, {y, 1}];
+{Normal[s], s[&quot;QSpecialFactors&quot;][[1, &quot;Model&quot;]], Normal[i]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{E^(1 + n (-PolyLog[2, 1/3] + PolyLog[2, 1/(3 E^2)])/2) Sqrt[2/(-1 + 3 E^2)]
+   (1 + ((-4 + 12 E^2)^(-1) - E^2/(-4 + 12 E^2))/n),
+ &quot;FiniteProductRewrite&quot;,
+ 2/(PolyLog[2, 1/3] - PolyLog[2, 1/(3 E^2)]) + Log[2/(-1 + 3 E^2)]/(PolyLog[2, 1/3] - PolyLog[2, 1/(3 E^2)])
+   + Log[y]/(-PolyLog[2, 1/3]/2 + PolyLog[2, 1/(3 E^2)]/2)}</code></pre>
+<p>The rate <code>n (PolyLog[2, E^-2/3] - PolyLog[2, 1/3])/2</code> is
+the Euler–Maclaurin integral
+<code>n Integrate[Log[1 - a Exp[-tau y]], {y, 0, 1}]</code> with
+<code>a = 1/3</code>, <code>tau = 2</code>.</p>
+<p>The real radial approach to <code>q = -1</code> from above separates
+the even and odd factors,
+<code>(a; q)_∞ = (a; q^2)_∞ (a q; q^2)_∞</code>, and both bases
+<code>q^2</code> tend to <code>1</code> from below (monograph, &quot;Exact
+eta completions at q = 1 and q = -1&quot;, the negative radial path); the
+second argument tends to <code>-a</code>, so
+<code>-1 &lt; a &lt; 1</code> is required:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QPochhammer[a, q], {q, -1, 2}, Assumptions -&gt; -1 &lt; a &lt; 1, Direction -&gt; &quot;FromAbove&quot;];
+{s[&quot;Prefactor&quot;], s[&quot;QSpecialFactors&quot;][[All, &quot;Model&quot;]]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{Sqrt[1 - a] E^((-1 + q) PolyLog[2, a^2]/(8 (1 + q))),
+ {&quot;FixedArgumentInfiniteProduct&quot;, &quot;VaryingArgumentInfiniteProduct&quot;}}</code></pre>
+<p>The rate <code>-PolyLog[2, a^2]/(8 (1 + q))</code> is
+<code>-(PolyLog[2, a] + PolyLog[2, -a])/t</code> with
+<code>t = -Log[q^2] ~ 2 (1 + q)</code>. The base inverse near
+<code>q = -1</code> goes through the same logarithmic target
+coordinate.</p>
 </section>
 <section id="base-tending-to-zero-and-argument-inverses-at-a-fixed-base" class="level3">
 <h3>Base Tending to Zero and Argument Inverses at a Fixed Base</h3>
@@ -3660,16 +3727,34 @@ finite q-Pochhammer symbol the automatic backend returns a native formal
 series in <code>q</code> and <code>q^n</code>; request
 <code>&quot;Backend&quot; -&gt; &quot;Package&quot;</code> (with
 <code>Element[a, Reals]</code>) for the stable-coefficient form.</p>
-<p>Not covered: <code>QGamma[x, q]</code> near <code>q = 0</code> for
-symbolic non-integer <code>x</code> (generalized exponents
-<code>m (x + r)</code>), roots of unity, complex sectors of the base,
-the q-exponentials <code>e_q</code>, <code>E_q</code> (their argument
-<code>(1 - q) x</code> varies with the base without being a power of
-it), the q-gamma fold at its minimum, the double scaling of the finite
-q-Pochhammer symbol and the endpoint regimes
-<code>alpha -&gt; 0, 1</code>, and the beta functions, and the
-double-scaling regime <code>q = Exp[-tau/n]</code>. The models and their
-sources are listed in <a href="../Kernel/QSpecialFunctions.wl">QSpecialFunctions.wl</a>; the test
+<p>A symbolic non-integer q-gamma argument is handled through the same
+bound: <code>Gamma_q(x) = (1 - q)^(1 - x) (q; q)_∞/(q^x; q)_∞</code> has
+the generalized exponents <code>m (x + r)</code> of the monograph&#39;s
+&quot;Exact generalized expansion at q = 0&quot;, all at or beyond
+<code>q^x</code>, so through every order <code>r &lt;= x</code> the
+expansion is that of the prefactor (whose symbolic power
+<code>(1 - q)^(1 - x)</code> the jet calculus now admits), and likewise
+<code>(q^x; q)_∞ = 1 + O(q^x)</code>:</p>
+<p><strong>Input</strong></p>
+<pre class="wolfram"><code>s = AsymptoticExpansion[QGamma[x, q], {q, 0, 4}, Assumptions -&gt; x &gt;= 4];
+{Normal[s], s[&quot;Remainder&quot;]}</code></pre>
+<p><strong>Output</strong></p>
+<pre class="wolfram"><code>{1 + q (-2 + x) + q^2 (-3 x/2 + x^2/2) + q^3 (1 - 2 x/3 - x^2/2 + x^3/6), PowerLogRemainder[q, 4, 0]}</code></pre>
+<p>The coefficient <code>-(2 - x)</code> at exponent one is the
+monograph&#39;s bookkeeping contribution; with <code>x &gt;= 2</code> only
+the same request reaches <code>q^2</code>
+(<code>InsufficientOrder</code>, <code>&quot;Reached&quot; -&gt; 2</code>). A
+rational numeric exponent expands natively as a Puiseux series.</p>
+<p>Not covered: the full generalized-exponent expansion of
+<code>Gamma_q(x)</code> near <code>q = 0</code> beyond the order
+<code>x</code> (the exponents <code>m (x + r)</code> would need
+symbolic-exponent forward objects), roots of unity other than the real
+approach to <code>q = -1</code>, complex sectors of the base, the
+q-gamma fold at its minimum (the expansion point <code>x_q</code> is a
+transcendental root), the endpoint regimes <code>alpha -&gt; 0, 1</code>
+of the double scaling, and the beta functions, and the double-scaling
+regime <code>q = Exp[-tau/n]</code>. The models and their sources are
+listed in <a href="../Kernel/QSpecialFunctions.wl">QSpecialFunctions.wl</a>; the test
 suite <a href="../Tests/QSpecialFunctions.wlt">QSpecialFunctions.wlt</a>
 pins the article formulas.</p>
 </section>

@@ -12,7 +12,7 @@ examples.
 [ProbeProveItExamples.wl](../../validation/ProbeProveItExamples.wl) on Wolfram
 15.0.1 for Windows (the original 59 cases through the Wolfram MCP evaluator
 with an `Exit`-free copy; the September 11 reruns with the fifteen and then
-ten more added q cases with `wolfram -script` on a fresh kernel); the receipt is
+ten more added q cases, and then eight more, with `wolfram -script` on a fresh kernel); the receipt is
 [proveit-examples-probe.json](../../validation/proveit-examples-probe.json).
 Where the article displays an expansion, the package output was checked
 against it symbolically through the displayed order (`Check -> True`), or
@@ -22,10 +22,12 @@ formal native object without the package's analytic remainder, which for this
 report counts as *not reproduced* unless the finite part is the article's
 expansion. Mathics was not run for this report.
 
-**Result in one line.** Of 84 cases (59 in the original report, 15 q cases
-added on September 11 with the q-special-function module and 10 more with
+**Result in one line.** Of 92 cases (59 in the original report, 15 q cases
+added on September 11 with the q-special-function module, 10 more with
 its q-digamma, q-beta, symbolic-length and double-scaling extension the
-same day), 70 return a result object and 14 are refused. Of the 70, 49
+same day, and 8 more with the varying-argument, unbounded-length,
+`q = -1` and symbolic-exponent models), 78 return a result object and 14
+are refused. Of the 78, 57
 reproduce the article's expansion and were checked against it, 13 return
 the expected expansion where the article displays no formula to check
 against, and 8 return a formal native object that is not the package's own
@@ -197,6 +199,14 @@ generating function, which is outside every current entry point.
 | Q30 | zero-base factorial inverse, symbolic length | `AsymptoticInverse[QFactorial[n, q], {q, 0}, {y, 3}, Assumptions -> n >= 5]` | Yes | True (`u/(n - 1) - (n - 2)(n + 1) u²/(2 (n - 1)³)`) |
 | Q31 | double scaling `q = e^{-2/n}`, `k = n/2` | `AsymptoticExpansion[QBinomial[n, n/2, Exp[-2/n]], {n, Infinity, 3}]` | Yes | relative error at `n = 400` |
 | Q32 | double-scaling inverse | `AsymptoticInverse[QBinomial[n, n/2, Exp[-2/n]], {n, Infinity}, {y, 2}]` | Yes | relative error at `y = QBinomial[400, 200, e^{-1/200}]` |
+| Q33 | `log e_q(x)`, `h = 1 - q` | `AsymptoticExpansion[Log[1/QPochhammer[h x, 1 - h]], {h, 0, 3}]` | Yes | True (`x + x² h/4 + (x²/8 + x³/9) h²`) |
+| Q34 | `log E_q(x)`, `h = 1 - q` | `AsymptoticExpansion[Log[QPochhammer[-h x, 1 - h]], {h, 0, 3}]` | Yes | True (`x - x² h/4 + (-x²/8 + x³/9) h²`) |
+| Q35 | `(a; q)_∞` as `q → -1⁺` (negative radial path) | `AsymptoticExpansion[QPochhammer[1/3, q], {q, -1, 3}, Direction -> "FromAbove"]` | Yes | relative error at `q = -0.999` |
+| Q36 | base inverse of `(a; q)_∞` near `q = -1` | `AsymptoticInverse[QPochhammer[a, q], {q, -1}, {y, 2}, Assumptions -> 0 < a < 1, Direction -> "FromAbove"]` | Yes | relative error at `y = (1/3; -0.999)_∞` |
+| Q37 | finite product in double scaling, fixed argument | `AsymptoticExpansion[QPochhammer[1/3, Exp[-2/n], n], {n, Infinity, 2}]` | Yes | relative error at `n = 400` |
+| Q38 | finite coalescing product in double scaling | `AsymptoticExpansion[Log[QPochhammer[Exp[-3/n], Exp[-2/n], n]], {n, Infinity, 2}]` | Yes | absolute error at `n = 400` |
+| Q39 | base only asymptotically `e^{-tau/n}` | `AsymptoticExpansion[QBinomial[n, n/2, Exp[-2/n - 1/n^2]], {n, Infinity, 2}]` | Yes | relative error at `n = 400` |
+| Q40 | `Gamma_q(x)` near `q = 0`, symbolic `x >= 4` | `AsymptoticExpansion[QGamma[x, q], {q, 0, 4}, Assumptions -> x >= 4]` | Yes | True (through `q³`) |
 
 The q rows were re-run on September 11 after the q-special-function module
 ([QSpecialFunctions.wl](../../src/Kernel/QSpecialFunctions.wl)) was added;
@@ -206,7 +216,12 @@ added later the same day with the q-digamma, q-beta, symbolic-length and
 double-scaling models; before them, Q23–Q26 were refused
 (`UnprovedSpecialFunctionDomain`, `UnsupportedNativeCoefficient`), Q29 and
 Q30 were refused (`UnsupportedInput`), Q31 and Q32 returned a formal native
-object, and Q27 and Q28 already worked through the q-gamma model.
+object, and Q27 and Q28 already worked through the q-gamma model. Rows
+Q33–Q40 followed with the varying-argument and varying-length models, the
+radial approach to `q = -1` and the symbolic exponents near `q = 0`; before
+them Q33, Q34 and Q37–Q40 were refused (`UnsupportedQArgument`,
+`UnsupportedInput`) and Q35, Q36 failed on the realness of
+`QPochhammer[a, -1]`.
 
 ## What the failures have in common
 
@@ -316,11 +331,15 @@ the algorithm, and what already exists in the package to build on.
    at `x = 3/2`), the q-beta function (as the `QGamma` quotient, with the
    fold on `x y = 1`), symbolic product lengths near `q = 0` and the
    double-scaling regime `q = e^{-τ/n}` of the Gaussian calculus followed.
-   Cases Q1–Q32 above record the checks; the
+   Then came the varying arguments (the q-exponentials), the unbounded
+   lengths rewritten through infinite products (finite products in double
+   scaling, asymptotic bases, `QGamma[n, e^{-τ/n}]`), the real radial
+   approach to `q = -1`, and the symbolic exponents near `q = 0`. Cases
+   Q1–Q40 above record the checks; the
    [coverage matrix](VENDORED_ASYMPTOTICS.md#q-analogs-and-inverse-q-functions)
-   lists what remains (q → 0 with symbolic non-integer exponents, roots of
-   unity, complex sectors, the q-exponentials, the double scaling of the
-   finite product and its endpoint regimes).
+   lists what remains (complex sectors and other roots of unity, the
+   q-gamma fold at its transcendental minimum, the endpoint regimes
+   `alpha -> 0, 1`, the generalized-exponent expansion beyond the order `x`).
 7. **Real nonprincipal Lambert branches near zero (L2).** Route
    `ProductLog[-1, -x]` for `x → 0+` through the same logarithmic
    expansion as `ProductLog[x]` at infinity with `L_1 = log x`,
